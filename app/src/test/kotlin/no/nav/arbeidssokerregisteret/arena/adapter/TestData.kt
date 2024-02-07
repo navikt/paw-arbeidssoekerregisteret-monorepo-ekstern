@@ -10,12 +10,11 @@ import no.nav.paw.arbeidssokerregisteret.arena.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.arena.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Jobbsituasjon
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Metadata
-import no.nav.paw.arbeidssokerregisteret.arena.v1.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.arena.v1.ProfilertTil
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Utdanning
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Utdanningsnivaa
+import no.nav.paw.arbeidssokerregisteret.arena.v3.Utdanning
 import java.time.Instant
 import java.util.*
 
@@ -77,7 +76,7 @@ object TestData {
                 "test"
             ),
             Utdanning(
-                Utdanningsnivaa.GRUNNSKOLE,
+                "1",
                 JaNeiVetIkke.JA,
                 JaNeiVetIkke.JA
             ),

@@ -6,9 +6,10 @@ plugins {
     id("io.ktor.plugin") version "2.3.5"
     application
 }
-val logbackVersion = "1.4.5"
 val logstashVersion = "7.3"
-val pawUtilsVersion = "23.12.20.5-1"
+val logbackVersion = "1.4.12"
+val pawUtilsVersion = "24.02.06.10-1"
+val kafkaStreamsVersion = "3.6.0"
 
 val schema by configurations.creating {
     isTransitive = false
@@ -17,7 +18,8 @@ val schema by configurations.creating {
 dependencies {
     implementation(pawObservability.bundles.ktorNettyOpentelemetryMicrometerPrometheus)
 
-    schema("no.nav.paw.arbeidssokerregisteret.api.schema:eksternt-api:24.01.03.115-1")
+    schema("no.nav.paw.arbeidssokerregisteret.api:arena-avro-schema:1.10-1")
+    schema("no.nav.paw.arbeidssokerregisteret.api:main-avro-schema:1.10-1")
 
     implementation("no.nav.paw.hoplite-config:hoplite-config:$pawUtilsVersion")
     implementation("no.nav.paw.kafka-streams:kafka-streams:$pawUtilsVersion")
@@ -27,14 +29,14 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     // Kafka
-    implementation("org.apache.kafka:kafka-clients:3.6.0")
-    implementation("org.apache.kafka:kafka-streams:3.6.0")
+    implementation("org.apache.kafka:kafka-clients:$kafkaStreamsVersion")
+    implementation("org.apache.kafka:kafka-streams:$kafkaStreamsVersion")
     implementation("io.confluent:kafka-streams-avro-serde:7.4.0")
-    implementation("org.apache.avro:avro:1.11.0")
+    implementation("org.apache.avro:avro:1.11.3")
     implementation("io.prometheus:client_java:1.1.0")
     implementation("io.micrometer:micrometer-registry-prometheus:1.12.0")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.0")
-    testImplementation("org.apache.kafka:kafka-streams-test-utils:3.5.1")
+    testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaStreamsVersion")
 }
 
 ktor {

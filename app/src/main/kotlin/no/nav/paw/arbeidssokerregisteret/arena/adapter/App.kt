@@ -1,11 +1,11 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ApplicationConfig
-import no.nav.paw.arbeidssokerregisteret.arena.v1.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.arena.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Metadata
-import no.nav.paw.arbeidssokerregisteret.arena.v1.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.arena.v1.ProfilertTil

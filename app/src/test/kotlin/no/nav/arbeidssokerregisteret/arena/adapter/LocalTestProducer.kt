@@ -37,8 +37,8 @@ class LocalTestProducer(
         KafkaFactory(kafkaStreamsConfig)
             .createProducer(
                 clientId = "paw-arbeidssokerregisteret-arena-adapter",
-                keySerializer = LongSerializer(),
-                valueSerializer = streamsFactory.createSpecificAvroSerde<T>().serializer()
+                keySerializer = LongSerializer::class,
+                valueSerializer = streamsFactory.createSpecificAvroSerde<T>().serializer()::class
             ).use { producer ->
                 testData.forEachIndexed { i, message ->
                     try {
