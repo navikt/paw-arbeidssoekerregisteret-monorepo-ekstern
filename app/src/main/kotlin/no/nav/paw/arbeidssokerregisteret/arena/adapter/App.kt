@@ -21,8 +21,10 @@ import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.JoinWindows
 import org.apache.kafka.streams.kstream.KStream
+import org.apache.kafka.streams.kstream.KTable
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.kstream.StreamJoined
+import org.apache.kafka.streams.kstream.ValueJoiner
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
@@ -47,57 +49,54 @@ fun main() {
 
     val builder = StreamsBuilder()
 
-    val periodeStream: KStream<UUID, Periode> =
-        builder.stream(topics.arbeidssokerperioder, Consumed.with(Serdes.Long(), periodeSerde))
-            .selectKey { _, value -> value.id }
+    val periodeStream: KTable<Long, Periode> =
+        builder
+            .stream(topics.arbeidssokerperioder, Consumed.with(Serdes.Long(), periodeSerde))
+            .toTable()
 
-    val opplysningerOmArbeidssoekerStream: KStream<UUID, OpplysningerOmArbeidssoeker> = builder.stream(
+    val opplysningerOmArbeidssoekerStream: KStream<Long, OpplysningerOmArbeidssoeker> = builder.stream(
         topics.opplysningerOmArbeidssoeker,
         Consumed.with(Serdes.Long(), opplysningerOmArbeidssoekerSerde)
-    ).selectKey { _, value -> value.periodeId }
+    )
 
-    val profileringStream: KStream<UUID, Profilering> =
+    val profileringStream: KStream<Long, Profilering> =
         builder.stream(topics.profilering, Consumed.with(Serdes.Long(), profileringSerde))
-            .selectKey { _, value -> value.periodeId }
+
 
     val joinWindow = JoinWindows.ofTimeDifferenceWithNoGrace(
         Duration.ofMinutes(5)
     )
-
-    periodeStream
-        .join(
-            opplysningerOmArbeidssoekerStream,
-            { periode, opplysningerOmArbeidssoeker ->
-                ArenaArbeidssokerregisterTilstand(
-                    periode,
-                    testProfilering,
-                    opplysningerOmArbeidssoeker
-                ).also {
-                    logger.info("Joining periode ${periode.id} with opplysningerOmArbeidssoeker ${opplysningerOmArbeidssoeker.periodeId}")
-
-                }
-            },
-            joinWindow,
-            StreamJoined.with(Serdes.UUID(), periodeSerde, opplysningerOmArbeidssoekerSerde)
-        )
+    val joinErrorLogger = LoggerFactory.getLogger("join_error")
+    opplysningerOmArbeidssoekerStream
         .join(
             profileringStream,
-            { arenaArbeidssokerregisterTilstand, profilering ->
-                ArenaArbeidssokerregisterTilstand(
-                    arenaArbeidssokerregisterTilstand.periode,
-                    profilering,
-                    arenaArbeidssokerregisterTilstand.opplysningerOmArbeidssoeker
-                ).also {
-                    logger.info("Joining periode and opplysningerOmArbeidssoeker ${arenaArbeidssokerregisterTilstand.periode.id} with profilering ${profilering.periodeId}")
-                }
-            },
-            joinWindow,
-            StreamJoined.with(Serdes.UUID(), arenaArbeidssokerregisterTilstandSerde, profileringSerde)
+            { opplysninger, profilering -> opplysninger to profilering },
+            joinWindow
         )
+        .join(periodeStream) {
+                (opplysninger, profilering), periode ->
+                ArenaArbeidssokerregisterTilstand(
+                    periode,
+                    profilering,
+                    opplysninger
+                )
+        }
         .peek { _, value ->
             logger.info("Sending $value to arena")
         }
-        .to(topics.arena, Produced.with(Serdes.UUID(), arenaArbeidssokerregisterTilstandSerde))
+        .peek { _, value ->
+            val periodeId = value.periode.id
+            val opplysningerPeriodeId = value.opplysningerOmArbeidssoeker.periodeId
+            val profileringPeriodeId = value.profilering.periodeId
+            val profileringOpplysningsId = value.profilering.opplysningerOmArbeidssokerId
+            if (periodeId != opplysningerPeriodeId || periodeId != profileringPeriodeId ||
+                profileringOpplysningsId != value.opplysningerOmArbeidssoeker.id) {
+                joinErrorLogger.error(value.info())
+            }
+        }
+        .to(topics.arena, Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde))
+
+
 
     val topology: Topology = builder.build()
     val kafkaStreams = KafkaStreams(topology, kafkaStreamsFactory.properties)
@@ -111,6 +110,11 @@ fun main() {
 
     Runtime.getRuntime().addShutdownHook(Thread(kafkaStreams::close))
 }
+
+fun ArenaArbeidssokerregisterTilstand.info(): String =
+    "periodeId=${periode.id}, opplysningsId=${opplysningerOmArbeidssoeker.id}, profilering=${profilering.id}," +
+            " opplysninger.periodeId=${opplysningerOmArbeidssoeker.periodeId}, profilering.periodeId=${profilering.periodeId}," +
+            "profilering.opplysningsId=${profilering.opplysningerOmArbeidssokerId}"
 
 val testProfilering = Profilering(
     UUID.randomUUID(),
