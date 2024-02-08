@@ -1,19 +1,20 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ApplicationConfig
+import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
+import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Bruker
-import no.nav.paw.arbeidssokerregisteret.arena.v1.BrukerType
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Metadata
-import no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Periode
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Profilering
-import no.nav.paw.arbeidssokerregisteret.arena.v1.ProfilertTil
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import org.apache.kafka.common.serialization.Serdes
+import org.apache.kafka.common.utils.Time
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
@@ -23,8 +24,8 @@ import org.apache.kafka.streams.kstream.JoinWindows
 import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.KTable
 import org.apache.kafka.streams.kstream.Produced
-import org.apache.kafka.streams.kstream.StreamJoined
-import org.apache.kafka.streams.kstream.ValueJoiner
+import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder
+import org.apache.kafka.streams.state.internals.RocksDBKeyValueBytesStoreSupplier
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
@@ -49,10 +50,19 @@ fun main() {
 
     val builder = StreamsBuilder()
 
-    val periodeStream: KTable<Long, Periode> =
-        builder
-            .stream(topics.arbeidssokerperioder, Consumed.with(Serdes.Long(), periodeSerde))
-            .toTable()
+    val stateStoreName = "periodeStateStore"
+    val periodeStateStore = builder.addStateStore(
+        KeyValueStoreBuilder(
+            RocksDBKeyValueBytesStoreSupplier(stateStoreName, false),
+            Serdes.Long(),
+            periodeSerde,
+            Time.SYSTEM
+        )
+    )
+    builder
+        .stream(topics.arbeidssokerperioder, Consumed.with(Serdes.Long(), periodeSerde))
+        .saveToStore(stateStoreName)
+
 
     val opplysningerOmArbeidssoekerStream: KStream<Long, OpplysningerOmArbeidssoeker> = builder.stream(
         topics.opplysningerOmArbeidssoeker,
@@ -61,7 +71,6 @@ fun main() {
 
     val profileringStream: KStream<Long, Profilering> =
         builder.stream(topics.profilering, Consumed.with(Serdes.Long(), profileringSerde))
-
 
     val joinWindow = JoinWindows.ofTimeDifferenceWithNoGrace(
         Duration.ofMinutes(5)
@@ -72,15 +81,7 @@ fun main() {
             profileringStream,
             { opplysninger, profilering -> opplysninger to profilering },
             joinWindow
-        )
-        .join(periodeStream) {
-                (opplysninger, profilering), periode ->
-                ArenaArbeidssokerregisterTilstand(
-                    periode,
-                    profilering,
-                    opplysninger
-                )
-        }
+        ).loadAndMap(stateStoreName)
         .peek { _, value ->
             logger.info("Sending $value to arena")
         }
@@ -90,13 +91,12 @@ fun main() {
             val profileringPeriodeId = value.profilering.periodeId
             val profileringOpplysningsId = value.profilering.opplysningerOmArbeidssokerId
             if (periodeId != opplysningerPeriodeId || periodeId != profileringPeriodeId ||
-                profileringOpplysningsId != value.opplysningerOmArbeidssoeker.id) {
+                profileringOpplysningsId != value.opplysningerOmArbeidssoeker.id
+            ) {
                 joinErrorLogger.error(value.info())
             }
         }
         .to(topics.arena, Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde))
-
-
 
     val topology: Topology = builder.build()
     val kafkaStreams = KafkaStreams(topology, kafkaStreamsFactory.properties)
