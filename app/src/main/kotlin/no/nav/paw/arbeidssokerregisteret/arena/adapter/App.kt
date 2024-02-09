@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ApplicationConfig
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
@@ -8,6 +9,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
@@ -25,14 +27,14 @@ import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder
 import org.apache.kafka.streams.state.internals.RocksDBKeyValueBytesStoreSupplier
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 import java.util.*
 
+val logger = LoggerFactory.getLogger("App")
 fun main() {
-    val logger = LoggerFactory.getLogger("App")
-
     val kafkaStreamsConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>("application.toml")
     val applicationIdSuffix = kafkaStreamsConfig.applicationIdPrefix
@@ -47,17 +49,46 @@ fun main() {
     val arenaArbeidssokerregisterTilstandSerde =
         kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
 
-    val builder = StreamsBuilder()
-
     val stateStoreName = "periodeStateStore"
-    val periodeStateStore = builder.addStateStore(
-        KeyValueStoreBuilder(
-            RocksDBKeyValueBytesStoreSupplier(stateStoreName, false),
-            Serdes.Long(),
-            periodeSerde,
-            Time.SYSTEM
+    val builder = StreamsBuilder()
+        .addStateStore(
+            KeyValueStoreBuilder(
+                RocksDBKeyValueBytesStoreSupplier(stateStoreName, false),
+                Serdes.Long(),
+                periodeSerde,
+                Time.SYSTEM
+            )
         )
+    val topology: Topology = buildTopology(
+        builder,
+        topics,
+        stateStoreName,
+        periodeSerde,
+        opplysningerOmArbeidssoekerSerde,
+        profileringSerde,
+        arenaArbeidssokerregisterTilstandSerde
     )
+    val kafkaStreams = KafkaStreams(topology, kafkaStreamsFactory.properties)
+
+    kafkaStreams.setUncaughtExceptionHandler { throwable ->
+        logger.error("Uventet feil", throwable)
+        StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
+    }
+
+    kafkaStreams.start()
+
+    Runtime.getRuntime().addShutdownHook(Thread(kafkaStreams::close))
+}
+
+fun buildTopology(
+    builder: StreamsBuilder,
+    topics: Topics,
+    stateStoreName: String,
+    periodeSerde: SpecificAvroSerde<Periode>,
+    opplysningerOmArbeidssoekerSerde: SpecificAvroSerde<OpplysningerOmArbeidssoeker>,
+    profileringSerde: SpecificAvroSerde<Profilering>,
+    arenaArbeidssokerregisterTilstandSerde: SpecificAvroSerde<ArenaArbeidssokerregisterTilstand>
+): Topology {
     builder
         .stream(topics.arbeidssokerperioder, Consumed.with(Serdes.Long(), periodeSerde))
         .saveToStore(stateStoreName)
@@ -87,16 +118,7 @@ fun main() {
         .to(topics.arena, Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde))
 
     val topology: Topology = builder.build()
-    val kafkaStreams = KafkaStreams(topology, kafkaStreamsFactory.properties)
-
-    kafkaStreams.setUncaughtExceptionHandler { throwable ->
-        logger.error("Uventet feil", throwable)
-        StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
-    }
-
-    kafkaStreams.start()
-
-    Runtime.getRuntime().addShutdownHook(Thread(kafkaStreams::close))
+    return topology
 }
 
 val ArenaArbeidssokerregisterTilstand.isValid: Boolean

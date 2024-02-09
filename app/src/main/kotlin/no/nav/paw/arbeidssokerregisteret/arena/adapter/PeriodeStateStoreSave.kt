@@ -26,7 +26,7 @@ class PeriodeStateStoreSave(
         keyValueStore = context?.getStateStore(stateStoreName)
     }
 
-    override fun process(record: Record<Long, Periode>) {
+    override fun process(record: Record<Long, Periode>?) {
         if (record == null) return
         process(
             requireNotNull(keyValueStore) { "TilstandsDb er ikke initialisert" },

@@ -13,13 +13,13 @@ fun byggArenaTilstand(
     opplysninger: OpplysningerOmArbeidssoeker,
     profilering: Profilering
 ): ArenaArbeidssokerregisterTilstand {
-    val periode = no.nav.paw.arbeidssokerregisteret.arena.v1.Periode(
+    val arenaPeriode = no.nav.paw.arbeidssokerregisteret.arena.v1.Periode(
         periode.id,
         periode.identitetsnummer,
         periode.startet.toArena(),
         periode.avsluttet.toArena()
     )
-    val opplysninger = no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker(
+    val arenaOpplysninger = no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker(
         opplysninger.id,
         opplysninger.periodeId,
         opplysninger.sendtInnAv.toArena(),
@@ -29,7 +29,7 @@ fun byggArenaTilstand(
         opplysninger.jobbsituasjon.toArena(),
         Annet(opplysninger.annet.andreForholdHindrerArbeid.toArena())
     )
-    val profilering = no.nav.paw.arbeidssokerregisteret.arena.v1.Profilering(
+    val arenaProfilering = no.nav.paw.arbeidssokerregisteret.arena.v1.Profilering(
         profilering.id,
         profilering.periodeId,
         profilering.opplysningerOmArbeidssokerId,
@@ -39,8 +39,8 @@ fun byggArenaTilstand(
         profilering.alder
     )
     return ArenaArbeidssokerregisterTilstand(
-        periode,
-        profilering,
-        opplysninger
+        arenaPeriode,
+        arenaProfilering,
+        arenaOpplysninger
     )
 }
