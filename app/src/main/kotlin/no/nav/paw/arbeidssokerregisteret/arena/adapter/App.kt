@@ -22,7 +22,6 @@ import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.JoinWindows
 import org.apache.kafka.streams.kstream.KStream
-import org.apache.kafka.streams.kstream.KTable
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder
 import org.apache.kafka.streams.state.internals.RocksDBKeyValueBytesStoreSupplier
@@ -75,7 +74,7 @@ fun main() {
     val joinWindow = JoinWindows.ofTimeDifferenceWithNoGrace(
         Duration.ofMinutes(5)
     )
-    val joinErrorLogger = LoggerFactory.getLogger("join_error")
+
     opplysningerOmArbeidssoekerStream
         .join(
             profileringStream,
@@ -84,17 +83,6 @@ fun main() {
         ).loadAndMap(stateStoreName)
         .peek { _, value ->
             logger.info("Sending $value to arena")
-        }
-        .peek { _, value ->
-            val periodeId = value.periode.id
-            val opplysningerPeriodeId = value.opplysningerOmArbeidssoeker.periodeId
-            val profileringPeriodeId = value.profilering.periodeId
-            val profileringOpplysningsId = value.profilering.opplysningerOmArbeidssokerId
-            if (periodeId != opplysningerPeriodeId || periodeId != profileringPeriodeId ||
-                profileringOpplysningsId != value.opplysningerOmArbeidssoeker.id
-            ) {
-                joinErrorLogger.error(value.info())
-            }
         }
         .to(topics.arena, Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde))
 
@@ -110,6 +98,17 @@ fun main() {
 
     Runtime.getRuntime().addShutdownHook(Thread(kafkaStreams::close))
 }
+
+val ArenaArbeidssokerregisterTilstand.isValid: Boolean
+    get() {
+        val periodeId = periode.id
+        val opplysningerPeriodeId = opplysningerOmArbeidssoeker.periodeId
+        val profileringPeriodeId = profilering.periodeId
+        val profileringOpplysningsId = profilering.opplysningerOmArbeidssokerId
+        val validMatch = periodeId != opplysningerPeriodeId || periodeId != profileringPeriodeId ||
+                profileringOpplysningsId != opplysningerOmArbeidssoeker.id
+        return validMatch
+    }
 
 fun ArenaArbeidssokerregisterTilstand.info(): String =
     "periodeId=${periode.id}, opplysningsId=${opplysningerOmArbeidssoeker.id}, profilering=${profilering.id}," +
