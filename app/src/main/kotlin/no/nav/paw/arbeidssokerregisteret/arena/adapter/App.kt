@@ -36,19 +36,19 @@ fun main() {
     val kafkaStreamsFactory = KafkaStreamsFactory(applicationIdSuffix, kafkaStreamsConfig)
 
     val periodeSerde = kafkaStreamsFactory.createSpecificAvroSerde<Periode>()
-    val periodeLiseSerde = kafkaStreamsFactory.createSpecificAvroSerde<PeriodeListe>()
     val opplysningerOmArbeidssoekerSerde = kafkaStreamsFactory.createSpecificAvroSerde<OpplysningerOmArbeidssoeker>()
     val profileringSerde = kafkaStreamsFactory.createSpecificAvroSerde<Profilering>()
     val arenaArbeidssokerregisterTilstandSerde =
         kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
+    val tempArenaArbeidssokerregisterTilstandSerde = kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
 
     val stateStoreName = "periodeStateStore"
     val builder = StreamsBuilder()
         .addStateStore(
             KeyValueStoreBuilder(
                 RocksDBKeyValueBytesStoreSupplier(stateStoreName, false),
-                Serdes.Long(),
-                periodeLiseSerde,
+                Serdes.String(),
+                tempArenaArbeidssokerregisterTilstandSerde,
                 Time.SYSTEM
             )
         )
