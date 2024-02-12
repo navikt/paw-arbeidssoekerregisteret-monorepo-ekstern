@@ -3,6 +3,8 @@ package no.nav.paw.arbeidssokerregisteret.arena.adapter
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.info
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.isValid
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Named
