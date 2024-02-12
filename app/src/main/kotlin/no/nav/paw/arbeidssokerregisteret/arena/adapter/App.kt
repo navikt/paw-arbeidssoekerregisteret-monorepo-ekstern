@@ -1,9 +1,14 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
+import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ApplicationConfig
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.Health
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.initKtor
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
@@ -60,9 +65,15 @@ fun main() {
         logger.error("Uventet feil", throwable)
         StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
     }
-
     kafkaStreams.start()
-
-    Runtime.getRuntime().addShutdownHook(Thread(kafkaStreams::close))
+    kafkaStreams.use {
+        val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+        val health = Health(kafkaStreams)
+        initKtor(
+            kafkaStreamsMetrics = KafkaStreamsMetrics(kafkaStreams),
+            prometheusRegistry = registry,
+            health = health
+        ).start(wait = true)
+    }
 }
 
