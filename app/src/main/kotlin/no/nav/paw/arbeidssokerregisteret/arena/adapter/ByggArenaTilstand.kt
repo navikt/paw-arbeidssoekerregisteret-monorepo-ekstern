@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
-import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Annet
@@ -9,16 +9,10 @@ import no.nav.paw.arbeidssokerregisteret.arena.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 
 fun byggArenaTilstand(
-    periode: Periode,
+    arenaPeriode: Periode,
     opplysninger: OpplysningerOmArbeidssoeker,
     profilering: Profilering
 ): ArenaArbeidssokerregisterTilstand {
-    val arenaPeriode = no.nav.paw.arbeidssokerregisteret.arena.v1.Periode(
-        periode.id,
-        periode.identitetsnummer,
-        periode.startet.toArena(),
-        periode.avsluttet.toArena()
-    )
     val arenaOpplysninger = no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker(
         opplysninger.id,
         opplysninger.periodeId,

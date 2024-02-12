@@ -18,8 +18,8 @@ val schema by configurations.creating {
 dependencies {
     implementation(pawObservability.bundles.ktorNettyOpentelemetryMicrometerPrometheus)
 
-    schema("no.nav.paw.arbeidssokerregisteret.api:arena-avro-schema:1.10-1")
-    schema("no.nav.paw.arbeidssokerregisteret.api:main-avro-schema:1.10-1")
+    schema("no.nav.paw.arbeidssokerregisteret.api:arena-avro-schema:1.7872631589.12-1")
+    schema("no.nav.paw.arbeidssokerregisteret.api:main-avro-schema:1.7872631589.12-1")
 
     implementation("no.nav.paw.hoplite-config:hoplite-config:$pawUtilsVersion")
     implementation("no.nav.paw.kafka-streams:kafka-streams:$pawUtilsVersion")

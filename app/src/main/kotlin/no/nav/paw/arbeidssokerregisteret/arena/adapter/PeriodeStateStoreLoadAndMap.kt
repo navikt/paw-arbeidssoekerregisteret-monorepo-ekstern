@@ -6,6 +6,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.info
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.isValid
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.v3.PeriodeListe
 import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Named
 import org.apache.kafka.streams.processor.api.Processor
@@ -23,7 +24,7 @@ fun KStream<Long, Pair<OpplysningerOmArbeidssoeker, Profilering>>.loadAndMap(sto
 class PeriodeStateStoreLoadAndMap(
     private val stateStoreName: String
 ) : Processor<Long, Pair<OpplysningerOmArbeidssoeker, Profilering>, Long, ArenaArbeidssokerregisterTilstand> {
-    private var keyValueStore: KeyValueStore<Long, Periode>? = null
+    private var keyValueStore: KeyValueStore<Long, PeriodeListe>? = null
     private var context: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>? = null
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val joinErrorLogger = LoggerFactory.getLogger("join_error")
@@ -44,11 +45,13 @@ class PeriodeStateStoreLoadAndMap(
     }
 
     private fun process(
-        db: KeyValueStore<Long, Periode>,
+        db: KeyValueStore<Long, PeriodeListe>,
         context: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>,
         record: Record<Long, Pair<OpplysningerOmArbeidssoeker, Profilering>>
     ) {
         val periode = db.get(record.key())
+            ?.perioder
+            ?.firstOrNull { periode -> periode.id == record.value().first.periodeId }
         if (periode != null) {
             val arenaTilstand = byggArenaTilstand(periode, record.value().first, record.value().second)
                 if (arenaTilstand.isValid) {

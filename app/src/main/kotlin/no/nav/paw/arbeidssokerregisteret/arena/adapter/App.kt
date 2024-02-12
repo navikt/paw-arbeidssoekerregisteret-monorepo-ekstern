@@ -10,6 +10,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.Health
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.initKtor
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.v3.PeriodeListe
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
@@ -35,6 +36,7 @@ fun main() {
     val kafkaStreamsFactory = KafkaStreamsFactory(applicationIdSuffix, kafkaStreamsConfig)
 
     val periodeSerde = kafkaStreamsFactory.createSpecificAvroSerde<Periode>()
+    val periodeLiseSerde = kafkaStreamsFactory.createSpecificAvroSerde<PeriodeListe>()
     val opplysningerOmArbeidssoekerSerde = kafkaStreamsFactory.createSpecificAvroSerde<OpplysningerOmArbeidssoeker>()
     val profileringSerde = kafkaStreamsFactory.createSpecificAvroSerde<Profilering>()
     val arenaArbeidssokerregisterTilstandSerde =
@@ -46,7 +48,7 @@ fun main() {
             KeyValueStoreBuilder(
                 RocksDBKeyValueBytesStoreSupplier(stateStoreName, false),
                 Serdes.Long(),
-                periodeSerde,
+                periodeLiseSerde,
                 Time.SYSTEM
             )
         )

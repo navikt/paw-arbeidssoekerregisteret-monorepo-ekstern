@@ -7,6 +7,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.info
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
+import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
@@ -20,13 +21,13 @@ fun topology(
     builder: StreamsBuilder,
     topics: Topics,
     stateStoreName: String,
-    periodeSerde: SpecificAvroSerde<Periode>,
-    opplysningerOmArbeidssoekerSerde: SpecificAvroSerde<OpplysningerOmArbeidssoeker>,
-    profileringSerde: SpecificAvroSerde<Profilering>,
-    arenaArbeidssokerregisterTilstandSerde: SpecificAvroSerde<ArenaArbeidssokerregisterTilstand>
+    periodeSerde: Serde<Periode>,
+    opplysningerOmArbeidssoekerSerde: Serde<OpplysningerOmArbeidssoeker>,
+    profileringSerde: Serde<Profilering>,
+    arenaArbeidssokerregisterTilstandSerde: Serde<ArenaArbeidssokerregisterTilstand>
 ): Topology {
     builder
-        .stream(topics.arbeidssokerperioder, Consumed.with(Serdes.Long(), periodeSerde))
+         .stream(topics.arbeidssokerperioder, Consumed.with(Serdes.Long(), periodeSerde))
         .saveToStore(stateStoreName)
 
 
