@@ -83,20 +83,20 @@ class TopologyTest : FreeSpec({
             Serdes.Long().deserializer(),
             createAvroSerde<ArenaArbeidssokerregisterTilstand>().deserializer()
         )
-        TestData.perioder.forEach { periode ->
+        TestData.perioder.forEach { (_, periode) ->
             periodeTopic.pipeInput(5L, periode)
         }
-        TestData.opplysningerOmArbeidssoeker.forEach { opplysning ->
+        TestData.opplysningerOmArbeidssoeker.forEach { (_, opplysning) ->
             opplysningerTopic.pipeInput(5L, opplysning)
         }
-        TestData.profilering.forEach { profilering ->
+        TestData.profilering.forEach { (_, profilering) ->
             profileringsTopic.pipeInput(5L, profilering)
         }
         "Vi skal få ut en samlet melding" {
             arenaTopic.isEmpty shouldBe false
             val kv = arenaTopic.readKeyValue()
             kv.key shouldBe 5L
-            kv.value.profilering.periodeId shouldBe TestData.perioder.first().id
+            kv.value.profilering.periodeId shouldBe TestData.perioder.first().second.id
         }
     }
 })

@@ -24,7 +24,7 @@ object TestData {
     private val testOpplysningerId1 = UUID.fromString("00000000-0000-0000-0000-000000000003")
 
     val perioder = listOf(
-        Periode(
+        5L to Periode(
             testPeriodeId1,
             "12345678911",
             Metadata(
@@ -38,7 +38,7 @@ object TestData {
             ),
             null
         ),
-        Periode(
+        5L to Periode(
             testPeriodeId2,
             "12345678911",
             Metadata(
@@ -63,7 +63,7 @@ object TestData {
     )
 
     val opplysningerOmArbeidssoeker = listOf(
-        OpplysningerOmArbeidssoeker(
+        5L to OpplysningerOmArbeidssoeker(
             testOpplysningerId1,
             testPeriodeId1,
             Metadata(
@@ -111,7 +111,7 @@ object TestData {
     )
 
     val profilering = listOf(
-        Profilering(
+        5L to Profilering(
             UUID.randomUUID(),
             testPeriodeId1,
             testOpplysningerId1,

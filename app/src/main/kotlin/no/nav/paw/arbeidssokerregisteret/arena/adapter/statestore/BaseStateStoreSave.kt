@@ -1,14 +1,13 @@
-package no.nav.paw.arbeidssokerregisteret.arena.adapter
+package no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.compoundKey
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.oppdaterTempArenaTilstandMedNyVerdi
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.arbeidssokerregisteret.arena.v3.TempArenaArbeidssokerregisterTilstand
 import org.apache.avro.specific.SpecificRecord
-import org.apache.kafka.streams.kstream.KStream
-import org.apache.kafka.streams.kstream.Named
 import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.Processor
 import org.apache.kafka.streams.processor.api.ProcessorContext
@@ -16,35 +15,11 @@ import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
 import org.slf4j.LoggerFactory
 import java.time.Duration
-import kotlin.reflect.KClass
-
-fun KStream<String, out SpecificRecord>.saveToStoreForwardIfComplete(type: KClass<out BaseStateStoreSave>, storeName: String): KStream<Long, ArenaArbeidssokerregisterTilstand> {
-    val processBuilder = {
-        when (type) {
-            ProfileringStateStoreSave::class -> ProfileringStateStoreSave(storeName)
-            OpplysningerOmArbeidssoekerStateStoreSave::class -> OpplysningerOmArbeidssoekerStateStoreSave(storeName)
-            PeriodeStateStoreSave::class -> PeriodeStateStoreSave(storeName)
-            else -> throw IllegalArgumentException("Ukjent type ${type.simpleName}")
-        }
-    }
-    return process(processBuilder, Named.`as`(type.simpleName), storeName)
-}
-
-class ProfileringStateStoreSave(
-    stateStoreName: String
-) : BaseStateStoreSave(stateStoreName)
-
-class OpplysningerOmArbeidssoekerStateStoreSave(
-    stateStoreName: String
-) : BaseStateStoreSave(stateStoreName)
-
-class PeriodeStateStoreSave(
-    stateStoreName: String
-) : BaseStateStoreSave(stateStoreName)
+import java.util.*
 
 sealed class BaseStateStoreSave(
     private val stateStoreName: String
-) : Processor<String, SpecificRecord, Long, ArenaArbeidssokerregisterTilstand> {
+) : Processor<Long, SpecificRecord, Long, ArenaArbeidssokerregisterTilstand> {
     private var keyValueStore: KeyValueStore<String, TempArenaArbeidssokerregisterTilstand>? = null
     private var context: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>? = null
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -81,7 +56,7 @@ sealed class BaseStateStoreSave(
         return avsluttet != null && avsluttet.toEpochMilli() < time
     }
 
-    override fun process(record: Record<String, SpecificRecord>?) {
+    override fun process(record: Record<Long, SpecificRecord>?) {
         if (record == null) return
         process(
             requireNotNull(context) { "Context er ikke satt" },
@@ -93,27 +68,36 @@ sealed class BaseStateStoreSave(
     private fun process(
         ctx: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>,
         db: KeyValueStore<String, TempArenaArbeidssokerregisterTilstand>,
-        record: Record<String, SpecificRecord>
+        record: Record<Long, SpecificRecord>
     ) {
         val value = record.value()
+        val compoundKey = compoundKey(record.key(), record.value().periodeId())
         val temp = oppdaterTempArenaTilstandMedNyVerdi(
             nyVerdi = value,
-            gjeldeneTilstand = (db.get(record.key()) ?: TempArenaArbeidssokerregisterTilstand())
+            gjeldeneTilstand = (db.get(compoundKey) ?: TempArenaArbeidssokerregisterTilstand())
         )
         if (temp.periode != null && temp.profilering != null && temp.opplysningerOmArbeidssoeker != null) {
-            db.delete(record.key())
+            db.delete(compoundKey)
             val valueToForward = ArenaArbeidssokerregisterTilstand(
                 temp.periode,
                 temp.profilering,
                 temp.opplysningerOmArbeidssoeker
 
             )
-            ctx.forward(record.withValue(valueToForward).withKey(record.key().split(":").first().toLong()))
+            ctx.forward(record.withValue(valueToForward))
         } else {
-            db.put(record.key(), temp)
+            db.put(compoundKey, temp)
         }
     }
 
+    fun SpecificRecord.periodeId(): UUID {
+        return when (this) {
+            is Periode -> id
+            is Profilering -> periodeId
+            is OpplysningerOmArbeidssoeker -> periodeId
+            else -> throw IllegalArgumentException("Ukjent type ${this::class.simpleName}")
+        }
+    }
 
     override fun close() {
         super.close()
@@ -121,3 +105,15 @@ sealed class BaseStateStoreSave(
         keyValueStore = null
     }
 }
+
+class OpplysningerOmArbeidssoekerStateStoreSave(
+    stateStoreName: String
+) : BaseStateStoreSave(stateStoreName)
+
+class PeriodeStateStoreSave(
+    stateStoreName: String
+) : BaseStateStoreSave(stateStoreName)
+
+class ProfileringStateStoreSave(
+    stateStoreName: String
+) : BaseStateStoreSave(stateStoreName)
