@@ -6,7 +6,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.compoundKey
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.oppdaterTempArenaTilstandMedNyVerdi
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
-import no.nav.paw.arbeidssokerregisteret.arena.v3.TempArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.Processor
@@ -20,7 +20,7 @@ import java.util.*
 sealed class BaseStateStoreSave(
     private val stateStoreName: String
 ) : Processor<Long, SpecificRecord, Long, ArenaArbeidssokerregisterTilstand> {
-    private var keyValueStore: KeyValueStore<String, TempArenaArbeidssokerregisterTilstand>? = null
+    private var keyValueStore: KeyValueStore<String, TopicsJoin>? = null
     private var context: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>? = null
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val delayBeforeDeletingClosed = Duration.ofHours(1)
@@ -32,7 +32,7 @@ sealed class BaseStateStoreSave(
         requireNotNull(context) { "Context er ikke satt" }
             .schedule(Duration.ofMinutes(10L), PunctuationType.STREAM_TIME) { streamTime ->
                 val stateStore =
-                    context.getStateStore<KeyValueStore<String, TempArenaArbeidssokerregisterTilstand>>(stateStoreName)
+                    context.getStateStore<KeyValueStore<String, TopicsJoin>>(stateStoreName)
                 stateStore.all().use { iterator ->
                     iterator.forEach { kv ->
                         val key = kv.key
@@ -51,7 +51,7 @@ sealed class BaseStateStoreSave(
             }
     }
 
-    fun TempArenaArbeidssokerregisterTilstand.wasClosedBefore(time: Long): Boolean {
+    fun TopicsJoin.wasClosedBefore(time: Long): Boolean {
         val avsluttet = periode?.avsluttet?.tidspunkt
         return avsluttet != null && avsluttet.toEpochMilli() < time
     }
@@ -67,14 +67,14 @@ sealed class BaseStateStoreSave(
 
     private fun process(
         ctx: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>,
-        db: KeyValueStore<String, TempArenaArbeidssokerregisterTilstand>,
+        db: KeyValueStore<String, TopicsJoin>,
         record: Record<Long, SpecificRecord>
     ) {
         val value = record.value()
         val compoundKey = compoundKey(record.key(), record.value().periodeId())
         val temp = oppdaterTempArenaTilstandMedNyVerdi(
             nyVerdi = value,
-            gjeldeneTilstand = (db.get(compoundKey) ?: TempArenaArbeidssokerregisterTilstand())
+            gjeldeneTilstand = (db.get(compoundKey) ?: TopicsJoin())
         )
         if (temp.periode != null && temp.profilering != null && temp.opplysningerOmArbeidssoeker != null) {
             db.delete(compoundKey)

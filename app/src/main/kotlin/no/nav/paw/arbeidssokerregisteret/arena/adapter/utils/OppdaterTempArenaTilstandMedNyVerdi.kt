@@ -4,23 +4,23 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.toArena
+import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Annet
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Arbeidserfaring
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Helse
-import no.nav.paw.arbeidssokerregisteret.arena.v3.TempArenaArbeidssokerregisterTilstand
 import org.apache.avro.specific.SpecificRecord
 
 fun oppdaterTempArenaTilstandMedNyVerdi(
     nyVerdi: SpecificRecord?,
-    gjeldeneTilstand: TempArenaArbeidssokerregisterTilstand
-): TempArenaArbeidssokerregisterTilstand {
+    gjeldeneTilstand: TopicsJoin
+): TopicsJoin {
     val periode = (nyVerdi as? Periode)
         ?.let(::toArena) ?: gjeldeneTilstand.periode
     val profilering = (nyVerdi as? Profilering)
         ?.let(::toArena) ?: gjeldeneTilstand.profilering
     val opplysninger = (nyVerdi as? OpplysningerOmArbeidssoeker)
         ?.let(::toArena) ?: gjeldeneTilstand.opplysningerOmArbeidssoeker
-    return TempArenaArbeidssokerregisterTilstand(
+    return TopicsJoin(
         periode,
         profilering,
         opplysninger

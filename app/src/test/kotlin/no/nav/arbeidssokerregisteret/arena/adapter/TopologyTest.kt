@@ -10,8 +10,8 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
+import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
-import no.nav.paw.arbeidssokerregisteret.arena.v3.TempArenaArbeidssokerregisterTilstand
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
@@ -34,7 +34,7 @@ class TopologyTest : FreeSpec({
             arena = "arena"
         )
         val periodeSerde = createAvroSerde<Periode>()
-        val tempArenaArbeidssokerregisterTilstandSerde = createAvroSerde<TempArenaArbeidssokerregisterTilstand>()
+        val tempArenaArbeidssokerregisterTilstandSerde = createAvroSerde<TopicsJoin>()
         val stateStoreName = "stateStore"
         val streamBuilder = StreamsBuilder()
             .addStateStore(
