@@ -4,9 +4,10 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.compoundKey
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.isOutOfDate
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.oppdaterTempArenaTilstandMedNyVerdi
-import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
+import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.Processor
@@ -15,6 +16,7 @@ import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import java.time.Instant
 import java.util.*
 
 sealed class BaseStateStoreSave(
@@ -23,7 +25,6 @@ sealed class BaseStateStoreSave(
     private var keyValueStore: KeyValueStore<String, TopicsJoin>? = null
     private var context: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>? = null
     private val logger = LoggerFactory.getLogger(this::class.java)
-    private val delayBeforeDeletingClosed = Duration.ofHours(1)
 
     override fun init(context: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>?) {
         super.init(context)
@@ -36,13 +37,14 @@ sealed class BaseStateStoreSave(
                 stateStore.all().use { iterator ->
                     iterator.forEach { kv ->
                         val key = kv.key
-                        val temp = kv.value
-                        if (temp.wasClosedBefore(streamTime - delayBeforeDeletingClosed.toMillis())) {
+                        val topicsJoin = kv.value
+                        if (topicsJoin.isOutOfDate(Instant.ofEpochMilli(streamTime))) {
                             stateStore.delete(key)
                             logger.debug(
-                                "Slettet nøkkel {} fra state store: avsluttet={}, streamTime={}",
+                                "Slettet nøkkel {} fra state store: avsluttet={}, opplysninger={}, streamTime={}",
                                 key,
-                                temp.periode.avsluttet.tidspunkt.toEpochMilli(),
+                                topicsJoin.periode?.avsluttet?.tidspunkt,
+                                topicsJoin.opplysningerOmArbeidssoeker?.sendtInnAv?.tidspunkt,
                                 streamTime
                             )
                         }
@@ -51,10 +53,7 @@ sealed class BaseStateStoreSave(
             }
     }
 
-    fun TopicsJoin.wasClosedBefore(time: Long): Boolean {
-        val avsluttet = periode?.avsluttet?.tidspunkt
-        return avsluttet != null && avsluttet.toEpochMilli() < time
-    }
+
 
     override fun process(record: Record<Long, SpecificRecord>?) {
         if (record == null) return
