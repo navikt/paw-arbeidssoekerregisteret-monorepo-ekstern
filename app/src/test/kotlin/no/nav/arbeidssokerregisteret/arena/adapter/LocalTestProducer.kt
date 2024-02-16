@@ -20,27 +20,18 @@ fun main() {
 
     val localTestProducer = LocalTestProducer(kafkaStreamsConfig)
 
-//    val testDataList = listOf(
-//        TestData.opplysningerOmArbeidssoeker to topics.opplysningerOmArbeidssoeker,
-//        TestData.perioder to topics.arbeidssokerperioder,
-//        TestData.profilering to topics.profilering
-//    )
-//
-//    testDataList.forEach { (testData, topic) ->
-//        localTestProducer.produceMessage(testData, topic)
-//    }
-    val perioder = (0..<100).map {
-        val (key, periode) = TestData.perioder.first()
-        val minor = it.toLong()
-        val major = 0L
-        key to Periode(
-            UUID(major, minor),
-            periode.identitetsnummer,
-            periode.startet,
-            periode.avsluttet
-        )
+    val testDataList = listOf(
+        TestData.opplysningerOmArbeidssoeker to topics.opplysningerOmArbeidssoeker,
+        TestData.perioder to topics.arbeidssokerperioder,
+        TestData.profilering to topics.profilering
+    )
+
+    testDataList.forEach { (testData, topic) ->
+        localTestProducer.produceMessage(testData, topic)
     }
-    localTestProducer.produceMessage(perioder, topics.arbeidssokerperioder)
+    testDataList.forEach { (testData, topic) ->
+        localTestProducer.produceMessage(testData, topic)
+    }
 }
 
 class LocalTestProducer(

@@ -4,102 +4,93 @@ import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import no.nav.arbeidssokerregisteret.arena.adapter.utils.opplysninger
+import no.nav.arbeidssokerregisteret.arena.adapter.utils.periode
+import no.nav.arbeidssokerregisteret.arena.adapter.utils.profilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
-import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
-import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
-import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
-import no.nav.paw.config.kafka.KafkaConfig
-import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.Serde
-import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.common.utils.Time
-import org.apache.kafka.streams.StreamsBuilder
-import org.apache.kafka.streams.TopologyTestDriver
-import org.apache.kafka.streams.state.internals.InMemoryKeyValueBytesStoreSupplier
-import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder
+import java.util.concurrent.atomic.AtomicLong
+import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as ApiMetadata
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Metadata as ArenaMetadata
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Periode as ArenaPeriode
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Profilering as ArenaProfilering
+import no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker as ArenaOpplysninger
 
 class TopologyTest : FreeSpec({
-    "Når vi har sendt, periode, opplysninger og profilering skal vi få noe ut på arena topic" - {
-        val topics = Topics(
-            opplysningerOmArbeidssoeker = "opplysninger",
-            arbeidssokerperioder = "perioder",
-            profilering = "profilering",
-            arena = "arena"
-        )
-        val periodeSerde = createAvroSerde<Periode>()
-        val tempArenaArbeidssokerregisterTilstandSerde = createAvroSerde<TopicsJoin>()
-        val stateStoreName = "stateStore"
-        val streamBuilder = StreamsBuilder()
-            .addStateStore(
-                KeyValueStoreBuilder(
-                    InMemoryKeyValueBytesStoreSupplier(stateStoreName),
-                    Serdes.String(),
-                    tempArenaArbeidssokerregisterTilstandSerde,
-                    Time.SYSTEM
-                )
+    with(testScope()) {
+        val keySequence = AtomicLong(0)
+        "Når vi har sendt, periode, opplysninger og profilering skal vi få noe ut på arena topic" - {
+            val periode = keySequence.incrementAndGet() to periode(identietsnummer = "12345678901")
+            "Når bare perioden er sendt inn skal vi ikke få noe ut på arena topic" {
+                periodeTopic.pipeInput(periode.key, periode.melding)
+                arenaTopic.isEmpty shouldBe true
+            }
+            val opplysninger = periode.key to opplysninger(periode = periode.melding.id)
+            "Når opplysningene blir tilgjengelig sammen med perioden skal vi få noe ut på arena topic" {
+                opplysningerTopic.pipeInput(opplysninger.key, opplysninger.melding )
+                arenaTopic.isEmpty shouldBe true
+            }
+            val profilering = opplysninger.key to profilering(
+                opplysningerId = opplysninger.melding.id,
+                periode = opplysninger.melding.periodeId
             )
-
-        val kafkaConfig: KafkaConfig = loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG)
-        val kafkaStreamsFactory = KafkaStreamsFactory("test", kafkaConfig)
-            .withDefaultKeySerde(Serdes.Long()::class)
-            .withDefaultValueSerde(SpecificAvroSerde::class)
-
-        val testDriver = TopologyTestDriver(
-            topology(
-                builder = streamBuilder,
-                topics = topics,
-                stateStoreName = stateStoreName,
-                periodeSerde = periodeSerde,
-                opplysningerOmArbeidssoekerSerde = createAvroSerde(),
-                profileringSerde = createAvroSerde(),
-                arenaArbeidssokerregisterTilstandSerde = createAvroSerde()
-            ),
-            kafkaStreamsFactory.properties
-        )
-        val periodeTopic = testDriver.createInputTopic(
-            topics.arbeidssokerperioder,
-            Serdes.Long().serializer(),
-            periodeSerde.serializer()
-        )
-        val opplysningerTopic = testDriver.createInputTopic(
-            topics.opplysningerOmArbeidssoeker,
-            Serdes.Long().serializer(),
-            createAvroSerde<OpplysningerOmArbeidssoeker>().serializer(),
-        )
-        val profileringsTopic = testDriver.createInputTopic(
-            topics.profilering,
-            Serdes.Long().serializer(),
-            createAvroSerde<Profilering>().serializer()
-        )
-        val arenaTopic = testDriver.createOutputTopic(
-            topics.arena,
-            Serdes.Long().deserializer(),
-            createAvroSerde<ArenaArbeidssokerregisterTilstand>().deserializer()
-        )
-        TestData.perioder.forEach { (_, periode) ->
-            periodeTopic.pipeInput(5L, periode)
-        }
-        TestData.opplysningerOmArbeidssoeker.forEach { (_, opplysning) ->
-            opplysningerTopic.pipeInput(5L, opplysning)
-        }
-        TestData.profilering.forEach { (_, profilering) ->
-            profileringsTopic.pipeInput(5L, profilering)
-        }
-        "Vi skal få ut en samlet melding" {
-            arenaTopic.isEmpty shouldBe false
-            val kv = arenaTopic.readKeyValue()
-            kv.key shouldBe 5L
-            kv.value.profilering.periodeId shouldBe TestData.perioder.first().second.id
+            "Når profileringen ankommer og periode og opplysninger er tilgjengelig skal vi få noe ut på arena topic" {
+                profileringsTopic.pipeInput(profilering.key, profilering.melding)
+                arenaTopic.isEmpty shouldBe false
+                val (key, arenaTilstand) = arenaTopic.readKeyValue().let { it.key to it.value }
+                key shouldBe periode.key
+                assertApiPeriodeMatchesArenaPeriode(periode.melding, arenaTilstand.periode)
+                assertApiOpplysningerMatchesArenaOpplysninger(opplysninger.melding, arenaTilstand.opplysningerOmArbeidssoeker)
+                assertApiProfileringMatchesArenaProfilering(profilering.melding, arenaTilstand.profilering)
+            }
         }
     }
 })
+
+fun assertApiOpplysningerMatchesArenaOpplysninger(api: OpplysningerOmArbeidssoeker,arena: ArenaOpplysninger) {
+    arena.id shouldBe api.id
+    arena.periodeId shouldBe api.periodeId
+    arena.utdanning.nus shouldBe api.utdanning.nus
+    arena.helse.helsetilstandHindrerArbeid.name shouldBe api.helse.helsetilstandHindrerArbeid.name
+    arena.arbeidserfaring.harHattArbeid.name shouldBe api.arbeidserfaring.harHattArbeid.name
+    assertApiMetadataMatchesArenaMetadata(api.sendtInnAv, arena.sendtInnAv)
+}
+
+fun assertApiPeriodeMatchesArenaPeriode(api: Periode, arena: ArenaPeriode) {
+    arena.id shouldBe api.id
+    arena.identitetsnummer shouldBe api.identitetsnummer
+    assertApiMetadataMatchesArenaMetadata(api.startet, arena.startet)
+    assertApiMetadataMatchesArenaMetadata(api.avsluttet, arena.avsluttet)
+}
+
+fun assertApiProfileringMatchesArenaProfilering(api: Profilering, arena: ArenaProfilering) {
+    arena.id shouldBe api.id
+    arena.opplysningerOmArbeidssokerId shouldBe api.opplysningerOmArbeidssokerId
+    arena.periodeId shouldBe api.periodeId
+    arena.profilertTil.name shouldBe api.profilertTil.name
+    arena.alder shouldBe api.alder
+    assertApiMetadataMatchesArenaMetadata(api.sendtInnAv, arena.sendtInnAv)
+    arena.jobbetSammenhengendeSeksAvTolvSisteMnd shouldBe api.jobbetSammenhengendeSeksAvTolvSisteMnd
+}
+
+fun assertApiMetadataMatchesArenaMetadata(api: ApiMetadata?, arena: ArenaMetadata?) {
+    if (api == null) {
+        arena shouldBe null
+        return
+    } else {
+        arena.shouldNotBeNull()
+        arena.tidspunkt shouldBe api.tidspunkt
+        arena.aarsak shouldBe api.aarsak
+        arena.kilde shouldBe api.kilde
+        arena.utfoertAv.id shouldBe api.utfoertAv.id
+        arena.utfoertAv.type.name shouldBe api.utfoertAv.type.name
+    }
+}
 
 inline fun <reified T : SpecificRecord> createAvroSerde(): Serde<T> {
     val SCHEMA_REGISTRY_SCOPE = "mock"
@@ -113,3 +104,7 @@ inline fun <reified T : SpecificRecord> createAvroSerde(): Serde<T> {
         )
     }
 }
+
+val Pair<Long, *>.key get() : Long = first
+val <A: SpecificRecord> Pair<Long, A>.melding get(): A = second
+

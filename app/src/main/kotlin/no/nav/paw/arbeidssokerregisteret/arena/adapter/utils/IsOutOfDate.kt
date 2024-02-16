@@ -13,7 +13,7 @@ fun TopicsJoin.isOutOfDate(
     return if (avsluttet == null) {
         val tidspunktForOpplysninger = opplysningerOmArbeidssoeker?.sendtInnAv?.tidspunkt
         if (tidspunktForOpplysninger == null) {
-            true
+            false
         } else {
             Duration.between(tidspunktForOpplysninger, currentTime) > maxAgeOfDanglingInfo
         }

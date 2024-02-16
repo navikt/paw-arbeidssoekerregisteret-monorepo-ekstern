@@ -71,9 +71,10 @@ sealed class BaseStateStoreSave(
     ) {
         val value = record.value()
         val compoundKey = compoundKey(record.key(), record.value().periodeId())
+        val existingValue = db.get(compoundKey)
         val temp = oppdaterTempArenaTilstandMedNyVerdi(
             nyVerdi = value,
-            gjeldeneTilstand = (db.get(compoundKey) ?: TopicsJoin())
+            gjeldeneTilstand = (existingValue ?: TopicsJoin())
         )
         if (temp.periode != null && temp.profilering != null && temp.opplysningerOmArbeidssoeker != null) {
             db.delete(compoundKey)
