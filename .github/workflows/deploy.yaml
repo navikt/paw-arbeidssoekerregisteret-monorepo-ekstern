@@ -61,7 +61,7 @@ jobs:
           VAR: image=${{ needs.build.outputs.image }},kafka=nav-dev,replicas=1
 
   deploy-til-prod:
-    if: ${{ false }}
+    if: ${{ true }}
     permissions:
       contents: read
       id-token: write
