@@ -1,4 +1,5 @@
 import com.github.davidmc24.gradle.plugin.avro.GenerateAvroProtocolTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
@@ -6,6 +7,10 @@ plugins {
     id("io.ktor.plugin") version "2.3.5"
     application
 }
+
+val jvmVersion = JavaVersion.VERSION_21
+val image: String? by project
+
 val logstashVersion = "7.3"
 val logbackVersion = "1.4.12"
 val pawUtilsVersion = "24.02.06.10-1"
@@ -15,7 +20,23 @@ val schema by configurations.creating {
     isTransitive = false
 }
 
+val agent by configurations.creating {
+    isTransitive = false
+}
+
+val agentExtension by configurations.creating {
+    isTransitive = false
+}
+
+val agentExtensionJar = "agent-extension.jar"
+val agentJar = "agent.jar"
+val agentFolder = layout.buildDirectory.dir("agent").get().toString()
+val agentExtensionFolder = layout.buildDirectory.dir("agent-extension").get().toString()
+
+
 dependencies {
+    agent("io.opentelemetry.javaagent:opentelemetry-javaagent:1.31.0")
+    agentExtension("no.nav.paw.observability:opentelemetry-anonymisering-1.31.0:23.10.25.8-1")
     implementation(pawObservability.bundles.ktorNettyOpentelemetryMicrometerPrometheus)
 
     schema("no.nav.paw.arbeidssokerregisteret.api:arena-avro-schema:1.7896634601.17-1")
@@ -39,12 +60,6 @@ dependencies {
     testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaStreamsVersion")
 }
 
-ktor {
-    fatJar {
-        archiveFileName.set("fat.jar")
-    }
-}
-
 tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
     compilerOptions {
         freeCompilerArgs.add("-Xcontext-receivers")
@@ -59,7 +74,7 @@ tasks.named("compileTestKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompila
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(jvmVersion.majorVersion)
     }
 }
 
@@ -81,4 +96,46 @@ tasks.named("generateAvroProtocol", GenerateAvroProtocolTask::class.java) {
     schema.forEach {
         source(zipTree(it))
     }
+}
+
+tasks.create("addAgent", Copy::class) {
+    from(agent)
+    into(agentFolder)
+    rename { _ -> agentJar}
+}
+
+tasks.create("addAgentExtension", Copy::class) {
+    from(agentExtension)
+    into(agentExtensionFolder)
+    rename { _ -> agentExtensionJar}
+}
+
+tasks.withType(KotlinCompile::class) {
+    dependsOn.add("addAgent")
+    dependsOn.add("addAgentExtension")
+}
+
+jib {
+    from.image = "ghcr.io/navikt/baseimages/temurin:${jvmVersion.majorVersion}"
+    to.image = "${image ?: rootProject.name }:${project.version}"
+    extraDirectories {
+        paths {
+            path {
+                setFrom(agentFolder)
+                into = "/app"
+            }
+            path {
+                setFrom(agentExtensionFolder)
+                into = "/app"
+            }
+        }
+    }
+    container.entrypoint = listOf(
+        "java",
+        "-cp", "@/app/jib-classpath-file",
+        "-javaagent:/app/$agentJar",
+        "-Dotel.javaagent.extensions=/app/$agentExtensionJar",
+        "-Dotel.resource.attributes=service.name=${project.name}",
+        application.mainClass.get()
+    )
 }
