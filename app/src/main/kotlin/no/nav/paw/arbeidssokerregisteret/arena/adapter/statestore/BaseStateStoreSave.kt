@@ -4,7 +4,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.compoundKey
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.isOutOfDate
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.skalSlettes
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.oppdaterTempArenaTilstandMedNyVerdi
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
@@ -38,7 +38,7 @@ sealed class BaseStateStoreSave(
                     iterator.forEach { kv ->
                         val key = kv.key
                         val topicsJoin = kv.value
-                        if (topicsJoin.isOutOfDate(Instant.ofEpochMilli(streamTime))) {
+                        if (topicsJoin.skalSlettes(Instant.ofEpochMilli(streamTime))) {
                             stateStore.delete(key)
                             logger.debug(
                                 "Slettet nøkkel {} fra state store: avsluttet={}, opplysninger={}, streamTime={}",
