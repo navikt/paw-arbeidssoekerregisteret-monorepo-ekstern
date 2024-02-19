@@ -4,6 +4,8 @@ import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.kotest.core.spec.style.FreeSpec
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
@@ -71,7 +73,8 @@ fun testScope(): TestScope {
             periodeSerde = periodeSerde,
             opplysningerOmArbeidssoekerSerde = createAvroSerde(),
             profileringSerde = createAvroSerde(),
-            arenaArbeidssokerregisterTilstandSerde = createAvroSerde()
+            arenaArbeidssokerregisterTilstandSerde = createAvroSerde(),
+            registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
         ),
         kafkaStreamsFactory.properties
     )

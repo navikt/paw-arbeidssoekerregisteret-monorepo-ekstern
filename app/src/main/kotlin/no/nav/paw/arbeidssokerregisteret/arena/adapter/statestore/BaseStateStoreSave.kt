@@ -1,5 +1,8 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore
 
+import io.micrometer.core.instrument.Tag
+import io.micrometer.core.instrument.Tags
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
@@ -18,9 +21,11 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.atomic.AtomicLong
 
 sealed class BaseStateStoreSave(
-    private val stateStoreName: String
+    private val stateStoreName: String,
+    private val registry: PrometheusMeterRegistry
 ) : Processor<Long, SpecificRecord, Long, ArenaArbeidssokerregisterTilstand> {
     private var keyValueStore: KeyValueStore<String, TopicsJoin>? = null
     private var context: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>? = null
@@ -41,6 +46,7 @@ sealed class BaseStateStoreSave(
                     streamTime = streamTimeInstant
                 )
                 var antallSlettede = 0
+                var totaltAntall = 0
                 stateStore.all().use { iterator ->
                     iterator.forEach { kv ->
                         val key = kv.key
@@ -60,8 +66,12 @@ sealed class BaseStateStoreSave(
                                 streamTime
                             )
                         }
+                        totaltAntall += 1
                     }
                 }
+                registry.gauge("paw_arbeidssoekerregisteret_arena_adapter_joinstates_size",
+                    Tags.of(Tag.of("partition", context.taskId().partition().toString())), AtomicLong(0))
+                    .set(totaltAntall.toLong())
                 logger.info(
                     "Slettet {} nøkler fra state store, stream-time: {}, wall-clock: {}, frister: {}",
                     antallSlettede,
@@ -125,13 +135,16 @@ sealed class BaseStateStoreSave(
 }
 
 class OpplysningerOmArbeidssoekerStateStoreSave(
-    stateStoreName: String
-) : BaseStateStoreSave(stateStoreName)
+    stateStoreName: String,
+    registry: PrometheusMeterRegistry
+) : BaseStateStoreSave(stateStoreName, registry)
 
 class PeriodeStateStoreSave(
-    stateStoreName: String
-) : BaseStateStoreSave(stateStoreName)
+    stateStoreName: String,
+    registry: PrometheusMeterRegistry
+) : BaseStateStoreSave(stateStoreName, registry)
 
 class ProfileringStateStoreSave(
-    stateStoreName: String
-) : BaseStateStoreSave(stateStoreName)
+    stateStoreName: String,
+    registry: PrometheusMeterRegistry
+) : BaseStateStoreSave(stateStoreName, registry)

@@ -51,6 +51,7 @@ fun main() {
                 Time.SYSTEM
             )
         )
+    val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val topology: Topology = topology(
         builder = builder,
         topics = topics,
@@ -58,7 +59,8 @@ fun main() {
         periodeSerde = periodeSerde,
         opplysningerOmArbeidssoekerSerde = opplysningerOmArbeidssoekerSerde,
         profileringSerde = profileringSerde,
-        arenaArbeidssokerregisterTilstandSerde = arenaArbeidssokerregisterTilstandSerde
+        arenaArbeidssokerregisterTilstandSerde = arenaArbeidssokerregisterTilstandSerde,
+        registry = registry
     )
     val kafkaStreams = KafkaStreams(topology, kafkaStreamsFactory.properties)
 
@@ -66,9 +68,7 @@ fun main() {
         logger.error("Uventet feil", throwable)
         StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
     }
-    kafkaStreams.start()
     kafkaStreams.use {
-        val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
         val health = Health(kafkaStreams)
         initKtor(
             kafkaStreamsMetrics = KafkaStreamsMetrics(kafkaStreams),
@@ -76,5 +76,6 @@ fun main() {
             health = health
         ).start(wait = true)
     }
+    kafkaStreams.start()
 }
 

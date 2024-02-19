@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
@@ -24,14 +25,16 @@ fun topology(
     periodeSerde: Serde<Periode>,
     opplysningerOmArbeidssoekerSerde: Serde<OpplysningerOmArbeidssoeker>,
     profileringSerde: Serde<Profilering>,
-    arenaArbeidssokerregisterTilstandSerde: Serde<ArenaArbeidssokerregisterTilstand>
+    arenaArbeidssokerregisterTilstandSerde: Serde<ArenaArbeidssokerregisterTilstand>,
+    registry: PrometheusMeterRegistry
 ): Topology {
     builder.stream(
         topics.arbeidssokerperioder,
         Consumed.with(Serdes.Long(), periodeSerde)
     ).saveToStoreForwardIfComplete(
         type = PeriodeStateStoreSave::class,
-        storeName = stateStoreName
+        storeName = stateStoreName,
+        registry = registry
     ).to(
         topics.arena,
         Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde)
@@ -42,7 +45,8 @@ fun topology(
         Consumed.with(Serdes.Long(), opplysningerOmArbeidssoekerSerde)
     ).saveToStoreForwardIfComplete(
         type = OpplysningerOmArbeidssoekerStateStoreSave::class,
-        storeName = stateStoreName
+        storeName = stateStoreName,
+        registry = registry
     ).to(
         topics.arena,
         Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde)
@@ -53,7 +57,8 @@ fun topology(
         Consumed.with(Serdes.Long(), profileringSerde)
     ).saveToStoreForwardIfComplete(
         type = ProfileringStateStoreSave::class,
-        storeName = stateStoreName
+        storeName = stateStoreName,
+        registry = registry
     ).to(
         topics.arena,
         Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
