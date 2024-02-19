@@ -57,7 +57,7 @@ jobs:
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: nais/nais-dev.yaml
+          RESOURCE: nais/nais.yaml
           VAR: image=${{ needs.build.outputs.image }},kafka=nav-dev,replicas=1
 
   deploy-til-prod:
@@ -73,5 +73,5 @@ jobs:
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
-          RESOURCE: nais/nais-prod.yaml
+          RESOURCE: nais/nais.yaml
           VAR: image=${{ needs.build.outputs.image }},kafka=nav-prod,replicas=6
