@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
+import io.micrometer.core.instrument.Tag
+import io.micrometer.core.instrument.Tags
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
@@ -9,6 +11,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ApplicationConfig
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.Health
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.initKtor
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.meterIdMap
 import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
@@ -23,6 +26,9 @@ import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
 import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder
 import org.apache.kafka.streams.state.internals.RocksDBKeyValueBytesStoreSupplier
 import org.slf4j.LoggerFactory
+import java.time.Duration
+import java.util.concurrent.CompletableFuture.runAsync
+import java.util.concurrent.atomic.AtomicLong
 
 val logger = LoggerFactory.getLogger("App")
 fun main() {
@@ -68,6 +74,21 @@ fun main() {
         logger.error("Uventet feil", throwable)
         StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
     }
+
+    runAsync {
+        while(true) {
+            val currentPartitions = kafkaStreams.metadataForLocalThreads().flatMap { thread ->
+                thread.activeTasks().map { it.taskId().partition() }
+            }.toList()
+            meterIdMap.filter { (partition, _) -> partition !in currentPartitions }
+                .forEach { (partition, id) ->
+                    registry.remove(id.first)
+                    meterIdMap.remove(partition)
+                }
+            Thread.sleep(Duration.ofMinutes(5))
+        }
+    }
+
     kafkaStreams.start()
     kafkaStreams.use {
         val health = Health(kafkaStreams)

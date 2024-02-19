@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore
 
+import io.micrometer.core.instrument.FunctionCounter.builder
+import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheus.PrometheusMeterRegistry
@@ -21,7 +23,10 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
+
+val meterIdMap = ConcurrentHashMap<Int, Pair<Meter.Id, AtomicLong>>()
 
 sealed class BaseStateStoreSave(
     private val stateStoreName: String,
@@ -69,9 +74,18 @@ sealed class BaseStateStoreSave(
                         totaltAntall += 1
                     }
                 }
-                registry.gauge("paw_arbeidssoekerregisteret_arena_adapter_joinstates_size",
-                    Tags.of(Tag.of("partition", context.taskId().partition().toString())), AtomicLong(0))
-                    .set(totaltAntall.toLong())
+                val taskPartition = context.taskId().partition()
+                val meterId = meterIdMap[taskPartition]
+                if (meterId != null) {
+                    meterId.second.set(totaltAntall.toLong())
+                } else {
+                    val newStateObject = AtomicLong(totaltAntall.toLong())
+                    val regInfo = builder("paw_arbeidssoekerregisteret_arena_adapter_joinstates_size", newStateObject, AtomicLong::toDouble)
+                        .tags(Tags.of(Tag.of("partition", taskPartition.toString())))
+                        .register(registry)
+                    meterIdMap[taskPartition] = Pair(regInfo.id, newStateObject)
+                }
+
                 logger.info(
                     "Slettet {} nøkler fra state store, stream-time: {}, wall-clock: {}, frister: {}",
                     antallSlettede,
