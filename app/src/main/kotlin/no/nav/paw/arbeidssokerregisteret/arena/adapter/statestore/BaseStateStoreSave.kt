@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore
 
-import io.micrometer.core.instrument.FunctionCounter.builder
+import io.micrometer.core.instrument.Gauge.builder
 import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
