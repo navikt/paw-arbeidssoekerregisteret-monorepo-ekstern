@@ -68,6 +68,7 @@ fun main() {
         logger.error("Uventet feil", throwable)
         StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
     }
+    kafkaStreams.start()
     kafkaStreams.use {
         val health = Health(kafkaStreams)
         initKtor(
@@ -76,6 +77,5 @@ fun main() {
             health = health
         ).start(wait = true)
     }
-    kafkaStreams.start()
 }
 
