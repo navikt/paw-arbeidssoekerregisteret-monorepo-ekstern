@@ -34,12 +34,24 @@ sealed class BaseStateStoreSave(
             .schedule(Duration.ofMinutes(10L), PunctuationType.STREAM_TIME) { streamTime ->
                 val stateStore =
                     context.getStateStore<KeyValueStore<String, TopicsJoin>>(stateStoreName)
+                val wallClock = Instant.ofEpochMilli(context.currentSystemTimeMs())
+                val streamTimeInstant = Instant.ofEpochMilli(context.currentStreamTimeMs())
+                val tidsfrister = kalkulerTidsfrister(
+                    wallClock = wallClock,
+                    streamTime = streamTimeInstant
+                )
+                var antallSlettede = 0
                 stateStore.all().use { iterator ->
                     iterator.forEach { kv ->
                         val key = kv.key
                         val topicsJoin = kv.value
-                        if (topicsJoin.skalSlettes(Instant.ofEpochMilli(streamTime))) {
+                        if (topicsJoin.skalSlettes(
+                                gjeldeneTid = streamTimeInstant,
+                                tidsfrister = tidsfrister
+                            )
+                        ) {
                             stateStore.delete(key)
+                            antallSlettede += 1
                             logger.debug(
                                 "Slettet nøkkel {} fra state store: avsluttet={}, opplysninger={}, streamTime={}",
                                 key,
@@ -50,9 +62,15 @@ sealed class BaseStateStoreSave(
                         }
                     }
                 }
+                logger.info(
+                    "Slettet {} nøkler fra state store, stream-time: {}, wall-clock: {}, frister: {}",
+                    antallSlettede,
+                    streamTimeInstant,
+                    wallClock,
+                    tidsfrister
+                )
             }
     }
-
 
 
     override fun process(record: Record<Long, SpecificRecord>?) {

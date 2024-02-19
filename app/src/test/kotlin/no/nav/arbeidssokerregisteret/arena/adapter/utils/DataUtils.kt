@@ -3,6 +3,7 @@ package no.nav.arbeidssokerregisteret.arena.adapter.utils
 import no.nav.paw.arbeidssokerregisteret.api.v1.*
 import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.api.v3.Utdanning
+import org.apache.avro.specific.SpecificRecord
 import java.time.Instant
 import java.util.UUID
 
@@ -86,3 +87,6 @@ fun utdanning(
     bestaatt,
     godkjent
 )
+
+val Pair<Long, *>.key get() : Long = first
+val <A: SpecificRecord> Pair<Long, A>.melding get(): A = second

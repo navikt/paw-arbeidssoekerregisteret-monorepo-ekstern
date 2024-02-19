@@ -1,8 +1,19 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter.utils
 
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.Tidsfrister
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
 import java.time.Duration
 import java.time.Instant
+
+fun TopicsJoin.skalSlettes(
+    gjeldeneTid: Instant,
+    tidsfrister: Tidsfrister
+): Boolean = skalSlettes(
+    gjeldeneTid = gjeldeneTid,
+    tidsfristVentePaaOpplysninger = tidsfrister.tidsfristVentePaaOpplysninger,
+    tidsfristVentePaaPeriode = tidsfrister.tidsfristVentePaaPeriode,
+    tidsfristVentePaaProfilering = tidsfrister.tidsfristVentePaaProfilering
+)
 
 fun TopicsJoin.skalSlettes(
     gjeldeneTid: Instant,

@@ -1,5 +1,7 @@
 package no.nav.arbeidssokerregisteret.arena.adapter
 
+import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
+import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.kotest.core.spec.style.FreeSpec
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -13,6 +15,8 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
+import org.apache.avro.specific.SpecificRecord
+import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.utils.Time
 import org.apache.kafka.streams.StreamsBuilder
@@ -29,7 +33,8 @@ data class TestScope(
     val opplysningerTopic: TestInputTopic<Long, OpplysningerOmArbeidssoeker>,
     val profileringsTopic: TestInputTopic<Long, Profilering>,
     val arenaTopic: TestOutputTopic<Long, ArenaArbeidssokerregisterTilstand>,
-    val joinStore: KeyValueStore<String, TopicsJoin>
+    val joinStore: KeyValueStore<String, TopicsJoin>,
+    val topologyTestDriver: TopologyTestDriver
 )
 
 
@@ -95,6 +100,20 @@ fun testScope(): TestScope {
         opplysningerTopic = opplysningerTopic,
         profileringsTopic = profileringsTopic,
         arenaTopic = arenaTopic,
-        joinStore = testDriver.getKeyValueStore(stateStoreName)
+        joinStore = testDriver.getKeyValueStore(stateStoreName),
+        topologyTestDriver = testDriver
     )
+}
+
+inline fun <reified T : SpecificRecord> createAvroSerde(): Serde<T> {
+    val SCHEMA_REGISTRY_SCOPE = "mock"
+    return SpecificAvroSerde<T>(MockSchemaRegistry.getClientForScope(SCHEMA_REGISTRY_SCOPE)).apply {
+        configure(
+            mapOf(
+                KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS to "true",
+                KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG to "mock://$SCHEMA_REGISTRY_SCOPE"
+            ),
+            false
+        )
+    }
 }
