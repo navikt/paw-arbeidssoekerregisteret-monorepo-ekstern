@@ -46,6 +46,9 @@ jobs:
           image_ref: ${{ env.IMAGE }}@${{ env.DIGEST }}
 
   deploy-til-dev:
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy to NAIS
     needs: build
     runs-on: ubuntu-latest
@@ -59,6 +62,9 @@ jobs:
 
   deploy-til-prod:
     if: ${{ false }}
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy to NAIS
     needs: build
     runs-on: ubuntu-latest
