@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter.config
 
 data class ApplicationConfig(
+    val applicationIdSuffix: String,
     val topics: Topics
 )
 

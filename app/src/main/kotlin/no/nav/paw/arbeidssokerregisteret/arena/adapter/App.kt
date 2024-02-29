@@ -31,9 +31,7 @@ val logger = LoggerFactory.getLogger("App")
 fun main() {
     val kafkaStreamsConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>("application.toml")
-    val applicationIdSuffix = kafkaStreamsConfig.applicationIdPrefix
-        ?: throw RuntimeException("applicationIdPrefix is not set")
-    val (topics) = applicationConfig
+    val (applicationIdSuffix, topics) = applicationConfig
 
     val kafkaStreamsFactory = KafkaStreamsFactory(applicationIdSuffix, kafkaStreamsConfig)
 
