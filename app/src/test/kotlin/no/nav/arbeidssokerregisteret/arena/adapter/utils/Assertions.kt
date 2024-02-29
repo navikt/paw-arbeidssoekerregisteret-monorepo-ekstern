@@ -5,14 +5,13 @@ import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
-import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 
-fun assertApiOpplysningerMatchesArenaOpplysninger(api: OpplysningerOmArbeidssoeker, arena: no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker) {
+fun assertApiOpplysningerMatchesArenaOpplysninger(api: OpplysningerOmArbeidssoeker, arena: no.nav.paw.arbeidssokerregisteret.arena.v4.OpplysningerOmArbeidssoeker) {
     arena.id shouldBe api.id
     arena.periodeId shouldBe api.periodeId
     arena.utdanning.nus shouldBe api.utdanning.nus
     arena.helse.helsetilstandHindrerArbeid.name shouldBe api.helse.helsetilstandHindrerArbeid.name
-    arena.arbeidserfaring.harHattArbeid.name shouldBe api.arbeidserfaring.harHattArbeid.name
     assertApiMetadataMatchesArenaMetadata(api.sendtInnAv, arena.sendtInnAv)
 }
 

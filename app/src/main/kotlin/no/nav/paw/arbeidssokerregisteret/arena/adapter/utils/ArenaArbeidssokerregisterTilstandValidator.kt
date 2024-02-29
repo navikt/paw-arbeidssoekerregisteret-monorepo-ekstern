@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter.utils
 
-import no.nav.paw.arbeidssokerregisteret.arena.v3.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.v4.ArenaArbeidssokerregisterTilstand
 
 val ArenaArbeidssokerregisterTilstand.isValid: Boolean
     get() {

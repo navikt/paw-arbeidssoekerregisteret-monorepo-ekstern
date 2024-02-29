@@ -1,8 +1,9 @@
 package no.nav.arbeidssokerregisteret.arena.adapter.utils
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.*
-import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssokerregisteret.api.v3.Utdanning
+import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
+import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
 import org.apache.avro.specific.SpecificRecord
 import java.time.Instant
 import java.util.UUID
@@ -31,7 +32,6 @@ fun opplysninger(
     metadata(timestamp),
     utdanning(nus),
     Helse(JaNeiVetIkke.NEI),
-    Arbeidserfaring(JaNeiVetIkke.NEI),
     jobbSituasjon(beskrivelse),
     Annet(JaNeiVetIkke.NEI)
 )

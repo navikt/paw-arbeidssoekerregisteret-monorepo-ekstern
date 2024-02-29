@@ -2,11 +2,12 @@ package no.nav.paw.arbeidssokerregisteret.arena.adapter.utils
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
+import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v1.*
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Metadata as ArenaMetadata
-import no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssokerregisteret.arena.v3.Utdanning
+import no.nav.paw.arbeidssokerregisteret.arena.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.arena.v4.Utdanning
+import no.nav.paw.arbeidssokerregisteret.arena.v2.Annet
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -121,7 +122,6 @@ fun topicsJoinMedPeriode(
             metadata(it),
             Utdanning("9", JaNeiVetIkke.JA, JaNeiVetIkke.JA),
             Helse(JaNeiVetIkke.NEI),
-            Arbeidserfaring(JaNeiVetIkke.NEI),
             Jobbsituasjon(emptyList()),
             Annet(JaNeiVetIkke.JA),
         )
@@ -140,7 +140,6 @@ fun topicsJoinUtenPeriode(
             metadata(it),
             Utdanning("9", JaNeiVetIkke.JA, JaNeiVetIkke.JA),
             Helse(JaNeiVetIkke.NEI),
-            Arbeidserfaring(JaNeiVetIkke.NEI),
             Jobbsituasjon(emptyList()),
             Annet(JaNeiVetIkke.JA),
         )

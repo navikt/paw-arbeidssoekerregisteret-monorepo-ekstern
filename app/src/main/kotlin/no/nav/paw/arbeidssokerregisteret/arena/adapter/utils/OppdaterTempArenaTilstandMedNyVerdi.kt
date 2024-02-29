@@ -2,11 +2,10 @@ package no.nav.paw.arbeidssokerregisteret.arena.adapter.utils
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
-import no.nav.paw.arbeidssokerregisteret.api.v3.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.toArena
-import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Annet
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Arbeidserfaring
+import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
+import no.nav.paw.arbeidssokerregisteret.arena.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.arena.v1.Helse
 import org.apache.avro.specific.SpecificRecord
 
@@ -28,13 +27,12 @@ fun oppdaterTempArenaTilstandMedNyVerdi(
 }
 
 private fun toArena(opplysningerOmArbeidssoeker: OpplysningerOmArbeidssoeker) =
-    no.nav.paw.arbeidssokerregisteret.arena.v3.OpplysningerOmArbeidssoeker(
+    no.nav.paw.arbeidssokerregisteret.arena.v4.OpplysningerOmArbeidssoeker(
         opplysningerOmArbeidssoeker.id,
         opplysningerOmArbeidssoeker.periodeId,
         opplysningerOmArbeidssoeker.sendtInnAv.toArena(),
         opplysningerOmArbeidssoeker.utdanning.toArena(),
         Helse(opplysningerOmArbeidssoeker.helse.helsetilstandHindrerArbeid.toArena()),
-        Arbeidserfaring(opplysningerOmArbeidssoeker.arbeidserfaring.harHattArbeid.toArena()),
         opplysningerOmArbeidssoeker.jobbsituasjon.toArena(),
         Annet(opplysningerOmArbeidssoeker.annet.andreForholdHindrerArbeid.toArena())
     )

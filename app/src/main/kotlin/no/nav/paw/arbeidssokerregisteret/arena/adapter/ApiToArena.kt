@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.*
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
-import no.nav.paw.arbeidssokerregisteret.api.v3.Utdanning
+import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
 
 fun ProfilertTil.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.ProfilertTil =
     when (this) {
@@ -43,8 +43,8 @@ fun Beskrivelse.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.Beskrivels
         Beskrivelse.ANNET -> no.nav.paw.arbeidssokerregisteret.arena.v1.Beskrivelse.ANNET
     }
 
-fun Utdanning.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v3.Utdanning =
-    no.nav.paw.arbeidssokerregisteret.arena.v3.Utdanning(
+fun Utdanning.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v4.Utdanning =
+    no.nav.paw.arbeidssokerregisteret.arena.v4.Utdanning(
         nus,
         bestaatt.toArena(),
         godkjent.toArena(),

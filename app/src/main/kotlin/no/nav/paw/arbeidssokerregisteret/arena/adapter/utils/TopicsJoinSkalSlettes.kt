@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter.utils
 
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.Tidsfrister
-import no.nav.paw.arbeidssokerregisteret.arena.helpers.v3.TopicsJoin
+import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import java.time.Duration
 import java.time.Instant
 

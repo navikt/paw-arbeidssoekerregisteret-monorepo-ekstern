@@ -12,6 +12,7 @@ plugins {
 val jvmVersion = JavaVersion.VERSION_21
 val image: String? by project
 
+val arbeidssoekerregisteretApiVersion = "1.8062260419.22-1"
 val logstashVersion = "7.3"
 val logbackVersion = "1.4.12"
 val pawUtilsVersion = "24.02.06.10-1"
@@ -40,8 +41,8 @@ dependencies {
     agentExtension("no.nav.paw.observability:opentelemetry-anonymisering-1.31.0:23.10.25.8-1")
     implementation(pawObservability.bundles.ktorNettyOpentelemetryMicrometerPrometheus)
 
-    schema("no.nav.paw.arbeidssokerregisteret.api:arena-avro-schema:1.7896634601.17-1")
-    schema("no.nav.paw.arbeidssokerregisteret.api:main-avro-schema:1.7896634601.17-1")
+    schema("no.nav.paw.arbeidssokerregisteret.api:arena-avro-schema:$arbeidssoekerregisteretApiVersion")
+    schema("no.nav.paw.arbeidssokerregisteret.api:main-avro-schema:$arbeidssoekerregisteretApiVersion")
 
     implementation("no.nav.paw.hoplite-config:hoplite-config:$pawUtilsVersion")
     implementation("no.nav.paw.kafka-streams:kafka-streams:$pawUtilsVersion")

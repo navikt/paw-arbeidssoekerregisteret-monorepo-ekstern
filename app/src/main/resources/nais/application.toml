@@ -1,5 +1,5 @@
 [topics]
-opplysningerOmArbeidssoeker = "paw.opplysninger-om-arbeidssoeker-beta-v7"
-arbeidssokerperioder = "paw.arbeidssokerperioder-beta-v7"
-profilering = "paw.arbeidssoker-profilering-beta-v2"
-arena = "paw.arbeidssoker-arena-beta-v1"
+opplysningerOmArbeidssoeker = "opplysninger-om-arbeidssoeker-beta-v9"
+arbeidssokerperioder = "arbeidssokerperioder-beta-v9"
+profilering = "arbeidssoker-profilering-beta-v3"
+arena = "arbeidssoker-arena-beta-v1"
