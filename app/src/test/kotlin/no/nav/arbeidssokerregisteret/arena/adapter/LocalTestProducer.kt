@@ -1,6 +1,5 @@
 package no.nav.arbeidssokerregisteret.arena.adapter
 
-import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ApplicationConfig
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
@@ -10,13 +9,12 @@ import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.LongSerializer
-import java.util.*
 
 fun main() {
     val kafkaStreamsConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>("application.toml")
 
-    val (topics) = applicationConfig
+    val (_, topics) = applicationConfig
 
     val localTestProducer = LocalTestProducer(kafkaStreamsConfig)
 
