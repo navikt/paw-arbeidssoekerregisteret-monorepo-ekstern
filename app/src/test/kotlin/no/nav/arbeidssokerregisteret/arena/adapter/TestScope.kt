@@ -34,7 +34,7 @@ data class TestScope(
     val opplysningerTopic: TestInputTopic<Long, OpplysningerOmArbeidssoeker>,
     val profileringsTopic: TestInputTopic<Long, Profilering>,
     val arenaTopic: TestOutputTopic<Long, ArenaArbeidssokerregisterTilstand>,
-    val joinStore: KeyValueStore<String, TopicsJoin>,
+    val joinStore: KeyValueStore<Long, TopicsJoin>,
     val topologyTestDriver: TopologyTestDriver
 )
 
@@ -53,7 +53,7 @@ fun testScope(): TestScope {
         .addStateStore(
             KeyValueStoreBuilder(
                 InMemoryKeyValueBytesStoreSupplier(stateStoreName),
-                Serdes.String(),
+                Serdes.Long(),
                 tempArenaArbeidssokerregisterTilstandSerde,
                 Time.SYSTEM
             )

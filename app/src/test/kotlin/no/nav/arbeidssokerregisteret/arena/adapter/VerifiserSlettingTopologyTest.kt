@@ -3,12 +3,8 @@ package no.nav.arbeidssokerregisteret.arena.adapter
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.*
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.compoundKey
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
 import java.time.Duration.ofDays
-import java.time.Instant
 import java.time.Instant.now
 import java.util.concurrent.atomic.AtomicLong
 
@@ -27,7 +23,7 @@ class VerifiserSlettingTopologyTest : FreeSpec({
                 arenaTopic.isEmpty shouldBe true
             }
             "Join store skal inneholde periode og opplysninger" {
-                val topicsJoin = joinStore.get(compoundKey(periode.key, periode.melding.id))
+                val topicsJoin = joinStore.get(periode.key)
                 topicsJoin.shouldNotBeNull()
             }
             "stream time settes flere dager frem i tid " {
@@ -38,7 +34,7 @@ class VerifiserSlettingTopologyTest : FreeSpec({
                 periodeTopic.pipeInput(ubruktePeriode.key, ubruktePeriode.melding, ubruktePeriode.melding.startet.tidspunkt)
             }
             "join store skal ikke lenger inneholde topics joind for periode: ${periode.melding.id}" {
-                joinStore.get(compoundKey(periode.key, periode.melding.id)) shouldBe null
+                joinStore.get(periode.key) shouldBe null
             }
         }
     }
