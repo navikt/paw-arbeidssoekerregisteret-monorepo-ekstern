@@ -16,6 +16,7 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.Produced
+import java.util.*
 
 fun topology(
     builder: StreamsBuilder,
@@ -65,4 +66,8 @@ fun topology(
 
     val topology: Topology = builder.build()
     return topology
+}
+
+fun compoundKey(key: Long, id: UUID): String {
+    return "$key:$id"
 }

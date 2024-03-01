@@ -47,7 +47,7 @@ fun main() {
         .addStateStore(
             KeyValueStoreBuilder(
                 RocksDBKeyValueBytesStoreSupplier(stateStoreName, false),
-                Serdes.Long(),
+                Serdes.String(),
                 tempArenaArbeidssokerregisterTilstandSerde,
                 Time.SYSTEM
             )
