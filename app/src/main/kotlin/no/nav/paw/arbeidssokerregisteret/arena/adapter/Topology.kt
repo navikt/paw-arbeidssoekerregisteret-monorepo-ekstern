@@ -64,10 +64,5 @@ fun topology(
         Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
     )
 
-    val topology: Topology = builder.build()
-    return topology
-}
-
-fun compoundKey(key: Long, id: UUID): String {
-    return "$key:$id"
+    return builder.build()
 }

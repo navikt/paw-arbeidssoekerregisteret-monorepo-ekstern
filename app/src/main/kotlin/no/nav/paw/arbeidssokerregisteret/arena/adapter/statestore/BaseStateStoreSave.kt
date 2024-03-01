@@ -8,7 +8,6 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.compoundKey
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.skalSlettes
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.oppdaterTempArenaTilstandMedNyVerdi
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
@@ -32,7 +31,7 @@ sealed class BaseStateStoreSave(
     private val stateStoreName: String,
     private val registry: PrometheusMeterRegistry
 ) : Processor<Long, SpecificRecord, Long, ArenaArbeidssokerregisterTilstand> {
-    private var keyValueStore: KeyValueStore<String, TopicsJoin>? = null
+    private var keyValueStore: KeyValueStore<UUID, TopicsJoin>? = null
     private var context: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>? = null
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -43,7 +42,7 @@ sealed class BaseStateStoreSave(
         requireNotNull(context) { "Context er ikke satt" }
             .schedule(Duration.ofMinutes(10L), PunctuationType.STREAM_TIME) { streamTime ->
                 val stateStore =
-                    context.getStateStore<KeyValueStore<String, TopicsJoin>>(stateStoreName)
+                    context.getStateStore<KeyValueStore<UUID, TopicsJoin>>(stateStoreName)
                 val wallClock = Instant.ofEpochMilli(context.currentSystemTimeMs())
                 val streamTimeInstant = Instant.ofEpochMilli(context.currentStreamTimeMs())
                 val tidsfrister = kalkulerTidsfrister(
@@ -108,18 +107,18 @@ sealed class BaseStateStoreSave(
 
     private fun process(
         ctx: ProcessorContext<Long, ArenaArbeidssokerregisterTilstand>,
-        db: KeyValueStore<String, TopicsJoin>,
+        db: KeyValueStore<UUID, TopicsJoin>,
         record: Record<Long, SpecificRecord>
     ) {
         val value = record.value()
-        val compoundKey = compoundKey(record.key(), record.value().periodeId())
-        val existingValue = db.get(compoundKey)
+        val key = record.value().periodeId()
+        val existingValue = db.get(key)
         val temp = oppdaterTempArenaTilstandMedNyVerdi(
             nyVerdi = value,
             gjeldeneTilstand = (existingValue ?: TopicsJoin())
         )
         if (temp.periode != null && temp.profilering != null && temp.opplysningerOmArbeidssoeker != null) {
-            db.delete(compoundKey)
+            db.delete(key)
             val valueToForward = ArenaArbeidssokerregisterTilstand(
                 temp.periode,
                 temp.profilering,
@@ -128,7 +127,7 @@ sealed class BaseStateStoreSave(
             )
             ctx.forward(record.withValue(valueToForward))
         } else {
-            db.put(compoundKey, temp)
+            db.put(key, temp)
         }
     }
 

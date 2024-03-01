@@ -16,7 +16,7 @@ class EnkelTopologyTest : FreeSpec({
             }
             val opplysninger = periode.key to opplysninger(periode = periode.melding.id)
             "Når opplysningene blir tilgjengelig sammen med perioden skal vi få noe ut på arena topic" {
-                opplysningerTopic.pipeInput(opplysninger.key, opplysninger.melding )
+                opplysningerTopic.pipeInput(opplysninger.key, opplysninger.melding)
                 arenaTopic.isEmpty shouldBe true
             }
             val profilering = opplysninger.key to profilering(

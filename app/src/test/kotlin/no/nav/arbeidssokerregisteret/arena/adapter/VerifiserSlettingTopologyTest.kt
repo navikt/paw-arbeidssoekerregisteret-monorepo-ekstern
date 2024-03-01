@@ -3,12 +3,12 @@ package no.nav.arbeidssokerregisteret.arena.adapter
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
-import no.nav.arbeidssokerregisteret.arena.adapter.utils.*
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.compoundKey
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
+import no.nav.arbeidssokerregisteret.arena.adapter.utils.key
+import no.nav.arbeidssokerregisteret.arena.adapter.utils.melding
+import no.nav.arbeidssokerregisteret.arena.adapter.utils.metadata
+import no.nav.arbeidssokerregisteret.arena.adapter.utils.opplysninger
+import no.nav.arbeidssokerregisteret.arena.adapter.utils.periode
 import java.time.Duration.ofDays
-import java.time.Instant
 import java.time.Instant.now
 import java.util.concurrent.atomic.AtomicLong
 
@@ -23,11 +23,11 @@ class VerifiserSlettingTopologyTest : FreeSpec({
             }
             val opplysninger = periode.key to opplysninger(periode = periode.melding.id)
             "Når opplysningene blir tilgjengelig sammen med perioden skal vi få noe ut på arena topic" {
-                opplysningerTopic.pipeInput(opplysninger.key, opplysninger.melding )
+                opplysningerTopic.pipeInput(opplysninger.key, opplysninger.melding)
                 arenaTopic.isEmpty shouldBe true
             }
             "Join store skal inneholde periode og opplysninger" {
-                val topicsJoin = joinStore.get(compoundKey(periode.key, periode.melding.id))
+                val topicsJoin = joinStore.get(periode.melding.id)
                 topicsJoin.shouldNotBeNull()
             }
             "stream time settes flere dager frem i tid " {
@@ -35,10 +35,14 @@ class VerifiserSlettingTopologyTest : FreeSpec({
                     identietsnummer = "12345678902",
                     startet = metadata(now() + ofDays(30))
                 )
-                periodeTopic.pipeInput(ubruktePeriode.key, ubruktePeriode.melding, ubruktePeriode.melding.startet.tidspunkt)
+                periodeTopic.pipeInput(
+                    ubruktePeriode.key,
+                    ubruktePeriode.melding,
+                    ubruktePeriode.melding.startet.tidspunkt
+                )
             }
             "join store skal ikke lenger inneholde topics joind for periode: ${periode.melding.id}" {
-                joinStore.get(compoundKey(periode.key, periode.melding.id)) shouldBe null
+                joinStore.get(periode.melding.id) shouldBe null
             }
         }
     }

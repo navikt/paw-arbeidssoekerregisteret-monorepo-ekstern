@@ -27,6 +27,7 @@ import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.state.internals.InMemoryKeyValueBytesStoreSupplier
 import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder
+import java.util.UUID
 
 
 data class TestScope(
@@ -34,10 +35,9 @@ data class TestScope(
     val opplysningerTopic: TestInputTopic<Long, OpplysningerOmArbeidssoeker>,
     val profileringsTopic: TestInputTopic<Long, Profilering>,
     val arenaTopic: TestOutputTopic<Long, ArenaArbeidssokerregisterTilstand>,
-    val joinStore: KeyValueStore<String, TopicsJoin>,
+    val joinStore: KeyValueStore<UUID, TopicsJoin>,
     val topologyTestDriver: TopologyTestDriver
 )
-
 
 fun testScope(): TestScope {
     val topics = Topics(
@@ -53,7 +53,7 @@ fun testScope(): TestScope {
         .addStateStore(
             KeyValueStoreBuilder(
                 InMemoryKeyValueBytesStoreSupplier(stateStoreName),
-                Serdes.String(),
+                Serdes.UUID(),
                 tempArenaArbeidssokerregisterTilstandSerde,
                 Time.SYSTEM
             )
