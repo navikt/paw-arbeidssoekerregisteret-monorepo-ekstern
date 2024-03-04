@@ -31,10 +31,10 @@ private fun toArena(opplysningerOmArbeidssoeker: OpplysningerOmArbeidssoeker) =
         opplysningerOmArbeidssoeker.id,
         opplysningerOmArbeidssoeker.periodeId,
         opplysningerOmArbeidssoeker.sendtInnAv.toArena(),
-        opplysningerOmArbeidssoeker.utdanning.toArena(),
-        Helse(opplysningerOmArbeidssoeker.helse.helsetilstandHindrerArbeid.toArena()),
+        opplysningerOmArbeidssoeker.utdanning?.toArena(),
+        Helse(opplysningerOmArbeidssoeker.helse?.helsetilstandHindrerArbeid?.toArena()),
         opplysningerOmArbeidssoeker.jobbsituasjon.toArena(),
-        Annet(opplysningerOmArbeidssoeker.annet.andreForholdHindrerArbeid.toArena())
+        Annet(opplysningerOmArbeidssoeker.annet?.andreForholdHindrerArbeid?.toArena())
     )
 
 private fun toArena(profilering: Profilering) =

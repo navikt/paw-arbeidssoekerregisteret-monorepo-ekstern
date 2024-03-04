@@ -46,8 +46,8 @@ fun Beskrivelse.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.Beskrivels
 fun Utdanning.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v4.Utdanning =
     no.nav.paw.arbeidssokerregisteret.arena.v4.Utdanning(
         nus,
-        bestaatt.toArena(),
-        godkjent.toArena(),
+        bestaatt?.toArena(),
+        godkjent?.toArena(),
     )
 
 fun JaNeiVetIkke.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.JaNeiVetIkke =
