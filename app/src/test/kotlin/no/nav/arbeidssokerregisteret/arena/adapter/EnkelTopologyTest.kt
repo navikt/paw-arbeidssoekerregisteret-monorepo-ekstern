@@ -28,8 +28,7 @@ class EnkelTopologyTest : FreeSpec({
                 opplysningerId = foerstInnsendteOpplysninger.melding.id,
                 periode = foerstInnsendteOpplysninger.melding.periodeId
             )
-            "Når profileringen ankommer og periode og opplysninger er tilgjengelig skal vi få periode, " +
-                    "første opplysninger og profilering ut på arena topic" {
+            "Når profileringen ankommer og periode og opplysninger er tilgjengelig skal vi få periode, første opplysninger og profilering ut på arena topic" {
                         profileringsTopic.pipeInput(profileringAvFoetsteOpplysninger.key, profileringAvFoetsteOpplysninger.melding)
                         arenaTopic.isEmpty shouldBe false
                         val (key, arenaTilstand) = arenaTopic.readKeyValue().let { it.key to it.value }
@@ -51,6 +50,7 @@ class EnkelTopologyTest : FreeSpec({
             }
             "Når perioden avsluttes skal vi få ut ny melding med avsluttet periode og opprinnelige opplysninger med tilhørende profilering" {
                 val avsluttetPeriode = periode.key to periode(
+                    id = periode.melding.id,
                     identietsnummer = periode.melding.identitetsnummer,
                     startet = periode.melding.startet,
                     avsluttet = metadata(

@@ -117,13 +117,19 @@ sealed class BaseStateStoreSave(
             nyVerdi = value,
             gjeldeneTilstand = (existingValue ?: TopicsJoin())
         )
+        if (temp == existingValue) {
+            return
+        }
         if (temp.periode != null && temp.profilering != null && temp.opplysningerOmArbeidssoeker != null) {
-            db.delete(key)
+            if (temp.periode?.avsluttet != null) {
+                db.delete(key)
+            } else {
+                db.put(key, temp)
+            }
             val valueToForward = ArenaArbeidssokerregisterTilstand(
                 temp.periode,
                 temp.profilering,
                 temp.opplysningerOmArbeidssoeker
-
             )
             ctx.forward(record.withValue(valueToForward))
         } else {

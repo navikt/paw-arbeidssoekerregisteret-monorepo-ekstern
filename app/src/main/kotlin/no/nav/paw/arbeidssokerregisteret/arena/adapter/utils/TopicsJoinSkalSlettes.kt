@@ -22,6 +22,7 @@ fun TopicsJoin.skalSlettes(
     tidsfristVentePaaProfilering: Duration = Duration.ofDays(7)
 ): Boolean = when {
         isEmpty -> true
+        harAapenPeriode -> false
         harBarePeriode -> avsluttetFoer(gjeldeneTid - tidsfristVentePaaOpplysninger)
         harBareProfilering -> true
         manglerBareProfilering -> opplysningerMottattFoer(gjeldeneTid - tidsfristVentePaaProfilering)
@@ -43,3 +44,5 @@ val TopicsJoin.manglerBareProfilering get() = periode != null && profilering == 
 val TopicsJoin.manglerBarePeriode get() = periode == null && profilering != null && opplysningerOmArbeidssoeker != null
 
 val TopicsJoin.harBareOpplysninger get() = periode == null && profilering == null && opplysningerOmArbeidssoeker != null
+
+val TopicsJoin.harAapenPeriode get() = periode != null && periode.avsluttet == null

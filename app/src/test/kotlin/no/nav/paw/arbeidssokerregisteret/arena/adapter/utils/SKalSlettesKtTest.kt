@@ -13,36 +13,48 @@ import java.time.Instant
 import java.util.*
 
 class SKalSlettesKtTest : FreeSpec({
-    "Topics.skalSlettes" - {
+    "TopicsJoin.skalSlettes" - {
         val gjeldeneTid = Instant.now()
         "når ingen av feltene er satt skal den slettes" {
             val topicsJoin = TopicsJoin(null, null, null)
             topicsJoin.skalSlettes(gjeldeneTid) shouldBe true
         }
-        "når bare periode er satt" - {
-            "og den er aktiv" {
-                val topicsJoin = topicsJoinMedPeriode()
-                topicsJoin.skalSlettes(gjeldeneTid) shouldBe false
+        "skal aldri slettes når perioden ikke av avsluttet" - {
+            "selv om opplysninger er mottatt" {
+                val topicsJoin = topicsJoinMedPeriode(
+                    opplysningerSendtInn = gjeldeneTid - 2.dager,
+                    periodeAvsluttet = null
+                )
+                topicsJoin.skalSlettes(gjeldeneTid = gjeldeneTid, tidsfristVentePaaProfilering = 1.dager) shouldBe false
             }
-            "og den er avsluttet" - {
-                "skal den ikke slettes før tiden har utløpt" {
-                    val topicsJoin = topicsJoinMedPeriode(
-                        periodeAvsluttet = gjeldeneTid - 30.dager
+            "selv om opplysninger og profilering er mottatt" {
+                val topicsJoin = topicsJoinMedPeriode(
+                    opplysningerSendtInn = gjeldeneTid - 2.dager,
+                    profileringsSendtInn = gjeldeneTid - 1.dager,
+
                     )
-                    topicsJoin.skalSlettes(
-                        gjeldeneTid = gjeldeneTid,
-                        tidsfristVentePaaOpplysninger = 31.dager
-                    ) shouldBe false
-                }
-                "skal den slettes når tiden har utløpt" {
-                    val topicsJoin = topicsJoinMedPeriode(
-                        periodeAvsluttet = gjeldeneTid - 30.dager
-                    )
-                    topicsJoin.skalSlettes(
-                        gjeldeneTid = gjeldeneTid,
-                        tidsfristVentePaaOpplysninger = 29.dager
-                    ) shouldBe true
-                }
+                topicsJoin.skalSlettes(gjeldeneTid, tidsfristVentePaaProfilering = 3.dager) shouldBe false
+            }
+            "selv om ingen andre meldinger er mottatt" {
+                val topicsJoin = topicsJoinMedPeriode()
+                topicsJoin.skalSlettes(gjeldeneTid, tidsfristVentePaaProfilering = 3.dager) shouldBe false
+            }
+        }
+        "når perioden er avsluttet skal den bare slettes dersom" - {
+            "opplysninger ikke ankommer innen tidsfristen" {
+                val topicsJoin = topicsJoinMedPeriode(
+                    periodeAvsluttet= gjeldeneTid - 4.dager
+                )
+                topicsJoin.skalSlettes(gjeldeneTid = gjeldeneTid, tidsfristVentePaaOpplysninger = 3.dager) shouldBe true
+                topicsJoin.skalSlettes(gjeldeneTid = gjeldeneTid, tidsfristVentePaaOpplysninger = 5.dager) shouldBe false
+            }
+            "profilering ikke ankommer innen tidsfristen" {
+                val topicsJoin = topicsJoinMedPeriode(
+                    periodeAvsluttet = gjeldeneTid - 4.dager,
+                    opplysningerSendtInn = gjeldeneTid - 3.dager
+                )
+                topicsJoin.skalSlettes(gjeldeneTid, tidsfristVentePaaProfilering = 2.dager) shouldBe true
+                topicsJoin.skalSlettes(gjeldeneTid, tidsfristVentePaaProfilering = 4.dager) shouldBe false
             }
         }
         "når bare opplysninger er satt" - {
@@ -57,20 +69,6 @@ class SKalSlettesKtTest : FreeSpec({
                     opplysningerSendtInn = gjeldeneTid - 2.dager
                 )
                 topicsJoin.skalSlettes(gjeldeneTid, tidsfristVentePaaPeriode = 3.dager) shouldBe false
-            }
-        }
-        "når opplysninger og periode er satt" - {
-            "og profileringen ikke kommer innen fristen skal den slettes" {
-                val topicsJoin = topicsJoinMedPeriode(
-                    opplysningerSendtInn = gjeldeneTid - 2.dager
-                )
-                topicsJoin.skalSlettes(gjeldeneTid = gjeldeneTid, tidsfristVentePaaProfilering = 1.dager) shouldBe true
-            }
-            "og fristen for å vente på profileringen ikke er utløpt skal den ikke slettes" {
-                val topicsJoin = topicsJoinMedPeriode(
-                    opplysningerSendtInn = gjeldeneTid - 2.dager
-                )
-                topicsJoin.skalSlettes(gjeldeneTid, tidsfristVentePaaProfilering = 3.dager) shouldBe false
             }
         }
         "når bare profilering er mottatt skal den slettes" {
@@ -106,7 +104,8 @@ fun metadata(timestamp: Instant): ArenaMetadata {
 
 fun topicsJoinMedPeriode(
     periodeAvsluttet: Instant? = null,
-    opplysningerSendtInn: Instant? = null
+    opplysningerSendtInn: Instant? = null,
+    profileringsSendtInn: Instant? = null
 ): TopicsJoin = TopicsJoin(
     Periode(
         UUID.randomUUID(),
@@ -114,7 +113,17 @@ fun topicsJoinMedPeriode(
         metadata(Instant.now().minus(Duration.ofDays(30))),
         periodeAvsluttet?.let(::metadata)
     ),
-    null,
+    profileringsSendtInn?.let {
+        Profilering(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            metadata(it),
+            ProfilertTil.ANTATT_GODE_MULIGHETER,
+            true,
+            42
+        )
+    },
     opplysningerSendtInn?.let {
         OpplysningerOmArbeidssoeker(
             UUID.randomUUID(),

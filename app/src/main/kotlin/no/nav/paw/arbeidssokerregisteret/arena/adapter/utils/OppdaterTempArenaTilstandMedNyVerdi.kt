@@ -14,11 +14,19 @@ fun oppdaterTempArenaTilstandMedNyVerdi(
     gjeldeneTilstand: TopicsJoin
 ): TopicsJoin {
     val periode = (nyVerdi as? Periode)
-        ?.let(::toArena) ?: gjeldeneTilstand.periode
+        ?.let { periode ->
+            if (gjeldeneTilstand.periode == null || periode.avsluttet != null) {
+                toArena(periode)
+            } else {
+                gjeldeneTilstand.periode
+            }
+        } ?: gjeldeneTilstand.periode
     val profilering = (nyVerdi as? Profilering)
-        ?.let(::toArena) ?: gjeldeneTilstand.profilering
+        ?.let { nyProfilering -> gjeldeneTilstand.profilering ?: toArena(nyProfilering) }
+        ?: gjeldeneTilstand.profilering
     val opplysninger = (nyVerdi as? OpplysningerOmArbeidssoeker)
-        ?.let(::toArena) ?: gjeldeneTilstand.opplysningerOmArbeidssoeker
+        ?.let { nyeOpplysninger -> gjeldeneTilstand.opplysningerOmArbeidssoeker ?: toArena(nyeOpplysninger) }
+        ?: gjeldeneTilstand.opplysningerOmArbeidssoeker
     return TopicsJoin(
         periode,
         profilering,
