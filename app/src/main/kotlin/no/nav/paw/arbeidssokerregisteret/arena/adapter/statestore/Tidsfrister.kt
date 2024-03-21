@@ -15,7 +15,7 @@ fun kalkulerTidsfrister(wallClock: Instant, streamTime: Instant): Tidsfrister {
     val isReplay = between(streamTime, wallClock) > ofMinutes(10)
     val tidsfristVentePaaPeriode = if (isReplay) ofHours(5) else ofMinutes(10)
     val tidsfristVentePaaOpplysninger = if (isReplay) ofHours(5) else ofMinutes(10)
-    val tidsfristVentePaaProfilering = if (isReplay) ofDays(5) else ofDays(2)
+    val tidsfristVentePaaProfilering = if (isReplay) ofDays(10) else ofDays(8)
     return Tidsfrister(
         antattLiveProsesering = !isReplay,
         tidsfristVentePaaPeriode = tidsfristVentePaaPeriode,
