@@ -8,6 +8,7 @@ import no.nav.arbeidssokerregisteret.arena.adapter.utils.melding
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.metadata
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.opplysninger
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.periode
+import java.time.Duration
 import java.time.Duration.ofDays
 import java.time.Instant.now
 import java.util.concurrent.atomic.AtomicLong
@@ -53,18 +54,8 @@ class VerifiserSlettingTopologyTest : FreeSpec({
                 periodeTopic.pipeInput(periode.key, avsluttet)
                 arenaTopic.isEmpty shouldBe true
             }
-            "stream time settes flere dager frem i tid igjen" {
-                val ubruktePeriode = keySequence.incrementAndGet() to periode(
-                    identietsnummer = "12345678902",
-                    startet = metadata(now() + ofDays(60))
-                )
-                periodeTopic.pipeInput(
-                    ubruktePeriode.key,
-                    ubruktePeriode.melding,
-                    ubruktePeriode.melding.startet.tidspunkt
-                )
-            }
-            "join store skal ikke lenger inneholde topics joind for periode: ${periode.melding.id}" {
+            "join store skal ikke lenger inneholde topics joind for periode: ${periode.melding.id} etter 12 dager" {
+                topologyTestDriver.advanceWallClockTime(ofDays(12))
                 joinStore.get(periode.melding.id) shouldBe null
             }
         }
