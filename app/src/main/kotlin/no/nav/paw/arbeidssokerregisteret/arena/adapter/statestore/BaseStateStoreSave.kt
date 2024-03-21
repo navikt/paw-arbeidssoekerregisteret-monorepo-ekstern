@@ -40,7 +40,7 @@ sealed class BaseStateStoreSave(
         this.context = context
         keyValueStore = context?.getStateStore(stateStoreName)
         requireNotNull(context) { "Context er ikke satt" }
-            .schedule(Duration.ofMinutes(10L), PunctuationType.STREAM_TIME) { streamTime ->
+            .schedule(Duration.ofMinutes(10L), PunctuationType.WALL_CLOCK_TIME) { streamTime ->
                 val stateStore =
                     context.getStateStore<KeyValueStore<UUID, TopicsJoin>>(stateStoreName)
                 val wallClock = Instant.ofEpochMilli(context.currentSystemTimeMs())
