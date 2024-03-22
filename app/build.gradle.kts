@@ -12,7 +12,7 @@ plugins {
 val jvmVersion = JavaVersion.VERSION_21
 val image: String? by project
 
-val arbeidssoekerregisteretApiVersion = "1.8062260419.22-1"
+val arbeidssoekerregisteretApiVersion = "1.8386290632.25-1"
 val logstashVersion = "7.3"
 val logbackVersion = "1.4.12"
 val pawUtilsVersion = "24.02.06.10-1"
