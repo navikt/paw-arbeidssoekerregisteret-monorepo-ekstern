@@ -1,4 +1,4 @@
-applicationIdSuffix = "v5"
+applicationIdSuffix = "v6"
 [topics]
 opplysningerOmArbeidssoeker = "paw.opplysninger-om-arbeidssoeker-v1"
 arbeidssokerperioder = "paw.arbeidssokerperioder-v1"
