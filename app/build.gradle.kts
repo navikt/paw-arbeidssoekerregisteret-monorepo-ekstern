@@ -15,7 +15,7 @@ val image: String? by project
 val arbeidssoekerregisteretApiVersion = "1.8386290632.25-1"
 val logstashVersion = "7.3"
 val logbackVersion = "1.4.12"
-val pawUtilsVersion = "24.02.06.10-1"
+val pawUtilsVersion = "24.03.25.14-1"
 val kafkaStreamsVersion = "3.6.0"
 
 val schema by configurations.creating {

@@ -13,6 +13,7 @@ import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.meterIdMap
 import no.nav.paw.arbeidssokerregisteret.arena.v4.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
+import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import org.apache.kafka.common.serialization.Serdes
@@ -29,18 +30,20 @@ import java.util.concurrent.CompletableFuture.runAsync
 
 val logger = LoggerFactory.getLogger("App")
 fun main() {
-    val kafkaStreamsConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
+    val kafkaStreamsConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>("application.toml")
     val (applicationIdSuffix, topics) = applicationConfig
 
     val kafkaStreamsFactory = KafkaStreamsFactory(applicationIdSuffix, kafkaStreamsConfig)
+        .withExactlyOnce()
 
     val periodeSerde = kafkaStreamsFactory.createSpecificAvroSerde<Periode>()
     val opplysningerOmArbeidssoekerSerde = kafkaStreamsFactory.createSpecificAvroSerde<OpplysningerOmArbeidssoeker>()
     val profileringSerde = kafkaStreamsFactory.createSpecificAvroSerde<Profilering>()
     val arenaArbeidssokerregisterTilstandSerde =
         kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
-    val tempArenaArbeidssokerregisterTilstandSerde = kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
+    val tempArenaArbeidssokerregisterTilstandSerde =
+        kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
 
     val stateStoreName = "periodeStateStore"
     val builder = StreamsBuilder()
@@ -71,7 +74,7 @@ fun main() {
     }
 
     runAsync {
-        while(true) {
+        while (true) {
             val currentPartitions = kafkaStreams.metadataForLocalThreads().flatMap { thread ->
                 thread.activeTasks().map { it.taskId().partition() }
             }.toList()
