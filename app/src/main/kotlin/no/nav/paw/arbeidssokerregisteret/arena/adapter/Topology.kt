@@ -16,6 +16,7 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.Produced
+import java.time.Instant
 import java.util.*
 
 fun topology(
@@ -43,7 +44,9 @@ fun topology(
     builder.stream(
         topics.opplysningerOmArbeidssoeker,
         Consumed.with(Serdes.Long(), opplysningerOmArbeidssoekerSerde)
-    ).saveToStoreForwardIfComplete(
+    ).filter{ _, opplysninger ->
+        opplysninger.sendtInnAv.tidspunkt.isAfter(Instant.parse("2024-01-01T00:00:00Z"))
+    }.saveToStoreForwardIfComplete(
         type = OpplysningerOmArbeidssoekerStateStoreSave::class,
         storeName = stateStoreName,
         registry = registry
