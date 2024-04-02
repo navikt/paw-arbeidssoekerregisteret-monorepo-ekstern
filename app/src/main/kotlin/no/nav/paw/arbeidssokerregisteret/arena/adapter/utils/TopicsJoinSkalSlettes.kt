@@ -24,7 +24,7 @@ fun TopicsJoin.skalSlettes(
         isEmpty -> true
         harAapenPeriode -> false
         harBarePeriode -> avsluttetFoer(gjeldeneTid - tidsfristVentePaaOpplysninger)
-        harBareProfilering -> true
+        harBareProfilering -> profileringMottattFoer(gjeldeneTid - tidsfristVentePaaOpplysninger)
         manglerBareProfilering -> opplysningerMottattFoer(gjeldeneTid - tidsfristVentePaaProfilering)
         harBareOpplysninger -> opplysningerMottattFoer(gjeldeneTid - tidsfristVentePaaPeriode)
         manglerBarePeriode -> opplysningerMottattFoer(gjeldeneTid - tidsfristVentePaaPeriode)
@@ -46,3 +46,5 @@ val TopicsJoin.manglerBarePeriode get() = periode == null && profilering != null
 val TopicsJoin.harBareOpplysninger get() = periode == null && profilering == null && opplysningerOmArbeidssoeker != null
 
 val TopicsJoin.harAapenPeriode get() = periode != null && periode.avsluttet == null
+
+fun TopicsJoin.profileringMottattFoer(time: Instant): Boolean = profilering?.sendtInnAv?.tidspunkt?.isBefore(time) ?: false
