@@ -120,7 +120,7 @@ sealed class BaseStateStoreSave(
         if (temp == existingValue) {
             return
         }
-        if (temp.periode != null && temp.profilering != null && temp.opplysningerOmArbeidssoeker != null) {
+        if (isComplete(temp)) {
             if (temp.periode?.avsluttet != null) {
                 db.delete(key)
             } else {
@@ -136,6 +136,11 @@ sealed class BaseStateStoreSave(
             db.put(key, temp)
         }
     }
+
+    private fun isComplete(temp: TopicsJoin) =
+        (temp.periode != null && temp.periode.avsluttet != null ) ||
+                (temp.periode != null && temp.profilering != null && temp.opplysningerOmArbeidssoeker != null)
+
 
     fun SpecificRecord.periodeId(): UUID {
         return when (this) {

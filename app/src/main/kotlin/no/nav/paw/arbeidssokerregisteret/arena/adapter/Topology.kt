@@ -19,9 +19,8 @@ import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Produced
 import java.time.Instant
-import java.util.*
 
-private val HOEYVANNSMERKE_FOR_OPPLYSNINGER = Instant.parse("2024-01-01T00:00:00Z")
+private val HOEYVANNSMERKE = Instant.parse("2024-01-01T00:00:00Z")
 
 fun topology(
     builder: StreamsBuilder,
@@ -36,7 +35,10 @@ fun topology(
     builder.stream(
         topics.arbeidssokerperioder,
         Consumed.with(Serdes.Long(), periodeSerde)
-    ).saveToStoreForwardIfComplete(
+    ).filter { _, periode ->
+        periode.startet.tidspunkt.isAfter(HOEYVANNSMERKE) ||
+                (periode.avsluttet != null && periode.avsluttet.tidspunkt.isAfter(HOEYVANNSMERKE))
+    }.saveToStoreForwardIfComplete(
         type = PeriodeStateStoreSave::class,
         storeName = stateStoreName,
         registry = registry
@@ -49,7 +51,7 @@ fun topology(
         topics.opplysningerOmArbeidssoeker,
         Consumed.with(Serdes.Long(), opplysningerOmArbeidssoekerSerde)
     ).filter { _, opplysninger ->
-        opplysninger.sendtInnAv.tidspunkt.isAfter(HOEYVANNSMERKE_FOR_OPPLYSNINGER)
+        opplysninger.sendtInnAv.tidspunkt.isAfter(HOEYVANNSMERKE)
     }.saveToStoreForwardIfComplete(
         type = OpplysningerOmArbeidssoekerStateStoreSave::class,
         storeName = stateStoreName,
@@ -63,7 +65,7 @@ fun topology(
         topics.profilering,
         Consumed.with(Serdes.Long(), profileringSerde)
     ).filter("filterOnRecordTimestamp") { record ->
-        Instant.ofEpochMilli(record.timestamp()).isAfter(HOEYVANNSMERKE_FOR_OPPLYSNINGER)
+        Instant.ofEpochMilli(record.timestamp()).isAfter(HOEYVANNSMERKE)
     }.saveToStoreForwardIfComplete(
         type = ProfileringStateStoreSave::class,
         storeName = stateStoreName,
@@ -80,9 +82,11 @@ fun topology(
 fun KStream<Long, ArenaArbeidssokerregisterTilstand>.assertValidMessages(): KStream<Long, ArenaArbeidssokerregisterTilstand> =
     peek { _, arenaTilstand ->
         requireNotNull(arenaTilstand.periode) { "Periode mangler" }
-        requireNotNull(arenaTilstand.profilering) { "Profilering mangler" }
-        requireNotNull(arenaTilstand.opplysningerOmArbeidssoeker) { "Opplysninger om arbeidssøker mangler" }
-        require(arenaTilstand.periode.id == arenaTilstand.profilering.periodeId) { "PeriodeId (profilering) matcher ikke" }
-        require(arenaTilstand.periode.id == arenaTilstand.opplysningerOmArbeidssoeker.periodeId) { "PeriodeId (opplysninger om arbeidssøker) matcher ikke" }
-        require(arenaTilstand.opplysningerOmArbeidssoeker.id == arenaTilstand.profilering.opplysningerOmArbeidssokerId) { "Opplysninger om arbeidssøkerId (profilering) matcher ikke" }
+        require(arenaTilstand.profilering?.periodeId == null || arenaTilstand.periode.id == arenaTilstand.profilering.periodeId) { "PeriodeId (profilering) matcher ikke" }
+        require(arenaTilstand.opplysningerOmArbeidssoeker?.periodeId == null || arenaTilstand.periode.id == arenaTilstand.opplysningerOmArbeidssoeker.periodeId) { "PeriodeId (opplysninger om arbeidssøker) matcher ikke" }
+
+        require(listOfNotNull(
+            arenaTilstand.opplysningerOmArbeidssoeker?.id,
+            arenaTilstand.profilering?.opplysningerOmArbeidssokerId
+        ).distinct().size < 2) { "Opplysninger om arbeidssøkerId (profilering) matcher ikke" }
     }

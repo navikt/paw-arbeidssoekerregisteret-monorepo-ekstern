@@ -1,6 +1,6 @@
-applicationIdSuffix = "v8"
+applicationIdSuffix = "v9"
 [topics]
 opplysningerOmArbeidssoeker = "paw.opplysninger-om-arbeidssoeker-v1"
 arbeidssokerperioder = "paw.arbeidssokerperioder-v1"
 profilering = "paw.arbeidssoker-profilering-v1"
-arena = "paw.arbeidssoker-arena-beta-v15"
+arena = "paw.arbeidssoker-arena-beta-v16"
