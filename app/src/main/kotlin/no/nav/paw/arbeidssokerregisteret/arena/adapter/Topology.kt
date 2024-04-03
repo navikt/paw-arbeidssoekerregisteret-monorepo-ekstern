@@ -16,6 +16,7 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.Consumed
+import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Produced
 import java.time.Instant
 import java.util.*
@@ -67,9 +68,21 @@ fun topology(
         type = ProfileringStateStoreSave::class,
         storeName = stateStoreName,
         registry = registry
-    ).to(
-        topics.arena,
-        Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
     )
+        .assertValidMessages()
+        .to(
+            topics.arena,
+            Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
+        )
     return builder.build()
 }
+
+fun KStream<Long, ArenaArbeidssokerregisterTilstand>.assertValidMessages(): KStream<Long, ArenaArbeidssokerregisterTilstand> =
+    peek { _, arenaTilstand ->
+        requireNotNull(arenaTilstand.periode) { "Periode mangler" }
+        requireNotNull(arenaTilstand.profilering) { "Profilering mangler" }
+        requireNotNull(arenaTilstand.opplysningerOmArbeidssoeker) { "Opplysninger om arbeidssøker mangler" }
+        require(arenaTilstand.periode.id == arenaTilstand.profilering.periodeId) { "PeriodeId (profilering) matcher ikke" }
+        require(arenaTilstand.periode.id == arenaTilstand.opplysningerOmArbeidssoeker.periodeId) { "PeriodeId (opplysninger om arbeidssøker) matcher ikke" }
+        require(arenaTilstand.opplysningerOmArbeidssoeker.id == arenaTilstand.profilering.opplysningerOmArbeidssokerId) { "Opplysninger om arbeidssøkerId (profilering) matcher ikke" }
+    }
