@@ -26,6 +26,17 @@ class EnkelTopologyTest : FreeSpec({
                 opplysningerTopic.pipeInput(foerstInnsendteOpplysninger.key, foerstInnsendteOpplysninger.melding)
                 arenaTopic.isEmpty shouldBe true
             }
+            "Vi ignorer profileringer for opplysninger sendt inn før 1. januar 2024(skal normalt sett ikke dukke opp)" {
+                profileringsTopic.pipeInput(
+                    foerstInnsendteOpplysninger.key,
+                    profilering(
+                        opplysningerId = foerstInnsendteOpplysninger.melding.id,
+                        periode = foerstInnsendteOpplysninger.melding.periodeId
+                    ),
+                    foerstInnsendteOpplysninger.second.sendtInnAv.tidspunkt.toEpochMilli()
+                )
+                arenaTopic.isEmpty shouldBe true
+            }
             val foeerstInnsendteOpplysningerI2024 = periode.key to opplysninger(
                 periode = periode.melding.id,
                 timestamp = Instant.parse("2024-01-01T00:00:01Z")

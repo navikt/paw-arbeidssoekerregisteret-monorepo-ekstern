@@ -9,6 +9,7 @@ import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.OpplysningerOm
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.PeriodeStateStoreSave
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.ProfileringStateStoreSave
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.saveToStoreForwardIfComplete
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.filter
 import no.nav.paw.arbeidssokerregisteret.arena.v4.ArenaArbeidssokerregisterTilstand
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
@@ -18,6 +19,8 @@ import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.Produced
 import java.time.Instant
 import java.util.*
+
+private val HOEYVANNSMERKE_FOR_OPPLYSNINGER = Instant.parse("2024-01-01T00:00:00Z")
 
 fun topology(
     builder: StreamsBuilder,
@@ -44,8 +47,8 @@ fun topology(
     builder.stream(
         topics.opplysningerOmArbeidssoeker,
         Consumed.with(Serdes.Long(), opplysningerOmArbeidssoekerSerde)
-    ).filter{ _, opplysninger ->
-        opplysninger.sendtInnAv.tidspunkt.isAfter(Instant.parse("2024-01-01T00:00:00Z"))
+    ).filter { _, opplysninger ->
+        opplysninger.sendtInnAv.tidspunkt.isAfter(HOEYVANNSMERKE_FOR_OPPLYSNINGER)
     }.saveToStoreForwardIfComplete(
         type = OpplysningerOmArbeidssoekerStateStoreSave::class,
         storeName = stateStoreName,
@@ -58,7 +61,9 @@ fun topology(
     builder.stream(
         topics.profilering,
         Consumed.with(Serdes.Long(), profileringSerde)
-    ).saveToStoreForwardIfComplete(
+    ).filter("filterOnRecordTimestamp") { record ->
+        Instant.ofEpochMilli(record.timestamp()).isAfter(HOEYVANNSMERKE_FOR_OPPLYSNINGER)
+    }.saveToStoreForwardIfComplete(
         type = ProfileringStateStoreSave::class,
         storeName = stateStoreName,
         registry = registry
@@ -66,6 +71,5 @@ fun topology(
         topics.arena,
         Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
     )
-
     return builder.build()
 }
