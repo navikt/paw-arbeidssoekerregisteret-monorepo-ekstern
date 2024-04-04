@@ -121,11 +121,7 @@ sealed class BaseStateStoreSave(
             return
         }
         if (isComplete(temp)) {
-            if (temp.periode?.avsluttet != null) {
-                db.delete(key)
-            } else {
-                db.put(key, temp)
-            }
+            db.delete(key)
             val valueToForward = ArenaArbeidssokerregisterTilstand(
                 temp.periode,
                 temp.profilering,

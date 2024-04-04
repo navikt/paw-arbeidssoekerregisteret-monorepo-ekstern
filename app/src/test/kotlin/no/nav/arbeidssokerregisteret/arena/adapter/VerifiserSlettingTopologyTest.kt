@@ -53,6 +53,9 @@ class VerifiserSlettingTopologyTest : FreeSpec({
                 )
                 periodeTopic.pipeInput(periode.key, avsluttet)
                 arenaTopic.isEmpty shouldBe false
+                val keyValue = arenaTopic.readKeyValue()
+                keyValue.key shouldBe periode.key
+                keyValue.value.periode?.avsluttet?.tidspunkt shouldBe avsluttet.avsluttet.tidspunkt
             }
             "join store skal ikke lenger inneholde topics joind for periode: ${periode.melding.id}" {
                 topologyTestDriver.advanceWallClockTime(ofDays(0))
@@ -60,10 +63,10 @@ class VerifiserSlettingTopologyTest : FreeSpec({
             }
         }
         "Når vi har sendt, periode, opplysninger" - {
-            "test"{
-                arenaTopic shouldBe true
+            "Verifiser at vi startet med tomt arena topic" {
+                arenaTopic.isEmpty shouldBe true
             }
-            val periode2 = keySequence.incrementAndGet() to periode(identietsnummer = "12345678902")
+            val periode2 = keySequence.incrementAndGet() to periode(identietsnummer = "12345678903")
             "Når bare perioden er sendt inn skal vi ikke få noe ut på arena topic" {
                 periodeTopic.pipeInput(periode2.key, periode2.melding)
                 arenaTopic.isEmpty shouldBe true
@@ -75,7 +78,7 @@ class VerifiserSlettingTopologyTest : FreeSpec({
             }
             "stream time settes flere dager frem i tid " {
                 val ubruktePeriode = keySequence.incrementAndGet() to periode(
-                    identietsnummer = "12345678903",
+                    identietsnummer = "92345678903",
                     startet = metadata(now() + ofDays(30))
                 )
                 periodeTopic.pipeInput(
@@ -87,10 +90,23 @@ class VerifiserSlettingTopologyTest : FreeSpec({
             "Join store skal inneholde periode og opplysninger" {
                 val topicsJoin = joinStore.get(periode2.melding.id)
                 topicsJoin.shouldNotBeNull()
+                topicsJoin.periode.shouldNotBeNull()
+                topicsJoin.opplysningerOmArbeidssoeker.shouldNotBeNull()
             }
-
-            "join store skal ikke lenger inneholde topics joind for periode: ${periode2.melding.id} etter 12 dager" {
-                topologyTestDriver.advanceWallClockTime(ofDays(12))
+            "Nå perioden avsluttes får vi melding på topic og den slettes fra join store" {
+                val avsluttet = periode(
+                    id = periode2.melding.id,
+                    identietsnummer = periode2.melding.identitetsnummer,
+                    startet = periode2.melding.startet,
+                    avsluttet = metadata(
+                        periode2.melding.startet.tidspunkt + ofDays(30)
+                    )
+                )
+                periodeTopic.pipeInput(periode2.key, avsluttet)
+                arenaTopic.isEmpty shouldBe false
+                val keyValue = arenaTopic.readKeyValue()
+                keyValue.key shouldBe periode2.key
+                keyValue.value.periode?.avsluttet?.tidspunkt shouldBe avsluttet.avsluttet.tidspunkt
                 joinStore.get(periode2.melding.id) shouldBe null
             }
         }

@@ -71,7 +71,7 @@ class EnkelTopologyTest : FreeSpec({
                 )
                 arenaTopic.isEmpty shouldBe true
             }
-            "Når perioden startet etter 2024 avsluttes skal vi få ut ny melding med avsluttet periode og opprinnelige opplysninger med tilhørende profilering" {
+            "Når perioden startet etter 2024 avsluttes skal vi få ut ny melding med avsluttet periode uten profilering og opplysning" {
                 val avsluttetPeriode = periode.key to periode(
                     id = periode.melding.id,
                     identietsnummer = periode.melding.identitetsnummer,
@@ -88,14 +88,8 @@ class EnkelTopologyTest : FreeSpec({
                     api = avsluttetPeriode.melding,
                     arena = arenaTilstand.periode
                 )
-                assertApiOpplysningerMatchesArenaOpplysninger(
-                    api = foerstInnsendteOpplysninger.melding,
-                    arena = arenaTilstand.opplysningerOmArbeidssoeker
-                )
-                assertApiProfileringMatchesArenaProfilering(
-                    api = profileringAvFoertsteOpplysninger.melding,
-                    arena = arenaTilstand.profilering
-                )
+                arenaTilstand.opplysningerOmArbeidssoeker shouldBe null
+                arenaTilstand.profilering shouldBe null
             }
         }
         "Startet før 2024" - {

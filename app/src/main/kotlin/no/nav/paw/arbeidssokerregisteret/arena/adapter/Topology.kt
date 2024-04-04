@@ -20,7 +20,7 @@ import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Produced
 import java.time.Instant
 
-private val HOEYVANNSMERKE = Instant.parse("2024-01-01T00:00:00Z")
+val HOEYVANNSMERKE = Instant.parse("2024-01-01T00:00:00Z")
 
 fun topology(
     builder: StreamsBuilder,

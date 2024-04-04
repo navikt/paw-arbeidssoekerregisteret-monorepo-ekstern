@@ -27,11 +27,20 @@ fun oppdaterTempArenaTilstandMedNyVerdi(
     val opplysninger = (nyVerdi as? OpplysningerOmArbeidssoeker)
         ?.let { nyeOpplysninger -> gjeldeneTilstand.opplysningerOmArbeidssoeker ?: toArena(nyeOpplysninger) }
         ?: gjeldeneTilstand.opplysningerOmArbeidssoeker
-    return TopicsJoin(
-        periode,
-        profilering,
-        opplysninger
-    )
+    val erAvsluttet = periode?.avsluttet != null
+    return if (erAvsluttet) {
+        TopicsJoin(
+            periode,
+            null,
+            null
+        )
+    } else {
+        TopicsJoin(
+            periode,
+            profilering,
+            opplysninger
+        )
+    }
 }
 
 private fun toArena(opplysningerOmArbeidssoeker: OpplysningerOmArbeidssoeker) =
