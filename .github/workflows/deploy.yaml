@@ -49,7 +49,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    name: Deploy to NAIS
+    name: Deploy to dev-gcp
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +65,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    name: Deploy to NAIS
+    name: Deploy to prod-gcp
     needs: build
     runs-on: ubuntu-latest
     steps:
