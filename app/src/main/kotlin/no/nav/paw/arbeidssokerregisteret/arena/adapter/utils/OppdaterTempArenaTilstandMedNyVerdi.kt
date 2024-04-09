@@ -49,9 +49,9 @@ private fun toArena(opplysningerOmArbeidssoeker: OpplysningerOmArbeidssoeker) =
         opplysningerOmArbeidssoeker.periodeId,
         opplysningerOmArbeidssoeker.sendtInnAv.toArena(),
         opplysningerOmArbeidssoeker.utdanning?.toArena(),
-        Helse(opplysningerOmArbeidssoeker.helse?.helsetilstandHindrerArbeid?.toArena()),
+        opplysningerOmArbeidssoeker.helse?.toArena(),
         opplysningerOmArbeidssoeker.jobbsituasjon.toArena(),
-        Annet(opplysningerOmArbeidssoeker.annet?.andreForholdHindrerArbeid?.toArena())
+        opplysningerOmArbeidssoeker.annet?.toArena()
     )
 
 private fun toArena(profilering: Profilering) =
