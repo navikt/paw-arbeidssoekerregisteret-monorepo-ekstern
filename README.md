@@ -6,3 +6,5 @@ Eksempler på tjenester som skal flyttes/opprettes her:
 - ekstern-api
 - oppslags-api
 - Aktivering av microfrontends (tjenester for å trigge noe basert på records fra periode,opplysninger og/eller profilering).
+
+Tjenester som benytter seg av hendelsesloggen plasseres i https://github.com/navikt/paw-arbeidssoekerregisteret-monorepo-intern.
