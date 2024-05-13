@@ -12,7 +12,8 @@ include(
     "lib:hoplite-config",
     "lib:kafka",
     "lib:kafka-streams",
-    "domain:main-avro-schema"
+    "domain:main-avro-schema",
+    "meldeplikt-tjeneste"
 )
 
 dependencyResolutionManagement {
