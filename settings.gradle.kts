@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.9.22" apply false
+    id("io.ktor.plugin") version "2.3.10" apply false
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.4.0" apply false
     id("com.google.cloud.tools.jib") version "3.4.1" apply false
     id("org.openapi.generator") version "7.4.0" apply false
@@ -13,7 +14,8 @@ include(
     "lib:kafka",
     "lib:kafka-streams",
     "domain:main-avro-schema",
-    "meldeplikt-tjeneste"
+    "meldeplikt-tjeneste",
+    "apps:aia-microfrontend-toggler"
 )
 
 dependencyResolutionManagement {
