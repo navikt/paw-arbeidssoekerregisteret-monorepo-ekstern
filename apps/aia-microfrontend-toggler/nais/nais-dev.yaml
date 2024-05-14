@@ -8,6 +8,9 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
+  env:
+    - name: KAFKA_KEY_SCOPE
+      value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
   resources:
     limits:
       memory: 1024Mi
