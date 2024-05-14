@@ -66,7 +66,7 @@ jobs:
 #  deploy-prod:
 #    if: github.ref == 'refs/heads/main'
 #    name: Deploy to prod-gcp - AIA Microfrontend Toggler
-#    needs: [build, deploy-dev]
+#    needs: build
 #    runs-on: ubuntu-latest
 #    permissions:
 #      contents: read
@@ -78,5 +78,5 @@ jobs:
 #          TEAM: paw
 #          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
 #          CLUSTER: prod-gcp
-#          RESOURCE: ./apps/aia-microfrontend-toggler/nais/nais-dev.yaml
-#          VAR: image=${{ needs.build.outputs.image }},env=dev,ingressDomain=intern.nav.no
+#          RESOURCE: ./apps/aia-microfrontend-toggler/nais/nais-prod.yaml
+#          VAR: image=${{ needs.build.outputs.image }},env=prod,ingressDomain=intern.nav.no

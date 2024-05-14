@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
 const val APP_LOGGER_NAME = "app"
-const val CONFIG_FILE_NAME = "application.yaml"
+const val CONFIG_FILE_NAME = "application.toml"
 
 data class Config(
     val server: ServerConfig = ServerConfig(),
