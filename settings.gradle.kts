@@ -176,6 +176,13 @@ dependencyResolutionManagement {
             library("javaTime", "org.jetbrains.exposed", "exposed-java-time").version(kotlinExposedVersion)
         }
         create("testLibs") {
+            bundle(
+                "withUnitTesting", listOf(
+                    "runnerJunit5",
+                    "assertionsCore",
+                    "mockk"
+                )
+            )
             library("runnerJunit5", "io.kotest", "kotest-runner-junit5").version(kotestVersion)
             library("assertionsCore", "io.kotest", "kotest-assertions-core").version(kotestVersion)
             library("mockk", "io.mockk", "mockk").version(mockkVersion)

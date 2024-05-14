@@ -20,7 +20,6 @@ dependencies {
     implementation(ktorServer.bundles.withNettyAndMicrometer)
 
     // Instrumentation
-    //implementation(openTelemetry.bundles.ktorServer)
     implementation(micrometer.registryPrometheus)
 
     // Logging
@@ -30,7 +29,7 @@ dependencies {
 
     // Test
     testImplementation(ktorServer.testJvm)
-    //testImplementation(testLibs.bundles.unitTesting)
+    testImplementation(testLibs.bundles.withUnitTesting)
 }
 
 sourceSets {
