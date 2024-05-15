@@ -14,7 +14,7 @@ include(
     "lib:kafka",
     "lib:kafka-streams",
     "domain:main-avro-schema",
-    "meldeplikt-tjeneste",
+    "apps:meldeplikt-tjeneste",
     "apps:aia-microfrontend-toggler"
 )
 
