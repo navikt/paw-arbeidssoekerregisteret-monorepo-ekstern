@@ -16,7 +16,7 @@ include(
     "domain:main-avro-schema",
     "apps:meldeplikt-tjeneste",
     "apps:aia-microfrontend-toggler",
-    "apps:meldeplikt-interne-hendelser"
+    "domain:meldeplikt-interne-hendelser"
 )
 
 dependencyResolutionManagement {
