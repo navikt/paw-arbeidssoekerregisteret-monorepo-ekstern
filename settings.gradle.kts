@@ -15,7 +15,8 @@ include(
     "lib:kafka-streams",
     "domain:main-avro-schema",
     "apps:meldeplikt-tjeneste",
-    "apps:aia-microfrontend-toggler"
+    "apps:aia-microfrontend-toggler",
+    "apps:meldeplikt-interne-hendelser"
 )
 
 dependencyResolutionManagement {
