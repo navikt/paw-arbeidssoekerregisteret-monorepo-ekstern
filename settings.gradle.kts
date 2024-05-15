@@ -16,7 +16,9 @@ include(
     "domain:main-avro-schema",
     "apps:meldeplikt-tjeneste",
     "apps:aia-microfrontend-toggler",
-    "domain:meldeplikt-interne-hendelser"
+    "domain:meldeplikt-interne-hendelser",
+    "domain:rapporteringsansvar-schema",
+    "domain:rapporteringsmelding-schema"
 )
 
 dependencyResolutionManagement {
@@ -75,6 +77,7 @@ dependencyResolutionManagement {
         val otelTargetSdkVersion = "1.36.0"
         val otelInstrumentationVersion = "2.1.0"
         val coroutinesVersion = "1.8.0"
+        val rapporteringsSchemaVersion = "24.05.15.2-1"
 
         fun VersionCatalogBuilder.ktorLib(alias: String, artifactId: String) = library(alias, "io.ktor", artifactId).version("2.3.10")
         fun VersionCatalogBuilder.ktorLibs(vararg aliases: Pair<String, String>) = aliases.forEach { (artifactId, alias) -> ktorLib(alias, artifactId) }
@@ -193,6 +196,10 @@ dependencyResolutionManagement {
         }
         create("poao") {
             library("tilgangClient", "no.nav.poao-tilgang", "client").version("2024.04.29_13.59-a0ddddd36ac9")
+        }
+        create("rapportering") {
+            library("rapporteringsansvarSchema", "no.nav.paw.arbeidssokerregisteret.api", "rapporteringsansvar-schema").version(rapporteringsSchemaVersion)
+            library("rapporteringsmeldingSchema", "no.nav.paw.arbeidssokerregisteret.api", "rapporteringsmelding-schema").version(rapporteringsSchemaVersion)
         }
     }
 }
