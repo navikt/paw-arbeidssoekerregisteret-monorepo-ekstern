@@ -9,6 +9,7 @@ class RapporteringTilgjengelig (
     override val hendelseId: UUID,
     override val periodeId: UUID,
     override val identitetsnummer: String,
+    override val arbeidssoekerId: Long,
     val rapporteringsId: UUID,
     val gjelderFra: Instant,
     val gjelderTil: Instant
