@@ -29,9 +29,12 @@ object RapporteringsHendelseSerializer: Serializer<RapporteringsHendelse> {
 }
 
 object RapporteringsHendelseDeserializer: Deserializer<RapporteringsHendelse> {
-    override fun deserialize(topic: String?, data: ByteArray?): RapporteringsHendelse? {
+    override fun deserialize(topic: String?, data: ByteArray?): RapporteringsHendelse {
         val node = objectMapper.readTree(data)
         return when (val hendelseType = node.get("hendelseType")?.asText()) {
+            leveringsfristUtloeptHendelseType -> objectMapper.readValue<LeveringsfristUtloept>(node.traverse())
+            gracePeriodeUtloeptHendelseType -> objectMapper.readValue<GracePeriodeUtloept>(node.traverse())
+            rapporteringTilgjengeligHendelseType -> objectMapper.readValue<RapporteringTilgjengelig>(node.traverse())
             meldingMottattHendelseType -> objectMapper.readValue<RapporteringsMeldingMottatt>(node.traverse())
             else -> throw IllegalArgumentException("Ukjent hendelseType: $hendelseType")
         }

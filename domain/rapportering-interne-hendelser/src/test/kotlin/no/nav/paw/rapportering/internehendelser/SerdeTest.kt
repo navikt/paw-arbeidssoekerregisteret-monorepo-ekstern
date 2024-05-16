@@ -7,12 +7,11 @@ import java.util.*
 class SerdeTest : FreeSpec({
     "Enkel Serde test" - {
         "${RapporteringsHendelseSerde::class.simpleName} kan serialisere og deserialisere" {
-            val hendelse = RapporteringsMeldingMottatt(
+            val hendelse = LeveringsfristUtloept(
                 hendelseId = UUID.randomUUID(),
                 periodeId = UUID.randomUUID(),
                 identitetsnummer = "12345678901",
-                rapporteringsId = UUID.randomUUID(),
-                fortsetterSomArbeidssoker = true
+                rapporteringsId = UUID.randomUUID()
             )
             val resultat = RapporteringsHendelseSerializer.serialize("", hendelse)
                 .let { serialized ->

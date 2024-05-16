@@ -1,0 +1,17 @@
+package no.nav.paw.rapportering.internehendelser
+
+import java.time.Instant
+import java.util.*
+
+const val rapporteringTilgjengeligHendelseType = "rapportering.tilgjengelig"
+
+class RapporteringTilgjengelig (
+    override val hendelseId: UUID,
+    override val periodeId: UUID,
+    override val identitetsnummer: String,
+    val rapporteringsId: UUID,
+    val gjelderFra: Instant,
+    val gjelderTil: Instant
+) : RapporteringsHendelse {
+    override val hendelseType: String = rapporteringTilgjengeligHendelseType
+}
