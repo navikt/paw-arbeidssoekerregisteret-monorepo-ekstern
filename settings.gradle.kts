@@ -14,9 +14,9 @@ include(
     "lib:kafka",
     "lib:kafka-streams",
     "domain:main-avro-schema",
-    "apps:meldeplikt-tjeneste",
+    "apps:rapporterings-tjeneste",
     "apps:aia-microfrontend-toggler",
-    "domain:meldeplikt-interne-hendelser",
+    "domain:rapportering-interne-hendelser",
     "domain:rapporteringsansvar-schema",
     "domain:rapporteringsmelding-schema"
 )

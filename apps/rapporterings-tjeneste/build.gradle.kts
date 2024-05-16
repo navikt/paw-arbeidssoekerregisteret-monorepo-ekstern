@@ -7,7 +7,7 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:kafka-streams"))
     implementation(project(":domain:main-avro-schema"))
-    implementation(project(":domain:meldeplikt-interne-hendelser"))
+    implementation(project(":domain:rapportering-interne-hendelser"))
     implementation(project(":domain:rapporteringsansvar-schema"))
     implementation(project(":domain:rapporteringsmelding-schema"))
     implementation(orgApacheKafka.kafkaStreams)
