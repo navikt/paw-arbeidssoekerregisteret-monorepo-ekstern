@@ -11,10 +11,11 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.state.Stores
 
 const val STATE_STORE = "state-store"
+const val APPLICATION_ID_SUFFIX = "beta"
 
 fun main() {
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
-    val streamsFactory = KafkaStreamsFactory("beta", kafkaConfig)
+    val streamsFactory = KafkaStreamsFactory(APPLICATION_ID_SUFFIX, kafkaConfig)
         .withDefaultKeySerde(Serdes.Long()::class)
         .withDefaultValueSerde(SpecificAvroSerde::class)
     val steamsBuilder = StreamsBuilder()

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm")
     id("com.google.cloud.tools.jib")
@@ -15,4 +17,11 @@ dependencies {
     implementation(jackson.datatypeJsr310)
     implementation(jackson.kotlin)
     implementation(apacheAvro.kafkaStreamsAvroSerde)
+}
+
+//enable context receiver
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+        freeCompilerArgs = freeCompilerArgs + "-Xcontext-receivers"
+    }
 }

@@ -4,10 +4,10 @@ import java.time.Duration
 
 val registeretErAnsvarlig = Ansvarlig(
     namespace = "paw",
-    id = "meldeplikttjeneste"
+    id = "meldeplikttjeneste",
+    regler = Regler(
+        interval = Duration.ofDays(14),
+        gracePeriode = Duration.ofDays(7)
+    )
 )
 
-val registerRegler = Regler(
-    interval = Duration.ofDays(14),
-    gracePeriode = Duration.ofDays(7)
-)
