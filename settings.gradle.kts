@@ -13,6 +13,7 @@ include(
     "lib:hoplite-config",
     "lib:kafka",
     "lib:kafka-streams",
+    "lib:kafka-key-generator-client",
     "domain:main-avro-schema",
     "apps:rapporterings-tjeneste",
     "apps:aia-microfrontend-toggler",
