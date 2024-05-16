@@ -125,7 +125,8 @@ dependencyResolutionManagement {
             ktorLibs(
                 "ktor-serialization" alias "serialization",
                 "ktor-serialization-jvm" alias "serializationJvm",
-                "ktor-serialization-jackson" alias "serializationJackson"
+                "ktor-serialization-jackson" alias "serializationJackson",
+                "ktor-serialization-kotlinx-json" alias "serializationJson"
             )
         }
         create("otel") {

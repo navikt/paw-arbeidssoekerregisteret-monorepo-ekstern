@@ -7,3 +7,5 @@ i Kafka. Microfrontenden som skal toggles har ID `aia-min-side`.
 
 * [Repo for topic](https://github.com/navikt/min-side-microfrontend-topic-iac)
 * [Beskrivelse av toggle-funksjonalitet](https://navikt.github.io/tms-dokumentasjon/microfrontend/#toggle-pa-microfrontend)
+
+

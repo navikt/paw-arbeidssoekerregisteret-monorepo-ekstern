@@ -18,6 +18,14 @@ dependencies {
 
     // Server
     implementation(ktorServer.bundles.withNettyAndMicrometer)
+    implementation(ktorServer.contentNegotiation)
+    implementation(ktorServer.statusPages)
+    implementation(ktorServer.cors)
+
+    // Serialization
+    implementation(ktor.serializationJackson)
+    implementation(ktor.serializationJson)
+    implementation(jackson.datatypeJsr310)
 
     // Instrumentation
     implementation(micrometer.registryPrometheus)
