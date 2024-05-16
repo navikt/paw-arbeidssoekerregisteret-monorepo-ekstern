@@ -10,7 +10,7 @@ import org.apache.kafka.streams.processor.api.Record
 fun <K, V_IN, V_OUT> KStream<K, V_IN>.mapNonNull(
     name: String,
     vararg stateStoreNames: String,
-    function: (V_IN) -> V_OUT?
+    function: ProcessorContext<K, V_OUT>.(V_IN) -> V_OUT?
 ): KStream<K, V_OUT> {
     val processor = {
         GenericProcessor<K, V_IN, K, V_OUT> { record ->
@@ -21,10 +21,24 @@ fun <K, V_IN, V_OUT> KStream<K, V_IN>.mapNonNull(
     return process(processor, Named.`as`(name), *stateStoreNames)
 }
 
+fun <K, V_IN, V_OUT> KStream<K, V_IN>.mapWithContext(
+    name: String,
+    vararg stateStoreNames: String,
+    function: ProcessorContext<K, V_OUT>.(V_IN) -> V_OUT
+): KStream<K, V_OUT> {
+    val processor = {
+        GenericProcessor<K, V_IN, K, V_OUT> { record ->
+            val result = function(record.value())
+            forward(record.withValue(result))
+        }
+    }
+    return process(processor, Named.`as`(name), *stateStoreNames)
+}
+
 fun <K_IN, V_IN, K_OUT, V_OUT> KStream<K_IN, V_IN>.mapKeyAndValue(
     name: String,
     vararg stateStoreNames: String,
-    function: (K_IN, V_IN) -> Pair<K_OUT, V_OUT>?
+    function: ProcessorContext<K_OUT, V_OUT>.(K_IN, V_IN) -> Pair<K_OUT, V_OUT>?
 ): KStream<K_OUT, V_OUT> {
     val processor = {
         GenericProcessor<K_IN, V_IN, K_OUT, V_OUT> { record ->
