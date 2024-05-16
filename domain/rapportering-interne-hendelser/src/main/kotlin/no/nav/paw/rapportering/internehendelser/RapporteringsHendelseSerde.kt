@@ -36,6 +36,7 @@ object RapporteringsHendelseDeserializer: Deserializer<RapporteringsHendelse> {
             gracePeriodeUtloeptHendelseType -> objectMapper.readValue<GracePeriodeUtloept>(node.traverse())
             rapporteringTilgjengeligHendelseType -> objectMapper.readValue<RapporteringTilgjengelig>(node.traverse())
             meldingMottattHendelseType -> objectMapper.readValue<RapporteringsMeldingMottatt>(node.traverse())
+            periodeAvsluttetHendelsesType -> objectMapper.readValue<PeriodeAvsluttet>(node.traverse())
             else -> throw IllegalArgumentException("Ukjent hendelseType: $hendelseType")
         }
     }
