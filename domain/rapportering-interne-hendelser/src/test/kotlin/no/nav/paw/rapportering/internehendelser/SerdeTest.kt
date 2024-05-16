@@ -11,7 +11,8 @@ class SerdeTest : FreeSpec({
                 hendelseId = UUID.randomUUID(),
                 periodeId = UUID.randomUUID(),
                 identitetsnummer = "12345678901",
-                rapporteringsId = UUID.randomUUID()
+                rapporteringsId = UUID.randomUUID(),
+                arbeidssoekerId = 1234567890L
             )
             val resultat = RapporteringsHendelseSerializer.serialize("", hendelse)
                 .let { serialized ->
