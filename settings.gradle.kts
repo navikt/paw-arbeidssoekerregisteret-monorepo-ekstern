@@ -63,7 +63,7 @@ dependencyResolutionManagement {
 
         // Serialisering
         val orgApacheAvroVersion = "1.11.3"
-        val comFasterxmlJacksonVersion = "2.16.1"
+        val comFasterxmlJacksonVersion = "2.17.1"
 
         // ---- //
         val kotlinExposedVersion = "0.50.0"
