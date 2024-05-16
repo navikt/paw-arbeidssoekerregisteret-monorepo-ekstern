@@ -5,7 +5,7 @@ import java.util.*
 
 const val rapporteringTilgjengeligHendelseType = "rapportering.tilgjengelig"
 
-class RapporteringTilgjengelig (
+data class RapporteringTilgjengelig (
     override val hendelseId: UUID,
     override val periodeId: UUID,
     override val identitetsnummer: String,
