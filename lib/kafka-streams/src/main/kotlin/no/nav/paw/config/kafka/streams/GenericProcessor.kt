@@ -37,11 +37,11 @@ fun <K_IN, V_IN, K_OUT, V_OUT> KStream<K_IN, V_IN>.mapKeyAndValue(
     return process(processor, Named.`as`(name), *stateStoreNames)
 }
 
-fun <K, V> KStream<K, V>.genericProcess(
+fun <K_IN, V_IN, K_OUT, V_OUT> KStream<K_IN, V_IN>.genericProcess(
     name: String,
     vararg stateStoreNames: String,
-    function: ProcessorContext<K, V>.(Record<K, V>) -> Unit
-): KStream<K, V> {
+    function: ProcessorContext<K_OUT, V_OUT>.(Record<K_IN, V_IN>) -> Unit
+): KStream<K_OUT, V_OUT> {
     val processor = {
         GenericProcessor(function)
     }
