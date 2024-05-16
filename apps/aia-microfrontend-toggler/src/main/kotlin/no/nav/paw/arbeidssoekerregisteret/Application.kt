@@ -14,11 +14,14 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
+import no.nav.paw.config.kafka.KafkaConfig
 import org.slf4j.LoggerFactory
 
 fun main() {
     val logger = LoggerFactory.getLogger(APP_LOGGER_NAME)
     val config = loadNaisOrLocalConfiguration<Config>(CONFIG_FILE_NAME)
+    val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
     val errorHandler = ErrorHandler()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 

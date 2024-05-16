@@ -8,13 +8,16 @@ plugins {
     application
 }
 
-val jvmVersion = 21
-
+val jvmMajorVersion: String by project
+val baseImage: String by project
 val image: String? by project
 
 dependencies {
     // Project
     implementation(project(":lib:hoplite-config"))
+    implementation(project(":lib:kafka-streams"))
+    implementation(project(":lib:kafka-key-generator-client"))
+    implementation(project(":domain:rapportering-interne-hendelser"))
 
     // Server
     implementation(ktorServer.bundles.withNettyAndMicrometer)
@@ -27,13 +30,17 @@ dependencies {
     implementation(ktor.serializationJson)
     implementation(jackson.datatypeJsr310)
 
-    // Instrumentation
-    implementation(micrometer.registryPrometheus)
-
     // Logging
     implementation(loggingLibs.logbackClassic)
     implementation(loggingLibs.logstashLogbackEncoder)
     implementation(navCommon.log)
+
+    // Instrumentation
+    implementation(micrometer.registryPrometheus)
+
+    // Kafka
+    implementation(orgApacheKafka.kafkaStreams)
+    implementation(apacheAvro.kafkaStreamsAvroSerde)
 
     // Test
     testImplementation(ktorServer.testJvm)
@@ -50,7 +57,7 @@ sourceSets {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(jvmVersion))
+        languageVersion.set(JavaLanguageVersion.of(jvmMajorVersion))
     }
 }
 
@@ -77,7 +84,7 @@ tasks.withType(Jar::class) {
 }
 
 jib {
-    from.image = "ghcr.io/navikt/baseimages/temurin:$jvmVersion"
+    from.image = "$baseImage:$jvmMajorVersion"
     to.image = "${image ?: project.name}:${project.version}"
     container {
         environment = mapOf(
