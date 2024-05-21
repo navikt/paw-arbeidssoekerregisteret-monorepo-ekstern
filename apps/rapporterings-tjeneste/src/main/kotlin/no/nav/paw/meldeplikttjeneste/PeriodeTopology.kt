@@ -30,7 +30,7 @@ fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysRe
                 else -> Action.DoNothing
             }
         }
-        .genericProcess("executeAction", statStoreName) { record ->
+        .genericProcess<Long, Action, Long, RapporteringsHendelse>("executeAction", statStoreName) { record ->
             val keyValueStore: KeyValueStore<Long, InternTilstand> = getStateStore(statStoreName)
             when (val action = record.value()) {
                 is Action.DeleteStateAndEmit -> {
