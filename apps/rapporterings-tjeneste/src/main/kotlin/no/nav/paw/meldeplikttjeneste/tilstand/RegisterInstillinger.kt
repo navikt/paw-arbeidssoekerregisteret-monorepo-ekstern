@@ -10,4 +10,3 @@ val registeretErAnsvarlig = Ansvarlig(
         gracePeriode = Duration.ofDays(7)
     )
 )
-
