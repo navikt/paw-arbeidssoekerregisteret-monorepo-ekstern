@@ -8,30 +8,23 @@ import no.nav.security.token.support.v2.RequiredClaims
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 
-fun Application.configureAuthentication(authProviders: AuthProviders) {
-    val (azure, tokenx) = authProviders
+fun Application.configureAuthentication(authProviders: AuthProviders) =
     authentication {
-        tokenValidationSupport(
-            name = azure.name,
-            requiredClaims = RequiredClaims(azure.name, azure.claims.toTypedArray()),
-            config = TokenSupportConfig(
-                IssuerConfig(
-                    name = azure.name,
-                    discoveryUrl = azure.discoveryUrl,
-                    acceptedAudience = listOf(azure.clientId)
+        authProviders.forEach { provider ->
+            tokenValidationSupport(
+                name = provider.name,
+                requiredClaims = RequiredClaims(
+                    provider.name,
+                    provider.claims.map.toTypedArray(),
+                    provider.claims.combineWithOr
+                ),
+                config = TokenSupportConfig(
+                    IssuerConfig(
+                        name = provider.name,
+                        discoveryUrl = provider.discoveryUrl,
+                        acceptedAudience = listOf(provider.clientId)
+                    )
                 )
             )
-        )
-        tokenValidationSupport(
-            name = tokenx.name,
-            requiredClaims = RequiredClaims(tokenx.name, tokenx.claims.toTypedArray(), true),
-            config = TokenSupportConfig(
-                IssuerConfig(
-                    name = tokenx.name,
-                    discoveryUrl = tokenx.discoveryUrl,
-                    acceptedAudience = listOf(tokenx.clientId)
-                )
-            )
-        )
+        }
     }
-}

@@ -6,11 +6,6 @@ data class ApplicationConfig(
     val authProviders: AuthProviders
 )
 
-data class AuthProviders(
-    val azure: AuthProvider,
-    val tokenx: AuthProvider
-)
-
 data class AuthProvider(
     val name: String,
     val discoveryUrl: String,
@@ -18,6 +13,8 @@ data class AuthProvider(
     val clientId: String,
     val claims: Claims
 )
+
+typealias AuthProviders = List<AuthProvider>
 
 data class Claims(
     val map: List<String>,

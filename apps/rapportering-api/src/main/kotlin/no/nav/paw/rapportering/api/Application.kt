@@ -18,6 +18,7 @@ import no.nav.paw.rapportering.api.plugins.configureMetrics
 import no.nav.paw.rapportering.api.plugins.configureOtel
 import no.nav.paw.rapportering.api.plugins.configureSerialization
 import no.nav.paw.rapportering.api.routes.healthRoutes
+import no.nav.paw.rapportering.api.routes.rapporteringRoutes
 import no.nav.paw.rapportering.api.routes.swaggerRoutes
 import org.slf4j.LoggerFactory
 
@@ -61,6 +62,7 @@ fun Application.module(
     routing {
         healthRoutes(registry)
         swaggerRoutes()
+        rapporteringRoutes()
     }
 }
 

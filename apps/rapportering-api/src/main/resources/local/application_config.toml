@@ -1,7 +1,7 @@
 [[authProviders]]
 name = "tokenx"
-discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
-tokenEndpointUrl = "http://localhost:8081/default/token"
+discoveryUrl = "http://localhost:8081/rapportering/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/rapportering/token"
 clientId = "paw-rapportering-api"
 
 [authProviders.claims]
@@ -10,8 +10,8 @@ combineWithOr = true
 
 [[authProviders]]
 name = "azure"
-discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
-tokenEndpointUrl = "http://localhost:8081/default/token"
+discoveryUrl = "http://localhost:8081/rapportering/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/rapportering/token"
 clientId = "paw-rapportering-api"
 
 [authProviders.claims]

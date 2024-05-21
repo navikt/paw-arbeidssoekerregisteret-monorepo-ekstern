@@ -42,7 +42,6 @@ dependencies {
 
     // Instrumentation
     implementation(micrometer.registryPrometheus)
-    implementation(otel.ktor)
     implementation(otel.api)
 
     // Kafka
