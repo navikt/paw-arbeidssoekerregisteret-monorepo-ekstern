@@ -1,0 +1,19 @@
+[[authProviders]]
+name = "tokenx"
+discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/default/token"
+clientId = "paw-rapportering-api"
+
+[authProviders.claims]
+map = [ "acr=Level4", "acr=idporten-loa-high" ]
+combineWithOr = true
+
+[[authProviders]]
+name = "azure"
+discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/default/token"
+clientId = "paw-rapportering-api"
+
+[authProviders.claims]
+map = [ "NAVident" ]
+combineWithOr = false

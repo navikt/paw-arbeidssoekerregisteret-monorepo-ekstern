@@ -17,6 +17,7 @@ include(
     "domain:main-avro-schema",
     "apps:rapporterings-tjeneste",
     "apps:aia-microfrontend-toggler",
+    "apps:rapportering-api",
     "domain:rapportering-interne-hendelser",
     "domain:rapporteringsansvar-schema",
     "domain:rapporteringsmelding-schema"
