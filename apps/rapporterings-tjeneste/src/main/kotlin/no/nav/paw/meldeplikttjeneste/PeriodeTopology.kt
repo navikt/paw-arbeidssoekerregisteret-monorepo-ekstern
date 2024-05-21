@@ -5,14 +5,18 @@ import no.nav.paw.config.kafka.streams.genericProcess
 import no.nav.paw.config.kafka.streams.mapWithContext
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import no.nav.paw.meldeplikttjeneste.tilstand.InternTilstand
+import no.nav.paw.meldeplikttjeneste.tilstand.InternTilstandSerde
 import no.nav.paw.meldeplikttjeneste.tilstand.initTilstand
 import no.nav.paw.rapportering.internehendelser.PeriodeAvsluttet
+import no.nav.paw.rapportering.internehendelser.RapporteringsHendelse
+import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.state.KeyValueStore
 import java.util.*
 
 
-context(ApplicationConfiguration)
+context(ApplicationConfiguration, ApplicationContext)
 fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
     stream<Long, Periode>(periodeTopic)
         .mapWithContext("lagreEllerSlettPeriode", statStoreName) { periode ->
@@ -38,7 +42,7 @@ fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysRe
                                 action.periode.id,
                                 action.periode.identitetsnummer,
                                 action.arbeidsoekerId
-                            )
+                            ) as RapporteringsHendelse
                         )
                     )
                 }
@@ -46,7 +50,7 @@ fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysRe
                 Action.DoNothing -> {}
                 is Action.UpdateState -> keyValueStore.put(action.state.periode.kafkaKeysId, action.state)
             }
-        }
+        }.to(rapporteringsHendelsesloggTopic, Produced.with(Serdes.Long(), rapporteringsHendelseSerde))
 }
 
 fun Periode.avsluttet(): Boolean = avsluttet != null
