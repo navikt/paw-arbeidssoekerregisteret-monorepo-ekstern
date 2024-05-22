@@ -10,7 +10,7 @@ fun StreamsBuilder.topology(
     kafkaKeyFunction: (String) -> KafkaKeysResponse
 ): Topology {
     processPeriodeTopic(kafkaKeyFunction)
-
+    processAnsvarTopic()
 
     return build()
 }

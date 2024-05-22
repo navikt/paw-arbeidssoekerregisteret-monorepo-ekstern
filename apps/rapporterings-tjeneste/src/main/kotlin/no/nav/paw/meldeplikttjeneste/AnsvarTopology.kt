@@ -15,7 +15,7 @@ import java.time.Duration.ofMillis
 import java.util.UUID
 
 context(ApplicationConfiguration, ApplicationContext)
-fun StreamsBuilder.processPeriodeTopic() {
+fun StreamsBuilder.processAnsvarTopic() {
     stream<Long, AnsvarEndret>(ansvarsTopic)
         .genericProcess<Long, AnsvarEndret, Long, RapporteringsHendelse>("ansvarEndret", statStoreName) { record ->
             val keyValueStore: KeyValueStore<UUID, InternTilstand> = getStateStore(statStoreName)
