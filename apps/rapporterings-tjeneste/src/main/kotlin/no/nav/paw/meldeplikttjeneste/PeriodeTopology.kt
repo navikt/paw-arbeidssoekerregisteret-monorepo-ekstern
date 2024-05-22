@@ -20,13 +20,14 @@ context(ApplicationConfiguration, ApplicationContext)
 fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
     stream<Long, Periode>(periodeTopic)
         .mapWithContext("lagreEllerSlettPeriode", statStoreName) { periode ->
-            val keyValueStore: KeyValueStore<Long, InternTilstand> = getStateStore(statStoreName)
-            val idAndKey = kafkaKeyFunction(periode.identitetsnummer)
-            val currentState = keyValueStore[idAndKey.id]
+            val keyValueStore: KeyValueStore<UUID, InternTilstand> = getStateStore(statStoreName)
+            val currentState = keyValueStore[periode.id]
+            val (id, key) = currentState?.let { it.periode.kafkaKeysId to it.periode.recordKey } ?:
+                    kafkaKeyFunction(periode.identitetsnummer).let { it.id to it.key}
             when {
                 currentState == null && periode.avsluttet() -> Action.DoNothing
-                periode.avsluttet() -> Action.DeleteStateAndEmit(idAndKey.id, periode)
-                currentState == null -> Action.UpdateState(initTilstand(idAndKey, periode))
+                periode.avsluttet() -> Action.DeleteStateAndEmit(id, periode)
+                currentState == null -> Action.UpdateState(initTilstand(id = id, key = key, periode = periode))
                 else -> Action.DoNothing
             }
         }
