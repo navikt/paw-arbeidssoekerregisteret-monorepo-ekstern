@@ -33,7 +33,8 @@ object RapporteringsHendelseDeserializer: Deserializer<RapporteringsHendelse> {
         val node = objectMapper.readTree(data)
         return when (val hendelseType = node.get("hendelseType")?.asText()) {
             leveringsfristUtloeptHendelseType -> objectMapper.readValue<LeveringsfristUtloept>(node.traverse())
-            gracePeriodeUtloeptHendelseType -> objectMapper.readValue<GracePeriodeUtloept>(node.traverse())
+            eksternGracePeriodeUtloeptHendelseType -> objectMapper.readValue<EksternGracePeriodeUtloept>(node.traverse())
+            registerGracePeriodeUtloeptHendelseType -> objectMapper.readValue<RegisterGracePeriodeUtloept>(node.traverse())
             rapporteringTilgjengeligHendelseType -> objectMapper.readValue<RapporteringTilgjengelig>(node.traverse())
             meldingMottattHendelseType -> objectMapper.readValue<RapporteringsMeldingMottatt>(node.traverse())
             periodeAvsluttetHendelsesType -> objectMapper.readValue<PeriodeAvsluttet>(node.traverse())
