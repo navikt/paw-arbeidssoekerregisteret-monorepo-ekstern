@@ -15,6 +15,8 @@ dependencies {
     // Project
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:kafka-streams"))
+    implementation(project(":lib:kafka-key-generator-client"))
+    implementation(project(":domain:rapportering-interne-hendelser"))
 
     // Server
     implementation(ktorServer.bundles.withNettyAndMicrometer)

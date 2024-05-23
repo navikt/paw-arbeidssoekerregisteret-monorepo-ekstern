@@ -1,3 +1,9 @@
+applicationIdSuffix = "v1"
+producerId = "paw-rapportering-api-v1"
+rapporteringTopic = "paw.rapportering-v1"
+rapporteringHendelseLoggTopic = "paw.rapportering-hendelse-logg-v1"
+stateStoreName = "RapporteringStateStore"
+
 [[authProviders]]
 name = "tokenx"
 discoveryUrl = "${TOKEN_X_WELL_KNOWN_URL}"
@@ -16,3 +22,7 @@ clientId = "${AZURE_APP_CLIENT_ID}"
 
 [authProviders.claims]
 map = ["NAVident"]
+
+[kafkaKeyGeneratorClient]
+url = "http://paw-kafka-key-generator/api/v2/hentEllerOpprett"
+scope = "${KAFKA_KEYS_SCOPE}"

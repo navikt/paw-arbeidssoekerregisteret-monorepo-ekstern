@@ -1,3 +1,9 @@
+applicationIdSuffix = "v1"
+producerId = "paw-rapportering-api-v1"
+rapporteringTopic = "paw.rapportering-v1"
+rapporteringHendelseLoggTopic = "paw.rapportering-hendelse-logg-v1"
+stateStoreName = "RapporteringStateStore"
+
 [[authProviders]]
 name = "tokenx"
 discoveryUrl = "http://localhost:8081/rapportering/.well-known/openid-configuration"
@@ -17,3 +23,7 @@ clientId = "paw-rapportering-api"
 [authProviders.claims]
 map = [ "NAVident" ]
 combineWithOr = false
+
+[kafkaKeyGeneratorClient]
+url = "MOCK"
+scope = "api://<cluster>.<namespace>.<outbound-app-name>/.default"
