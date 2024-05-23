@@ -11,6 +11,7 @@ fun StreamsBuilder.topology(
 ): Topology {
     processPeriodeTopic(kafkaKeyFunction)
     processAnsvarTopic()
+    processRapporteringsMeldingTopic()
 
     return build()
 }

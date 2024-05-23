@@ -1,11 +1,7 @@
 package no.nav.paw.meldeplikttjeneste.tilstand
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.rapportering.ansvar.v1.AnsvarEndret
-import no.nav.paw.rapportering.ansvar.v1.AvslutterAnsvar
-import no.nav.paw.rapportering.ansvar.v1.TarAnsvar
 import java.time.Duration
-import java.time.Duration.ofMillis
 import java.time.Instant
 import java.util.UUID
 
@@ -13,7 +9,7 @@ import java.util.UUID
 data class InternTilstand(
     val periode: PeriodeInfo,
     val ansvarlige: List<Ansvarlig>,
-    val sisteInnsending: Rapportering?,
+    val gjedlerTilForSisteInnsendig: Instant?,
     val utestaaende: List<Rapportering>
 )
 
@@ -52,7 +48,7 @@ fun initTilstand(
     periode: Periode
 ): InternTilstand =
     InternTilstand(
-        sisteInnsending = null,
+        gjedlerTilForSisteInnsendig = null,
         periode = PeriodeInfo(
             periodeId = periode.id,
             identitetsnummer = periode.identitetsnummer,

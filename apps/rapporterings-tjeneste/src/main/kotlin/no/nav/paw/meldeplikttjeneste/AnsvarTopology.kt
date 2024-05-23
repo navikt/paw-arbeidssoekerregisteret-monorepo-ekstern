@@ -36,8 +36,7 @@ fun StreamsBuilder.processAnsvarTopic() {
                                 periodeId = ansvarEndret.periodeId,
                                 identitetsnummer = internTilstand.periode.identitetsnummer,
                                 arbeidssoekerId = internTilstand.periode.kafkaKeysId,
-                                rapporteringsId = utestaaende.rapporteringsId,
-                                fortsetterSomArbeidssoker = true
+                                rapporteringsId = utestaaende.rapporteringsId
                             )
                         }
                         val nyTilstandUtenUtestaaende = nyTilstand.copy(utestaaende = emptyList())
