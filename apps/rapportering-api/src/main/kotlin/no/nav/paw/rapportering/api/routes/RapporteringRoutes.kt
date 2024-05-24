@@ -22,7 +22,7 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
 
 fun Route.rapporteringRoutes(
     kafkaKeyClient: KafkaKeysClient,
-    streamStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
+    kafkaStreamStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
     kafkaStreams: KafkaStreams,
     httpClient: HttpClient
 ) {
@@ -39,14 +39,14 @@ fun Route.rapporteringRoutes(
                 val metadata = kafkaStreams.queryMetadataForKey("test", arbeidsoekerId, Serdes.Long().serializer())
 
                 if (metadata.activeHost().host() == "localhost") {
-                    streamStore.get(arbeidsoekerId).rapporteringer
+                    kafkaStreamStore.get(arbeidsoekerId).rapporteringer
                         .find { it.rapporteringsId == rapportering.rapporteringsId }
                         ?.let {
                             call.respond(200)
                         }
                 } else {
                     val response = httpClient.post("http://${metadata.activeHost().host()}:8080/api/v1/rapportering") {
-                        bearerAuth(call.request.headers["Authorization"])
+                        call.request.headers["Authorization"]?.let { bearerAuth(it) }
                         setBody(rapportering)
                     }
                     call.respond(response.status)
