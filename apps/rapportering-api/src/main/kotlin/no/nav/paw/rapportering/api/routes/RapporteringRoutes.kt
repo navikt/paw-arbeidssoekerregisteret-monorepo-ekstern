@@ -22,7 +22,8 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
 
 fun Route.rapporteringRoutes(
     kafkaKeyClient: KafkaKeysClient,
-    kafkaStreamStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
+    rapporteringStateStoreName: String,
+    rapporteringStateStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
     kafkaStreams: KafkaStreams,
     httpClient: HttpClient
 ) {
@@ -36,10 +37,11 @@ fun Route.rapporteringRoutes(
                 val arbeidsoekerId = kafkaKeyClient.getIdAndKey(identitetsnummer)?.id
                     ?: throw IllegalArgumentException("Fant ikke arbeidsoekerId for identitetsnummer")
 
-                val metadata = kafkaStreams.queryMetadataForKey("test", arbeidsoekerId, Serdes.Long().serializer())
+                val metadata =
+                    kafkaStreams.queryMetadataForKey(rapporteringStateStoreName, arbeidsoekerId, Serdes.Long().serializer())
 
                 if (metadata.activeHost().host() == "localhost") {
-                    kafkaStreamStore.get(arbeidsoekerId).rapporteringer
+                    rapporteringStateStore.get(arbeidsoekerId).rapporteringer
                         .find { it.rapporteringsId == rapportering.rapporteringsId }
                         ?.let {
                             call.respond(200)
@@ -51,7 +53,6 @@ fun Route.rapporteringRoutes(
                     }
                     call.respond(response.status)
                 }
-
                 // sjekke rapportId opp mot identitetsnummer
                 // RapporteringTilgjengelig -> kan rapportere
                 // RapporteringsMeldingMottatt eller PeriodeAvsluttet -> sletter rapporteringsmulighet

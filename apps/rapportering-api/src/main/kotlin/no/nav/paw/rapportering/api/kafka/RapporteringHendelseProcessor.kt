@@ -12,12 +12,12 @@ import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.processor.api.Record
 
 fun KStream<Long, RapporteringsHendelse>.oppdaterRapporteringHendelseState(
-    stateStoreName: String
+    rapporteringStateStoreName: String
 ): KStream<Long, RapporteringsHendelse> {
     val processor = {
-        RapporteringHendelseProcessor(stateStoreName)
+        RapporteringHendelseProcessor(rapporteringStateStoreName)
     }
-    return process(processor, Named.`as`("rapporteringHendelseProcessor"), stateStoreName)
+    return process(processor, Named.`as`("rapporteringHendelseProcessor"), rapporteringStateStoreName)
 }
 
 class RapporteringHendelseProcessor(

@@ -1,7 +1,5 @@
 package no.nav.paw.rapportering.api
 
-import Dependencies
-import createDependencies
 import io.ktor.server.application.Application
 import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
@@ -15,7 +13,6 @@ import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
 import no.nav.paw.rapportering.api.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.rapportering.api.config.ApplicationConfig
-import no.nav.paw.rapportering.api.config.AuthProviders
 import no.nav.paw.rapportering.api.plugins.configureAuthentication
 import no.nav.paw.rapportering.api.plugins.configureHTTP
 import no.nav.paw.rapportering.api.plugins.configureLogging
@@ -25,7 +22,6 @@ import no.nav.paw.rapportering.api.plugins.configureSerialization
 import no.nav.paw.rapportering.api.routes.healthRoutes
 import no.nav.paw.rapportering.api.routes.rapporteringRoutes
 import no.nav.paw.rapportering.api.routes.swaggerRoutes
-import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
 import org.slf4j.LoggerFactory
 
 
@@ -47,38 +43,21 @@ fun main() {
         kafkaKeyConfig
     )
 
-    dependencies.kafkaStreams.setUncaughtExceptionHandler { throwable ->
-        logger.error("Uventet feil: ${throwable.message}", throwable)
-        StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
+    embeddedServer(Netty, port = 8080) {
+        module(applicationConfig, dependencies)
+    }.apply {
+        addShutdownHook { stop(300, 300) }
+        start(wait = true)
     }
-
-    val server = embeddedServer(
-        factory = Netty,
-        port = 8080,
-        configure = {
-            connectionGroupSize = 8
-            workerGroupSize = 8
-            callGroupSize = 16
-        }
-    ) {
-        module(
-            dependencies = dependencies,
-            authProviders = applicationConfig.authProviders
-        )
-    }
-    server.addShutdownHook {
-        server.stop(300, 300)
-    }
-    server.start(wait = true)
 }
 
 fun Application.module(
-    dependencies: Dependencies,
-    authProviders: AuthProviders,
+    applicationConfig: ApplicationConfig,
+    dependencies: Dependencies
 ) {
     configureMetrics(dependencies.prometheusMeterRegistry)
     configureHTTP()
-    configureAuthentication(authProviders)
+    configureAuthentication(applicationConfig.authProviders)
     configureLogging()
     configureSerialization()
     configureOtel()
@@ -88,7 +67,8 @@ fun Application.module(
         swaggerRoutes()
         rapporteringRoutes(
             kafkaKeyClient = dependencies.kafkaKeyClient,
-            kafkaStreamStore = dependencies.kafkaStreamsStore,
+            rapporteringStateStore = dependencies.rapporteringStateStore,
+            rapporteringStateStoreName = applicationConfig.rapporteringStateStoreName,
             kafkaStreams = dependencies.kafkaStreams,
             httpClient = dependencies.httpClient
         )

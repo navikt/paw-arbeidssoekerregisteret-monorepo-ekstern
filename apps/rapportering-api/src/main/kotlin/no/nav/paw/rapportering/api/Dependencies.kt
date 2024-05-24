@@ -1,3 +1,5 @@
+package no.nav.paw.rapportering.api
+
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -19,9 +21,11 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StoreQueryParameters
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
 import org.apache.kafka.streams.state.QueryableStoreTypes
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
 import org.apache.kafka.streams.state.Stores
+import org.slf4j.LoggerFactory
 
 fun createDependencies(
     applicationConfig: ApplicationConfig,
@@ -30,6 +34,8 @@ fun createDependencies(
     azureM2MConfig: AzureM2MConfig,
     kafkaKeyConfig: KafkaKeyConfig
 ): Dependencies {
+    val logger = LoggerFactory.getLogger("rapportering-api")
+
     val azureM2MTokenClient = azureAdM2MTokenClient(applicationConfig.naisEnv, azureM2MConfig)
     val kafkaKeyClient = kafkaKeysKlient(kafkaKeyConfig) {
         azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
@@ -50,16 +56,16 @@ fun createDependencies(
     val streamsBuilder = StreamsBuilder()
         .addStateStore(
             Stores.keyValueStoreBuilder(
-                Stores.persistentKeyValueStore(applicationConfig.stateStoreName),
+                Stores.persistentKeyValueStore(applicationConfig.rapporteringStateStoreName),
                 Serdes.Long(),
                 RapporteringTilgjengeligStateSerde(),
             )
         )
 
     val topology = streamsBuilder.appTopology(
-        prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+        prometheusRegistry = prometheusMeterRegistry,
         rapporteringHendelseLoggTopic = applicationConfig.rapporteringHendelseLoggTopic,
-        stateStoreName = applicationConfig.stateStoreName,
+        rapporteringStateStoreName = applicationConfig.rapporteringStateStoreName,
     )
 
     val kafkaStreams = KafkaStreams(
@@ -67,9 +73,16 @@ fun createDependencies(
         streamsConfig.properties
     )
 
-    val kafkaStreamsStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState> = kafkaStreams.store(
+    kafkaStreams.setUncaughtExceptionHandler { throwable ->
+        logger.error("Uventet feil: ${throwable.message}", throwable)
+        StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
+    }
+
+    kafkaStreams.start()
+
+    val rapporteringStateStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState> = kafkaStreams.store(
         StoreQueryParameters.fromNameAndType(
-            applicationConfig.stateStoreName,
+            applicationConfig.rapporteringStateStoreName,
             QueryableStoreTypes.keyValueStore()
         )
     )
@@ -79,7 +92,7 @@ fun createDependencies(
         httpClient,
         kafkaStreams,
         prometheusMeterRegistry,
-        kafkaStreamsStore
+        rapporteringStateStore
     )
 }
 
@@ -88,5 +101,5 @@ data class Dependencies(
     val httpClient: HttpClient,
     val kafkaStreams: KafkaStreams,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
-    val kafkaStreamsStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
+    val rapporteringStateStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
 )

@@ -2,7 +2,7 @@ applicationIdSuffix = "v1"
 producerId = "paw-rapportering-api-v1"
 rapporteringTopic = "paw.rapportering-v1"
 rapporteringHendelseLoggTopic = "paw.rapportering-hendelse-logg-v1"
-stateStoreName = "RapporteringStateStore"
+rapporteringStateStoreName = "RapporteringStateStore"
 
 [[authProviders]]
 name = "tokenx"

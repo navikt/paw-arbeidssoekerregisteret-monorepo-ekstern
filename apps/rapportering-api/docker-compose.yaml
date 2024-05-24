@@ -95,7 +95,8 @@ services:
       kafka-topics --bootstrap-server kafka:29092 --list
       
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic paw.arbeidssokerperioder-v1 --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic paw.rapportering-v1 --replication-factor 1 --partitions 6
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic paw.rapportering-hendelse-logg-v1 --replication-factor 1 --partitions 6
       
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list

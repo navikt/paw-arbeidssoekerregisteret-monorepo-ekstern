@@ -10,10 +10,10 @@ import org.apache.kafka.streams.kstream.Consumed
 fun StreamsBuilder.appTopology(
     prometheusRegistry: PrometheusMeterRegistry,
     rapporteringHendelseLoggTopic: String,
-    stateStoreName: String,
+    rapporteringStateStoreName: String,
 ): Topology {
     stream(rapporteringHendelseLoggTopic, Consumed.with(Serdes.Long(), RapporteringsHendelseSerde()))
-        .oppdaterRapporteringHendelseState(stateStoreName)
+        .oppdaterRapporteringHendelseState(rapporteringStateStoreName)
 
     return build()
 }

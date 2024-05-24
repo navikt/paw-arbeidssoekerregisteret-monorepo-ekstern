@@ -10,7 +10,7 @@ data class ApplicationConfig(
     val producerId: String,
     val rapporteringTopic: String,
     val rapporteringHendelseLoggTopic: String,
-    val stateStoreName: String,
+    val rapporteringStateStoreName: String,
     val authProviders: AuthProviders,
     val naisEnv: NaisEnv = currentNaisEnv
 )
