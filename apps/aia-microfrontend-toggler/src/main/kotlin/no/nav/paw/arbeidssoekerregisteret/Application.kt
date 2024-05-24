@@ -5,9 +5,15 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG_FILE_NAME
-import no.nav.paw.arbeidssoekerregisteret.config.Config
+import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
+import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
+import no.nav.paw.arbeidssoekerregisteret.config.ConfigContext
+import no.nav.paw.arbeidssoekerregisteret.config.LoggingContext
+import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
+import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
+import no.nav.paw.arbeidssoekerregisteret.config.buildKafkaStreams
+import no.nav.paw.arbeidssoekerregisteret.config.buildTopology
 import no.nav.paw.arbeidssoekerregisteret.error.ErrorHandler
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
@@ -16,23 +22,36 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
+import org.apache.kafka.streams.StreamsBuilder
 import org.slf4j.LoggerFactory
 
 fun main() {
     val logger = LoggerFactory.getLogger(APPLICATION_LOGGER_NAME)
-    val config = loadNaisOrLocalConfiguration<Config>(APPLICATION_CONFIG_FILE_NAME)
+    val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
+    val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
+    val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
     val errorHandler = ErrorHandler()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-    logger.info("Starter ${config.app.appId}")
+    logger.info("Starter ${appConfig.appId}")
+
+    with(ConfigContext(appConfig, kafkaConfig)) {
+        with(LoggingContext(logger)) {
+            val streamsBuilder = StreamsBuilder()
+            val topology = streamsBuilder.buildTopology(meterRegistry, ::kafkaKeyFunction)
+            val kafkaStreams = buildKafkaStreams(topology)
+            kafkaStreams.start()
+        }
+    }
 
     val server = embeddedServer(
         factory = Netty,
-        port = config.server.port,
+        port = serverConfig.port,
         configure = {
-            callGroupSize = config.server.callGroupSize
-            workerGroupSize = config.server.workerGroupSize
-            connectionGroupSize = config.server.connectionGroupSize
+            callGroupSize = serverConfig.callGroupSize
+            workerGroupSize = serverConfig.workerGroupSize
+            connectionGroupSize = serverConfig.connectionGroupSize
         }
     ) {
         configureSerialization()
@@ -41,8 +60,12 @@ fun main() {
         configureRouting(meterRegistry)
     }
     server.addShutdownHook {
-        server.stop(config.server.gracePeriodMillis, config.server.timeoutMillis)
-        logger.info("Avslutter ${config.app.appId}")
+        server.stop(serverConfig.gracePeriodMillis, serverConfig.timeoutMillis)
+        logger.info("Avslutter ${appConfig.appId}")
     }
     server.start(wait = true)
+}
+
+fun kafkaKeyFunction(id: String): KafkaKeysResponse {
+    return KafkaKeysResponse(1, 2)
 }

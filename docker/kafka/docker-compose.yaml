@@ -1,5 +1,3 @@
-version: "3.9"
-
 ### SERVICES ###
 services:
   # Zookeeper
@@ -14,9 +12,9 @@ services:
     volumes:
       - zookeeper-log:/var/lib/zookeeper/log
       - zookeeper-data:/var/lib/zookeeper/data
-      - zookeeper.secrets:/etc/zookeeper/secrets
+      - zookeeper-secrets:/etc/zookeeper/secrets
     networks:
-      - paw
+      - kafka
 
   # Kafka
   kafka:
@@ -64,8 +62,9 @@ services:
       kafka-topics --bootstrap-server kafka:29092 --list
       
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic periode --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic aapen-microfrontend-v1 --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic paw.arbeidssokerperioder-v1 --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic pto.siste-14a-vedtak-v1 --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic min-side.aapen-microfrontend-v1 --replication-factor 1 --partitions 1
       
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
@@ -79,8 +78,8 @@ services:
     hostname: schema-registry
     depends_on:
       - kafka
-    #ports:
-    #  - "8082:8082"
+    ports:
+      - "8082:8082"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka:29092'
@@ -117,7 +116,7 @@ volumes:
   kafka-data:
     name: kafka-data
   kafka-secrets:
-    name: kafka.secrets
+    name: kafka-secrets
   schema-registry-secrets:
     name: schema-registry-secrets
 

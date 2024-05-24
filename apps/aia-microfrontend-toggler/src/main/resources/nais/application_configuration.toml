@@ -1,15 +1,10 @@
-[app.kafka]
-appId = "aia-microfrontend-toggler"
-brokers = "localhost:9092"
+[kafkaTopology]
 periodeTopic = "paw.arbeidssokerperioder-v1"
 vedtakTopic = "pto.siste-14a-vedtak-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 toggleStoreName = "microfrontend-toggle"
 varselStoreName = "microfrontend-vasel"
 
-[app.kafka.security]
-protocol = "PLAIN"
-
 [app.kafkaKeys]
-url = "http://localhost:8090/kafka-keys"
-scope = "api://test.test.kafka-keys/.default"
+url = "http://paw-kafka-key-generator/api/v2/hentEllerOpprett"
+scope = "${KAFKA_KEY_SCOPE}"

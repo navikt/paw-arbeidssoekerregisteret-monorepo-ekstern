@@ -7,6 +7,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.paw.arbeidssoekerregisteret.model.Toggle
+import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
 import no.nav.paw.rapportering.internehendelser.EksternGracePeriodeUtloept
 import no.nav.paw.rapportering.internehendelser.LeveringsfristUtloept
 import no.nav.paw.rapportering.internehendelser.PeriodeAvsluttet
@@ -47,7 +49,35 @@ class JsonSerializer<T>(private val objectMapper: ObjectMapper) : Serializer<T> 
     }
 }
 
-class RapporteringsHendelseDeserializer(protected val objectMapper: ObjectMapper) :
+class ToggleDeserializer(private val objectMapper: ObjectMapper) : Deserializer<Toggle> {
+    override fun deserialize(topic: String?, data: ByteArray?): Toggle? {
+        if (data == null) return null
+        return objectMapper.readValue<Toggle>(data)
+    }
+}
+
+class ToggleSerde(private val objectMapper: ObjectMapper) : Serde<Toggle> {
+    constructor() : this(serdeObjectMapper)
+
+    override fun serializer() = JsonSerializer<Toggle>(objectMapper)
+    override fun deserializer() = ToggleDeserializer(objectMapper)
+}
+
+class ToggleStateDeserializer(private val objectMapper: ObjectMapper) : Deserializer<ToggleState> {
+    override fun deserialize(topic: String?, data: ByteArray?): ToggleState? {
+        if (data == null) return null
+        return objectMapper.readValue<ToggleState>(data)
+    }
+}
+
+class ToggleStateSerde(private val objectMapper: ObjectMapper) : Serde<ToggleState> {
+    constructor() : this(serdeObjectMapper)
+
+    override fun serializer() = JsonSerializer<ToggleState>(objectMapper)
+    override fun deserializer() = ToggleStateDeserializer(objectMapper)
+}
+
+class RapporteringsHendelseDeserializer(private val objectMapper: ObjectMapper) :
     Deserializer<RapporteringsHendelse> {
     override fun deserialize(topic: String?, data: ByteArray?): RapporteringsHendelse? {
         if (data == null) return null
