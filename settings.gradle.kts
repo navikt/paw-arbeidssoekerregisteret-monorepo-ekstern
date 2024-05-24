@@ -39,6 +39,13 @@ dependencyResolutionManagement {
             }
         }
         maven {
+            setUrl("https://maven.pkg.github.com/navikt/tms-varsel-authority")
+            credentials {
+                username = "x-access-token"
+                password = githubPassword
+            }
+        }
+        maven {
             setUrl("https://maven.pkg.github.com/navikt/paw-arbeidssokerregisteret-api")
             credentials {
                 username = "x-access-token"
@@ -51,6 +58,9 @@ dependencyResolutionManagement {
         val pawPdlClientVersion = "24.03.20.30-1"
         val pawAaregClientVersion = "24.01.12.16-1"
         val arbeidssokerregisteretVersion = "1.8062260419.22-1"
+
+        // TMS
+        val tmsVarselVersion = "1.0.4"
 
         // NAV
         val noNavCommonVersion = "3.2024.02.21_11.18-8f9b43befae1"
@@ -169,6 +179,9 @@ dependencyResolutionManagement {
         create("navSecurity") {
             library("tokenValidationKtorV2", "no.nav.security", "token-validation-ktor-v2").version(noNavSecurityVersion)
             library("tokenClient", "no.nav.security", "token-client-core").version(noNavSecurityVersion)
+        }
+        create("tmsVarsel") {
+            library("kotlinBuilder", "no.nav.tms.varsel", "kotlin-builder").version(tmsVarselVersion)
         }
         create("hoplite") {
             library("hopliteCore", "com.sksamuel.hoplite", "hoplite-core").version(comSksamuelHopliteVersion)
