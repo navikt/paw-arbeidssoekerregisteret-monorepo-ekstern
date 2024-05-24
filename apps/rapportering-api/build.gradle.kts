@@ -26,6 +26,11 @@ dependencies {
     implementation(ktorServer.callId)
     implementation(ktorServer.auth)
 
+    // Client
+    implementation(ktorClient.core)
+    implementation(ktorClient.cio)
+    implementation(ktorClient.contentNegotiation)
+
     // Serialization
     implementation(ktor.serializationJackson)
     implementation(ktor.serializationJson)

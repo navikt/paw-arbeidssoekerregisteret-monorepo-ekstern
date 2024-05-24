@@ -1,6 +1,7 @@
 package no.nav.paw.rapportering.api
 
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+import io.ktor.client.HttpClient
 import io.ktor.server.application.Application
 import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
@@ -18,9 +19,10 @@ import no.nav.paw.kafkakeygenerator.auth.azureAdM2MTokenClient
 import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.kafkaKeysKlient
+import no.nav.paw.rapportering.api.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.rapportering.api.config.ApplicationConfig
 import no.nav.paw.rapportering.api.config.AuthProviders
-import no.nav.paw.rapportering.api.config.APPLICATION_CONFIG_FILE_NAME
+import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligState
 import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligStateSerde
 import no.nav.paw.rapportering.api.kafka.appTopology
 import no.nav.paw.rapportering.api.plugins.configureAuthentication
@@ -34,10 +36,14 @@ import no.nav.paw.rapportering.api.routes.rapporteringRoutes
 import no.nav.paw.rapportering.api.routes.swaggerRoutes
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
+import org.apache.kafka.streams.StoreQueryParameters
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
+import org.apache.kafka.streams.state.QueryableStoreTypes
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
 import org.apache.kafka.streams.state.Stores
 import org.slf4j.LoggerFactory
+
 
 fun main() {
     val logger = LoggerFactory.getLogger("rapportering-api")
@@ -55,6 +61,7 @@ fun main() {
     val kafkaKeyClient = kafkaKeysKlient(kafkaKeyConfig) {
         azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
     }
+    val httpClient = HttpClient()
 
     val streamsConfig = KafkaStreamsFactory(applicationConfig.applicationIdSuffix, kafkaStreamsConfig)
         .withDefaultKeySerde(Serdes.LongSerde::class)
@@ -99,7 +106,15 @@ fun main() {
         module(
             registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
             authProviders = applicationConfig.authProviders,
-            kafkaKeyClient = kafkaKeyClient
+            kafkaKeyClient = kafkaKeyClient,
+            streamStore = kafkaStreams.store(
+                StoreQueryParameters.fromNameAndType(
+                    applicationConfig.stateStoreName,
+                    QueryableStoreTypes.keyValueStore()
+                )
+            ),
+            kafkaStreams = kafkaStreams,
+            httpClient = httpClient
         )
     }
     server.addShutdownHook {
@@ -111,7 +126,10 @@ fun main() {
 fun Application.module(
     registry: PrometheusMeterRegistry,
     authProviders: AuthProviders,
-    kafkaKeyClient: KafkaKeysClient
+    kafkaKeyClient: KafkaKeysClient,
+    streamStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
+    kafkaStreams: KafkaStreams,
+    httpClient: HttpClient
 ) {
     configureMetrics(registry)
     configureHTTP()
@@ -123,7 +141,7 @@ fun Application.module(
     routing {
         healthRoutes(registry)
         swaggerRoutes()
-        rapporteringRoutes(kafkaKeyClient)
+        rapporteringRoutes(kafkaKeyClient, streamStore, kafkaStreams, httpClient)
     }
 }
 
