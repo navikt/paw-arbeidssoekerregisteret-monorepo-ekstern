@@ -24,7 +24,6 @@ import no.nav.paw.rapportering.api.routes.rapporteringRoutes
 import no.nav.paw.rapportering.api.routes.swaggerRoutes
 import org.slf4j.LoggerFactory
 
-
 fun main() {
     val logger = LoggerFactory.getLogger("rapportering-api")
     logger.info("Starter: ${ApplicationInfo.id}")

@@ -18,6 +18,7 @@ import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligState
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
+import org.apache.kafka.streams.KeyQueryMetadata
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
 
 fun Route.rapporteringRoutes(
@@ -38,7 +39,17 @@ fun Route.rapporteringRoutes(
                     ?: throw IllegalArgumentException("Fant ikke arbeidsoekerId for identitetsnummer")
 
                 val metadata =
-                    kafkaStreams.queryMetadataForKey(rapporteringStateStoreName, arbeidsoekerId, Serdes.Long().serializer())
+                    kafkaStreams.queryMetadataForKey(
+                        rapporteringStateStoreName,
+                        arbeidsoekerId,
+                        Serdes.Long().serializer()
+                    )
+
+                // NOT_AVAILABLE if Kafka Streams is (re-)initializing, or null if no matching metadata could be found.
+                if (metadata === KeyQueryMetadata.NOT_AVAILABLE) {
+                    call.respond(404)
+                    return@post
+                }
 
                 if (metadata.activeHost().host() == "localhost") {
                     rapporteringStateStore.get(arbeidsoekerId).rapporteringer
