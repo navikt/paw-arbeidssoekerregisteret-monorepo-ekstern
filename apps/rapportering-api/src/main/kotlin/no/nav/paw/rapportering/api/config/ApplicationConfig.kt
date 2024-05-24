@@ -1,6 +1,9 @@
 package no.nav.paw.rapportering.api.config
 
-const val CONFIG_FILE_NAME = "application_config.toml"
+import no.nav.paw.kafkakeygenerator.auth.NaisEnv
+import no.nav.paw.kafkakeygenerator.auth.currentNaisEnv
+
+const val APPLICATION_CONFIG_FILE_NAME = "application_config.toml"
 
 data class ApplicationConfig(
     val applicationIdSuffix: String,
@@ -9,7 +12,7 @@ data class ApplicationConfig(
     val rapporteringHendelseLoggTopic: String,
     val stateStoreName: String,
     val authProviders: AuthProviders,
-    val kafkaKeyGeneratorClient: ServiceClient
+    val naisEnv: NaisEnv = currentNaisEnv
 )
 
 data class AuthProvider(
@@ -25,9 +28,4 @@ typealias AuthProviders = List<AuthProvider>
 data class Claims(
     val map: List<String>,
     val combineWithOr: Boolean = false
-)
-
-data class ServiceClient(
-    val url: String,
-    val scope: String
 )

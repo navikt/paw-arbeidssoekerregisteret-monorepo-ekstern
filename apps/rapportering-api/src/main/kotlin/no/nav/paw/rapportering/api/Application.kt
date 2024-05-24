@@ -10,12 +10,17 @@ import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
+import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
+import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
+import no.nav.paw.kafkakeygenerator.auth.azureAdM2MTokenClient
+import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.kafkaKeysKlient
-import no.nav.paw.rapportering.api.config.AuthProviders
-import no.nav.paw.rapportering.api.config.CONFIG_FILE_NAME
 import no.nav.paw.rapportering.api.config.ApplicationConfig
+import no.nav.paw.rapportering.api.config.AuthProviders
+import no.nav.paw.rapportering.api.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligStateSerde
 import no.nav.paw.rapportering.api.kafka.appTopology
 import no.nav.paw.rapportering.api.plugins.configureAuthentication
@@ -27,7 +32,6 @@ import no.nav.paw.rapportering.api.plugins.configureSerialization
 import no.nav.paw.rapportering.api.routes.healthRoutes
 import no.nav.paw.rapportering.api.routes.rapporteringRoutes
 import no.nav.paw.rapportering.api.routes.swaggerRoutes
-import no.nav.paw.rapportering.internehendelser.RapporteringsHendelseSerde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
@@ -39,10 +43,20 @@ fun main() {
     val logger = LoggerFactory.getLogger("rapportering-api")
     logger.info("Starter: ${ApplicationInfo.id}")
 
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(CONFIG_FILE_NAME)
+    // Konfigurasjon
+    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
+    val kafkaStreamsConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
+    val azureM2MConfig = loadNaisOrLocalConfiguration<AzureM2MConfig>("azure_m2m_key_config.toml")
+    val kafkaKeyConfig = loadNaisOrLocalConfiguration<KafkaKeyConfig>("kafka_key_generator_client_config.toml")
 
-    val streamsConfig = KafkaStreamsFactory(applicationConfig.applicationIdSuffix, kafkaConfig)
+    // Klient initialisering
+    val azureM2MTokenClient = azureAdM2MTokenClient(applicationConfig.naisEnv, azureM2MConfig)
+    val kafkaKeyClient = kafkaKeysKlient(kafkaKeyConfig) {
+        azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
+    }
+
+    val streamsConfig = KafkaStreamsFactory(applicationConfig.applicationIdSuffix, kafkaStreamsConfig)
         .withDefaultKeySerde(Serdes.LongSerde::class)
         .withDefaultValueSerde(SpecificAvroSerde::class)
 
@@ -84,7 +98,8 @@ fun main() {
     ) {
         module(
             registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            authProviders = applicationConfig.authProviders
+            authProviders = applicationConfig.authProviders,
+            kafkaKeyClient = kafkaKeyClient
         )
     }
     server.addShutdownHook {
@@ -95,7 +110,8 @@ fun main() {
 
 fun Application.module(
     registry: PrometheusMeterRegistry,
-    authProviders: AuthProviders
+    authProviders: AuthProviders,
+    kafkaKeyClient: KafkaKeysClient
 ) {
     configureMetrics(registry)
     configureHTTP()
@@ -104,12 +120,10 @@ fun Application.module(
     configureSerialization()
     configureOtel()
 
-    val kafkaKeyClient = kafkaKeysKlient()
-
     routing {
         healthRoutes(registry)
         swaggerRoutes()
-        rapporteringRoutes()
+        rapporteringRoutes(kafkaKeyClient)
     }
 }
 

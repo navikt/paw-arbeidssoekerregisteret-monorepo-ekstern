@@ -6,14 +6,23 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.paw.kafkakeygenerator.client.kafkaKeysKlient
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.rapportering.api.domain.request.RapporteringRequest
+import no.nav.paw.rapportering.api.utils.TokenXPID
+import requestScope
 
-fun Route.rapporteringRoutes(kafkaKeyGeneratorClient: ) {
+fun Route.rapporteringRoutes(kafkaKeyClient: KafkaKeysClient) {
     route("/api/v1") {
         authenticate("tokenx", "azure") {
             post<RapporteringRequest>("/rapportering") { rapportering ->
-                // sjekke periodeId opp mot identitetsnummer
+                with(requestScope()) {
+                    println(claims)
+                    val pid = claims[TokenXPID]
+
+                    // if veileder -> identitetsnummer må sendes med i request body
+                    // if tokenx -> identitetsnummer fra token
+                }
+                // sjekke rapportId opp mot identitetsnummer
                 // RapporteringTilgjengelig -> kan rapportere
                 // RapporteringsMeldingMottatt eller PeriodeAvsluttet -> sletter rapporteringsmulighet
 

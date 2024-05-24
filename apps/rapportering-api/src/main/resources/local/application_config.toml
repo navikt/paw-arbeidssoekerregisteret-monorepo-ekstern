@@ -23,7 +23,3 @@ clientId = "paw-rapportering-api"
 [authProviders.claims]
 map = [ "NAVident" ]
 combineWithOr = false
-
-[kafkaKeyGeneratorClient]
-url = "MOCK"
-scope = "api://<cluster>.<namespace>.<outbound-app-name>/.default"

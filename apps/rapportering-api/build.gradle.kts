@@ -45,6 +45,7 @@ dependencies {
     // Instrumentation
     implementation(micrometer.registryPrometheus)
     implementation(otel.api)
+    implementation(otel.annotations)
 
     // Kafka
     implementation(orgApacheKafka.kafkaStreams)

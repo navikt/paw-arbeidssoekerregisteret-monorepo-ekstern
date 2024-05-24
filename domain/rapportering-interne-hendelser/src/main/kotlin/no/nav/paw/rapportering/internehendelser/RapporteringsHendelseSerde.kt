@@ -8,7 +8,7 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
 
-private val objectMapper = ObjectMapper()
+private val objectMapper: ObjectMapper = ObjectMapper()
     .registerKotlinModule().
     registerModules(JavaTimeModule())
 
