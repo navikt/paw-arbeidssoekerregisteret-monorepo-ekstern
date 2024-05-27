@@ -1,0 +1,19 @@
+[kafkaTopology]
+periodeTopic = "periode"
+vedtakTopic = "vedtak"
+microfrontendTopic = "microfrontend"
+toggleStoreName = "microfrontend-toggle"
+varselStoreName = "microfrontend-varsel"
+periodeToggleProcessor = "microfrontend-toggle-periode"
+
+[kafkaKeys]
+url = "http://kafka-keys"
+scope = "kafka-keys-scope"
+
+[regler]
+periodeTogglePunctuatorSchedule = "PT1S"
+utsattDeaktiveringAvAiaMinSide = "PT10M"
+
+[microfrontends]
+aiaMinSide = "aia-min-side"
+aiaBehovsvurdering = "aia-behovsvurdering"

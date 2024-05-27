@@ -12,7 +12,6 @@ import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
-import no.nav.paw.arbeidssoekerregisteret.error.ErrorHandler
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
@@ -21,7 +20,7 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
+import no.nav.paw.kafkakeygenerator.client.kafkaKeysKlient
 import org.slf4j.LoggerFactory
 
 fun main() {
@@ -29,8 +28,8 @@ fun main() {
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
-    val errorHandler = ErrorHandler()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+    val kafkaKeysClient = kafkaKeysKlient(appConfig.kafkaKeys, ::token)
 
     logger.info("Starter ${appConfig.appId}")
 
@@ -43,13 +42,13 @@ fun main() {
             connectionGroupSize = serverConfig.connectionGroupSize
         }
     ) {
-        with(ConfigContext(appConfig, kafkaConfig)) {
-            with(LoggingContext(logger)) {
+        ConfigContext(appConfig, kafkaConfig).apply {
+            LoggingContext(logger).apply {
                 configureSerialization()
-                configureRequestHandling(errorHandler)
+                configureRequestHandling()
                 configureMetrics(meterRegistry)
                 configureRouting(meterRegistry)
-                configureKafka(meterRegistry, ::kafkaKeyFunction)
+                configureKafka(meterRegistry, kafkaKeysClient)
             }
         }
     }
@@ -60,6 +59,6 @@ fun main() {
     server.start(wait = true)
 }
 
-fun kafkaKeyFunction(id: String): KafkaKeysResponse {
-    return KafkaKeysResponse(1, 2)
+fun token(): String {
+    return "";
 }

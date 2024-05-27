@@ -27,9 +27,9 @@ class KafkaStreamsPluginConfig {
 
 val KafkaStreamsPlugin: ApplicationPlugin<KafkaStreamsPluginConfig> =
     createApplicationPlugin("KafkaStreams", ::KafkaStreamsPluginConfig) {
-        val config = requireNotNull(pluginConfig.config)
-        val topology = requireNotNull(pluginConfig.topology)
-        val exceptionHandler = requireNotNull(pluginConfig.exceptionHandler)
+        val config = requireNotNull(pluginConfig.config) { "KafkaConfig er null" }
+        val topology = requireNotNull(pluginConfig.topology) { "Topology er null" }
+        val exceptionHandler = requireNotNull(pluginConfig.exceptionHandler) { "ExceptionHandler er null" }
 
         val streamsFactory = KafkaStreamsFactory(APPLICATION_ID_SUFFIX, config)
             .withDefaultKeySerde(Serdes.Long()::class)

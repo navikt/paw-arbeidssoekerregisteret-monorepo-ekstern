@@ -1,11 +1,10 @@
-package no.nav.paw.arbeidssoekerregisteret.error
+package no.nav.paw.arbeidssoekerregisteret.exception
 
 import io.ktor.http.HttpStatusCode
 
-open class ClientResponseException(
+open class ServerResponseException(
     val status: HttpStatusCode,
     override val code: String,
     override val message: String,
     override val cause: Throwable?
-) : ErrorCodeAwareException(code, message, cause) {
-}
+) : ErrorCodeAwareException(code, message, cause)

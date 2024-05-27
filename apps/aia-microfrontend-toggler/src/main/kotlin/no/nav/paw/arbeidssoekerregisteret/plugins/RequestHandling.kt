@@ -5,13 +5,15 @@ import io.ktor.server.application.install
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.routing.IgnoreTrailingSlash
-import no.nav.paw.arbeidssoekerregisteret.error.ErrorHandler
+import no.nav.paw.arbeidssoekerregisteret.config.handleException
+import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 
-fun Application.configureRequestHandling(errorHandler: ErrorHandler) {
+context(LoggingContext)
+fun Application.configureRequestHandling() {
     install(IgnoreTrailingSlash)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            errorHandler.handleException(call, cause)
+            handleException(call, cause)
         }
     }
     install(CORS) {

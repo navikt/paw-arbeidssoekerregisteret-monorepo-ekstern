@@ -4,7 +4,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleStateSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
@@ -13,14 +13,14 @@ import org.apache.kafka.streams.state.Stores
 context(ConfigContext, LoggingContext)
 fun buildTopology(
     meterRegistry: PrometheusMeterRegistry,
-    kafkaKeyFunction: (String) -> KafkaKeysResponse
+    kafkaKeysClient: KafkaKeysClient
 ): Topology = StreamsBuilder().apply {
-    addTogglePersistentStore()
-    buildPeriodeTopology(kafkaKeyFunction)
+    addToggleStateStore()
+    buildPeriodeTopology(kafkaKeysClient)
 }.build()
 
 context(ConfigContext)
-private fun StreamsBuilder.addTogglePersistentStore() {
+private fun StreamsBuilder.addToggleStateStore() {
     this.addStateStore(
         Stores.keyValueStoreBuilder(
             Stores.persistentKeyValueStore(appConfig.kafkaTopology.toggleStoreName),

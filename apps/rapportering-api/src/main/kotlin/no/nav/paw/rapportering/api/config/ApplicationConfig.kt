@@ -1,7 +1,7 @@
 package no.nav.paw.rapportering.api.config
 
-import no.nav.paw.kafkakeygenerator.auth.NaisEnv
-import no.nav.paw.kafkakeygenerator.auth.currentNaisEnv
+import no.nav.paw.config.env.NaisEnv
+import no.nav.paw.config.env.currentNaisEnv
 import java.net.InetAddress
 
 const val APPLICATION_CONFIG_FILE_NAME = "application_config.toml"

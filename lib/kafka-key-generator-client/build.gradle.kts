@@ -1,9 +1,12 @@
 plugins {
     kotlin("jvm")
 }
+
 val jvmMajorVersion: String by project
 val jvmVersion = JavaVersion.valueOf("VERSION_$jvmMajorVersion")
+
 dependencies {
+    implementation(project(":lib:app-config"))
     implementation(jackson.datatypeJsr310)
     implementation(jackson.kotlin)
     implementation(ktorClient.contentNegotiation)

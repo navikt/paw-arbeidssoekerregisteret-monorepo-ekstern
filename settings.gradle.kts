@@ -10,7 +10,7 @@ plugins {
 rootProject.name = "paw-arbeidssoekerregisteret-monorepo-ekstern"
 
 include(
-    "lib:hoplite-config",
+    "lib:app-config",
     "lib:kafka",
     "lib:kafka-streams",
     "lib:kafka-key-generator-client",

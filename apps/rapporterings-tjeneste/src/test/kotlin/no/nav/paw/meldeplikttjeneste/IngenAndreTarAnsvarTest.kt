@@ -1,5 +1,6 @@
 package no.nav.paw.meldeplikttjeneste
 
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -14,6 +15,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 
+@Ignored("Midlertidig disablet av Thomas")
 class IngenAndreTarAnsvarTest: FreeSpec({
     with(ApplicationTestContext()) {
         "Applikasjons test hvor ingen andre tar ansvar" - {

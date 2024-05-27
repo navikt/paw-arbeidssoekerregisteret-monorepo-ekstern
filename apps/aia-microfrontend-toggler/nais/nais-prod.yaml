@@ -9,8 +9,18 @@ spec:
   image: {{ image }}
   port: 8080
   env:
+    - name: KAFKA_PAW_PERIODE_TOPIC
+      value: "paw.arbeidssokerperioder-v1"
+    - name: KAFKA_PTO_14A_VEDTAK_TOPIC
+      value: "pto.siste-14a-vedtak-v1"
+    - name: KAFKA_TMS_MICROFRONTEND_TOPIC
+      value: "min-side.aapen-microfrontend-v1"
     - name: KAFKA_KEY_SCOPE
       value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
+    - name: PDL_URL
+      value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
+    - name: PDL_SCOPE
+      value: "api://prod-fss.pdl.pdl-api/.default"
   resources:
     limits:
       memory: 1024Mi

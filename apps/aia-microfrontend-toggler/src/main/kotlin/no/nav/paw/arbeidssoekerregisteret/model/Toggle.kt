@@ -7,8 +7,6 @@ import java.time.Instant
 private const val ENABLE_ACTION = "enable"
 private const val DISABLE_ACTION = "disable"
 private const val SENSITIVITET_HIGH = "high"
-const val AIA_MIN_SIDE = "aia-min-side"
-const val AIA_BEHOVSVURDERING = "aia-behovsvurdering"
 
 @JvmRecord
 data class Toggle(

@@ -1,4 +1,4 @@
-package no.nav.paw.kafkakeygenerator.auth
+package no.nav.paw.config.env
 
 enum class NaisEnv(val clusterName: String) {
     Local("local"),
@@ -13,3 +13,5 @@ val currentNaisEnv: NaisEnv
             NaisEnv.ProdGCP.clusterName -> NaisEnv.ProdGCP
             else -> NaisEnv.Local
         }
+
+val currentAppId get() = System.getenv("IMAGE_WITH_VERSION") ?: "UNSPECIFIED"

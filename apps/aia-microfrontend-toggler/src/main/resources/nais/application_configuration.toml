@@ -1,7 +1,7 @@
 [kafkaTopology]
-periodeTopic = "paw.arbeidssokerperioder-v1"
-vedtakTopic = "pto.siste-14a-vedtak-v1"
-microfrontendTopic = "min-side.aapen-microfrontend-v1"
+periodeTopic = "${KAFKA_PAW_PERIODE_TOPIC}"
+vedtakTopic = "${KAFKA_PTO_14A_VEDTAK_TOPIC}"
+microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
 toggleStoreName = "microfrontend-toggle"
 varselStoreName = "microfrontend-varsel"
 periodeToggleProcessor = "microfrontend-toggle-periode"
@@ -13,3 +13,7 @@ scope = "${KAFKA_KEY_SCOPE}"
 [regler]
 periodeTogglePunctuatorSchedule = "PT6H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
+
+[microfrontends]
+aiaMinSide = "aia-min-side"
+aiaBehovsvurdering = "aia-behovsvurdering"

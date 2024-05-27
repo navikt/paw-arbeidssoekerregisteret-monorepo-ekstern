@@ -1,0 +1,5 @@
+brokers = "dummy:1234"
+applicationIdPrefix = "test"
+
+[schemaRegistry]
+url = "mock://dummy:1234"

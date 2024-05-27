@@ -9,10 +9,13 @@ import io.ktor.server.routing.get
 import io.micrometer.prometheus.PrometheusMeterRegistry
 
 fun Route.healthRoutes(meterRegistry: PrometheusMeterRegistry) {
+
+    // TODO Koble Kafka Stream state mot helsesjekk
     get("/internal/isAlive") {
         call.respondText("ALIVE", ContentType.Text.Plain)
     }
 
+    // TODO Koble Kafka Stream state mot helsesjekk
     get("/internal/isReady") {
         call.respondText("READY", ContentType.Text.Plain)
     }

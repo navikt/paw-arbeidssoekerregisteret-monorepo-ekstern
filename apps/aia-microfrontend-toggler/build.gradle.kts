@@ -14,7 +14,7 @@ val image: String? by project
 
 dependencies {
     // Project
-    implementation(project(":lib:hoplite-config"))
+    implementation(project(":lib:app-config"))
     implementation(project(":lib:kafka-streams"))
     implementation(project(":lib:kafka-key-generator-client"))
     implementation(project(":domain:main-avro-schema"))
@@ -49,6 +49,7 @@ dependencies {
     // Test
     testImplementation(ktorServer.testJvm)
     testImplementation(testLibs.bundles.withUnitTesting)
+    testImplementation(orgApacheKafka.streamsTest)
 }
 
 sourceSets {

@@ -13,3 +13,7 @@ scope = "api://test.test.kafka-keys/.default"
 [regler]
 periodeTogglePunctuatorSchedule = "PT60S"
 utsattDeaktiveringAvAiaMinSide = "P21D"
+
+[microfrontends]
+aiaMinSide = "aia-min-side"
+aiaBehovsvurdering = "aia-behovsvurdering"
