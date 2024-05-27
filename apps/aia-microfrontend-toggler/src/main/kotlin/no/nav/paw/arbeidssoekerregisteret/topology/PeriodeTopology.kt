@@ -17,7 +17,6 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.processor.PunctuationType
-import org.apache.kafka.streams.processor.api.ProcessorContext
 import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
 import java.time.Duration
@@ -25,33 +24,35 @@ import java.time.Instant
 
 fun PeriodeInfo.erAvsluttet(): Boolean = avsluttet != null
 
-fun punctuate(timestamp: Instant, context: ProcessorContext<Long, ToggleState>) {
-    val stateStore: KeyValueStore<Long, ToggleState> = context.getStateStore("microfrontend-toggle")
-    val iterator = stateStore.all()
-    while (iterator.hasNext()) {
-        val (periode, _) = iterator.next().value
-        if (periode.avsluttet == null) {
-            stateStore.delete(periode.arbeidssoekerId)
-        }
-        if (timestamp.minus(Duration.ofDays(21)).isAfter(periode.avsluttet)) {
-            stateStore.delete(periode.arbeidssoekerId)
-            context.forward(
-                Record(
-                    periode.arbeidssoekerId,
-                    ToggleState(
-                        periode,
-                        buildDisableToggle(periode.identitetsnummer, AIA_MIN_SIDE)
-                    ),
-                    Instant.now().toEpochMilli()
+private fun buildPunctuation(scheduleInterval: Duration, delayInterval: Duration): Punctuation<Long, ToggleState> {
+    return Punctuation(scheduleInterval, PunctuationType.WALL_CLOCK_TIME) { timestamp, context ->
+        val stateStore: KeyValueStore<Long, ToggleState> = context.getStateStore("microfrontend-toggle")
+        val iterator = stateStore.all()
+        while (iterator.hasNext()) {
+            val (periode, _) = iterator.next().value
+            if (periode.avsluttet == null) {
+                stateStore.delete(periode.arbeidssoekerId)
+            }
+            if (timestamp.minus(delayInterval).isAfter(periode.avsluttet)) {
+                stateStore.delete(periode.arbeidssoekerId)
+                context.forward(
+                    Record(
+                        periode.arbeidssoekerId,
+                        ToggleState(
+                            periode,
+                            buildDisableToggle(periode.identitetsnummer, AIA_MIN_SIDE)
+                        ),
+                        Instant.now().toEpochMilli()
+                    )
                 )
-            )
+            }
         }
     }
 }
 
 context(ConfigContext, LoggingContext)
 fun StreamsBuilder.buildPeriodeTopology(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
-    val (kafkaTopology) = appConfig
+    val (kafkaTopology, _, regler) = appConfig
 
     this.stream<Long, Periode>(kafkaTopology.periodeTopic)
         .mapValues { periode ->
@@ -66,10 +67,12 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeyFunction: (String) -> KafkaKeysR
         .genericProcess<Long, PeriodeInfo, Long, ToggleState>(
             name = "prosesserPeriode",
             kafkaTopology.toggleStoreName,
-            punctuation = Punctuation(Duration.ofDays(1), PunctuationType.WALL_CLOCK_TIME, ::punctuate)
+            punctuation = buildPunctuation(
+                regler.periodeTogglePunctuatorSchedule,
+                regler.utsattDeaktiveringAvAiaMinSide
+            )
         ) { record ->
-            val keyValueStore: KeyValueStore<Long, ToggleState> =
-                getStateStore(kafkaTopology.toggleStoreName)
+            val keyValueStore: KeyValueStore<Long, ToggleState> = getStateStore(kafkaTopology.toggleStoreName)
             val periode = record.value()
             when {
                 periode.erAvsluttet() -> {

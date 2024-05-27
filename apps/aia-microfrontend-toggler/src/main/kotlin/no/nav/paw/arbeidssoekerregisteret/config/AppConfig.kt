@@ -18,11 +18,15 @@ data class KafkaTopologyConfig(
     val vedtakTopic: String,
     val microfrontendTopic: String,
     val toggleStoreName: String,
-    val varselStoreName: String
+    val varselStoreName: String,
+    val periodeToggleProcessor: String
 )
 
 data class KafkaKeysConfig(
     val url: String, val scope: String
 )
 
-data class ReglerConfig(val utsattDeaktiveringAvAiaMinSide: Duration)
+data class ReglerConfig(
+    val periodeTogglePunctuatorSchedule: Duration,
+    val utsattDeaktiveringAvAiaMinSide: Duration
+)

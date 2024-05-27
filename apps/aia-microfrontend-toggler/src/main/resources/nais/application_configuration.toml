@@ -3,8 +3,13 @@ periodeTopic = "paw.arbeidssokerperioder-v1"
 vedtakTopic = "pto.siste-14a-vedtak-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 toggleStoreName = "microfrontend-toggle"
-varselStoreName = "microfrontend-vasel"
+varselStoreName = "microfrontend-varsel"
+periodeToggleProcessor = "microfrontend-toggle-periode"
 
-[app.kafkaKeys]
+[kafkaKeys]
 url = "http://paw-kafka-key-generator/api/v2/hentEllerOpprett"
 scope = "${KAFKA_KEY_SCOPE}"
+
+[regler]
+periodeTogglePunctuatorSchedule = "PT6T"
+utsattDeaktiveringAvAiaMinSide = "P21D"

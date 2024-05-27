@@ -1,4 +1,5 @@
 brokers = "localhost:9092"
-applicationIdPrefix = "v1"
+applicationIdPrefix = "paw.aia-microfrontend-toggler"
+
 [schemaRegistry]
 url = "http://localhost:8082"

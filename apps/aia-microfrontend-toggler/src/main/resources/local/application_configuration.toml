@@ -4,10 +4,12 @@ vedtakTopic = "pto.siste-14a-vedtak-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 toggleStoreName = "microfrontend-toggle"
 varselStoreName = "microfrontend-varsel"
+periodeToggleProcessor = "microfrontend-toggle-periode"
 
 [kafkaKeys]
 url = "http://localhost:8090/kafka-keys"
 scope = "api://test.test.kafka-keys/.default"
 
 [regler]
+periodeTogglePunctuatorSchedule = "PT60S"
 utsattDeaktiveringAvAiaMinSide = "P21D"
