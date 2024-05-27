@@ -28,6 +28,10 @@ fun main() {
     val logger = LoggerFactory.getLogger("rapportering-api")
     logger.info("Starter: ${ApplicationInfo.id}")
 
+    // TODO: bruk disse om application.server config'en fungerte istedet for hardcoda verdier i lib/kafka-streams/src/main/kotlin/no/nav/paw/config/kafka/streams/KafkaStreamsFactory.kt
+    val host = System.getenv("HOST") ?: "localhost"
+    val port = System.getenv("PORT")?.toInt() ?: 8080
+
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
     val kafkaStreamsConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
@@ -62,7 +66,7 @@ fun Application.module(
     configureOtel()
 
     routing {
-        healthRoutes(dependencies.prometheusMeterRegistry)
+        healthRoutes(dependencies.prometheusMeterRegistry, dependencies.health)
         swaggerRoutes()
         rapporteringRoutes(
             kafkaKeyClient = dependencies.kafkaKeyClient,

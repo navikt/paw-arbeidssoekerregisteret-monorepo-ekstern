@@ -23,7 +23,7 @@ fun KStream<Long, RapporteringsHendelse>.oppdaterRapporteringHendelseState(
 class RapporteringHendelseProcessor(
     private val stateStoreName: String,
 ): Processor<Long, RapporteringsHendelse, Long, RapporteringsHendelse> {
-    private var stateStore: KeyValueStore<Long, List<RapporteringTilgjengelig>>? = null
+    private var stateStore: KeyValueStore<Long, RapporteringTilgjengeligState>? = null
     private var context: ProcessorContext<Long, RapporteringsHendelse>? = null
 
     override fun init(context: ProcessorContext<Long, RapporteringsHendelse>?) {
@@ -38,12 +38,12 @@ class RapporteringHendelseProcessor(
         when (value) {
             is RapporteringTilgjengelig -> {
                 hendelseStore.get(value.arbeidssoekerId)?.let {
-                    hendelseStore.put(value.arbeidssoekerId, it + value)
-                } ?: hendelseStore.put(value.arbeidssoekerId, listOf(value))
+                    hendelseStore.put(value.arbeidssoekerId, RapporteringTilgjengeligState(it.rapporteringer.plus(value)))
+                } ?: hendelseStore.put(value.arbeidssoekerId, RapporteringTilgjengeligState(listOf(value)))
             }
             is RapporteringsMeldingMottatt -> {
-                hendelseStore.get(value.arbeidssoekerId)?.let { rapporteringer ->
-                    hendelseStore.put(value.arbeidssoekerId, rapporteringer.filter { it.rapporteringsId != value.rapporteringsId })
+                hendelseStore.get(value.arbeidssoekerId)?.let { state ->
+                    hendelseStore.put(value.arbeidssoekerId, RapporteringTilgjengeligState(state.rapporteringer.filter { it.rapporteringsId != value.rapporteringsId }))
                 }
             }
             is PeriodeAvsluttet -> {

@@ -2,6 +2,7 @@ package no.nav.paw.rapportering.api.config
 
 import no.nav.paw.kafkakeygenerator.auth.NaisEnv
 import no.nav.paw.kafkakeygenerator.auth.currentNaisEnv
+import java.net.InetAddress
 
 const val APPLICATION_CONFIG_FILE_NAME = "application_config.toml"
 
@@ -12,7 +13,8 @@ data class ApplicationConfig(
     val rapporteringHendelseLoggTopic: String,
     val rapporteringStateStoreName: String,
     val authProviders: AuthProviders,
-    val naisEnv: NaisEnv = currentNaisEnv
+    val naisEnv: NaisEnv = currentNaisEnv,
+    val hostname: String = InetAddress.getLocalHost().hostName
 )
 
 data class AuthProvider(

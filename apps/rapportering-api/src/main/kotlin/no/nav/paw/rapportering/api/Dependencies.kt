@@ -70,7 +70,9 @@ fun createDependencies(
 
     val kafkaStreams = KafkaStreams(
         topology,
-        streamsConfig.properties
+        streamsConfig.properties.apply {
+            put("application.server", "${applicationConfig.hostname}:8080")
+        }
     )
 
     kafkaStreams.setUncaughtExceptionHandler { throwable ->
@@ -87,12 +89,23 @@ fun createDependencies(
         )
     )
 
+    val health = Health(kafkaStreams)
+
+    /* TODO: Legg til produsent for rapporteringer
+    val kafkaRapporteringProducer = KafkaProducer<Long, RapporteringsM>(
+        kafkaConfig,
+        applicationConfig,
+        
+    )
+    */
+
     return Dependencies(
         kafkaKeyClient,
         httpClient,
         kafkaStreams,
         prometheusMeterRegistry,
-        rapporteringStateStore
+        rapporteringStateStore,
+        health
     )
 }
 
@@ -102,4 +115,5 @@ data class Dependencies(
     val kafkaStreams: KafkaStreams,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
     val rapporteringStateStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
+    val health: Health
 )

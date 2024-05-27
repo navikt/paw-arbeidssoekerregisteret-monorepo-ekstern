@@ -3,11 +3,12 @@ producerId = "paw-rapportering-api-v1"
 rapporteringTopic = "paw.rapportering-v1"
 rapporteringHendelseLoggTopic = "paw.rapportering-hendelse-logg-v1"
 rapporteringStateStoreName = "RapporteringStateStore"
+hostname = "${HOSTNAME}"
 
 [[authProviders]]
 name = "tokenx"
-discoveryUrl = "http://localhost:8081/rapportering/.well-known/openid-configuration"
-tokenEndpointUrl = "http://localhost:8081/rapportering/token"
+discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/default/token"
 clientId = "paw-rapportering-api"
 
 [authProviders.claims]
@@ -16,8 +17,8 @@ combineWithOr = true
 
 [[authProviders]]
 name = "azure"
-discoveryUrl = "http://localhost:8081/rapportering/.well-known/openid-configuration"
-tokenEndpointUrl = "http://localhost:8081/rapportering/token"
+discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/default/token"
 clientId = "paw-rapportering-api"
 
 [authProviders.claims]

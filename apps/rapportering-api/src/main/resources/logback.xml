@@ -26,7 +26,7 @@
 
     <if condition='"${NAIS_CLUSTER_NAME}" == "NAIS_CLUSTER_NAME_IS_UNDEFINED"'>
         <then>
-            <root level="INFO">
+            <root level="DEBUG">
                 <appender-ref ref="CONSOLE"/>
             </root>
         </then>
@@ -39,6 +39,6 @@
             </root>
         </else>
     </if>
-
+    <logger name="org.apache.kafka" level="info"/>
     <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
 </configuration>
