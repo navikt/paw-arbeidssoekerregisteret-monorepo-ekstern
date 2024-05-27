@@ -1,5 +1,8 @@
-package no.nav.paw.arbeidssoekerregisteret.config
+package no.nav.paw.arbeidssoekerregisteret.topology
 
+import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
+import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
+import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
 import no.nav.paw.config.kafka.streams.genericProcess
@@ -36,7 +39,7 @@ fun StreamsBuilder.processRapporteringTopic(kafkaKeyFunction: (String) -> KafkaK
                 is EksternGracePeriodeUtloept -> processEvent(event)
             }
         }
-        .to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), ToggleSerde()))
+        .to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }
 
 private fun processEvent(event: RapporteringTilgjengelig) {

@@ -1,11 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
@@ -26,56 +21,41 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
 
-private val serdeObjectMapper: ObjectMapper
-    get() = jacksonObjectMapper {
-        withReflectionCacheSize(512)
-        disable(KotlinFeature.NullIsSameAsDefault)
-        disable(KotlinFeature.SingletonSupport)
-        disable(KotlinFeature.StrictNullChecks)
-        enable(KotlinFeature.NullToEmptyCollection)
-        enable(KotlinFeature.NullToEmptyMap)
-    }.apply {
-        disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-        disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-        registerModule(JavaTimeModule())
-    }
-
-class JsonSerializer<T>(private val objectMapper: ObjectMapper) : Serializer<T> {
-    override fun serialize(topic: String?, data: T?): ByteArray {
-        return data?.let {
-            objectMapper.writeValueAsBytes(it)
-        } ?: ByteArray(0)
+inline fun <reified T> buildJsonSerializer(objectMapper: ObjectMapper) = object : Serializer<T> {
+    override fun serialize(topic: String?, data: T): ByteArray {
+        if (data == null) return byteArrayOf()
+        return objectMapper.writeValueAsBytes(data)
     }
 }
 
-class ToggleDeserializer(private val objectMapper: ObjectMapper) : Deserializer<Toggle> {
-    override fun deserialize(topic: String?, data: ByteArray?): Toggle? {
+inline fun <reified T> buildJsonSerializer(): Serializer<T> = buildJsonSerializer<T>(buildObjectMapper)
+
+inline fun <reified T> buildJsonDeserializer(objectMapper: ObjectMapper) = object : Deserializer<T> {
+    override fun deserialize(topic: String?, data: ByteArray?): T? {
         if (data == null) return null
-        return objectMapper.readValue<Toggle>(data)
+        return objectMapper.readValue<T>(data)
     }
 }
 
-class ToggleSerde(private val objectMapper: ObjectMapper) : Serde<Toggle> {
-    constructor() : this(serdeObjectMapper)
+inline fun <reified T> buildJsonDeserializer(): Deserializer<T> = buildJsonDeserializer<T>(buildObjectMapper)
 
-    override fun serializer() = JsonSerializer<Toggle>(objectMapper)
-    override fun deserializer() = ToggleDeserializer(objectMapper)
-}
+inline fun <reified T> buildJsonSerde(objectMapper: ObjectMapper) = object : Serde<T> {
+    override fun serializer(): Serializer<T> {
+        return buildJsonSerializer(objectMapper)
+    }
 
-class ToggleStateDeserializer(private val objectMapper: ObjectMapper) : Deserializer<ToggleState> {
-    override fun deserialize(topic: String?, data: ByteArray?): ToggleState? {
-        if (data == null) return null
-        return objectMapper.readValue<ToggleState>(data)
+    override fun deserializer(): Deserializer<T> {
+        return buildJsonDeserializer(objectMapper)
     }
 }
 
-class ToggleStateSerde(private val objectMapper: ObjectMapper) : Serde<ToggleState> {
-    constructor() : this(serdeObjectMapper)
-
-    override fun serializer() = JsonSerializer<ToggleState>(objectMapper)
-    override fun deserializer() = ToggleStateDeserializer(objectMapper)
+inline fun <reified T> buildJsonSerde(): Serde<T> {
+    return buildJsonSerde<T>(buildObjectMapper)
 }
+
+fun buildToggleSerde(): Serde<Toggle> = buildJsonSerde<Toggle>()
+
+fun buildToggleStateSerde(): Serde<ToggleState> = buildJsonSerde<ToggleState>()
 
 class RapporteringsHendelseDeserializer(private val objectMapper: ObjectMapper) :
     Deserializer<RapporteringsHendelse> {
@@ -95,8 +75,8 @@ class RapporteringsHendelseDeserializer(private val objectMapper: ObjectMapper) 
 }
 
 class RapporteringsHendelseSerde(private val objectMapper: ObjectMapper) : Serde<RapporteringsHendelse> {
-    constructor() : this(serdeObjectMapper)
+    constructor() : this(buildObjectMapper)
 
-    override fun serializer() = JsonSerializer<RapporteringsHendelse>(objectMapper)
+    override fun serializer() = buildJsonSerializer<RapporteringsHendelse>(objectMapper)
     override fun deserializer() = RapporteringsHendelseDeserializer(objectMapper)
 }

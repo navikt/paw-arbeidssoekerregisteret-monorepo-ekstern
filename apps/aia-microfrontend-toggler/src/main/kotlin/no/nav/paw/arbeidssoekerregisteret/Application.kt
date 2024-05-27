@@ -8,13 +8,12 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
-import no.nav.paw.arbeidssoekerregisteret.config.ConfigContext
-import no.nav.paw.arbeidssoekerregisteret.config.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.config.buildKafkaStreams
-import no.nav.paw.arbeidssoekerregisteret.config.buildTopology
+import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
+import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.error.ErrorHandler
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
@@ -23,7 +22,6 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
-import org.apache.kafka.streams.StreamsBuilder
 import org.slf4j.LoggerFactory
 
 fun main() {
@@ -36,15 +34,6 @@ fun main() {
 
     logger.info("Starter ${appConfig.appId}")
 
-    with(ConfigContext(appConfig, kafkaConfig)) {
-        with(LoggingContext(logger)) {
-            val streamsBuilder = StreamsBuilder()
-            val topology = streamsBuilder.buildTopology(meterRegistry, ::kafkaKeyFunction)
-            val kafkaStreams = buildKafkaStreams(topology)
-            kafkaStreams.start()
-        }
-    }
-
     val server = embeddedServer(
         factory = Netty,
         port = serverConfig.port,
@@ -54,10 +43,15 @@ fun main() {
             connectionGroupSize = serverConfig.connectionGroupSize
         }
     ) {
-        configureSerialization()
-        configureRequestHandling(errorHandler)
-        configureMetrics(meterRegistry)
-        configureRouting(meterRegistry)
+        with(ConfigContext(appConfig, kafkaConfig)) {
+            with(LoggingContext(logger)) {
+                configureSerialization()
+                configureRequestHandling(errorHandler)
+                configureMetrics(meterRegistry)
+                configureRouting(meterRegistry)
+                configureKafka(meterRegistry, ::kafkaKeyFunction)
+            }
+        }
     }
     server.addShutdownHook {
         server.stop(serverConfig.gracePeriodMillis, serverConfig.timeoutMillis)

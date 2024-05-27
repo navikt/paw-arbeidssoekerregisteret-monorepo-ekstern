@@ -1,5 +1,8 @@
-package no.nav.paw.arbeidssoekerregisteret.config
+package no.nav.paw.arbeidssoekerregisteret.topology
 
+import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
+import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
+import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
@@ -11,6 +14,7 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.state.KeyValueStore
 
+fun PeriodeInfo.erAvsluttet(): Boolean = avsluttet != null
 
 context(ConfigContext, LoggingContext)
 fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
@@ -63,7 +67,5 @@ fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysRe
                 }
             }
         }
-        .to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), ToggleSerde()))
+        .to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }
-
-fun PeriodeInfo.erAvsluttet(): Boolean = avsluttet != null

@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.config
+package no.nav.paw.arbeidssoekerregisteret.context
 
 import org.slf4j.Logger
 
