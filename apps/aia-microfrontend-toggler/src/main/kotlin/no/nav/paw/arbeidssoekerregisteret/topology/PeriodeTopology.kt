@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
+import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
@@ -19,21 +20,23 @@ import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
-import java.time.Duration
 import java.time.Instant
 
 fun PeriodeInfo.erAvsluttet(): Boolean = avsluttet != null
 
-private fun buildPunctuation(scheduleInterval: Duration, delayInterval: Duration): Punctuation<Long, ToggleState> {
-    return Punctuation(scheduleInterval, PunctuationType.WALL_CLOCK_TIME) { timestamp, context ->
-        val stateStore: KeyValueStore<Long, ToggleState> = context.getStateStore("microfrontend-toggle")
+private fun buildPunctuation(config: AppConfig): Punctuation<Long, ToggleState> {
+    return Punctuation(
+        config.regler.periodeTogglePunctuatorSchedule,
+        PunctuationType.WALL_CLOCK_TIME
+    ) { timestamp, context ->
+        val stateStore: KeyValueStore<Long, ToggleState> = context.getStateStore(config.kafkaTopology.toggleStoreName)
         val iterator = stateStore.all()
         while (iterator.hasNext()) {
             val (periode, _) = iterator.next().value
             if (periode.avsluttet == null) {
                 stateStore.delete(periode.arbeidssoekerId)
             }
-            if (timestamp.minus(delayInterval).isAfter(periode.avsluttet)) {
+            if (timestamp.minus(config.regler.utsattDeaktiveringAvAiaMinSide).isAfter(periode.avsluttet)) {
                 stateStore.delete(periode.arbeidssoekerId)
                 context.forward(
                     Record(
@@ -67,10 +70,7 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeyFunction: (String) -> KafkaKeysR
         .genericProcess<Long, PeriodeInfo, Long, ToggleState>(
             name = "prosesserPeriode",
             kafkaTopology.toggleStoreName,
-            punctuation = buildPunctuation(
-                regler.periodeTogglePunctuatorSchedule,
-                regler.utsattDeaktiveringAvAiaMinSide
-            )
+            punctuation = buildPunctuation(appConfig)
         ) { record ->
             val keyValueStore: KeyValueStore<Long, ToggleState> = getStateStore(kafkaTopology.toggleStoreName)
             val periode = record.value()
