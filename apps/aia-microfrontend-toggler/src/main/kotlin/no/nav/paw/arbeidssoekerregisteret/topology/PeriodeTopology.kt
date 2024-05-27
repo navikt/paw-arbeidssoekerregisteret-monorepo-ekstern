@@ -55,7 +55,7 @@ private fun buildPunctuation(config: AppConfig): Punctuation<Long, ToggleState> 
 
 context(ConfigContext, LoggingContext)
 fun StreamsBuilder.buildPeriodeTopology(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
-    val (kafkaTopology, _, regler) = appConfig
+    val (kafkaTopology) = appConfig
 
     this.stream<Long, Periode>(kafkaTopology.periodeTopic)
         .mapValues { periode ->

@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - './apps/aia-microfrontend-toggler/**'
+      - 'apps/aia-microfrontend-toggler/**'
       - '.github/workflows/aia-microfrontend-toggler.yml'
 
 env:
