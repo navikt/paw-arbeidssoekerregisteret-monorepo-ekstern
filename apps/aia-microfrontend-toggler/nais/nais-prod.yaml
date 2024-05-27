@@ -37,3 +37,4 @@ spec:
       runtime: java
   kafka:
     pool: nav-prod
+    streams: true
