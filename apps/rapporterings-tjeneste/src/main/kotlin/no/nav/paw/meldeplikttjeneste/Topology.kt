@@ -6,7 +6,7 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 
 context(ApplicationConfiguration, ApplicationContext)
-fun StreamsBuilder.topology(
+fun StreamsBuilder.appTopology(
     kafkaKeyFunction: (String) -> KafkaKeysResponse
 ): Topology {
     processPeriodeTopic(kafkaKeyFunction)

@@ -17,11 +17,19 @@ dependencies {
     implementation(jackson.datatypeJsr310)
     implementation(jackson.kotlin)
     implementation(apacheAvro.kafkaStreamsAvroSerde)
+
+    testImplementation(orgApacheKafka.streamsTest)
+    testImplementation(testLibs.runnerJunit5)
+    testImplementation(testLibs.assertionsCore)
 }
 
 //enable context receiver
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        freeCompilerArgs = freeCompilerArgs + "-Xcontext-receivers"
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-receivers")
     }
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }

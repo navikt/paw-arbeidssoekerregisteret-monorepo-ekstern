@@ -31,11 +31,15 @@ fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysRe
                 else -> Action.DoNothing
             }
         }
-        .genericProcess<Long, Action, Long, RapporteringsHendelse>("executeAction", statStoreName) { record ->
-            val keyValueStore: KeyValueStore<Long, InternTilstand> = getStateStore(statStoreName)
+        .genericProcess<Long, Action, Long, RapporteringsHendelse>(
+            name = "executeAction",
+            punctuation = null,
+            stateStoreNames = arrayOf(statStoreName)
+        ) { record ->
+            val keyValueStore: KeyValueStore<UUID, InternTilstand> = getStateStore(statStoreName)
             when (val action = record.value()) {
                 is Action.DeleteStateAndEmit -> {
-                    keyValueStore.delete(action.arbeidsoekerId)
+                    keyValueStore.delete(action.periode.id)
                     forward(
                         record.withValue(
                             PeriodeAvsluttet(
@@ -49,7 +53,7 @@ fun StreamsBuilder.processPeriodeTopic(kafkaKeyFunction: (String) -> KafkaKeysRe
                 }
 
                 Action.DoNothing -> {}
-                is Action.UpdateState -> keyValueStore.put(action.state.periode.kafkaKeysId, action.state)
+                is Action.UpdateState -> keyValueStore.put(action.state.periode.periodeId, action.state)
             }
         }.to(rapporteringsHendelsesloggTopic, Produced.with(Serdes.Long(), rapporteringsHendelseSerde))
 }
