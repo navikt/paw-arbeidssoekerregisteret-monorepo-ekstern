@@ -68,8 +68,8 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeyFunction: (String) -> KafkaKeysR
             )
         }
         .genericProcess<Long, PeriodeInfo, Long, ToggleState>(
-            name = "prosesserPeriode",
-            kafkaTopology.toggleStoreName,
+            name = kafkaTopology.periodeToggleProcessor,
+            stateStoreNames = arrayOf(kafkaTopology.toggleStoreName),
             punctuation = buildPunctuation(appConfig)
         ) { record ->
             val keyValueStore: KeyValueStore<Long, ToggleState> = getStateStore(kafkaTopology.toggleStoreName)
