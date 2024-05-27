@@ -64,7 +64,7 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeyFunction: (String) -> KafkaKeysR
                 identitetsnummer = periode.identitetsnummer,
                 arbeidssoekerId = kafkaKeyFunction(periode.identitetsnummer).id,
                 startet = periode.startet.tidspunkt,
-                avsluttet = periode.avsluttet.tidspunkt
+                avsluttet = periode.avsluttet?.tidspunkt
             )
         }
         .genericProcess<Long, PeriodeInfo, Long, ToggleState>(
