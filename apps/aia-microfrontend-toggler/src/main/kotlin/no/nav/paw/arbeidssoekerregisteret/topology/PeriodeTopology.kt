@@ -8,8 +8,10 @@ import no.nav.paw.arbeidssoekerregisteret.model.AIA_BEHOVSVURDERING
 import no.nav.paw.arbeidssoekerregisteret.model.AIA_MIN_SIDE
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
-import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggle
-import no.nav.paw.arbeidssoekerregisteret.model.buildEnableToggle
+import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggleRecord
+import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggleState
+import no.nav.paw.arbeidssoekerregisteret.model.buildEnableToggleRecord
+import no.nav.paw.arbeidssoekerregisteret.model.buildPeriodeInfo
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.kafka.streams.Punctuation
 import no.nav.paw.config.kafka.streams.genericProcess
@@ -18,9 +20,7 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.processor.PunctuationType
-import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
-import java.time.Instant
 
 fun PeriodeInfo.erAvsluttet(): Boolean = avsluttet != null
 
@@ -38,16 +38,7 @@ private fun buildPunctuation(config: AppConfig): Punctuation<Long, ToggleState> 
             }
             if (timestamp.minus(config.regler.utsattDeaktiveringAvAiaMinSide).isAfter(periode.avsluttet)) {
                 stateStore.delete(periode.arbeidssoekerId)
-                context.forward(
-                    Record(
-                        periode.arbeidssoekerId,
-                        ToggleState(
-                            periode,
-                            buildDisableToggle(periode.identitetsnummer, AIA_MIN_SIDE)
-                        ),
-                        Instant.now().toEpochMilli()
-                    )
-                )
+                context.forward(buildDisableToggleRecord(periode, AIA_MIN_SIDE))
             }
         }
     }
@@ -58,15 +49,7 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeyFunction: (String) -> KafkaKeysR
     val (kafkaTopology) = appConfig
 
     this.stream<Long, Periode>(kafkaTopology.periodeTopic)
-        .mapValues { periode ->
-            PeriodeInfo(
-                id = periode.id,
-                identitetsnummer = periode.identitetsnummer,
-                arbeidssoekerId = kafkaKeyFunction(periode.identitetsnummer).id,
-                startet = periode.startet.tidspunkt,
-                avsluttet = periode.avsluttet?.tidspunkt
-            )
-        }
+        .mapValues { periode -> buildPeriodeInfo(periode, kafkaKeyFunction(periode.identitetsnummer).id) }
         .genericProcess<Long, PeriodeInfo, Long, ToggleState>(
             name = kafkaTopology.periodeToggleProcessor,
             stateStoreNames = arrayOf(kafkaTopology.toggleStoreName),
@@ -77,51 +60,18 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeyFunction: (String) -> KafkaKeysR
             when {
                 periode.erAvsluttet() -> {
                     // Lagre perioden i state store for å vente med deaktivering AIA Min Side
-                    keyValueStore.put(
-                        periode.arbeidssoekerId,
-                        ToggleState(periode, buildDisableToggle(periode.identitetsnummer, AIA_MIN_SIDE))
-                    )
+                    keyValueStore.put(periode.arbeidssoekerId, buildDisableToggleState(periode, AIA_MIN_SIDE))
 
                     // Send event for å deaktivere AIA Behovsvurdering
-                    forward(
-                        Record(
-                            periode.arbeidssoekerId,
-                            ToggleState(
-                                periode,
-                                buildDisableToggle(periode.identitetsnummer, AIA_BEHOVSVURDERING)
-                            ),
-                            Instant.now().toEpochMilli()
-                        )
-                    )
+                    forward(buildDisableToggleRecord(periode, AIA_BEHOVSVURDERING))
                 }
 
                 else -> {
-                    // Slett eventuell periode fra state store
-                    keyValueStore.delete(periode.arbeidssoekerId)
-
                     // Send event for å aktivere AIA Min Side
-                    forward(
-                        Record(
-                            periode.arbeidssoekerId,
-                            ToggleState(
-                                periode,
-                                buildEnableToggle(periode.identitetsnummer, AIA_MIN_SIDE)
-                            ),
-                            Instant.now().toEpochMilli()
-                        )
-                    )
+                    forward(buildEnableToggleRecord(periode, AIA_MIN_SIDE))
 
                     // Send event for å aktivere AIA Behovsvurdering
-                    forward(
-                        Record(
-                            periode.arbeidssoekerId,
-                            ToggleState(
-                                periode,
-                                buildEnableToggle(periode.identitetsnummer, AIA_BEHOVSVURDERING)
-                            ),
-                            Instant.now().toEpochMilli()
-                        )
-                    )
+                    forward(buildEnableToggleRecord(periode, AIA_BEHOVSVURDERING))
                 }
             }
         }

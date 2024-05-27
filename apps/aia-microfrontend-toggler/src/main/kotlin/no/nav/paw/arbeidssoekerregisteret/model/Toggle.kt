@@ -1,6 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.apache.kafka.streams.processor.api.Record
+import java.time.Instant
 
 private const val ENABLE_ACTION = "enable"
 private const val DISABLE_ACTION = "disable"
@@ -36,5 +38,31 @@ fun buildDisableToggle(identitetsnummer: String, microfrontendId: String): Toggl
         ident = identitetsnummer,
         microfrontendId = microfrontendId,
         initialedBy = "paw" // TODO Bruke miljøvariabel
+    )
+}
+
+fun buildDisableToggleState(periode: PeriodeInfo, microfrontendId: String): ToggleState {
+    return ToggleState(periode, buildDisableToggle(periode.identitetsnummer, microfrontendId))
+}
+
+fun buildDisableToggleRecord(periode: PeriodeInfo, microfrontendId: String): Record<Long, ToggleState> {
+    return Record(
+        periode.arbeidssoekerId,
+        ToggleState(
+            periode,
+            buildDisableToggle(periode.identitetsnummer, microfrontendId)
+        ),
+        Instant.now().toEpochMilli()
+    )
+}
+
+fun buildEnableToggleRecord(periode: PeriodeInfo, microfrontendId: String): Record<Long, ToggleState> {
+    return Record(
+        periode.arbeidssoekerId,
+        ToggleState(
+            periode,
+            buildEnableToggle(periode.identitetsnummer, microfrontendId)
+        ),
+        Instant.now().toEpochMilli()
     )
 }
