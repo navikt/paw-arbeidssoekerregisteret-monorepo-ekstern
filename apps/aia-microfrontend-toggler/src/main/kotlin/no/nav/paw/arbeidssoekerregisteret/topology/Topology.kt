@@ -16,7 +16,7 @@ fun buildTopology(
     kafkaKeyFunction: (String) -> KafkaKeysResponse
 ): Topology = StreamsBuilder().apply {
     addTogglePersistentStore()
-    processPeriodeTopic(kafkaKeyFunction)
+    buildPeriodeTopology(kafkaKeyFunction)
 }.build()
 
 context(ConfigContext)

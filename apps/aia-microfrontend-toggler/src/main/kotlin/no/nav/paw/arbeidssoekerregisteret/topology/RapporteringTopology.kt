@@ -19,9 +19,11 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.state.KeyValueStore
 
-
+/**
+ * TODO Venter med å implementere til etter registeret er i prod
+ */
 context(ConfigContext, LoggingContext)
-fun StreamsBuilder.processRapporteringTopic(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
+fun StreamsBuilder.buildRapporteringTopology(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
     val (kafkaTopology) = appConfig
 
     this.stream<Long, RapporteringsHendelse>(kafkaTopology.periodeTopic)

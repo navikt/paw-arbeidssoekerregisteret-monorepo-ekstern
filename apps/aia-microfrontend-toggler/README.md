@@ -18,6 +18,9 @@ paw.arbeidssokerperioder-v1 topic
       :send inaktiver aia-behovsvurdering
       vent 21 dager
           :send inaktiver aia-min-side
+   "identitetsnummer" endrer seg
+      ??
+   er mottak idempotent
 
 pto.siste-14a-vedtak-v1 topic
    14a vedtak fattet
