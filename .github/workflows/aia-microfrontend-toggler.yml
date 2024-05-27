@@ -50,21 +50,21 @@ jobs:
         uses: nais/attest-sign@v1.3.4
         with:
           image_ref: ${{ env.IMAGE }}@${{ env.DIGEST }}
-#  deploy-dev:
-#    name: Deploy to dev-gcp - AIA Microfrontend Toggler
-#    needs: build
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: read
-#      id-token: write
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: nais/deploy/actions/deploy@v2
-#        env:
-#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-#          CLUSTER: dev-gcp
-#          RESOURCE: ./apps/aia-microfrontend-toggler/nais/nais-dev.yaml
-#          VAR: image=${{ needs.build.outputs.image }}
+  deploy-dev:
+    name: Deploy to dev-gcp - AIA Microfrontend Toggler
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: ./apps/aia-microfrontend-toggler/nais/nais-dev.yaml
+          VAR: image=${{ needs.build.outputs.image }}
 #  deploy-prod:
 #    if: github.ref == 'refs/heads/main'
 #    name: Deploy to prod-gcp - AIA Microfrontend Toggler
