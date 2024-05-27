@@ -26,6 +26,8 @@ spec:
   readiness:
     path: /internal/isReady
     initialDelay: 10
+  secureLogs:
+    enabled: true
   prometheus:
     enabled: true
     path: /internal/metrics
