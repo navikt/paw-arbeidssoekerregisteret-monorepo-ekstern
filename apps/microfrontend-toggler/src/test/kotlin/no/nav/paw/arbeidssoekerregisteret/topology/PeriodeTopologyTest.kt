@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
-import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -8,7 +7,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.ENABLE_ACTION
 import no.nav.paw.arbeidssoekerregisteret.model.SENSITIVITET_HIGH
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 
-@Ignored
 class PeriodeTopologyTest : FreeSpec({
 
     with(TopologyTestContext()) {
@@ -31,7 +29,7 @@ class PeriodeTopologyTest : FreeSpec({
                     initialedBy shouldBe "paw"
                 }
                 behovsvurderingKeyValue.key shouldBe kafkaKeyResponse.id
-                with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
+                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ENABLE_ACTION
                     ident shouldBe periode.identitetsnummer
                     microfrontendId shouldBe appConfig.microfrontends.aiaBehovsvurdering

@@ -47,6 +47,9 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
+  azure:
+    application:
+      enabled: true
   kafka:
     pool: nav-prod
     streams: true
