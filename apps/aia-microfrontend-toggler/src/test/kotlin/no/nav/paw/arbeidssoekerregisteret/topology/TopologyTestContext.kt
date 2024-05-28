@@ -3,11 +3,14 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+import io.kotest.common.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleStateSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
+import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KafkaConfig
@@ -21,6 +24,7 @@ import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.Stores
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -60,14 +64,14 @@ class TopologyTestContext {
         periodeSerde.serializer()
     )
 
-    val microfrontendTopic = testDriver.createInputTopic(
+    val microfrontendTopic = testDriver.createOutputTopic(
         appConfig.kafkaTopology.microfrontendTopic,
-        keySerde.serializer(),
-        toggleSerde.serializer()
+        keySerde.deserializer(),
+        toggleSerde.deserializer()
     )
 }
 
-const val SCHEMA_REGISTRY_SCOPE = "juni-registry"
+const val SCHEMA_REGISTRY_SCOPE = "test-registry"
 
 fun <T : SpecificRecord> buildAvroSerde(): Serde<T> {
     val schemaRegistryClient = MockSchemaRegistry.getClientForScope(SCHEMA_REGISTRY_SCOPE)
@@ -83,7 +87,7 @@ fun <T : SpecificRecord> buildAvroSerde(): Serde<T> {
 }
 
 val kafkaStreamProperties = Properties().apply {
-    this[StreamsConfig.APPLICATION_ID_CONFIG] = "test"
+    this[StreamsConfig.APPLICATION_ID_CONFIG] = "test-kafka-streams"
     this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
     this[StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG] = Serdes.Long().javaClass
     this[StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG] = SpecificAvroSerde<SpecificRecord>().javaClass
@@ -101,3 +105,33 @@ class KafkaKeysClientMock : KafkaKeysClient {
         }
     }
 }
+
+context(TopologyTestContext)
+fun getKafkaKey(identitetsnummer: String): KafkaKeysResponse = runBlocking {
+    kafkaKeysClient.getIdAndKey(identitetsnummer)
+}
+
+context(TopologyTestContext)
+fun buildPeriode(
+    id: UUID = UUID.randomUUID(),
+    identitetsnummer: String,
+    startet: Instant = Instant.now(),
+    avsluttet: Instant? = null
+) = Periode(
+    id,
+    identitetsnummer,
+    Metadata(
+        startet,
+        Bruker(no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType.SLUTTBRUKER, identitetsnummer),
+        "junit",
+        "tester"
+    ),
+    avsluttet?.let {
+        Metadata(
+            avsluttet,
+            Bruker(no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType.SLUTTBRUKER, identitetsnummer),
+            "junit",
+            "tester"
+        )
+    }
+) to getKafkaKey(identitetsnummer)

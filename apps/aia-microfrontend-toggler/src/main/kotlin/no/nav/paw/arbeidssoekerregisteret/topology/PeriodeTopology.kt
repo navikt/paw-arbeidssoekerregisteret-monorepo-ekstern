@@ -15,6 +15,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.kafka.streams.Punctuation
 import no.nav.paw.config.kafka.streams.genericProcess
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
@@ -57,11 +58,9 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeysClient: KafkaKeysClient) {
 
     this.stream<Long, Periode>(kafkaTopology.periodeTopic)
         .mapValues { periode ->
-            runBlocking {
-                val response = kafkaKeysClient.getIdAndKey(periode.identitetsnummer)
-                val arbeidssoekerId = checkNotNull(response?.id) { "KafkaKeysResponse er null" }
-                buildPeriodeInfo(periode, arbeidssoekerId)
-            }
+            val response = getKafkaKey(periode.identitetsnummer, kafkaKeysClient)
+            val arbeidssoekerId = checkNotNull(response?.id) { "KafkaKeysResponse er null" }
+            buildPeriodeInfo(periode, arbeidssoekerId)
         }.genericProcess<Long, PeriodeInfo, Long, ToggleState>(
             name = kafkaTopology.periodeToggleProcessor,
             stateStoreNames = arrayOf(kafkaTopology.toggleStoreName),
@@ -103,4 +102,8 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeysClient: KafkaKeysClient) {
         }.mapValues { toggleState ->
             return@mapValues toggleState.toggle
         }.to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
+}
+
+fun getKafkaKey(identitetsnummer: String, kafkaKeysClient: KafkaKeysClient): KafkaKeysResponse? = runBlocking {
+    kafkaKeysClient.getIdAndKey(identitetsnummer)
 }

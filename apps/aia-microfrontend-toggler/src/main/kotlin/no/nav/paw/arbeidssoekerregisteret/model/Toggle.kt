@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.apache.kafka.streams.processor.api.Record
 import java.time.Instant
 
-private const val ENABLE_ACTION = "enable"
-private const val DISABLE_ACTION = "disable"
-private const val SENSITIVITET_HIGH = "high"
+const val ENABLE_ACTION = "enable"
+const val DISABLE_ACTION = "disable"
+const val SENSITIVITET_HIGH = "high"
 
 @JvmRecord
 data class Toggle(
