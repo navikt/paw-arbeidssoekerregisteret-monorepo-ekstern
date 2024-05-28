@@ -1,4 +1,4 @@
-name: Build, push, and deploy - PAW Microfrontend Toggler
+name: Build, push, and deploy - paw-microfrontend-toggler
 
 on:
   push:

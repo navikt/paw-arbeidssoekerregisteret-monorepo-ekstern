@@ -54,7 +54,7 @@ private fun buildPunctuation(config: AppConfig, logger: Logger): Punctuation<Lon
 
 context(ConfigContext, LoggingContext)
 fun StreamsBuilder.buildPeriodeTopology(kafkaKeysClient: KafkaKeysClient) {
-    val (kafkaTopology, _, _, microfrontends) = appConfig
+    val (kafkaTopology, _, microfrontends) = appConfig
 
     this.stream<Long, Periode>(kafkaTopology.periodeTopic)
         .mapValues { periode ->
