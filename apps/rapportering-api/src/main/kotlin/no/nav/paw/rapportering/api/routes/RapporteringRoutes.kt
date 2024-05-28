@@ -14,10 +14,16 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.rapportering.api.ApplicationInfo
 import no.nav.paw.rapportering.api.domain.request.RapporteringRequest
+import no.nav.paw.rapportering.api.kafka.RapporteringProducer
 import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligState
+import no.nav.paw.rapportering.api.kafka.createMelding
 import no.nav.paw.rapportering.api.utils.logger
+import no.nav.paw.rapportering.melding.v1.Melding
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
+import org.apache.kafka.clients.producer.Producer
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.KeyQueryMetadata
@@ -28,7 +34,9 @@ fun Route.rapporteringRoutes(
     rapporteringStateStoreName: String,
     rapporteringStateStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
     kafkaStreams: KafkaStreams,
-    httpClient: HttpClient
+    httpClient: HttpClient,
+    kafkaRapporteringProducer: Producer<Long, Melding>,
+    rapporteringProducer: RapporteringProducer,
 ) {
     route("/api/v1") {
         authenticate("tokenx", "azure") {
@@ -40,15 +48,23 @@ fun Route.rapporteringRoutes(
                 val arbeidsoekerId = kafkaKeyClient.getIdAndKey(identitetsnummer)?.id
                     ?: throw IllegalArgumentException("Fant ikke arbeidsoekerId for identitetsnummer")
 
-                val rapporteringsIdFunnet = rapporteringStateStore.get(arbeidsoekerId)
+                val rapporteringTilgjengeligState = rapporteringStateStore
+                    .get(arbeidsoekerId)
                     ?.rapporteringer
-                    ?.any {
-                        it.rapporteringsId == rapportering.rapporteringsId
-                                && it.arbeidssoekerId == arbeidsoekerId
-                    } == true
+                    ?.firstOrNull { it.rapporteringsId == rapportering.rapporteringsId }
 
-                if (rapporteringsIdFunnet) {
+
+                if (rapporteringTilgjengeligState !== null) {
                     logger.info("Rapportering med id ${rapportering.rapporteringsId} funnet")
+                    val rapporteringsMelding = createMelding(rapporteringTilgjengeligState, rapportering)
+                    rapporteringProducer.produceMessage(arbeidsoekerId, rapporteringsMelding)
+                    /*kafkaRapporteringProducer.send(
+                        ProducerRecord(
+                            applicationC,
+                            arbeidsoekerId,
+                            rapporteringsMelding
+                        )
+                    )*/
                     return@post call.respond(HttpStatusCode.OK)
                 }
 

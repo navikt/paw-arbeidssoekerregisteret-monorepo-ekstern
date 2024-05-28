@@ -7,6 +7,7 @@ import io.ktor.serialization.jackson.jackson
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.config.kafka.KafkaConfig
+import no.nav.paw.config.kafka.KafkaFactory
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
 import no.nav.paw.kafkakeygenerator.auth.azureAdM2MTokenClient
@@ -14,9 +15,13 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.kafkaKeysKlient
 import no.nav.paw.rapportering.api.config.ApplicationConfig
+import no.nav.paw.rapportering.api.kafka.RapporteringProducer
 import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligState
 import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligStateSerde
 import no.nav.paw.rapportering.api.kafka.appTopology
+import no.nav.paw.rapportering.melding.v1.Melding
+import org.apache.kafka.clients.producer.Producer
+import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StoreQueryParameters
@@ -71,7 +76,7 @@ fun createDependencies(
     val kafkaStreams = KafkaStreams(
         topology,
         streamsConfig.properties.apply {
-            put("application.server", "${applicationConfig.hostname}:8080")
+            put("application.server", applicationConfig.hostname)
         }
     )
 
@@ -91,13 +96,19 @@ fun createDependencies(
 
     val health = Health(kafkaStreams)
 
-    /* TODO: Legg til produsent for rapporteringer
-    val kafkaRapporteringProducer = KafkaProducer<Long, RapporteringsM>(
-        kafkaConfig,
-        applicationConfig,
-        
+    val meldingSerde = SpecificAvroSerde<Melding>().apply {
+        configure(mapOf("schema.registry.url" to kafkaConfig.schemaRegistry), false)
+    }
+
+    val rapporteringProducer = RapporteringProducer(kafkaConfig, applicationConfig)
+
+    val kafkaFactory = KafkaFactory(kafkaConfig)
+
+    val kafkaRapporteringProducer = kafkaFactory.createProducer<Long, Melding>(
+        clientId = applicationConfig.applicationIdSuffix,
+        keySerializer = LongSerializer::class,
+        valueSerializer = meldingSerde.serializer()::class
     )
-    */
 
     return Dependencies(
         kafkaKeyClient,
@@ -105,7 +116,9 @@ fun createDependencies(
         kafkaStreams,
         prometheusMeterRegistry,
         rapporteringStateStore,
-        health
+        health,
+        kafkaRapporteringProducer,
+        rapporteringProducer
     )
 }
 
@@ -115,5 +128,7 @@ data class Dependencies(
     val kafkaStreams: KafkaStreams,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
     val rapporteringStateStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
-    val health: Health
+    val health: Health,
+    val kafkaRapporteringProducer: Producer<Long, Melding>,
+    val rapporteringProducer: RapporteringProducer
 )

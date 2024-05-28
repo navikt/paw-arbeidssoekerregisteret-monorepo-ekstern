@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":lib:kafka-streams"))
     implementation(project(":lib:kafka-key-generator-client"))
     implementation(project(":domain:rapportering-interne-hendelser"))
+    implementation(project(":domain:rapporteringsmelding-schema"))
 
     // Server
     implementation(ktorServer.bundles.withNettyAndMicrometer)
