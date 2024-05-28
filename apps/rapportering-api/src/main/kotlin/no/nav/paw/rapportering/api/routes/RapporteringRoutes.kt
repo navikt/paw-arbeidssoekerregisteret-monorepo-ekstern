@@ -14,16 +14,13 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.rapportering.api.ApplicationInfo
 import no.nav.paw.rapportering.api.domain.request.RapporteringRequest
 import no.nav.paw.rapportering.api.kafka.RapporteringProducer
 import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligState
 import no.nav.paw.rapportering.api.kafka.createMelding
+import no.nav.paw.rapportering.api.services.AutorisasjonService
 import no.nav.paw.rapportering.api.utils.logger
-import no.nav.paw.rapportering.melding.v1.Melding
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
-import org.apache.kafka.clients.producer.Producer
-import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.KeyQueryMetadata
@@ -35,8 +32,8 @@ fun Route.rapporteringRoutes(
     rapporteringStateStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
     kafkaStreams: KafkaStreams,
     httpClient: HttpClient,
-    kafkaRapporteringProducer: Producer<Long, Melding>,
     rapporteringProducer: RapporteringProducer,
+    autorisasjonService: AutorisasjonService
 ) {
     route("/api/v1") {
         authenticate("tokenx", "azure") {
@@ -45,28 +42,22 @@ fun Route.rapporteringRoutes(
                     ?: rapportering.identitetsnummer
                     ?: throw IllegalArgumentException("Identitetsnummer mangler")
 
+                // TODO: Hvis veileder, hent oid fra token, sjekk mot poao-tilgang
+
                 val arbeidsoekerId = kafkaKeyClient.getIdAndKey(identitetsnummer)?.id
                     ?: throw IllegalArgumentException("Fant ikke arbeidsoekerId for identitetsnummer")
 
-                val rapporteringTilgjengeligState = rapporteringStateStore
+                rapporteringStateStore
                     .get(arbeidsoekerId)
                     ?.rapporteringer
                     ?.firstOrNull { it.rapporteringsId == rapportering.rapporteringsId }
+                    ?.let {
+                        logger.info("Rapportering med id ${rapportering.rapporteringsId} funnet")
+                        val rapporteringsMelding = createMelding(it, rapportering)
+                        rapporteringProducer.produceMessage(arbeidsoekerId, rapporteringsMelding)
 
-
-                if (rapporteringTilgjengeligState !== null) {
-                    logger.info("Rapportering med id ${rapportering.rapporteringsId} funnet")
-                    val rapporteringsMelding = createMelding(rapporteringTilgjengeligState, rapportering)
-                    rapporteringProducer.produceMessage(arbeidsoekerId, rapporteringsMelding)
-                    /*kafkaRapporteringProducer.send(
-                        ProducerRecord(
-                            applicationC,
-                            arbeidsoekerId,
-                            rapporteringsMelding
-                        )
-                    )*/
-                    return@post call.respond(HttpStatusCode.OK)
-                }
+                        return@post call.respond(HttpStatusCode.OK)
+                    }
 
                 val metadata = kafkaStreams.queryMetadataForKey(
                     rapporteringStateStoreName, arbeidsoekerId, Serdes.Long().serializer()
@@ -76,7 +67,7 @@ fun Route.rapporteringRoutes(
                     logger.info("Fant ikke metadata for arbeidsoeker, $metadata")
                     return@post call.respond(HttpStatusCode.NotFound)
                 } else {
-                    val response = httpClient.post("http://${metadata.activeHost().host()}:8080/api/v1/rapportering") {
+                    val response = httpClient.post("http://${metadata.activeHost().host()}/api/v1/rapportering") {
                         call.request.headers["Authorization"]?.let { bearerAuth(it) }
                         setBody(rapportering)
                     }

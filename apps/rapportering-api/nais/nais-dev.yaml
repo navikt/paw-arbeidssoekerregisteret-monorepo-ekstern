@@ -17,6 +17,15 @@ spec:
     requests:
       cpu: 200m
       memory: 256Mi
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      claims:
+        extra:
+          - NAVident
   replicas:
     min: 1
     max: 1

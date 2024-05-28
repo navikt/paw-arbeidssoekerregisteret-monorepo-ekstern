@@ -7,7 +7,6 @@ import io.ktor.serialization.jackson.jackson
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.config.kafka.KafkaConfig
-import no.nav.paw.config.kafka.KafkaFactory
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
 import no.nav.paw.kafkakeygenerator.auth.azureAdM2MTokenClient
@@ -19,9 +18,10 @@ import no.nav.paw.rapportering.api.kafka.RapporteringProducer
 import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligState
 import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligStateSerde
 import no.nav.paw.rapportering.api.kafka.appTopology
-import no.nav.paw.rapportering.melding.v1.Melding
-import org.apache.kafka.clients.producer.Producer
-import org.apache.kafka.common.serialization.LongSerializer
+import no.nav.paw.rapportering.api.services.AutorisasjonService
+import no.nav.poao_tilgang.client.PoaoTilgangCachedClient
+import no.nav.poao_tilgang.client.PoaoTilgangClient
+import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StoreQueryParameters
@@ -96,19 +96,17 @@ fun createDependencies(
 
     val health = Health(kafkaStreams)
 
-    val meldingSerde = SpecificAvroSerde<Melding>().apply {
-        configure(mapOf("schema.registry.url" to kafkaConfig.schemaRegistry), false)
-    }
-
     val rapporteringProducer = RapporteringProducer(kafkaConfig, applicationConfig)
 
-    val kafkaFactory = KafkaFactory(kafkaConfig)
 
-    val kafkaRapporteringProducer = kafkaFactory.createProducer<Long, Melding>(
-        clientId = applicationConfig.applicationIdSuffix,
-        keySerializer = LongSerializer::class,
-        valueSerializer = meldingSerde.serializer()::class
+    val poaoTilgangClient = PoaoTilgangCachedClient(
+        PoaoTilgangHttpClient(
+            applicationConfig.poaoClientConfig.url,
+            { azureM2MTokenClient.createMachineToMachineToken(applicationConfig.poaoClientConfig.scope) }
+        )
     )
+
+    val autorisasjonService = AutorisasjonService(poaoTilgangClient)
 
     return Dependencies(
         kafkaKeyClient,
@@ -117,8 +115,8 @@ fun createDependencies(
         prometheusMeterRegistry,
         rapporteringStateStore,
         health,
-        kafkaRapporteringProducer,
-        rapporteringProducer
+        rapporteringProducer,
+        autorisasjonService
     )
 }
 
@@ -129,6 +127,6 @@ data class Dependencies(
     val prometheusMeterRegistry: PrometheusMeterRegistry,
     val rapporteringStateStore: ReadOnlyKeyValueStore<Long, RapporteringTilgjengeligState>,
     val health: Health,
-    val kafkaRapporteringProducer: Producer<Long, Melding>,
-    val rapporteringProducer: RapporteringProducer
+    val rapporteringProducer: RapporteringProducer,
+    val autorisasjonService: AutorisasjonService
 )

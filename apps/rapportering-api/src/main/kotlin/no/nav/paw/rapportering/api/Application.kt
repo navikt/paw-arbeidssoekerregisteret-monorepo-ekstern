@@ -70,7 +70,7 @@ fun Application.module(
             rapporteringStateStoreName = applicationConfig.rapporteringStateStoreName,
             kafkaStreams = dependencies.kafkaStreams,
             httpClient = dependencies.httpClient,
-            kafkaRapporteringProducer = dependencies.kafkaRapporteringProducer
+            rapporteringProducer = dependencies.rapporteringProducer
         )
     }
 }

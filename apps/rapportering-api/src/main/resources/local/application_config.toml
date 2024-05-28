@@ -24,3 +24,7 @@ clientId = "paw-rapportering-api"
 [authProviders.claims]
 map = [ "NAVident" ]
 combineWithOr = false
+
+[poaoClientConfig]
+url = "http://localhost:8090/poao-tilgang/"
+scope = "api://test.test.poao-tilgang/.default"

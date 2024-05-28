@@ -40,6 +40,9 @@ dependencies {
     // Authentication
     implementation(navSecurity.tokenValidationKtorV2)
 
+    // Authorization
+    implementation(poao.tilgangClient)
+
     // Documentation
     implementation(ktorServer.swagger)
 
@@ -47,6 +50,7 @@ dependencies {
     implementation(loggingLibs.logbackClassic)
     implementation(loggingLibs.logstashLogbackEncoder)
     implementation(navCommon.log)
+    implementation(navCommon.auditLog)
 
     // Instrumentation
     implementation(micrometer.registryPrometheus)

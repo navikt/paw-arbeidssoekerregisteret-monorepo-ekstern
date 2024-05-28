@@ -14,7 +14,13 @@ data class ApplicationConfig(
     val rapporteringStateStoreName: String,
     val authProviders: AuthProviders,
     val naisEnv: NaisEnv = currentNaisEnv,
-    val hostname: String = InetAddress.getLocalHost().hostName
+    val hostname: String = InetAddress.getLocalHost().hostName,
+    val poaoClientConfig: ServiceClientConfig
+)
+
+data class ServiceClientConfig(
+    val url: String,
+    val scope: String
 )
 
 data class AuthProvider(
