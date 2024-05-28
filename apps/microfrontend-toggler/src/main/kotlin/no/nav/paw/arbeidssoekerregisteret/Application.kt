@@ -7,7 +7,9 @@ import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
+import no.nav.paw.arbeidssoekerregisteret.config.AZURE_M2M_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
+import no.nav.paw.arbeidssoekerregisteret.config.KAFKA_KEY_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
@@ -20,6 +22,9 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
+import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
+import no.nav.paw.kafkakeygenerator.auth.azureAdM2MTokenClient
+import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
 import no.nav.paw.kafkakeygenerator.client.kafkaKeysKlient
 import org.slf4j.LoggerFactory
 
@@ -28,8 +33,13 @@ fun main() {
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
+    val kafkaKeyConfig = loadNaisOrLocalConfiguration<KafkaKeyConfig>(KAFKA_KEY_CONFIG_FILE_NAME)
+    val azureM2MConfig = loadNaisOrLocalConfiguration<AzureM2MConfig>(AZURE_M2M_CONFIG_FILE_NAME)
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-    val kafkaKeysClient = kafkaKeysKlient(appConfig.kafkaKeys, ::token)
+    val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, azureM2MConfig)
+    val kafkaKeysClient = kafkaKeysKlient(kafkaKeyConfig) {
+        azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
+    }
 
     logger.info("Starter ${appConfig.appId}")
 
@@ -57,8 +67,4 @@ fun main() {
         logger.info("Avslutter ${appConfig.appId}")
     }
     server.start(wait = true)
-}
-
-fun token(): String {
-    return "";
 }

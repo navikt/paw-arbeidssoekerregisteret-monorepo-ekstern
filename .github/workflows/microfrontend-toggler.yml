@@ -12,7 +12,7 @@ env:
   IMAGE: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/paw/paw-microfrontend-toggler
 jobs:
   build:
-    name: Build - PAW Microfrontend Toggler
+    name: Build - paw-microfrontend-toggler
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -51,7 +51,7 @@ jobs:
         with:
           image_ref: ${{ env.IMAGE }}@${{ env.DIGEST }}
   deploy-dev:
-    name: Deploy to dev-gcp - PAW Microfrontend Toggler
+    name: Deploy to dev-gcp - paw-microfrontend-toggler
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -67,7 +67,7 @@ jobs:
           VAR: image=${{ needs.build.outputs.image }}
 #  deploy-prod:
 #    if: github.ref == 'refs/heads/main'
-#    name: Deploy to prod-gcp - PAW Microfrontend Toggler
+#    name: Deploy to prod-gcp - paw-microfrontend-toggler
 #    needs: build
 #    runs-on: ubuntu-latest
 #    permissions:

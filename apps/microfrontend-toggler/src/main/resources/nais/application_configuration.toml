@@ -6,10 +6,6 @@ toggleStoreName = "microfrontend-toggle"
 varselStoreName = "microfrontend-varsel"
 periodeToggleProcessor = "microfrontend-toggle-periode"
 
-[kafkaKeys]
-url = "http://paw-kafka-key-generator/api/v2/hentEllerOpprett"
-scope = "${KAFKA_KEY_SCOPE}"
-
 [regler]
 periodeTogglePunctuatorSchedule = "PT6H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
