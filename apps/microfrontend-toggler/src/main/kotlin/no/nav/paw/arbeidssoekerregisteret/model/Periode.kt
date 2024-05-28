@@ -4,7 +4,6 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import java.time.Instant
 import java.util.*
 
-@JvmRecord
 data class PeriodeInfo(
     val id: UUID,
     val identitetsnummer: String,

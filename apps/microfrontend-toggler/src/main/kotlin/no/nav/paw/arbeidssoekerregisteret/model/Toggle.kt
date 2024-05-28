@@ -8,7 +8,6 @@ const val ENABLE_ACTION = "enable"
 const val DISABLE_ACTION = "disable"
 const val SENSITIVITET_HIGH = "high"
 
-@JvmRecord
 data class Toggle(
     @JsonProperty("@action") val action: String,
     val ident: String,
@@ -17,7 +16,6 @@ data class Toggle(
     @JsonProperty("@initiated_by") val initialedBy: String
 )
 
-@JvmRecord
 data class ToggleState(val periode: PeriodeInfo, val toggle: Toggle)
 
 fun buildEnableToggle(identitetsnummer: String, microfrontendId: String): Toggle {
