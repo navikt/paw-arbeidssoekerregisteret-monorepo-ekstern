@@ -1,4 +1,4 @@
-# AIA Microfrontend Toggler
+# PAW Microfrontend Toggler
 
 Denne applikasjonen skal lytte på hendelser i arbeidssøkerdomenet, spesielt start/stopp av perioder. Hendelsene skal
 tolkes for å bestemme hvilke microfrontends som skal være aktivert eller deaktivert på "Min Side" for

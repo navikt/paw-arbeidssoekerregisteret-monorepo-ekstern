@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: aia-microfrontend-toggler
+  name: paw-microfrontend-toggler
   namespace: paw
   labels:
     team: paw
