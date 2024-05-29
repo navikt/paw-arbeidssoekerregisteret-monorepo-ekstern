@@ -24,6 +24,14 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
 
+class ToggleJsonSerializer(private val delegate: Serializer<Toggle>) : Serializer<Toggle> {
+    constructor() : this(buildJsonSerializer())
+
+    override fun serialize(topic: String?, data: Toggle?): ByteArray {
+        return delegate.serialize(topic, data)
+    }
+}
+
 inline fun <reified T> buildJsonSerializer(naisEnv: NaisEnv, objectMapper: ObjectMapper) = object : Serializer<T> {
     override fun serialize(topic: String?, data: T): ByteArray {
         if (data == null) return byteArrayOf()

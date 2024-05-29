@@ -8,7 +8,7 @@ import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
 import io.ktor.util.KtorDsl
-import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_ID_SUFFIX
+import no.nav.paw.arbeidssoekerregisteret.config.KAFKA_STREAMS_APPLICATION_ID_SUFFIX
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import org.apache.kafka.common.serialization.Serdes
@@ -33,7 +33,7 @@ val KafkaStreamsPlugin: ApplicationPlugin<KafkaStreamsPluginConfig> =
         val stateListener = requireNotNull(pluginConfig.stateListener) { "StateListener er null" }
         val exceptionHandler = requireNotNull(pluginConfig.exceptionHandler) { "ExceptionHandler er null" }
 
-        val streamsFactory = KafkaStreamsFactory(APPLICATION_ID_SUFFIX, config)
+        val streamsFactory = KafkaStreamsFactory(KAFKA_STREAMS_APPLICATION_ID_SUFFIX, config)
             .withDefaultKeySerde(Serdes.Long()::class)
             .withDefaultValueSerde(SpecificAvroSerde::class)
 

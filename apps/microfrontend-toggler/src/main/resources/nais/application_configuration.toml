@@ -7,8 +7,8 @@ varselStoreName = "microfrontend-varsel"
 periodeToggleProcessor = "microfrontend-toggle-periode"
 
 [regler]
-periodeTogglePunctuatorSchedule = "PT6H"
-utsattDeaktiveringAvAiaMinSide = "P21D"
+periodeTogglePunctuatorSchedule = "PT5M" # Redusert tid i forbindelse med test
+utsattDeaktiveringAvAiaMinSide = "PT10M" # Redusert tid i forbindelse med test
 
 [microfrontends]
 aiaMinSide = "aia-min-side"

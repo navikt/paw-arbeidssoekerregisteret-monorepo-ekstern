@@ -9,7 +9,8 @@ const val APPLICATION_LOGGER_NAME = "no.nav.paw.application"
 const val APPLICATION_CONFIG_FILE_NAME = "application_configuration.toml"
 const val KAFKA_KEY_CONFIG_FILE_NAME = "kafka_key_configuration.toml"
 const val AZURE_M2M_CONFIG_FILE_NAME = "azure_m2m_configuration.toml"
-const val APPLICATION_ID_SUFFIX = "beta"
+const val KAFKA_PRODUCER_APPLICATION_ID_SUFFIX = "producer"
+const val KAFKA_STREAMS_APPLICATION_ID_SUFFIX = "beta"
 
 data class AppConfig(
     val kafkaTopology: KafkaTopologyConfig,

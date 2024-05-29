@@ -1,8 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
-import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
+import no.nav.paw.arbeidssoekerregisteret.config.getIdAndKeyBlocking
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
@@ -15,7 +15,6 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.kafka.streams.Punctuation
 import no.nav.paw.config.kafka.streams.genericProcess
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
@@ -58,8 +57,8 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeysClient: KafkaKeysClient) {
 
     this.stream<Long, Periode>(kafkaTopology.periodeTopic)
         .mapValues { periode ->
-            val response = getKafkaKey(periode.identitetsnummer, kafkaKeysClient)
-            val arbeidssoekerId = checkNotNull(response?.id) { "KafkaKeysResponse er null" }
+            val kafkaKeysResponse = kafkaKeysClient.getIdAndKeyBlocking(periode.identitetsnummer)
+            val arbeidssoekerId = checkNotNull(kafkaKeysResponse?.id) { "KafkaKeysResponse er null" }
             buildPeriodeInfo(periode, arbeidssoekerId)
         }.genericProcess<Long, PeriodeInfo, Long, ToggleState>(
             name = kafkaTopology.periodeToggleProcessor,
@@ -102,8 +101,4 @@ fun StreamsBuilder.buildPeriodeTopology(kafkaKeysClient: KafkaKeysClient) {
         }.mapValues { toggleState ->
             return@mapValues toggleState.toggle
         }.to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
-}
-
-fun getKafkaKey(identitetsnummer: String, kafkaKeysClient: KafkaKeysClient): KafkaKeysResponse? = runBlocking {
-    kafkaKeysClient.getIdAndKey(identitetsnummer)
 }
