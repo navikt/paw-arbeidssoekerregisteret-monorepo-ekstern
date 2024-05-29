@@ -22,6 +22,7 @@ import java.time.Duration
 class KafkaStreamsPluginConfig {
     var config: KafkaConfig? = null
     var topology: Topology? = null
+    var stateListener: KafkaStreams.StateListener? = null
     var exceptionHandler: StreamsUncaughtExceptionHandler? = null
 }
 
@@ -29,6 +30,7 @@ val KafkaStreamsPlugin: ApplicationPlugin<KafkaStreamsPluginConfig> =
     createApplicationPlugin("KafkaStreams", ::KafkaStreamsPluginConfig) {
         val config = requireNotNull(pluginConfig.config) { "KafkaConfig er null" }
         val topology = requireNotNull(pluginConfig.topology) { "Topology er null" }
+        val stateListener = requireNotNull(pluginConfig.stateListener) { "StateListener er null" }
         val exceptionHandler = requireNotNull(pluginConfig.exceptionHandler) { "ExceptionHandler er null" }
 
         val streamsFactory = KafkaStreamsFactory(APPLICATION_ID_SUFFIX, config)
@@ -36,6 +38,7 @@ val KafkaStreamsPlugin: ApplicationPlugin<KafkaStreamsPluginConfig> =
             .withDefaultValueSerde(SpecificAvroSerde::class)
 
         val kafkaStreams = KafkaStreams(topology, StreamsConfig(streamsFactory.properties))
+        kafkaStreams.setStateListener(stateListener)
         kafkaStreams.setUncaughtExceptionHandler(exceptionHandler)
 
         on(MonitoringEvent(ApplicationStarted)) { application ->

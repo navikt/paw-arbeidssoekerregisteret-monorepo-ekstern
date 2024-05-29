@@ -24,30 +24,37 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <if condition='"${NAIS_CLUSTER_NAME}" == "NAIS_CLUSTER_NAME_IS_UNDEFINED"'>
+    <if condition='"${NAIS_CLUSTER_NAME}" == "prod-gcp"'>
         <then>
-            <root level="INFO">
-                <appender-ref ref="CONSOLE"/>
-            </root>
-        </then>
-        <else>
             <logger name="tjenestekall" level="DEBUG" additivity="false">
                 <appender-ref ref="secureLog"/>
             </logger>
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
-        </else>
+        </then>
+    </if>
+    <if condition='"${NAIS_CLUSTER_NAME}" == "dev-gcp"'>
+        <then>
+            <logger name="no.nav.paw.application" level="DEBUG"/>
+            <logger name="tjenestekall" level="DEBUG" additivity="false">
+                <appender-ref ref="secureLog"/>
+            </logger>
+            <root level="INFO">
+                <appender-ref ref="STDOUT_JSON"/>
+            </root>
+        </then>
+    </if>
+    <if condition='"${NAIS_CLUSTER_NAME}" == "NAIS_CLUSTER_NAME_IS_UNDEFINED"'>
+        <then>
+            <logger name="no.nav" level="DEBUG"/>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <root level="INFO">
+                <appender-ref ref="CONSOLE"/>
+            </root>
+        </then>
     </if>
 
     <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
-
-    <if condition='"${NAIS_CLUSTER_NAME}" == "prod-gcp"'>
-        <then>
-            <logger name="no.nav.paw.application" level="INFO"/>
-        </then>
-        <else>
-            <logger name="no.nav.paw.application" level="DEBUG"/>
-        </else>
-    </if>
 </configuration>

@@ -10,6 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.AZURE_M2M_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.KAFKA_KEY_CONFIG_FILE_NAME
+import no.nav.paw.arbeidssoekerregisteret.config.KafkaHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
@@ -35,6 +36,7 @@ fun main() {
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
     val kafkaKeyConfig = loadNaisOrLocalConfiguration<KafkaKeyConfig>(KAFKA_KEY_CONFIG_FILE_NAME)
     val azureM2MConfig = loadNaisOrLocalConfiguration<AzureM2MConfig>(AZURE_M2M_CONFIG_FILE_NAME)
+    val kafkaHealthIndicator = KafkaHealthIndicator()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, azureM2MConfig)
     val kafkaKeysClient = kafkaKeysKlient(kafkaKeyConfig) {
@@ -57,8 +59,8 @@ fun main() {
                 configureSerialization()
                 configureRequestHandling()
                 configureMetrics(meterRegistry)
-                configureRouting(meterRegistry)
-                configureKafka(meterRegistry, kafkaKeysClient)
+                configureRouting(kafkaHealthIndicator, meterRegistry)
+                configureKafka(kafkaHealthIndicator, meterRegistry, kafkaKeysClient)
             }
         }
     }

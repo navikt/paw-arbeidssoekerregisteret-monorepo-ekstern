@@ -1,9 +1,12 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
+import no.nav.paw.config.env.NaisEnv
+import no.nav.paw.config.env.currentNaisEnv
 import no.nav.paw.rapportering.internehendelser.EksternGracePeriodeUtloept
 import no.nav.paw.rapportering.internehendelser.LeveringsfristUtloept
 import no.nav.paw.rapportering.internehendelser.PeriodeAvsluttet
@@ -21,43 +24,54 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
 
-inline fun <reified T> buildJsonSerializer(objectMapper: ObjectMapper) = object : Serializer<T> {
+inline fun <reified T> buildJsonSerializer(naisEnv: NaisEnv, objectMapper: ObjectMapper) = object : Serializer<T> {
     override fun serialize(topic: String?, data: T): ByteArray {
         if (data == null) return byteArrayOf()
-        return objectMapper.writeValueAsBytes(data)
+        try {
+            return objectMapper.writeValueAsBytes(data)
+        } catch (e: Exception) {
+            if (naisEnv == NaisEnv.ProdGCP && e is JsonProcessingException) e.clearLocation()
+            throw e
+        }
     }
 }
 
-inline fun <reified T> buildJsonSerializer(): Serializer<T> = buildJsonSerializer<T>(buildObjectMapper)
+inline fun <reified T> buildJsonSerializer(): Serializer<T> = buildJsonSerializer<T>(currentNaisEnv, buildObjectMapper)
 
-inline fun <reified T> buildJsonDeserializer(objectMapper: ObjectMapper) = object : Deserializer<T> {
+inline fun <reified T> buildJsonDeserializer(naisEnv: NaisEnv, objectMapper: ObjectMapper) = object : Deserializer<T> {
     override fun deserialize(topic: String?, data: ByteArray?): T? {
         if (data == null) return null
-        return objectMapper.readValue<T>(data)
+        try {
+            return objectMapper.readValue<T>(data)
+        } catch (e: Exception) {
+            if (naisEnv == NaisEnv.ProdGCP && e is JsonProcessingException) e.clearLocation()
+            throw e
+        }
     }
 }
 
-inline fun <reified T> buildJsonDeserializer(): Deserializer<T> = buildJsonDeserializer<T>(buildObjectMapper)
+inline fun <reified T> buildJsonDeserializer(): Deserializer<T> =
+    buildJsonDeserializer<T>(currentNaisEnv, buildObjectMapper)
 
-inline fun <reified T> buildJsonSerde(objectMapper: ObjectMapper) = object : Serde<T> {
+inline fun <reified T> buildJsonSerde(naisEnv: NaisEnv, objectMapper: ObjectMapper) = object : Serde<T> {
     override fun serializer(): Serializer<T> {
-        return buildJsonSerializer(objectMapper)
+        return buildJsonSerializer(naisEnv, objectMapper)
     }
 
     override fun deserializer(): Deserializer<T> {
-        return buildJsonDeserializer(objectMapper)
+        return buildJsonDeserializer(naisEnv, objectMapper)
     }
 }
 
 inline fun <reified T> buildJsonSerde(): Serde<T> {
-    return buildJsonSerde<T>(buildObjectMapper)
+    return buildJsonSerde<T>(currentNaisEnv, buildObjectMapper)
 }
 
 fun buildToggleSerde(): Serde<Toggle> = buildJsonSerde<Toggle>()
 
 fun buildToggleStateSerde(): Serde<ToggleState> = buildJsonSerde<ToggleState>()
 
-class RapporteringsHendelseDeserializer(private val objectMapper: ObjectMapper) :
+class RapporteringsHendelseDeserializer(private val naisEnv: NaisEnv, private val objectMapper: ObjectMapper) :
     Deserializer<RapporteringsHendelse> {
     override fun deserialize(topic: String?, data: ByteArray?): RapporteringsHendelse? {
         if (data == null) return null
@@ -74,9 +88,10 @@ class RapporteringsHendelseDeserializer(private val objectMapper: ObjectMapper) 
     }
 }
 
-class RapporteringsHendelseSerde(private val objectMapper: ObjectMapper) : Serde<RapporteringsHendelse> {
-    constructor() : this(buildObjectMapper)
+class RapporteringsHendelseSerde(naisEnv: NaisEnv, private val objectMapper: ObjectMapper) :
+    Serde<RapporteringsHendelse> {
+    constructor() : this(currentNaisEnv, buildObjectMapper)
 
-    override fun serializer() = buildJsonSerializer<RapporteringsHendelse>(objectMapper)
-    override fun deserializer() = RapporteringsHendelseDeserializer(objectMapper)
+    override fun serializer() = buildJsonSerializer<RapporteringsHendelse>(currentNaisEnv, objectMapper)
+    override fun deserializer() = RapporteringsHendelseDeserializer(currentNaisEnv, objectMapper)
 }

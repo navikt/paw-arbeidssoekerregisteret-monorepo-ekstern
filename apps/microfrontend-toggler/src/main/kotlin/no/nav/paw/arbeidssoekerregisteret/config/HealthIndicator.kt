@@ -1,21 +1,37 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
-import org.apache.kafka.streams.KafkaStreams
+import java.util.concurrent.atomic.AtomicReference
 
 enum class HealthStatus(val text: String) {
-    PENDING("PENDING"),
+    UNKNOWN("UNKNOWN"),
     HEALTHY("HEALTHY"),
     UNHEALTHY("UNHEALTHY"),
 }
 
-enum class RunnableHealthStatus {
-    STARTING,
-    RUNNING,
-    FAILED
+interface HealthIndicator {
+    fun setUnknown()
+    fun setHealthy()
+    fun setUnhealthy()
+    fun getStatus(): HealthStatus
 }
 
-class KafkaStreamsHealthIndicator : KafkaStreams.StateListener {
-    override fun onChange(newState: KafkaStreams.State, oldState: KafkaStreams.State) {
-        TODO("Not yet implemented")
+class KafkaHealthIndicator : HealthIndicator {
+
+    private val status = AtomicReference(HealthStatus.UNKNOWN)
+
+    override fun setUnknown() {
+        status.set(HealthStatus.UNKNOWN)
+    }
+
+    override fun setHealthy() {
+        status.set(HealthStatus.HEALTHY)
+    }
+
+    override fun setUnhealthy() {
+        status.set(HealthStatus.UNHEALTHY)
+    }
+
+    override fun getStatus(): HealthStatus {
+        return status.get()
     }
 }
