@@ -13,7 +13,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.KAFKA_KEY_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.KafkaHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.config.buildKafkaProducer
+import no.nav.paw.arbeidssoekerregisteret.config.buildToggleKafkaProducer
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
@@ -44,8 +44,8 @@ fun main() {
     val kafkaKeysClient = kafkaKeysKlient(kafkaKeyConfig) {
         azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
     }
-    val kafkaProducer = buildKafkaProducer(kafkaConfig)
-    val toggleService = ToggleService(kafkaKeysClient, kafkaProducer)
+    val toggleKafkaProducer = buildToggleKafkaProducer(kafkaConfig)
+    val toggleService = ToggleService(kafkaKeysClient, toggleKafkaProducer)
 
     logger.info("Starter ${appConfig.appId}")
 
