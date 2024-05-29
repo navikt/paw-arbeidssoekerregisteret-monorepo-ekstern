@@ -3,7 +3,6 @@ package no.nav.paw.rapportering.api.services
 import no.nav.paw.rapportering.api.utils.auditLogMelding
 import no.nav.paw.rapportering.api.utils.auditLogger
 import no.nav.paw.rapportering.api.utils.logger
-import no.nav.poao_tilgang.client.NavAnsattNavIdentLesetilgangTilEksternBrukerPolicyInput
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
 import no.nav.poao_tilgang.client.PoaoTilgangCachedClient
 import no.nav.poao_tilgang.client.TilgangType
@@ -14,21 +13,22 @@ class AutorisasjonService(
 ) {
     fun verifiserTilgangTilBruker(
         navAnsatt: NavAnsatt,
-        identitetsnummer: String
+        identitetsnummer: String,
+        tilgangType: TilgangType
     ): Boolean {
         val harNavAnsattTilgang =
             poaoTilgangHttpClient.evaluatePolicy(
                 NavAnsattTilgangTilEksternBrukerPolicyInput(
                     navAnsattAzureId = navAnsatt.azureId,
-                    tilgangType = TilgangType.LESE,
+                    tilgangType = tilgangType,
                     norskIdent = identitetsnummer
                 )
             ).getOrThrow().isPermit
 
         if (!harNavAnsattTilgang) {
-            logger.info("NAV-ansatt har ikke tilgang til bruker")
+            logger.info("NAV-ansatt har ikke $tilgangType til bruker")
         } else {
-            auditLogger.info(auditLogMelding(identitetsnummer, navAnsatt, "NAV ansatt har hentet informasjon om bruker"))
+            auditLogger.info(auditLogMelding(identitetsnummer, navAnsatt, tilgangType, "NAV ansatt har benyttet $tilgangType tilgang til informasjon om bruker"))
         }
         return harNavAnsattTilgang
     }

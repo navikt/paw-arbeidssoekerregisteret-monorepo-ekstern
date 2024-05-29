@@ -43,7 +43,12 @@ class RapporteringHendelseProcessor(
             }
             is RapporteringsMeldingMottatt -> {
                 hendelseStore.get(value.arbeidssoekerId)?.let { state ->
-                    hendelseStore.put(value.arbeidssoekerId, RapporteringTilgjengeligState(state.rapporteringer.filter { it.rapporteringsId != value.rapporteringsId }))
+                    state.rapporteringer
+                        .filterNot { it.rapporteringsId == value.rapporteringsId }
+                        .let { rapporteringer ->
+                            if (rapporteringer.isEmpty()) hendelseStore.delete(value.arbeidssoekerId)
+                            else hendelseStore.put(value.arbeidssoekerId, RapporteringTilgjengeligState(rapporteringer))
+                        }
                 }
             }
             is PeriodeAvsluttet -> {
