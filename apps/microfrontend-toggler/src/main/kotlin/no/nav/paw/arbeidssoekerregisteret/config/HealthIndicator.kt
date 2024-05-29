@@ -1,12 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
+import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
 import java.util.concurrent.atomic.AtomicReference
-
-enum class HealthStatus(val text: String) {
-    UNKNOWN("UNKNOWN"),
-    HEALTHY("HEALTHY"),
-    UNHEALTHY("UNHEALTHY"),
-}
 
 interface HealthIndicator {
     fun setUnknown()

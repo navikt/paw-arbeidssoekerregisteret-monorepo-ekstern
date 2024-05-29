@@ -1,18 +1,25 @@
 package no.nav.paw.arbeidssoekerregisteret.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
 import org.apache.kafka.streams.processor.api.Record
 import java.time.Instant
 
-const val ENABLE_ACTION = "enable"
-const val DISABLE_ACTION = "disable"
-const val SENSITIVITET_HIGH = "high"
+enum class ToggleAction(@get:JsonValue val value: String) {
+    ENABLE("enable"),
+    DISABLE("disable")
+}
+
+enum class Sensitivitet(@get:JsonValue val value: String) {
+    HIGH("high"),
+    SUBSTANTIAL("substantial")
+}
 
 data class Toggle(
-    @JsonProperty("@action") val action: String,
+    @JsonProperty("@action") val action: ToggleAction,
     val ident: String,
     @JsonProperty("microfrontend_id") val microfrontendId: String,
-    val sensitivitet: String? = null,
+    val sensitivitet: Sensitivitet? = null,
     @JsonProperty("@initiated_by") val initialedBy: String
 )
 
@@ -20,17 +27,17 @@ data class ToggleState(val periode: PeriodeInfo, val toggle: Toggle)
 
 fun buildEnableToggle(identitetsnummer: String, microfrontendId: String): Toggle {
     return Toggle(
-        action = ENABLE_ACTION,
+        action = ToggleAction.ENABLE,
         ident = identitetsnummer,
         microfrontendId = microfrontendId,
-        sensitivitet = SENSITIVITET_HIGH,
+        sensitivitet = Sensitivitet.HIGH,
         initialedBy = "paw" // TODO Bruke miljøvariabel
     )
 }
 
 fun buildDisableToggle(identitetsnummer: String, microfrontendId: String): Toggle {
     return Toggle(
-        action = DISABLE_ACTION,
+        action = ToggleAction.DISABLE,
         ident = identitetsnummer,
         microfrontendId = microfrontendId,
         initialedBy = "paw" // TODO Bruke miljøvariabel

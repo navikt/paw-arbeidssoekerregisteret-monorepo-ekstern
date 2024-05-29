@@ -8,7 +8,7 @@ periodeToggleProcessor = "microfrontend-toggle-periode"
 
 [regler]
 periodeTogglePunctuatorSchedule = "PT60S"
-utsattDeaktiveringAvAiaMinSide = "P21D"
+utsattDeaktiveringAvAiaMinSide = "PT10M" # Redusert tid i forbindelse med test
 
 [microfrontends]
 aiaMinSide = "aia-min-side"

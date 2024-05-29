@@ -25,6 +25,8 @@ dependencies {
     implementation(ktorServer.contentNegotiation)
     implementation(ktorServer.statusPages)
     implementation(ktorServer.cors)
+    implementation(ktorServer.cors)
+    implementation(ktorServer.callId)
 
     // Serialization
     implementation(ktor.serializationJackson)
@@ -35,6 +37,10 @@ dependencies {
     implementation(loggingLibs.logbackClassic)
     implementation(loggingLibs.logstashLogbackEncoder)
     implementation(navCommon.log)
+
+    // Docs
+    implementation(ktorServer.openapi)
+    implementation(ktorServer.swagger)
 
     // Instrumentation
     implementation(micrometer.registryPrometheus)
@@ -75,8 +81,8 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        freeCompilerArgs = freeCompilerArgs + "-Xcontext-receivers"
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-receivers")
     }
 }
 

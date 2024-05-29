@@ -3,8 +3,8 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import no.nav.paw.arbeidssoekerregisteret.model.ENABLE_ACTION
-import no.nav.paw.arbeidssoekerregisteret.model.SENSITIVITET_HIGH
+import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
+import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 
 class PeriodeTopologyTest : FreeSpec({
@@ -22,18 +22,18 @@ class PeriodeTopologyTest : FreeSpec({
                 val behovsvurderingKeyValue = keyValueList.last()
                 minSideKeyValue.key shouldBe kafkaKeyResponse.id
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ENABLE_ACTION
+                    action shouldBe ToggleAction.ENABLE
                     ident shouldBe periode.identitetsnummer
                     microfrontendId shouldBe appConfig.microfrontends.aiaMinSide
-                    sensitivitet shouldBe SENSITIVITET_HIGH
+                    sensitivitet shouldBe Sensitivitet.HIGH
                     initialedBy shouldBe "paw"
                 }
                 behovsvurderingKeyValue.key shouldBe kafkaKeyResponse.id
                 with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ENABLE_ACTION
+                    action shouldBe ToggleAction.ENABLE
                     ident shouldBe periode.identitetsnummer
                     microfrontendId shouldBe appConfig.microfrontends.aiaBehovsvurdering
-                    sensitivitet shouldBe SENSITIVITET_HIGH
+                    sensitivitet shouldBe Sensitivitet.HIGH
                     initialedBy shouldBe "paw"
                 }
             }

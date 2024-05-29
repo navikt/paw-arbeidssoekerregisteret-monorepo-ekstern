@@ -1,0 +1,152 @@
+openapi: "3.0.3"
+info:
+  title: "paw_arbeidssoekerregisteret_microfrontend_toggler API"
+  description: "paw_arbeidssoekerregisteret_microfrontend_toggler API"
+  version: "1.0.0"
+servers:
+  - url: "https://microfrontend-toggle-arbeidssoekerregisteret.intern.nav.no"
+    description: "Production"
+  - url: "https://microfrontend-toggle-arbeidssoekerregisteret.intern.dev.nav.no"
+    description: "Development"
+paths:
+  /api/v1/microfrontend-toggle:
+    post:
+      description: "Endepunkt for aktivering eller deaktivering av microfrontends"
+      parameters:
+        - name: "traceparent"
+          in: "header"
+          required: false
+          description: "https://www.w3.org/TR/trace-context/#traceparent-header-field-values"
+          schema:
+            type: "string"
+            format: "traceparent"
+      requestBody:
+        $ref: "#/components/schemas/ToggleRequest"
+      responses:
+        "403":
+          description: "Forbidden"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "202":
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ToggleResponse"
+  /internal/isAlive:
+    get:
+      description: "Service is alive probe"
+      responses:
+        "503":
+          description: "Service Unavailable"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "UNKNOWN"
+                Example#2:
+                  value: "UNHEALTHY"
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "HEALTHY"
+  /internal/isReady:
+    get:
+      description: "Service is ready probe"
+      responses:
+        "503":
+          description: "Service Unavailable"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "UNKNOWN"
+                Example#2:
+                  value: "UNHEALTHY"
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "HEALTHY"
+  /internal/metrics:
+    get:
+      description: "Prometheus metrics"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "string"
+components:
+  schemas:
+    ToggleRequest:
+      type: "object"
+      properties:
+        "@action":
+          $ref: "#/components/schemas/ToggleAction"
+        ident:
+          type: "string"
+        microfrontend_id:
+          type: "string"
+      required:
+        - "@action"
+        - "ident"
+        - "microfrontend_id"
+    ToggleResponse:
+      type: "object"
+      properties:
+        "@action":
+          $ref: "#/components/schemas/ToggleAction"
+        ident:
+          type: "string"
+        microfrontend_id:
+          type: "string"
+        sensitivitet:
+          $ref: "#/components/schemas/Sensitivitet"
+        "@initiated_by":
+          type: "string"
+      required:
+        - "@action"
+        - "ident"
+        - "microfrontend_id"
+        - "@initiated_by"
+    ToggleAction:
+      type: "string"
+      enum:
+        - "enable"
+        - "disable"
+    Sensitivitet:
+      type: "string"
+      enum:
+        - "high"
+        - "substantial"
+    HealthStatus:
+      type: "string"
+      enum:
+        - "UNKNOWN"
+        - "HEALTHY"
+        - "UNHEALTHY"

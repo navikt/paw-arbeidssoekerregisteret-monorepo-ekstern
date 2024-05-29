@@ -9,30 +9,28 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.HealthIndicator
-import no.nav.paw.arbeidssoekerregisteret.config.HealthStatus
+import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
 
 fun Route.healthRoutes(
     healthIndicator: HealthIndicator,
     meterRegistry: PrometheusMeterRegistry
 ) {
 
-    // TODO Koble Kafka Stream state mot helsesjekk
     get("/internal/isAlive") {
-        call.respondText("ALIVE", ContentType.Text.Plain)
+        call.respondText(HealthStatus.HEALTHY.value, ContentType.Text.Plain)
     }
 
     get("/internal/isReady") {
-        val status = healthIndicator.getStatus()
-        when (status) {
+        when (val status = healthIndicator.getStatus()) {
             HealthStatus.HEALTHY -> call.respondText(
                 ContentType.Text.Plain,
                 HttpStatusCode.OK
-            ) { status.text }
+            ) { status.value }
 
             else -> call.respondText(
                 ContentType.Text.Plain,
                 HttpStatusCode.ServiceUnavailable
-            ) { status.text }
+            ) { status.value }
         }
     }
 
