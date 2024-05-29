@@ -1,10 +1,34 @@
-[kafkaTopology]
+[[authProviders]]
+name = "tokenx"
+discoveryUrl = "${TOKEN_X_WELL_KNOWN_URL}"
+tokenEndpointUrl = "${TOKEN_X_TOKEN_ENDPOINT}"
+clientId = "${TOKEN_X_CLIENT_ID}"
+
+[authProviders.claims]
+map = ["acr=Level4", "acr=idporten-loa-high"]
+combineWithOr = true
+
+[[authProviders]]
+name = "azure"
+discoveryUrl = "${AZURE_APP_WELL_KNOWN_URL}"
+tokenEndpointUrl = "${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}"
+clientId = "${AZURE_APP_CLIENT_ID}"
+
+[authProviders.claims]
+map = ["NAVident"]
+
+[kafkaProducer]
+applicationIdSuffix = "producer-v1"
+
+[kafkaStreams]
+applicationIdSuffix = "stream-v1"
 periodeTopic = "${KAFKA_PAW_PERIODE_TOPIC}"
 vedtakTopic = "${KAFKA_PTO_14A_VEDTAK_TOPIC}"
 microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
 toggleStoreName = "microfrontend-toggle"
 varselStoreName = "microfrontend-varsel"
 periodeToggleProcessor = "microfrontend-toggle-periode"
+rapporteringToggleProcessor = "microfrontend-toggle-rapportering"
 
 [regler]
 periodeTogglePunctuatorSchedule = "PT1H"

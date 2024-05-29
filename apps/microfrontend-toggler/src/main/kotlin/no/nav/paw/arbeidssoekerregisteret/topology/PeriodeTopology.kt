@@ -28,7 +28,7 @@ private fun buildPunctuation(config: AppConfig, logger: Logger): Punctuation<Lon
     return Punctuation(
         config.regler.periodeTogglePunctuatorSchedule, PunctuationType.WALL_CLOCK_TIME
     ) { timestamp, context ->
-        val stateStore: KeyValueStore<Long, ToggleState> = context.getStateStore(config.kafkaTopology.toggleStoreName)
+        val stateStore: KeyValueStore<Long, ToggleState> = context.getStateStore(config.kafkaStreams.toggleStoreName)
         val iterator = stateStore.all()
         while (iterator.hasNext()) {
             val (periode, _) = iterator.next().value
@@ -53,52 +53,53 @@ private fun buildPunctuation(config: AppConfig, logger: Logger): Punctuation<Lon
 
 context(ConfigContext, LoggingContext)
 fun StreamsBuilder.buildPeriodeTopology(kafkaKeysClient: KafkaKeysClient) {
-    val (kafkaTopology, _, microfrontends) = appConfig
+    val kafkaStreamsConfig = appConfig.kafkaStreams
+    val microfrontendConfig = appConfig.microfrontends
 
-    this.stream<Long, Periode>(kafkaTopology.periodeTopic)
+    this.stream<Long, Periode>(kafkaStreamsConfig.periodeTopic)
         .mapValues { periode ->
             val kafkaKeysResponse = kafkaKeysClient.getIdAndKeyBlocking(periode.identitetsnummer)
             val arbeidssoekerId = checkNotNull(kafkaKeysResponse?.id) { "KafkaKeysResponse er null" }
             buildPeriodeInfo(periode, arbeidssoekerId)
         }.genericProcess<Long, PeriodeInfo, Long, ToggleState>(
-            name = kafkaTopology.periodeToggleProcessor,
-            stateStoreNames = arrayOf(kafkaTopology.toggleStoreName),
+            name = kafkaStreamsConfig.periodeToggleProcessor,
+            stateStoreNames = arrayOf(kafkaStreamsConfig.toggleStoreName),
             punctuation = buildPunctuation(appConfig, logger)
         ) { record ->
-            val keyValueStore: KeyValueStore<Long, ToggleState> = getStateStore(kafkaTopology.toggleStoreName)
+            val keyValueStore: KeyValueStore<Long, ToggleState> = getStateStore(kafkaStreamsConfig.toggleStoreName)
             val periode = record.value()
             when {
                 periode.erAvsluttet() -> {
                     logger.debug(
                         "Arbeidsøkerperiode {} ble avluttet. Iverksetter deaktivering av {}. Lagrer forsinket deaktivering av {}.",
                         periode.id,
-                        microfrontends.aiaBehovsvurdering,
-                        microfrontends.aiaMinSide
+                        microfrontendConfig.aiaBehovsvurdering,
+                        microfrontendConfig.aiaMinSide
                     )
                     // Lagre perioden i state store for å vente med deaktivering AIA Min Side
                     keyValueStore.put(
-                        periode.arbeidssoekerId, buildDisableToggleState(periode, microfrontends.aiaMinSide)
+                        periode.arbeidssoekerId, buildDisableToggleState(periode, microfrontendConfig.aiaMinSide)
                     )
 
                     // Send event for å deaktivere AIA Behovsvurdering
-                    forward(buildDisableToggleRecord(periode, microfrontends.aiaBehovsvurdering))
+                    forward(buildDisableToggleRecord(periode, microfrontendConfig.aiaBehovsvurdering))
                 }
 
                 else -> {
                     logger.debug(
                         "Arbeidsøkerperiode {} er aktiv. Iverksetter aktivering av {} og {}.",
                         periode.id,
-                        microfrontends.aiaMinSide,
-                        microfrontends.aiaBehovsvurdering
+                        microfrontendConfig.aiaMinSide,
+                        microfrontendConfig.aiaBehovsvurdering
                     )
                     // Send event for å aktivere AIA Min Side
-                    forward(buildEnableToggleRecord(periode, microfrontends.aiaMinSide))
+                    forward(buildEnableToggleRecord(periode, microfrontendConfig.aiaMinSide))
 
                     // Send event for å aktivere AIA Behovsvurdering
-                    forward(buildEnableToggleRecord(periode, microfrontends.aiaBehovsvurdering))
+                    forward(buildEnableToggleRecord(periode, microfrontendConfig.aiaBehovsvurdering))
                 }
             }
         }.mapValues { toggleState ->
             return@mapValues toggleState.toggle
-        }.to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
+        }.to(kafkaStreamsConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }

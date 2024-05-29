@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.service
 
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
+import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
@@ -15,18 +16,25 @@ class ToggleService(
     private val kafkaProducer: Producer<Long, Toggle>
 ) {
 
-    context(ConfigContext)
+    context(ConfigContext, LoggingContext)
     suspend fun processToggle(toggleRequest: ToggleRequest): Toggle {
         with(toggleRequest) {
             val kafkaKeysResponse = kafkaKeysClient.getIdAndKey(ident)
             val arbeidssoekerId = checkNotNull(kafkaKeysResponse?.id) { "KafkaKeysResponse er null" }
 
             val toggle: Toggle = when (action) {
-                ToggleAction.ENABLE -> buildEnableToggle(ident, microfrontendId)
-                ToggleAction.DISABLE -> buildDisableToggle(ident, microfrontendId)
+                ToggleAction.ENABLE -> {
+                    logger.debug("Iverksetter aktivering av {}.", microfrontendId)
+                    buildEnableToggle(ident, microfrontendId)
+                }
+
+                ToggleAction.DISABLE -> {
+                    logger.debug("Iverksetter deaktivering av {}.", microfrontendId)
+                    buildDisableToggle(ident, microfrontendId)
+                }
             }
 
-            kafkaProducer.send(ProducerRecord(appConfig.kafkaTopology.microfrontendTopic, arbeidssoekerId, toggle))
+            kafkaProducer.send(ProducerRecord(appConfig.kafkaStreams.microfrontendTopic, arbeidssoekerId, toggle))
 
             return toggle
         }

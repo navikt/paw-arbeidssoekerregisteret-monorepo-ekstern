@@ -16,6 +16,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleKafkaProducer
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
@@ -44,7 +45,7 @@ fun main() {
     val kafkaKeysClient = kafkaKeysKlient(kafkaKeyConfig) {
         azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
     }
-    val toggleKafkaProducer = buildToggleKafkaProducer(kafkaConfig)
+    val toggleKafkaProducer = buildToggleKafkaProducer(kafkaConfig, appConfig.kafkaProducer)
     val toggleService = ToggleService(kafkaKeysClient, toggleKafkaProducer)
 
     logger.info("Starter ${appConfig.appId}")
@@ -58,12 +59,13 @@ fun main() {
             connectionGroupSize = serverConfig.connectionGroupSize
         }
     ) {
-        ConfigContext(appConfig, kafkaConfig).apply {
-            LoggingContext(logger).apply {
+        with(ConfigContext(appConfig, kafkaConfig)) {
+            with(LoggingContext(logger)) {
                 configureSerialization()
                 configureRequestHandling()
                 configureMetrics(meterRegistry)
                 configureRouting(kafkaHealthIndicator, meterRegistry, toggleService)
+                configureAuthentication()
                 configureKafka(kafkaHealthIndicator, meterRegistry, kafkaKeysClient)
             }
         }

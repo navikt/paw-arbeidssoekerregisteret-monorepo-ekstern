@@ -27,6 +27,7 @@ dependencies {
     implementation(ktorServer.cors)
     implementation(ktorServer.cors)
     implementation(ktorServer.callId)
+    implementation(ktorServer.auth)
 
     // Serialization
     implementation(ktor.serializationJackson)
@@ -49,7 +50,10 @@ dependencies {
     implementation(orgApacheKafka.kafkaStreams)
     implementation(apacheAvro.kafkaStreamsAvroSerde)
 
-    // NAV
+    // NAV Security
+    implementation(navSecurity.tokenValidationKtorV2)
+
+    // NAV Min Side
     implementation(tmsVarsel.kotlinBuilder)
 
     // Test

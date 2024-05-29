@@ -48,7 +48,7 @@ class TopologyTestContext {
                 StreamsBuilder().apply {
                     addStateStore(
                         Stores.keyValueStoreBuilder(
-                            Stores.inMemoryKeyValueStore(appConfig.kafkaTopology.toggleStoreName),
+                            Stores.inMemoryKeyValueStore(appConfig.kafkaStreams.toggleStoreName),
                             keySerde,
                             toggleStateSerde
                         )
@@ -59,13 +59,13 @@ class TopologyTestContext {
         }.let { TopologyTestDriver(it, kafkaStreamProperties) }
 
     val periodeTopic = testDriver.createInputTopic(
-        appConfig.kafkaTopology.periodeTopic,
+        appConfig.kafkaStreams.periodeTopic,
         keySerde.serializer(),
         periodeSerde.serializer()
     )
 
     val microfrontendTopic = testDriver.createOutputTopic(
-        appConfig.kafkaTopology.microfrontendTopic,
+        appConfig.kafkaStreams.microfrontendTopic,
         keySerde.deserializer(),
         toggleSerde.deserializer()
     )

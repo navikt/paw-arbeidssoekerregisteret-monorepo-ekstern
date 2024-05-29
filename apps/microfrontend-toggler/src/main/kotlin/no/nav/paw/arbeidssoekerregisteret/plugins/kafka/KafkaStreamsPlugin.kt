@@ -8,7 +8,7 @@ import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
 import io.ktor.util.KtorDsl
-import no.nav.paw.arbeidssoekerregisteret.config.KAFKA_STREAMS_APPLICATION_ID_SUFFIX
+import no.nav.paw.arbeidssoekerregisteret.config.KafkaStreamsConfig
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import org.apache.kafka.common.serialization.Serdes
@@ -21,6 +21,7 @@ import java.time.Duration
 @KtorDsl
 class KafkaStreamsPluginConfig {
     var config: KafkaConfig? = null
+    var streamsConfig: KafkaStreamsConfig? = null
     var topology: Topology? = null
     var stateListener: KafkaStreams.StateListener? = null
     var exceptionHandler: StreamsUncaughtExceptionHandler? = null
@@ -29,11 +30,12 @@ class KafkaStreamsPluginConfig {
 val KafkaStreamsPlugin: ApplicationPlugin<KafkaStreamsPluginConfig> =
     createApplicationPlugin("KafkaStreams", ::KafkaStreamsPluginConfig) {
         val config = requireNotNull(pluginConfig.config) { "KafkaConfig er null" }
+        val streamsConfig = requireNotNull(pluginConfig.streamsConfig) { "KafkaStreamsConfig er null" }
         val topology = requireNotNull(pluginConfig.topology) { "Topology er null" }
         val stateListener = requireNotNull(pluginConfig.stateListener) { "StateListener er null" }
         val exceptionHandler = requireNotNull(pluginConfig.exceptionHandler) { "ExceptionHandler er null" }
 
-        val streamsFactory = KafkaStreamsFactory(KAFKA_STREAMS_APPLICATION_ID_SUFFIX, config)
+        val streamsFactory = KafkaStreamsFactory(streamsConfig.applicationIdSuffix, config)
             .withDefaultKeySerde(Serdes.Long()::class)
             .withDefaultValueSerde(SpecificAvroSerde::class)
 

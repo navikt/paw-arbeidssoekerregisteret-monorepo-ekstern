@@ -6,11 +6,12 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
+import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
 
-context(ConfigContext)
+context(ConfigContext, LoggingContext)
 fun Route.toggleRoutes(toggleService: ToggleService) {
     post<ToggleRequest>("/api/v1/microfrontend-toggle") { toggleRequest ->
         val toggle = toggleService.processToggle(toggleRequest)

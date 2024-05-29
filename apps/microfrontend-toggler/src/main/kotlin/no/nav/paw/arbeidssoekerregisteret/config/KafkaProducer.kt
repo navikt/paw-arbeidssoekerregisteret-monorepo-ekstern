@@ -6,10 +6,13 @@ import no.nav.paw.config.kafka.KafkaFactory
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.common.serialization.LongSerializer
 
-fun buildToggleKafkaProducer(kafkaConfig: KafkaConfig): Producer<Long, Toggle> {
-    val kafkaFactory = KafkaFactory(kafkaConfig)
+fun buildToggleKafkaProducer(
+    config: KafkaConfig,
+    producerConfig: KafkaProducerConfig
+): Producer<Long, Toggle> {
+    val kafkaFactory = KafkaFactory(config)
     return kafkaFactory.createProducer(
-        clientId = "${kafkaConfig.applicationIdPrefix}_$KAFKA_PRODUCER_APPLICATION_ID_SUFFIX",
+        clientId = "${config.applicationIdPrefix}_${producerConfig.applicationIdSuffix}",
         keySerializer = LongSerializer::class,
         valueSerializer = ToggleJsonSerializer::class
     )

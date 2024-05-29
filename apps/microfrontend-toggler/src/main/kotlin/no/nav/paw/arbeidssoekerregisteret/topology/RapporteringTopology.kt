@@ -24,14 +24,14 @@ import org.apache.kafka.streams.state.KeyValueStore
  */
 context(ConfigContext, LoggingContext)
 fun StreamsBuilder.buildRapporteringTopology(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
-    val (kafkaTopology) = appConfig
+    val kafkaStreamsConfig = appConfig.kafkaStreams
 
-    this.stream<Long, RapporteringsHendelse>(kafkaTopology.periodeTopic)
+    this.stream<Long, RapporteringsHendelse>(kafkaStreamsConfig.periodeTopic)
         .genericProcess<Long, RapporteringsHendelse, Long, Toggle>(
-            "prosesserHendelse",
-            kafkaTopology.toggleStoreName
+            kafkaStreamsConfig.rapporteringToggleProcessor,
+            kafkaStreamsConfig.toggleStoreName
         ) { record ->
-            val keyValueStore: KeyValueStore<Long, ToggleState> = getStateStore(kafkaTopology.toggleStoreName)
+            val keyValueStore: KeyValueStore<Long, ToggleState> = getStateStore(kafkaStreamsConfig.toggleStoreName)
             when (val event = record.value()) {
                 is RapporteringTilgjengelig -> processEvent(event)
                 is RapporteringsMeldingMottatt -> processEvent(event)
@@ -41,7 +41,7 @@ fun StreamsBuilder.buildRapporteringTopology(kafkaKeyFunction: (String) -> Kafka
                 is EksternGracePeriodeUtloept -> processEvent(event)
             }
         }
-        .to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
+        .to(kafkaStreamsConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }
 
 private fun processEvent(event: RapporteringTilgjengelig) {

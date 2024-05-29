@@ -23,7 +23,7 @@ context(ConfigContext)
 private fun StreamsBuilder.addToggleStateStore() {
     this.addStateStore(
         Stores.keyValueStoreBuilder(
-            Stores.persistentKeyValueStore(appConfig.kafkaTopology.toggleStoreName),
+            Stores.persistentKeyValueStore(appConfig.kafkaStreams.toggleStoreName),
             Serdes.Long(),
             buildToggleStateSerde()
         )
