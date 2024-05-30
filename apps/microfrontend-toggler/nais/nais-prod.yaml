@@ -47,9 +47,15 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
+  tokenx:
+    enabled: true
   azure:
     application:
       enabled: true
+      allowAllUsers: true
+      claims:
+        extra:
+          - NAVident
   kafka:
     pool: nav-prod
     streams: true
