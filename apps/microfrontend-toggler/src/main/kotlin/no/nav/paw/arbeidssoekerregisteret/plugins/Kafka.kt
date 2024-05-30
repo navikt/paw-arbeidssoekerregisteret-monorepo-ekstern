@@ -20,8 +20,8 @@ fun Application.configureKafka(
     kafkaKeysClient: KafkaKeysClient
 ) {
     install(KafkaStreamsPlugin) {
-        appConfig
-        kafkaConfig
+        kafkaConfig = appConfig.kafka
+        kafkaStreamsConfig = appConfig.kafkaStreams
         topology = buildTopology(meterRegistry, kafkaKeysClient)
         stateListener = buildStateListener(healthIndicator)
         exceptionHandler = buildUncaughtExceptionHandler()

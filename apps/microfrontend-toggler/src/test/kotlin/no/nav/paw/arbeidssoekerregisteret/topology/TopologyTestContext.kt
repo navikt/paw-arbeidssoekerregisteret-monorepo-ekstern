@@ -13,7 +13,6 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.avro.specific.SpecificRecord
@@ -30,11 +29,9 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 const val TEST_APPLICATION_CONFIG_FILE_NAME = "test_application_configuration.toml"
-const val TEST_KAFKA_STREAMS_CONFIG_FILE_NAME = "test_kafka_streams_configuration.toml"
 
 class TopologyTestContext {
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
-    val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(TEST_KAFKA_STREAMS_CONFIG_FILE_NAME)
     val logger = LoggerFactory.getLogger("TestApplication")
     val auditLogger = LoggerFactory.getLogger("TestAudit")
     val kafkaKeysClient = KafkaKeysClientMock()
@@ -44,7 +41,7 @@ class TopologyTestContext {
     val toggleStateSerde = buildToggleStateSerde()
 
     private val testDriver =
-        with(ConfigContext(appConfig, kafkaConfig)) {
+        with(ConfigContext(appConfig)) {
             with(LoggingContext(logger, auditLogger)) {
                 StreamsBuilder().apply {
                     addStateStore(

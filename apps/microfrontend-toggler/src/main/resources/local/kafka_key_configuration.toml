@@ -1,3 +1,0 @@
-url = "MOCK"
-#url = "http://localhost:8090/kafka-keys"
-scope = "api://test.test.kafka-keys/.default"
