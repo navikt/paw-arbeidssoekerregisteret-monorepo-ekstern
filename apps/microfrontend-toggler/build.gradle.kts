@@ -38,6 +38,7 @@ dependencies {
     implementation(loggingLibs.logbackClassic)
     implementation(loggingLibs.logstashLogbackEncoder)
     implementation(navCommon.log)
+    implementation(navCommon.auditLog)
 
     // Docs
     implementation(ktorServer.openapi)
@@ -52,6 +53,7 @@ dependencies {
 
     // NAV Security
     implementation(navSecurity.tokenValidationKtorV2)
+    implementation(poao.tilgangClient)
 
     // NAV Min Side
     implementation(tmsVarsel.kotlinBuilder)

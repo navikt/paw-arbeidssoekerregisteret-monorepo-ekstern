@@ -5,10 +5,12 @@ import no.nav.paw.config.env.currentAppId
 import no.nav.paw.config.env.currentNaisEnv
 import java.time.Duration
 
-const val APPLICATION_LOGGER_NAME = "no.nav.paw.application"
+const val APPLICATION_LOGGER_NAME = "Application"
 const val APPLICATION_CONFIG_FILE_NAME = "application_configuration.toml"
 const val KAFKA_KEY_CONFIG_FILE_NAME = "kafka_key_configuration.toml"
 const val AZURE_M2M_CONFIG_FILE_NAME = "azure_m2m_configuration.toml"
+
+val currentAppName get() = "paw-microfrontend-toggler" // TODO Bruke miljøvar?
 
 data class AppConfig(
     val authProviders: AuthProviders,
@@ -16,6 +18,7 @@ data class AppConfig(
     val kafkaStreams: KafkaStreamsConfig,
     val regler: ReglerConfig,
     val microfrontends: MicrofrontendsConfig,
+    val appName: String = currentAppName,
     val appId: String = currentAppId,
     val naisEnv: NaisEnv = currentNaisEnv
 )

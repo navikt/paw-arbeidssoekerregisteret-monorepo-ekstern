@@ -5,6 +5,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.AZURE_M2M_CONFIG_FILE_NAME
@@ -18,6 +19,7 @@ import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory
 
 fun main() {
     val logger = LoggerFactory.getLogger(APPLICATION_LOGGER_NAME)
+    val auditLogger = LoggerFactory.getLogger(AUDIT_LOGGER_NAME)
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
@@ -60,9 +63,10 @@ fun main() {
         }
     ) {
         with(ConfigContext(appConfig, kafkaConfig)) {
-            with(LoggingContext(logger)) {
+            with(LoggingContext(logger, auditLogger)) {
                 configureSerialization()
                 configureRequestHandling()
+                configureLogging()
                 configureMetrics(meterRegistry)
                 configureRouting(kafkaHealthIndicator, meterRegistry, toggleService)
                 configureAuthentication()

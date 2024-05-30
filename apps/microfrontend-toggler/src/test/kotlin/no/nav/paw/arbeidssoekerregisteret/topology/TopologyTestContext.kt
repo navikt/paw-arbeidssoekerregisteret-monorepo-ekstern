@@ -35,7 +35,8 @@ const val TEST_KAFKA_STREAMS_CONFIG_FILE_NAME = "test_kafka_streams_configuratio
 class TopologyTestContext {
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(TEST_KAFKA_STREAMS_CONFIG_FILE_NAME)
-    val logger = LoggerFactory.getLogger("no.nav.paw.test")
+    val logger = LoggerFactory.getLogger("TestApplication")
+    val auditLogger = LoggerFactory.getLogger("TestAudit")
     val kafkaKeysClient = KafkaKeysClientMock()
     val keySerde = Serdes.Long()
     val periodeSerde = buildAvroSerde<Periode>()
@@ -44,7 +45,7 @@ class TopologyTestContext {
 
     private val testDriver =
         with(ConfigContext(appConfig, kafkaConfig)) {
-            with(LoggingContext(logger)) {
+            with(LoggingContext(logger, auditLogger)) {
                 StreamsBuilder().apply {
                     addStateStore(
                         Stores.keyValueStoreBuilder(
