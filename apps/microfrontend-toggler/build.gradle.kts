@@ -46,6 +46,8 @@ dependencies {
 
     // Instrumentation
     implementation(micrometer.registryPrometheus)
+    implementation(otel.api)
+    implementation(otel.annotations)
 
     // Kafka
     implementation(orgApacheKafka.kafkaStreams)
@@ -53,7 +55,6 @@ dependencies {
 
     // NAV Security
     implementation(navSecurity.tokenValidationKtorV2)
-    implementation(poao.tilgangClient)
 
     // NAV Min Side
     implementation(tmsVarsel.kotlinBuilder)

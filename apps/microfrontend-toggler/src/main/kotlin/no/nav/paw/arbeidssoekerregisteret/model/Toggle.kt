@@ -27,7 +27,6 @@ data class ToggleState(val periode: PeriodeInfo, val toggle: Toggle)
 
 data class ToggleRequest(
     @JsonProperty("@action") val action: ToggleAction,
-    val ident: String,
     @JsonProperty("microfrontend_id") val microfrontendId: String
 )
 

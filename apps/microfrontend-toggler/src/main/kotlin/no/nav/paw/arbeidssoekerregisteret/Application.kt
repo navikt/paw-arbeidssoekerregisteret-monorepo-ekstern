@@ -13,7 +13,6 @@ import no.nav.paw.arbeidssoekerregisteret.config.KafkaHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildKafkaKeysClient
-import no.nav.paw.arbeidssoekerregisteret.config.buildPoaoTilgangClient
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleKafkaProducer
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
@@ -24,7 +23,7 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
-import no.nav.paw.arbeidssoekerregisteret.service.AutorisasjonService
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureTracing
 import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.auth.azureAdM2MTokenClient
@@ -36,10 +35,8 @@ fun main() {
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
     val kafkaHealthIndicator = KafkaHealthIndicator()
-    val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+    val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT) // TODO Instrumentere med metering og tracing
     val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, appConfig.azureM2M)
-    val poaoTilgangClient = buildPoaoTilgangClient(appConfig.poaoClientConfig, azureM2MTokenClient)
-    val autorisasjonService = AutorisasjonService(poaoTilgangClient)
     val kafkaKeysClient = buildKafkaKeysClient(appConfig.kafkaKeys, azureM2MTokenClient)
     val toggleKafkaProducer = buildToggleKafkaProducer(appConfig.kafka, appConfig.kafkaProducer)
     val toggleService = ToggleService(kafkaKeysClient, toggleKafkaProducer)
@@ -60,9 +57,10 @@ fun main() {
                 configureSerialization()
                 configureRequestHandling()
                 configureLogging()
+                configureTracing()
                 configureMetrics(meterRegistry)
-                configureRouting(kafkaHealthIndicator, meterRegistry, toggleService)
                 configureAuthentication()
+                configureRouting(kafkaHealthIndicator, meterRegistry, toggleService)
                 configureKafka(kafkaHealthIndicator, meterRegistry, kafkaKeysClient)
             }
         }

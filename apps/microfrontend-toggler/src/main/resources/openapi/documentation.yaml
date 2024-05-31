@@ -21,28 +21,24 @@ paths:
             type: "string"
             format: "traceparent"
       requestBody:
-        $ref: "#/components/schemas/ToggleRequest"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToggleRequest"
+        required: true
       responses:
         "403":
           description: "Forbidden"
           content:
-            text/plain:
+            application/json:
               schema:
-                type: "string"
-        "500":
-          description: "Internal Server Error"
-          content:
-            text/plain:
-              schema:
-                type: "string"
+                $ref: "#/components/schemas/ProblemDetails"
         "202":
           description: "Accepted"
           content:
             application/json:
               schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/ToggleResponse"
+                $ref: "#/components/schemas/ToggleResponse"
   /internal/isAlive:
     get:
       description: "Service is alive probe"
@@ -52,21 +48,13 @@ paths:
           content:
             text/plain:
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "UNKNOWN"
-                Example#2:
-                  value: "UNHEALTHY"
+                $ref: "#/components/schemas/HealthStatus"
         "200":
           description: "OK"
           content:
             text/plain:
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "HEALTHY"
+                $ref: "#/components/schemas/HealthStatus"
   /internal/isReady:
     get:
       description: "Service is ready probe"
@@ -76,21 +64,13 @@ paths:
           content:
             text/plain:
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "UNKNOWN"
-                Example#2:
-                  value: "UNHEALTHY"
+                $ref: "#/components/schemas/HealthStatus"
         "200":
           description: "OK"
           content:
             text/plain:
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "HEALTHY"
+                $ref: "#/components/schemas/HealthStatus"
   /internal/metrics:
     get:
       description: "Prometheus metrics"
@@ -108,14 +88,14 @@ components:
       properties:
         "@action":
           $ref: "#/components/schemas/ToggleAction"
-        ident:
-          type: "string"
         microfrontend_id:
           type: "string"
       required:
         - "@action"
-        - "ident"
         - "microfrontend_id"
+      example:
+        "@action": "enable"
+        microfrontend_id: "aia-min-side"
     ToggleResponse:
       type: "object"
       properties:
@@ -134,6 +114,12 @@ components:
         - "ident"
         - "microfrontend_id"
         - "@initiated_by"
+      example:
+        "@action": "enable"
+        ident: "01017012345"
+        microfrontend_id: "aia-min-side"
+        sensitivitet: "high"
+        "@initiated_by": "paw"
     ToggleAction:
       type: "string"
       enum:
@@ -144,6 +130,31 @@ components:
       enum:
         - "high"
         - "substantial"
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: "string"
+        title:
+          type: "string"
+        status:
+          type: "number"
+        detail:
+          type: "string"
+        instance:
+          type: "string"
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+      example:
+        type: "about:blank"
+        title: "Forbidden"
+        status: 403
+        detail: "Access denied"
+        instance: "/api/endpoint"
     HealthStatus:
       type: "string"
       enum:

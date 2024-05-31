@@ -8,22 +8,9 @@ clientId = "${TOKEN_X_CLIENT_ID}"
 map = ["acr=Level4", "acr=idporten-loa-high"]
 combineWithOr = true
 
-[[authProviders]]
-name = "azure"
-discoveryUrl = "${AZURE_APP_WELL_KNOWN_URL}"
-tokenEndpointUrl = "${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}"
-clientId = "${AZURE_APP_CLIENT_ID}"
-
-[authProviders.claims]
-map = ["NAVident"]
-
 [azureM2M]
 tokenEndpointUrl = "${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}"
 clientId = "${AZURE_APP_CLIENT_ID}"
-
-[poaoClientConfig]
-url = "http://poao-tilgang.poao.svc.cluster.local"
-scope = "api://${NAIS_CLUSTER_NAME}.poao.poao-tilgang/.default"
 
 [kafka]
 brokers = "${KAFKA_BROKERS}"

@@ -8,7 +8,7 @@ import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
 import java.time.Duration
 
-const val APPLICATION_LOGGER_NAME = "Application"
+const val APPLICATION_LOGGER_NAME = "no.nav.paw.application"
 const val APPLICATION_CONFIG_FILE_NAME = "application_configuration.toml"
 
 val currentAppName get() = "paw-microfrontend-toggler" // TODO Bruke miljøvar?
@@ -16,7 +16,6 @@ val currentAppName get() = "paw-microfrontend-toggler" // TODO Bruke miljøvar?
 data class AppConfig(
     val authProviders: AuthProviders,
     val azureM2M: AzureM2MConfig,
-    val poaoClientConfig: ServiceClientConfig,
     val kafka: KafkaConfig,
     val kafkaProducer: KafkaProducerConfig,
     val kafkaStreams: KafkaStreamsConfig,

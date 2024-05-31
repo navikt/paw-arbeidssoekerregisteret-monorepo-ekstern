@@ -2,29 +2,15 @@
 name = "tokenx"
 discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
 tokenEndpointUrl = "http://localhost:8081/default/token"
-clientId = "paw-rapportering-api"
+clientId = "paw-microfrontend-toggler"
 
 [authProviders.claims]
 map = [ "acr=Level4", "acr=idporten-loa-high" ]
 combineWithOr = true
 
-[[authProviders]]
-name = "azure"
-discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
-tokenEndpointUrl = "http://localhost:8081/default/token"
-clientId = "paw-rapportering-api"
-
-[authProviders.claims]
-map = [ "NAVident" ]
-combineWithOr = false
-
 [azureM2M]
 tokenEndpointUrl = "http://localhost:8081/default/token"
-clientId = "paw-arbeidssoekerregisteret-utgang-pdl"
-
-[poaoClientConfig]
-url = "http://localhost:8090/poao-tilgang/"
-scope = "api://test.test.poao-tilgang/.default"
+clientId = "paw-microfrontend-toggler"
 
 [kafka]
 brokers = "localhost:9092"
@@ -47,8 +33,7 @@ periodeToggleProcessor = "microfrontend-toggle-periode"
 rapporteringToggleProcessor = "microfrontend-toggle-rapportering"
 
 [kafkaKeys]
-url = "MOCK"
-#url = "http://localhost:8090/kafka-keys"
+url = "http://localhost:8090/kafka-keys"
 scope = "api://test.test.kafka-keys/.default"
 
 [regler]

@@ -20,3 +20,20 @@ data class ProblemDetails(
         instance: String
     ) : this("about:blank", title, status, detail, instance)
 }
+
+fun build400Error(type: String, detail: String, instance: String) =
+    buildError(type, detail, HttpStatusCode.BadRequest, instance)
+
+fun build403Error(type: String, detail: String, instance: String) =
+    buildError(type, detail, HttpStatusCode.Forbidden, instance)
+
+fun build500Error(type: String, detail: String, instance: String) =
+    buildError(type, detail, HttpStatusCode.InternalServerError, instance)
+
+fun buildError(type: String, detail: String, status: HttpStatusCode, instance: String) = ProblemDetails(
+    type = type,
+    title = status.description,
+    status = status,
+    detail = detail,
+    instance = instance
+)

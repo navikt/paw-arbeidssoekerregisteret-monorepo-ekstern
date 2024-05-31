@@ -4,7 +4,6 @@ import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
-import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggle
 import no.nav.paw.arbeidssoekerregisteret.model.buildEnableToggle
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
@@ -17,26 +16,25 @@ class ToggleService(
 ) {
 
     context(ConfigContext, LoggingContext)
-    suspend fun processToggle(toggleRequest: ToggleRequest): Toggle {
-        with(toggleRequest) {
-            val kafkaKeysResponse = kafkaKeysClient.getIdAndKey(ident)
-            val arbeidssoekerId = checkNotNull(kafkaKeysResponse?.id) { "KafkaKeysResponse er null" }
+    suspend fun sendToggle(action: ToggleAction, identitetsnummer: String, microfrontendId: String): Toggle {
+        val kafkaKeysResponse = kafkaKeysClient.getIdAndKey(identitetsnummer)
+        val arbeidssoekerId = checkNotNull(kafkaKeysResponse?.id) { "KafkaKeysResponse er null" }
 
-            val toggle: Toggle = when (action) {
-                ToggleAction.ENABLE -> {
-                    logger.debug("Iverksetter aktivering av {}.", microfrontendId)
-                    buildEnableToggle(ident, microfrontendId)
-                }
-
-                ToggleAction.DISABLE -> {
-                    logger.debug("Iverksetter deaktivering av {}.", microfrontendId)
-                    buildDisableToggle(ident, microfrontendId)
-                }
+        val toggle: Toggle = when (action) {
+            ToggleAction.ENABLE -> {
+                logger.debug("Iverksetter aktivering av {}.", microfrontendId)
+                buildEnableToggle(identitetsnummer, microfrontendId)
             }
 
-            kafkaProducer.send(ProducerRecord(appConfig.kafkaStreams.microfrontendTopic, arbeidssoekerId, toggle))
-
-            return toggle
+            ToggleAction.DISABLE -> {
+                logger.debug("Iverksetter deaktivering av {}.", microfrontendId)
+                buildDisableToggle(identitetsnummer, microfrontendId)
+            }
         }
+
+        // TODO: Trengs det å slette innslag i state store?
+        kafkaProducer.send(ProducerRecord(appConfig.kafkaStreams.microfrontendTopic, arbeidssoekerId, toggle))
+
+        return toggle
     }
 }

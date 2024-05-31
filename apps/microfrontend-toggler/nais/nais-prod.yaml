@@ -52,15 +52,22 @@ spec:
   azure:
     application:
       enabled: true
-      allowAllUsers: true
-      claims:
-        extra:
-          - NAVident
   kafka:
     pool: nav-prod
     streams: true
   accessPolicy:
+    inbound:
+      rules:
+        - application: aia-backend
+        - application: azure-token-generator
+          namespace: aura
+          cluster: dev-gcp
+        - application: tokenx-token-generator
+          namespace: aura
+          cluster: dev-gcp
     outbound:
       rules:
         - application: paw-kafka-key-generator
           namespace: paw
+        - application: poao-tilgang
+          namespace: poao

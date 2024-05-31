@@ -8,23 +8,9 @@ clientId = "paw-rapportering-api"
 map = [ "acr=Level4", "acr=idporten-loa-high" ]
 combineWithOr = true
 
-[[authProviders]]
-name = "azure"
-discoveryUrl = "mock://dummy/.well-known/openid-configuration"
-tokenEndpointUrl = "mock://dummy/token"
-clientId = "paw-rapportering-api"
-
-[authProviders.claims]
-map = [ "NAVident" ]
-combineWithOr = false
-
 [azureM2M]
 tokenEndpointUrl = "mock://dummy/token"
 clientId = "paw-arbeidssoekerregisteret-utgang-pdl"
-
-[poaoClientConfig]
-url = "mock://dummy/poao-tilgang/"
-scope = "api://test.test.poao-tilgang/.default"
 
 [kafka]
 brokers = "dummy:1234"
