@@ -1,43 +1,48 @@
 [[authProviders]]
 name = "tokenx"
-discoveryUrl = "mock://dummy/.well-known/openid-configuration"
+discoveryUrl = "http://dummy/.well-known/openid-configuration"
 tokenEndpointUrl = "mock://dummy/token"
-clientId = "paw-rapportering-api"
+clientId = "paw-microfrontend-toggler"
 
-[authProviders.claims]
-map = [ "acr=Level4", "acr=idporten-loa-high" ]
+[authProviders.requiredClaims]
+map = ["acr=Level4", "acr=idporten-loa-high"]
 combineWithOr = true
 
 [azureM2M]
-tokenEndpointUrl = "mock://dummy/token"
-clientId = "paw-arbeidssoekerregisteret-utgang-pdl"
+tokenEndpointUrl = "http://dummy/token"
+clientId = "paw-microfrontend-toggler"
 
 [kafka]
 brokers = "dummy:1234"
 applicationIdPrefix = "test"
 
 [kafka.schemaRegistry]
-url = "mock://dummy:1234"
+url = "mock://test-registry"
 
 [kafkaProducer]
 applicationIdSuffix = "producer-v1"
 
 [kafkaStreams]
 applicationIdSuffix = "stream-v1"
-periodeTopic = "periode"
-vedtakTopic = "vedtak"
-microfrontendTopic = "microfrontend"
-toggleStoreName = "microfrontend-toggle"
-varselStoreName = "microfrontend-varsel"
-periodeToggleProcessor = "microfrontend-toggle-periode"
-rapporteringToggleProcessor = "microfrontend-toggle-rapportering"
+periodeTopic = "paw.arbeidssokerperioder-v1"
+siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
+rapporteringTopic = "paw.rapportering-v1"
+microfrontendTopic = "min-side.aapen-microfrontend-v1"
+periodeStoreName = "microfrontend-toggle-periode-store"
+periodeToggleProcessor = "microfrontend-toggle-periode-processor"
+siste41aVedtakToggleProcessor = "microfrontend-toggle-siste-14a-vedtak-processor"
+rapporteringToggleProcessor = "microfrontend-toggle-rapportering-processor"
 
-[kafkaKeys]
+[kafkaKeysClient]
 url = "MOCK"
 scope = "api://test.test.kafka-keys/.default"
 
+[pdlClient]
+url = "http://localhost:8090/pdl"
+scope = "api://dev-fss.pdl.pdl-api/.default"
+
 [regler]
-periodeTogglePunctuatorSchedule = "PT1S"
+periodeTogglePunctuatorSchedule = "PT1H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
 
 [microfrontends]

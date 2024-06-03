@@ -13,6 +13,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.KafkaHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildKafkaKeysClient
+import no.nav.paw.arbeidssoekerregisteret.config.buildPdlClient
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleKafkaProducer
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
@@ -37,7 +38,8 @@ fun main() {
     val kafkaHealthIndicator = KafkaHealthIndicator()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT) // TODO Instrumentere med metering og tracing
     val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, appConfig.azureM2M)
-    val kafkaKeysClient = buildKafkaKeysClient(appConfig.kafkaKeys, azureM2MTokenClient)
+    val kafkaKeysClient = buildKafkaKeysClient(appConfig.kafkaKeysClient, azureM2MTokenClient)
+    val pdlClient = buildPdlClient(appConfig.pdlClient, azureM2MTokenClient)
     val toggleKafkaProducer = buildToggleKafkaProducer(appConfig.kafka, appConfig.kafkaProducer)
     val toggleService = ToggleService(kafkaKeysClient, toggleKafkaProducer)
 
@@ -61,7 +63,7 @@ fun main() {
                 configureMetrics(meterRegistry)
                 configureAuthentication()
                 configureRouting(kafkaHealthIndicator, meterRegistry, toggleService)
-                configureKafka(kafkaHealthIndicator, meterRegistry, kafkaKeysClient)
+                configureKafka(kafkaHealthIndicator, meterRegistry, kafkaKeysClient, pdlClient)
             }
         }
     }

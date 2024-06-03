@@ -29,6 +29,10 @@ dependencies {
     implementation(ktorServer.callId)
     implementation(ktorServer.auth)
 
+    // Client
+    implementation(ktorClient.bundles.withCio)
+    implementation(ktorClient.contentNegotiation)
+
     // Serialization
     implementation(ktor.serializationJackson)
     implementation(ktor.serializationJson)
@@ -53,15 +57,22 @@ dependencies {
     implementation(orgApacheKafka.kafkaStreams)
     implementation(apacheAvro.kafkaStreamsAvroSerde)
 
+    // NAV Common
+    implementation(navCommon.types)
+
     // NAV Security
     implementation(navSecurity.tokenValidationKtorV2)
 
-    // NAV Min Side
+    // NAV TMS
     implementation(tmsVarsel.kotlinBuilder)
+
+    // NAV PAW
+    implementation(pawClients.pawPdlClient)
 
     // Test
     testImplementation(ktorServer.testJvm)
     testImplementation(testLibs.bundles.withUnitTesting)
+    testImplementation(testLibs.mockOauth2Server)
     testImplementation(orgApacheKafka.streamsTest)
 }
 

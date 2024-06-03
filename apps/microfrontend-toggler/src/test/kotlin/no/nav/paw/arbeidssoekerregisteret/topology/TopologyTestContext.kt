@@ -5,8 +5,9 @@ import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.kotest.common.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
+import no.nav.paw.arbeidssoekerregisteret.config.buildPeriodeInfoSerde
+import no.nav.paw.arbeidssoekerregisteret.config.buildSiste14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
-import no.nav.paw.arbeidssoekerregisteret.config.buildToggleStateSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
@@ -35,42 +36,49 @@ class TopologyTestContext {
     val logger = LoggerFactory.getLogger("TestApplication")
     val auditLogger = LoggerFactory.getLogger("TestAudit")
     val kafkaKeysClient = KafkaKeysClientMock()
-    val keySerde = Serdes.Long()
     val periodeSerde = buildAvroSerde<Periode>()
+    val periodeInfoSerde = buildPeriodeInfoSerde()
+    val siste14aVedtakSerde = buildSiste14aVedtakSerde()
     val toggleSerde = buildToggleSerde()
-    val toggleStateSerde = buildToggleStateSerde()
 
-    private val testDriver =
+    val testDriver =
         with(ConfigContext(appConfig)) {
             with(LoggingContext(logger, auditLogger)) {
                 StreamsBuilder().apply {
                     addStateStore(
                         Stores.keyValueStoreBuilder(
-                            Stores.inMemoryKeyValueStore(appConfig.kafkaStreams.toggleStoreName),
-                            keySerde,
-                            toggleStateSerde
+                            Stores.inMemoryKeyValueStore(appConfig.kafkaStreams.periodeStoreName),
+                            Serdes.Long(),
+                            periodeInfoSerde
                         )
                     )
                     buildPeriodeTopology(kafkaKeysClient)
                 }.build()
             }
-        }.let { TopologyTestDriver(it, kafkaStreamProperties) }
+        }.let { TopologyTestDriver(it, kafkaStreamProperties()) }
 
     val periodeTopic = testDriver.createInputTopic(
         appConfig.kafkaStreams.periodeTopic,
-        keySerde.serializer(),
+        Serdes.Long().serializer(),
         periodeSerde.serializer()
+    )
+
+    val siste14aVedtakTopic = testDriver.createOutputTopic(
+        appConfig.kafkaStreams.siste14aVedtakTopic,
+        Serdes.String().deserializer(),
+        siste14aVedtakSerde.deserializer()
     )
 
     val microfrontendTopic = testDriver.createOutputTopic(
         appConfig.kafkaStreams.microfrontendTopic,
-        keySerde.deserializer(),
+        Serdes.Long().deserializer(),
         toggleSerde.deserializer()
     )
 }
 
 const val SCHEMA_REGISTRY_SCOPE = "test-registry"
 
+context(TopologyTestContext)
 fun <T : SpecificRecord> buildAvroSerde(): Serde<T> {
     val schemaRegistryClient = MockSchemaRegistry.getClientForScope(SCHEMA_REGISTRY_SCOPE)
     val serde: Serde<T> = SpecificAvroSerde(schemaRegistryClient)
@@ -84,9 +92,10 @@ fun <T : SpecificRecord> buildAvroSerde(): Serde<T> {
     return serde
 }
 
-val kafkaStreamProperties = Properties().apply {
+context(TopologyTestContext)
+fun kafkaStreamProperties() = Properties().apply {
     this[StreamsConfig.APPLICATION_ID_CONFIG] = "test-kafka-streams"
-    this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
+    this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = appConfig.kafka.brokers
     this[StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG] = Serdes.Long().javaClass
     this[StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG] = SpecificAvroSerde<SpecificRecord>().javaClass
     this[KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS] = "true"

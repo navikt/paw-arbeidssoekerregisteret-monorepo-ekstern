@@ -19,7 +19,8 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val kafkaProducer: KafkaProducerConfig,
     val kafkaStreams: KafkaStreamsConfig,
-    val kafkaKeys: KafkaKeyConfig,
+    val kafkaKeysClient: KafkaKeyConfig,
+    val pdlClient: ServiceClientConfig,
     val regler: ReglerConfig,
     val microfrontends: MicrofrontendsConfig,
     val appName: String = currentAppName,
@@ -32,12 +33,12 @@ data class AuthProvider(
     val discoveryUrl: String,
     val tokenEndpointUrl: String,
     val clientId: String,
-    val claims: Claims
+    val requiredClaims: RequiredClaims
 )
 
 typealias AuthProviders = List<AuthProvider>
 
-data class Claims(
+data class RequiredClaims(
     val map: List<String>,
     val combineWithOr: Boolean = false
 )
@@ -54,11 +55,12 @@ data class KafkaProducerConfig(
 data class KafkaStreamsConfig(
     val applicationIdSuffix: String,
     val periodeTopic: String,
-    val vedtakTopic: String,
+    val siste14aVedtakTopic: String,
+    val rapporteringTopic: String,
     val microfrontendTopic: String,
-    val toggleStoreName: String,
-    val varselStoreName: String,
+    val periodeStoreName: String,
     val periodeToggleProcessor: String,
+    val siste41aVedtakToggleProcessor: String,
     val rapporteringToggleProcessor: String
 )
 

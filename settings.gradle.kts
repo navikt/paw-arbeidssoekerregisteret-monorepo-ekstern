@@ -62,6 +62,9 @@ dependencyResolutionManagement {
         // TMS
         val tmsVarselVersion = "1.0.4"
 
+        // PTO
+        val ptoSchemaVersion = "1.2023.10.20_06.13-e6b4845c2a39"
+
         // NAV
         val noNavCommonVersion = "3.2024.02.21_11.18-8f9b43befae1"
         val noNavSecurityVersion = "3.1.5"
@@ -102,6 +105,7 @@ dependencyResolutionManagement {
             library("logstashLogbackEncoder", "net.logstash.logback", "logstash-logback-encoder").version(logstashVersion)
         }
         create("ktorClient") {
+            bundle("withCio", listOf("core", "cio"))
             ktorLibs(
                 "ktor-client-content-negotiation" alias "contentNegotiation",
                 "ktor-client-core" alias "core",
@@ -175,6 +179,7 @@ dependencyResolutionManagement {
             library("tokenClient", "no.nav.common", "token-client").version(noNavCommonVersion)
             library("log", "no.nav.common", "log").version(noNavCommonVersion)
             library("auditLog", "no.nav.common", "audit-log").version(noNavCommonVersion)
+            library("types", "no.nav.common", "types").version(noNavCommonVersion)
         }
         create("navSecurity") {
             library("tokenValidationKtorV2", "no.nav.security", "token-validation-ktor-v2").version(noNavSecurityVersion)
@@ -182,6 +187,9 @@ dependencyResolutionManagement {
         }
         create("tmsVarsel") {
             library("kotlinBuilder", "no.nav.tms.varsel", "kotlin-builder").version(tmsVarselVersion)
+        }
+        create("pto") {
+            library("schema", "no.nav", "pto-schema").version(ptoSchemaVersion)
         }
         create("hoplite") {
             library("hopliteCore", "com.sksamuel.hoplite", "hoplite-core").version(comSksamuelHopliteVersion)

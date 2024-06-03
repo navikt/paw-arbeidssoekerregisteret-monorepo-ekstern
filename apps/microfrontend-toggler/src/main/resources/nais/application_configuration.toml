@@ -4,7 +4,7 @@ discoveryUrl = "${TOKEN_X_WELL_KNOWN_URL}"
 tokenEndpointUrl = "${TOKEN_X_TOKEN_ENDPOINT}"
 clientId = "${TOKEN_X_CLIENT_ID}"
 
-[authProviders.claims]
+[authProviders.requiredClaims]
 map = ["acr=Level4", "acr=idporten-loa-high"]
 combineWithOr = true
 
@@ -31,17 +31,22 @@ applicationIdSuffix = "producer-v1"
 
 [kafkaStreams]
 applicationIdSuffix = "stream-v1"
-periodeTopic = "${KAFKA_PAW_PERIODE_TOPIC}"
-vedtakTopic = "${KAFKA_PTO_14A_VEDTAK_TOPIC}"
-microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
-toggleStoreName = "microfrontend-toggle"
-varselStoreName = "microfrontend-varsel"
-periodeToggleProcessor = "microfrontend-toggle-periode"
-rapporteringToggleProcessor = "microfrontend-toggle-rapportering"
+periodeTopic = "paw.arbeidssokerperioder-v1"
+siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
+rapporteringTopic = "paw.rapportering-v1"
+microfrontendTopic = "min-side.aapen-microfrontend-v1"
+periodeStoreName = "microfrontend-toggle-periode-store"
+periodeToggleProcessor = "microfrontend-toggle-periode-processor"
+siste41aVedtakToggleProcessor = "microfrontend-toggle-siste-14a-vedtak-processor"
+rapporteringToggleProcessor = "microfrontend-toggle-rapportering-processor"
 
-[kafkaKeys]
+[kafkaKeysClient]
 url = "${KAFKA_KEY_URL}"
 scope = "${KAFKA_KEY_SCOPE}"
+
+[pdlClient]
+url = "${PDL_URL}"
+scope = "${PDL_SCOPE}"
 
 [regler]
 periodeTogglePunctuatorSchedule = "PT1H"

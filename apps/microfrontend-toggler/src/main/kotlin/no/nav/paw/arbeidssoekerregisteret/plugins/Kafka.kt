@@ -12,17 +12,19 @@ import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.kafka.KafkaStreamsPlugin
 import no.nav.paw.arbeidssoekerregisteret.topology.buildTopology
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.pdl.PdlClient
 
 context(ConfigContext, LoggingContext)
 fun Application.configureKafka(
     healthIndicator: HealthIndicator,
     meterRegistry: PrometheusMeterRegistry,
-    kafkaKeysClient: KafkaKeysClient
+    kafkaKeysClient: KafkaKeysClient,
+    pdlClient: PdlClient
 ) {
     install(KafkaStreamsPlugin) {
         kafkaConfig = appConfig.kafka
         kafkaStreamsConfig = appConfig.kafkaStreams
-        topology = buildTopology(meterRegistry, kafkaKeysClient)
+        topology = buildTopology(meterRegistry, kafkaKeysClient, pdlClient)
         stateListener = buildStateListener(healthIndicator)
         exceptionHandler = buildUncaughtExceptionHandler()
     }
