@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
+import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtakInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.config.env.NaisEnv
 import no.nav.paw.config.env.currentNaisEnv
@@ -65,9 +66,11 @@ inline fun <reified T> buildJsonSerde(): Serde<T> {
 
 fun buildPeriodeInfoSerde() = buildJsonSerde<PeriodeInfo>()
 
-fun buildToggleSerde() = buildJsonSerde<Toggle>()
-
 fun buildSiste14aVedtakSerde() = buildJsonSerde<Siste14aVedtak>()
+
+fun buildSiste14aVedtakInfoSerde() = buildJsonSerde<Siste14aVedtakInfo>()
+
+fun buildToggleSerde() = buildJsonSerde<Toggle>()
 
 class ToggleJsonSerializer(private val delegate: Serializer<Toggle>) : Serializer<Toggle> {
     constructor() : this(buildJsonSerializer(currentNaisEnv, buildObjectMapper))

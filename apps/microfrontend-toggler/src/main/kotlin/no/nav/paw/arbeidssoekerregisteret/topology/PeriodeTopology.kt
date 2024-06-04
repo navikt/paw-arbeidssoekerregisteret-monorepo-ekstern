@@ -1,7 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
-import no.nav.paw.arbeidssoekerregisteret.config.getIdAndKeyBlocking
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
@@ -14,7 +13,8 @@ import no.nav.paw.arbeidssoekerregisteret.model.erAvsluttet
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.kafka.streams.Punctuation
 import no.nav.paw.config.kafka.streams.genericProcess
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.config.kafka.streams.mapNonNull
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
@@ -51,17 +51,17 @@ private fun buildPunctuation(): Punctuation<Long, Toggle> {
 }
 
 context(ConfigContext, LoggingContext)
-fun StreamsBuilder.buildPeriodeTopology(kafkaKeysClient: KafkaKeysClient) {
+fun StreamsBuilder.buildPeriodeTopology(hentKafkaKeys: (ident: String) -> KafkaKeysResponse?) {
     val kafkaStreamsConfig = appConfig.kafkaStreams
     val microfrontendConfig = appConfig.microfrontends
 
     this.stream<Long, Periode>(kafkaStreamsConfig.periodeTopic)
-        .mapValues { periode ->
-            val kafkaKeysResponse = kafkaKeysClient.getIdAndKeyBlocking(periode.identitetsnummer)
+        .mapNonNull("mapTilPeriodeInfo") { periode ->
+            val kafkaKeysResponse = hentKafkaKeys(periode.identitetsnummer)
             val arbeidssoekerId = checkNotNull(kafkaKeysResponse?.id) { "KafkaKeysResponse er null" }
             periode.buildPeriodeInfo(arbeidssoekerId)
         }.genericProcess<Long, PeriodeInfo, Long, Toggle>(
-            name = kafkaStreamsConfig.periodeToggleProcessor,
+            name = "handtereToggleForPeriode",
             stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName),
             punctuation = buildPunctuation()
         ) { record ->

@@ -13,6 +13,7 @@ data class PeriodeInfo(
 )
 
 fun PeriodeInfo.erAvsluttet(): Boolean = avsluttet != null
+fun PeriodeInfo.erInnenfor(tidspunkt: Instant): Boolean = startet.isBefore(tidspunkt)
 
 fun PeriodeInfo.buildEnableToggle(microfrontendId: String): Toggle {
     return Toggle(

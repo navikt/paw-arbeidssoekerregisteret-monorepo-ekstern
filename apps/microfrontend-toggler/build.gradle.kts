@@ -72,6 +72,7 @@ dependencies {
     // Test
     testImplementation(ktorServer.testJvm)
     testImplementation(testLibs.bundles.withUnitTesting)
+    testImplementation(testLibs.mockk)
     testImplementation(testLibs.mockOauth2Server)
     testImplementation(orgApacheKafka.streamsTest)
 }

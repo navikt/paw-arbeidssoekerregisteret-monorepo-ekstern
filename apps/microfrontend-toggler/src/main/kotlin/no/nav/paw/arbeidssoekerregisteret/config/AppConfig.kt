@@ -58,10 +58,7 @@ data class KafkaStreamsConfig(
     val siste14aVedtakTopic: String,
     val rapporteringTopic: String,
     val microfrontendTopic: String,
-    val periodeStoreName: String,
-    val periodeToggleProcessor: String,
-    val siste41aVedtakToggleProcessor: String,
-    val rapporteringToggleProcessor: String
+    val periodeStoreName: String
 )
 
 data class ReglerConfig(

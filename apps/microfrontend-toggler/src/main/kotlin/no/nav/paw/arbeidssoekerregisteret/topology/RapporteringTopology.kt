@@ -23,13 +23,13 @@ import org.apache.kafka.streams.state.KeyValueStore
  * TODO Venter med å implementere til etter registeret er i prod
  */
 context(ConfigContext, LoggingContext)
-fun StreamsBuilder.buildRapporteringTopology(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
+fun StreamsBuilder.buildRapporteringTopology(hentKafkaKeys: (ident: String) -> KafkaKeysResponse?) {
     val kafkaStreamsConfig = appConfig.kafkaStreams
 
     this.stream<Long, RapporteringsHendelse>(kafkaStreamsConfig.periodeTopic)
         .genericProcess<Long, RapporteringsHendelse, Long, Toggle>(
-            kafkaStreamsConfig.rapporteringToggleProcessor,
-            kafkaStreamsConfig.periodeStoreName
+            name = "handtereToggleForRapportering",
+            stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName)
         ) { record ->
             val keyValueStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
             when (val event = record.value()) {

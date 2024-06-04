@@ -15,6 +15,8 @@ import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildKafkaKeysClient
 import no.nav.paw.arbeidssoekerregisteret.config.buildPdlClient
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleKafkaProducer
+import no.nav.paw.arbeidssoekerregisteret.config.getIdAndKeyBlocking
+import no.nav.paw.arbeidssoekerregisteret.config.hentFolkeregisterIdentBlocking
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
@@ -63,7 +65,12 @@ fun main() {
                 configureMetrics(meterRegistry)
                 configureAuthentication()
                 configureRouting(kafkaHealthIndicator, meterRegistry, toggleService)
-                configureKafka(kafkaHealthIndicator, meterRegistry, kafkaKeysClient, pdlClient)
+                configureKafka(
+                    kafkaHealthIndicator,
+                    meterRegistry,
+                    kafkaKeysClient::getIdAndKeyBlocking,
+                    pdlClient::hentFolkeregisterIdentBlocking
+                )
             }
         }
     }

@@ -20,18 +20,15 @@ applicationIdPrefix = "test"
 url = "mock://test-registry"
 
 [kafkaProducer]
-applicationIdSuffix = "producer-v1"
+applicationIdSuffix = "producer-test"
 
 [kafkaStreams]
-applicationIdSuffix = "stream-v1"
+applicationIdSuffix = "stream-test"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 rapporteringTopic = "paw.rapportering-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
-periodeStoreName = "microfrontend-toggle-periode-store"
-periodeToggleProcessor = "microfrontend-toggle-periode-processor"
-siste41aVedtakToggleProcessor = "microfrontend-toggle-siste-14a-vedtak-processor"
-rapporteringToggleProcessor = "microfrontend-toggle-rapportering-processor"
+periodeStoreName = "microfrontendTogglePeriodeStore"
 
 [kafkaKeysClient]
 url = "MOCK"

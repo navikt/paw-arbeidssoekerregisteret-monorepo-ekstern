@@ -26,7 +26,7 @@ fun buildKafkaKeysClient(
     azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
 }
 
-fun PdlClient.hentFolkeregisterItent(ident: String): IdentInformasjon? {
+fun PdlClient.hentFolkeregisterIdentBlocking(ident: String): IdentInformasjon? {
     val identer = hentIdenterBlocking(ident)
     if (identer.isNullOrEmpty()) return null
     return identer.first { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }
