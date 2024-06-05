@@ -23,6 +23,7 @@ url = "mock://test-registry"
 applicationIdSuffix = "producer-test"
 
 [kafkaStreams]
+enabledForEnvs = ["local"]
 applicationIdSuffix = "stream-test"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"

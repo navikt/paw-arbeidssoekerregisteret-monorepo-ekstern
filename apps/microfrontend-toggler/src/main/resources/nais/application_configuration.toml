@@ -30,6 +30,7 @@ password = "${KAFKA_SCHEMA_REGISTRY_PASSWORD}"
 applicationIdSuffix = "producer-v1"
 
 [kafkaStreams]
+enabledForEnvs = ["dev-gcp"]
 applicationIdSuffix = "stream-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"

@@ -54,7 +54,7 @@ data class KafkaProducerConfig(
 )
 
 data class KafkaStreamsConfig(
-    val enabled: Boolean = true,
+    val enabledForEnvs: List<String>,
     val applicationIdSuffix: String,
     val periodeTopic: String,
     val siste14aVedtakTopic: String,

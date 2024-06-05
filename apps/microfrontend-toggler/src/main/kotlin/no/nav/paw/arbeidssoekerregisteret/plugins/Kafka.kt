@@ -11,7 +11,6 @@ import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.kafka.KafkaStreamsPlugin
 import no.nav.paw.arbeidssoekerregisteret.topology.buildTopology
-import no.nav.paw.config.env.NaisEnv
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 
@@ -22,7 +21,8 @@ fun Application.configureKafka(
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?,
     hentFolkeregisterIdent: (aktorId: String) -> IdentInformasjon?
 ) {
-    if (appConfig.kafkaStreams.enabled && appConfig.naisEnv != NaisEnv.ProdGCP) {
+    logger.info("Kafka Streams er enabled for miljø ${appConfig.kafkaStreams.enabledForEnvs}")
+    if (appConfig.kafkaStreams.enabledForEnvs.contains(appConfig.naisEnv.clusterName)) {
         install(KafkaStreamsPlugin) {
             kafkaConfig = appConfig.kafka
             kafkaStreamsConfig = appConfig.kafkaStreams
