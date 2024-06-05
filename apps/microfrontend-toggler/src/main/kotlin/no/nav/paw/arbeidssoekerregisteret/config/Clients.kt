@@ -14,49 +14,46 @@ import no.nav.paw.pdl.PdlException
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.pdl.hentIdenter
+import java.util.*
+
+private const val consumerId = "paw-arbeidssoekerregisteret"
 
 fun KafkaKeysClient.getIdAndKeyBlocking(identitetsnummer: String): KafkaKeysResponse? = runBlocking {
     getIdAndKey(identitetsnummer)
 }
 
 fun buildKafkaKeysClient(
-    kafkaKeyConfig: KafkaKeyConfig,
-    azureM2MTokenClient: AzureAdMachineToMachineTokenClient
+    kafkaKeyConfig: KafkaKeyConfig, azureM2MTokenClient: AzureAdMachineToMachineTokenClient
 ) = kafkaKeysKlient(kafkaKeyConfig) {
     azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
 }
 
 fun PdlClient.hentFolkeregisterIdentBlocking(ident: String): IdentInformasjon? {
-    val identer = hentIdenterBlocking(ident)
-    if (identer.isNullOrEmpty()) return null
-    return identer.first { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }
-}
-
-fun PdlClient.hentIdenterBlocking(ident: String): List<IdentInformasjon>? = runBlocking {
     try {
-        hentIdenter(
-            ident = ident,
-            callId = "?",
-            navConsumerId = "?"
-        )
+        val identer = hentIdenterBlocking(ident)
+        if (identer.isNullOrEmpty()) return null
+        return identer.first { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }
     } catch (e: PdlException) {
         if (e.message?.contains("Fant ikke person") == true) {
-            return@runBlocking listOf()
+            return null
+        } else {
+            throw PdlClientException(
+                message = "Kall til PDL feilet", cause = e
+            )
         }
-        throw PdlClientException(
-            message = "Kall til PDL feilet",
-            cause = e
-        )
     }
 }
 
+fun PdlClient.hentIdenterBlocking(ident: String): List<IdentInformasjon>? = runBlocking {
+    hentIdenter(
+        ident = ident, callId = UUID.randomUUID().toString(), navConsumerId = consumerId
+    )
+}
+
 fun buildPdlClient(
-    serviceClientConfig: ServiceClientConfig,
-    azureM2MTokenClient: AzureAdMachineToMachineTokenClient
+    serviceClientConfig: ServiceClientConfig, azureM2MTokenClient: AzureAdMachineToMachineTokenClient
 ) = PdlClient(
-    serviceClientConfig.url,
-    AdTema.OPP.value,
-    HttpClient()
+    serviceClientConfig.url, AdTema.OPP.value, HttpClient()
 ) {
     azureM2MTokenClient.createMachineToMachineToken(serviceClientConfig.scope)
 }
