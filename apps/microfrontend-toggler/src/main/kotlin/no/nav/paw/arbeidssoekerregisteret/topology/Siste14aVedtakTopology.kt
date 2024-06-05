@@ -48,7 +48,7 @@ fun StreamsBuilder.buildSiste14aVedtakTopology(
         hentKafkaKeys(identInfo.ident)
             ?.let { it.key to siste14aVedtak.tilSiste14aVedtakInfo(identInfo.ident, it.id) }
     }.repartition(
-        Repartitioned.numberOfPartitions<Long?, Siste14aVedtakInfo?>(appConfig.kafkaStreams.siste14aVedtakPartitionCount) // TODO Må stemme med partisjonering for periodetopics?
+        Repartitioned.numberOfPartitions<Long?, Siste14aVedtakInfo?>(appConfig.kafkaStreams.siste14aVedtakPartitionCount)
             .withKeySerde(Serdes.Long()).withValueSerde(buildSiste14aVedtakInfoSerde())
     ).genericProcess<Long, Siste14aVedtakInfo, Long, Toggle>(
         name = "handtereToggleFor14aVedtak", stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName)

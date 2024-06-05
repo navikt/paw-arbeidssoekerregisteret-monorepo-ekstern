@@ -221,10 +221,10 @@ block-beta
 * ISERV:
 
 ## Oppgaver før prodsetting
-* Tilgang til `paw.arbeidssokerperioder-v1` topic i prod [paw-iac repo](https://github.com/navikt/paw-iac)
+* :check: Tilgang til `paw.arbeidssokerperioder-v1` topic i prod [paw-iac repo](https://github.com/navikt/paw-iac)
 * Tilgang til `min-side.aapen-microfrontend-v1` topic i prod [min-side-microfrontend-topic-iac repo](https://github.com/navikt/min-side-microfrontend-topic-iac)
-* Tilgang til `pto.siste-14a-vedtak-v1` topic i prod [pto-iac repo](https://github.com/navikt/pto-iac)
+* :check: Tilgang til `pto.siste-14a-vedtak-v1` topic i prod [pto-iac repo](https://github.com/navikt/pto-iac)
 * Legge til outbound rule i `aia-backend` i prod [aia-backend repo](https://github.com/navikt/aia-backend)
-* Legge til inbound rule i `paw-kafka-key-generator` i prod [paw-kafka-key-generator repo](https://github.com/navikt/paw-kafka-key-generator)
+* :check: Legge til inbound rule i `paw-kafka-key-generator` i prod [paw-kafka-key-generator repo](https://github.com/navikt/paw-kafka-key-generator)
 * Legge til inbound rule i `pdl` i prod [pdl repo](https://github.com/navikt/pdl)
-* Enable bygg og deploy for `prod` i GitHub Actions
+* :check: Enable bygg og deploy for `prod` i GitHub Actions
