@@ -14,7 +14,6 @@ import no.nav.paw.pdl.PdlException
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.pdl.hentIdenter
-import org.slf4j.LoggerFactory
 import java.util.*
 
 private const val consumerId = "paw-arbeidssoekerregisteret"
@@ -23,16 +22,13 @@ fun KafkaKeysClient.getIdAndKeyBlocking(identitetsnummer: String): KafkaKeysResp
     getIdAndKey(identitetsnummer)
 }
 
-private val logger = LoggerFactory.getLogger(PdlClient::class.java)
-
 fun PdlClient.hentFolkeregisterIdentBlocking(ident: String): IdentInformasjon? {
     return try {
         val identer = hentIdenterBlocking(ident)
         if (identer.isNullOrEmpty()) return null
         identer.first { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }
     } catch (e: PdlException) {
-        logger.error("PDL Feil", e)
-        if (e.message?.contains("Fant ikke person") == true) {
+        if (e.errors?.any { it.message.contains("Fant ikke person") } == true) {
             return null
         } else {
             throw PdlClientException("Kall til PDL feilet", e)
