@@ -14,6 +14,7 @@ import no.nav.paw.pdl.PdlException
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.pdl.hentIdenter
+import org.slf4j.LoggerFactory
 import java.util.*
 
 private const val consumerId = "paw-arbeidssoekerregisteret"
@@ -22,32 +23,37 @@ fun KafkaKeysClient.getIdAndKeyBlocking(identitetsnummer: String): KafkaKeysResp
     getIdAndKey(identitetsnummer)
 }
 
+private val logger = LoggerFactory.getLogger(PdlClient::class.java)
+
+fun PdlClient.hentFolkeregisterIdentBlocking(ident: String): IdentInformasjon? {
+    return try {
+        val identer = hentIdenterBlocking(ident)
+        if (identer.isNullOrEmpty()) return null
+        identer.first { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }
+    } catch (e: PdlException) {
+        logger.error("PDL Feil", e)
+        if (e.message?.contains("Fant ikke person") == true) {
+            return null
+        } else {
+            throw PdlClientException("Kall til PDL feilet", e)
+        }
+    } catch (e: Exception) {
+        throw PdlClientException("Ukjent feil ved kall til PDL", e)
+    }
+}
+
+private fun PdlClient.hentIdenterBlocking(ident: String): List<IdentInformasjon>? = runBlocking {
+    hentIdenter(
+        ident = ident,
+        callId = UUID.randomUUID().toString(),
+        navConsumerId = consumerId
+    )
+}
+
 fun buildKafkaKeysClient(
     kafkaKeyConfig: KafkaKeyConfig, azureM2MTokenClient: AzureAdMachineToMachineTokenClient
 ) = kafkaKeysKlient(kafkaKeyConfig) {
     azureM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
-}
-
-fun PdlClient.hentFolkeregisterIdentBlocking(ident: String): IdentInformasjon? {
-    try {
-        val identer = hentIdenterBlocking(ident)
-        if (identer.isNullOrEmpty()) return null
-        return identer.first { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }
-    } catch (e: PdlException) {
-        if (e.message?.contains("Fant ikke person") == true) {
-            return null
-        } else {
-            throw PdlClientException(
-                message = "Kall til PDL feilet", cause = e
-            )
-        }
-    }
-}
-
-fun PdlClient.hentIdenterBlocking(ident: String): List<IdentInformasjon>? = runBlocking {
-    hentIdenter(
-        ident = ident, callId = UUID.randomUUID().toString(), navConsumerId = consumerId
-    )
 }
 
 fun buildPdlClient(
