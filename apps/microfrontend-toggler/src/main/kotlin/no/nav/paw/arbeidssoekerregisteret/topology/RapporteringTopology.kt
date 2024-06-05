@@ -3,8 +3,8 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
+import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
-import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
 import no.nav.paw.config.kafka.streams.genericProcess
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import no.nav.paw.rapportering.internehendelser.EksternGracePeriodeUtloept
@@ -23,15 +23,15 @@ import org.apache.kafka.streams.state.KeyValueStore
  * TODO Venter med å implementere til etter registeret er i prod
  */
 context(ConfigContext, LoggingContext)
-fun StreamsBuilder.buildRapporteringTopology(kafkaKeyFunction: (String) -> KafkaKeysResponse) {
+fun StreamsBuilder.buildRapporteringTopology(hentKafkaKeys: (ident: String) -> KafkaKeysResponse?) {
     val kafkaStreamsConfig = appConfig.kafkaStreams
 
     this.stream<Long, RapporteringsHendelse>(kafkaStreamsConfig.periodeTopic)
         .genericProcess<Long, RapporteringsHendelse, Long, Toggle>(
-            kafkaStreamsConfig.rapporteringToggleProcessor,
-            kafkaStreamsConfig.toggleStoreName
+            name = "handtereToggleForRapportering",
+            stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName)
         ) { record ->
-            val keyValueStore: KeyValueStore<Long, ToggleState> = getStateStore(kafkaStreamsConfig.toggleStoreName)
+            val keyValueStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
             when (val event = record.value()) {
                 is RapporteringTilgjengelig -> processEvent(event)
                 is RapporteringsMeldingMottatt -> processEvent(event)

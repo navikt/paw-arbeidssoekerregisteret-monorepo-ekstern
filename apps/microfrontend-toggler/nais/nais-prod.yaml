@@ -61,13 +61,13 @@ spec:
         - application: aia-backend
         - application: azure-token-generator
           namespace: aura
-          cluster: dev-gcp
+          cluster: prod-gcp
         - application: tokenx-token-generator
           namespace: aura
-          cluster: dev-gcp
+          cluster: prod-gcp
     outbound:
       rules:
         - application: paw-kafka-key-generator
           namespace: paw
-        - application: poao-tilgang
-          namespace: poao
+      external:
+        - host: pdl-api.prod-fss-pub.nais.io

@@ -69,5 +69,5 @@ spec:
       rules:
         - application: paw-kafka-key-generator
           namespace: paw
-        - application: poao-tilgang
-          namespace: poao
+      external:
+        - host: pdl-api.dev-fss-pub.nais.io

@@ -3,8 +3,10 @@ package no.nav.paw.arbeidssoekerregisteret.config
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
+import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
+import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtakInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
-import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
 import no.nav.paw.config.env.NaisEnv
 import no.nav.paw.config.env.currentNaisEnv
 import no.nav.paw.rapportering.internehendelser.EksternGracePeriodeUtloept
@@ -24,14 +26,6 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
 
-class ToggleJsonSerializer(private val delegate: Serializer<Toggle>) : Serializer<Toggle> {
-    constructor() : this(buildJsonSerializer())
-
-    override fun serialize(topic: String?, data: Toggle?): ByteArray {
-        return delegate.serialize(topic, data)
-    }
-}
-
 inline fun <reified T> buildJsonSerializer(naisEnv: NaisEnv, objectMapper: ObjectMapper) = object : Serializer<T> {
     override fun serialize(topic: String?, data: T): ByteArray {
         if (data == null) return byteArrayOf()
@@ -44,8 +38,6 @@ inline fun <reified T> buildJsonSerializer(naisEnv: NaisEnv, objectMapper: Objec
     }
 }
 
-inline fun <reified T> buildJsonSerializer(): Serializer<T> = buildJsonSerializer<T>(currentNaisEnv, buildObjectMapper)
-
 inline fun <reified T> buildJsonDeserializer(naisEnv: NaisEnv, objectMapper: ObjectMapper) = object : Deserializer<T> {
     override fun deserialize(topic: String?, data: ByteArray?): T? {
         if (data == null) return null
@@ -57,9 +49,6 @@ inline fun <reified T> buildJsonDeserializer(naisEnv: NaisEnv, objectMapper: Obj
         }
     }
 }
-
-inline fun <reified T> buildJsonDeserializer(): Deserializer<T> =
-    buildJsonDeserializer<T>(currentNaisEnv, buildObjectMapper)
 
 inline fun <reified T> buildJsonSerde(naisEnv: NaisEnv, objectMapper: ObjectMapper) = object : Serde<T> {
     override fun serializer(): Serializer<T> {
@@ -75,9 +64,21 @@ inline fun <reified T> buildJsonSerde(): Serde<T> {
     return buildJsonSerde<T>(currentNaisEnv, buildObjectMapper)
 }
 
-fun buildToggleSerde(): Serde<Toggle> = buildJsonSerde<Toggle>()
+fun buildPeriodeInfoSerde() = buildJsonSerde<PeriodeInfo>()
 
-fun buildToggleStateSerde(): Serde<ToggleState> = buildJsonSerde<ToggleState>()
+fun buildSiste14aVedtakSerde() = buildJsonSerde<Siste14aVedtak>()
+
+fun buildSiste14aVedtakInfoSerde() = buildJsonSerde<Siste14aVedtakInfo>()
+
+fun buildToggleSerde() = buildJsonSerde<Toggle>()
+
+class ToggleJsonSerializer(private val delegate: Serializer<Toggle>) : Serializer<Toggle> {
+    constructor() : this(buildJsonSerializer(currentNaisEnv, buildObjectMapper))
+
+    override fun serialize(topic: String?, data: Toggle?): ByteArray {
+        return delegate.serialize(topic, data)
+    }
+}
 
 class RapporteringsHendelseDeserializer(private val naisEnv: NaisEnv, private val objectMapper: ObjectMapper) :
     Deserializer<RapporteringsHendelse> {

@@ -12,12 +12,34 @@ data class PeriodeInfo(
     val avsluttet: Instant?
 )
 
-fun buildPeriodeInfo(periode: Periode, arbeidssoekerId: Long): PeriodeInfo {
+fun PeriodeInfo.erAvsluttet(): Boolean = avsluttet != null
+fun PeriodeInfo.erInnenfor(tidspunkt: Instant): Boolean = startet.isBefore(tidspunkt)
+
+fun PeriodeInfo.buildEnableToggle(microfrontendId: String): Toggle {
+    return Toggle(
+        action = ToggleAction.ENABLE,
+        ident = identitetsnummer,
+        microfrontendId = microfrontendId,
+        sensitivitet = Sensitivitet.HIGH,
+        initialedBy = "paw"
+    )
+}
+
+fun PeriodeInfo.buildDisableToggle(microfrontendId: String): Toggle {
+    return Toggle(
+        action = ToggleAction.DISABLE,
+        ident = identitetsnummer,
+        microfrontendId = microfrontendId,
+        initialedBy = "paw"
+    )
+}
+
+fun Periode.buildPeriodeInfo(arbeidssoekerId: Long): PeriodeInfo {
     return PeriodeInfo(
-        id = periode.id,
-        identitetsnummer = periode.identitetsnummer,
+        id = id,
+        identitetsnummer = identitetsnummer,
         arbeidssoekerId = arbeidssoekerId,
-        startet = periode.startet.tidspunkt,
-        avsluttet = periode.avsluttet?.tidspunkt
+        startet = startet.tidspunkt,
+        avsluttet = avsluttet?.tidspunkt
     )
 }
