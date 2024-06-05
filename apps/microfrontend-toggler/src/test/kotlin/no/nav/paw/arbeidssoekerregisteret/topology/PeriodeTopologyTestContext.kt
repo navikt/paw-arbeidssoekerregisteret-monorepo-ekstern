@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildPeriodeInfoSerde
@@ -24,6 +26,7 @@ class PeriodeTopologyTestContext {
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
     val logger = LoggerFactory.getLogger("TestApplication")
     val auditLogger = LoggerFactory.getLogger("TestAudit")
+    val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val periodeSerde = buildAvroSerde<Periode>()
     val periodeInfoSerde = buildPeriodeInfoSerde()
     val toggleSerde = buildToggleSerde()
@@ -41,6 +44,7 @@ class PeriodeTopologyTestContext {
                         )
                     )
                     buildPeriodeTopology(
+                        meterRegistry,
                         kafkaKeysClientMock::hentKafkaKeys
                     )
                 }.build()

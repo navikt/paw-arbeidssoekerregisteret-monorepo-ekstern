@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.mockk.mockk
 import no.nav.common.types.identer.AktorId
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
@@ -23,6 +25,7 @@ class Siste14aVedtakTopologyTestContext {
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
     val logger = LoggerFactory.getLogger("TestApplication")
     val auditLogger = LoggerFactory.getLogger("TestAudit")
+    val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val periodeInfoSerde = buildPeriodeInfoSerde()
     val siste14aVedtakSerde = buildSiste14aVedtakSerde()
     val toggleSerde = buildToggleSerde()
@@ -41,6 +44,7 @@ class Siste14aVedtakTopologyTestContext {
                         )
                     )
                     buildSiste14aVedtakTopology(
+                        meterRegistry,
                         kafkaKeysClientMock::hentKafkaKeys,
                         pdlClientMock::hentFolkeregisterIdent
                     )
