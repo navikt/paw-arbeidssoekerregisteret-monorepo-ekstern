@@ -11,6 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.kafka.KafkaStreamsPlugin
 import no.nav.paw.arbeidssoekerregisteret.topology.buildTopology
+import no.nav.paw.config.env.NaisEnv
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 
@@ -21,11 +22,13 @@ fun Application.configureKafka(
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?,
     hentFolkeregisterIdent: (aktorId: String) -> IdentInformasjon?
 ) {
-    install(KafkaStreamsPlugin) {
-        kafkaConfig = appConfig.kafka
-        kafkaStreamsConfig = appConfig.kafkaStreams
-        topology = buildTopology(meterRegistry, hentKafkaKeys, hentFolkeregisterIdent)
-        stateListener = buildStateListener(healthIndicator)
-        exceptionHandler = buildUncaughtExceptionHandler()
+    if (appConfig.kafkaStreams.enabled && appConfig.naisEnv != NaisEnv.ProdGCP) {
+        install(KafkaStreamsPlugin) {
+            kafkaConfig = appConfig.kafka
+            kafkaStreamsConfig = appConfig.kafkaStreams
+            topology = buildTopology(meterRegistry, hentKafkaKeys, hentFolkeregisterIdent)
+            stateListener = buildStateListener(healthIndicator)
+            exceptionHandler = buildUncaughtExceptionHandler()
+        }
     }
 }

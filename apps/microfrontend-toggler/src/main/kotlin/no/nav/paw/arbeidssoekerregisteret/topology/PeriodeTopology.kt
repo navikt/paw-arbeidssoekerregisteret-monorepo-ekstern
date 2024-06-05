@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
@@ -22,7 +23,7 @@ import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.state.KeyValueStore
 
 context(ConfigContext, LoggingContext)
-private fun buildPunctuation(): Punctuation<Long, Toggle> {
+private fun buildPunctuation(meterRegistry: PrometheusMeterRegistry): Punctuation<Long, Toggle> {
     return Punctuation(
         appConfig.regler.periodeTogglePunctuatorSchedule, PunctuationType.WALL_CLOCK_TIME
     ) { timestamp, context ->
@@ -35,7 +36,9 @@ private fun buildPunctuation(): Punctuation<Long, Toggle> {
             if (periodeInfo.erAvsluttet()) {
                 // Om det er gått mer en utsettelsestid (21 dager) fra perioden ble avsluttet så send event for å
                 // deaktivere AIA Min Side
-                if (timestamp.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide).isAfter(periodeInfo.avsluttet)) {
+                if (timestamp.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide)
+                        .isAfter(periodeInfo.avsluttet)
+                ) {
                     logger.debug(
                         "Utsettelsestid for arbeidsøkerperiode {} er utløpt. Iverksetter forsinket deaktivering av {}.",
                         periodeInfo.id,
@@ -51,19 +54,23 @@ private fun buildPunctuation(): Punctuation<Long, Toggle> {
 }
 
 context(ConfigContext, LoggingContext)
-fun StreamsBuilder.buildPeriodeTopology(hentKafkaKeys: (ident: String) -> KafkaKeysResponse?) {
+fun StreamsBuilder.buildPeriodeTopology(
+    meterRegistry: PrometheusMeterRegistry,
+    hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
+) {
     val kafkaStreamsConfig = appConfig.kafkaStreams
     val microfrontendConfig = appConfig.microfrontends
 
     this.stream<Long, Periode>(kafkaStreamsConfig.periodeTopic)
-        .mapNonNull("mapTilPeriodeInfo") { periode ->
-            val kafkaKeysResponse = hentKafkaKeys(periode.identitetsnummer)
-            val arbeidssoekerId = checkNotNull(kafkaKeysResponse?.id) { "KafkaKeysResponse er null" }
-            periode.buildPeriodeInfo(arbeidssoekerId)
+        .peek { key, _ ->
+            logger.debug("Mottok event på ${kafkaStreamsConfig.periodeTopic} med key $key")
+        }.mapNonNull("mapTilPeriodeInfo") { periode ->
+            hentKafkaKeys(periode.identitetsnummer)
+                ?.let { periode.buildPeriodeInfo(it.id) }
         }.genericProcess<Long, PeriodeInfo, Long, Toggle>(
             name = "handtereToggleForPeriode",
             stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName),
-            punctuation = buildPunctuation()
+            punctuation = buildPunctuation(meterRegistry)
         ) { record ->
             val keyValueStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
             val periodeInfo = record.value()

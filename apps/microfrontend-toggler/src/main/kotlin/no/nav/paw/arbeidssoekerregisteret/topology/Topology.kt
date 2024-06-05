@@ -18,8 +18,12 @@ fun buildTopology(
     hentFolkeregisterIdent: (aktorId: String) -> IdentInformasjon?
 ): Topology = StreamsBuilder().apply {
     addPeriodeStateStore()
-    buildPeriodeTopology(hentKafkaKeys)
-    buildSiste14aVedtakTopology(hentKafkaKeys, hentFolkeregisterIdent)
+    if (appConfig.featureToggle.enablePeriodeTopology) {
+        buildPeriodeTopology(meterRegistry, hentKafkaKeys)
+    }
+    if (appConfig.featureToggle.enable14aVedtakTopology) {
+        buildSiste14aVedtakTopology(meterRegistry, hentKafkaKeys, hentFolkeregisterIdent)
+    }
 }.build()
 
 context(ConfigContext)

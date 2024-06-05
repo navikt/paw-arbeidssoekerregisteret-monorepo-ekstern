@@ -9,7 +9,7 @@ import no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
-import no.nav.paw.arbeidssoekerregisteret.config.KafkaHealthIndicator
+import no.nav.paw.arbeidssoekerregisteret.config.KafkaStreamsHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildKafkaKeysClient
@@ -37,7 +37,7 @@ fun main() {
     val auditLogger = LoggerFactory.getLogger(AUDIT_LOGGER_NAME)
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
-    val kafkaHealthIndicator = KafkaHealthIndicator()
+    val kafkaStreamsHealthIndicator = KafkaStreamsHealthIndicator()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT) // TODO Instrumentere med metering og tracing
     val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, appConfig.azureM2M)
     val kafkaKeysClient = buildKafkaKeysClient(appConfig.kafkaKeysClient, azureM2MTokenClient)
@@ -64,9 +64,9 @@ fun main() {
                 configureTracing()
                 configureMetrics(meterRegistry)
                 configureAuthentication()
-                configureRouting(kafkaHealthIndicator, meterRegistry, toggleService)
+                configureRouting(kafkaStreamsHealthIndicator, meterRegistry, toggleService)
                 configureKafka(
-                    kafkaHealthIndicator,
+                    kafkaStreamsHealthIndicator,
                     meterRegistry,
                     kafkaKeysClient::getIdAndKeyBlocking,
                     pdlClient::hentFolkeregisterIdentBlocking

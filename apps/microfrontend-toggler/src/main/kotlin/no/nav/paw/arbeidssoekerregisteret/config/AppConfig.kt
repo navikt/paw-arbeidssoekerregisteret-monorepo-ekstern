@@ -22,6 +22,7 @@ data class AppConfig(
     val kafkaKeysClient: KafkaKeyConfig,
     val pdlClient: ServiceClientConfig,
     val regler: ReglerConfig,
+    val featureToggle: FeatureToggleConfig,
     val microfrontends: MicrofrontendsConfig,
     val appName: String = currentAppName,
     val appId: String = currentAppId,
@@ -53,12 +54,14 @@ data class KafkaProducerConfig(
 )
 
 data class KafkaStreamsConfig(
+    val enabled: Boolean = true,
     val applicationIdSuffix: String,
     val periodeTopic: String,
     val siste14aVedtakTopic: String,
     val rapporteringTopic: String,
     val microfrontendTopic: String,
-    val periodeStoreName: String
+    val periodeStoreName: String,
+    val siste14aVedtakPartitionCount: Int
 )
 
 data class ReglerConfig(
@@ -69,4 +72,9 @@ data class ReglerConfig(
 data class MicrofrontendsConfig(
     val aiaMinSide: String,
     val aiaBehovsvurdering: String
+)
+
+data class FeatureToggleConfig(
+    val enablePeriodeTopology: Boolean,
+    val enable14aVedtakTopology: Boolean
 )

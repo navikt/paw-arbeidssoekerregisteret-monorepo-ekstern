@@ -8,7 +8,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.config.KafkaHealthIndicator
+import no.nav.paw.arbeidssoekerregisteret.config.KafkaStreamsHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
 
 class HealthRoutesTest : FreeSpec({
@@ -70,6 +70,6 @@ class HealthRoutesTest : FreeSpec({
 })
 
 class HealthRoutesTestContext {
-    val healthIndicator = KafkaHealthIndicator()
+    val healthIndicator = KafkaStreamsHealthIndicator()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 }

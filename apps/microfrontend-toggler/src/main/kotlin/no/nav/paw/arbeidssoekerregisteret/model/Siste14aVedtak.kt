@@ -17,3 +17,10 @@ data class Siste14aVedtakInfo(
     val arbeidssoekerId: Long,
     var fattetDato: Instant
 )
+
+fun Siste14aVedtak.tilSiste14aVedtakInfo(
+    identitetsnummer: String,
+    arbeidssoekerId: Long
+): Siste14aVedtakInfo {
+    return Siste14aVedtakInfo(aktorId.get(), identitetsnummer, arbeidssoekerId, fattetDato)
+}
