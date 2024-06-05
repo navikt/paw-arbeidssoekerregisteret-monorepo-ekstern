@@ -18,10 +18,12 @@ fun buildTopology(
     hentFolkeregisterIdent: (aktorId: String) -> IdentInformasjon?
 ): Topology = StreamsBuilder().apply {
     addPeriodeStateStore()
-    if (appConfig.featureToggle.enablePeriodeTopology) {
+    logger.info("Kafka Streams Periode Topology er enabled for miljø ${appConfig.featureToggle.enablePeriodeTopology}")
+    if (appConfig.featureToggle.enablePeriodeTopology.contains(appConfig.naisEnv.clusterName)) {
         buildPeriodeTopology(meterRegistry, hentKafkaKeys)
     }
-    if (appConfig.featureToggle.enable14aVedtakTopology) {
+    logger.info("Kafka Streams 14s Vedtak Topology er enabled for miljø ${appConfig.featureToggle.enable14aVedtakTopology}")
+    if (appConfig.featureToggle.enable14aVedtakTopology.contains(appConfig.naisEnv.clusterName)) {
         buildSiste14aVedtakTopology(meterRegistry, hentKafkaKeys, hentFolkeregisterIdent)
     }
 }.build()

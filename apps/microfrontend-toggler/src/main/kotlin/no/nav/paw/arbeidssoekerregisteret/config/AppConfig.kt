@@ -75,6 +75,6 @@ data class MicrofrontendsConfig(
 )
 
 data class FeatureToggleConfig(
-    val enablePeriodeTopology: Boolean,
-    val enable14aVedtakTopology: Boolean
+    val enablePeriodeTopology: List<String>,
+    val enable14aVedtakTopology: List<String>
 )

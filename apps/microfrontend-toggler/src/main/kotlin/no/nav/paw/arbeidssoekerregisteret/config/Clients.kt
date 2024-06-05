@@ -40,6 +40,9 @@ fun PdlClient.hentIdenterBlocking(ident: String): List<IdentInformasjon>? = runB
             navConsumerId = "?"
         )
     } catch (e: PdlException) {
+        if (e.message?.contains("Fant ikke person") == true) {
+            return@runBlocking listOf()
+        }
         throw PdlClientException(
             message = "Kall til PDL feilet",
             cause = e

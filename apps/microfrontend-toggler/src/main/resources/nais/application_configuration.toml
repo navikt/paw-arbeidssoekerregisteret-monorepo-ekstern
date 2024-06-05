@@ -56,5 +56,5 @@ aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
 
 [featureToggle]
-enablePeriodeTopology = true
-enable14aVedtakTopology = true
+enablePeriodeTopology = ["dev-gcp"]
+enable14aVedtakTopology = ["dev-gcp"]

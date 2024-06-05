@@ -49,5 +49,5 @@ aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
 
 [featureToggle]
-enablePeriodeTopology = true
-enable14aVedtakTopology = true
+enablePeriodeTopology = ["local"]
+enable14aVedtakTopology = ["local"]
