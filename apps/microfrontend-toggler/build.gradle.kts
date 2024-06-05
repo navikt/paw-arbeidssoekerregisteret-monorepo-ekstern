@@ -57,6 +57,9 @@ dependencies {
     implementation(orgApacheKafka.kafkaStreams)
     implementation(apacheAvro.kafkaStreamsAvroSerde)
 
+    // GraphQL
+    implementation(graphql.kotlinClient)
+
     // NAV Common
     implementation(navCommon.types)
 

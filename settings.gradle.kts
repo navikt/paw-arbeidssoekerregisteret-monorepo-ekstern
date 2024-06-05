@@ -80,6 +80,9 @@ dependencyResolutionManagement {
         val orgApacheAvroVersion = "1.11.3"
         val comFasterxmlJacksonVersion = "2.17.1"
 
+        // GraphQL
+        val graphqlKotlinVersion = "7.1.1"
+
         // ---- //
         val kotlinExposedVersion = "0.50.0"
         val logstashVersion = "7.3"
@@ -202,6 +205,9 @@ dependencyResolutionManagement {
             library("dao", "org.jetbrains.exposed", "exposed-dao").version(kotlinExposedVersion)
             library("jdbc", "org.jetbrains.exposed", "exposed-jdbc").version(kotlinExposedVersion)
             library("javaTime", "org.jetbrains.exposed", "exposed-java-time").version(kotlinExposedVersion)
+        }
+        create("graphql") {
+            library("kotlinClient", "com.expediagroup", "graphql-kotlin-client").version(graphqlKotlinVersion)
         }
         create("testLibs") {
             bundle(
