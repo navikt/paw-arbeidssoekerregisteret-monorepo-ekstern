@@ -36,7 +36,7 @@ siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 rapporteringTopic = "paw.rapportering-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 periodeStoreName = "microfrontendTogglePeriodeStore"
-siste14aVedtakPartitionCount = 6
+siste14aVedtakPartitionCount = 4
 
 [kafkaKeysClient]
 url = "${KAFKA_KEY_URL}"
