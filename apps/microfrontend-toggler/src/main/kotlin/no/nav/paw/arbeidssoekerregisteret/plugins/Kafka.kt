@@ -30,5 +30,7 @@ fun Application.configureKafka(
             stateListener = buildStateListener(healthIndicator)
             exceptionHandler = buildUncaughtExceptionHandler()
         }
+    } else {
+        healthIndicator.setHealthy()
     }
 }
