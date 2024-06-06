@@ -46,6 +46,6 @@ fun buildStateListener(
 
 context(LoggingContext)
 fun buildUncaughtExceptionHandler() = StreamsUncaughtExceptionHandler { throwable ->
-    logger.error("Uventet feil", throwable)
+    logger.error("Kafka Streams opplevde en uventet feil", throwable)
     StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
 }

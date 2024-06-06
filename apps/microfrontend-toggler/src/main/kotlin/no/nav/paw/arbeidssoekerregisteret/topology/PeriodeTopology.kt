@@ -96,7 +96,7 @@ fun StreamsBuilder.buildPeriodeTopology(
 
                     // Send event for å deaktivere AIA Behovsvurdering
                     val disableAiaBehovsvurderingToggle =
-                        periodeInfo.buildDisableToggle(appConfig.microfrontends.aiaBehovsvurdering)
+                        periodeInfo.buildDisableToggle(microfrontendConfig.aiaBehovsvurdering)
                     meterRegistry.tellAntallToggles(periodeInfo, disableAiaBehovsvurderingToggle)
                     forward(disableAiaBehovsvurderingToggle.buildRecord(periodeInfo.arbeidssoekerId))
                 }
@@ -110,13 +110,13 @@ fun StreamsBuilder.buildPeriodeTopology(
                     )
                     // TODO Kun aktivere om det ikke allerede finnes en periode i state store?
                     // Send event for å aktivere AIA Min Side
-                    val enableAiaMinSideToggle = periodeInfo.buildEnableToggle(appConfig.microfrontends.aiaMinSide)
+                    val enableAiaMinSideToggle = periodeInfo.buildEnableToggle(microfrontendConfig.aiaMinSide)
                     meterRegistry.tellAntallToggles(periodeInfo, enableAiaMinSideToggle)
                     forward(enableAiaMinSideToggle.buildRecord(periodeInfo.arbeidssoekerId))
 
                     // Send event for å aktivere AIA Behovsvurdering
                     val enableAiaBehovsvurderingToggle =
-                        periodeInfo.buildEnableToggle(appConfig.microfrontends.aiaBehovsvurdering)
+                        periodeInfo.buildEnableToggle(microfrontendConfig.aiaBehovsvurdering)
                     meterRegistry.tellAntallToggles(periodeInfo, enableAiaBehovsvurderingToggle)
                     forward(enableAiaBehovsvurderingToggle.buildRecord(periodeInfo.arbeidssoekerId))
                 }
