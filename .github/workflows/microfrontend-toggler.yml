@@ -68,7 +68,9 @@ jobs:
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     name: Deploy to prod-gcp - paw-microfrontend-toggler
-    needs: build
+    needs:
+      - build
+      - deploy-dev
     runs-on: ubuntu-latest
     permissions:
       contents: read

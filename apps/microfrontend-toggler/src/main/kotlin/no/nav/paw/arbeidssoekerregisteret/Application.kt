@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret
 import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME
@@ -58,19 +59,19 @@ fun main() {
     ) {
         with(ConfigContext(appConfig)) {
             with(LoggingContext(logger, auditLogger)) {
-                configureSerialization()
-                configureRequestHandling()
-                configureLogging()
-                configureTracing()
-                configureMetrics(meterRegistry)
-                configureAuthentication()
-                configureRouting(kafkaStreamsHealthIndicator, meterRegistry, toggleService)
-                configureKafka(
+                val kafkaStreamsMetrics = configureKafka(
                     kafkaStreamsHealthIndicator,
                     meterRegistry,
                     kafkaKeysClient::getIdAndKeyBlocking,
                     pdlClient::hentFolkeregisterIdentBlocking
-                )
+                )?.let { KafkaStreamsMetrics(it) }
+                configureSerialization()
+                configureRequestHandling()
+                configureLogging()
+                configureTracing()
+                configureMetrics(meterRegistry, kafkaStreamsMetrics)
+                configureAuthentication()
+                configureRouting(kafkaStreamsHealthIndicator, meterRegistry, toggleService)
             }
         }
     }
