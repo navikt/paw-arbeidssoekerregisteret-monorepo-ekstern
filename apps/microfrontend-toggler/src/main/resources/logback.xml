@@ -26,6 +26,7 @@
 
     <if condition='"${NAIS_CLUSTER_NAME}" == "prod-gcp"'>
         <then>
+            <logger name="no.nav.paw.pdl.PdlClient" level="ERROR"/>
             <logger name="tjenestekall" level="DEBUG" additivity="false">
                 <appender-ref ref="secureLog"/>
             </logger>
@@ -36,7 +37,8 @@
     </if>
     <if condition='"${NAIS_CLUSTER_NAME}" == "dev-gcp"'>
         <then>
-            <logger name="no.nav.paw.application" level="DEBUG"/>
+            <logger name="no.nav.paw" level="DEBUG"/>
+            <logger name="no.nav.paw.pdl.PdlClient" level="ERROR"/>
             <logger name="tjenestekall" level="DEBUG" additivity="false">
                 <appender-ref ref="secureLog"/>
             </logger>
