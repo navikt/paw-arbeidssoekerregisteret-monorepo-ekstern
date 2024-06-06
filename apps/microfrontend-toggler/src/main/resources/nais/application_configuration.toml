@@ -30,7 +30,7 @@ password = "${KAFKA_SCHEMA_REGISTRY_PASSWORD}"
 applicationIdSuffix = "producer-v1"
 
 [kafkaStreams]
-enabledForEnvs = ["dev-gcp"]
+enabledForEnvs = ["dev-gcp", "prod-gcp"]
 applicationIdSuffix = "stream-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
@@ -48,7 +48,7 @@ url = "${PDL_URL}"
 scope = "${PDL_SCOPE}"
 
 [regler]
-periodeTogglePunctuatorSchedule = "PT1H"
+periodeTogglePunctuatorSchedule = "PT12H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
 
 [microfrontends]
@@ -56,5 +56,5 @@ aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
 
 [featureToggle]
-enablePeriodeTopology = ["dev-gcp"]
-enable14aVedtakTopology = ["dev-gcp"]
+enablePeriodeTopology = ["dev-gcp", "prod-gcp"]
+enable14aVedtakTopology = ["dev-gcp", "prod-gcp"]
