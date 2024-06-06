@@ -60,7 +60,7 @@ fun StreamsBuilder.buildSiste14aVedtakTopology(
 
         // Sjekk om vedtak er innenfor en aktiv periode,
         if (periodeInfo != null && !periodeInfo.erAvsluttet() && periodeInfo.erInnenfor(siste14aVedtakInfo.fattetDato)) {
-            logger.debug(
+            logger.info(
                 "Det ble gjort et 14a vedtak for arbeidsøkerperiode {}. Iverksetter deaktivering av {}.",
                 periodeInfo.id,
                 microfrontendConfig.aiaBehovsvurdering

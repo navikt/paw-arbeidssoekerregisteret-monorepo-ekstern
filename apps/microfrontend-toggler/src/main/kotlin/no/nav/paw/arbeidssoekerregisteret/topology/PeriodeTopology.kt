@@ -39,7 +39,7 @@ private fun buildPunctuation(meterRegistry: PrometheusMeterRegistry): Punctuatio
                 if (timestamp.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide)
                         .isAfter(periodeInfo.avsluttet)
                 ) {
-                    logger.debug(
+                    logger.info(
                         "Utsettelsestid for arbeidsøkerperiode {} er utløpt. Iverksetter forsinket deaktivering av {}.",
                         periodeInfo.id,
                         appConfig.microfrontends.aiaMinSide
@@ -80,7 +80,7 @@ fun StreamsBuilder.buildPeriodeTopology(
 
             when {
                 periodeInfo.erAvsluttet() -> {
-                    logger.debug(
+                    logger.info(
                         "Arbeidsøkerperiode {} ble avluttet. Iverksetter deaktivering av {}. Forsinket deaktivering av {}.",
                         periodeInfo.id,
                         microfrontendConfig.aiaBehovsvurdering,
@@ -94,7 +94,7 @@ fun StreamsBuilder.buildPeriodeTopology(
                 }
 
                 else -> {
-                    logger.debug(
+                    logger.info(
                         "Arbeidsøkerperiode {} er aktiv. Iverksetter aktivering av {} og {}.",
                         periodeInfo.id,
                         microfrontendConfig.aiaMinSide,
