@@ -21,6 +21,8 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.state.KeyValueStore
+import java.time.Duration
+import java.time.Instant
 
 context(ConfigContext, LoggingContext)
 private fun buildPunctuation(meterRegistry: PrometheusMeterRegistry): Punctuation<Long, Toggle> {
@@ -36,9 +38,7 @@ private fun buildPunctuation(meterRegistry: PrometheusMeterRegistry): Punctuatio
             if (periodeInfo.erAvsluttet()) {
                 // Om det er gått mer en utsettelsestid (21 dager) fra perioden ble avsluttet så send event for å
                 // deaktivere AIA Min Side
-                if (timestamp.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide)
-                        .isAfter(periodeInfo.avsluttet)
-                ) {
+                if (timestamp.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide).isAfter(periodeInfo.avsluttet)) {
                     logger.info(
                         "Utsettelsestid for arbeidsøkerperiode {} er utløpt. Iverksetter forsinket deaktivering av {}.",
                         periodeInfo.id,
@@ -64,9 +64,13 @@ fun StreamsBuilder.buildPeriodeTopology(
     this.stream<Long, Periode>(kafkaStreamsConfig.periodeTopic)
         .peek { key, _ ->
             logger.debug("Mottok event på ${kafkaStreamsConfig.periodeTopic} med key $key")
+        }.filter { _, periode ->
+            // Filtrerer vekk perioder som er avsluttet og eldre en 26 dager
+            periode.avsluttet == null || periode.avsluttet.tidspunkt.isAfter(
+                Instant.now().minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide).minus(Duration.ofDays(5))
+            )
         }.mapNonNull("mapTilPeriodeInfo") { periode ->
-            hentKafkaKeys(periode.identitetsnummer)
-                ?.let { periode.buildPeriodeInfo(it.id) }
+            hentKafkaKeys(periode.identitetsnummer)?.let { periode.buildPeriodeInfo(it.id) }
         }.genericProcess<Long, PeriodeInfo, Long, Toggle>(
             name = "handtereToggleForPeriode",
             stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName),
@@ -100,6 +104,7 @@ fun StreamsBuilder.buildPeriodeTopology(
                         microfrontendConfig.aiaMinSide,
                         microfrontendConfig.aiaBehovsvurdering
                     )
+                    // TODO Kun aktivere om det ikke allerede finnes en periode i state store?
                     // Send event for å aktivere AIA Min Side
                     val enableAiaMinSideToggle = periodeInfo.buildEnableToggle(appConfig.microfrontends.aiaMinSide)
                     forward(enableAiaMinSideToggle.buildRecord(periodeInfo.arbeidssoekerId))
