@@ -12,7 +12,7 @@ fun buildStateListener(
     KafkaStreams.StateListener { newState, _ ->
         when (newState) {
             KafkaStreams.State.CREATED -> {
-                alivenessHealthIndicator.setHealthy()
+                //alivenessHealthIndicator.setHealthy()
             }
 
             KafkaStreams.State.RUNNING -> {
@@ -40,8 +40,8 @@ fun buildStateListener(
             }
         }
 
-        logger.debug("Kafka Streams aliveness er ${alivenessHealthIndicator.getStatus().value}")
-        logger.debug("Kafka Streams readyness er ${readinessHealthIndicator.getStatus().value}")
+        logger.info("Kafka Streams aliveness er ${alivenessHealthIndicator.getStatus().value}")
+        logger.info("Kafka Streams readyness er ${readinessHealthIndicator.getStatus().value}")
     }
 
 context(LoggingContext)

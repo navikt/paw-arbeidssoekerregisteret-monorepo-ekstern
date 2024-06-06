@@ -37,6 +37,7 @@ fun main() {
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
     val alivenessHealthIndicator = StandardHealthIndicator()
+    alivenessHealthIndicator.setHealthy()
     val readinessHealthIndicator = StandardHealthIndicator()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT) // TODO Instrumentere med metering og tracing
     val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, appConfig.azureM2M)
