@@ -20,7 +20,7 @@ fun buildStateListener(
             }
 
             KafkaStreams.State.REBALANCING -> {
-                readinessHealthIndicator.setUnhealthy()
+                readinessHealthIndicator.setHealthy()
             }
 
             KafkaStreams.State.PENDING_ERROR -> {
