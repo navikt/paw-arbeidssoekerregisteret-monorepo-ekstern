@@ -8,8 +8,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.buildPeriodeInfo
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
-import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
-import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -30,10 +28,7 @@ class Siste14aVedtakTopologyTest : FreeSpec({
                 avsluttet = periodeAvsluttetTidspunkt
             )
             val siste14aVedtak = buildSiste14aVedtak(aktorId, periodeStartTidspunkt.plus(Duration.ofDays(2)))
-            every { pdlClientMock.hentFolkeregisterIdent(aktorId) } returns IdentInformasjon(
-                identitetsnummer, IdentGruppe.FOLKEREGISTERIDENT
-            )
-            every { kafkaKeysClientMock.hentKafkaKeys(identitetsnummer) } returns KafkaKeysResponse(
+            every { kafkaKeysClientMock.hentKafkaKeys(aktorId) } returns KafkaKeysResponse(
                 arbeidsoekerId,
                 9876
             )

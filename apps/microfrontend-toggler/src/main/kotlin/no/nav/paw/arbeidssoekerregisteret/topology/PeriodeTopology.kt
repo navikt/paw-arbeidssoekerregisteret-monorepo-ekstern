@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
+import no.nav.paw.arbeidssoekerregisteret.config.tellAntallToggles
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
@@ -45,8 +46,10 @@ private fun buildPunctuation(meterRegistry: PrometheusMeterRegistry): Punctuatio
                         appConfig.microfrontends.aiaMinSide
                     )
                     stateStore.delete(periodeInfo.arbeidssoekerId)
-                    val toggle = periodeInfo.buildDisableToggle(appConfig.microfrontends.aiaMinSide)
-                    context.forward(toggle.buildRecord(periodeInfo.arbeidssoekerId))
+                    val disableAiaBehovsvurderingToggle =
+                        periodeInfo.buildDisableToggle(appConfig.microfrontends.aiaMinSide)
+                    meterRegistry.tellAntallToggles(periodeInfo, disableAiaBehovsvurderingToggle)
+                    context.forward(disableAiaBehovsvurderingToggle.buildRecord(periodeInfo.arbeidssoekerId))
                 }
             }
         }
@@ -94,6 +97,7 @@ fun StreamsBuilder.buildPeriodeTopology(
                     // Send event for å deaktivere AIA Behovsvurdering
                     val disableAiaBehovsvurderingToggle =
                         periodeInfo.buildDisableToggle(appConfig.microfrontends.aiaBehovsvurdering)
+                    meterRegistry.tellAntallToggles(periodeInfo, disableAiaBehovsvurderingToggle)
                     forward(disableAiaBehovsvurderingToggle.buildRecord(periodeInfo.arbeidssoekerId))
                 }
 
@@ -107,11 +111,13 @@ fun StreamsBuilder.buildPeriodeTopology(
                     // TODO Kun aktivere om det ikke allerede finnes en periode i state store?
                     // Send event for å aktivere AIA Min Side
                     val enableAiaMinSideToggle = periodeInfo.buildEnableToggle(appConfig.microfrontends.aiaMinSide)
+                    meterRegistry.tellAntallToggles(periodeInfo, enableAiaMinSideToggle)
                     forward(enableAiaMinSideToggle.buildRecord(periodeInfo.arbeidssoekerId))
 
                     // Send event for å aktivere AIA Behovsvurdering
                     val enableAiaBehovsvurderingToggle =
                         periodeInfo.buildEnableToggle(appConfig.microfrontends.aiaBehovsvurdering)
+                    meterRegistry.tellAntallToggles(periodeInfo, enableAiaBehovsvurderingToggle)
                     forward(enableAiaBehovsvurderingToggle.buildRecord(periodeInfo.arbeidssoekerId))
                 }
             }

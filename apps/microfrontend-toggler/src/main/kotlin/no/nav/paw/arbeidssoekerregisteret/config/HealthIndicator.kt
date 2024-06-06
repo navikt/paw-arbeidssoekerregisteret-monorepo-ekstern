@@ -10,7 +10,7 @@ interface HealthIndicator {
     fun getStatus(): HealthStatus
 }
 
-class KafkaStreamsHealthIndicator : HealthIndicator {
+class StandardHealthIndicator : HealthIndicator {
 
     private val status = AtomicReference(HealthStatus.UNKNOWN)
 

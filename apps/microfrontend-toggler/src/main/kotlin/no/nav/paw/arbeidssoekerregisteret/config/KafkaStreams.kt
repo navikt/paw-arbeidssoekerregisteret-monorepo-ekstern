@@ -1,29 +1,47 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
-import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
 
 context(LoggingContext)
-fun buildStateListener(healthIndicator: HealthIndicator) =
+fun buildStateListener(
+    alivenessHealthIndicator: HealthIndicator,
+    readinessHealthIndicator: HealthIndicator
+) =
     KafkaStreams.StateListener { newState, _ ->
-        when {
-            newState.isRunningOrRebalancing -> {
-                logger.debug("Kafka Streams endret helsetilstand til ${HealthStatus.HEALTHY.value}")
-                healthIndicator.setHealthy()
+        when (newState) {
+            KafkaStreams.State.CREATED -> {
+                alivenessHealthIndicator.setHealthy()
             }
 
-            newState.hasStartedOrFinishedShuttingDown() -> {
-                logger.debug("Kafka Streams endret helsetilstand til ${HealthStatus.UNHEALTHY.value}")
-                healthIndicator.setUnhealthy()
+            KafkaStreams.State.RUNNING -> {
+                readinessHealthIndicator.setHealthy()
+            }
+
+            KafkaStreams.State.REBALANCING -> {
+                readinessHealthIndicator.setUnhealthy()
+            }
+
+            KafkaStreams.State.PENDING_ERROR -> {
+                readinessHealthIndicator.setUnhealthy()
+            }
+
+            KafkaStreams.State.PENDING_SHUTDOWN -> {
+                readinessHealthIndicator.setUnhealthy()
+            }
+
+            KafkaStreams.State.ERROR -> {
+                readinessHealthIndicator.setUnhealthy()
             }
 
             else -> {
-                logger.debug("Kafka Streams endret helsetilstand til ${HealthStatus.UNKNOWN.value}")
-                healthIndicator.setUnknown()
+                readinessHealthIndicator.setUnknown()
             }
         }
+
+        logger.debug("Kafka Streams aliveness er ${alivenessHealthIndicator.getStatus().value}")
+        logger.debug("Kafka Streams readyness er ${readinessHealthIndicator.getStatus().value}")
     }
 
 context(LoggingContext)

@@ -8,7 +8,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.config.KafkaStreamsHealthIndicator
+import no.nav.paw.arbeidssoekerregisteret.config.StandardHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
 
 class HealthRoutesTest : FreeSpec({
@@ -16,24 +16,27 @@ class HealthRoutesTest : FreeSpec({
         "Test av health routes" {
             testApplication {
                 routing {
-                    healthRoutes(healthIndicator, meterRegistry)
+                    healthRoutes(alivenessHealthIndicator, readinessHealthIndicator, meterRegistry)
                 }
 
-                // Health indicator er default UNKNOWN
+                // Health indicators er default UNKNOWN
 
                 val metricsResponse = client.get("/internal/metrics")
                 metricsResponse.status shouldBe HttpStatusCode.OK
 
                 var isAliveResponse = client.get("/internal/isAlive")
-                isAliveResponse.status shouldBe HttpStatusCode.OK
-                isAliveResponse.body<String>() shouldBe HealthStatus.HEALTHY.value
+                isAliveResponse.status shouldBe HttpStatusCode.ServiceUnavailable
+                isAliveResponse.body<String>() shouldBe HealthStatus.UNKNOWN.value
+
+                // Setter aliveness health indicator til HEALTHY
+                alivenessHealthIndicator.setHealthy()
 
                 var isReadyResponse = client.get("/internal/isReady")
                 isReadyResponse.status shouldBe HttpStatusCode.ServiceUnavailable
                 isReadyResponse.body<String>() shouldBe HealthStatus.UNKNOWN.value
 
-                // Setter health indicator til HEALTHY
-                healthIndicator.setHealthy()
+                // Setter readiness health indicator til HEALTHY
+                readinessHealthIndicator.setHealthy()
 
                 isAliveResponse = client.get("/internal/isAlive")
                 isAliveResponse.status shouldBe HttpStatusCode.OK
@@ -43,8 +46,8 @@ class HealthRoutesTest : FreeSpec({
                 isReadyResponse.status shouldBe HttpStatusCode.OK
                 isReadyResponse.body<String>() shouldBe HealthStatus.HEALTHY.value
 
-                // Setter health indicator til UNHEALTHY
-                healthIndicator.setUnhealthy()
+                // Setter readiness health indicator til UNHEALTHY
+                readinessHealthIndicator.setUnhealthy()
 
                 isAliveResponse = client.get("/internal/isAlive")
                 isAliveResponse.status shouldBe HttpStatusCode.OK
@@ -54,8 +57,8 @@ class HealthRoutesTest : FreeSpec({
                 isReadyResponse.status shouldBe HttpStatusCode.ServiceUnavailable
                 isReadyResponse.body<String>() shouldBe HealthStatus.UNHEALTHY.value
 
-                // Setter health indicator tilbake til UNKNOWN
-                healthIndicator.setUnknown()
+                // Setter readiness health indicator tilbake til UNKNOWN
+                readinessHealthIndicator.setUnknown()
 
                 isAliveResponse = client.get("/internal/isAlive")
                 isAliveResponse.status shouldBe HttpStatusCode.OK
@@ -70,6 +73,7 @@ class HealthRoutesTest : FreeSpec({
 })
 
 class HealthRoutesTestContext {
-    val healthIndicator = KafkaStreamsHealthIndicator()
+    val alivenessHealthIndicator = StandardHealthIndicator()
+    val readinessHealthIndicator = StandardHealthIndicator()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 }

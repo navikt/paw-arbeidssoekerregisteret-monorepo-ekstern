@@ -12,16 +12,27 @@ import no.nav.paw.arbeidssoekerregisteret.config.HealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
 
 fun Route.healthRoutes(
-    healthIndicator: HealthIndicator,
+    alivenessHealthIndicator: HealthIndicator,
+    readinessHealthIndicator: HealthIndicator,
     meterRegistry: PrometheusMeterRegistry
 ) {
 
     get("/internal/isAlive") {
-        call.respondText(HealthStatus.HEALTHY.value, ContentType.Text.Plain)
+        when (val status = alivenessHealthIndicator.getStatus()) {
+            HealthStatus.HEALTHY -> call.respondText(
+                ContentType.Text.Plain,
+                HttpStatusCode.OK
+            ) { status.value }
+
+            else -> call.respondText(
+                ContentType.Text.Plain,
+                HttpStatusCode.ServiceUnavailable
+            ) { status.value }
+        }
     }
 
     get("/internal/isReady") {
-        when (val status = healthIndicator.getStatus()) {
+        when (val status = readinessHealthIndicator.getStatus()) {
             HealthStatus.HEALTHY -> call.respondText(
                 ContentType.Text.Plain,
                 HttpStatusCode.OK

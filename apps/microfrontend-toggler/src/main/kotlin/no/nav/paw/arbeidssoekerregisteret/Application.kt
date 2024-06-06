@@ -10,14 +10,12 @@ import no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
-import no.nav.paw.arbeidssoekerregisteret.config.KafkaStreamsHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
+import no.nav.paw.arbeidssoekerregisteret.config.StandardHealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.buildKafkaKeysClient
-import no.nav.paw.arbeidssoekerregisteret.config.buildPdlClient
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleKafkaProducer
 import no.nav.paw.arbeidssoekerregisteret.config.getIdAndKeyBlocking
-import no.nav.paw.arbeidssoekerregisteret.config.hentFolkeregisterIdentBlocking
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
@@ -38,11 +36,11 @@ fun main() {
     val auditLogger = LoggerFactory.getLogger(AUDIT_LOGGER_NAME)
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
-    val kafkaStreamsHealthIndicator = KafkaStreamsHealthIndicator()
+    val alivenessHealthIndicator = StandardHealthIndicator()
+    val readinessHealthIndicator = StandardHealthIndicator()
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT) // TODO Instrumentere med metering og tracing
     val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, appConfig.azureM2M)
     val kafkaKeysClient = buildKafkaKeysClient(appConfig.kafkaKeysClient, azureM2MTokenClient)
-    val pdlClient = buildPdlClient(appConfig.pdlClient, azureM2MTokenClient)
     val toggleKafkaProducer = buildToggleKafkaProducer(appConfig.kafka, appConfig.kafkaProducer)
     val toggleService = ToggleService(kafkaKeysClient, toggleKafkaProducer)
 
@@ -60,10 +58,10 @@ fun main() {
         with(ConfigContext(appConfig)) {
             with(LoggingContext(logger, auditLogger)) {
                 val kafkaStreamsMetrics = configureKafka(
-                    kafkaStreamsHealthIndicator,
+                    alivenessHealthIndicator,
+                    readinessHealthIndicator,
                     meterRegistry,
-                    kafkaKeysClient::getIdAndKeyBlocking,
-                    pdlClient::hentFolkeregisterIdentBlocking
+                    kafkaKeysClient::getIdAndKeyBlocking
                 )?.let { KafkaStreamsMetrics(it) }
                 configureSerialization()
                 configureRequestHandling()
@@ -71,7 +69,7 @@ fun main() {
                 configureTracing()
                 configureMetrics(meterRegistry, kafkaStreamsMetrics)
                 configureAuthentication()
-                configureRouting(kafkaStreamsHealthIndicator, meterRegistry, toggleService)
+                configureRouting(alivenessHealthIndicator, readinessHealthIndicator, meterRegistry, toggleService)
             }
         }
     }

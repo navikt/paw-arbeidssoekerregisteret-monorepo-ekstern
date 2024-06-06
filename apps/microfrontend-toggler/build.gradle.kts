@@ -57,9 +57,6 @@ dependencies {
     implementation(orgApacheKafka.kafkaStreams)
     implementation(apacheAvro.kafkaStreamsAvroSerde)
 
-    // GraphQL
-    implementation(graphql.kotlinClient)
-
     // NAV Common
     implementation(navCommon.types)
 
@@ -68,9 +65,6 @@ dependencies {
 
     // NAV TMS
     implementation(tmsVarsel.kotlinBuilder)
-
-    // NAV PAW
-    implementation(pawClients.pawPdlClient)
 
     // Test
     testImplementation(ktorServer.testJvm)

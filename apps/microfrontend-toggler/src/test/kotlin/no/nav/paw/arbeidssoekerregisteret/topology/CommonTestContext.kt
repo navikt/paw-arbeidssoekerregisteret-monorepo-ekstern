@@ -4,7 +4,6 @@ import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
-import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
@@ -39,12 +38,6 @@ fun <T : SpecificRecord> buildAvroSerde(): Serde<T> {
 
 class KafkaKeysClientMock {
     fun hentKafkaKeys(identitetsnummer: String): KafkaKeysResponse? {
-        return null
-    }
-}
-
-class PdlClientMock {
-    fun hentFolkeregisterIdent(aktorId: String): IdentInformasjon? {
         return null
     }
 }

@@ -30,7 +30,6 @@ class Siste14aVedtakTopologyTestContext {
     val siste14aVedtakSerde = buildSiste14aVedtakSerde()
     val toggleSerde = buildToggleSerde()
     val kafkaKeysClientMock = mockk<KafkaKeysClientMock>()
-    val pdlClientMock = mockk<PdlClientMock>()
 
     val testDriver =
         with(ConfigContext(appConfig)) {
@@ -45,8 +44,7 @@ class Siste14aVedtakTopologyTestContext {
                     )
                     buildSiste14aVedtakTopology(
                         meterRegistry,
-                        kafkaKeysClientMock::hentKafkaKeys,
-                        pdlClientMock::hentFolkeregisterIdent
+                        kafkaKeysClientMock::hentKafkaKeys
                     )
                 }.build()
             }

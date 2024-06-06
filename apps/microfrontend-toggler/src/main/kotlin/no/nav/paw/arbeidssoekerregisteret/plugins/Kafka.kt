@@ -14,17 +14,16 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.kafka.KafkaStreamsPlugin
 import no.nav.paw.arbeidssoekerregisteret.topology.buildTopology
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
-import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsConfig
 
 context(ConfigContext, LoggingContext)
 fun Application.configureKafka(
-    healthIndicator: HealthIndicator,
+    alivenessHealthIndicator: HealthIndicator,
+    readinessHealthIndicator: HealthIndicator,
     meterRegistry: PrometheusMeterRegistry,
-    hentKafkaKeys: (ident: String) -> KafkaKeysResponse?,
-    hentFolkeregisterIdent: (aktorId: String) -> IdentInformasjon?
+    hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ): KafkaStreams? {
     logger.info("Kafka Streams er enabled for miljø ${appConfig.kafkaStreams.enabledForEnvs}")
     if (appConfig.kafkaStreams.enabledForEnvs.contains(appConfig.naisEnv.clusterName)) {
@@ -33,10 +32,10 @@ fun Application.configureKafka(
             .withDefaultValueSerde(SpecificAvroSerde::class)
 
         val kafkaStreamsInstance = KafkaStreams(
-            buildTopology(meterRegistry, hentKafkaKeys, hentFolkeregisterIdent),
+            buildTopology(meterRegistry, hentKafkaKeys),
             StreamsConfig(streamsFactory.properties)
         )
-        kafkaStreamsInstance.setStateListener(buildStateListener(healthIndicator))
+        kafkaStreamsInstance.setStateListener(buildStateListener(alivenessHealthIndicator, readinessHealthIndicator))
         kafkaStreamsInstance.setUncaughtExceptionHandler(buildUncaughtExceptionHandler())
 
         install(KafkaStreamsPlugin) {
@@ -45,7 +44,8 @@ fun Application.configureKafka(
 
         return kafkaStreamsInstance
     } else {
-        healthIndicator.setHealthy()
+        alivenessHealthIndicator.setHealthy()
+        readinessHealthIndicator.setHealthy()
         return null
     }
 }
