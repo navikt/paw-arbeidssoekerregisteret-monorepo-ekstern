@@ -24,12 +24,11 @@ spec:
     - name: PDL_SCOPE
       value: "api://prod-fss.pdl.pdl-api/.default"
   resources:
-    limits:
-      cpu: 3500m
-      memory: 2048Mi
+    limit:
+      memory: 3072Mi
     requests:
-      cpu: 1000m
-      memory: 1024Mi
+      cpu: 250m
+      memory: 2048Mi
   replicas:
     min: 1
     max: 1
