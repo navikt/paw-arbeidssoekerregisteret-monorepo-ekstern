@@ -18,20 +18,26 @@ class PeriodeTopologyTest : FreeSpec({
         "Testsuite for toggling av microfrontends basert på arbeidssøkerperiode" - {
             val identitetsnummer = "01017012345"
             val arbeidsoekerId = 1234L
-            val periodeAvsluttetTidspunkt = Instant.now()
-            val periodeStartTidspunkt = periodeAvsluttetTidspunkt.minus(Duration.ofDays(10))
-            val startetPeriode = buildPeriode(identitetsnummer = identitetsnummer, startet = periodeStartTidspunkt)
+            val avsluttetGammeltTidspunkt = Instant.now().minus(Duration.ofDays(27))
+            val startetGammeltTidspunkt = avsluttetGammeltTidspunkt.minus(Duration.ofDays(10))
+            val avsluttetTidspunkt = Instant.now()
+            val startetTidspunkt = avsluttetTidspunkt.minus(Duration.ofDays(10))
+            val startetPeriode = buildPeriode(identitetsnummer = identitetsnummer, startet = startetTidspunkt)
             val avsluttetPeriode = buildPeriode(
                 identitetsnummer = identitetsnummer,
-                startet = periodeStartTidspunkt,
-                avsluttet = periodeAvsluttetTidspunkt
+                startet = startetTidspunkt,
+                avsluttet = avsluttetTidspunkt
+            )
+            val avsluttetGammelPeriode = buildPeriode(
+                identitetsnummer = identitetsnummer,
+                startet = startetGammeltTidspunkt,
+                avsluttet = avsluttetGammeltTidspunkt
             )
             val key = 9876L
             every { kafkaKeysClientMock.hentKafkaKeys(identitetsnummer) } returns KafkaKeysResponse(
                 arbeidsoekerId,
                 key
             )
-
 
             "Skal aktivere nødvendige microfrontends ved start av periode" {
                 periodeTopic.pipeInput(key, startetPeriode)
@@ -61,6 +67,7 @@ class PeriodeTopologyTest : FreeSpec({
                     initialedBy shouldBe "paw"
                 }
 
+                periodeKeyValueStore.size() shouldBe 1
                 with(periodeKeyValueStore.get(arbeidsoekerId).shouldBeInstanceOf<PeriodeInfo>()) {
                     id shouldBe startetPeriode.id
                     identitetsnummer shouldBe startetPeriode.identitetsnummer
@@ -88,6 +95,7 @@ class PeriodeTopologyTest : FreeSpec({
                     initialedBy shouldBe "paw"
                 }
 
+                periodeKeyValueStore.size() shouldBe 1
                 with(periodeKeyValueStore.get(arbeidsoekerId).shouldBeInstanceOf<PeriodeInfo>()) {
                     id shouldBe avsluttetPeriode.id
                     identitetsnummer shouldBe avsluttetPeriode.identitetsnummer
@@ -115,7 +123,14 @@ class PeriodeTopologyTest : FreeSpec({
                     initialedBy shouldBe "paw"
                 }
 
-                periodeKeyValueStore.get(arbeidsoekerId) shouldBe null
+                periodeKeyValueStore.size() shouldBe 0
+            }
+
+            "Skal filtrere vekk perioder som er avsluttet og eldre enn 26 dager" {
+                periodeTopic.pipeInput(key, avsluttetGammelPeriode)
+
+                microfrontendTopic.isEmpty shouldBe true
+                periodeKeyValueStore.size() shouldBe 0
             }
         }
     }

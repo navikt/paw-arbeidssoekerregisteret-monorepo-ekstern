@@ -23,7 +23,6 @@ url = "http://localhost:8082"
 applicationIdSuffix = "producer-v1"
 
 [kafkaStreams]
-enabledForEnvs = ["local"]
 applicationIdSuffix = "stream-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
@@ -48,6 +47,7 @@ utsattDeaktiveringAvAiaMinSide = "PT10M"
 aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
 
-[featureToggle]
+[featureToggles]
+enableKafkaStreams = ["local"]
 enablePeriodeTopology = ["local"]
 enable14aVedtakTopology = ["local"]

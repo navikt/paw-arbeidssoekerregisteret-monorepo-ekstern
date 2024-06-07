@@ -59,7 +59,7 @@ fun StreamsBuilder.buildSiste14aVedtakTopology(
                 microfrontendConfig.aiaBehovsvurdering
             )
             val disableAiaBehovsvurderingToggle = periodeInfo.buildDisableToggle(microfrontendConfig.aiaBehovsvurdering)
-            meterRegistry.tellAntallToggles(periodeInfo, disableAiaBehovsvurderingToggle)
+            meterRegistry.tellAntallToggles(disableAiaBehovsvurderingToggle)
             forward(disableAiaBehovsvurderingToggle.buildRecord(siste14aVedtakInfo.arbeidssoekerId))
         }
     }.to(kafkaStreamsConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))

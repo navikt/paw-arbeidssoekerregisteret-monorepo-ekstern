@@ -23,7 +23,6 @@ url = "mock://test-registry"
 applicationIdSuffix = "producer-test"
 
 [kafkaStreams]
-enabledForEnvs = ["local"]
 applicationIdSuffix = "stream-test"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
@@ -48,6 +47,7 @@ utsattDeaktiveringAvAiaMinSide = "P21D"
 aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
 
-[featureToggle]
+[featureToggles]
+enableKafkaStreams = ["local"]
 enablePeriodeTopology = ["local"]
 enable14aVedtakTopology = ["local"]

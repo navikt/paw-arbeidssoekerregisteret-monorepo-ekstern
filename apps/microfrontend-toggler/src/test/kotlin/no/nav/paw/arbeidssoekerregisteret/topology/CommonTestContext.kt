@@ -8,6 +8,7 @@ import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
+import org.apache.kafka.streams.state.KeyValueStore
 import java.util.*
 
 const val TEST_APPLICATION_CONFIG_FILE_NAME = "test_application_configuration.toml"
@@ -40,4 +41,12 @@ class KafkaKeysClientMock {
     fun hentKafkaKeys(identitetsnummer: String): KafkaKeysResponse? {
         return null
     }
+}
+
+fun <K, V> KeyValueStore<K, V>.size(): Int {
+    var count = 0
+    for (keyValue in all()) {
+        count++
+    }
+    return count
 }

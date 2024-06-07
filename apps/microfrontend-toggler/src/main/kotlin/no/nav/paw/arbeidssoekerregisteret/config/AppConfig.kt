@@ -22,7 +22,7 @@ data class AppConfig(
     val kafkaKeysClient: KafkaKeyConfig,
     val pdlClient: ServiceClientConfig,
     val regler: ReglerConfig,
-    val featureToggle: FeatureToggleConfig,
+    val featureToggles: FeatureTogglesConfig,
     val microfrontends: MicrofrontendsConfig,
     val appName: String = currentAppName,
     val appId: String = currentAppId,
@@ -54,7 +54,6 @@ data class KafkaProducerConfig(
 )
 
 data class KafkaStreamsConfig(
-    val enabledForEnvs: List<String>,
     val applicationIdSuffix: String,
     val periodeTopic: String,
     val siste14aVedtakTopic: String,
@@ -74,7 +73,12 @@ data class MicrofrontendsConfig(
     val aiaBehovsvurdering: String
 )
 
-data class FeatureToggleConfig(
+data class FeatureTogglesConfig(
+    val enableKafkaStreams: List<String>,
     val enablePeriodeTopology: List<String>,
     val enable14aVedtakTopology: List<String>
-)
+) {
+    fun isKafkaStreamsEnabled(env: NaisEnv) = enableKafkaStreams.contains(env.clusterName)
+    fun isPeriodeTopologyEnabled(env: NaisEnv) = enablePeriodeTopology.contains(env.clusterName)
+    fun is14aVedtakTopologyEnabled(env: NaisEnv) = enable14aVedtakTopology.contains(env.clusterName)
+}

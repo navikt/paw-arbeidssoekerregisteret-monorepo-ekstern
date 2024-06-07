@@ -39,6 +39,7 @@ class Siste14aVedtakTopologyTest : FreeSpec({
                 siste14aVedtakTopic.pipeInput(UUID.randomUUID().toString(), siste14aVedtak)
 
                 microfrontendTopic.isEmpty shouldBe true
+                periodeKeyValueStore.size() shouldBe 0
             }
 
             "Skal ikke deaktivere aia-behovsvurdering microfrontend om det ikke finnes en aktiv periode tilhørende 14a vedtak" {
@@ -47,6 +48,7 @@ class Siste14aVedtakTopologyTest : FreeSpec({
                 siste14aVedtakTopic.pipeInput(UUID.randomUUID().toString(), siste14aVedtak)
 
                 microfrontendTopic.isEmpty shouldBe true
+                periodeKeyValueStore.size() shouldBe 1
             }
 
             "Skal deaktivere aia-behovsvurdering microfrontend om det finnes en aktiv periode tilhørende 14a vedtak" {
@@ -68,6 +70,8 @@ class Siste14aVedtakTopologyTest : FreeSpec({
                     sensitivitet shouldBe null
                     initialedBy shouldBe "paw"
                 }
+
+                periodeKeyValueStore.size() shouldBe 1
             }
         }
     }

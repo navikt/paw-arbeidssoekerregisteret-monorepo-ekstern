@@ -25,8 +25,8 @@ fun Application.configureKafka(
     meterRegistry: PrometheusMeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ): KafkaStreams? {
-    logger.info("Kafka Streams er enabled for miljø ${appConfig.kafkaStreams.enabledForEnvs}")
-    if (appConfig.kafkaStreams.enabledForEnvs.contains(appConfig.naisEnv.clusterName)) {
+    logger.info("Kafka Streams er enabled for miljø ${appConfig.featureToggles.enableKafkaStreams}")
+    if (appConfig.featureToggles.isKafkaStreamsEnabled(appConfig.naisEnv)) {
         val streamsFactory = KafkaStreamsFactory(appConfig.kafkaStreams.applicationIdSuffix, appConfig.kafka)
             .withDefaultKeySerde(Serdes.Long()::class)
             .withDefaultValueSerde(SpecificAvroSerde::class)
