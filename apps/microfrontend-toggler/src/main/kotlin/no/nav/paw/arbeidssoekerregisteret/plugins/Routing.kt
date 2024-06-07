@@ -13,13 +13,13 @@ import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
 
 context(ConfigContext, LoggingContext)
 fun Application.configureRouting(
-    alivenessHealthIndicator: HealthIndicator,
+    livenessHealthIndicator: HealthIndicator,
     readinessHealthIndicator: HealthIndicator,
     meterRegistry: PrometheusMeterRegistry,
     toggleService: ToggleService
 ) {
     routing {
-        healthRoutes(alivenessHealthIndicator, readinessHealthIndicator, meterRegistry)
+        healthRoutes(livenessHealthIndicator, readinessHealthIndicator, meterRegistry)
         swaggerRoutes()
         toggleRoutes(toggleService)
     }

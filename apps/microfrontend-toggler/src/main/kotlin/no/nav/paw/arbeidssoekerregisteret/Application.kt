@@ -18,6 +18,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.buildToggleKafkaProducer
 import no.nav.paw.arbeidssoekerregisteret.config.getIdAndKeyBlocking
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
+import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
@@ -36,9 +37,8 @@ fun main() {
     val auditLogger = LoggerFactory.getLogger(AUDIT_LOGGER_NAME)
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
-    val alivenessHealthIndicator = StandardHealthIndicator()
-    alivenessHealthIndicator.setHealthy()
-    val readinessHealthIndicator = StandardHealthIndicator()
+    val livenessHealthIndicator = StandardHealthIndicator(HealthStatus.HEALTHY)
+    val readinessHealthIndicator = StandardHealthIndicator(HealthStatus.UNKNOWN)
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT) // TODO Instrumentere med metering og tracing
     val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, appConfig.azureM2M)
     val kafkaKeysClient = buildKafkaKeysClient(appConfig.kafkaKeysClient, azureM2MTokenClient)
@@ -59,7 +59,7 @@ fun main() {
         with(ConfigContext(appConfig)) {
             with(LoggingContext(logger, auditLogger)) {
                 val kafkaStreamsMetrics = configureKafka(
-                    alivenessHealthIndicator,
+                    livenessHealthIndicator,
                     readinessHealthIndicator,
                     meterRegistry,
                     kafkaKeysClient::getIdAndKeyBlocking
@@ -70,7 +70,7 @@ fun main() {
                 configureTracing()
                 configureMetrics(meterRegistry, kafkaStreamsMetrics)
                 configureAuthentication()
-                configureRouting(alivenessHealthIndicator, readinessHealthIndicator, meterRegistry, toggleService)
+                configureRouting(livenessHealthIndicator, readinessHealthIndicator, meterRegistry, toggleService)
             }
         }
     }

@@ -20,7 +20,7 @@ import org.apache.kafka.streams.StreamsConfig
 
 context(ConfigContext, LoggingContext)
 fun Application.configureKafka(
-    alivenessHealthIndicator: HealthIndicator,
+    livenessHealthIndicator: HealthIndicator,
     readinessHealthIndicator: HealthIndicator,
     meterRegistry: PrometheusMeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
@@ -35,7 +35,7 @@ fun Application.configureKafka(
             buildTopology(meterRegistry, hentKafkaKeys),
             StreamsConfig(streamsFactory.properties)
         )
-        kafkaStreamsInstance.setStateListener(buildStateListener(alivenessHealthIndicator, readinessHealthIndicator))
+        kafkaStreamsInstance.setStateListener(buildStateListener(livenessHealthIndicator, readinessHealthIndicator))
         kafkaStreamsInstance.setUncaughtExceptionHandler(buildUncaughtExceptionHandler())
 
         install(KafkaStreamsPlugin) {
@@ -44,7 +44,7 @@ fun Application.configureKafka(
 
         return kafkaStreamsInstance
     } else {
-        alivenessHealthIndicator.setHealthy()
+        livenessHealthIndicator.setHealthy()
         readinessHealthIndicator.setHealthy()
         return null
     }

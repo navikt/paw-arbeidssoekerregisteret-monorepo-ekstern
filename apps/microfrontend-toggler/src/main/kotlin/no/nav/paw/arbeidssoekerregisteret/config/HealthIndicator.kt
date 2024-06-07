@@ -10,9 +10,9 @@ interface HealthIndicator {
     fun getStatus(): HealthStatus
 }
 
-class StandardHealthIndicator : HealthIndicator {
+class StandardHealthIndicator(initialStatus: HealthStatus) : HealthIndicator {
 
-    private val status = AtomicReference(HealthStatus.UNKNOWN)
+    private val status = AtomicReference(initialStatus)
 
     override fun setUnknown() {
         status.set(HealthStatus.UNKNOWN)

@@ -16,7 +16,7 @@ class HealthRoutesTest : FreeSpec({
         "Test av health routes" {
             testApplication {
                 routing {
-                    healthRoutes(alivenessHealthIndicator, readinessHealthIndicator, meterRegistry)
+                    healthRoutes(livenessHealthIndicator, readinessHealthIndicator, meterRegistry)
                 }
 
                 // Health indicators er default UNKNOWN
@@ -25,11 +25,8 @@ class HealthRoutesTest : FreeSpec({
                 metricsResponse.status shouldBe HttpStatusCode.OK
 
                 var isAliveResponse = client.get("/internal/isAlive")
-                isAliveResponse.status shouldBe HttpStatusCode.ServiceUnavailable
-                isAliveResponse.body<String>() shouldBe HealthStatus.UNKNOWN.value
-
-                // Setter aliveness health indicator til HEALTHY
-                alivenessHealthIndicator.setHealthy()
+                isAliveResponse.status shouldBe HttpStatusCode.OK
+                isAliveResponse.body<String>() shouldBe HealthStatus.HEALTHY.value
 
                 var isReadyResponse = client.get("/internal/isReady")
                 isReadyResponse.status shouldBe HttpStatusCode.ServiceUnavailable
@@ -67,13 +64,25 @@ class HealthRoutesTest : FreeSpec({
                 isReadyResponse = client.get("/internal/isReady")
                 isReadyResponse.status shouldBe HttpStatusCode.ServiceUnavailable
                 isReadyResponse.body<String>() shouldBe HealthStatus.UNKNOWN.value
+
+
+                // Setter liveness health indicator til UNHEALTHY
+                livenessHealthIndicator.setUnhealthy()
+
+                isAliveResponse = client.get("/internal/isAlive")
+                isAliveResponse.status shouldBe HttpStatusCode.ServiceUnavailable
+                isAliveResponse.body<String>() shouldBe HealthStatus.UNHEALTHY.value
+
+                isReadyResponse = client.get("/internal/isReady")
+                isReadyResponse.status shouldBe HttpStatusCode.ServiceUnavailable
+                isReadyResponse.body<String>() shouldBe HealthStatus.UNKNOWN.value
             }
         }
     }
 })
 
 class HealthRoutesTestContext {
-    val alivenessHealthIndicator = StandardHealthIndicator()
-    val readinessHealthIndicator = StandardHealthIndicator()
+    val livenessHealthIndicator = StandardHealthIndicator(HealthStatus.HEALTHY)
+    val readinessHealthIndicator = StandardHealthIndicator(HealthStatus.UNKNOWN)
     val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 }

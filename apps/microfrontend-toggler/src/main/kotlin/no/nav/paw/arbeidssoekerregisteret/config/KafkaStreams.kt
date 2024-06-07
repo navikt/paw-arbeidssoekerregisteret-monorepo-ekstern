@@ -6,15 +6,11 @@ import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
 
 context(LoggingContext)
 fun buildStateListener(
-    alivenessHealthIndicator: HealthIndicator,
+    livenessHealthIndicator: HealthIndicator,
     readinessHealthIndicator: HealthIndicator
 ) =
     KafkaStreams.StateListener { newState, _ ->
         when (newState) {
-            KafkaStreams.State.CREATED -> {
-                //alivenessHealthIndicator.setHealthy()
-            }
-
             KafkaStreams.State.RUNNING -> {
                 readinessHealthIndicator.setHealthy()
             }
@@ -33,6 +29,7 @@ fun buildStateListener(
 
             KafkaStreams.State.ERROR -> {
                 readinessHealthIndicator.setUnhealthy()
+                livenessHealthIndicator.setUnhealthy()
             }
 
             else -> {
@@ -40,7 +37,7 @@ fun buildStateListener(
             }
         }
 
-        logger.info("Kafka Streams aliveness er ${alivenessHealthIndicator.getStatus().value}")
+        logger.info("Kafka Streams aliveness er ${livenessHealthIndicator.getStatus().value}")
         logger.info("Kafka Streams readyness er ${readinessHealthIndicator.getStatus().value}")
     }
 
