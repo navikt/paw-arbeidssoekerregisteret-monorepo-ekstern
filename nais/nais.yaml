@@ -35,6 +35,7 @@ spec:
     streams: true
   resources:
     limits:
-      memory: 3048Mi
+      memory: 1000Mi
     requests:
-      memory: 2048Mi
+      memory: 500Mi
+      cpu: 50m
