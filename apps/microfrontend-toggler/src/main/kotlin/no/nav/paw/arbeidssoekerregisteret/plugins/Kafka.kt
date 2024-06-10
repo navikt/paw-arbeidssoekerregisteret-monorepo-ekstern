@@ -4,7 +4,7 @@ package no.nav.paw.arbeidssoekerregisteret.plugins
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.HealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.buildStateListener
 import no.nav.paw.arbeidssoekerregisteret.config.buildUncaughtExceptionHandler
@@ -22,7 +22,7 @@ context(ConfigContext, LoggingContext)
 fun Application.configureKafka(
     livenessHealthIndicator: HealthIndicator,
     readinessHealthIndicator: HealthIndicator,
-    meterRegistry: PrometheusMeterRegistry,
+    meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ): KafkaStreams? {
     logger.info("Kafka Streams er enabled for miljø ${appConfig.featureToggles.enableKafkaStreams}")
@@ -49,4 +49,3 @@ fun Application.configureKafka(
         return null
     }
 }
-

@@ -3,12 +3,18 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+import no.nav.common.types.identer.AktorId
+import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
+import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.state.KeyValueStore
+import java.time.Instant
 import java.util.*
 
 const val TEST_APPLICATION_CONFIG_FILE_NAME = "test_application_configuration.toml"
@@ -50,3 +56,38 @@ fun <K, V> KeyValueStore<K, V>.size(): Int {
     }
     return count
 }
+
+fun buildPeriode(
+    id: UUID = UUID.randomUUID(),
+    identitetsnummer: String,
+    startet: Instant = Instant.now(),
+    avsluttet: Instant? = null
+) = Periode(
+    id,
+    identitetsnummer,
+    Metadata(
+        startet,
+        Bruker(no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType.SLUTTBRUKER, identitetsnummer),
+        "junit",
+        "tester"
+    ),
+    avsluttet?.let {
+        Metadata(
+            avsluttet,
+            Bruker(no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType.SLUTTBRUKER, identitetsnummer),
+            "junit",
+            "tester"
+        )
+    }
+)
+
+fun buildSiste14aVedtak(
+    aktorId: String,
+    fattetDato: Instant
+) = Siste14aVedtak(
+    AktorId(aktorId),
+    "STANDARD_INNSATS",
+    "SKAFFE_ARBEID",
+    fattetDato,
+    false
+)

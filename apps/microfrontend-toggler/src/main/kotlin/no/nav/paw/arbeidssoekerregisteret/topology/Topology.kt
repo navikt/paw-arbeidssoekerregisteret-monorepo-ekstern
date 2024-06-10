@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.buildPeriodeInfoSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
@@ -12,7 +12,7 @@ import org.apache.kafka.streams.state.Stores
 
 context(ConfigContext, LoggingContext)
 fun buildTopology(
-    meterRegistry: PrometheusMeterRegistry,
+    meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ): Topology = StreamsBuilder().apply {
     addPeriodeStateStore()

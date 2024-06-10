@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.buildSiste14aVedtakInfoSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildSiste14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
@@ -27,7 +27,7 @@ import org.apache.kafka.streams.state.KeyValueStore
 
 context(ConfigContext, LoggingContext)
 fun StreamsBuilder.buildSiste14aVedtakTopology(
-    meterRegistry: PrometheusMeterRegistry,
+    meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ) {
     val kafkaStreamsConfig = appConfig.kafkaStreams

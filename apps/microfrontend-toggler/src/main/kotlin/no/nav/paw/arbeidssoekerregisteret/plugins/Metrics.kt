@@ -11,7 +11,10 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import java.time.Duration
 
-fun Application.configureMetrics(meterRegistry: MeterRegistry, kafkaStreamsMetrics: KafkaStreamsMetrics?) {
+fun Application.configureMetrics(
+    meterRegistry: MeterRegistry,
+    kafkaStreamsMetrics: KafkaStreamsMetrics?
+) {
     val binders = listOf(
         JvmMemoryMetrics(),
         JvmGcMetrics(),

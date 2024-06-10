@@ -40,7 +40,7 @@ url = "http://localhost:8090/pdl"
 scope = "api://dev-fss.pdl.pdl-api/.default"
 
 [regler]
-periodeTogglePunctuatorSchedule = "PT1H"
+periodeTogglePunctuatorSchedule = "PT12H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
 
 [microfrontends]
