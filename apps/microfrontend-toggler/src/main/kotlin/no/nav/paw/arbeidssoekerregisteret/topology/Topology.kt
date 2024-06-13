@@ -16,11 +16,17 @@ fun buildTopology(
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ): Topology = StreamsBuilder().apply {
     addPeriodeStateStore()
-    logger.info("Kafka Streams Periode Topology er enabled for miljø ${appConfig.featureToggles.enablePeriodeTopology}")
+    logger.info(
+        "Kafka Streams Periode Topology er enabled for miljø {}",
+        appConfig.featureToggles.enablePeriodeTopology
+    )
     if (appConfig.featureToggles.isPeriodeTopologyEnabled(appConfig.naisEnv)) {
         buildPeriodeTopology(meterRegistry, hentKafkaKeys)
     }
-    logger.info("Kafka Streams 14s Vedtak Topology er enabled for miljø ${appConfig.featureToggles.enable14aVedtakTopology}")
+    logger.info(
+        "Kafka Streams 14s Vedtak Topology er enabled for miljø {}",
+        appConfig.featureToggles.enable14aVedtakTopology
+    )
     if (appConfig.featureToggles.is14aVedtakTopologyEnabled(appConfig.naisEnv)) {
         buildSiste14aVedtakTopology(meterRegistry, hentKafkaKeys)
     }

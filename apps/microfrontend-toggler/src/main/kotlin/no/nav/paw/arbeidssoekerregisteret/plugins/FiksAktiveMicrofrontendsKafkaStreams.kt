@@ -23,19 +23,21 @@ fun Application.configureFiksAktiveMicrofrontendsKafkaStreams(
     meterRegistry: PrometheusMeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ) {
-    logger.info("Kafka Streams for å fikse aktive microfrontends er enabled for miljø ${appConfig.featureToggles.enableKafkaStreams}")
+    logger.info(
+        "Kafka Streams for å fikse aktive microfrontends er enabled for miljø {}",
+        appConfig.featureToggles.enableFiksAktiveMicrofrontendsKafkaStreams
+    )
     if (appConfig.featureToggles.isFiksAktiveMicrofrontendsKafkaStreamsEnabled(appConfig.naisEnv)) {
         val streamsFactory =
             KafkaStreamsFactory(KAFKA_STREAMS_SUFFIX, appConfig.kafka).withDefaultKeySerde(Serdes.Long()::class)
                 .withDefaultValueSerde(SpecificAvroSerde::class)
 
-        val kafkaStreams = KafkaStreams(
-            StreamsBuilder().apply {
-                addFiksAktiveMicrofrontendsStateStore()
-                addFiksAktiveMicrofrontendsStream(meterRegistry, hentKafkaKeys)
-            }.build(),
-            StreamsConfig(streamsFactory.properties)
-        )
+        val topology = StreamsBuilder().apply {
+            addFiksAktiveMicrofrontendsStateStore()
+            addFiksAktiveMicrofrontendsStream(meterRegistry, hentKafkaKeys)
+        }.build()
+
+        val kafkaStreams = KafkaStreams(topology, StreamsConfig(streamsFactory.properties))
         kafkaStreams.setUncaughtExceptionHandler(buildUncaughtExceptionHandler())
         kafkaStreams.start()
     }

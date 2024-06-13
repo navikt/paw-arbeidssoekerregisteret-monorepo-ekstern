@@ -25,7 +25,7 @@ fun Application.configureKafka(
     meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ): KafkaStreams? {
-    logger.info("Kafka Streams er enabled for miljø ${appConfig.featureToggles.enableKafkaStreams}")
+    logger.info("Kafka Streams er enabled for miljø {}", appConfig.featureToggles.enableKafkaStreams)
     if (appConfig.featureToggles.isKafkaStreamsEnabled(appConfig.naisEnv)) {
         val streamsFactory = KafkaStreamsFactory(appConfig.kafkaStreams.applicationIdSuffix, appConfig.kafka)
             .withDefaultKeySerde(Serdes.Long()::class)

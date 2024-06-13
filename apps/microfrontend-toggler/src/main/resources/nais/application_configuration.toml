@@ -60,4 +60,4 @@ aiaBehovsvurdering = "aia-behovsvurdering"
 enableKafkaStreams = ["dev-gcp", "prod-gcp"]
 enablePeriodeTopology = ["dev-gcp", "prod-gcp"]
 enable14aVedtakTopology = ["dev-gcp", "prod-gcp"]
-enableFiksAktiveMicrofrontendsKafkaStreams = ["dev-gcp"]
+enableFiksAktiveMicrofrontendsKafkaStreams = ["dev-gcp", "prod-gcp"]
