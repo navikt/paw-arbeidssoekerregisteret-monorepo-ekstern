@@ -36,7 +36,7 @@ fun StreamsBuilder.buildSiste14aVedtakTopology(
     this.stream(
         kafkaStreamsConfig.siste14aVedtakTopic, Consumed.with(Serdes.String(), buildSiste14aVedtakSerde())
     ).peek { key, _ ->
-        logger.debug("Mottok event på ${kafkaStreamsConfig.siste14aVedtakTopic} med key $key")
+        logger.debug("Mottok event på {} med key {}", kafkaStreamsConfig.siste14aVedtakTopic, key)
     }.mapKeyAndValue("mapKeyTilKafkaKeys") { _, siste14aVedtak ->
         hentKafkaKeys(siste14aVedtak.aktorId.get())
             ?.let { it.key to siste14aVedtak.tilSiste14aVedtakInfo(it.id) }

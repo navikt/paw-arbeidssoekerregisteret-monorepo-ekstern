@@ -20,6 +20,7 @@ import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureFiksAktiveMicrofrontendsKafkaStreams
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
@@ -71,6 +72,7 @@ fun main() {
                 configureMetrics(meterRegistry, kafkaStreamsMetrics)
                 configureAuthentication()
                 configureRouting(livenessHealthIndicator, readinessHealthIndicator, meterRegistry, toggleService)
+                configureFiksAktiveMicrofrontendsKafkaStreams(meterRegistry, kafkaKeysClient::getIdAndKeyBlocking)
             }
         }
     }

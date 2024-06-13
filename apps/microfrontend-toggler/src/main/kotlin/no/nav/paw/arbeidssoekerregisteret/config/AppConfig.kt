@@ -7,6 +7,7 @@ import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
 import java.time.Duration
+import java.time.LocalDateTime
 
 const val APPLICATION_LOGGER_NAME = "no.nav.paw.application"
 const val APPLICATION_CONFIG_FILE_NAME = "application_configuration.toml"
@@ -65,7 +66,9 @@ data class KafkaStreamsConfig(
 
 data class ReglerConfig(
     val periodeTogglePunctuatorSchedule: Duration,
-    val utsattDeaktiveringAvAiaMinSide: Duration
+    val utsattDeaktiveringAvAiaMinSide: Duration,
+    val fiksAktiveMicrofrontendsToggleSchedule: Duration,
+    val fiksAktiveMicrofrontendsForPerioderEldreEnn: LocalDateTime
 )
 
 data class MicrofrontendsConfig(
@@ -76,9 +79,12 @@ data class MicrofrontendsConfig(
 data class FeatureTogglesConfig(
     val enableKafkaStreams: List<String>,
     val enablePeriodeTopology: List<String>,
-    val enable14aVedtakTopology: List<String>
+    val enable14aVedtakTopology: List<String>,
+    val enableFiksAktiveMicrofrontendsKafkaStreams: List<String>
 ) {
     fun isKafkaStreamsEnabled(env: NaisEnv) = enableKafkaStreams.contains(env.clusterName)
     fun isPeriodeTopologyEnabled(env: NaisEnv) = enablePeriodeTopology.contains(env.clusterName)
     fun is14aVedtakTopologyEnabled(env: NaisEnv) = enable14aVedtakTopology.contains(env.clusterName)
+    fun isFiksAktiveMicrofrontendsKafkaStreamsEnabled(env: NaisEnv) =
+        enableFiksAktiveMicrofrontendsKafkaStreams.contains(env.clusterName)
 }

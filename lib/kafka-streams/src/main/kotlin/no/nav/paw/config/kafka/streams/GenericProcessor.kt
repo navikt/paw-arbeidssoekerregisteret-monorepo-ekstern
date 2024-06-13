@@ -10,6 +10,19 @@ import org.apache.kafka.streams.processor.api.Record
 import java.time.Duration
 import java.time.Instant
 
+fun <K, V> KStream<K, V>.filterWithContext(
+    name: String,
+    vararg stateStoreNames: String,
+    function: ProcessorContext<K, V>.(V) -> Boolean
+): KStream<K, V> {
+    val processor = {
+        GenericProcessor<K, V, K, V> { record ->
+            if (function(record.value())) forward(record)
+        }
+    }
+    return process(processor, Named.`as`(name), *stateStoreNames)
+}
+
 fun <K, V_IN, V_OUT> KStream<K, V_IN>.mapNonNull(
     name: String,
     vararg stateStoreNames: String,

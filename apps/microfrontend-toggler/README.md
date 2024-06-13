@@ -189,13 +189,6 @@ topic?
     rapportering.grace_periode_utloept event mottatt
 ```
 
-```mermaid
-block-beta
-    columns 6
-    Før:1 Arbeidssøker:4 Etter:1
-    space:1 Periode:3 D:1 space:1
-```
-
 ### Tidslinje
 * 20+1 dager siden siste melding så deaktiveres man som arbeidsøker -> ISERV
 * 28 dager etter ISERV kan man reaktiveres
