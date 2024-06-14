@@ -50,7 +50,7 @@ scope = "${PDL_SCOPE}"
 periodeTogglePunctuatorSchedule = "PT12H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
 fiksAktiveMicrofrontendsToggleSchedule = "PT1H"
-fiksAktiveMicrofrontendsForPerioderEldreEnn = "2024-06-14T11:00:00"
+fiksAktiveMicrofrontendsForPerioderEldreEnn = "2024-06-14T12:00:00"
 
 [microfrontends]
 aiaMinSide = "aia-min-side"
@@ -61,4 +61,4 @@ enableKafkaStreams = ["dev-gcp"] # TODO Enable prod
 enablePeriodeTopology = ["dev-gcp", "prod-gcp"]
 enable14aVedtakTopology = ["dev-gcp", "prod-gcp"]
 enableFiksAktiveMicrofrontendsKafkaStreams = ["prod-gcp"]
-enableFiksAktiveMicrofrontendsPunctuator = [] # TODO Enable prod
+enableFiksAktiveMicrofrontendsPunctuator = ["prod-gcp"]
