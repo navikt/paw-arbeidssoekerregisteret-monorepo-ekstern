@@ -38,49 +38,62 @@ context(ConfigContext, LoggingContext)
 private fun buildPunctuation(meterRegistry: MeterRegistry) = Punctuation<Long, Toggle>(
     appConfig.regler.fiksAktiveMicrofrontendsToggleSchedule, PunctuationType.WALL_CLOCK_TIME
 ) { _, context ->
-    val deaktiveringsfrist =
-        appConfig.regler.fiksAktiveMicrofrontendsForPerioderEldreEnn.atZone(ZoneId.systemDefault()).toInstant()
-    val aiaMinSideAvsluttetfrist = deaktiveringsfrist.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide)
-    val microfrontendConfig = appConfig.microfrontends
+    logger.info(
+        "Punctuator for å fikse aktive microfrontends er enabled for miljø {}",
+        appConfig.featureToggles.enableFiksAktiveMicrofrontendsPunctuator
+    )
+    if (appConfig.featureToggles.isFiksAktiveMicrofrontendsPunctuatorEnabled(appConfig.naisEnv)) {
+        val deaktiveringsfrist =
+            appConfig.regler.fiksAktiveMicrofrontendsForPerioderEldreEnn.atZone(ZoneId.systemDefault()).toInstant()
+        val aiaMinSideAvsluttetfrist = deaktiveringsfrist.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide)
+        val microfrontendConfig = appConfig.microfrontends
 
-    val stateStore: KeyValueStore<Long, PeriodeInfo> =
-        context.getStateStore(FIKS_AKTIVE_MICROFRONTENDS_TOGGLE_STATE_STORE)
+        val stateStore: KeyValueStore<Long, PeriodeInfo> =
+            context.getStateStore(FIKS_AKTIVE_MICROFRONTENDS_TOGGLE_STATE_STORE)
 
-    for (keyValue in stateStore.all()) {
-        keyValue.value.let {
-            val (id, _, arbeidssoekerId, _, avsluttet) = it
+        for (keyValue in stateStore.all()) {
+            keyValue.value.let {
+                val (id, _, arbeidssoekerId, _, avsluttet) = it
 
-            if (avsluttet != null) {
-                if (avsluttet.isBefore(deaktiveringsfrist)) {
-                    if (avsluttet.isBefore(aiaMinSideAvsluttetfrist)) {
-                        val disableAiaMinSideToggle = it.buildDisableToggle(microfrontendConfig.aiaMinSide)
-                        meterRegistry.tellAntallToggles(disableAiaMinSideToggle)
-                        context.forward(disableAiaMinSideToggle.buildRecord(arbeidssoekerId))
+                if (avsluttet != null) {
+                    if (avsluttet.isBefore(deaktiveringsfrist)) {
+                        if (avsluttet.isBefore(aiaMinSideAvsluttetfrist)) {
+                            val disableAiaMinSideToggle = it.buildDisableToggle(microfrontendConfig.aiaMinSide)
+                            meterRegistry.tellAntallToggles(disableAiaMinSideToggle)
+                            context.forward(disableAiaMinSideToggle.buildRecord(arbeidssoekerId))
+                            logger.info(
+                                "Arbeidsøkerperiode {} ble avluttet mer enn 21 dager før frist {}. Iverksetter deaktivering av {}.",
+                                id,
+                                deaktiveringsfrist,
+                                microfrontendConfig.aiaMinSide
+                            )
+                        } else {
+                            logger.info(
+                                "Arbeidsøkerperiode {} ble ikke avluttet mer enn 21 dager før frist {}. Utsetter deaktivering av {}.",
+                                id,
+                                deaktiveringsfrist,
+                                microfrontendConfig.aiaMinSide
+                            )
+                        }
+
+                        val disableAiaBehovsvurderingToggle =
+                            it.buildDisableToggle(microfrontendConfig.aiaBehovsvurdering)
+                        meterRegistry.tellAntallToggles(disableAiaBehovsvurderingToggle)
+                        context.forward(disableAiaBehovsvurderingToggle.buildRecord(arbeidssoekerId))
                         logger.info(
-                            "Arbeidsøkerperiode {} ble avluttet mer enn 21 dager før frist {}. Iverksetter deaktivering av {}.",
+                            "Arbeidsøkerperiode {} ble avluttet før frist {}. Iverksetter deaktivering av {}.",
                             id,
                             deaktiveringsfrist,
-                            microfrontendConfig.aiaMinSide
+                            microfrontendConfig.aiaBehovsvurdering
                         )
+
                     } else {
                         logger.info(
-                            "Arbeidsøkerperiode {} ble ikke avluttet mer enn 21 dager før frist {}. Utsetter deaktivering av {}.",
+                            "Arbeidsøkerperiode {} ble ikke avluttet før frist {}. Ignorerer.",
                             id,
-                            deaktiveringsfrist,
-                            microfrontendConfig.aiaMinSide
+                            deaktiveringsfrist
                         )
                     }
-
-                    val disableAiaBehovsvurderingToggle = it.buildDisableToggle(microfrontendConfig.aiaBehovsvurdering)
-                    meterRegistry.tellAntallToggles(disableAiaBehovsvurderingToggle)
-                    context.forward(disableAiaBehovsvurderingToggle.buildRecord(arbeidssoekerId))
-                    logger.info(
-                        "Arbeidsøkerperiode {} ble avluttet før frist {}. Iverksetter deaktivering av {}.",
-                        id,
-                        deaktiveringsfrist,
-                        microfrontendConfig.aiaBehovsvurdering
-                    )
-
                 } else {
                     logger.info(
                         "Arbeidsøkerperiode {} ble ikke avluttet før frist {}. Ignorerer.",
@@ -88,17 +101,13 @@ private fun buildPunctuation(meterRegistry: MeterRegistry) = Punctuation<Long, T
                         deaktiveringsfrist
                     )
                 }
-            } else {
-                logger.info(
-                    "Arbeidsøkerperiode {} ble ikke avluttet før frist {}. Ignorerer.",
-                    id,
-                    deaktiveringsfrist
-                )
-            }
 
-            logger.info("Sletter arbeidsøkerperiode {} fra state store.", id)
-            stateStore.delete(arbeidssoekerId)
+                logger.info("Sletter arbeidsøkerperiode {} fra state store.", id)
+                stateStore.delete(arbeidssoekerId)
+            }
         }
+    } else {
+        logger.info("Punctuator for å fikse aktive microfrontends er deaktivert og vil ikke kjøre")
     }
 }
 

@@ -80,11 +80,15 @@ data class FeatureTogglesConfig(
     val enableKafkaStreams: List<String>,
     val enablePeriodeTopology: List<String>,
     val enable14aVedtakTopology: List<String>,
-    val enableFiksAktiveMicrofrontendsKafkaStreams: List<String>
+    val enableFiksAktiveMicrofrontendsKafkaStreams: List<String>,
+    val enableFiksAktiveMicrofrontendsPunctuator: List<String>
 ) {
     fun isKafkaStreamsEnabled(env: NaisEnv) = enableKafkaStreams.contains(env.clusterName)
     fun isPeriodeTopologyEnabled(env: NaisEnv) = enablePeriodeTopology.contains(env.clusterName)
     fun is14aVedtakTopologyEnabled(env: NaisEnv) = enable14aVedtakTopology.contains(env.clusterName)
     fun isFiksAktiveMicrofrontendsKafkaStreamsEnabled(env: NaisEnv) =
+        enableFiksAktiveMicrofrontendsKafkaStreams.contains(env.clusterName)
+
+    fun isFiksAktiveMicrofrontendsPunctuatorEnabled(env: NaisEnv) =
         enableFiksAktiveMicrofrontendsKafkaStreams.contains(env.clusterName)
 }

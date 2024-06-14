@@ -177,11 +177,21 @@ class FiksAktiveMicrofrontendsTopologyTest : FreeSpec({
                 internalStateStore.size() shouldBe 4
             }
 
-            "Skal deaktivere microfrontends for eldre perioder (p1 og p2)" {
+            "Skal ikke gjøre noe etter 10t fordi punctuator ikke har kjørt ennå" {
                 microfrontendTopic.isEmpty shouldBe true
                 internalStateStore.size() shouldBe 4
 
-                testDriver.advanceWallClockTime(Duration.ofHours(13))
+                testDriver.advanceWallClockTime(Duration.ofHours(10))
+
+                microfrontendTopic.isEmpty shouldBe true
+                internalStateStore.size() shouldBe 4
+            }
+
+            "Skal deaktivere microfrontends for eldre perioder (p1 og p2) etter 13t når punctuator har kjørt" {
+                microfrontendTopic.isEmpty shouldBe true
+                internalStateStore.size() shouldBe 4
+
+                testDriver.advanceWallClockTime(Duration.ofHours(3))
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
