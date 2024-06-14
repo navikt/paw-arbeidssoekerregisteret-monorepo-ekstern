@@ -40,7 +40,7 @@ fun main() {
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
     val livenessHealthIndicator = StandardHealthIndicator(HealthStatus.HEALTHY)
     val readinessHealthIndicator = StandardHealthIndicator(HealthStatus.UNKNOWN)
-    val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT) // TODO Instrumentere med metering og tracing
+    val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val azureM2MTokenClient = azureAdM2MTokenClient(appConfig.naisEnv, appConfig.azureM2M)
     val kafkaKeysClient = buildKafkaKeysClient(appConfig.kafkaKeysClient, azureM2MTokenClient)
     val toggleKafkaProducer = buildToggleKafkaProducer(appConfig.kafka, appConfig.kafkaProducer)

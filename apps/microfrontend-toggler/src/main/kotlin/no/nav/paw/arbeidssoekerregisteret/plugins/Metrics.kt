@@ -9,8 +9,11 @@ import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
+import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import java.time.Duration
+import java.util.stream.Collectors
 
+context(LoggingContext)
 fun Application.configureMetrics(
     meterRegistry: MeterRegistry,
     kafkaStreamsMetrics: KafkaStreamsMetrics?
@@ -21,6 +24,10 @@ fun Application.configureMetrics(
         ProcessorMetrics()
     )
     kafkaStreamsMetrics?.let { binders + it }
+    logger.info(
+        "Installerte metrics {}",
+        binders.stream().map { it.javaClass.simpleName }.collect(Collectors.toList())
+    )
     install(MicrometerMetrics) {
         registry = meterRegistry
         meterBinders = binders

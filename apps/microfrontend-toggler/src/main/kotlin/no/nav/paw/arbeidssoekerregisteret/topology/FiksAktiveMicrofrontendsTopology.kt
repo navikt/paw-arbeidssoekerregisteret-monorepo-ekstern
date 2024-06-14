@@ -3,6 +3,8 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.buildPeriodeInfoSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
+import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredePerioderForFiksAktiveMicrofrontends
+import no.nav.paw.arbeidssoekerregisteret.config.tellAntallProsessertePerioderForFiksAktiveMicrofrontends
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallToggles
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
@@ -25,6 +27,7 @@ import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.state.Stores
 import java.time.Instant
 import java.time.ZoneId
+import java.util.concurrent.atomic.AtomicLong
 
 const val FIKS_AKTIVE_MICROFRONTENDS_TOGGLE_STATE_STORE = "fiksAktiveMicrofrontendsToggleStore"
 private const val PERIODE_FILTER = "fiksAktiveMicrofrontendsTogglePeriodeFilter"
@@ -47,11 +50,14 @@ private fun buildPunctuation(meterRegistry: MeterRegistry) = Punctuation<Long, T
             appConfig.regler.fiksAktiveMicrofrontendsForPerioderEldreEnn.atZone(ZoneId.systemDefault()).toInstant()
         val aiaMinSideAvsluttetfrist = deaktiveringsfrist.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide)
         val microfrontendConfig = appConfig.microfrontends
+        val antallLagredePerioderReference = AtomicLong(0)
 
         val stateStore: KeyValueStore<Long, PeriodeInfo> =
             context.getStateStore(FIKS_AKTIVE_MICROFRONTENDS_TOGGLE_STATE_STORE)
 
         for (keyValue in stateStore.all()) {
+            antallLagredePerioderReference.incrementAndGet()
+
             keyValue.value.let {
                 val (id, _, arbeidssoekerId, _, avsluttet) = it
 
@@ -106,6 +112,8 @@ private fun buildPunctuation(meterRegistry: MeterRegistry) = Punctuation<Long, T
                 stateStore.delete(arbeidssoekerId)
             }
         }
+
+        meterRegistry.tellAntallLagredePerioderForFiksAktiveMicrofrontends(antallLagredePerioderReference)
     } else {
         logger.info("Punctuator for å fikse aktive microfrontends er deaktivert og vil ikke kjøre")
     }
@@ -134,6 +142,7 @@ fun StreamsBuilder.addFiksAktiveMicrofrontendsStream(
     }.filterWithContext(PERIODE_FILTER) { periode ->
         val streamTime = Instant.ofEpochMilli(this.currentStreamTimeMs())
         streamTime.isBefore(deaktiveringsfrist).also { before ->
+            meterRegistry.tellAntallProsessertePerioderForFiksAktiveMicrofrontends(before)
             if (!before) logger.info(
                 "Filtrerer ut {} arbeidssøkerperiode {} fordi stream time {} > {}",
                 periode.getStatus(),

@@ -27,3 +27,22 @@ fun MeterRegistry.tellAntallLagredePerioder(antallLagredePerioderReference: Atom
         antallLagredePerioderReference.get().toDouble()
     }
 }
+
+fun MeterRegistry.tellAntallProsessertePerioderForFiksAktiveMicrofrontends(relevant: Boolean) {
+    counter(
+        "${METRIC_PREFIX}_antall_prosseserte_perioder_for_fiks_aktive_microfrontends",
+        Tags.of(
+            Tag.of("relevant", relevant.toString())
+        )
+    ).increment()
+}
+
+fun MeterRegistry.tellAntallLagredePerioderForFiksAktiveMicrofrontends(antallLagredePerioderReference: AtomicLong) {
+    gauge(
+        "${METRIC_PREFIX}_antall_lagrede_perioder_for_fiks_aktive_microfrontends",
+        Tags.empty(),
+        antallLagredePerioderReference
+    ) {
+        antallLagredePerioderReference.get().toDouble()
+    }
+}
