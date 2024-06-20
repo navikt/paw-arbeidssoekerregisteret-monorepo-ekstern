@@ -42,10 +42,6 @@ siste14aVedtakPartitionCount = 6 # Må være samme antall partisjoner som period
 url = "${KAFKA_KEY_URL}"
 scope = "${KAFKA_KEY_SCOPE}"
 
-[pdlClient]
-url = "${PDL_URL}"
-scope = "${PDL_SCOPE}"
-
 [regler]
 periodeTogglePunctuatorSchedule = "PT12H"
 utsattDeaktiveringAvAiaMinSide = "P21D"

@@ -1,8 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
 import io.micrometer.core.instrument.MeterRegistry
-import io.opentelemetry.api.common.AttributeKey
-import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
@@ -35,17 +33,14 @@ import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 
 context(ConfigContext, LoggingContext)
+@WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
     periodeInfo: PeriodeInfo,
     microfrontendId: String
 ): Toggle {
-    Span.current().addEvent(
-        "microfrontend_toggle",
-        Attributes.builder()
-            .put(AttributeKey.stringKey("action"), "enable")
-            .put(AttributeKey.stringKey("microfrontendId"), microfrontendId)
-            .build()
-    )
+    val currentSpan = Span.current()
+    currentSpan.setAttribute("action", "enable")
+    currentSpan.setAttribute("microfrontend_id", microfrontendId)
     logger.info(
         "Arbeidsøkerperiode {} er aktiv. Iverksetter aktivering av {}.",
         periodeInfo.id,
@@ -57,17 +52,14 @@ private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
 }
 
 context(ConfigContext, LoggingContext)
+@WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     periodeInfo: PeriodeInfo,
     microfrontendId: String
 ): Toggle {
-    Span.current().addEvent(
-        "microfrontend_toggle",
-        Attributes.builder()
-            .put(AttributeKey.stringKey("action"), "disable")
-            .put(AttributeKey.stringKey("microfrontendId"), microfrontendId)
-            .build()
-    )
+    val currentSpan = Span.current()
+    currentSpan.setAttribute("action", "disable")
+    currentSpan.setAttribute("microfrontend_id", microfrontendId)
     logger.info(
         "Arbeidsøkerperiode {} er avluttet og utsettelsestid er utløpt. Iverksetter deaktivering av {}.",
         periodeInfo.id,

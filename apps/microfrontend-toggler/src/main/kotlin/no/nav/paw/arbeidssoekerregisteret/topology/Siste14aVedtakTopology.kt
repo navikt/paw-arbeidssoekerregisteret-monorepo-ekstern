@@ -1,9 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
 import io.micrometer.core.instrument.MeterRegistry
-import io.opentelemetry.api.common.AttributeKey
-import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.buildSiste14aVedtakInfoSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildSiste14aVedtakSerde
@@ -32,17 +31,14 @@ import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
 
 context(ConfigContext, LoggingContext)
+@WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     periodeInfo: PeriodeInfo,
     microfrontendId: String
 ): Toggle {
-    Span.current().addEvent(
-        "microfrontend_toggle",
-        Attributes.builder()
-            .put(AttributeKey.stringKey("action"), "disable")
-            .put(AttributeKey.stringKey("microfrontendId"), microfrontendId)
-            .build()
-    )
+    val currentSpan = Span.current()
+    currentSpan.setAttribute("action", "disable")
+    currentSpan.setAttribute("microfrontend_id", microfrontendId)
     logger.info(
         "Det ble gjort et 14a vedtak for aktiv arbeidsøkerperiode {}. Iverksetter deaktivering av {}.",
         periodeInfo.id,

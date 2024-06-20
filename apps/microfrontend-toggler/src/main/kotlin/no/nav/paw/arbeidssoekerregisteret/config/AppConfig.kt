@@ -21,7 +21,6 @@ data class AppConfig(
     val kafkaProducer: KafkaProducerConfig,
     val kafkaStreams: KafkaStreamsConfig,
     val kafkaKeysClient: KafkaKeyConfig,
-    val pdlClient: ServiceClientConfig,
     val regler: ReglerConfig,
     val featureToggles: FeatureTogglesConfig,
     val microfrontends: MicrofrontendsConfig,
@@ -43,11 +42,6 @@ typealias AuthProviders = List<AuthProvider>
 data class RequiredClaims(
     val map: List<String>,
     val combineWithOr: Boolean = false
-)
-
-data class ServiceClientConfig(
-    val url: String,
-    val scope: String
 )
 
 data class KafkaProducerConfig(

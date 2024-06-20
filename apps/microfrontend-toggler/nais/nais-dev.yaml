@@ -25,10 +25,6 @@ spec:
       value: "http://paw-kafka-key-generator/api/v2/hentEllerOpprett"
     - name: KAFKA_KEY_SCOPE
       value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
-    - name: PDL_URL
-      value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
-    - name: PDL_SCOPE
-      value: "api://dev-fss.pdl.pdl-api/.default"
   resources:
     limits:
       memory: 1024Mi
@@ -75,5 +71,3 @@ spec:
       rules:
         - application: paw-kafka-key-generator
           namespace: paw
-      external:
-        - host: pdl-api.dev-fss-pub.nais.io
