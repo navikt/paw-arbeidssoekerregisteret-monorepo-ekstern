@@ -27,6 +27,17 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 
+/**
+ *         14a1       14a2       14a3
+ * <--------|----------|----------|---->
+ *                |--- p1 -->|
+ *                |--- p2 ------------->
+ *
+ * 14a1: Skal ikke deaktivere aia-behovsvurdering når det ikke finnes periode ved vedtakstidspunkt
+ * 14a2: Skal ikke deaktivere aia-behovsvurdering når det kun finnes en avsluttet periode ved vedtakstidspunkt
+ * 14a3: Skal deaktivere aia-behovsvurdering når det finnes en aktiv periode ved vedtakstidspunkt
+ *
+ */
 class Siste14aVedtakTopologyTest : FreeSpec({
 
     with(TestContext()) {

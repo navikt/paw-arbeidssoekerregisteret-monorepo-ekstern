@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: paw-microfrontend-toggler
+  name: paw-microfrontend-toggler-beta
   namespace: paw
   labels:
     team: paw
@@ -20,21 +20,21 @@ spec:
     - name: KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC
       value: "pto.siste-14a-vedtak-v1"
     - name: KAFKA_TMS_MICROFRONTEND_TOPIC
-      value: "min-side.aapen-microfrontend-v1"
+      value: "paw.dummy-microfrontend-toggle-v1"
     - name: KAFKA_KEY_URL
       value: "http://paw-kafka-key-generator/api/v2/hentEllerOpprett"
     - name: KAFKA_KEY_SCOPE
-      value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
+      value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
     - name: PDL_URL
-      value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
+      value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
     - name: PDL_SCOPE
-      value: "api://prod-fss.pdl.pdl-api/.default"
+      value: "api://dev-fss.pdl.pdl-api/.default"
   resources:
     limits:
-      memory: 3072Mi
+      memory: 1024Mi
     requests:
-      cpu: 250m
-      memory: 2048Mi
+      cpu: 200m
+      memory: 256Mi
   replicas:
     min: 1
     max: 1
@@ -59,15 +59,18 @@ spec:
     application:
       enabled: true
   kafka:
-    pool: nav-prod
+    pool: nav-dev
     streams: true
   accessPolicy:
     inbound:
       rules:
-        - application: aia-backend
+        - application: azure-token-generator
+          namespace: aura
+          cluster: dev-gcp
+        - application: tokenx-token-generator
+          namespace: aura
+          cluster: dev-gcp
     outbound:
       rules:
         - application: paw-kafka-key-generator
           namespace: paw
-      external:
-        - host: pdl-api.prod-fss-pub.nais.io

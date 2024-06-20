@@ -94,6 +94,7 @@ dependencyResolutionManagement {
         val micrometerVersion = "1.12.3"
         val otelTargetSdkVersion = "1.36.0"
         val otelInstrumentationVersion = "2.1.0"
+        val otelJavaagentVersion = "2.5.0"
         val coroutinesVersion = "1.8.0"
         val rapporteringsSchemaVersion = "24.05.15.2-1"
 
@@ -151,6 +152,7 @@ dependencyResolutionManagement {
             library("api", "io.opentelemetry", "opentelemetry-api").version(otelTargetSdkVersion)
             library("ktor","io.opentelemetry.instrumentation", "opentelemetry-ktor-2.0").version(otelInstrumentationVersion)
             library("annotations", "io.opentelemetry.instrumentation", "opentelemetry-instrumentation-annotations").version(otelInstrumentationVersion)
+            library("javaagent", "io.opentelemetry.javaagent", "opentelemetry-javaagent").version(otelJavaagentVersion)
         }
         create("micrometer") {
             library("core", "io.micrometer", "micrometer-core").version(micrometerVersion)

@@ -16,15 +16,8 @@ clientId = "${AZURE_APP_CLIENT_ID}"
 brokers = "${KAFKA_BROKERS}"
 applicationIdPrefix = "${KAFKA_STREAMS_APPLICATION_ID}"
 
-[kafka.authentication]
-keystorePath = "${KAFKA_KEYSTORE_PATH}"
-truststorePath = "${KAFKA_TRUSTSTORE_PATH}"
-credstorePassword = "${KAFKA_CREDSTORE_PASSWORD}"
-
 [kafka.schemaRegistry]
 url = "${KAFKA_SCHEMA_REGISTRY}"
-username = "${KAFKA_SCHEMA_REGISTRY_USER}"
-password = "${KAFKA_SCHEMA_REGISTRY_PASSWORD}"
 
 [kafkaProducer]
 applicationIdSuffix = "${KAFKA_PRODUCER_APPLICATION_ID_SUFFIX}"
@@ -47,18 +40,18 @@ url = "${PDL_URL}"
 scope = "${PDL_SCOPE}"
 
 [regler]
-periodeTogglePunctuatorSchedule = "PT12H"
-utsattDeaktiveringAvAiaMinSide = "P21D"
-fiksAktiveMicrofrontendsToggleSchedule = "PT1H"
-fiksAktiveMicrofrontendsForPerioderEldreEnn = "2024-06-14T12:00:00"
+periodeTogglePunctuatorSchedule = "PT60S"
+utsattDeaktiveringAvAiaMinSide = "PT10M"
+fiksAktiveMicrofrontendsToggleSchedule = "PT60S"
+fiksAktiveMicrofrontendsForPerioderEldreEnn = "2024-06-12T12:00:00"
 
 [microfrontends]
 aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
 
 [featureToggles]
-enableKafkaStreams = ["dev-gcp", "prod-gcp"]
-enablePeriodeTopology = ["dev-gcp", "prod-gcp"]
-enable14aVedtakTopology = ["dev-gcp", "prod-gcp"]
+enableKafkaStreams = ["docker"]
+enablePeriodeTopology = ["docker"]
+enable14aVedtakTopology = ["docker"]
 enableFiksAktiveMicrofrontendsKafkaStreams = []
 enableFiksAktiveMicrofrontendsPunctuator = []

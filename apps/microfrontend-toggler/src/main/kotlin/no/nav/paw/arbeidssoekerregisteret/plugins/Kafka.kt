@@ -5,6 +5,7 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import no.nav.paw.arbeidssoekerregisteret.config.HealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.config.buildStateListener
 import no.nav.paw.arbeidssoekerregisteret.config.buildUncaughtExceptionHandler
@@ -24,7 +25,7 @@ fun Application.configureKafka(
     readinessHealthIndicator: HealthIndicator,
     meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
-): KafkaStreams? {
+): KafkaStreamsMetrics? {
     logger.info("Kafka Streams er enabled for miljø {}", appConfig.featureToggles.enableKafkaStreams)
     if (appConfig.featureToggles.isKafkaStreamsEnabled(appConfig.naisEnv)) {
         val streamsFactory = KafkaStreamsFactory(appConfig.kafkaStreams.applicationIdSuffix, appConfig.kafka)
@@ -42,7 +43,7 @@ fun Application.configureKafka(
             kafkaStreams = kafkaStreamsInstance
         }
 
-        return kafkaStreamsInstance
+        return KafkaStreamsMetrics(kafkaStreamsInstance)
     } else {
         livenessHealthIndicator.setHealthy()
         readinessHealthIndicator.setHealthy()

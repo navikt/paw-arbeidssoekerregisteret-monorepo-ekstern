@@ -12,6 +12,8 @@ val jvmMajorVersion: String by project
 val baseImage: String by project
 val image: String? by project
 
+val agents by configurations.creating
+
 dependencies {
     // Project
     implementation(project(":lib:app-config"))
@@ -72,6 +74,8 @@ dependencies {
     testImplementation(testLibs.mockk)
     testImplementation(testLibs.mockOauth2Server)
     testImplementation(orgApacheKafka.streamsTest)
+
+    agents(otel.javaagent)
 }
 
 sourceSets {
@@ -108,6 +112,15 @@ tasks.withType(Jar::class) {
         attributes["Main-Class"] = application.mainClass.get()
         attributes["Implementation-Title"] = rootProject.name
     }
+}
+
+tasks.register<Copy>("copyAgents") {
+    from(agents)
+    into("${layout.buildDirectory.get()}/agents")
+}
+
+tasks.named("assemble") {
+    finalizedBy("copyAgents")
 }
 
 jib {

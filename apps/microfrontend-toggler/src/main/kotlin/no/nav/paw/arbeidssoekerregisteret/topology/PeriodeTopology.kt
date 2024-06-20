@@ -1,6 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
 import io.micrometer.core.instrument.MeterRegistry
+import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredePerioder
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallToggles
@@ -8,10 +13,12 @@ import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
+import no.nav.paw.arbeidssoekerregisteret.model.bleAvsluttetTidligereEnn
 import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggle
 import no.nav.paw.arbeidssoekerregisteret.model.buildEnableToggle
 import no.nav.paw.arbeidssoekerregisteret.model.buildPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.buildRecord
+import no.nav.paw.arbeidssoekerregisteret.model.erAvsluttet
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.kafka.streams.Punctuation
 import no.nav.paw.config.kafka.streams.genericProcess
@@ -21,43 +28,149 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.processor.PunctuationType
+import org.apache.kafka.streams.processor.api.ProcessorContext
+import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 
 context(ConfigContext, LoggingContext)
-private fun buildPunctuation(meterRegistry: MeterRegistry): Punctuation<Long, Toggle> {
-    return Punctuation(
-        appConfig.regler.periodeTogglePunctuatorSchedule, PunctuationType.WALL_CLOCK_TIME
-    ) { timestamp, context ->
-        val microfrontendConfig = appConfig.microfrontends
-        val antallLagredePerioderReference = AtomicLong(0)
+private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
+    periodeInfo: PeriodeInfo,
+    microfrontendId: String
+): Toggle {
+    Span.current().addEvent(
+        "microfrontend_toggle",
+        Attributes.builder()
+            .put(AttributeKey.stringKey("action"), "enable")
+            .put(AttributeKey.stringKey("microfrontendId"), microfrontendId)
+            .build()
+    )
+    logger.info(
+        "Arbeidsøkerperiode {} er aktiv. Iverksetter aktivering av {}.",
+        periodeInfo.id,
+        microfrontendId
+    )
+    val enableToggle = periodeInfo.buildEnableToggle(microfrontendId)
+    forward(enableToggle.buildRecord(periodeInfo.arbeidssoekerId))
+    return enableToggle
+}
 
-        val stateStore: KeyValueStore<Long, PeriodeInfo> =
-            context.getStateStore(appConfig.kafkaStreams.periodeStoreName)
-        for (keyValue in stateStore.all()) {
-            val periodeInfo = keyValue.value
+context(ConfigContext, LoggingContext)
+private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
+    periodeInfo: PeriodeInfo,
+    microfrontendId: String
+): Toggle {
+    Span.current().addEvent(
+        "microfrontend_toggle",
+        Attributes.builder()
+            .put(AttributeKey.stringKey("action"), "disable")
+            .put(AttributeKey.stringKey("microfrontendId"), microfrontendId)
+            .build()
+    )
+    logger.info(
+        "Arbeidsøkerperiode {} er avluttet og utsettelsestid er utløpt. Iverksetter deaktivering av {}.",
+        periodeInfo.id,
+        microfrontendId
+    )
+    val disableToggle = periodeInfo.buildDisableToggle(microfrontendId)
+    forward(disableToggle.buildRecord(periodeInfo.arbeidssoekerId))
+    return disableToggle
+}
 
-            antallLagredePerioderReference.incrementAndGet()
+class TogglePunctuation(private val meterRegistry: MeterRegistry) {
 
-            if (periodeInfo.avsluttet != null) { // Avsluttet periode
-                // Om det er gått mer en utsettelsestid (21 dager) fra perioden ble avsluttet så send event for å
-                // deaktivere AIA Min Side
-                if (periodeInfo.avsluttet.isBefore(timestamp.minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide))) {
-                    logger.info(
-                        "Arbeidsøkerperiode {} er avluttet og utsettelsestid er utløpt. Iverksetter forsinket deaktivering av {}.",
-                        periodeInfo.id,
-                        microfrontendConfig.aiaMinSide
-                    )
-                    val disableAiaMinSideToggle = periodeInfo.buildDisableToggle(microfrontendConfig.aiaMinSide)
-                    meterRegistry.tellAntallToggles(disableAiaMinSideToggle)
-                    context.forward(disableAiaMinSideToggle.buildRecord(periodeInfo.arbeidssoekerId))
+    context(ConfigContext, LoggingContext)
+    @WithSpan(value = "periode_toggle_punctuator", kind = SpanKind.INTERNAL)
+    fun punctuate(timestamp: Instant, context: ProcessorContext<Long, Toggle>) {
+        with(context) {
+            val kafkaStreamsConfig = appConfig.kafkaStreams
+            val reglerConfig = appConfig.regler
+            val microfrontendConfig = appConfig.microfrontends
+
+            val antallLagredePerioderReference = AtomicLong(0)
+
+            val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
+            for (keyValue in stateStore.all()) {
+                val periodeInfo = keyValue.value
+
+                antallLagredePerioderReference.incrementAndGet()
+
+                // Om det er gått mer en 21 dager fra perioden ble avsluttet
+                val utsattDeaktiveringsfrist = timestamp.minus(reglerConfig.utsattDeaktiveringAvAiaMinSide)
+                if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
+                    // Send event for å deaktiver AIA Min Side
+                    val disableAiaMinSideToggle = iverksettDeaktiverToggle(periodeInfo, microfrontendConfig.aiaMinSide)
+                    // Slett periode fra state store
                     stateStore.delete(periodeInfo.arbeidssoekerId)
+                    // Registrer metrikk for toggle
+                    meterRegistry.tellAntallToggles(disableAiaMinSideToggle)
                 }
             }
+
+            meterRegistry.tellAntallLagredePerioder(antallLagredePerioderReference)
+        }
+    }
+}
+
+context(ConfigContext, LoggingContext)
+private fun buildPunctuation(meterRegistry: MeterRegistry): Punctuation<Long, Toggle> {
+    val togglePunctuation = TogglePunctuation(meterRegistry)
+    return Punctuation(
+        appConfig.regler.periodeTogglePunctuatorSchedule, PunctuationType.WALL_CLOCK_TIME
+    ) { timestamp, context -> togglePunctuation.punctuate(timestamp, context) }
+}
+
+context(ConfigContext, LoggingContext)
+@WithSpan(value = "periode_toggle_processor", kind = SpanKind.INTERNAL)
+fun ProcessorContext<Long, Toggle>.processPeriode(meterRegistry: MeterRegistry, record: Record<Long, PeriodeInfo>) {
+    val periodeInfo = record.value()
+
+    val kafkaStreamsConfig = appConfig.kafkaStreams
+    val reglerConfig = appConfig.regler
+    val microfrontendConfig = appConfig.microfrontends
+
+    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
+
+    // Lagre periode i state store
+    stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
+
+    when {
+        periodeInfo.erAvsluttet() -> { // Avsluttet periode
+            val utsattDeaktiveringsfrist = Instant.now().minus(reglerConfig.utsattDeaktiveringAvAiaMinSide)
+            if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
+                // Send event for å deaktiver AIA Min Side
+                val disableAiaMinSideToggle =
+                    iverksettDeaktiverToggle(periodeInfo, microfrontendConfig.aiaMinSide)
+                // Slett periode fra state store
+                stateStore.delete(periodeInfo.arbeidssoekerId)
+                // Registrer metrikk for toggle
+                meterRegistry.tellAntallToggles(disableAiaMinSideToggle)
+            } else {
+                logger.info(
+                    "Arbeidsøkerperiode {} er avluttet. Lagrer forsinket deaktivering av {}.",
+                    periodeInfo.id,
+                    microfrontendConfig.aiaMinSide
+                )
+            }
+
+            // Send event for å deaktivere AIA Behovsvurdering
+            val disableAiaBehovsvurderingToggle =
+                iverksettDeaktiverToggle(periodeInfo, microfrontendConfig.aiaBehovsvurdering)
+            // Registrer metrikk for toggle
+            meterRegistry.tellAntallToggles(disableAiaBehovsvurderingToggle)
         }
 
-        meterRegistry.tellAntallLagredePerioder(antallLagredePerioderReference)
+        else -> {
+            // Send event for å aktivere AIA Min Side
+            val enableAiaMinSideToggle = iverksettAktiverToggle(periodeInfo, microfrontendConfig.aiaMinSide)
+            meterRegistry.tellAntallToggles(enableAiaMinSideToggle)
+
+            // Send event for å aktivere AIA Behovsvurdering
+            val enableAiaBehovsvurderingToggle =
+                iverksettAktiverToggle(periodeInfo, microfrontendConfig.aiaBehovsvurdering)
+            meterRegistry.tellAntallToggles(enableAiaBehovsvurderingToggle)
+        }
     }
 }
 
@@ -67,7 +180,6 @@ fun StreamsBuilder.buildPeriodeTopology(
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ) {
     val kafkaStreamsConfig = appConfig.kafkaStreams
-    val microfrontendConfig = appConfig.microfrontends
 
     this.stream<Long, Periode>(kafkaStreamsConfig.periodeTopic)
         .peek { key, _ ->
@@ -79,67 +191,6 @@ fun StreamsBuilder.buildPeriodeTopology(
             stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName),
             punctuation = buildPunctuation(meterRegistry)
         ) { record ->
-            val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
-            val periodeInfo = record.value()
-
-            // Lagre perioden i state store
-            stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
-
-            when {
-                periodeInfo.avsluttet != null -> { // Avsluttet periode
-                    if (periodeInfo.avsluttet.isBefore(
-                            Instant.now().minus(appConfig.regler.utsattDeaktiveringAvAiaMinSide)
-                        )
-                    ) {
-                        logger.info(
-                            "Arbeidsøkerperiode {} er avluttet og utsettelsestid er utløpt, Iverksetter deaktivering av {}.",
-                            periodeInfo.id,
-                            microfrontendConfig.aiaMinSide
-                        )
-                        val disableAiaMinSideToggle = periodeInfo.buildDisableToggle(microfrontendConfig.aiaMinSide)
-                        meterRegistry.tellAntallToggles(disableAiaMinSideToggle)
-                        forward(disableAiaMinSideToggle.buildRecord(periodeInfo.arbeidssoekerId))
-                        stateStore.delete(periodeInfo.arbeidssoekerId)
-                    } else {
-                        logger.info(
-                            "Arbeidsøkerperiode {} er avluttet. Forsinket deaktivering av {}.",
-                            periodeInfo.id,
-                            microfrontendConfig.aiaMinSide
-                        )
-                    }
-
-                    logger.info(
-                        "Arbeidsøkerperiode {} er avluttet. Iverksetter deaktivering av {}.",
-                        periodeInfo.id,
-                        microfrontendConfig.aiaBehovsvurdering
-                    )
-
-                    // Send event for å deaktivere AIA Behovsvurdering
-                    val disableAiaBehovsvurderingToggle =
-                        periodeInfo.buildDisableToggle(microfrontendConfig.aiaBehovsvurdering)
-                    meterRegistry.tellAntallToggles(disableAiaBehovsvurderingToggle)
-                    forward(disableAiaBehovsvurderingToggle.buildRecord(periodeInfo.arbeidssoekerId))
-                }
-
-                else -> {
-                    logger.info(
-                        "Arbeidsøkerperiode {} er aktiv. Iverksetter aktivering av {} og {}.",
-                        periodeInfo.id,
-                        microfrontendConfig.aiaMinSide,
-                        microfrontendConfig.aiaBehovsvurdering
-                    )
-
-                    // Send event for å aktivere AIA Min Side
-                    val enableAiaMinSideToggle = periodeInfo.buildEnableToggle(microfrontendConfig.aiaMinSide)
-                    meterRegistry.tellAntallToggles(enableAiaMinSideToggle)
-                    forward(enableAiaMinSideToggle.buildRecord(periodeInfo.arbeidssoekerId))
-
-                    // Send event for å aktivere AIA Behovsvurdering
-                    val enableAiaBehovsvurderingToggle =
-                        periodeInfo.buildEnableToggle(microfrontendConfig.aiaBehovsvurdering)
-                    meterRegistry.tellAntallToggles(enableAiaBehovsvurderingToggle)
-                    forward(enableAiaBehovsvurderingToggle.buildRecord(periodeInfo.arbeidssoekerId))
-                }
-            }
+            processPeriode(meterRegistry, record)
         }.to(kafkaStreamsConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }

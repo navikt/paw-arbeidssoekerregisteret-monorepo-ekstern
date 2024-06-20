@@ -1,0 +1,51 @@
+### SERVICES ###
+services:
+  microfrontend-toggler:
+    image: microfrontend-toggler:latest
+    container_name: microfrontend-toggler
+    build:
+      context: .
+    environment:
+      - NAIS_CLUSTER_NAME=docker
+      - TOKEN_X_WELL_KNOWN_URL=http://mock-oauth2-server:8081/default/.well-known/openid-configuration
+      - TOKEN_X_TOKEN_ENDPOINT=http://mock-oauth2-server:8081/default/token
+      - TOKEN_X_CLIENT_ID=paw-microfrontend-toggler
+      - AZURE_OPENID_CONFIG_TOKEN_ENDPOINT=http://mock-oauth2-server:8081/default/token
+      - AZURE_APP_CLIENT_ID=paw-microfrontend-toggler
+      - KAFKA_BROKERS=kafka:29092
+      - KAFKA_STREAMS_APPLICATION_ID=paw-microfrontend-toggler
+      - KAFKA_SCHEMA_REGISTRY=http://schema-registry:8082
+      - KAFKA_PRODUCER_APPLICATION_ID_SUFFIX=producer-v1
+      - KAFKA_STREAMS_APPLICATION_ID_SUFFIX=stream-v1
+      - KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC=paw.arbeidssokerperioder-v1
+      - KAFKA_PAW_RAPPORTERING_TOPIC=paw.rapportering-v1
+      - KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC=pto.siste-14a-vedtak-v1
+      - KAFKA_TMS_MICROFRONTEND_TOPIC=min-side.aapen-microfrontend-v1
+      - KAFKA_KEY_URL=http://wiremock:8080/kafka-keys
+      - KAFKA_KEY_SCOPE=api://test.test.kafka-keys/.default
+      - PDL_URL=http://wiremock:8080/pdl
+      - PDL_SCOPE=api://dev-fss.pdl.pdl-api/.default
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_SERVICE_NAME=paw-microfrontend-toggler
+    ports:
+      - "8080:8080"
+    networks:
+      - mocks
+      - grafana
+      - kafka
+
+### NETWORKS ###
+networks:
+  mocks:
+    name: mocks
+    external: true
+  grafana:
+    name: grafana
+    external: true
+  kafka:
+    name: kafka
+    external: true

@@ -13,6 +13,7 @@ inline fun <reified A> loadNaisOrLocalConfiguration(resource: String): A {
         when (System.getenv("NAIS_CLUSTER_NAME")) {
             "prod-gcp" -> "/nais/$resource"
             "dev-gcp" -> "/nais/$resource"
+            "docker" -> "/docker/$resource"
             else -> "/local/$resource"
         }
     return loadConfigFromProvidedResource(fulltNavn)

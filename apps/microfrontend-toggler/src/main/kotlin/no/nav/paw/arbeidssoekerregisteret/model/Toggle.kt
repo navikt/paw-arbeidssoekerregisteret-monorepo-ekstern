@@ -44,6 +44,6 @@ fun ToggleRequest.buildToggle(identitetsnummer: String): Toggle {
         ident = identitetsnummer,
         microfrontendId = microfrontendId,
         sensitivitet = sensitivitet,
-        initialedBy = "paw" // TODO Bruke miljøvariabel
+        initialedBy = "paw" // TODO Styre dette med konfig/miljøvar?
     )
 }

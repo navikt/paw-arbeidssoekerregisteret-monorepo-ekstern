@@ -1,6 +1,10 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
 import io.micrometer.core.instrument.MeterRegistry
+import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.buildSiste14aVedtakInfoSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildSiste14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
@@ -23,7 +27,64 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.kstream.Repartitioned
+import org.apache.kafka.streams.processor.api.ProcessorContext
+import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
+
+context(ConfigContext, LoggingContext)
+private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
+    periodeInfo: PeriodeInfo,
+    microfrontendId: String
+): Toggle {
+    Span.current().addEvent(
+        "microfrontend_toggle",
+        Attributes.builder()
+            .put(AttributeKey.stringKey("action"), "disable")
+            .put(AttributeKey.stringKey("microfrontendId"), microfrontendId)
+            .build()
+    )
+    logger.info(
+        "Det ble gjort et 14a vedtak for aktiv arbeidsøkerperiode {}. Iverksetter deaktivering av {}.",
+        periodeInfo.id,
+        microfrontendId
+    )
+    val disableToggle = periodeInfo.buildDisableToggle(microfrontendId)
+    forward(disableToggle.buildRecord(periodeInfo.arbeidssoekerId))
+    return disableToggle
+}
+
+context(ConfigContext, LoggingContext)
+@WithSpan(value = "siste_14a_vedtak_toggle_processor")
+private fun ProcessorContext<Long, Toggle>.processSiste14aVedtak(
+    meterRegistry: MeterRegistry,
+    record: Record<Long, Siste14aVedtakInfo>
+) {
+    val siste14aVedtakInfo = record.value()
+
+    val kafkaStreamsConfig = appConfig.kafkaStreams
+    val microfrontendConfig = appConfig.microfrontends
+
+    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
+    val periodeInfo = stateStore.get(siste14aVedtakInfo.arbeidssoekerId)
+
+    // Sjekk om vedtak er innenfor en aktiv periode
+    if (periodeInfo == null) {
+        logger.warn("Det ble gjort et 14a vedtak, men fant ingen tilhørende arbeidsøkerperiode")
+    } else if (periodeInfo.erAvsluttet()) {
+        logger.info("Det ble gjort et 14a vedtak, men tilhørende arbeidsøkerperiode er avsluttet")
+    } else if (periodeInfo.erInnenfor(siste14aVedtakInfo.fattetDato)) {
+        // Send event for å deaktivere AIA Behovsvurdering
+        val disableAiaBehovsvurderingToggle =
+            iverksettDeaktiverToggle(periodeInfo, microfrontendConfig.aiaBehovsvurdering)
+        // Registrer metrikk for toggle
+        meterRegistry.tellAntallToggles(disableAiaBehovsvurderingToggle)
+    } else {
+        logger.warn(
+            "Det ble gjort et 14a vedtak, men vedtakstidspunkt er ikke innenfor aktiv arbeidsøkerperiode {}",
+            periodeInfo.id
+        )
+    }
+}
 
 context(ConfigContext, LoggingContext)
 fun StreamsBuilder.buildSiste14aVedtakTopology(
@@ -31,7 +92,6 @@ fun StreamsBuilder.buildSiste14aVedtakTopology(
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ) {
     val kafkaStreamsConfig = appConfig.kafkaStreams
-    val microfrontendConfig = appConfig.microfrontends
 
     this.stream(
         kafkaStreamsConfig.siste14aVedtakTopic, Consumed.with(Serdes.String(), buildSiste14aVedtakSerde())
@@ -47,20 +107,6 @@ fun StreamsBuilder.buildSiste14aVedtakTopology(
     ).genericProcess<Long, Siste14aVedtakInfo, Long, Toggle>(
         name = "handtereToggleFor14aVedtak", stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName)
     ) { record ->
-        val siste14aVedtakInfo = record.value()
-        val keyValueStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
-        val periodeInfo = keyValueStore.get(siste14aVedtakInfo.arbeidssoekerId)
-
-        // Sjekk om vedtak er innenfor en aktiv periode,
-        if (periodeInfo != null && !periodeInfo.erAvsluttet() && periodeInfo.erInnenfor(siste14aVedtakInfo.fattetDato)) {
-            logger.info(
-                "Det ble gjort et 14a vedtak for arbeidsøkerperiode {}. Iverksetter deaktivering av {}.",
-                periodeInfo.id,
-                microfrontendConfig.aiaBehovsvurdering
-            )
-            val disableAiaBehovsvurderingToggle = periodeInfo.buildDisableToggle(microfrontendConfig.aiaBehovsvurdering)
-            meterRegistry.tellAntallToggles(disableAiaBehovsvurderingToggle)
-            forward(disableAiaBehovsvurderingToggle.buildRecord(siste14aVedtakInfo.arbeidssoekerId))
-        }
+        processSiste14aVedtak(meterRegistry, record)
     }.to(kafkaStreamsConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }

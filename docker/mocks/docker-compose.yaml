@@ -1,3 +1,4 @@
+### SERVICES ###
 services:
   wiremock:
     image: wiremock/wiremock:3.4.2

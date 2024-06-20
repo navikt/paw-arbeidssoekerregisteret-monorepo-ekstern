@@ -26,37 +26,57 @@ import org.apache.kafka.streams.state.Stores
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
+import java.util.*
 
+/**
+ *                 -21d                  -10d        -5d         Nå
+ * <----------------|----------------------|----------|----------|----->
+ *    |--- p1 -->|
+ *                                         |--- p2 -->|
+ *
+ * p1: Skal aktivere både aia-min-side og aia-behovsvurdering ved start og deaktivere begge ved avslutting
+ * p2: Skal aktivere både aia-min-side og aia-behovsvurdering ved start og deaktivere kun aia-behovsvurdering
+ *     ved deaktivering. Når det er gått > 21d siden avslutting skal aia-min-side deaktiveres.
+ *
+ */
 class PeriodeTopologyTest : FreeSpec({
 
     with(TestContext()) {
         "Testsuite for toggling av microfrontends basert på arbeidssøkerperiode" - {
-            val nyereIdentitetsnummer = "01017012345"
-            val eldreIdentitetsnummer = "02017012345"
-            val nyereArbeidssoekerId = nyereIdentitetsnummer.toLong()
-            val eldreArbeidssoekerId = eldreIdentitetsnummer.toLong()
-            val avsluttetNyereTidspunkt = Instant.now()
-            val startetNyereTidspunkt = avsluttetNyereTidspunkt.minus(Duration.ofDays(10))
-            val avsluttetEldreTidspunkt = Instant.now().minus(Duration.ofDays(22))
-            val startetEldreTidspunkt = avsluttetEldreTidspunkt.minus(Duration.ofDays(10))
-            val startetNyerePeriode = buildPeriode(
-                identitetsnummer = nyereIdentitetsnummer,
-                startet = startetNyereTidspunkt
+            val p1Id = UUID.randomUUID()
+            val p1Identitetsnummer = "02017012345"
+            val p1ArbeidssoekerId = p1Identitetsnummer.toLong()
+            val p1AvsluttetTidspunkt = Instant.now().minus(Duration.ofDays(22))
+            val p1StartetTidspunkt = p1AvsluttetTidspunkt.minus(Duration.ofDays(5))
+            val p1StartetPeriode = buildPeriode(
+                id = p1Id,
+                identitetsnummer = p1Identitetsnummer,
+                startet = p1StartetTidspunkt
             )
-            val avsluttetNyerePeriode = buildPeriode(
-                identitetsnummer = nyereIdentitetsnummer,
-                startet = startetNyereTidspunkt,
-                avsluttet = avsluttetNyereTidspunkt
+            val p1AvsluttetPeriode = buildPeriode(
+                id = p1Id,
+                identitetsnummer = p1Identitetsnummer,
+                startet = p1StartetTidspunkt,
+                avsluttet = p1AvsluttetTidspunkt
             )
-            val startetEldrePeriode = buildPeriode(
-                identitetsnummer = eldreIdentitetsnummer,
-                startet = startetEldreTidspunkt
+
+            val p2Id = UUID.randomUUID()
+            val p2Identitetsnummer = "01017012345"
+            val p2ArbeidssoekerId = p2Identitetsnummer.toLong()
+            val p2AvsluttetTidspunkt = Instant.now().minus(Duration.ofDays(5))
+            val p2StartetTidspunkt = p2AvsluttetTidspunkt.minus(Duration.ofDays(10))
+            val p2StartetPeriode = buildPeriode(
+                id = p2Id,
+                identitetsnummer = p2Identitetsnummer,
+                startet = p2StartetTidspunkt
             )
-            val avsluttetEldrePeriode = buildPeriode(
-                identitetsnummer = eldreIdentitetsnummer,
-                startet = startetEldreTidspunkt,
-                avsluttet = avsluttetEldreTidspunkt
+            val p2AvsluttetPeriode = buildPeriode(
+                id = p2Id,
+                identitetsnummer = p2Identitetsnummer,
+                startet = p2StartetTidspunkt,
+                avsluttet = p2AvsluttetTidspunkt
             )
+
             val identitetsnummerSlot = slot<String>()
             every { kafkaKeysClientMock.hentKafkaKeys(capture(identitetsnummerSlot)) } answers {
                 KafkaKeysResponse(
@@ -65,9 +85,9 @@ class PeriodeTopologyTest : FreeSpec({
                 )
             }
 
-            "Skal aktivere begge microfrontends ved start av nyere periode" {
-                val key = nyereArbeidssoekerId
-                periodeTopic.pipeInput(key, startetNyerePeriode)
+            "Skal aktivere begge microfrontends ved start av periode eldre en 21 dager (p1)" {
+                logger.info("Tester p1 startet {}", p1Id)
+                periodeTopic.pipeInput(p1ArbeidssoekerId, p1StartetPeriode)
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
@@ -76,77 +96,59 @@ class PeriodeTopologyTest : FreeSpec({
                 val minSideKeyValue = keyValueList.first()
                 val behovsvurderingKeyValue = keyValueList.last()
 
-                minSideKeyValue.key shouldBe nyereIdentitetsnummer.toLong()
+                minSideKeyValue.key shouldBe p1ArbeidssoekerId
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetNyerePeriode.identitetsnummer
+                    ident shouldBe p1StartetPeriode.identitetsnummer
                     microfrontendId shouldBe appConfig.microfrontends.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.HIGH
                     initialedBy shouldBe "paw"
                 }
 
-                behovsvurderingKeyValue.key shouldBe nyereArbeidssoekerId
+                behovsvurderingKeyValue.key shouldBe p1ArbeidssoekerId
                 with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetNyerePeriode.identitetsnummer
+                    ident shouldBe p1StartetPeriode.identitetsnummer
                     microfrontendId shouldBe appConfig.microfrontends.aiaBehovsvurdering
                     sensitivitet shouldBe Sensitivitet.HIGH
                     initialedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 1
-                with(periodeStateStore.get(nyereArbeidssoekerId).shouldBeInstanceOf<PeriodeInfo>()) {
-                    id shouldBe startetNyerePeriode.id
-                    identitetsnummer shouldBe startetNyerePeriode.identitetsnummer
-                    arbeidssoekerId shouldBe nyereArbeidssoekerId
-                    startet shouldBe startetNyerePeriode.startet.tidspunkt
+                with(periodeStateStore.get(p1ArbeidssoekerId).shouldBeInstanceOf<PeriodeInfo>()) {
+                    id shouldBe p1StartetPeriode.id
+                    identitetsnummer shouldBe p1StartetPeriode.identitetsnummer
+                    arbeidssoekerId shouldBe p1ArbeidssoekerId
+                    startet shouldBe p1StartetPeriode.startet.tidspunkt
                     avsluttet shouldBe null
                 }
             }
 
-            "Skal deaktivere aia-behovsvurdering microfrontend ved avslutting av nyere periode" {
-                val key = avsluttetNyerePeriode.identitetsnummer.toLong()
-                periodeTopic.pipeInput(key, avsluttetNyerePeriode)
+            "Skal deaktivere begge microfrontend ved avslutting av periode eldre enn 21 dager (p1)" {
+                logger.info("Tester p1 avsluttet {}", p1Id)
+                periodeTopic.pipeInput(p1ArbeidssoekerId, p1AvsluttetPeriode)
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 1
+                keyValueList.size shouldBe 2
 
+                val minSideKeyValue = keyValueList.first()
                 val behovsvurderingKeyValue = keyValueList.last()
 
-                behovsvurderingKeyValue.key shouldBe nyereArbeidssoekerId
-                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
+                minSideKeyValue.key shouldBe p1ArbeidssoekerId
+                with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.DISABLE
-                    ident shouldBe avsluttetNyerePeriode.identitetsnummer
-                    microfrontendId shouldBe appConfig.microfrontends.aiaBehovsvurdering
+                    ident shouldBe p1StartetPeriode.identitetsnummer
+                    microfrontendId shouldBe appConfig.microfrontends.aiaMinSide
                     sensitivitet shouldBe null
                     initialedBy shouldBe "paw"
                 }
 
-                periodeStateStore.size() shouldBe 1
-                with(periodeStateStore.get(nyereArbeidssoekerId).shouldBeInstanceOf<PeriodeInfo>()) {
-                    id shouldBe avsluttetNyerePeriode.id
-                    identitetsnummer shouldBe avsluttetNyerePeriode.identitetsnummer
-                    arbeidssoekerId shouldBe nyereArbeidssoekerId
-                    startet shouldBe avsluttetNyerePeriode.startet.tidspunkt
-                    avsluttet shouldBe avsluttetNyerePeriode.avsluttet.tidspunkt
-                }
-            }
-
-            "Skal deaktivere aia-min-side microfrontend 21 dager etter avslutting av nyere periode" {
-                testDriver.advanceWallClockTime(Duration.ofDays(22))
-
-                microfrontendTopic.isEmpty shouldBe false
-                val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 1
-
-                val behovsvurderingKeyValue = keyValueList.last()
-
-                behovsvurderingKeyValue.key shouldBe nyereArbeidssoekerId
+                behovsvurderingKeyValue.key shouldBe p1ArbeidssoekerId
                 with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.DISABLE
-                    ident shouldBe avsluttetNyerePeriode.identitetsnummer
-                    microfrontendId shouldBe appConfig.microfrontends.aiaMinSide
+                    ident shouldBe p1AvsluttetPeriode.identitetsnummer
+                    microfrontendId shouldBe appConfig.microfrontends.aiaBehovsvurdering
                     sensitivitet shouldBe null
                     initialedBy shouldBe "paw"
                 }
@@ -154,9 +156,9 @@ class PeriodeTopologyTest : FreeSpec({
                 periodeStateStore.size() shouldBe 0
             }
 
-            "Skal aktivere begge microfrontends ved start av eldre periode" {
-                val key = eldreArbeidssoekerId
-                periodeTopic.pipeInput(key, startetEldrePeriode)
+            "Skal aktivere begge microfrontends ved start av periode (p2)" {
+                logger.info("Tester p2 startet {}", p2Id)
+                periodeTopic.pipeInput(p2ArbeidssoekerId, p2StartetPeriode)
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
@@ -165,59 +167,78 @@ class PeriodeTopologyTest : FreeSpec({
                 val minSideKeyValue = keyValueList.first()
                 val behovsvurderingKeyValue = keyValueList.last()
 
-                minSideKeyValue.key shouldBe eldreArbeidssoekerId
+                minSideKeyValue.key shouldBe p2Identitetsnummer.toLong()
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetEldrePeriode.identitetsnummer
+                    ident shouldBe p2StartetPeriode.identitetsnummer
                     microfrontendId shouldBe appConfig.microfrontends.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.HIGH
                     initialedBy shouldBe "paw"
                 }
 
-                behovsvurderingKeyValue.key shouldBe eldreArbeidssoekerId
+                behovsvurderingKeyValue.key shouldBe p2ArbeidssoekerId
                 with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetEldrePeriode.identitetsnummer
+                    ident shouldBe p2StartetPeriode.identitetsnummer
                     microfrontendId shouldBe appConfig.microfrontends.aiaBehovsvurdering
                     sensitivitet shouldBe Sensitivitet.HIGH
                     initialedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 1
-                with(periodeStateStore.get(eldreArbeidssoekerId).shouldBeInstanceOf<PeriodeInfo>()) {
-                    id shouldBe startetEldrePeriode.id
-                    identitetsnummer shouldBe startetEldrePeriode.identitetsnummer
-                    arbeidssoekerId shouldBe eldreArbeidssoekerId
-                    startet shouldBe startetEldrePeriode.startet.tidspunkt
+                with(periodeStateStore.get(p2ArbeidssoekerId).shouldBeInstanceOf<PeriodeInfo>()) {
+                    id shouldBe p2StartetPeriode.id
+                    identitetsnummer shouldBe p2StartetPeriode.identitetsnummer
+                    arbeidssoekerId shouldBe p2ArbeidssoekerId
+                    startet shouldBe p2StartetPeriode.startet.tidspunkt
                     avsluttet shouldBe null
                 }
             }
 
-            "Skal deaktivere begge microfrontend ved avslutting av eldre periode" {
-                val key = eldreArbeidssoekerId
-                periodeTopic.pipeInput(key, avsluttetEldrePeriode)
+            "Skal deaktivere aia-behovsvurdering microfrontend ved avslutting av periode nyere enn 21 dager (p2)" {
+                logger.info("Tester p2 avsluttet {}", p2Id)
+                periodeTopic.pipeInput(p2ArbeidssoekerId, p2AvsluttetPeriode)
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 2
+                keyValueList.size shouldBe 1
 
-                val minSideKeyValue = keyValueList.first()
                 val behovsvurderingKeyValue = keyValueList.last()
 
-                minSideKeyValue.key shouldBe eldreArbeidssoekerId
-                with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
+                behovsvurderingKeyValue.key shouldBe p2ArbeidssoekerId
+                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.DISABLE
-                    ident shouldBe startetEldrePeriode.identitetsnummer
-                    microfrontendId shouldBe appConfig.microfrontends.aiaMinSide
+                    ident shouldBe p2AvsluttetPeriode.identitetsnummer
+                    microfrontendId shouldBe appConfig.microfrontends.aiaBehovsvurdering
                     sensitivitet shouldBe null
                     initialedBy shouldBe "paw"
                 }
 
-                behovsvurderingKeyValue.key shouldBe eldreArbeidssoekerId
+                periodeStateStore.size() shouldBe 1
+                with(periodeStateStore.get(p2ArbeidssoekerId).shouldBeInstanceOf<PeriodeInfo>()) {
+                    id shouldBe p2AvsluttetPeriode.id
+                    identitetsnummer shouldBe p2AvsluttetPeriode.identitetsnummer
+                    arbeidssoekerId shouldBe p2ArbeidssoekerId
+                    startet shouldBe p2AvsluttetPeriode.startet.tidspunkt
+                    avsluttet shouldBe p2AvsluttetPeriode.avsluttet.tidspunkt
+                }
+            }
+
+            "Skal deaktivere aia-min-side microfrontend 21 dager etter avslutting av periode (p2)" {
+                logger.info("Tester p2 21 dager etter avluttet {}", p2Id)
+                testDriver.advanceWallClockTime(Duration.ofDays(17)) // 17 dager før avsluttettidspunkt
+
+                microfrontendTopic.isEmpty shouldBe false
+                val keyValueList = microfrontendTopic.readKeyValuesToList()
+                keyValueList.size shouldBe 1
+
+                val behovsvurderingKeyValue = keyValueList.last()
+
+                behovsvurderingKeyValue.key shouldBe p2ArbeidssoekerId
                 with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.DISABLE
-                    ident shouldBe avsluttetEldrePeriode.identitetsnummer
-                    microfrontendId shouldBe appConfig.microfrontends.aiaBehovsvurdering
+                    ident shouldBe p2AvsluttetPeriode.identitetsnummer
+                    microfrontendId shouldBe appConfig.microfrontends.aiaMinSide
                     sensitivitet shouldBe null
                     initialedBy shouldBe "paw"
                 }

@@ -65,6 +65,21 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: ./apps/microfrontend-toggler/nais/nais-dev.yaml
           VAR: image=${{ needs.build.outputs.image }},kafka=nav-dev
+  deploy-dev-beta:
+    name: Deploy to dev-gcp - paw-microfrontend-toggler-beta
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: ./apps/microfrontend-toggler/nais/nais-dev-beta.yaml
+          VAR: image=${{ needs.build.outputs.image }},kafka=nav-dev
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     name: Deploy to prod-gcp - paw-microfrontend-toggler
@@ -84,3 +99,22 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: ./apps/microfrontend-toggler/nais/nais-prod.yaml
           VAR: image=${{ needs.build.outputs.image }},env=prod,kafka=nav-prod,ingressDomain=intern.nav.no
+#  deploy-prod-beta:
+#    if: github.ref == 'refs/heads/main'
+#    name: Deploy to prod-gcp - paw-microfrontend-toggler-beta
+#    needs:
+#      - build
+#      - deploy-dev-beta
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+#      id-token: write
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: nais/deploy/actions/deploy@v2
+#        env:
+#          TEAM: paw
+#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+#          CLUSTER: prod-gcp
+#          RESOURCE: ./apps/microfrontend-toggler/nais/nais-prod-beta.yaml
+#          VAR: image=${{ needs.build.outputs.image }},env=prod,kafka=nav-prod,ingressDomain=intern.nav.no

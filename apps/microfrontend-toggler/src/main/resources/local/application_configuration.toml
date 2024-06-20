@@ -5,7 +5,7 @@ tokenEndpointUrl = "http://localhost:8081/default/token"
 clientId = "paw-microfrontend-toggler"
 
 [authProviders.requiredClaims]
-map = [ "acr=Level4", "acr=idporten-loa-high" ]
+map = ["acr=Level4", "acr=idporten-loa-high"]
 combineWithOr = true
 
 [azureM2M]
@@ -25,8 +25,8 @@ applicationIdSuffix = "producer-v1"
 [kafkaStreams]
 applicationIdSuffix = "stream-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
-siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 rapporteringTopic = "paw.rapportering-v1"
+siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 periodeStoreName = "microfrontendTogglePeriodeStore"
 siste14aVedtakPartitionCount = 1

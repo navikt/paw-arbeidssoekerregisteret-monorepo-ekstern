@@ -21,8 +21,10 @@ distributor:
   #  zipkin:
     otlp:
       protocols:
-        http:
         grpc:
+          endpoint: 0.0.0.0:4317
+    #  http:
+    #    endpoint: 0.0.0.0:4318
   #  opencensus:
 
 ingester:
@@ -49,7 +51,7 @@ storage:
   trace:
     backend: local                     # backend configuration to use
     wal:
-      path: /var/tempo/wal             # where to store the the wal locally
+      path: /var/tempo/wal             # where to store the wal locally
     local:
       path: /var/tempo/blocks
 

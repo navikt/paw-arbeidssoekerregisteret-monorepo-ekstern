@@ -13,6 +13,10 @@ data class PeriodeInfo(
 )
 
 fun PeriodeInfo.erAvsluttet(): Boolean = avsluttet != null
+
+fun PeriodeInfo.bleAvsluttetTidligereEnn(tidspunkt: Instant): Boolean =
+    avsluttet != null && avsluttet.isBefore(tidspunkt)
+
 fun PeriodeInfo.erInnenfor(tidspunkt: Instant): Boolean = startet.isBefore(tidspunkt)
 
 fun PeriodeInfo.buildEnableToggle(microfrontendId: String): Toggle {
@@ -21,7 +25,7 @@ fun PeriodeInfo.buildEnableToggle(microfrontendId: String): Toggle {
         ident = identitetsnummer,
         microfrontendId = microfrontendId,
         sensitivitet = Sensitivitet.HIGH,
-        initialedBy = "paw"
+        initialedBy = "paw" // TODO Styre dette med konfig/miljøvar?
     )
 }
 
@@ -30,7 +34,7 @@ fun PeriodeInfo.buildDisableToggle(microfrontendId: String): Toggle {
         action = ToggleAction.DISABLE,
         ident = identitetsnummer,
         microfrontendId = microfrontendId,
-        initialedBy = "paw"
+        initialedBy = "paw" // TODO Styre dette med konfig/miljøvar?
     )
 }
 

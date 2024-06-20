@@ -3,7 +3,6 @@ package no.nav.paw.arbeidssoekerregisteret
 import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME
@@ -64,7 +63,7 @@ fun main() {
                     readinessHealthIndicator,
                     meterRegistry,
                     kafkaKeysClient::getIdAndKeyBlocking
-                )?.let { KafkaStreamsMetrics(it) }
+                )
                 configureSerialization()
                 configureRequestHandling()
                 configureLogging()
