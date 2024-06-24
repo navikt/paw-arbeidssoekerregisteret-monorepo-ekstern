@@ -21,8 +21,12 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.TestInputTopic
+import org.apache.kafka.streams.TestOutputTopic
 import org.apache.kafka.streams.TopologyTestDriver
+import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.state.Stores
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
@@ -251,8 +255,8 @@ class PeriodeTopologyTest : FreeSpec({
     private class TestContext {
 
         val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
-        val logger = LoggerFactory.getLogger("TestApplication")
-        val auditLogger = LoggerFactory.getLogger("TestAudit")
+        val logger: Logger = LoggerFactory.getLogger("TestApplication")
+        val auditLogger: Logger = LoggerFactory.getLogger("TestAudit")
         val meterRegistry = SimpleMeterRegistry()
         val periodeSerde = buildAvroSerde<Periode>()
         val periodeInfoSerde = buildPeriodeInfoSerde()
@@ -278,16 +282,16 @@ class PeriodeTopologyTest : FreeSpec({
                 }
             }.let { TopologyTestDriver(it, kafkaStreamProperties) }
 
-        val periodeStateStore =
-            testDriver.getKeyValueStore<Long, PeriodeInfo>(appConfig.kafkaStreams.periodeStoreName)
+        val periodeStateStore: KeyValueStore<Long, PeriodeInfo> =
+            testDriver.getKeyValueStore(appConfig.kafkaStreams.periodeStoreName)
 
-        val periodeTopic = testDriver.createInputTopic(
+        val periodeTopic: TestInputTopic<Long, Periode> = testDriver.createInputTopic(
             appConfig.kafkaStreams.periodeTopic,
             Serdes.Long().serializer(),
             periodeSerde.serializer()
         )
 
-        val microfrontendTopic = testDriver.createOutputTopic(
+        val microfrontendTopic: TestOutputTopic<Long, Toggle> = testDriver.createOutputTopic(
             appConfig.kafkaStreams.microfrontendTopic,
             Serdes.Long().deserializer(),
             toggleSerde.deserializer()

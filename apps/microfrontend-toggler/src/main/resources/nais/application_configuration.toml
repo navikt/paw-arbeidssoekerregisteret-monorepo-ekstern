@@ -27,10 +27,11 @@ username = "${KAFKA_SCHEMA_REGISTRY_USER}"
 password = "${KAFKA_SCHEMA_REGISTRY_PASSWORD}"
 
 [kafkaProducer]
-applicationIdSuffix = "${KAFKA_PRODUCER_APPLICATION_ID_SUFFIX}"
+toggleProducerIdSuffix = "${KAFKA_TOGGLE_PRODUCER_ID_SUFFIX}"
 
 [kafkaStreams]
-applicationIdSuffix = "${KAFKA_STREAMS_APPLICATION_ID_SUFFIX}"
+shutDownTimeout = "PT5S"
+periodeStreamIdSuffix = "${KAFKA_PERIODE_STREAM_ID_SUFFIX}"
 periodeTopic = "${KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC}"
 rapporteringTopic = "${KAFKA_PAW_RAPPORTERING_TOPIC}"
 siste14aVedtakTopic = "${KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC}"
@@ -45,16 +46,7 @@ scope = "${KAFKA_KEY_SCOPE}"
 [regler]
 periodeTogglePunctuatorSchedule = "PT12H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
-fiksAktiveMicrofrontendsToggleSchedule = "PT1H"
-fiksAktiveMicrofrontendsForPerioderEldreEnn = "2024-06-14T12:00:00"
 
 [microfrontends]
 aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
-
-[featureToggles]
-enableKafkaStreams = ["dev-gcp", "prod-gcp"]
-enablePeriodeTopology = ["dev-gcp", "prod-gcp"]
-enable14aVedtakTopology = ["dev-gcp", "prod-gcp"]
-enableFiksAktiveMicrofrontendsKafkaStreams = []
-enableFiksAktiveMicrofrontendsPunctuator = []

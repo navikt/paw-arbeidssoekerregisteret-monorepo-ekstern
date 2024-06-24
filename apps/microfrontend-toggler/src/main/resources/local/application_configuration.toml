@@ -20,10 +20,11 @@ applicationIdPrefix = "paw.paw-microfrontend-toggler"
 url = "http://localhost:8082"
 
 [kafkaProducer]
-applicationIdSuffix = "producer-v1"
+toggleProducerIdSuffix = "producer-v1"
 
 [kafkaStreams]
-applicationIdSuffix = "stream-v1"
+shutDownTimeout = "PT1S"
+periodeStreamIdSuffix = "stream-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 rapporteringTopic = "paw.rapportering-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
@@ -38,16 +39,7 @@ scope = "api://test.test.kafka-keys/.default"
 [regler]
 periodeTogglePunctuatorSchedule = "PT60S"
 utsattDeaktiveringAvAiaMinSide = "PT10M"
-fiksAktiveMicrofrontendsToggleSchedule = "PT60S"
-fiksAktiveMicrofrontendsForPerioderEldreEnn = "2024-06-12T12:00:00"
 
 [microfrontends]
 aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
-
-[featureToggles]
-enableKafkaStreams = ["local"]
-enablePeriodeTopology = ["local"]
-enable14aVedtakTopology = ["local"]
-enableFiksAktiveMicrofrontendsKafkaStreams = ["local"]
-enableFiksAktiveMicrofrontendsPunctuator = ["local"]

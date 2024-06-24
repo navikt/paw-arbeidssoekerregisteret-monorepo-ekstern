@@ -7,7 +7,6 @@ import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
 import java.time.Duration
-import java.time.LocalDateTime
 
 const val APPLICATION_LOGGER_NAME = "no.nav.paw.application"
 const val APPLICATION_CONFIG_FILE_NAME = "application_configuration.toml"
@@ -22,7 +21,6 @@ data class AppConfig(
     val kafkaStreams: KafkaStreamsConfig,
     val kafkaKeysClient: KafkaKeyConfig,
     val regler: ReglerConfig,
-    val featureToggles: FeatureTogglesConfig,
     val microfrontends: MicrofrontendsConfig,
     val appName: String = currentAppName,
     val appId: String = currentAppId,
@@ -45,11 +43,12 @@ data class RequiredClaims(
 )
 
 data class KafkaProducerConfig(
-    val applicationIdSuffix: String,
+    val toggleProducerIdSuffix: String,
 )
 
 data class KafkaStreamsConfig(
-    val applicationIdSuffix: String,
+    val shutDownTimeout: Duration,
+    val periodeStreamIdSuffix: String,
     val periodeTopic: String,
     val siste14aVedtakTopic: String,
     val rapporteringTopic: String,
@@ -60,29 +59,10 @@ data class KafkaStreamsConfig(
 
 data class ReglerConfig(
     val periodeTogglePunctuatorSchedule: Duration,
-    val utsattDeaktiveringAvAiaMinSide: Duration,
-    val fiksAktiveMicrofrontendsToggleSchedule: Duration,
-    val fiksAktiveMicrofrontendsForPerioderEldreEnn: LocalDateTime
+    val utsattDeaktiveringAvAiaMinSide: Duration
 )
 
 data class MicrofrontendsConfig(
     val aiaMinSide: String,
     val aiaBehovsvurdering: String
 )
-
-data class FeatureTogglesConfig(
-    val enableKafkaStreams: List<String>,
-    val enablePeriodeTopology: List<String>,
-    val enable14aVedtakTopology: List<String>,
-    val enableFiksAktiveMicrofrontendsKafkaStreams: List<String>,
-    val enableFiksAktiveMicrofrontendsPunctuator: List<String>
-) {
-    fun isKafkaStreamsEnabled(env: NaisEnv) = enableKafkaStreams.contains(env.clusterName)
-    fun isPeriodeTopologyEnabled(env: NaisEnv) = enablePeriodeTopology.contains(env.clusterName)
-    fun is14aVedtakTopologyEnabled(env: NaisEnv) = enable14aVedtakTopology.contains(env.clusterName)
-    fun isFiksAktiveMicrofrontendsKafkaStreamsEnabled(env: NaisEnv) =
-        enableFiksAktiveMicrofrontendsKafkaStreams.contains(env.clusterName)
-
-    fun isFiksAktiveMicrofrontendsPunctuatorEnabled(env: NaisEnv) =
-        enableFiksAktiveMicrofrontendsKafkaStreams.contains(env.clusterName)
-}

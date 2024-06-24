@@ -20,10 +20,11 @@ applicationIdPrefix = "test"
 url = "mock://test-registry"
 
 [kafkaProducer]
-applicationIdSuffix = "producer-test"
+toggleProducerIdSuffix = "producer-test"
 
 [kafkaStreams]
-applicationIdSuffix = "stream-test"
+shutDownTimeout = "PT5S"
+periodeStreamIdSuffix = "stream-test"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 rapporteringTopic = "paw.rapportering-v1"
@@ -38,16 +39,7 @@ scope = "api://test.test.kafka-keys/.default"
 [regler]
 periodeTogglePunctuatorSchedule = "PT12H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
-fiksAktiveMicrofrontendsToggleSchedule = "PT12H"
-fiksAktiveMicrofrontendsForPerioderEldreEnn = "2024-06-12T12:00:00"
 
 [microfrontends]
 aiaMinSide = "aia-min-side"
 aiaBehovsvurdering = "aia-behovsvurdering"
-
-[featureToggles]
-enableKafkaStreams = ["local"]
-enablePeriodeTopology = ["local"]
-enable14aVedtakTopology = ["local"]
-enableFiksAktiveMicrofrontendsKafkaStreams = ["local"]
-enableFiksAktiveMicrofrontendsPunctuator = ["local"]

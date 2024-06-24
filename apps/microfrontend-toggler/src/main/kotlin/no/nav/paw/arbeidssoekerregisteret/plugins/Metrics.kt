@@ -11,26 +11,20 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import java.time.Duration
-import java.util.stream.Collectors
 
 context(LoggingContext)
 fun Application.configureMetrics(
     meterRegistry: MeterRegistry,
-    kafkaStreamsMetrics: KafkaStreamsMetrics?
+    kafkaStreamsMetrics: KafkaStreamsMetrics
 ) {
-    val binders = listOf(
-        JvmMemoryMetrics(),
-        JvmGcMetrics(),
-        ProcessorMetrics()
-    )
-    kafkaStreamsMetrics?.let { binders + it }
-    logger.info(
-        "Installerte metrics {}",
-        binders.stream().map { it.javaClass.simpleName }.collect(Collectors.toList())
-    )
     install(MicrometerMetrics) {
         registry = meterRegistry
-        meterBinders = binders
+        meterBinders = listOf(
+            JvmMemoryMetrics(),
+            JvmGcMetrics(),
+            ProcessorMetrics(),
+            kafkaStreamsMetrics
+        )
         distributionStatisticConfig =
             DistributionStatisticConfig.builder()
                 .percentilesHistogram(true)

@@ -12,7 +12,7 @@ fun buildToggleKafkaProducer(
 ): Producer<Long, Toggle> {
     val kafkaFactory = KafkaFactory(config)
     return kafkaFactory.createProducer(
-        clientId = "${config.applicationIdPrefix}_${producerConfig.applicationIdSuffix}",
+        clientId = "${config.applicationIdPrefix}_${producerConfig.toggleProducerIdSuffix}",
         keySerializer = LongSerializer::class,
         valueSerializer = ToggleJsonSerializer::class
     )

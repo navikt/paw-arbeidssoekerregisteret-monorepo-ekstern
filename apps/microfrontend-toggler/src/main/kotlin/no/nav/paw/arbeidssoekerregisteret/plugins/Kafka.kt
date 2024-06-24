@@ -25,28 +25,22 @@ fun Application.configureKafka(
     readinessHealthIndicator: HealthIndicator,
     meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
-): KafkaStreamsMetrics? {
-    logger.info("Kafka Streams er enabled for miljø {}", appConfig.featureToggles.enableKafkaStreams)
-    if (appConfig.featureToggles.isKafkaStreamsEnabled(appConfig.naisEnv)) {
-        val streamsFactory = KafkaStreamsFactory(appConfig.kafkaStreams.applicationIdSuffix, appConfig.kafka)
-            .withDefaultKeySerde(Serdes.Long()::class)
-            .withDefaultValueSerde(SpecificAvroSerde::class)
+): KafkaStreamsMetrics {
+    val streamsFactory = KafkaStreamsFactory(appConfig.kafkaStreams.periodeStreamIdSuffix, appConfig.kafka)
+        .withDefaultKeySerde(Serdes.Long()::class)
+        .withDefaultValueSerde(SpecificAvroSerde::class)
 
-        val kafkaStreamsInstance = KafkaStreams(
-            buildTopology(meterRegistry, hentKafkaKeys),
-            StreamsConfig(streamsFactory.properties)
-        )
-        kafkaStreamsInstance.setStateListener(buildStateListener(livenessHealthIndicator, readinessHealthIndicator))
-        kafkaStreamsInstance.setUncaughtExceptionHandler(buildUncaughtExceptionHandler())
+    val kafkaStreamsInstance = KafkaStreams(
+        buildTopology(meterRegistry, hentKafkaKeys),
+        StreamsConfig(streamsFactory.properties)
+    )
+    kafkaStreamsInstance.setStateListener(buildStateListener(livenessHealthIndicator, readinessHealthIndicator))
+    kafkaStreamsInstance.setUncaughtExceptionHandler(buildUncaughtExceptionHandler())
 
-        install(KafkaStreamsPlugin) {
-            kafkaStreams = kafkaStreamsInstance
-        }
-
-        return KafkaStreamsMetrics(kafkaStreamsInstance)
-    } else {
-        livenessHealthIndicator.setHealthy()
-        readinessHealthIndicator.setHealthy()
-        return null
+    install(KafkaStreamsPlugin) {
+        kafkaStreamsConfig = appConfig.kafkaStreams
+        kafkaStreams = kafkaStreamsInstance
     }
+
+    return KafkaStreamsMetrics(kafkaStreamsInstance)
 }

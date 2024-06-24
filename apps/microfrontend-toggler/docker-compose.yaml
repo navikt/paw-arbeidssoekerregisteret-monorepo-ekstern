@@ -15,8 +15,8 @@ services:
       - KAFKA_BROKERS=kafka:29092
       - KAFKA_STREAMS_APPLICATION_ID=paw-microfrontend-toggler
       - KAFKA_SCHEMA_REGISTRY=http://schema-registry:8082
-      - KAFKA_PRODUCER_APPLICATION_ID_SUFFIX=producer-v1
-      - KAFKA_STREAMS_APPLICATION_ID_SUFFIX=stream-v1
+      - KAFKA_TOGGLE_PRODUCER_ID_SUFFIX=producer-v1
+      - KAFKA_PERIODE_STREAM_ID_SUFFIX=stream-v1
       - KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC=paw.arbeidssokerperioder-v1
       - KAFKA_PAW_RAPPORTERING_TOPIC=paw.rapportering-v1
       - KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC=pto.siste-14a-vedtak-v1
