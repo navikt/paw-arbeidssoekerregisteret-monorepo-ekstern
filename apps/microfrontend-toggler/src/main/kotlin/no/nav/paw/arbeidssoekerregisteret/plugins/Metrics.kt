@@ -6,6 +6,7 @@ import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
@@ -15,16 +16,19 @@ import java.time.Duration
 context(LoggingContext)
 fun Application.configureMetrics(
     meterRegistry: MeterRegistry,
-    kafkaStreamsMetrics: KafkaStreamsMetrics
+    kafkaClientMetrics: List<KafkaClientMetrics>,
+    kafkaStreamsMetrics: List<KafkaStreamsMetrics>
 ) {
+    val metricsMeterBinders = mutableListOf(
+        JvmMemoryMetrics(),
+        JvmGcMetrics(),
+        ProcessorMetrics()
+    )
+    metricsMeterBinders.addAll(kafkaClientMetrics)
+    metricsMeterBinders.addAll(kafkaStreamsMetrics)
     install(MicrometerMetrics) {
         registry = meterRegistry
-        meterBinders = listOf(
-            JvmMemoryMetrics(),
-            JvmGcMetrics(),
-            ProcessorMetrics(),
-            kafkaStreamsMetrics
-        )
+        meterBinders = metricsMeterBinders
         distributionStatisticConfig =
             DistributionStatisticConfig.builder()
                 .percentilesHistogram(true)

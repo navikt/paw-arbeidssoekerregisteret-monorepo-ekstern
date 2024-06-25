@@ -15,10 +15,12 @@ services:
       - KAFKA_BROKERS=kafka:29092
       - KAFKA_STREAMS_APPLICATION_ID=paw-microfrontend-toggler
       - KAFKA_SCHEMA_REGISTRY=http://schema-registry:8082
-      - KAFKA_TOGGLE_PRODUCER_ID_SUFFIX=producer-v1
-      - KAFKA_PERIODE_STREAM_ID_SUFFIX=stream-v1
+      - KAFKA_TOGGLE_PRODUCER_ID_SUFFIX=toggle-producer-v1
+      - KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX=arbeidssokerperioder-stream-v1
+      - KAFKA_SISTE_14A_VEDTAK_STREAM_ID_SUFFIX=siste-14a-vedtak-stream-v1
       - KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC=paw.arbeidssokerperioder-v1
       - KAFKA_PAW_RAPPORTERING_TOPIC=paw.rapportering-v1
+      - KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC=paw.beriket-14a-vedtak-v1
       - KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC=pto.siste-14a-vedtak-v1
       - KAFKA_TMS_MICROFRONTEND_TOPIC=min-side.aapen-microfrontend-v1
       - KAFKA_KEY_URL=http://wiremock:8080/kafka-keys

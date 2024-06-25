@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.topology
+package no.nav.paw.arbeidssoekerregisteret.topology.streams
 
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
@@ -23,7 +23,7 @@ import org.apache.kafka.streams.state.KeyValueStore
  * TODO Venter med å implementere til etter registeret er i prod
  */
 context(ConfigContext, LoggingContext)
-fun StreamsBuilder.buildRapporteringTopology(hentKafkaKeys: (ident: String) -> KafkaKeysResponse?) {
+fun StreamsBuilder.buildRapporteringKStream(hentKafkaKeys: (ident: String) -> KafkaKeysResponse?) {
     val kafkaStreamsConfig = appConfig.kafkaStreams
 
     this.stream<Long, RapporteringsHendelse>(kafkaStreamsConfig.periodeTopic)

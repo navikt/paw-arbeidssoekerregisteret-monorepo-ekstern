@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.config
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtakInfo
@@ -69,6 +70,8 @@ fun buildPeriodeInfoSerde() = buildJsonSerde<PeriodeInfo>()
 fun buildSiste14aVedtakSerde() = buildJsonSerde<Siste14aVedtak>()
 
 fun buildSiste14aVedtakInfoSerde() = buildJsonSerde<Siste14aVedtakInfo>()
+
+fun buildBeriket14aVedtakSerde() = buildJsonSerde<Beriket14aVedtak>()
 
 fun buildToggleSerde() = buildJsonSerde<Toggle>()
 

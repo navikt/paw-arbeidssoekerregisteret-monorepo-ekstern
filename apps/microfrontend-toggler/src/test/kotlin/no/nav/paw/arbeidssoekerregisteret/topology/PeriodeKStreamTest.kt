@@ -16,15 +16,13 @@ import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
+import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildPeriodeKStream
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
-import org.apache.kafka.streams.TestInputTopic
-import org.apache.kafka.streams.TestOutputTopic
 import org.apache.kafka.streams.TopologyTestDriver
-import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.state.Stores
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -43,7 +41,7 @@ import java.util.*
  *     ved deaktivering. Når det er gått > 21d siden avslutting skal aia-min-side deaktiveres.
  *
  */
-class PeriodeTopologyTest : FreeSpec({
+class PeriodeKStreamTest : FreeSpec({
 
     with(TestContext()) {
         "Testsuite for toggling av microfrontends basert på arbeidssøkerperiode" - {
@@ -274,7 +272,7 @@ class PeriodeTopologyTest : FreeSpec({
                                 periodeInfoSerde
                             )
                         )
-                        buildPeriodeTopology(
+                        buildPeriodeKStream(
                             meterRegistry,
                             kafkaKeysClientMock::hentKafkaKeys
                         )
@@ -282,16 +280,16 @@ class PeriodeTopologyTest : FreeSpec({
                 }
             }.let { TopologyTestDriver(it, kafkaStreamProperties) }
 
-        val periodeStateStore: KeyValueStore<Long, PeriodeInfo> =
-            testDriver.getKeyValueStore(appConfig.kafkaStreams.periodeStoreName)
+        val periodeStateStore =
+            testDriver.getKeyValueStore<Long, PeriodeInfo>(appConfig.kafkaStreams.periodeStoreName)
 
-        val periodeTopic: TestInputTopic<Long, Periode> = testDriver.createInputTopic(
+        val periodeTopic = testDriver.createInputTopic(
             appConfig.kafkaStreams.periodeTopic,
             Serdes.Long().serializer(),
             periodeSerde.serializer()
         )
 
-        val microfrontendTopic: TestOutputTopic<Long, Toggle> = testDriver.createOutputTopic(
+        val microfrontendTopic = testDriver.createOutputTopic(
             appConfig.kafkaStreams.microfrontendTopic,
             Serdes.Long().deserializer(),
             toggleSerde.deserializer()

@@ -4,6 +4,7 @@ import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import no.nav.common.types.identer.AktorId
+import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
@@ -18,6 +19,7 @@ import java.time.Instant
 import java.util.*
 
 const val TEST_APPLICATION_CONFIG_FILE_NAME = "test_application_configuration.toml"
+const val BETA_TEST_APPLICATION_CONFIG_FILE_NAME = "beta_test_application_configuration.toml"
 
 val kafkaStreamProperties = Properties().apply {
     this[StreamsConfig.APPLICATION_ID_CONFIG] = "test-kafka-streams"
@@ -86,6 +88,19 @@ fun buildSiste14aVedtak(
     fattetDato: Instant
 ) = Siste14aVedtak(
     AktorId(aktorId),
+    "STANDARD_INNSATS",
+    "SKAFFE_ARBEID",
+    fattetDato,
+    false
+)
+
+fun buildBeriket14aVedtak(
+    aktorId: String,
+    arbeidsoekerId: Long,
+    fattetDato: Instant
+) = Beriket14aVedtak(
+    aktorId,
+    arbeidsoekerId,
     "STANDARD_INNSATS",
     "SKAFFE_ARBEID",
     fattetDato,

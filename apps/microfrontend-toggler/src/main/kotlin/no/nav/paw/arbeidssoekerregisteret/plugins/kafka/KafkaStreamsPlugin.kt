@@ -10,10 +10,14 @@ import io.ktor.util.KtorDsl
 import no.nav.paw.arbeidssoekerregisteret.config.KafkaStreamsConfig
 import org.apache.kafka.streams.KafkaStreams
 
+private fun KafkaStreams.getClientId() {
+    return
+}
+
 @KtorDsl
 class KafkaStreamsPluginConfig {
     var kafkaStreamsConfig: KafkaStreamsConfig? = null
-    var kafkaStreams: KafkaStreams? = null
+    var kafkaStreams: List<KafkaStreams>? = null
 }
 
 val KafkaStreamsPlugin: ApplicationPlugin<KafkaStreamsPluginConfig> =
@@ -22,12 +26,12 @@ val KafkaStreamsPlugin: ApplicationPlugin<KafkaStreamsPluginConfig> =
         val kafkaStreams = requireNotNull(pluginConfig.kafkaStreams) { "KafkaStreams er null" }
 
         on(MonitoringEvent(ApplicationStarted)) { application ->
-            application.log.info("Starting Kafka Streams")
-            kafkaStreams.start()
+            application.log.info("Starter Kafka Streams")
+            kafkaStreams.forEach { stream -> stream.start() }
         }
 
         on(MonitoringEvent(ApplicationStopping)) { application ->
-            application.log.info("Stopping Kafka Streams")
-            kafkaStreams.close(kafkaStreamsConfig.shutDownTimeout)
+            application.log.info("Stopper Kafka Streams")
+            kafkaStreams.forEach { stream -> stream.close(kafkaStreamsConfig.shutDownTimeout) }
         }
     }

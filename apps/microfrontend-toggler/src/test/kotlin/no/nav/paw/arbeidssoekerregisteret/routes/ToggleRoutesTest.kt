@@ -34,6 +34,7 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.apache.kafka.clients.producer.Producer
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @Ignored // TODO Få authz til å funke i test
@@ -93,11 +94,11 @@ fun MockOAuth2Server.buildAuthProviders(): AuthProviders {
 }
 
 class ToggleRoutesTestContext {
-    val logger = LoggerFactory.getLogger(APPLICATION_LOGGER_NAME)
-    val auditLogger = LoggerFactory.getLogger(AUDIT_LOGGER_NAME)
+    val logger: Logger = LoggerFactory.getLogger(APPLICATION_LOGGER_NAME)
+    val auditLogger: Logger = LoggerFactory.getLogger(AUDIT_LOGGER_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
-    val kafkaKeysClientMock = mockk<KafkaKeysClient>()
-    val kafkaProducerMock = mockk<Producer<Long, Toggle>>()
+    private val kafkaKeysClientMock = mockk<KafkaKeysClient>()
+    private val kafkaProducerMock = mockk<Producer<Long, Toggle>>()
     val toggleService = ToggleService(kafkaKeysClientMock, kafkaProducerMock)
     val mockOAuth2Server = buildAndStartMockOAuth2Server()
 

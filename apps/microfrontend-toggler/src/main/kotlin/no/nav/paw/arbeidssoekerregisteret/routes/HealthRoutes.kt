@@ -8,17 +8,16 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.config.HealthIndicator
 import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
+import no.nav.paw.arbeidssoekerregisteret.service.HealthIndicatorService
 
 fun Route.healthRoutes(
-    livenessHealthIndicator: HealthIndicator,
-    readinessHealthIndicator: HealthIndicator,
+    healthIndicatorService: HealthIndicatorService,
     meterRegistry: PrometheusMeterRegistry
 ) {
 
     get("/internal/isAlive") {
-        when (val status = livenessHealthIndicator.getStatus()) {
+        when (val status = healthIndicatorService.getLivenessStatus()) {
             HealthStatus.HEALTHY -> call.respondText(
                 ContentType.Text.Plain,
                 HttpStatusCode.OK
@@ -32,7 +31,7 @@ fun Route.healthRoutes(
     }
 
     get("/internal/isReady") {
-        when (val status = readinessHealthIndicator.getStatus()) {
+        when (val status = healthIndicatorService.getReadinessStatus()) {
             HealthStatus.HEALTHY -> call.respondText(
                 ContentType.Text.Plain,
                 HttpStatusCode.OK

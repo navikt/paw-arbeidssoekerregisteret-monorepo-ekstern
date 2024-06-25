@@ -14,6 +14,7 @@ const val APPLICATION_CONFIG_FILE_NAME = "application_configuration.toml"
 val currentAppName get() = "paw-microfrontend-toggler" // TODO Bruke miljøvar?
 
 data class AppConfig(
+    val betaVersion: Boolean,
     val authProviders: AuthProviders,
     val azureM2M: AzureM2MConfig,
     val kafka: KafkaConfig,
@@ -49,8 +50,10 @@ data class KafkaProducerConfig(
 data class KafkaStreamsConfig(
     val shutDownTimeout: Duration,
     val periodeStreamIdSuffix: String,
+    val siste14aVedtakStreamIdSuffix: String,
     val periodeTopic: String,
     val siste14aVedtakTopic: String,
+    val beriket14aVedtakTopic: String,
     val rapporteringTopic: String,
     val microfrontendTopic: String,
     val periodeStoreName: String,

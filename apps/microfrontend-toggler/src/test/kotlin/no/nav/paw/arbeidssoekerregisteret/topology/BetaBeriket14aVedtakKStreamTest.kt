@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.topology
 
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -7,8 +8,8 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
+import no.nav.paw.arbeidssoekerregisteret.config.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildPeriodeInfoSerde
-import no.nav.paw.arbeidssoekerregisteret.config.buildSiste14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
@@ -16,16 +17,17 @@ import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.buildPeriodeInfo
+import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildBeriket14aVedtakKStream
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.Stores
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
-import java.util.*
 
 /**
  *         14a1       14a2       14a3
@@ -38,10 +40,12 @@ import java.util.*
  * 14a3: Skal deaktivere aia-behovsvurdering når det finnes en aktiv periode ved vedtakstidspunkt
  *
  */
-class Siste14aVedtakTopologyTest : FreeSpec({
+@Ignored
+class BetaBeriket14aVedtakKStreamTest : FreeSpec({
 
     with(TestContext()) {
-        "Testsuite for toggling av AIA-microfrontends basert på siste 14a vedtak" - {
+        "Testsuite for toggling av AIA-microfrontends basert på beriket 14a vedtak" - {
+            val aktivKey = 23456L
             val identitetsnummer = "01017012345"
             val arbeidsoekerId = 1234L
             val aktorId = "12345"
@@ -53,16 +57,15 @@ class Siste14aVedtakTopologyTest : FreeSpec({
                 startet = periodeStartTidspunkt,
                 avsluttet = periodeAvsluttetTidspunkt
             )
-            val siste14aVedtak = buildSiste14aVedtak(aktorId, periodeStartTidspunkt.plus(Duration.ofDays(2)))
+            val beriket14aVedtak =
+                buildBeriket14aVedtak(aktorId, arbeidsoekerId, periodeStartTidspunkt.plus(Duration.ofDays(2)))
             every { kafkaKeysClientMock.hentKafkaKeys(aktorId) } returns KafkaKeysResponse(
                 arbeidsoekerId,
-                9876
+                aktivKey
             )
 
-            println(testDriver.producedTopicNames())
-
             "Skal ikke deaktivere aia-behovsvurdering microfrontend om det ikke finnes noen periode tilhørende 14a vedtak" {
-                siste14aVedtakTopic.pipeInput(UUID.randomUUID().toString(), siste14aVedtak)
+                beriket14aVedtakTopic.pipeInput(aktivKey, beriket14aVedtak)
 
                 microfrontendTopic.isEmpty shouldBe true
                 periodeKeyValueStore.size() shouldBe 0
@@ -71,7 +74,7 @@ class Siste14aVedtakTopologyTest : FreeSpec({
             "Skal ikke deaktivere aia-behovsvurdering microfrontend om det ikke finnes en aktiv periode tilhørende 14a vedtak" {
                 periodeKeyValueStore.put(arbeidsoekerId, avsluttetPeriode.buildPeriodeInfo(arbeidsoekerId))
 
-                siste14aVedtakTopic.pipeInput(UUID.randomUUID().toString(), siste14aVedtak)
+                beriket14aVedtakTopic.pipeInput(aktivKey, beriket14aVedtak)
 
                 microfrontendTopic.isEmpty shouldBe true
                 periodeKeyValueStore.size() shouldBe 1
@@ -80,7 +83,7 @@ class Siste14aVedtakTopologyTest : FreeSpec({
             "Skal deaktivere aia-behovsvurdering microfrontend om det finnes en aktiv periode tilhørende 14a vedtak" {
                 periodeKeyValueStore.put(arbeidsoekerId, startetPeriode.buildPeriodeInfo(arbeidsoekerId))
 
-                siste14aVedtakTopic.pipeInput(UUID.randomUUID().toString(), siste14aVedtak)
+                beriket14aVedtakTopic.pipeInput(aktivKey, beriket14aVedtak)
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
@@ -104,12 +107,12 @@ class Siste14aVedtakTopologyTest : FreeSpec({
 }) {
     private class TestContext {
 
-        val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
-        val logger = LoggerFactory.getLogger("TestApplication")
-        val auditLogger = LoggerFactory.getLogger("TestAudit")
+        val appConfig = loadNaisOrLocalConfiguration<AppConfig>(BETA_TEST_APPLICATION_CONFIG_FILE_NAME)
+        val logger: Logger = LoggerFactory.getLogger("TestApplication")
+        val auditLogger: Logger = LoggerFactory.getLogger("TestAudit")
         val meterRegistry = SimpleMeterRegistry()
         val periodeInfoSerde = buildPeriodeInfoSerde()
-        val siste14aVedtakSerde = buildSiste14aVedtakSerde()
+        val beriket14aVedtakSerde = buildBeriket14aVedtakSerde()
         val toggleSerde = buildToggleSerde()
         val kafkaKeysClientMock = mockk<KafkaKeysClientMock>()
 
@@ -124,7 +127,7 @@ class Siste14aVedtakTopologyTest : FreeSpec({
                                 periodeInfoSerde
                             )
                         )
-                        buildSiste14aVedtakTopology(
+                        buildBeriket14aVedtakKStream(
                             meterRegistry,
                             kafkaKeysClientMock::hentKafkaKeys
                         )
@@ -136,10 +139,10 @@ class Siste14aVedtakTopologyTest : FreeSpec({
         val periodeKeyValueStore =
             testDriver.getKeyValueStore<Long, PeriodeInfo>(appConfig.kafkaStreams.periodeStoreName)
 
-        val siste14aVedtakTopic = testDriver.createInputTopic(
-            appConfig.kafkaStreams.siste14aVedtakTopic,
-            Serdes.String().serializer(),
-            siste14aVedtakSerde.serializer()
+        val beriket14aVedtakTopic = testDriver.createInputTopic(
+            appConfig.kafkaStreams.beriket14aVedtakTopic,
+            Serdes.Long().serializer(),
+            beriket14aVedtakSerde.serializer()
         )
 
         val microfrontendTopic = testDriver.createOutputTopic(

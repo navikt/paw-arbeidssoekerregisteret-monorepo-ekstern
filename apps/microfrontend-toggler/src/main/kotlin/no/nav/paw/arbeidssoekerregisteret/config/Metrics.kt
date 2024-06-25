@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 private const val METRIC_PREFIX = "paw_microfrontend_toggler"
 
-fun MeterRegistry.tellAntallToggles(toggle: Toggle) {
+fun MeterRegistry.tellAntallSendteToggles(toggle: Toggle) {
     counter(
         "${METRIC_PREFIX}_processed_actions",
         Tags.of(
@@ -28,21 +28,20 @@ fun MeterRegistry.tellAntallLagredePerioder(antallLagredePerioderReference: Atom
     }
 }
 
-fun MeterRegistry.tellAntallProsessertePerioderForFiksAktiveMicrofrontends(relevant: Boolean) {
+fun MeterRegistry.tellAntallMottattePerioder() {
     counter(
-        "${METRIC_PREFIX}_antall_prosseserte_perioder_for_fiks_aktive_microfrontends",
-        Tags.of(
-            Tag.of("relevant", relevant.toString())
-        )
+        "${METRIC_PREFIX}_antall_mottatte_perioder",
     ).increment()
 }
 
-fun MeterRegistry.tellAntallLagredePerioderForFiksAktiveMicrofrontends(antallLagredePerioderReference: AtomicLong) {
-    gauge(
-        "${METRIC_PREFIX}_antall_lagrede_perioder_for_fiks_aktive_microfrontends",
-        Tags.empty(),
-        antallLagredePerioderReference
-    ) {
-        antallLagredePerioderReference.get().toDouble()
-    }
+fun MeterRegistry.tellAntallMottatteSiste14aVedtak() {
+    counter(
+        "${METRIC_PREFIX}_antall_mottatte_siste_14a_vedtak",
+    ).increment()
+}
+
+fun MeterRegistry.tellAntallMottatteBeriket14aVedtak() {
+    counter(
+        "${METRIC_PREFIX}_antall_mottatte_beriket_14a_vedtak",
+    ).increment()
 }

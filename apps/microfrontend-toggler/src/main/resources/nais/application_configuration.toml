@@ -1,3 +1,5 @@
+betaVersion = "${BETA_VERSION}"
+
 [[authProviders]]
 name = "tokenx"
 discoveryUrl = "${TOKEN_X_WELL_KNOWN_URL}"
@@ -31,9 +33,11 @@ toggleProducerIdSuffix = "${KAFKA_TOGGLE_PRODUCER_ID_SUFFIX}"
 
 [kafkaStreams]
 shutDownTimeout = "PT5S"
-periodeStreamIdSuffix = "${KAFKA_PERIODE_STREAM_ID_SUFFIX}"
+periodeStreamIdSuffix = "${KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX}"
+siste14aVedtakStreamIdSuffix = "${KAFKA_SISTE_14A_VEDTAK_STREAM_ID_SUFFIX}"
 periodeTopic = "${KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC}"
 rapporteringTopic = "${KAFKA_PAW_RAPPORTERING_TOPIC}"
+beriket14aVedtakTopic = "${KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC}"
 siste14aVedtakTopic = "${KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC}"
 microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
 periodeStoreName = "microfrontendTogglePeriodeStore"

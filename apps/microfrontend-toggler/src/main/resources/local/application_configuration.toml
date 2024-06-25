@@ -1,3 +1,5 @@
+betaVersion = false
+
 [[authProviders]]
 name = "tokenx"
 discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
@@ -20,13 +22,15 @@ applicationIdPrefix = "paw.paw-microfrontend-toggler"
 url = "http://localhost:8082"
 
 [kafkaProducer]
-toggleProducerIdSuffix = "producer-v1"
+toggleProducerIdSuffix = "toggle-producer-v1"
 
 [kafkaStreams]
 shutDownTimeout = "PT1S"
-periodeStreamIdSuffix = "stream-v1"
+periodeStreamIdSuffix = "arbeidssokerperioder-stream-v1"
+siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 rapporteringTopic = "paw.rapportering-v1"
+beriket14aVedtakTopic = "paw.beriket-14a-vedtak-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 periodeStoreName = "microfrontendTogglePeriodeStore"

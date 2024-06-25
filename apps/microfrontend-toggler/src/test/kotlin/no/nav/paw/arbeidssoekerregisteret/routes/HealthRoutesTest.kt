@@ -6,20 +6,24 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
-import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.config.StandardHealthIndicator
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.model.HealthStatus
+import no.nav.paw.arbeidssoekerregisteret.service.HealthIndicatorService
 
 class HealthRoutesTest : FreeSpec({
     with(HealthRoutesTestContext()) {
         "Test av health routes" {
+            every { meterRegistryMock.scrape() } returns "MOCK METRICS"
+
             testApplication {
                 routing {
-                    healthRoutes(livenessHealthIndicator, readinessHealthIndicator, meterRegistry)
+                    healthRoutes(healthIndicatorService, meterRegistryMock)
                 }
 
-                // Health indicators er default UNKNOWN
+                // Liveness health indicators er default HEALTHY
+                // Readiness health indicators er default UNKNOWN
 
                 val metricsResponse = client.get("/internal/metrics")
                 metricsResponse.status shouldBe HttpStatusCode.OK
@@ -76,13 +80,25 @@ class HealthRoutesTest : FreeSpec({
                 isReadyResponse = client.get("/internal/isReady")
                 isReadyResponse.status shouldBe HttpStatusCode.ServiceUnavailable
                 isReadyResponse.body<String>() shouldBe HealthStatus.UNKNOWN.value
+
+                // Setter liveness health indicator til UNKNOWN
+                livenessHealthIndicator.setUnknown()
+
+                isAliveResponse = client.get("/internal/isAlive")
+                isAliveResponse.status shouldBe HttpStatusCode.ServiceUnavailable
+                isAliveResponse.body<String>() shouldBe HealthStatus.UNKNOWN.value
+
+                isReadyResponse = client.get("/internal/isReady")
+                isReadyResponse.status shouldBe HttpStatusCode.ServiceUnavailable
+                isReadyResponse.body<String>() shouldBe HealthStatus.UNKNOWN.value
             }
         }
     }
 })
 
 class HealthRoutesTestContext {
-    val livenessHealthIndicator = StandardHealthIndicator(HealthStatus.HEALTHY)
-    val readinessHealthIndicator = StandardHealthIndicator(HealthStatus.UNKNOWN)
-    val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+    val healthIndicatorService = HealthIndicatorService()
+    val readinessHealthIndicator = healthIndicatorService.newReadinessIndicator()
+    val livenessHealthIndicator = healthIndicatorService.newLivenessIndicator()
+    val meterRegistryMock = mockk<PrometheusMeterRegistry>()
 }
