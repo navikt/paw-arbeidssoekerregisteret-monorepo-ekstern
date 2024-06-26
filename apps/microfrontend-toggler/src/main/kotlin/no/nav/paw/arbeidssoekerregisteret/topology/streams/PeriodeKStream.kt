@@ -70,9 +70,6 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
 
     val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
 
-    // Lagre periode i state store
-    stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
-
     when {
         periodeInfo.erAvsluttet() -> { // Avsluttet periode
             val utsattDeaktiveringsfrist = Instant.now().minus(reglerConfig.utsattDeaktiveringAvAiaMinSide)
@@ -90,6 +87,8 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
                     periodeInfo.id,
                     microfrontendConfig.aiaMinSide
                 )
+                // Lagre periode i state store
+                stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
             }
 
             // Send event for å deaktivere AIA Behovsvurdering
@@ -100,6 +99,9 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
         }
 
         else -> {
+            // Lagre periode i state store
+            stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
+
             // Send event for å aktivere AIA Min Side
             val enableAiaMinSideToggle = iverksettAktiverToggle(periodeInfo, microfrontendConfig.aiaMinSide)
             meterRegistry.tellAntallSendteToggles(enableAiaMinSideToggle)

@@ -128,8 +128,11 @@ jib {
     to.image = "${image ?: project.name}:${project.version}"
     container {
         environment = mapOf(
-            "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}"
+            "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}",
+            "OTEL_INSTRUMENTATION_METHODS_INCLUDE" to ("org.apache.kafka.streams.state.internals.RocksDBStore[put]")
         )
-        jvmFlags = listOf("-XX:ActiveProcessorCount=4", "-XX:+UseZGC", "-XX:+ZGenerational")
+        jvmFlags = listOf(
+            "-XX:ActiveProcessorCount=4", "-XX:+UseZGC", "-XX:+ZGenerational"
+        )
     }
 }
