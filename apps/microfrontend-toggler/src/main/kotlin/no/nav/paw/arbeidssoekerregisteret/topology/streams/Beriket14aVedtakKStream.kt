@@ -38,7 +38,7 @@ fun StreamsBuilder.buildBeriket14aVedtakKStream(
     meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ) {
-    if (appConfig.betaVersion && false) { // TODO Satt for testkjøring av beta-app
+    if (appConfig.betaVersion) {
         buildBetaKStream(meterRegistry)
     } else {
         buildKStream(meterRegistry, hentKafkaKeys)
