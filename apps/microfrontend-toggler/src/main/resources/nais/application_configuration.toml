@@ -39,14 +39,13 @@ beriket14aVedtakTopic = "${KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC}"
 siste14aVedtakTopic = "${KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC}"
 microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
 periodeStoreName = "microfrontendTogglePeriodeStore"
-siste14aVedtakPartitionCount = 6 # Må være samme antall partisjoner som periode-topic
 
 [kafkaKeysClient]
 url = "${KAFKA_KEY_URL}"
 scope = "${KAFKA_KEY_SCOPE}"
 
 [regler]
-periodeTogglePunctuatorSchedule = "PT12H"
+periodeTogglePunctuatorSchedule = "PT6H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
 
 [microfrontends]

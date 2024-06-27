@@ -55,7 +55,6 @@ data class KafkaStreamsConfig(
     val rapporteringTopic: String,
     val microfrontendTopic: String,
     val periodeStoreName: String,
-    val siste14aVedtakPartitionCount: Int
 )
 
 data class ReglerConfig(

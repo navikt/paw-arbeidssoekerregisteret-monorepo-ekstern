@@ -18,13 +18,33 @@ fun MeterRegistry.tellAntallSendteToggles(toggle: Toggle) {
     ).increment()
 }
 
-fun MeterRegistry.tellAntallLagredePerioder(antallLagredePerioderReference: AtomicLong) {
+fun MeterRegistry.tellAntallLagredePerioderTotalt(antallReference: AtomicLong) {
     gauge(
-        "${METRIC_PREFIX}_antall_lagrede_perioder",
+        "${METRIC_PREFIX}_antall_lagrede_perioder_totalt",
         Tags.empty(),
-        antallLagredePerioderReference
+        antallReference
     ) {
-        antallLagredePerioderReference.get().toDouble()
+        antallReference.get().toDouble()
+    }
+}
+
+fun MeterRegistry.tellAntallLagredeAktivePerioder(antallReference: AtomicLong) {
+    gauge(
+        "${METRIC_PREFIX}_antall_lagrede_altive_perioder",
+        Tags.empty(),
+        antallReference
+    ) {
+        antallReference.get().toDouble()
+    }
+}
+
+fun MeterRegistry.tellAntallLagredeAvsluttedePerioder(antallReference: AtomicLong) {
+    gauge(
+        "${METRIC_PREFIX}_antall_lagrede_avsluttede_perioder",
+        Tags.empty(),
+        antallReference
+    ) {
+        antallReference.get().toDouble()
     }
 }
 

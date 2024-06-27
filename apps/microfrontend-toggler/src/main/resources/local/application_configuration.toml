@@ -32,7 +32,6 @@ beriket14aVedtakTopic = "paw.beriket-14a-vedtak-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 periodeStoreName = "microfrontendTogglePeriodeStore"
-siste14aVedtakPartitionCount = 1
 
 [kafkaKeysClient]
 url = "http://localhost:8090/kafka-keys"

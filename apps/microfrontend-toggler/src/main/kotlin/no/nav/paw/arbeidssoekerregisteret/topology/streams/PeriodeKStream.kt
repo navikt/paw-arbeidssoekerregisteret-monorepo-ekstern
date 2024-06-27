@@ -5,7 +5,9 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
-import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredePerioder
+import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredeAktivePerioder
+import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredeAvsluttedePerioder
+import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredePerioderTotalt
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallMottattePerioder
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
@@ -134,13 +136,20 @@ class TogglePunctuation(private val meterRegistry: MeterRegistry) {
             val reglerConfig = appConfig.regler
             val microfrontendConfig = appConfig.microfrontends
 
-            val antallLagredePerioderReference = AtomicLong(0)
+            val antallTotalt = AtomicLong(0)
+            val antallAktive = AtomicLong(0)
+            val antallAvsluttede = AtomicLong(0)
 
             val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
             for (keyValue in stateStore.all()) {
                 val periodeInfo = keyValue.value
 
-                antallLagredePerioderReference.incrementAndGet()
+                antallTotalt.incrementAndGet()
+                if (periodeInfo.erAvsluttet()) {
+                    antallAvsluttede.incrementAndGet()
+                } else {
+                    antallAktive.incrementAndGet()
+                }
 
                 // Om det er gått mer en 21 dager fra perioden ble avsluttet
                 val utsattDeaktiveringsfrist = timestamp.minus(reglerConfig.utsattDeaktiveringAvAiaMinSide)
@@ -154,7 +163,9 @@ class TogglePunctuation(private val meterRegistry: MeterRegistry) {
                 }
             }
 
-            meterRegistry.tellAntallLagredePerioder(antallLagredePerioderReference)
+            meterRegistry.tellAntallLagredePerioderTotalt(antallTotalt)
+            meterRegistry.tellAntallLagredeAktivePerioder(antallAktive)
+            meterRegistry.tellAntallLagredeAvsluttedePerioder(antallAvsluttede)
         }
     }
 }
