@@ -19,7 +19,7 @@ fun StreamsBuilder.buildSiste14aVedtakKStream(
     meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ) {
-    logger.info("Aktiverer KStream for berikelse av 14a-vedtak")
+    logger.info("Oppretter KStream for berikelse av 14a-vedtak")
     val kafkaStreamsConfig = appConfig.kafkaStreams
 
     this.stream(

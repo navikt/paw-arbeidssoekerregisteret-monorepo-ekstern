@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.config
 
 import no.nav.paw.config.env.NaisEnv
 import no.nav.paw.config.env.currentAppId
+import no.nav.paw.config.env.currentAppName
 import no.nav.paw.config.env.currentNaisEnv
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
@@ -11,10 +12,7 @@ import java.time.Duration
 const val APPLICATION_LOGGER_NAME = "no.nav.paw.application"
 const val APPLICATION_CONFIG_FILE_NAME = "application_configuration.toml"
 
-val currentAppName get() = "paw-microfrontend-toggler" // TODO Bruke miljøvar?
-
 data class AppConfig(
-    val betaVersion: Boolean,
     val authProviders: AuthProviders,
     val azureM2M: AzureM2MConfig,
     val kafka: KafkaConfig,
@@ -23,8 +21,8 @@ data class AppConfig(
     val kafkaKeysClient: KafkaKeyConfig,
     val regler: ReglerConfig,
     val microfrontends: MicrofrontendsConfig,
-    val appName: String = currentAppName,
-    val appId: String = currentAppId,
+    val appName: String = currentAppName ?: "paw-microfrontend-toggler",
+    val appId: String = currentAppId ?: "paw-microfrontend-toggler:LOCAL",
     val naisEnv: NaisEnv = currentNaisEnv
 )
 

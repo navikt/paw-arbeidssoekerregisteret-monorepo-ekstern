@@ -9,8 +9,6 @@ spec:
   image: {{ image }}
   port: 8080
   env:
-    - name: BETA_VERSION
-      value: "false"
     - name: KAFKA_TOGGLE_PRODUCER_ID_SUFFIX
       value: "toggle-producer-v1"
     - name: KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX

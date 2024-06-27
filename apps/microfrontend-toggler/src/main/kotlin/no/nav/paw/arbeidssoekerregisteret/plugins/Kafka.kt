@@ -28,6 +28,7 @@ fun Application.configureKafka(
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ): List<KafkaStreamsMetrics> {
 
+    logger.info("Oppretter Kafka Stream for arbeidssøkerperioder")
     val periodeKafkaStreams = buildKafkaStreams(
         appConfig.kafkaStreams.periodeStreamIdSuffix,
         buildPeriodeTopology(meterRegistry, hentKafkaKeys),
@@ -36,23 +37,17 @@ fun Application.configureKafka(
             healthIndicatorService.newReadinessIndicator()
         )
     )
-
-    logger.info("Aktiverer Kafka Stream for arbeidssøkerperioder")
-    val kafkaStreamsList = mutableListOf(periodeKafkaStreams)
-
-    if (appConfig.betaVersion) {
-        val siste14aVedtakKafkaStreams = buildKafkaStreams(
-            appConfig.kafkaStreams.siste14aVedtakStreamIdSuffix,
-            buildSiste14aVedtakTopology(meterRegistry, hentKafkaKeys),
-            buildStateListener(
-                healthIndicatorService.newLivenessIndicator(),
-                healthIndicatorService.newReadinessIndicator()
-            )
+    logger.info("Oppretter Kafka Stream for 14a-vedtak")
+    val siste14aVedtakKafkaStreams = buildKafkaStreams(
+        appConfig.kafkaStreams.siste14aVedtakStreamIdSuffix,
+        buildSiste14aVedtakTopology(meterRegistry, hentKafkaKeys),
+        buildStateListener(
+            healthIndicatorService.newLivenessIndicator(),
+            healthIndicatorService.newReadinessIndicator()
         )
+    )
 
-        logger.info("Aktiverer Kafka Stream for 14a-vedtak")
-        kafkaStreamsList.add(siste14aVedtakKafkaStreams)
-    }
+    val kafkaStreamsList = mutableListOf(periodeKafkaStreams, siste14aVedtakKafkaStreams)
 
     install(KafkaStreamsPlugin) {
         kafkaStreamsConfig = appConfig.kafkaStreams

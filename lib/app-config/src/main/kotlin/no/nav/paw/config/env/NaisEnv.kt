@@ -14,4 +14,6 @@ val currentNaisEnv: NaisEnv
             else -> NaisEnv.Local
         }
 
-val currentAppId get() = System.getenv("IMAGE_WITH_VERSION") ?: "UNSPECIFIED"
+val currentAppId: String? get() = System.getenv("NAIS_APP_IMAGE") // F.eks. europe-north1-docker.pkg.dev/nais-management-233d/paw/paw-microfrontend-toggler:24.06.27.57-1
+
+val currentAppName: String? get() = System.getenv("NAIS_APP_NAME") // F.eks. paw-microfrontend-toggler

@@ -30,5 +30,5 @@ fun buildPeriodeTopology(
 ): Topology = StreamsBuilder().apply {
     addPeriodeStateStore()
     buildPeriodeKStream(meterRegistry, hentKafkaKeys)
-    buildBeriket14aVedtakKStream(meterRegistry, hentKafkaKeys)
+    buildBeriket14aVedtakKStream(meterRegistry)
 }.build()

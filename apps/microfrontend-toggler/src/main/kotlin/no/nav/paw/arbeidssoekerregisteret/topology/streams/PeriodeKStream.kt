@@ -38,7 +38,7 @@ fun StreamsBuilder.buildPeriodeKStream(
     meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ) {
-    logger.info("Aktiverer KStream for arbeidssøkerperioder")
+    logger.info("Oppretter KStream for arbeidssøkerperioder")
     val kafkaStreamsConfig = appConfig.kafkaStreams
 
     this.stream<Long, Periode>(kafkaStreamsConfig.periodeTopic)

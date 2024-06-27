@@ -19,7 +19,6 @@ import java.time.Instant
 import java.util.*
 
 const val TEST_APPLICATION_CONFIG_FILE_NAME = "test_application_configuration.toml"
-const val BETA_TEST_APPLICATION_CONFIG_FILE_NAME = "beta_test_application_configuration.toml"
 
 val kafkaStreamProperties = Properties().apply {
     this[StreamsConfig.APPLICATION_ID_CONFIG] = "test-kafka-streams"

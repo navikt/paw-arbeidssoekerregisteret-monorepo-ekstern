@@ -1,5 +1,3 @@
-betaVersion = true
-
 [[authProviders]]
 name = "tokenx"
 discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
