@@ -10,11 +10,11 @@ spec:
   port: 8080
   env:
     - name: BETA_VERSION
-      value: "false"
+      value: "true"
     - name: KAFKA_TOGGLE_PRODUCER_ID_SUFFIX
-      value: "producer-v1" # TODO Legg til toggle i navn
+      value: "toggle-producer-v1"
     - name: KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX
-      value: "stream-v1" # TODO Legg til arbeidssokerperioder i navn
+      value: "arbeidssokerperioder-stream-v1"
     - name: KAFKA_SISTE_14A_VEDTAK_STREAM_ID_SUFFIX
       value: "siste-14a-vedtak-stream-v1"
     - name: KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC
@@ -38,8 +38,8 @@ spec:
       cpu: 250m
       memory: 2048Mi
   replicas:
-    min: 1
-    max: 1
+    min: 6
+    max: 6
   liveness:
     path: /internal/isAlive
     initialDelay: 10
