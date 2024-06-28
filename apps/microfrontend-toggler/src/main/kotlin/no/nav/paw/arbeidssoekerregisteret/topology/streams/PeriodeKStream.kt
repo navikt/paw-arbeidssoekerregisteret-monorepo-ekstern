@@ -14,6 +14,8 @@ import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
+import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
+import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
 import no.nav.paw.arbeidssoekerregisteret.model.bleAvsluttetTidligereEnn
 import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggle
 import no.nav.paw.arbeidssoekerregisteret.model.buildEnableToggle
@@ -65,6 +67,7 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
     record: Record<Long, PeriodeInfo>
 ) {
     val periodeInfo = record.value()
+    val toggleSource = ToggleSource.ARBEIDSSOEKERPERIODE
 
     val kafkaStreamsConfig = appConfig.kafkaStreams
     val reglerConfig = appConfig.regler
@@ -77,12 +80,19 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
             val utsattDeaktiveringsfrist = Instant.now().minus(reglerConfig.utsattDeaktiveringAvAiaMinSide)
             if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
                 // Send event for å deaktiver AIA Min Side
-                val disableAiaMinSideToggle =
-                    iverksettDeaktiverToggle(periodeInfo, microfrontendConfig.aiaMinSide)
+                val disableAiaMinSideToggle = iverksettDeaktiverToggle(
+                    periodeInfo,
+                    microfrontendConfig.aiaMinSide,
+                    toggleSource
+                )
                 // Slett periode fra state store
                 stateStore.delete(periodeInfo.arbeidssoekerId)
                 // Registrer metrikk for toggle
-                meterRegistry.tellAntallSendteToggles(disableAiaMinSideToggle)
+                meterRegistry.tellAntallSendteToggles(
+                    disableAiaMinSideToggle,
+                    toggleSource,
+                    "avsluttet_periode"
+                )
             } else {
                 logger.info(
                     "Arbeidsøkerperiode {} er avluttet. Lagrer forsinket deaktivering av {}.",
@@ -94,10 +104,17 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
             }
 
             // Send event for å deaktivere AIA Behovsvurdering
-            val disableAiaBehovsvurderingToggle =
-                iverksettDeaktiverToggle(periodeInfo, microfrontendConfig.aiaBehovsvurdering)
+            val disableAiaBehovsvurderingToggle = iverksettDeaktiverToggle(
+                periodeInfo,
+                microfrontendConfig.aiaBehovsvurdering,
+                toggleSource
+            )
             // Registrer metrikk for toggle
-            meterRegistry.tellAntallSendteToggles(disableAiaBehovsvurderingToggle)
+            meterRegistry.tellAntallSendteToggles(
+                disableAiaBehovsvurderingToggle,
+                toggleSource,
+                "avsluttet_periode"
+            )
         }
 
         else -> {
@@ -105,13 +122,28 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
             stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
 
             // Send event for å aktivere AIA Min Side
-            val enableAiaMinSideToggle = iverksettAktiverToggle(periodeInfo, microfrontendConfig.aiaMinSide)
-            meterRegistry.tellAntallSendteToggles(enableAiaMinSideToggle)
+            val enableAiaMinSideToggle = iverksettAktiverToggle(
+                periodeInfo,
+                microfrontendConfig.aiaMinSide,
+                toggleSource
+            )
+            meterRegistry.tellAntallSendteToggles(
+                enableAiaMinSideToggle,
+                toggleSource,
+                "aktiv_periode"
+            )
 
             // Send event for å aktivere AIA Behovsvurdering
-            val enableAiaBehovsvurderingToggle =
-                iverksettAktiverToggle(periodeInfo, microfrontendConfig.aiaBehovsvurdering)
-            meterRegistry.tellAntallSendteToggles(enableAiaBehovsvurderingToggle)
+            val enableAiaBehovsvurderingToggle = iverksettAktiverToggle(
+                periodeInfo,
+                microfrontendConfig.aiaBehovsvurdering,
+                toggleSource
+            )
+            meterRegistry.tellAntallSendteToggles(
+                enableAiaBehovsvurderingToggle,
+                toggleSource,
+                "aktiv_periode"
+            )
         }
     }
 }
@@ -132,6 +164,8 @@ class TogglePunctuation(private val meterRegistry: MeterRegistry) {
     @WithSpan(value = "periode_toggle_punctuator", kind = SpanKind.INTERNAL)
     fun punctuate(timestamp: Instant, context: ProcessorContext<Long, Toggle>) {
         with(context) {
+            val toggleSource = ToggleSource.ARBEIDSSOEKERPERIODE
+
             val kafkaStreamsConfig = appConfig.kafkaStreams
             val reglerConfig = appConfig.regler
             val microfrontendConfig = appConfig.microfrontends
@@ -155,11 +189,19 @@ class TogglePunctuation(private val meterRegistry: MeterRegistry) {
                 val utsattDeaktiveringsfrist = timestamp.minus(reglerConfig.utsattDeaktiveringAvAiaMinSide)
                 if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
                     // Send event for å deaktiver AIA Min Side
-                    val disableAiaMinSideToggle = iverksettDeaktiverToggle(periodeInfo, microfrontendConfig.aiaMinSide)
+                    val disableAiaMinSideToggle = iverksettDeaktiverToggle(
+                        periodeInfo,
+                        microfrontendConfig.aiaMinSide,
+                        toggleSource
+                    )
                     // Slett periode fra state store
                     stateStore.delete(periodeInfo.arbeidssoekerId)
                     // Registrer metrikk for toggle
-                    meterRegistry.tellAntallSendteToggles(disableAiaMinSideToggle)
+                    meterRegistry.tellAntallSendteToggles(
+                        disableAiaMinSideToggle,
+                        toggleSource,
+                        "avsluttet_periode"
+                    )
                 }
             }
 
@@ -174,11 +216,13 @@ context(ConfigContext, LoggingContext)
 @WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
     periodeInfo: PeriodeInfo,
-    microfrontendId: String
+    microfrontendId: String,
+    toggleSource: ToggleSource
 ): Toggle {
     val currentSpan = Span.current()
-    currentSpan.setAttribute("action", "enable")
-    currentSpan.setAttribute("microfrontend_id", microfrontendId)
+    currentSpan.setAttribute("action", ToggleAction.ENABLE.value)
+    currentSpan.setAttribute("target", microfrontendId)
+    currentSpan.setAttribute("source", toggleSource.value)
     logger.info(
         "Arbeidsøkerperiode {} er aktiv. Iverksetter aktivering av {}.",
         periodeInfo.id,
@@ -193,11 +237,13 @@ context(ConfigContext, LoggingContext)
 @WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     periodeInfo: PeriodeInfo,
-    microfrontendId: String
+    microfrontendId: String,
+    toggleSource: ToggleSource
 ): Toggle {
     val currentSpan = Span.current()
-    currentSpan.setAttribute("action", "disable")
-    currentSpan.setAttribute("microfrontend_id", microfrontendId)
+    currentSpan.setAttribute("action", ToggleAction.DISABLE.value)
+    currentSpan.setAttribute("target", microfrontendId)
+    currentSpan.setAttribute("source", toggleSource.value)
     logger.info(
         "Arbeidsøkerperiode {} er avluttet og utsettelsestid er utløpt. Iverksetter deaktivering av {}.",
         periodeInfo.id,

@@ -6,6 +6,7 @@ import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
+import no.nav.paw.arbeidssoekerregisteret.config.tellAntallIkkeSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallMottatteBeriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
@@ -13,6 +14,8 @@ import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
+import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
+import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
 import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggle
 import no.nav.paw.arbeidssoekerregisteret.model.buildRecord
 import no.nav.paw.arbeidssoekerregisteret.model.erAvsluttet
@@ -53,6 +56,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
     record: Record<Long, Beriket14aVedtak>
 ) {
     val beriket14aVedtak = record.value()
+    val toggleSource = ToggleSource.SISTE_14A_VEDTAK
 
     val kafkaStreamsConfig = appConfig.kafkaStreams
     val microfrontendConfig = appConfig.microfrontends
@@ -63,18 +67,43 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
     // Sjekk om vedtak er innenfor en aktiv periode
     if (periodeInfo == null) {
         logger.error("Det ble gjort et 14a vedtak, men fant ingen tilhørende arbeidsøkerperiode")
+        meterRegistry.tellAntallIkkeSendteToggles(
+            microfrontendConfig.aiaBehovsvurdering,
+            toggleSource,
+            ToggleAction.DISABLE,
+            "mangler_periode"
+        )
     } else if (periodeInfo.erAvsluttet()) {
         logger.warn("Det ble gjort et 14a vedtak, men tilhørende arbeidsøkerperiode er avsluttet")
+        meterRegistry.tellAntallIkkeSendteToggles(
+            microfrontendConfig.aiaBehovsvurdering,
+            toggleSource,
+            ToggleAction.DISABLE,
+            "avsluttet_periode"
+        )
     } else if (periodeInfo.erInnenfor(beriket14aVedtak.fattetDato)) {
         // Send event for å deaktivere AIA Behovsvurdering
-        val disableAiaBehovsvurderingToggle =
-            iverksettDeaktiverToggle(periodeInfo, microfrontendConfig.aiaBehovsvurdering)
+        val disableAiaBehovsvurderingToggle = iverksettDeaktiverToggle(
+            periodeInfo,
+            microfrontendConfig.aiaBehovsvurdering,
+            toggleSource
+        )
         // Registrer metrikk for toggle
-        meterRegistry.tellAntallSendteToggles(disableAiaBehovsvurderingToggle)
+        meterRegistry.tellAntallSendteToggles(
+            disableAiaBehovsvurderingToggle,
+            toggleSource,
+            "vedtak_for_aktiv_periode"
+        )
     } else {
         logger.warn(
             "Det ble gjort et 14a vedtak, men vedtakstidspunkt er ikke innenfor aktiv arbeidsøkerperiode {}",
             periodeInfo.id
+        )
+        meterRegistry.tellAntallIkkeSendteToggles(
+            microfrontendConfig.aiaBehovsvurdering,
+            toggleSource,
+            ToggleAction.DISABLE,
+            "vedtakdato_utenfor_periode"
         )
     }
 }
@@ -83,11 +112,13 @@ context(ConfigContext, LoggingContext)
 @WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     periodeInfo: PeriodeInfo,
-    microfrontendId: String
+    microfrontendId: String,
+    toggleSource: ToggleSource
 ): Toggle {
     val currentSpan = Span.current()
-    currentSpan.setAttribute("action", "disable")
-    currentSpan.setAttribute("microfrontend_id", microfrontendId)
+    currentSpan.setAttribute("action", ToggleAction.DISABLE.value)
+    currentSpan.setAttribute("target", microfrontendId)
+    currentSpan.setAttribute("source", toggleSource.value)
     logger.info(
         "Det ble gjort et 14a vedtak for aktiv arbeidsøkerperiode {}. Iverksetter deaktivering av {}.",
         periodeInfo.id,

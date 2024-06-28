@@ -5,6 +5,11 @@ import com.fasterxml.jackson.annotation.JsonValue
 import org.apache.kafka.streams.processor.api.Record
 import java.time.Instant
 
+enum class ToggleSource(@get:JsonValue val value: String) {
+    ARBEIDSSOEKERPERIODE("arbeidsøkerperiode"),
+    SISTE_14A_VEDTAK("siste-14a-vedtak")
+}
+
 enum class ToggleAction(@get:JsonValue val value: String) {
     ENABLE("enable"),
     DISABLE("disable")

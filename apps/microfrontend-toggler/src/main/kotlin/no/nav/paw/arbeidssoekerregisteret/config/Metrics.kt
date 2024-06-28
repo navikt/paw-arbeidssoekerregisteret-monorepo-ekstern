@@ -4,16 +4,46 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
+import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
+import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
 import java.util.concurrent.atomic.AtomicLong
 
 private const val METRIC_PREFIX = "paw_microfrontend_toggler"
 
-fun MeterRegistry.tellAntallSendteToggles(toggle: Toggle) {
+fun MeterRegistry.tellAntallSendteToggles(toggle: Toggle, source: ToggleSource, reason: String) {
+    tellAntallSendteToggles(toggle.microfrontendId, source, toggle.action, reason)
+}
+
+fun MeterRegistry.tellAntallSendteToggles(
+    target: String,
+    source: ToggleSource,
+    action: ToggleAction,
+    reason: String
+) {
     counter(
-        "${METRIC_PREFIX}_processed_actions",
+        "${METRIC_PREFIX}_antall_sendte_toggles",
         Tags.of(
-            Tag.of("microfrontend_id", toggle.microfrontendId),
-            Tag.of("toggle_action", toggle.action.value)
+            Tag.of("target", target),
+            Tag.of("source", source.value),
+            Tag.of("action", action.value),
+            Tag.of("reason", reason)
+        )
+    ).increment()
+}
+
+fun MeterRegistry.tellAntallIkkeSendteToggles(
+    target: String,
+    source: ToggleSource,
+    action: ToggleAction,
+    reason: String
+) {
+    counter(
+        "${METRIC_PREFIX}_antall_ikke_sendte_toggles",
+        Tags.of(
+            Tag.of("target", target),
+            Tag.of("source", source.value),
+            Tag.of("action", action.value),
+            Tag.of("reason", reason)
         )
     ).increment()
 }
@@ -30,7 +60,7 @@ fun MeterRegistry.tellAntallLagredePerioderTotalt(antallReference: AtomicLong) {
 
 fun MeterRegistry.tellAntallLagredeAktivePerioder(antallReference: AtomicLong) {
     gauge(
-        "${METRIC_PREFIX}_antall_lagrede_altive_perioder",
+        "${METRIC_PREFIX}_antall_lagrede_aktive_perioder",
         Tags.empty(),
         antallReference
     ) {
