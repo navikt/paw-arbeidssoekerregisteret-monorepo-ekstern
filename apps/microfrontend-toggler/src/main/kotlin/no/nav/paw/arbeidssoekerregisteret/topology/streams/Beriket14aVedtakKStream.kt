@@ -66,7 +66,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
 
     // Sjekk om vedtak er innenfor en aktiv periode
     if (periodeInfo == null) {
-        logger.error("Det ble gjort et 14a vedtak, men fant ingen tilhørende arbeidsøkerperiode")
+        logger.info("Det ble gjort et 14a vedtak, men fant ingen tilhørende arbeidsøkerperiode")
         meterRegistry.tellAntallIkkeSendteToggles(
             microfrontendConfig.aiaBehovsvurdering,
             toggleSource,
@@ -74,7 +74,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
             "mangler_periode"
         )
     } else if (periodeInfo.erAvsluttet()) {
-        logger.warn("Det ble gjort et 14a vedtak, men tilhørende arbeidsøkerperiode er avsluttet")
+        logger.info("Det ble gjort et 14a vedtak, men tilhørende arbeidsøkerperiode er avsluttet")
         meterRegistry.tellAntallIkkeSendteToggles(
             microfrontendConfig.aiaBehovsvurdering,
             toggleSource,
@@ -95,7 +95,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
             "vedtak_for_aktiv_periode"
         )
     } else {
-        logger.warn(
+        logger.info(
             "Det ble gjort et 14a vedtak, men vedtakstidspunkt er ikke innenfor aktiv arbeidsøkerperiode {}",
             periodeInfo.id
         )
@@ -103,7 +103,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
             microfrontendConfig.aiaBehovsvurdering,
             toggleSource,
             ToggleAction.DISABLE,
-            "vedtakdato_utenfor_periode"
+            "vedtak_utenfor_periode"
         )
     }
 }
