@@ -65,13 +65,15 @@ fun periode(
         startet,
         Bruker(BrukerType.SLUTTBRUKER, identitetsnummer),
         "junit",
-        "tester"
+        "tester",
+        null
     ),
     avsluttet?.let { Metadata(
         avsluttet,
         Bruker(BrukerType.SLUTTBRUKER, identitetsnummer),
         "junit",
-        "tester")
+        "tester",
+        null)
     }
 ) to kafkaKeysService(identitetsnummer)
 

@@ -70,14 +70,16 @@ fun buildPeriode(
         startet,
         Bruker(no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType.SLUTTBRUKER, identitetsnummer),
         "junit",
-        "tester"
+        "tester",
+        null
     ),
     avsluttet?.let {
         Metadata(
             avsluttet,
             Bruker(no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType.SLUTTBRUKER, identitetsnummer),
             "junit",
-            "tester"
+            "tester",
+            null
         )
     }
 )

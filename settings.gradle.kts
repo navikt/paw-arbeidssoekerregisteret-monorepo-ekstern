@@ -1,9 +1,9 @@
 plugins {
     kotlin("jvm") version "2.0.0" apply false
-    id("io.ktor.plugin") version "2.3.10" apply false
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.4.0" apply false
-    id("com.google.cloud.tools.jib") version "3.4.1" apply false
-    id("org.openapi.generator") version "7.4.0" apply false
+    id("io.ktor.plugin") version "2.3.12" apply false
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0" apply false
+    id("com.google.cloud.tools.jib") version "3.4.3" apply false
+    id("org.openapi.generator") version "7.5.0" apply false
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1" apply false
 }
 
@@ -55,9 +55,9 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         // PAW greier
-        val pawPdlClientVersion = "24.03.20.30-1"
-        val pawAaregClientVersion = "24.01.12.16-1"
-        val arbeidssokerregisteretVersion = "1.8062260419.22-1"
+        val pawPdlClientVersion = "24.07.04.39-1"
+        val pawAaregClientVersion = "24.07.04.18-1"
+        val arbeidssokerregisteretVersion = "1.9348086045.48-1"
 
         // TMS
         val tmsVarselVersion = "1.0.4"
@@ -66,14 +66,14 @@ dependencyResolutionManagement {
         val ptoSchemaVersion = "1.2023.10.20_06.13-e6b4845c2a39"
 
         // NAV
-        val noNavCommonVersion = "3.2024.02.21_11.18-8f9b43befae1"
-        val noNavSecurityVersion = "3.1.5"
+        val noNavCommonVersion = "3.2024.05.23_05.46-2b29fa343e8e"
+        val noNavSecurityVersion = "5.0.1"
 
         // Konfigurasjon
         val comSksamuelHopliteVersion = "2.8.0.RC3"
 
         // Kafkawhic
-        val orgApacheKafkaVersion = "3.6.0"
+        val orgApacheKafkaVersion = "3.7.0"
         val ioConfluentKafkaVersion = "7.6.0"
 
         // Serialisering
@@ -84,21 +84,21 @@ dependencyResolutionManagement {
         val graphqlKotlinVersion = "7.1.1"
 
         // ---- //
-        val kotlinExposedVersion = "0.50.0"
-        val logstashVersion = "7.3"
-        val logbackVersion = "1.4.14"
-        val kotestVersion = "5.8.1"
-        val mockkVersion = "1.13.10"
-        val testContainersVersion = "1.19.6"
-        val mockOauth2ServerVersion = "2.0.0"
-        val micrometerVersion = "1.12.3"
-        val otelTargetSdkVersion = "1.36.0"
-        val otelInstrumentationVersion = "2.1.0"
+        val kotlinExposedVersion = "0.51.1"
+        val logstashVersion = "7.4"
+        val logbackVersion = "1.5.6"
+        val kotestVersion = "5.9.1"
+        val mockkVersion = "1.13.11"
+        val testContainersVersion = "1.19.8"
+        val mockOauth2ServerVersion = "2.1.5"
+        val micrometerVersion = "1.13.1"
+        val otelTargetSdkVersion = "1.39.0"
+        val otelInstrumentationVersion = "2.4.0"
         val otelJavaagentVersion = "2.5.0"
-        val coroutinesVersion = "1.8.0"
+        val coroutinesVersion = "1.8.1"
         val rapporteringsSchemaVersion = "24.05.15.2-1"
 
-        fun VersionCatalogBuilder.ktorLib(alias: String, artifactId: String) = library(alias, "io.ktor", artifactId).version("2.3.10")
+        fun VersionCatalogBuilder.ktorLib(alias: String, artifactId: String) = library(alias, "io.ktor", artifactId).version("2.3.12")
         fun VersionCatalogBuilder.ktorLibs(vararg aliases: Pair<String, String>) = aliases.forEach { (artifactId, alias) -> ktorLib(alias, artifactId) }
         infix fun String.alias(alias: String) = this to alias
         create("kotlinx") {

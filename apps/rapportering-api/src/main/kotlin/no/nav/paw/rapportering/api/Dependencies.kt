@@ -4,8 +4,8 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory
 import no.nav.paw.kafkakeygenerator.auth.AzureM2MConfig
@@ -20,7 +20,6 @@ import no.nav.paw.rapportering.api.kafka.RapporteringTilgjengeligStateSerde
 import no.nav.paw.rapportering.api.kafka.appTopology
 import no.nav.paw.rapportering.api.services.AutorisasjonService
 import no.nav.poao_tilgang.client.PoaoTilgangCachedClient
-import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams

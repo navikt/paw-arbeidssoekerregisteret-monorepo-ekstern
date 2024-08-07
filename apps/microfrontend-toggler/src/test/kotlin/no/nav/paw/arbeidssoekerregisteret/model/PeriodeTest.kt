@@ -19,7 +19,8 @@ class PeriodeTest : FreeSpec({
                         periodeStartetInstant,
                         Bruker(BrukerType.SLUTTBRUKER, identitetsnummer),
                         "paw",
-                        "Start periode"
+                        "Start periode",
+                        null
                     )
                 val periode = Periode(periodeUuid, identitetsnummer, periodeStartetMetadata, null)
                 val periodeInfo = periode.buildPeriodeInfo(arbeidssoekerId)
@@ -33,14 +34,16 @@ class PeriodeTest : FreeSpec({
                         periodeStartetInstant,
                         Bruker(BrukerType.SLUTTBRUKER, identitetsnummer),
                         "paw",
-                        "Start periode"
+                        "Start periode",
+                        null
                     )
                 val periodeAvsluttetMetadata =
                     Metadata(
                         periodeAvsluttetInstant,
                         Bruker(BrukerType.SLUTTBRUKER, identitetsnummer),
                         "paw",
-                        "Start periode"
+                        "Start periode",
+                        null
                     )
                 val periode = Periode(periodeUuid, identitetsnummer, periodeStartetMetadata, periodeAvsluttetMetadata)
                 val periodeInfo = periode.buildPeriodeInfo(arbeidssoekerId)

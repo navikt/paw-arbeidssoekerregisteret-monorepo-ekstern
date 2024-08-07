@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.routing.routing
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.routes.healthRoutes

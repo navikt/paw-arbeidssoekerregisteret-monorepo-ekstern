@@ -1,6 +1,6 @@
 package no.nav.paw.rapportering.api.kafka
 
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.rapportering.internehendelser.RapporteringsHendelseSerde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
