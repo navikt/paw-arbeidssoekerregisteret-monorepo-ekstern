@@ -74,4 +74,4 @@ jobs:
         env:
           CLUSTER: prod-gcp
           RESOURCE: nais/nais.yaml
-          VAR: image=${{ needs.build.outputs.image }},kafka=nav-prod,replicas=6
+          VAR: image=${{ needs.build.outputs.image }},kafka=nav-prod,replicas=1
