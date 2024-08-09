@@ -1,0 +1,2 @@
+url = "${AAREG_URL}"
+scope = "${AAREG_SCOPE}"

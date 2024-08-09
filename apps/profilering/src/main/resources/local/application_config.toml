@@ -1,0 +1,6 @@
+periodeTopic = "paw.arbeidssokerperioder-beta-v11"
+opplysningerTopic = "paw.opplysninger-om-arbeidssoeker-beta-v11"
+profileringTopic = "paw.arbeidssoker-profilering-beta-v11"
+profileringGrunnlagTopic = "paw.arbeidssoeker-profilering-grunnlag-beta-v11"
+applicationIdSuffix = "v11"
+joiningStateStoreName = "joiningStateStore"

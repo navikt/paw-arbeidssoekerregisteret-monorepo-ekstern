@@ -1,0 +1,51 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: paw-arbeidssokerregisteret-profilering
+  namespace: paw
+  labels:
+    team: paw
+spec:
+  azure:
+    application:
+      enabled: true
+  image: {{ image }}
+  replicas:
+    min: 1
+    max: 1
+  resources:
+    limits:
+      memory: 1000Mi
+    requests:
+      cpu: 25m
+      memory: 512Mi
+  kafka:
+    pool: nav-dev
+    streams: true
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+  env:
+    - name: AAREG_URL
+      value: https://aareg-services-q1.dev-fss-pub.nais.io/api/v1/arbeidstaker/arbeidsforhold
+    - name: AAREG_SCOPE
+      value: api://dev-fss.arbeidsforhold.aareg-services-nais-q1/.default
+    - name: PDL_URL
+      value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: PDL_SCOPE
+      value: api://dev-fss.pdl.pdl-api/.default
+  accessPolicy:
+    outbound:
+      external:
+        - host: pdl-api.dev-fss-pub.nais.io
+        - host: aareg-services-q1.dev-fss-pub.nais.io
+  liveness:
+    path: /isAlive
+    initialDelay: 10
+  readiness:
+    path: /isReady
+    initialDelay: 10
+  prometheus:
+    enabled: true
+    path: /metrics
