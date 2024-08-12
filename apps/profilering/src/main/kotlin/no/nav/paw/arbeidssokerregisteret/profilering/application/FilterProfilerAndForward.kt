@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssokerregisteret.profilering.application
 
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.profilering.application.profilering.profiler

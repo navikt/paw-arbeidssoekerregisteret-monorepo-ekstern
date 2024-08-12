@@ -1,10 +1,11 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.application.profilering
 
+import io.kotest.assertions.fail
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
@@ -25,7 +26,6 @@ import org.apache.kafka.streams.state.Stores
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import kotlin.test.fail
 
 class ApplicationTest : FreeSpec({
     "Enkle profilerings tester" - {

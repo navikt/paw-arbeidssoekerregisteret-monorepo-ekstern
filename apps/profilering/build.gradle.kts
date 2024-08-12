@@ -1,10 +1,9 @@
 import com.github.davidmc24.gradle.plugin.avro.GenerateAvroProtocolTask
 
 plugins {
-    kotlin("jvm") version "1.9.20"
-    id("io.ktor.plugin") version "2.3.5"
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
-    id("com.google.cloud.tools.jib") version "3.4.1"
+    kotlin("jvm")
+    id("com.github.davidmc24.gradle.plugin.avro")
+    id("com.google.cloud.tools.jib")
     application
 }
 val jvmVersion = JavaVersion.VERSION_21
@@ -26,34 +25,28 @@ val schema by configurations.creating {
 }
 
 dependencies {
-    schema("no.nav.paw.arbeidssokerregisteret.api:main-avro-schema:$arbeidssokerregisteretVersion")
-    implementation("no.nav.paw.arbeidssokerregisteret.api:main-avro-schema:$arbeidssokerregisteretVersion")
-    implementation("no.nav.paw:aareg-client:$pawAaRegClientVersion")
-    implementation("no.nav.paw:pdl-client:$pawPdlClientsVersion")
+    implementation(project(":domain:main-avro-schema"))
+    implementation(pawClients.pawAaregClient)
+    implementation(pawClients.pawPdlClient)
+    implementation(project(":lib:app-config"))
 
-    implementation("no.nav.paw.hoplite-config:hoplite-config:$pawUtilsVersion")
+    implementation(navCommon.tokenClient)
 
-    implementation("no.nav.common:token-client:$navCommonModulesVersion")
-
+    //Ktor
+    implementation(ktor.serializationJackson)
     //ktor server
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
-
-    //Otel
-    implementation("io.opentelemetry:opentelemetry-api:1.39.0")
-    implementation("io.opentelemetry.instrumentation:opentelemetry-ktor-2.0:2.4.0-alpha")
+    implementation(ktorServer.core)
+    implementation(ktorServer.coreJvm)
+    implementation(ktorServer.netty)
+    implementation(ktorServer.micrometer)
+    implementation(ktorServer.statusPages)
+    // Ktor client
+    implementation(ktorClient.okhttp)
+    implementation(ktorClient.loggingJvm)
+    implementation(ktorClient.contentNegotiation)
 
     // Micrometer
-    implementation("io.micrometer:micrometer-registry-prometheus:1.12.3")
-
-    // Ktor client
-    implementation("io.ktor:ktor-server-status-pages:${pawObservability.versions.ktor}")
-    implementation("io.ktor:ktor-serialization-jackson:${pawObservability.versions.ktor}")
-    implementation("io.ktor:ktor-client-okhttp-jvm:${pawObservability.versions.ktor}")
-    implementation("io.ktor:ktor-client-logging-jvm:${pawObservability.versions.ktor}")
-    implementation("io.ktor:ktor-client-content-negotiation:${pawObservability.versions.ktor}")
+    implementation(micrometer.registryPrometheus)
 
     // Logging
     implementation("no.nav.common:log:$navCommonModulesVersion")
@@ -61,35 +54,22 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
 
     // Kafka
-    implementation("no.nav.paw.kafka:kafka:$pawUtilsVersion")
-    implementation("no.nav.paw.kafka-streams:kafka-streams:$pawUtilsVersion")
-    implementation("io.confluent:kafka-avro-serializer:7.6.0")
-    implementation("io.confluent:kafka-streams-avro-serde:7.6.0")
-    implementation("org.apache.avro:avro:1.11.3")
-    implementation("org.apache.kafka:kafka-clients:$kafkaStreamsVersion")
-    implementation("org.apache.kafka:kafka-streams:$kafkaStreamsVersion")
+    implementation(project(":lib:kafka"))
+    implementation(project(":lib:kafka-streams"))
+    implementation(apacheAvro.kafkaSerializer)
+    implementation(apacheAvro.kafkaStreamsAvroSerde)
+    implementation(apacheAvro.avro)
+    implementation(orgApacheKafka.kafkaClients)
+    implementation(orgApacheKafka.kafkaStreams)
 
     // Jackson
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-
-    // Use the Kotlin JUnit 5 integration.
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    implementation(jackson.datatypeJsr310)
+    implementation(jackson.kotlin)
 
     // kotest
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.8.0")
+    testImplementation(testLibs.runnerJunit5)
+    testImplementation(orgApacheKafka.streamsTest)
 
-    testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaStreamsVersion")
-
-    // Use the JUnit 5 integration.
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-}
-
-tasks.named("generateAvroProtocol", GenerateAvroProtocolTask::class.java) {
-    source(zipTree(schema.singleFile))
 }
 
 java {

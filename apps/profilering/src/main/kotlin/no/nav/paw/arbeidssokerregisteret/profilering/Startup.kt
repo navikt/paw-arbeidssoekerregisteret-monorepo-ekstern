@@ -2,8 +2,8 @@ package no.nav.paw.arbeidssokerregisteret.profilering
 
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker

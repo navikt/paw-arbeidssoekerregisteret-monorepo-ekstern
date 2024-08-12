@@ -18,6 +18,7 @@ include(
     "apps:rapportering-api",
     "apps:rapporterings-tjeneste",
     "apps:microfrontend-toggler",
+    "apps:profilering",
     "domain:rapportering-interne-hendelser",
     "domain:rapporteringsansvar-schema",
     "domain:rapporteringsmelding-schema"
@@ -94,7 +95,6 @@ dependencyResolutionManagement {
         val micrometerVersion = "1.13.1"
         val otelTargetSdkVersion = "1.39.0"
         val otelInstrumentationVersion = "2.4.0"
-        val otelJavaagentVersion = "2.5.0"
         val coroutinesVersion = "1.8.1"
         val rapporteringsSchemaVersion = "24.05.15.2-1"
 
@@ -111,9 +111,11 @@ dependencyResolutionManagement {
         create("ktorClient") {
             bundle("withCio", listOf("core", "cio"))
             ktorLibs(
-                "ktor-client-content-negotiation" alias "contentNegotiation",
                 "ktor-client-core" alias "core",
-                "ktor-client-cio" alias "cio"
+                "ktor-client-cio" alias "cio",
+                "ktor-client-okhttp-jvm" alias "okhttp",
+                "ktor-client-logging-jvm" alias "loggingJvm",
+                "ktor-client-content-negotiation" alias "contentNegotiation"
             )
         }
         create("ktorServer") {
@@ -150,9 +152,14 @@ dependencyResolutionManagement {
         }
         create("otel") {
             library("api", "io.opentelemetry", "opentelemetry-api").version(otelTargetSdkVersion)
-            library("ktor","io.opentelemetry.instrumentation", "opentelemetry-ktor-2.0").version(otelInstrumentationVersion)
-            library("annotations", "io.opentelemetry.instrumentation", "opentelemetry-instrumentation-annotations").version(otelInstrumentationVersion)
-            library("javaagent", "io.opentelemetry.javaagent", "opentelemetry-javaagent").version(otelJavaagentVersion)
+            library("ktor", "io.opentelemetry.instrumentation", "opentelemetry-ktor-2.0").version(
+                otelInstrumentationVersion
+            )
+            library(
+                "annotations",
+                "io.opentelemetry.instrumentation",
+                "opentelemetry-instrumentation-annotations"
+            ).version(otelInstrumentationVersion)
         }
         create("micrometer") {
             library("core", "io.micrometer", "micrometer-core").version(micrometerVersion)

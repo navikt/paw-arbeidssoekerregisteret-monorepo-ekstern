@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssokerregisteret.profilering
 
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import java.util.concurrent.atomic.AtomicLong
 
 private val buildTime = AtomicLong(0)
