@@ -1,4 +1,4 @@
-name: Build, push, and deploy
+name: Profilering -  Build, push, and deploy
 
 on:
   push:
