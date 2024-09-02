@@ -27,5 +27,6 @@
     <logger name="io.confluent" level="INFO"/>
     <logger name="no.nav" level="INFO"/>
     <logger name="paw-aareg-client" level="WARN"/>
+    <logger name="applicationTopology" level="DEBUG"/>
 
 </configuration>
