@@ -19,6 +19,7 @@ import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Produced
 import java.time.Instant
+import java.util.UUID
 
 val HOEYVANNSMERKE = Instant.parse("2024-01-01T00:00:00Z")
 
@@ -88,5 +89,19 @@ fun KStream<Long, ArenaArbeidssokerregisterTilstand>.assertValidMessages(): KStr
         require(listOfNotNull(
             arenaTilstand.opplysningerOmArbeidssoeker?.id,
             arenaTilstand.profilering?.opplysningerOmArbeidssokerId
-        ).distinct().size < 2) { "Opplysninger om arbeidssøkerId (profilering) matcher ikke" }
+        ).distinct().size < 2) { "Opplysninger om arbeidssøkerId (profilering) matcher ikke: ${debug(arenaTilstand)}" }
     }
+
+fun debug(arenaTilstand: ArenaArbeidssokerregisterTilstand): DebugObject {
+    return DebugObject(
+        Triple(arenaTilstand.periode?.id, arenaTilstand.opplysningerOmArbeidssoeker?.periodeId, arenaTilstand.profilering.periodeId),
+        arenaTilstand.opplysningerOmArbeidssoeker?.id to arenaTilstand.profilering.opplysningerOmArbeidssokerId,
+        arenaTilstand.profilering?.id
+    )
+}
+
+data class DebugObject(
+    val periodeId: Triple<UUID?, UUID?, UUID?>,
+    val opplysningId: Pair<UUID?,  UUID?>,
+    val profileringsId: UUID?
+)
