@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssokerregisteret.arena.adapter.utils
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.logger
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.toArena
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v2.Annet
@@ -22,7 +23,19 @@ fun oppdaterTempArenaTilstandMedNyVerdi(
             }
         } ?: gjeldeneTilstand.periode
     val profilering = (nyVerdi as? Profilering)
-        ?.let { nyProfilering -> gjeldeneTilstand.profilering ?: toArena(nyProfilering) }
+        ?.takeIf { nyProfilering ->
+            (gjeldeneTilstand.opplysningerOmArbeidssoeker?.sendtInnAv?.kilde != "veilarbregistrering")
+                .also { inkludert ->
+                    if (!inkludert) {
+                        logger.warn("Ignorerte profilering id:{}, gjeldene opplysninger stammer fra veilarb: id {}",
+                            nyProfilering.id, gjeldeneTilstand.opplysningerOmArbeidssoeker?.id
+                        )
+                    }
+                }
+        }
+        ?.let { nyProfilering ->
+            gjeldeneTilstand.profilering ?: toArena(nyProfilering)
+        }
         ?: gjeldeneTilstand.profilering
     val opplysninger = (nyVerdi as? OpplysningerOmArbeidssoeker)
         ?.let { nyeOpplysninger -> gjeldeneTilstand.opplysningerOmArbeidssoeker ?: toArena(nyeOpplysninger) }

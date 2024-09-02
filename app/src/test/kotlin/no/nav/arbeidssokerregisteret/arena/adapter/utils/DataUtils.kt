@@ -25,11 +25,12 @@ fun opplysninger(
     periode: UUID = UUID.randomUUID(),
     timestamp: Instant = Instant.now(),
     nus: String = "1",
-    beskrivelse: List<Beskrivelse> = listOf(Beskrivelse.AKKURAT_FULLFORT_UTDANNING)
+    beskrivelse: List<Beskrivelse> = listOf(Beskrivelse.AKKURAT_FULLFORT_UTDANNING),
+    kilde: String = "test"
 ) = OpplysningerOmArbeidssoeker(
     id,
     periode,
-    metadata(timestamp),
+    metadata(timestamp, kilde),
     utdanning(nus),
     Helse(JaNeiVetIkke.NEI),
     jobbSituasjon(beskrivelse),
@@ -41,25 +42,29 @@ fun profilering(
     opplysningerId: UUID = UUID.randomUUID(),
     periode: UUID = UUID.randomUUID(),
     timestamp: Instant = Instant.now(),
-    profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+    profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+    kilde : String = "test"
 ) = Profilering(
     id,
     periode,
     opplysningerId,
-    metadata(timestamp),
+    metadata(timestamp, kilde),
     profilertTil,
     true,
     42
 )
 
-fun metadata(timestamp: Instant): Metadata {
+fun metadata(
+    timestamp: Instant,
+    kilde: String = "test"
+): Metadata {
     return Metadata(
         timestamp,
         Bruker(
             BrukerType.SYSTEM,
             ""
         ),
-        "",
+        kilde,
         ""
     )
 }
