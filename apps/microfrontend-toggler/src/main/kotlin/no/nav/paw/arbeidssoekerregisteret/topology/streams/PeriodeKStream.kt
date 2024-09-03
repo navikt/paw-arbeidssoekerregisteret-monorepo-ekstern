@@ -94,7 +94,7 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
                     "avsluttet_periode"
                 )
             } else {
-                logger.info(
+                logger.debug(
                     "Arbeidsøkerperiode {} er avluttet. Lagrer forsinket deaktivering av {}.",
                     periodeInfo.id,
                     microfrontendConfig.aiaMinSide
@@ -223,7 +223,7 @@ private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
     currentSpan.setAttribute("action", ToggleAction.ENABLE.value)
     currentSpan.setAttribute("target", microfrontendId)
     currentSpan.setAttribute("source", toggleSource.value)
-    logger.info(
+    logger.debug(
         "Arbeidsøkerperiode {} er aktiv. Iverksetter aktivering av {}.",
         periodeInfo.id,
         microfrontendId
@@ -244,7 +244,7 @@ private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     currentSpan.setAttribute("action", ToggleAction.DISABLE.value)
     currentSpan.setAttribute("target", microfrontendId)
     currentSpan.setAttribute("source", toggleSource.value)
-    logger.info(
+    logger.debug(
         "Arbeidsøkerperiode {} er avluttet og utsettelsestid er utløpt. Iverksetter deaktivering av {}.",
         periodeInfo.id,
         microfrontendId

@@ -66,7 +66,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
 
     // Sjekk om vedtak er innenfor en aktiv periode
     if (periodeInfo == null) {
-        logger.info("Det ble gjort et 14a vedtak, men fant ingen tilhørende arbeidsøkerperiode")
+        logger.debug("Det ble gjort et 14a vedtak, men fant ingen tilhørende arbeidsøkerperiode")
         meterRegistry.tellAntallIkkeSendteToggles(
             microfrontendConfig.aiaBehovsvurdering,
             toggleSource,
@@ -74,7 +74,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
             "mangler_periode"
         )
     } else if (periodeInfo.erAvsluttet()) {
-        logger.info("Det ble gjort et 14a vedtak, men tilhørende arbeidsøkerperiode er avsluttet")
+        logger.debug("Det ble gjort et 14a vedtak, men tilhørende arbeidsøkerperiode er avsluttet")
         meterRegistry.tellAntallIkkeSendteToggles(
             microfrontendConfig.aiaBehovsvurdering,
             toggleSource,
@@ -95,7 +95,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
             "vedtak_for_aktiv_periode"
         )
     } else {
-        logger.info(
+        logger.debug(
             "Det ble gjort et 14a vedtak, men vedtakstidspunkt er ikke innenfor aktiv arbeidsøkerperiode {}",
             periodeInfo.id
         )
@@ -119,7 +119,7 @@ private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     currentSpan.setAttribute("action", ToggleAction.DISABLE.value)
     currentSpan.setAttribute("target", microfrontendId)
     currentSpan.setAttribute("source", toggleSource.value)
-    logger.info(
+    logger.debug(
         "Det ble gjort et 14a vedtak for aktiv arbeidsøkerperiode {}. Iverksetter deaktivering av {}.",
         periodeInfo.id,
         microfrontendId
