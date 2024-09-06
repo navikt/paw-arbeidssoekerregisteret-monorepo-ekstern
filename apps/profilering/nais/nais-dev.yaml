@@ -28,9 +28,9 @@ spec:
       runtime: java
   env:
     - name: AAREG_URL
-      value: https://aareg-services-q1.dev-fss-pub.nais.io/api/v1/arbeidstaker/arbeidsforhold
+      value: https://aareg-services-q2.dev-fss-pub.nais.io/api/v1/arbeidstaker/arbeidsforhold
     - name: AAREG_SCOPE
-      value: api://dev-fss.arbeidsforhold.aareg-services-nais-q1/.default
+      value: api://dev-fss.arbeidsforhold.aareg-services-nais-q2/.default
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
     - name: PDL_SCOPE
@@ -39,7 +39,7 @@ spec:
     outbound:
       external:
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: aareg-services-q1.dev-fss-pub.nais.io
+        - host: aareg-services-q2.dev-fss-pub.nais.io
   liveness:
     path: /isAlive
     initialDelay: 10
