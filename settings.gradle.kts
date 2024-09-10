@@ -59,6 +59,7 @@ dependencyResolutionManagement {
         val pawPdlClientVersion = "24.07.04.39-1"
         val pawAaregClientVersion = "24.07.04.18-1"
         val arbeidssokerregisteretVersion = "1.9348086045.48-1"
+        val rapporteringsSchemaVersion = "24.09.09.6-1"
 
         // TMS
         val tmsVarselVersion = "1.0.4"
@@ -96,7 +97,6 @@ dependencyResolutionManagement {
         val otelTargetSdkVersion = "1.39.0"
         val otelInstrumentationVersion = "2.4.0"
         val coroutinesVersion = "1.8.1"
-        val rapporteringsSchemaVersion = "24.05.15.2-1"
 
         fun VersionCatalogBuilder.ktorLib(alias: String, artifactId: String) = library(alias, "io.ktor", artifactId).version("2.3.12")
         fun VersionCatalogBuilder.ktorLibs(vararg aliases: Pair<String, String>) = aliases.forEach { (artifactId, alias) -> ktorLib(alias, artifactId) }
