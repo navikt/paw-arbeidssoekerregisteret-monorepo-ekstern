@@ -15,8 +15,6 @@ include(
     "lib:kafka-streams",
     "lib:kafka-key-generator-client",
     "domain:main-avro-schema",
-    "apps:rapportering-api",
-    "apps:rapporterings-tjeneste",
     "apps:microfrontend-toggler",
     "apps:profilering",
     "domain:rapportering-interne-hendelser",
