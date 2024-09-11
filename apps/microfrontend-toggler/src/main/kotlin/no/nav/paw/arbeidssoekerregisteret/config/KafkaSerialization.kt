@@ -10,19 +10,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtakInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.config.env.NaisEnv
 import no.nav.paw.config.env.currentNaisEnv
-import no.nav.paw.rapportering.internehendelser.EksternGracePeriodeUtloept
-import no.nav.paw.rapportering.internehendelser.LeveringsfristUtloept
-import no.nav.paw.rapportering.internehendelser.PeriodeAvsluttet
-import no.nav.paw.rapportering.internehendelser.RapporteringTilgjengelig
-import no.nav.paw.rapportering.internehendelser.RapporteringsHendelse
-import no.nav.paw.rapportering.internehendelser.RapporteringsMeldingMottatt
-import no.nav.paw.rapportering.internehendelser.RegisterGracePeriodeUtloept
-import no.nav.paw.rapportering.internehendelser.eksternGracePeriodeUtloeptHendelseType
-import no.nav.paw.rapportering.internehendelser.leveringsfristUtloeptHendelseType
-import no.nav.paw.rapportering.internehendelser.meldingMottattHendelseType
-import no.nav.paw.rapportering.internehendelser.periodeAvsluttetHendelsesType
-import no.nav.paw.rapportering.internehendelser.rapporteringTilgjengeligHendelseType
-import no.nav.paw.rapportering.internehendelser.registerGracePeriodeUtloeptHendelseType
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
@@ -81,29 +68,4 @@ class ToggleJsonSerializer(private val delegate: Serializer<Toggle>) : Serialize
     override fun serialize(topic: String?, data: Toggle?): ByteArray {
         return delegate.serialize(topic, data)
     }
-}
-
-class RapporteringsHendelseDeserializer(private val naisEnv: NaisEnv, private val objectMapper: ObjectMapper) :
-    Deserializer<RapporteringsHendelse> {
-    override fun deserialize(topic: String?, data: ByteArray?): RapporteringsHendelse? {
-        if (data == null) return null
-        val node = objectMapper.readTree(data)
-        return when (val hendelseType = node.get("hendelseType")?.asText()) {
-            rapporteringTilgjengeligHendelseType -> objectMapper.readValue<RapporteringTilgjengelig>(node.traverse())
-            meldingMottattHendelseType -> objectMapper.readValue<RapporteringsMeldingMottatt>(node.traverse())
-            periodeAvsluttetHendelsesType -> objectMapper.readValue<PeriodeAvsluttet>(node.traverse())
-            leveringsfristUtloeptHendelseType -> objectMapper.readValue<LeveringsfristUtloept>(node.traverse())
-            registerGracePeriodeUtloeptHendelseType -> objectMapper.readValue<RegisterGracePeriodeUtloept>(node.traverse())
-            eksternGracePeriodeUtloeptHendelseType -> objectMapper.readValue<EksternGracePeriodeUtloept>(node.traverse())
-            else -> throw IllegalArgumentException("Ukjent hendelse type: '$hendelseType'")
-        }
-    }
-}
-
-class RapporteringsHendelseSerde(naisEnv: NaisEnv, private val objectMapper: ObjectMapper) :
-    Serde<RapporteringsHendelse> {
-    constructor() : this(currentNaisEnv, buildObjectMapper)
-
-    override fun serializer() = buildJsonSerializer<RapporteringsHendelse>(currentNaisEnv, objectMapper)
-    override fun deserializer() = RapporteringsHendelseDeserializer(currentNaisEnv, objectMapper)
 }

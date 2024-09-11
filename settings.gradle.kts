@@ -10,16 +10,13 @@ plugins {
 rootProject.name = "paw-arbeidssoekerregisteret-monorepo-ekstern"
 
 include(
+    "domain:main-avro-schema",
     "lib:app-config",
     "lib:kafka",
     "lib:kafka-streams",
     "lib:kafka-key-generator-client",
-    "domain:main-avro-schema",
     "apps:microfrontend-toggler",
     "apps:profilering",
-    "domain:rapportering-interne-hendelser",
-    "domain:rapporteringsansvar-schema",
-    "domain:rapporteringsmelding-schema"
 )
 
 dependencyResolutionManagement {
@@ -57,7 +54,6 @@ dependencyResolutionManagement {
         val pawPdlClientVersion = "24.07.04.39-1"
         val pawAaregClientVersion = "24.07.04.18-1"
         val arbeidssokerregisteretVersion = "1.9348086045.48-1"
-        val rapporteringsSchemaVersion = "24.09.09.6-1"
 
         // TMS
         val tmsVarselVersion = "1.0.4"
@@ -233,10 +229,6 @@ dependencyResolutionManagement {
         }
         create("poao") {
             library("tilgangClient", "no.nav.poao-tilgang", "client").version("2024.04.29_13.59-a0ddddd36ac9")
-        }
-        create("rapportering") {
-            library("rapporteringsansvarSchema", "no.nav.paw.arbeidssokerregisteret.api", "rapporteringsansvar-schema").version(rapporteringsSchemaVersion)
-            library("rapporteringsmeldingSchema", "no.nav.paw.arbeidssokerregisteret.api", "rapporteringsmelding-schema").version(rapporteringsSchemaVersion)
         }
     }
 }
