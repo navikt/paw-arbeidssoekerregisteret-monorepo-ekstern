@@ -2,15 +2,14 @@ package no.nav.paw.arbeidssoekerregisteret.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
+import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.AuthProviders
-import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.RequiredClaims
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 
-context(ConfigContext)
-fun Application.configureAuthentication() = configureAuthentication(appConfig.authProviders)
+fun Application.configureAuthentication(appConfig: AppConfig) = configureAuthentication(appConfig.authProviders)
 
 fun Application.configureAuthentication(authProviders: AuthProviders) =
     authentication {

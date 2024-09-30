@@ -10,10 +10,8 @@ import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
-import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import java.time.Duration
 
-context(LoggingContext)
 fun Application.configureMetrics(
     meterRegistry: MeterRegistry,
     kafkaClientMetrics: List<KafkaClientMetrics>,

@@ -10,8 +10,6 @@ import io.mockk.slot
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildPeriodeInfoSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
-import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
-import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
@@ -253,32 +251,27 @@ class PeriodeKStreamTest : FreeSpec({
     private class TestContext {
 
         val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
-        val logger: Logger = LoggerFactory.getLogger("TestApplication")
-        val auditLogger: Logger = LoggerFactory.getLogger("TestAudit")
+        val logger: Logger = LoggerFactory.getLogger("no.nav.paw.logger.test")
         val meterRegistry = SimpleMeterRegistry()
         val periodeSerde = buildAvroSerde<Periode>()
         val periodeInfoSerde = buildPeriodeInfoSerde()
         val toggleSerde = buildToggleSerde()
         val kafkaKeysClientMock = mockk<KafkaKeysClientMock>()
 
-        val testDriver =
-            with(ConfigContext(appConfig)) {
-                with(LoggingContext(logger, auditLogger)) {
-                    StreamsBuilder().apply {
-                        addStateStore(
-                            Stores.keyValueStoreBuilder(
-                                Stores.inMemoryKeyValueStore(appConfig.kafkaStreams.periodeStoreName),
-                                Serdes.Long(),
-                                periodeInfoSerde
-                            )
-                        )
-                        buildPeriodeKStream(
-                            meterRegistry,
-                            kafkaKeysClientMock::hentKafkaKeys
-                        )
-                    }.build()
-                }
-            }.let { TopologyTestDriver(it, kafkaStreamProperties) }
+        val testDriver = StreamsBuilder().apply {
+            addStateStore(
+                Stores.keyValueStoreBuilder(
+                    Stores.inMemoryKeyValueStore(appConfig.kafkaStreams.periodeStoreName),
+                    Serdes.Long(),
+                    periodeInfoSerde
+                )
+            )
+            buildPeriodeKStream(
+                appConfig,
+                meterRegistry,
+                kafkaKeysClientMock::hentKafkaKeys
+            )
+        }.build().let { TopologyTestDriver(it, kafkaStreamProperties) }
 
         val periodeStateStore =
             testDriver.getKeyValueStore<Long, PeriodeInfo>(appConfig.kafkaStreams.periodeStoreName)

@@ -10,8 +10,6 @@ import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildPeriodeInfoSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
-import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
-import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
@@ -23,8 +21,6 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.Stores
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 
@@ -106,29 +102,22 @@ class Beriket14aVedtakKStreamTest : FreeSpec({
     private class TestContext {
 
         val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
-        val logger: Logger = LoggerFactory.getLogger("TestApplication")
-        val auditLogger: Logger = LoggerFactory.getLogger("TestAudit")
         val meterRegistry = SimpleMeterRegistry()
         val periodeInfoSerde = buildPeriodeInfoSerde()
         val beriket14aVedtakSerde = buildBeriket14aVedtakSerde()
         val toggleSerde = buildToggleSerde()
         val kafkaKeysClientMock = mockk<KafkaKeysClientMock>()
 
-        val testDriver =
-            with(ConfigContext(appConfig)) {
-                with(LoggingContext(logger, auditLogger)) {
-                    StreamsBuilder().apply {
-                        addStateStore(
-                            Stores.keyValueStoreBuilder(
-                                Stores.inMemoryKeyValueStore(appConfig.kafkaStreams.periodeStoreName),
-                                Serdes.Long(),
-                                periodeInfoSerde
-                            )
-                        )
-                        buildBeriket14aVedtakKStream(meterRegistry)
-                    }.build()
-                }
-            }.let { TopologyTestDriver(it, kafkaStreamProperties) }
+        val testDriver = StreamsBuilder().apply {
+            addStateStore(
+                Stores.keyValueStoreBuilder(
+                    Stores.inMemoryKeyValueStore(appConfig.kafkaStreams.periodeStoreName),
+                    Serdes.Long(),
+                    periodeInfoSerde
+                )
+            )
+            buildBeriket14aVedtakKStream(appConfig, meterRegistry)
+        }.build().let { TopologyTestDriver(it, kafkaStreamProperties) }
 
 
         val periodeKeyValueStore =

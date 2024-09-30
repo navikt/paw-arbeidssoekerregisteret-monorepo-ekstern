@@ -14,14 +14,10 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.testApplication
 import io.mockk.mockk
-import no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME
-import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_LOGGER_NAME
 import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.AuthProvider
 import no.nav.paw.arbeidssoekerregisteret.config.AuthProviders
 import no.nav.paw.arbeidssoekerregisteret.config.RequiredClaims
-import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
-import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
@@ -34,8 +30,6 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.apache.kafka.clients.producer.Producer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 @Ignored // TODO Få authz til å funke i test
 class ToggleRoutesTest : FreeSpec({
@@ -45,17 +39,13 @@ class ToggleRoutesTest : FreeSpec({
         }
 
         testApplication {
-            with(ConfigContext(appConfig)) {
-                with(LoggingContext(logger, auditLogger)) {
-                    application {
-                        configureSerialization()
-                        configureRequestHandling()
-                        configureAuthentication(mockOAuth2Server.buildAuthProviders())
-                    }
-                    routing {
-                        toggleRoutes(toggleService)
-                    }
-                }
+            application {
+                configureSerialization()
+                configureRequestHandling()
+                configureAuthentication(mockOAuth2Server.buildAuthProviders())
+            }
+            routing {
+                toggleRoutes(toggleService)
             }
             val restClient = createClient {
                 install(ContentNegotiation) {
@@ -94,12 +84,10 @@ fun MockOAuth2Server.buildAuthProviders(): AuthProviders {
 }
 
 class ToggleRoutesTestContext {
-    val logger: Logger = LoggerFactory.getLogger(APPLICATION_LOGGER_NAME)
-    val auditLogger: Logger = LoggerFactory.getLogger(AUDIT_LOGGER_NAME)
     val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
     private val kafkaKeysClientMock = mockk<KafkaKeysClient>()
     private val kafkaProducerMock = mockk<Producer<Long, Toggle>>()
-    val toggleService = ToggleService(kafkaKeysClientMock, kafkaProducerMock)
+    val toggleService = ToggleService(appConfig, kafkaKeysClientMock, kafkaProducerMock)
     val mockOAuth2Server = buildAndStartMockOAuth2Server()
 
     private fun buildAndStartMockOAuth2Server(): MockOAuth2Server {

@@ -7,14 +7,14 @@ import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.RequestAlreadyConsumedException
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
-import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.exception.ClientResponseException
 import no.nav.paw.arbeidssoekerregisteret.exception.ServerResponseException
 import no.nav.paw.arbeidssoekerregisteret.model.build400Error
 import no.nav.paw.arbeidssoekerregisteret.model.build500Error
 import no.nav.paw.arbeidssoekerregisteret.model.buildError
 
-context(LoggingContext)
+private val logger = buildErrorLogger
+
 suspend fun <T : Throwable> handleException(call: ApplicationCall, throwable: T) {
     when (throwable) {
         is ContentTransformationException -> {

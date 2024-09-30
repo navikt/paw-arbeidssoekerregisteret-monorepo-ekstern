@@ -4,13 +4,13 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
+import no.nav.paw.arbeidssoekerregisteret.config.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.config.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallIkkeSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallMottatteBeriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallSendteToggles
-import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
-import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
@@ -29,8 +29,10 @@ import org.apache.kafka.streams.processor.api.ProcessorContext
 import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
 
-context(ConfigContext, LoggingContext)
+private val logger = buildApplicationLogger
+
 fun StreamsBuilder.buildBeriket14aVedtakKStream(
+    appConfig: AppConfig,
     meterRegistry: MeterRegistry
 ) {
     logger.info("Oppretter KStream for beriket 14a-vedtak")
@@ -45,13 +47,13 @@ fun StreamsBuilder.buildBeriket14aVedtakKStream(
         name = "handtereToggleForBeriket14aVedtak",
         stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName)
     ) { record ->
-        processBeriket14aVedtak(meterRegistry, record)
+        processBeriket14aVedtak(appConfig, meterRegistry, record)
     }.to(kafkaStreamsConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }
 
-context(ConfigContext, LoggingContext)
 @WithSpan(value = "beriket_14a_vedtak_toggle_processor")
 private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
+    appConfig: AppConfig,
     meterRegistry: MeterRegistry,
     record: Record<Long, Beriket14aVedtak>
 ) {
@@ -108,7 +110,6 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
     }
 }
 
-context(ConfigContext, LoggingContext)
 @WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     periodeInfo: PeriodeInfo,

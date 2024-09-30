@@ -71,14 +71,6 @@ dependencies {
     testImplementation(libs.kafka.streams.test)
 }
 
-sourceSets {
-    main {
-        kotlin {
-            srcDir("${layout.buildDirectory.get()}/generated/src/main/kotlin")
-        }
-    }
-}
-
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(jvmMajorVersion))
@@ -91,12 +83,6 @@ application {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
-    }
 }
 
 tasks.withType(Jar::class) {

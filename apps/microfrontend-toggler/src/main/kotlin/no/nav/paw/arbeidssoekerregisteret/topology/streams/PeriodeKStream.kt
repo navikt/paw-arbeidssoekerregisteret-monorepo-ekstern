@@ -4,14 +4,14 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
+import no.nav.paw.arbeidssoekerregisteret.config.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.config.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredeAktivePerioder
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredeAvsluttedePerioder
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallLagredePerioderTotalt
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallMottattePerioder
 import no.nav.paw.arbeidssoekerregisteret.config.tellAntallSendteToggles
-import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
-import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
@@ -37,8 +37,10 @@ import org.apache.kafka.streams.state.KeyValueStore
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 
-context(ConfigContext, LoggingContext)
+private val logger = buildApplicationLogger
+
 fun StreamsBuilder.buildPeriodeKStream(
+    appConfig: AppConfig,
     meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
 ) {
@@ -54,15 +56,15 @@ fun StreamsBuilder.buildPeriodeKStream(
         }.genericProcess<Long, PeriodeInfo, Long, Toggle>(
             name = "handtereToggleForPeriode",
             stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName),
-            punctuation = buildPunctuation(meterRegistry)
+            punctuation = buildPunctuation(appConfig, meterRegistry)
         ) { record ->
-            processPeriode(meterRegistry, record)
+            processPeriode(appConfig, meterRegistry, record)
         }.to(kafkaStreamsConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }
 
-context(ConfigContext, LoggingContext)
 @WithSpan(value = "periode_toggle_processor", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.processPeriode(
+    appConfig: AppConfig,
     meterRegistry: MeterRegistry,
     record: Record<Long, PeriodeInfo>
 ) {
@@ -148,9 +150,11 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
     }
 }
 
-context(ConfigContext, LoggingContext)
-private fun buildPunctuation(meterRegistry: MeterRegistry): Punctuation<Long, Toggle> {
-    val togglePunctuation = TogglePunctuation(meterRegistry)
+private fun buildPunctuation(
+    appConfig: AppConfig,
+    meterRegistry: MeterRegistry
+): Punctuation<Long, Toggle> {
+    val togglePunctuation = TogglePunctuation(appConfig, meterRegistry)
     return Punctuation(
         appConfig.regler.periodeTogglePunctuatorSchedule, PunctuationType.WALL_CLOCK_TIME
     ) { timestamp, context ->
@@ -158,9 +162,11 @@ private fun buildPunctuation(meterRegistry: MeterRegistry): Punctuation<Long, To
     }
 }
 
-class TogglePunctuation(private val meterRegistry: MeterRegistry) {
+class TogglePunctuation(
+    private val appConfig: AppConfig,
+    private val meterRegistry: MeterRegistry
+) {
 
-    context(ConfigContext, LoggingContext)
     @WithSpan(value = "periode_toggle_punctuator", kind = SpanKind.INTERNAL)
     fun punctuate(timestamp: Instant, context: ProcessorContext<Long, Toggle>) {
         with(context) {
@@ -212,7 +218,6 @@ class TogglePunctuation(private val meterRegistry: MeterRegistry) {
     }
 }
 
-context(ConfigContext, LoggingContext)
 @WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
     periodeInfo: PeriodeInfo,
@@ -233,7 +238,6 @@ private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
     return enableToggle
 }
 
-context(ConfigContext, LoggingContext)
 @WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     periodeInfo: PeriodeInfo,

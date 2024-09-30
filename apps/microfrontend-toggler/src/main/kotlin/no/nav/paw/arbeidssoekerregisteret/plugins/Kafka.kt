@@ -6,9 +6,9 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
+import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
 import no.nav.paw.arbeidssoekerregisteret.config.HealthIndicator
-import no.nav.paw.arbeidssoekerregisteret.context.ConfigContext
-import no.nav.paw.arbeidssoekerregisteret.context.LoggingContext
+import no.nav.paw.arbeidssoekerregisteret.config.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.plugins.kafka.KafkaStreamsPlugin
 import no.nav.paw.arbeidssoekerregisteret.service.HealthIndicatorService
 import no.nav.paw.arbeidssoekerregisteret.topology.buildPeriodeTopology
@@ -21,8 +21,10 @@ import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler
 
-context(ConfigContext, LoggingContext)
+val logger = buildApplicationLogger
+
 fun Application.configureKafka(
+    appConfig: AppConfig,
     healthIndicatorService: HealthIndicatorService,
     meterRegistry: MeterRegistry,
     hentKafkaKeys: (ident: String) -> KafkaKeysResponse?
@@ -30,8 +32,9 @@ fun Application.configureKafka(
 
     logger.info("Oppretter Kafka Stream for arbeidssøkerperioder")
     val periodeKafkaStreams = buildKafkaStreams(
+        appConfig,
         appConfig.kafkaStreams.periodeStreamIdSuffix,
-        buildPeriodeTopology(meterRegistry, hentKafkaKeys),
+        buildPeriodeTopology(appConfig, meterRegistry, hentKafkaKeys),
         buildStateListener(
             healthIndicatorService.newLivenessIndicator(),
             healthIndicatorService.newReadinessIndicator()
@@ -39,8 +42,9 @@ fun Application.configureKafka(
     )
     logger.info("Oppretter Kafka Stream for 14a-vedtak")
     val siste14aVedtakKafkaStreams = buildKafkaStreams(
+        appConfig,
         appConfig.kafkaStreams.siste14aVedtakStreamIdSuffix,
-        buildSiste14aVedtakTopology(meterRegistry, hentKafkaKeys),
+        buildSiste14aVedtakTopology(appConfig, meterRegistry, hentKafkaKeys),
         buildStateListener(
             healthIndicatorService.newLivenessIndicator(),
             healthIndicatorService.newReadinessIndicator()
@@ -57,8 +61,8 @@ fun Application.configureKafka(
     return kafkaStreamsList.map { KafkaStreamsMetrics(it) }
 }
 
-context(ConfigContext, LoggingContext)
 private fun buildKafkaStreams(
+    appConfig: AppConfig,
     applicationIdSuffix: String,
     topology: Topology,
     stateListener: KafkaStreams.StateListener
@@ -76,7 +80,6 @@ private fun buildKafkaStreams(
     return kafkaStreams
 }
 
-context(LoggingContext)
 private fun buildStateListener(
     livenessHealthIndicator: HealthIndicator,
     readinessHealthIndicator: HealthIndicator
@@ -112,7 +115,6 @@ private fun buildStateListener(
     logger.info("Kafka Streams readiness er ${readinessHealthIndicator.getStatus().value}")
 }
 
-context(LoggingContext)
 private fun buildUncaughtExceptionHandler() = StreamsUncaughtExceptionHandler { throwable ->
     logger.error("Kafka Streams opplevde en uventet feil", throwable)
     StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION
