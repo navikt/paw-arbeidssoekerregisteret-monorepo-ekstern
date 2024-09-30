@@ -1,19 +1,17 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
 }
-
 
 dependencies {
-    compileOnly(kotlinx.coroutinesCore)
-    implementation(orgApacheKafka.kafkaClients)
-    compileOnly(apacheAvro.kafkaSerializer)
+    compileOnly(libs.kotlinx.coroutines.core)
+    implementation(libs.kafka.clients)
+    compileOnly(libs.confluent.kafka.avro.serializer)
 
     // Test
-    testImplementation(testLibs.runnerJunit5)
-    testImplementation(testLibs.assertionsCore)
+    testImplementation(libs.bundles.unit.testing.kotest)
 }
 
 
-//tasks.withType<Test>().configureEach {
-//    useJUnitPlatform()
-//}
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}

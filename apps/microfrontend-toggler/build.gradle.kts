@@ -1,10 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm")
-    //id("io.ktor.plugin")
-    id("org.openapi.generator")
-    id("com.google.cloud.tools.jib")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.openapi.generator)
+    alias(libs.plugins.google.jib)
     application
 }
 
@@ -14,64 +13,62 @@ val image: String? by project
 
 dependencies {
     // Project
-    implementation(project(":lib:app-config"))
+    implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:kafka-streams"))
     implementation(project(":lib:kafka-key-generator-client"))
     implementation(project(":domain:main-avro-schema"))
 
     // Server
-    implementation(ktorServer.bundles.withNettyAndMicrometer)
-    implementation(ktorServer.contentNegotiation)
-    implementation(ktorServer.statusPages)
-    implementation(ktorServer.cors)
-    implementation(ktorServer.cors)
-    implementation(ktorServer.callId)
-    implementation(ktorServer.auth)
+    implementation(libs.bundles.ktor.server.instrumented)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.callid)
+    implementation(libs.ktor.server.auth)
 
     // Client
-    implementation(ktorClient.bundles.withCio)
-    implementation(ktorClient.contentNegotiation)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
 
     // Serialization
-    implementation(ktor.serializationJackson)
-    implementation(ktor.serializationJson)
-    implementation(jackson.datatypeJsr310)
+    implementation(libs.ktor.serialization.jackson)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.jackson.datatype.jsr310)
 
     // Logging
-    implementation(loggingLibs.logbackClassic)
-    implementation(loggingLibs.logstashLogbackEncoder)
-    implementation(navCommon.log)
-    implementation(navCommon.auditLog)
+    implementation(libs.logback.classic)
+    implementation(libs.logstash.logback.encoder)
+    implementation(libs.nav.common.log)
+    implementation(libs.nav.common.audit.log)
 
     // Docs
-    implementation(ktorServer.openapi)
-    implementation(ktorServer.swagger)
+    implementation(libs.ktor.server.openapi)
+    implementation(libs.ktor.server.swagger)
 
     // Instrumentation
-    implementation(micrometer.registryPrometheus)
-    implementation(otel.api)
-    implementation(otel.annotations)
+    implementation(libs.micrometer.registry.prometheus)
+    implementation(libs.opentelemetry.api)
+    implementation(libs.opentelemetry.annotations)
 
     // Kafka
-    implementation(orgApacheKafka.kafkaStreams)
-    implementation(apacheAvro.kafkaStreamsAvroSerde)
+    implementation(libs.kafka.streams)
+    implementation(libs.confluent.kafka.streams.avro.serde)
 
     // NAV Common
-    implementation(navCommon.types)
+    implementation(libs.nav.common.types)
 
     // NAV Security
-    implementation(navSecurity.tokenValidationKtorV2)
+    implementation(libs.nav.security.token.validation.ktor)
 
     // NAV TMS
-    implementation(tmsVarsel.kotlinBuilder)
+    implementation(libs.nav.tms.varsel.kotlin.builder)
 
     // Test
-    testImplementation(ktorServer.testJvm)
-    testImplementation(testLibs.bundles.withUnitTesting)
-    testImplementation(testLibs.mockk)
-    testImplementation(testLibs.mockOauth2Server)
-    testImplementation(orgApacheKafka.streamsTest)
-
+    testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.bundles.unit.testing.kotest)
+    testImplementation(libs.mockk)
+    testImplementation(libs.nav.security.mock.oauth2.server)
+    testImplementation(libs.kafka.streams.test)
 }
 
 sourceSets {

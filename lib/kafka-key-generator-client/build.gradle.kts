@@ -1,20 +1,19 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
 }
 
 val jvmMajorVersion: String by project
 val jvmVersion = JavaVersion.valueOf("VERSION_$jvmMajorVersion")
 
 dependencies {
-    implementation(project(":lib:app-config"))
-    implementation(jackson.datatypeJsr310)
-    implementation(jackson.kotlin)
-    implementation(ktorClient.contentNegotiation)
-    implementation(ktorClient.core)
-    implementation(ktorClient.cio)
-    implementation(ktor.serializationJackson)
-    implementation(navSecurity.tokenClient)
-    api(navCommon.tokenClient)
+    implementation(project(":lib:hoplite-config"))
+    implementation(libs.ktor.serialization.jackson)
+    implementation(libs.jackson.datatype.jsr310)
+    implementation(libs.jackson.kotlin)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.nav.security.token.client)
+    api(libs.nav.common.token.client)
 }
 
 java {
