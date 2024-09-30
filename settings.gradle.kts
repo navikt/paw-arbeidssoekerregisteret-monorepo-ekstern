@@ -3,9 +3,11 @@ rootProject.name = "paw-arbeidssoekerregisteret-monorepo-ekstern"
 include(
     "domain:main-avro-schema",
     "lib:hoplite-config",
+    "lib:error-handling",
     "lib:kafka",
     "lib:kafka-streams",
     "lib:kafka-key-generator-client",
+    "test:test-data-factory",
     "apps:microfrontend-toggler",
     "apps:profilering",
 )

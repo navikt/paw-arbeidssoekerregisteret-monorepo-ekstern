@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.model
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.arbeidssoekerregisteret.config.buildObjectMapper
+import no.nav.paw.arbeidssoekerregisteret.utils.buildObjectMapper
 
 class ToggleTest : FreeSpec({
     with(ToggleTestContext()) {

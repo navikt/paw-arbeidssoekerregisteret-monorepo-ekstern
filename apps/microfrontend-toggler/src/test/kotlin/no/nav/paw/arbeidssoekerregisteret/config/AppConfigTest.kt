@@ -6,11 +6,11 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 
 class AppConfigTest : FreeSpec({
     "Skal laste config" {
-        val appConfig = loadNaisOrLocalConfiguration<AppConfig>(APPLICATION_CONFIG_FILE_NAME)
-        appConfig.kafka shouldNotBe null
-        appConfig.kafkaProducer shouldNotBe null
-        appConfig.kafkaStreams shouldNotBe null
-        appConfig.regler shouldNotBe null
-        appConfig.microfrontends shouldNotBe null
+        val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
+        applicationConfig.kafka shouldNotBe null
+        applicationConfig.kafkaProducer shouldNotBe null
+        applicationConfig.kafkaStreams shouldNotBe null
+        applicationConfig.regler shouldNotBe null
+        applicationConfig.microfrontends shouldNotBe null
     }
 })

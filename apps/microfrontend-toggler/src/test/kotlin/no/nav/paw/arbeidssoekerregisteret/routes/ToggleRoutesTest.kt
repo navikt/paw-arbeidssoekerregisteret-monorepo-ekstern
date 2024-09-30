@@ -1,98 +1,175 @@
 package no.nav.paw.arbeidssoekerregisteret.routes
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.testApplication
-import io.mockk.mockk
-import no.nav.paw.arbeidssoekerregisteret.config.AppConfig
-import no.nav.paw.arbeidssoekerregisteret.config.AuthProvider
-import no.nav.paw.arbeidssoekerregisteret.config.AuthProviders
-import no.nav.paw.arbeidssoekerregisteret.config.RequiredClaims
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
+import io.mockk.just
+import no.nav.paw.arbeidssoekerregisteret.TestContext
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
-import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
-import no.nav.paw.arbeidssoekerregisteret.topology.TEST_APPLICATION_CONFIG_FILE_NAME
-import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.apache.kafka.clients.producer.Producer
+import no.nav.paw.error.model.ProblemDetails
 
-@Ignored // TODO Få authz til å funke i test
 class ToggleRoutesTest : FreeSpec({
-    with(ToggleRoutesTestContext()) {
-        afterSpec {
-            mockOAuth2Server.shutdown()
+    with(LocalTestContext()) {
+
+        beforeSpec {
+            mockOAuth2Server.start()
         }
 
-        testApplication {
-            application {
-                configureSerialization()
-                configureRequestHandling()
-                configureAuthentication(mockOAuth2Server.buildAuthProviders())
-            }
-            routing {
-                toggleRoutes(toggleService)
-            }
-            val restClient = createClient {
-                install(ContentNegotiation) {
-                    jackson {
-                        registerKotlinModule()
-                        registerModule(JavaTimeModule())
-                    }
-                }
-            }
+        afterSpec {
+            mockOAuth2Server.shutdown()
+            confirmVerified(
+                toggleServiceMock
+            )
+        }
 
-            "Test av toggle routes" - {
+        "Test av toggle routes" - {
 
-                "Skal få 401 uten Bearer token" {
-                    val response = restClient.post("/api/v1/microfrontend-toggle") {
+            "Skal få 401 ved manglende Bearer Token" {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
+
+                    val response = client.post("/api/v1/microfrontend-toggle") {
                         contentType(ContentType.Application.Json)
-                        setBody(ToggleRequest(ToggleAction.ENABLE, "aia-min-side"))
+                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
                     }
 
                     response.status shouldBe HttpStatusCode.Unauthorized
                 }
             }
+
+            "Skal få 401 ved token utstedt av ukjent issuer" {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
+
+                    val token = mockOAuth2Server.issueToken(
+                        issuerId = "whatever",
+                        claims = mapOf(
+                            "acr" to "idporten-loa-high",
+                            "pid" to "01017012345"
+                        )
+                    )
+
+                    val response = client.post("/api/v1/microfrontend-toggle") {
+                        bearerAuth(token.serialize())
+                        contentType(ContentType.Application.Json)
+                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                    }
+
+                    response.status shouldBe HttpStatusCode.Unauthorized
+                }
+            }
+
+            "Skal få 403 ved token uten noen claims" {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
+
+                    val token = mockOAuth2Server.issueToken()
+
+                    val response = client.post("/api/v1/microfrontend-toggle") {
+                        bearerAuth(token.serialize())
+                        contentType(ContentType.Application.Json)
+                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                    }
+
+                    response.status shouldBe HttpStatusCode.Forbidden
+                    val body = response.body<ProblemDetails>()
+                    body.status shouldBe HttpStatusCode.Forbidden
+                    body.code shouldBe "PAW_UGYLDIG_BEARER_TOKEN"
+                }
+            }
+
+            "Skal få 403 ved token uten pid claim" {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
+
+                    val token = mockOAuth2Server.issueToken(
+                        claims = mapOf(
+                            "acr" to "idporten-loa-high"
+                        )
+                    )
+
+                    val response = client.post("/api/v1/microfrontend-toggle") {
+                        bearerAuth(token.serialize())
+                        contentType(ContentType.Application.Json)
+                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                    }
+
+                    response.status shouldBe HttpStatusCode.Forbidden
+                    val body = response.body<ProblemDetails>()
+                    body.status shouldBe HttpStatusCode.Forbidden
+                    body.code shouldBe "PAW_UGYLDIG_BEARER_TOKEN"
+                }
+            }
+
+            "Skal få 403 ved ved forsøk på å enable" {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
+
+                    val token = mockOAuth2Server.issueToken(
+                        claims = mapOf(
+                            "acr" to "idporten-loa-high",
+                            "pid" to "01017012345"
+                        )
+                    )
+
+                    val response = client.post("/api/v1/microfrontend-toggle") {
+                        bearerAuth(token.serialize())
+                        contentType(ContentType.Application.Json)
+                        setBody(ToggleRequest(ToggleAction.ENABLE, "aia-min-side"))
+                    }
+
+                    response.status shouldBe HttpStatusCode.Forbidden
+                    val body = response.body<ProblemDetails>()
+                    body.status shouldBe HttpStatusCode.Forbidden
+                    body.code shouldBe "PAW_BRUKER_HAR_IKKE_TILGANG"
+                }
+            }
+
+            "Skal få 202 ved ved forsøk på å disable" {
+                coEvery { toggleServiceMock.sendToggle(any<Toggle>()) } just Runs
+
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
+
+                    val token = mockOAuth2Server.issueToken(
+                        claims = mapOf(
+                            "acr" to "idporten-loa-high",
+                            "pid" to "01017012345"
+                        )
+                    )
+
+                    val response = client.post("/api/v1/microfrontend-toggle") {
+                        bearerAuth(token.serialize())
+                        contentType(ContentType.Application.Json)
+                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                    }
+
+                    response.status shouldBe HttpStatusCode.Accepted
+                }
+
+                coVerify { toggleServiceMock.sendToggle(any<Toggle>()) }
+            }
         }
     }
-})
-
-fun MockOAuth2Server.buildAuthProviders(): AuthProviders {
-    return listOf(
-        AuthProvider(
-            name = "tokenx",
-            clientId = "paw-microfrontend-toggler",
-            discoveryUrl = wellKnownUrl("default").toString(),
-            tokenEndpointUrl = tokenEndpointUrl("default").toString(),
-            requiredClaims = RequiredClaims(listOf(), true)
-        )
-    )
-}
-
-class ToggleRoutesTestContext {
-    val appConfig = loadNaisOrLocalConfiguration<AppConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
-    private val kafkaKeysClientMock = mockk<KafkaKeysClient>()
-    private val kafkaProducerMock = mockk<Producer<Long, Toggle>>()
-    val toggleService = ToggleService(appConfig, kafkaKeysClientMock, kafkaProducerMock)
-    val mockOAuth2Server = buildAndStartMockOAuth2Server()
-
-    private fun buildAndStartMockOAuth2Server(): MockOAuth2Server {
-        val mockOAuth2Server = MockOAuth2Server()
-        mockOAuth2Server.start()
-        return mockOAuth2Server
-    }
+}) {
+    private class LocalTestContext : TestContext()
 }

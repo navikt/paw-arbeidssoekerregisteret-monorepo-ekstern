@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.model
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.arbeidssoekerregisteret.config.buildObjectMapper
+import no.nav.paw.arbeidssoekerregisteret.utils.buildObjectMapper
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata

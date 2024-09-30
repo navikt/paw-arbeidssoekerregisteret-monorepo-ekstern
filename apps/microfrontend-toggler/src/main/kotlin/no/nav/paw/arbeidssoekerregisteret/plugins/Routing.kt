@@ -2,21 +2,17 @@ package no.nav.paw.arbeidssoekerregisteret.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.routing.routing
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.routes.healthRoutes
+import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
+import no.nav.paw.arbeidssoekerregisteret.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.swaggerRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.toggleRoutes
-import no.nav.paw.arbeidssoekerregisteret.service.HealthIndicatorService
-import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
+import no.nav.paw.health.route.healthRoutes
 
-fun Application.configureRouting(
-    healthIndicatorService: HealthIndicatorService,
-    meterRegistry: PrometheusMeterRegistry,
-    toggleService: ToggleService
-) {
+fun Application.configureRouting(applicationContext: ApplicationContext) {
     routing {
-        healthRoutes(healthIndicatorService, meterRegistry)
+        healthRoutes(applicationContext.healthIndicatorRepository)
+        metricsRoutes(applicationContext)
         swaggerRoutes()
-        toggleRoutes(toggleService)
+        toggleRoutes(applicationContext)
     }
 }
