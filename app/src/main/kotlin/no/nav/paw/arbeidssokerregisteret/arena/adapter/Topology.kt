@@ -18,10 +18,12 @@ import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Produced
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.UUID
 
 val HOEYVANNSMERKE = Instant.parse("2024-01-01T00:00:00Z")
+private val uteAvSyncLogger = LoggerFactory.getLogger("ute_av_sync")
 
 fun topology(
     builder: StreamsBuilder,
@@ -72,7 +74,8 @@ fun topology(
         storeName = stateStoreName,
         registry = registry
     )
-        .assertValidMessages()
+        .assertCompleteMessage()
+        .logInvalidMessages()
         .to(
             topics.arena,
             Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
@@ -80,16 +83,29 @@ fun topology(
     return builder.build()
 }
 
-fun KStream<Long, ArenaArbeidssokerregisterTilstand>.assertValidMessages(): KStream<Long, ArenaArbeidssokerregisterTilstand> =
+fun KStream<Long, ArenaArbeidssokerregisterTilstand>.assertCompleteMessage(): KStream<Long, ArenaArbeidssokerregisterTilstand> =
     peek { _, arenaTilstand ->
         requireNotNull(arenaTilstand.periode) { "Periode mangler" }
-        require(arenaTilstand.profilering?.periodeId == null || arenaTilstand.periode.id == arenaTilstand.profilering.periodeId) { "PeriodeId (profilering) matcher ikke" }
-        require(arenaTilstand.opplysningerOmArbeidssoeker?.periodeId == null || arenaTilstand.periode.id == arenaTilstand.opplysningerOmArbeidssoeker.periodeId) { "PeriodeId (opplysninger om arbeidssøker) matcher ikke" }
+        requireNotNull(arenaTilstand.opplysningerOmArbeidssoeker) { "Opplysninger om arbeidssøker mangler" }
+        requireNotNull(arenaTilstand.profilering) { "Profilering mangler" }
+    }
 
-        require(listOfNotNull(
-            arenaTilstand.opplysningerOmArbeidssoeker?.id,
-            arenaTilstand.profilering?.opplysningerOmArbeidssokerId
-        ).distinct().size < 2) { "Opplysninger om arbeidssøkerId (profilering) matcher ikke: ${debug(arenaTilstand)}" }
+fun KStream<Long, ArenaArbeidssokerregisterTilstand>.logInvalidMessages(): KStream<Long, ArenaArbeidssokerregisterTilstand> =
+    peek { _, arenaTilstand ->
+        runCatching {
+            requireNotNull(arenaTilstand.periode) { "Periode mangler" }
+            require(arenaTilstand.profilering?.periodeId == null || arenaTilstand.periode.id == arenaTilstand.profilering.periodeId) { "PeriodeId (profilering) matcher ikke" }
+            require(arenaTilstand.opplysningerOmArbeidssoeker?.periodeId == null || arenaTilstand.periode.id == arenaTilstand.opplysningerOmArbeidssoeker.periodeId) { "PeriodeId (opplysninger om arbeidssøker) matcher ikke" }
+
+            require(
+                listOfNotNull(
+                    arenaTilstand.opplysningerOmArbeidssoeker?.id,
+                    arenaTilstand.profilering?.opplysningerOmArbeidssokerId
+                ).distinct().size < 2
+            ) { "Opplysninger om arbeidssøkerId (profilering) matcher ikke: ${debug(arenaTilstand)}" }
+        }.onFailure {
+            uteAvSyncLogger.error("Ute av sync: ${it.message}")
+        }
     }
 
 fun debug(arenaTilstand: ArenaArbeidssokerregisterTilstand): DebugObject {
