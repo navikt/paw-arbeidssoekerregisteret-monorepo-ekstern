@@ -10,13 +10,10 @@ val baseImage: String by project
 val image: String? by project
 
 dependencies {
-    // Project
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
-    implementation(project(":lib:kafka-streams"))
-    implementation(project(":lib:kafka-key-generator-client"))
+    implementation(project(":lib:kafka"))
     implementation(project(":domain:main-avro-schema"))
-    testImplementation(project(":test:test-data-factory"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)
@@ -24,7 +21,6 @@ dependencies {
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.callid)
-    implementation(libs.ktor.server.auth)
 
     // Client
     implementation(libs.ktor.client.cio)
@@ -51,24 +47,60 @@ dependencies {
     implementation(libs.opentelemetry.annotations)
 
     // Kafka
-    implementation(libs.kafka.streams)
-    implementation(libs.confluent.kafka.streams.avro.serde)
+    implementation(libs.avro)
+    implementation(libs.confluent.kafka.avro.serializer)
 
-    // NAV Common
-    implementation(libs.nav.common.types)
+    // Database
+    implementation(libs.exposed.crypt)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.java.time)
+    implementation(libs.hikari.connection.pool)
+    implementation(libs.postgres.driver)
+    implementation(libs.flyway.postgres)
 
-    // NAV Security
+    // Security
+    implementation(libs.ktor.server.auth)
+    implementation(libs.nav.common.token.client)
+    implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
-
-    // NAV TMS
-    implementation(libs.nav.tms.varsel.kotlin.builder)
+    implementation(libs.nav.poao.tilgang.client)
 
     // Test
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.security.mock.oauth2.server)
-    testImplementation(libs.kafka.streams.test)
+    testImplementation(libs.testcontainers.postgresql)
+}
+
+val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
+
+openApiValidate {
+    inputSpec = openApiDocFile
+}
+
+openApiGenerate {
+    generatorName.set("kotlin-server")
+    library = "ktor"
+    inputSpec = openApiDocFile
+    outputDir = "${layout.buildDirectory.get()}/generated/"
+    packageName = "no.nav.paw.arbeidssoekerregisteret.api.oppslag"
+    configOptions.set(
+        mapOf(
+            "serializationLibrary" to "jackson",
+            "enumPropertyNaming" to "original",
+        ),
+    )
+    typeMappings = mapOf(
+        "DateTime" to "Instant"
+    )
+    globalProperties = mapOf(
+        "apis" to "none",
+        "models" to ""
+    )
+    importMappings = mapOf(
+        "Instant" to "java.time.Instant"
+    )
 }
 
 java {
@@ -78,7 +110,27 @@ java {
 }
 
 application {
-    mainClass.set("no.nav.paw.arbeidssoekerregisteret.ApplicationKt")
+    mainClass.set("no.nav.paw.arbeidssoekerregisteret.api.oppslag.ApplicationKt")
+}
+
+sourceSets {
+    main {
+        kotlin {
+            srcDir("${layout.buildDirectory.get()}/generated/src/main/kotlin")
+        }
+    }
+}
+
+tasks.named("compileTestKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 tasks.withType<Test>().configureEach {
@@ -98,8 +150,7 @@ jib {
     to.image = "${image ?: project.name}:${project.version}"
     container {
         environment = mapOf(
-            "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}",
-            "OTEL_INSTRUMENTATION_METHODS_INCLUDE" to ("org.apache.kafka.streams.state.KeyValueStore[put,delete]")
+            "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}"
         )
         jvmFlags = listOf(
             "-XX:ActiveProcessorCount=4", "-XX:+UseZGC", "-XX:+ZGenerational"

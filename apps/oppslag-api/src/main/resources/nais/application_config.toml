@@ -1,0 +1,34 @@
+gruppeId = "paw.arbeidssoekerregisteret-api-oppslag-v9"
+periodeTopic = "paw.arbeidssokerperioder-v1"
+opplysningerOmArbeidssoekerTopic = "paw.opplysninger-om-arbeidssoeker-v1"
+profileringTopic = "paw.arbeidssoker-profilering-v1"
+
+[[authProviders]]
+name = "tokenx"
+discoveryUrl = "${TOKEN_X_WELL_KNOWN_URL}"
+tokenEndpointUrl = "${TOKEN_X_TOKEN_ENDPOINT}"
+clientId = "${TOKEN_X_CLIENT_ID}"
+
+    [authProviders.claims]
+    map = ["acr=Level4", "acr=idporten-loa-high"]
+    combineWithOr = true
+
+[[authProviders]]
+name = "azure"
+discoveryUrl = "${AZURE_APP_WELL_KNOWN_URL}"
+tokenEndpointUrl = "${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}"
+clientId = "${AZURE_APP_CLIENT_ID}"
+
+    [authProviders.claims]
+    map = ["NAVident"]
+
+[poaoClientConfig]
+url = "http://poao-tilgang.poao.svc.cluster.local"
+scope = "api://${NAIS_CLUSTER_NAME}.poao.poao-tilgang/.default"
+
+[database]
+host = "${NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_API_OPPSLAG_ARBEIDSSOEKERREGISTERETAPIOPPSLAG_HOST}"
+port = "${NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_API_OPPSLAG_ARBEIDSSOEKERREGISTERETAPIOPPSLAG_PORT}"
+username = "${NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_API_OPPSLAG_ARBEIDSSOEKERREGISTERETAPIOPPSLAG_USERNAME}"
+password = "${NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_API_OPPSLAG_ARBEIDSSOEKERREGISTERETAPIOPPSLAG_PASSWORD}"
+name = "${NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_API_OPPSLAG_ARBEIDSSOEKERREGISTERETAPIOPPSLAG_DATABASE}"

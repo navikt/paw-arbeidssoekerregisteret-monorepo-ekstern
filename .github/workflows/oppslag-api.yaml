@@ -1,4 +1,4 @@
-name: Profilering
+name: Oppslag API
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
       - dev/*
     paths:
-      - 'apps/profilering/**'
-      - '.github/workflows/profilering.yaml'
+      - 'apps/oppslag-api/**'
+      - '.github/workflows/oppslag-api.yaml'
       - 'lib/**'
       - 'domain/**'
       - 'gradle/**'
@@ -17,8 +17,8 @@ on:
       - 'gradlew.bat'
 
 env:
-  MODULE: profilering
-  IMAGE: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/paw/paw-arbeidssokerregisteret-profilering
+  MODULE: oppslag-api
+  IMAGE: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/paw/paw-arbeidssoekerregisteret-api-oppslag
 jobs:
   build:
     name: Build

@@ -1,0 +1,35 @@
+gruppeId = "paw.arbeidsseokerregisteret-api-oppslag-v1"
+periodeTopic = "paw.arbeidssokerperioder-v1"
+opplysningerOmArbeidssoekerTopic = "paw.opplysninger-om-arbeidssoeker-v1"
+profileringTopic = "paw.arbeidssoker-profilering-v1"
+
+[[authProviders]]
+name = "tokenx"
+discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/default/token"
+clientId = "paw-arbeidssoekerregisteret-api-oppslag"
+
+    [authProviders.claims]
+    map = [ "acr=Level4", "acr=idporten-loa-high" ]
+    combineWithOr = true
+
+[[authProviders]]
+name = "azure"
+discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/default/token"
+clientId = "paw-arbeidssoekerregisteret-api-oppslag"
+
+    [authProviders.claims]
+    map = [ "NAVident" ]
+    combineWithOr = false
+
+[poaoClientConfig]
+url = "http://localhost:8090/poao-tilgang/"
+scope = "api://test.test.poao-tilgang/.default"
+
+[database]
+host = "localhost"
+port = 5_432
+username = "admin"
+password = "admin"
+name = "arbeidssoekerregisteretapioppslag"
