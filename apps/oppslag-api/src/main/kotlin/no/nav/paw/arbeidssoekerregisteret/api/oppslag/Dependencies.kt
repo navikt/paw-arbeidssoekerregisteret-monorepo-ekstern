@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag
 
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers.BatchConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.OpplysningerOmArbeidssoekerDeserializer
@@ -50,7 +50,8 @@ fun createDependencies(
             PoaoTilgangHttpClient(
                 config.poaoClientConfig.url,
                 { tokenService.createMachineToMachineToken(config.poaoClientConfig.scope) },
-                OkHttpClient.Builder().callTimeout(Duration.ofSeconds(6)).addInterceptor(RetryInterceptor(maxRetries = 1)).build()
+                OkHttpClient.Builder().callTimeout(Duration.ofSeconds(6))
+                    .addInterceptor(RetryInterceptor(maxRetries = 1)).build()
             )
         )
 
@@ -61,7 +62,8 @@ fun createDependencies(
 
     // Arbeidssøkerperiode avhengigheter
     val arbeidssoekerperiodeRepository = ArbeidssoekerperiodeRepository(database)
-    val scheduleGetAktivePerioderGaugeService = ScheduleGetAktivePerioderGaugeService(registry, arbeidssoekerperiodeRepository)
+    val scheduleGetAktivePerioderGaugeService =
+        ScheduleGetAktivePerioderGaugeService(registry, arbeidssoekerperiodeRepository)
     val arbeidssoekerperiodeService = ArbeidssoekerperiodeService(arbeidssoekerperiodeRepository)
     val arbeidssoekerperiodeConsumer =
         kafkaFactory.createConsumer<Long, Periode>(
@@ -70,7 +72,8 @@ fun createDependencies(
             keyDeserializer = LongDeserializer::class,
             valueDeserializer = PeriodeDeserializer::class
         )
-    val arbeidssoekerperiodeBatchConsumer = BatchConsumer(config.periodeTopic, arbeidssoekerperiodeConsumer, arbeidssoekerperiodeService::lagreBatch)
+    val arbeidssoekerperiodeBatchConsumer =
+        BatchConsumer(config.periodeTopic, arbeidssoekerperiodeConsumer, arbeidssoekerperiodeService::lagreBatch)
 
     // Situasjon avhengigheter
     val opplysningerOmArbeidssoekerRepository = OpplysningerOmArbeidssoekerRepository(database)
@@ -82,7 +85,11 @@ fun createDependencies(
             keyDeserializer = LongDeserializer::class,
             valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
         )
-    val opplysningerOmArbeidssoekerBatchConsumer = BatchConsumer(config.opplysningerOmArbeidssoekerTopic, opplysningerOmArbeidssoekerConsumer, opplysningerOmArbeidssoekerService::lagreBatch)
+    val opplysningerOmArbeidssoekerBatchConsumer = BatchConsumer(
+        config.opplysningerOmArbeidssoekerTopic,
+        opplysningerOmArbeidssoekerConsumer,
+        opplysningerOmArbeidssoekerService::lagreBatch
+    )
 
     // Profilering avhengigheter
     val profileringRepository = ProfileringRepository(database)
@@ -94,7 +101,8 @@ fun createDependencies(
             keyDeserializer = LongDeserializer::class,
             valueDeserializer = ProfileringDeserializer::class
         )
-    val profileringBatchConsumer = BatchConsumer(config.profileringTopic, profileringConsumer, profileringService::lagreBatch)
+    val profileringBatchConsumer =
+        BatchConsumer(config.profileringTopic, profileringConsumer, profileringService::lagreBatch)
 
     return Dependencies(
         registry,

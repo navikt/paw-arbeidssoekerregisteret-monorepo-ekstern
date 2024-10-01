@@ -1,4 +1,4 @@
-name: paw-arbeidssokerregisteret-profilering
+name: Profilering
 
 on:
   push:
@@ -17,6 +17,7 @@ on:
       - 'gradlew.bat'
 
 env:
+  MODULE: profilering
   IMAGE: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/paw/paw-arbeidssokerregisteret-profilering
 jobs:
   build:
@@ -36,8 +37,6 @@ jobs:
           java-version: 21
           distribution: temurin
           cache: gradle
-      - name: Set module
-        run: echo "MODULE=profilering" >> $GITHUB_ENV
       - name: Set version
         run: echo "VERSION=$(date +'%y.%m.%d').${{ github.run_number }}-${{ github.run_attempt }}" >> $GITHUB_ENV
       - name: Login GAR
@@ -77,7 +76,7 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: ./apps/profilering/nais/nais-dev.yaml
+          RESOURCE: ./apps/${{ env.MODULE }}/nais/nais-dev.yaml
           VAR: image=${{ needs.build.outputs.image }}
 
   deploy-prod:
@@ -98,5 +97,5 @@ jobs:
         env:
           TEAM: paw
           CLUSTER: prod-gcp
-          RESOURCE: ./apps/profilering/nais/nais-prod.yaml
+          RESOURCE: ./apps/${{ env.MODULE }}/nais/nais-prod.yaml
           VAR: image=${{ needs.build.outputs.image }}

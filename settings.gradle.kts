@@ -10,6 +10,7 @@ include(
     "test:test-data-factory",
     "apps:microfrontend-toggler",
     "apps:profilering",
+    "apps:oppslag-api",
 )
 
 dependencyResolutionManagement {

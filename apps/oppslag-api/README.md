@@ -138,7 +138,9 @@ man installerer Docker Desktop.
 Kjør opp docker containerne med
 
 ```sh
-docker-compose up -d
+docker compose -f ../../docker/postgres/docker-compose.yaml up -d
+docker compose -f ../../docker/kafka/docker-compose.yaml up -d
+docker compose -f ../../docker/mocks/docker-compose.yaml up -d
 ```
 
 Se at alle kjører med
