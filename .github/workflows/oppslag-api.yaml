@@ -1,0 +1,78 @@
+name: Build, push, and deploy
+
+on:
+  push:
+    branches:
+      - main
+      - dev/*
+
+jobs:
+  build:
+    name: Build
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: gradle
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        env:
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          arguments: build
+      - name: Build and push Docker image
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: paw
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # Provided as Organization Variable
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # Provided as Organization Secret
+
+  deploy-dev:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/dev')
+    name: Deploy to dev-gcp
+    needs:
+      - build
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: nais/nais-dev.yaml
+          VAR: image=${{ needs.build.outputs.image }}
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    name: Deploy to prod-gcp
+    needs:
+      - build
+      - deploy-dev
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: nais/nais-prod.yaml
+          VAR: image=${{ needs.build.outputs.image }}

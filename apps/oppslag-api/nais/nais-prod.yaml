@@ -1,0 +1,107 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: paw-arbeidssoekerregisteret-api-oppslag
+  namespace: paw
+  labels:
+    team: paw
+spec:
+  image: {{ image }}
+  ingresses:
+    - https://oppslag-arbeidssoekerregisteret.intern.nav.no
+  port: 8080
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      claims:
+        extra:
+          - NAVident
+  tokenx:
+    enabled: true
+  kafka:
+    pool: nav-prod
+  replicas:
+    min: 2
+    max: 2
+  resources:
+    limits:
+      memory: 2Gi
+    requests:
+      cpu: 125m
+      memory: 1Gi
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /internal/isReady
+    initialDelay: 10
+  prometheus:
+    enabled: true
+    path: /internal/metrics
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+  accessPolicy:
+    inbound:
+      rules:
+        - application: arbeidssokerregistrering-for-veileder
+        - application: tokenx-token-generator
+          namespace: aura
+        - application: azure-token-generator
+          namespace: aura
+        - application: saas-proxy
+          namespace: teamcrm
+        - application: salesforce
+          namespace: teamcrm
+          cluster: prod-external
+        - application: arena
+          namespace: teamarenanais
+          cluster: prod-fss
+        - application: aia-backend
+          namespace: paw
+          cluster: prod-gcp
+        - application: paw-brukerstotte
+          namespace: paw
+          cluster: prod-gcp
+        - application: dp-oppslag-arbeidssoker
+          namespace: teamdagpenger
+        - application: dp-dagpenger
+          namespace: teamdagpenger
+        - application: dp-soknadsdialog
+          namespace: teamdagpenger
+        - application: dp-saksbehandling-frontend
+          namespace: teamdagpenger
+        - application: dp-mine-dagpenger-frontend
+          namespace: teamdagpenger
+        - application: veilarbportefolje
+          namespace: pto
+          cluster: prod-fss
+        - application: veilarbpersonflate
+          namespace: poao
+          cluster: prod-gcp
+        - application: arbeidssokerregistrering
+          namespace: paw
+          cluster: prod-gcp
+        - application: veilarbdirigent
+          namespace: pto
+          cluster: prod-fss
+        - application: paw-arbeidssoekerregisteret-hendelselogg-backup
+          namespace: paw
+        - application: veilarbportefolje
+          namespace: obo
+          cluster: prod-gcp
+        - application: veilarbperson
+          namespace: obo
+          cluster: prod-gcp
+    outbound:
+      rules:
+        - application: poao-tilgang
+          namespace: poao
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_14
+        tier: db-custom-1-6144
+        databases:
+          - name: arbeidssoekerregisteretapioppslag
