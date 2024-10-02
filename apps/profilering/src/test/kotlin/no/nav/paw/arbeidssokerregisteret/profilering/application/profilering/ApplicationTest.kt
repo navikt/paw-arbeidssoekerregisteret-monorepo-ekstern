@@ -23,6 +23,7 @@ import org.apache.kafka.streams.TestOutputTopic
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.state.Stores
+import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -88,6 +89,37 @@ class ApplicationTest : FreeSpec({
             periodeTopic.pipeInput(key, ProfileringTestData.standardPeriode(periodeId = periodeId,  startet = Instant.parse("2023-10-31T23:59:59.999Z")))
             opplysningerOmArbeidssoekerTopic.pipeInput(key, ProfileringTestData.standardOpplysninger(periodeId = periodeId, sendtInnTidspunkt = Instant.parse("2023-11-30T23:59:59.999Z")))
             profileringsTopic.isEmpty shouldBe true
+        }
+
+        "Begge profileringene skal skrives til output topic når det kommer 2 opplysninger rett før perioden".config(enabled = false) {
+            val key = 1L
+            val periodeId = UUID.randomUUID()
+            val opplysninger1 = ProfileringTestData.standardOpplysninger(
+                utdanning =  utdanning("3"),
+                periodeId = periodeId,
+                sendtInnTidspunkt = Instant.parse("2024-11-30T23:59:59.998Z")
+            )
+            val opplysninger2 = ProfileringTestData.standardOpplysninger(
+                utdanning =  utdanning("1"),
+                periodeId = periodeId,
+                sendtInnTidspunkt = Instant.parse("2024-11-30T23:59:59.999Z")
+            )
+            opplysningerOmArbeidssoekerTopic.pipeInput(key, opplysninger1)
+            opplysningerOmArbeidssoekerTopic.pipeInput(key, opplysninger2)
+            periodeTopic.pipeInput(
+                key,
+                ProfileringTestData.standardPeriode(
+                    periodeId = periodeId,
+                    startet = Instant.parse("2024-10-31T23:59:59.995Z")
+                )
+            )
+            val logger = LoggerFactory.getLogger("test")
+            logger.info("Opplysninger 1: ${opplysninger1.id}")
+            logger.info("Opplysninger 2: ${opplysninger2.id}")
+            profileringsTopic.isEmpty shouldBe false
+            profileringsTopic.readValue().opplysningerOmArbeidssokerId shouldBe opplysninger1.id
+            profileringsTopic.readValue().opplysningerOmArbeidssokerId shouldBe opplysninger2.id
+
         }
 
         "profileringen skal skrives til output topic når det kommer en periode med en opplysninger fra etter 2024" {
