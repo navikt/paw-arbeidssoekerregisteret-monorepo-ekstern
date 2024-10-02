@@ -41,6 +41,7 @@ spec:
     inbound:
       rules:
         - application: arbeidssokerregistrering-for-veileder
+        - application: aarbeidssoekerregisteret-for-personbruker
         - application: tokenx-token-generator
           namespace: aura
         - application: azure-token-generator
