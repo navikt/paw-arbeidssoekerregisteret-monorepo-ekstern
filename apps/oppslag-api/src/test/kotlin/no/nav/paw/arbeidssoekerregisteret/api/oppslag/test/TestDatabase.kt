@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
+package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.DatabaseConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.dataSource
@@ -21,7 +21,7 @@ fun initTestDatabase(): DataSource {
     return dataSource
 }
 
-fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
+private fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
     val postgres =
         PostgreSQLContainer(
             "postgres:14"

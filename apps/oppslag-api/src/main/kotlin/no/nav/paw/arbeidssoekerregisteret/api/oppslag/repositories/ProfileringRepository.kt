@@ -11,14 +11,14 @@ import java.util.*
 
 class ProfileringRepository(private val database: Database) {
 
-    fun hentProfilering(periodeId: UUID): List<ProfileringResponse> =
+    fun finnProfileringerForPeriodeId(periodeId: UUID): List<ProfileringResponse> =
         transaction(database) {
             finnProfileringer(periodeId)
         }
 
-    fun hentProfilering(identitetsnummer: Identitetsnummer): List<ProfileringResponse> =
+    fun finnProfileringerForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<ProfileringResponse> =
         transaction(database) {
-            finnProfileringer(identitetsnummer)
+            finnProfileringer(identitetsnummerList)
         }
 
     fun lagreProfilering(profilering: Profilering) {
@@ -27,7 +27,7 @@ class ProfileringRepository(private val database: Database) {
         }
     }
 
-    fun lagreProfileringer(profileringer: Sequence<Profilering>) {
+    fun lagreAlleProfileringer(profileringer: Sequence<Profilering>) {
         if (profileringer.iterator().hasNext()) {
             transaction(database) {
                 maxAttempts = 2

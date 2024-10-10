@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.copy
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyAvsluttetPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyBruker
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyMetadata
@@ -19,15 +20,15 @@ import java.time.Duration
 import java.time.Instant
 import javax.sql.DataSource
 
-class ArbeidssoekerperiodeRepositoryTest : StringSpec({
+class PeriodeRepositoryTest : StringSpec({
     lateinit var dataSource: DataSource
     lateinit var database: Database
-    lateinit var repository: ArbeidssoekerperiodeRepository
+    lateinit var repository: PeriodeRepository
 
     beforeSpec {
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
-        repository = ArbeidssoekerperiodeRepository(database)
+        repository = PeriodeRepository(database)
     }
 
     afterSpec {
@@ -36,9 +37,9 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
 
     "Opprett og hent en periode" {
         val periode = nyStartetPeriode()
-        repository.lagreArbeidssoekerperiode(periode)
+        repository.lagrePeriode(periode)
 
-        val retrievedPeriode = repository.hentArbeidssoekerperiode(periode.id)
+        val retrievedPeriode = repository.finnPerioderForId(periode.id)
 
         retrievedPeriode shouldNotBe null
         retrievedPeriode!! shouldBe periode
@@ -49,10 +50,10 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
         val periode1 = nyStartetPeriode(identitetsnummer = identitetsnummer)
         val periode2 = nyStartetPeriode(identitetsnummer = identitetsnummer)
         val periode3 = nyStartetPeriode(identitetsnummer = identitetsnummer)
-        repository.lagreArbeidssoekerperiode(periode1)
-        repository.lagreArbeidssoekerperiode(periode2)
-        repository.lagreArbeidssoekerperiode(periode3)
-        val retrievedPerioder = repository.hentArbeidssoekerperioder(Identitetsnummer(identitetsnummer))
+        repository.lagrePeriode(periode1)
+        repository.lagrePeriode(periode2)
+        repository.lagrePeriode(periode3)
+        val retrievedPerioder = repository.finnPerioderForIdentiteter(listOf(Identitetsnummer(identitetsnummer)))
 
         retrievedPerioder.size shouldBeExactly 3
         val retrievedPerioderMap = retrievedPerioder.associateBy { it.periodeId }
@@ -69,13 +70,13 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
 
     "Oppdater åpen periode med avsluttet metadata" {
         val periode = nyStartetPeriode()
-        repository.lagreArbeidssoekerperiode(periode)
+        repository.lagrePeriode(periode)
         val updatedPeriode = periode.copy(
             avsluttet = nyMetadata()
         )
-        repository.lagreArbeidssoekerperiode(updatedPeriode)
+        repository.lagrePeriode(updatedPeriode)
 
-        val retrievedPeriode = repository.hentArbeidssoekerperiode(periode.id)
+        val retrievedPeriode = repository.finnPerioderForId(periode.id)
 
         retrievedPeriode shouldNotBe null
         retrievedPeriode!! shouldBe updatedPeriode
@@ -83,7 +84,7 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
 
     "Oppdater avsluttet periode med ny startet og avsluttet metadata" {
         val periode = nyAvsluttetPeriode()
-        repository.lagreArbeidssoekerperiode(periode)
+        repository.lagrePeriode(periode)
         val updatedPeriode = periode.copy(
             startet = nyMetadata(
                 tidspunkt = Instant.now(),
@@ -99,9 +100,9 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
                 bruker = nyBruker(type = BrukerType.SYSTEM, id = "ARENA")
             )
         )
-        repository.lagreArbeidssoekerperiode(updatedPeriode)
+        repository.lagrePeriode(updatedPeriode)
 
-        val retrievedPeriode = repository.hentArbeidssoekerperiode(periode.id)
+        val retrievedPeriode = repository.finnPerioderForId(periode.id)
 
         retrievedPeriode shouldNotBe null
         retrievedPeriode shouldBe updatedPeriode
@@ -109,7 +110,7 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
 
     "Oppdatere avsluttet periode med null avsluttet metadata" {
         val periode = nyAvsluttetPeriode()
-        repository.lagreArbeidssoekerperiode(periode)
+        repository.lagrePeriode(periode)
         val updatedPeriode = periode.copy(
             startet = nyMetadata(
                 tidspunkt = Instant.now().minus(Duration.ofDays(2)),
@@ -123,9 +124,9 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
             ),
             avsluttet = null
         )
-        repository.lagreArbeidssoekerperiode(updatedPeriode)
+        repository.lagrePeriode(updatedPeriode)
 
-        val retrievedPeriode = repository.hentArbeidssoekerperiode(periode.id)
+        val retrievedPeriode = repository.finnPerioderForId(periode.id)
 
         retrievedPeriode shouldNotBe null
         retrievedPeriode shouldBe updatedPeriode
@@ -135,10 +136,10 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
         val periode1 = nyStartetPeriode(identitetsnummer = "01017012345")
         val periode2 = nyStartetPeriode(identitetsnummer = "02017012345")
         val perioder = sequenceOf(periode1, periode2)
-        repository.lagreArbeidssoekerperioder(perioder)
+        repository.lagreAllePerioder(perioder)
 
-        val lagretPeriode1 = repository.hentArbeidssoekerperiode(periode1.id)
-        val lagretPeriode2 = repository.hentArbeidssoekerperiode(periode2.id)
+        val lagretPeriode1 = repository.finnPerioderForId(periode1.id)
+        val lagretPeriode2 = repository.finnPerioderForId(periode2.id)
 
         lagretPeriode1 shouldNotBe null
         lagretPeriode2 shouldNotBe null
@@ -190,14 +191,14 @@ class ArbeidssoekerperiodeRepositoryTest : StringSpec({
         )
         val startedePerioder = sequenceOf(periode1, periode2, periode3)
         val avsluttedePerioder = sequenceOf(periode4, periode5)
-        repository.lagreArbeidssoekerperioder(startedePerioder)
-        repository.lagreArbeidssoekerperioder(avsluttedePerioder)
+        repository.lagreAllePerioder(startedePerioder)
+        repository.lagreAllePerioder(avsluttedePerioder)
 
-        val lagretPeriode1 = repository.hentArbeidssoekerperiode(periode1.id)
-        val lagretPeriode2 = repository.hentArbeidssoekerperiode(periode2.id)
-        val lagretPeriode3 = repository.hentArbeidssoekerperiode(periode3.id)
-        val lagretPeriode4 = repository.hentArbeidssoekerperiode(periode4.id)
-        val lagretPeriode5 = repository.hentArbeidssoekerperiode(periode5.id)
+        val lagretPeriode1 = repository.finnPerioderForId(periode1.id)
+        val lagretPeriode2 = repository.finnPerioderForId(periode2.id)
+        val lagretPeriode3 = repository.finnPerioderForId(periode3.id)
+        val lagretPeriode4 = repository.finnPerioderForId(periode4.id)
+        val lagretPeriode5 = repository.finnPerioderForId(periode5.id)
 
         lagretPeriode1 shouldNotBe null
         lagretPeriode2 shouldNotBe null

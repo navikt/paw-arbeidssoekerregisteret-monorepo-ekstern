@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyOpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyProfilering
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
@@ -23,11 +24,11 @@ class ProfileringRepositoryTest : StringSpec({
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
         repository = ProfileringRepository(database)
-        val opplysningerRepository = OpplysningerOmArbeidssoekerRepository(database)
+        val opplysningerRepository = OpplysningerRepository(database)
         val opplysninger1 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId1, opplysningerId = opplysningerId1)
         val opplysninger2 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId2, opplysningerId = opplysningerId2)
-        opplysningerRepository.lagreOpplysningerOmArbeidssoeker(opplysninger1)
-        opplysningerRepository.lagreOpplysningerOmArbeidssoeker(opplysninger2)
+        opplysningerRepository.lagreOpplysninger(opplysninger1)
+        opplysningerRepository.lagreOpplysninger(opplysninger2)
     }
 
     afterEach {
@@ -38,7 +39,7 @@ class ProfileringRepositoryTest : StringSpec({
         val profilering = nyProfilering(periodeId1, opplysningerId1)
         repository.lagreProfilering(profilering)
 
-        val profileringResponser = repository.hentProfilering(profilering.periodeId)
+        val profileringResponser = repository.finnProfileringerForPeriodeId(profilering.periodeId)
 
         profileringResponser.size shouldBe 1
         val profileringResponse = profileringResponser[0]
@@ -51,7 +52,7 @@ class ProfileringRepositoryTest : StringSpec({
         repository.lagreProfilering(profilering1)
         repository.lagreProfilering(profilering2)
 
-        val profileringResponser = repository.hentProfilering(periodeId1)
+        val profileringResponser = repository.finnProfileringerForPeriodeId(periodeId1)
 
         profileringResponser.size shouldBe 2
         val profileringResponse1 = profileringResponser[0]
@@ -63,7 +64,7 @@ class ProfileringRepositoryTest : StringSpec({
     "Hent ut profilering med PeriodeId" {
         val profilering = nyProfilering(periodeId1, opplysningerId1)
         repository.lagreProfilering(profilering)
-        val profileringResponser = repository.hentProfilering(periodeId1)
+        val profileringResponser = repository.finnProfileringerForPeriodeId(periodeId1)
 
         profileringResponser.size shouldBe 1
         val profileringResponse = profileringResponser[0]
@@ -71,7 +72,7 @@ class ProfileringRepositoryTest : StringSpec({
     }
 
     "Hent ut ikke-eksisterende profilering" {
-        val profileringResponser = repository.hentProfilering(UUID.randomUUID())
+        val profileringResponser = repository.finnProfileringerForPeriodeId(UUID.randomUUID())
 
         profileringResponser.size shouldBe 0
     }
@@ -82,9 +83,9 @@ class ProfileringRepositoryTest : StringSpec({
         val profilering2 = nyProfilering(periodeId, UUID.randomUUID())
         val profilering3 = nyProfilering(periodeId, UUID.randomUUID())
         val profileringer = sequenceOf(profilering1, profilering2, profilering3)
-        repository.lagreProfileringer(profileringer)
+        repository.lagreAlleProfileringer(profileringer)
 
-        val lagredeProfileringer = repository.hentProfilering(periodeId)
+        val lagredeProfileringer = repository.finnProfileringerForPeriodeId(periodeId)
 
         lagredeProfileringer.size shouldBeExactly 3
         val lagredeProfilering1 = lagredeProfileringer[0]
