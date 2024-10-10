@@ -12,25 +12,26 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class OpplysningerOmArbeidssoekerRepository(private val database: Database) {
+class OpplysningerRepository(private val database: Database) {
 
     private val logger = buildLogger
 
-    fun hentOpplysningerOmArbeidssoeker(periodeId: UUID): List<OpplysningerOmArbeidssoekerResponse> =
+    fun finnOpplysningerForPeriodeId(periodeId: UUID): List<OpplysningerOmArbeidssoekerResponse> =
         transaction(database) {
             finnOpplysninger(periodeId)
         }
 
-    fun hentOpplysningerOmArbeidssoeker(identitetsnummer: Identitetsnummer): List<OpplysningerOmArbeidssoekerResponse> =
+    fun finnOpplysningerForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<OpplysningerOmArbeidssoekerResponse> =
         transaction(database) {
             // TODO Optimalisering vha joins
-            val periodeIder = ArbeidssoekerperiodeRepository(database).hentArbeidssoekerperioder(identitetsnummer).map { it.periodeId }
+            val periodeIder = PeriodeRepository(database).finnPerioderForIdentiteter(identitetsnummerList)
+                .map { it.periodeId }
             periodeIder.flatMap { periodeId ->
                 finnOpplysninger(periodeId)
             }
         }
 
-    fun lagreOpplysningerOmArbeidssoeker(opplysninger: OpplysningerOmArbeidssoeker) {
+    fun lagreOpplysninger(opplysninger: OpplysningerOmArbeidssoeker) {
         transaction(database) {
             val eksisterendeOpplysninger = finnOpplysningerRow(opplysninger.id)
 
@@ -42,7 +43,7 @@ class OpplysningerOmArbeidssoekerRepository(private val database: Database) {
         }
     }
 
-    fun lagreOpplysningerOmArbeidssoeker(opplysninger: Sequence<OpplysningerOmArbeidssoeker>) {
+    fun lagreAlleOpplysninger(opplysninger: Sequence<OpplysningerOmArbeidssoeker>) {
         if (opplysninger.iterator().hasNext()) {
             transaction(database) {
                 maxAttempts = 2

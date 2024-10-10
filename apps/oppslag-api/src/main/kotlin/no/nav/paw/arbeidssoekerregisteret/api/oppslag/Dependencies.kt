@@ -1,28 +1,34 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag
 
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.jackson.jackson
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers.BatchConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.OpplysningerOmArbeidssoekerDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.PeriodeDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.ProfileringDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.metrics.ScheduleGetAktivePerioderGaugeService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ArbeidssoekerperiodeRepository
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerOmArbeidssoekerRepository
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ArbeidssoekerperiodeService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AutorisasjonService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerOmArbeidssoekerService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.TokenService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.RetryInterceptor
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.configureJackson
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.generateDatasource
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.KafkaFactory
+import no.nav.paw.pdl.PdlClient
 import no.nav.poao_tilgang.client.PoaoTilgangCachedClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import okhttp3.OkHttpClient
@@ -32,101 +38,115 @@ import java.time.Duration
 import javax.sql.DataSource
 
 fun createDependencies(
-    config: ApplicationConfig,
+    applicationConfig: ApplicationConfig,
     kafkaConfig: KafkaConfig
 ): Dependencies {
     val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-    val dataSource = generateDatasource(config.database.url)
+    val dataSource = generateDatasource(applicationConfig.database.url)
 
     val database = Database.connect(dataSource)
 
+    val httpClient = HttpClient {
+        install(ContentNegotiation) {
+            jackson {
+                configureJackson()
+            }
+        }
+    }
+
     val tokenService =
-        config.authProviders.find {
+        applicationConfig.authProviders.find {
             it.name == "azure"
         }?.run(::TokenService) ?: throw RuntimeException("Azure provider ikke funnet")
 
     val poaoTilgangHttpClient =
         PoaoTilgangCachedClient(
             PoaoTilgangHttpClient(
-                config.poaoClientConfig.url,
-                { tokenService.createMachineToMachineToken(config.poaoClientConfig.scope) },
+                applicationConfig.poaoClientConfig.url,
+                { tokenService.createMachineToMachineToken(applicationConfig.poaoClientConfig.scope) },
                 OkHttpClient.Builder().callTimeout(Duration.ofSeconds(6))
                     .addInterceptor(RetryInterceptor(maxRetries = 1)).build()
             )
         )
 
+    val pdlClient = PdlClient(
+        applicationConfig.pdlClientConfig.url,
+        applicationConfig.pdlClientConfig.tema,
+        httpClient
+    ) { tokenService.createMachineToMachineToken(applicationConfig.pdlClientConfig.scope) }
+
     // OBO vs StS token
-    val autorisasjonService = AutorisasjonService(poaoTilgangHttpClient)
+    val authorizationService = AuthorizationService(PdlHttpConsumer(pdlClient), poaoTilgangHttpClient)
 
     val kafkaFactory = KafkaFactory(kafkaConfig)
 
     // Arbeidssøkerperiode avhengigheter
-    val arbeidssoekerperiodeRepository = ArbeidssoekerperiodeRepository(database)
+    val periodeRepository = PeriodeRepository(database)
     val scheduleGetAktivePerioderGaugeService =
-        ScheduleGetAktivePerioderGaugeService(registry, arbeidssoekerperiodeRepository)
-    val arbeidssoekerperiodeService = ArbeidssoekerperiodeService(arbeidssoekerperiodeRepository)
-    val arbeidssoekerperiodeConsumer =
-        kafkaFactory.createConsumer<Long, Periode>(
-            groupId = config.gruppeId,
-            clientId = config.gruppeId,
-            keyDeserializer = LongDeserializer::class,
-            valueDeserializer = PeriodeDeserializer::class
-        )
-    val arbeidssoekerperiodeBatchConsumer =
-        BatchConsumer(config.periodeTopic, arbeidssoekerperiodeConsumer, arbeidssoekerperiodeService::lagreBatch)
+        ScheduleGetAktivePerioderGaugeService(registry, periodeRepository)
+    val periodeService = PeriodeService(periodeRepository)
+    val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
+        groupId = applicationConfig.gruppeId,
+        clientId = applicationConfig.gruppeId,
+        keyDeserializer = LongDeserializer::class,
+        valueDeserializer = PeriodeDeserializer::class
+    )
+    val periodeBatchKafkaConsumer =
+        BatchConsumer(applicationConfig.periodeTopic, periodeKafkaConsumer, periodeService::lagreAllePerioder)
 
     // Situasjon avhengigheter
-    val opplysningerOmArbeidssoekerRepository = OpplysningerOmArbeidssoekerRepository(database)
-    val opplysningerOmArbeidssoekerService = OpplysningerOmArbeidssoekerService(opplysningerOmArbeidssoekerRepository)
-    val opplysningerOmArbeidssoekerConsumer =
-        kafkaFactory.createConsumer<Long, OpplysningerOmArbeidssoeker>(
-            groupId = config.gruppeId,
-            clientId = config.gruppeId,
-            keyDeserializer = LongDeserializer::class,
-            valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
-        )
-    val opplysningerOmArbeidssoekerBatchConsumer = BatchConsumer(
-        config.opplysningerOmArbeidssoekerTopic,
-        opplysningerOmArbeidssoekerConsumer,
-        opplysningerOmArbeidssoekerService::lagreBatch
+    val opplysningerRepository = OpplysningerRepository(database)
+    val opplysningerService = OpplysningerService(opplysningerRepository)
+    val opplysningerKafkaConsumer = kafkaFactory.createConsumer<Long, OpplysningerOmArbeidssoeker>(
+        groupId = applicationConfig.gruppeId,
+        clientId = applicationConfig.gruppeId,
+        keyDeserializer = LongDeserializer::class,
+        valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
+    )
+    val opplysningerBatchKafkaConsumer = BatchConsumer(
+        applicationConfig.opplysningerOmArbeidssoekerTopic,
+        opplysningerKafkaConsumer,
+        opplysningerService::lagreAlleOpplysninger
     )
 
     // Profilering avhengigheter
     val profileringRepository = ProfileringRepository(database)
     val profileringService = ProfileringService(profileringRepository)
-    val profileringConsumer =
-        kafkaFactory.createConsumer<Long, Profilering>(
-            groupId = config.gruppeId,
-            clientId = config.gruppeId,
-            keyDeserializer = LongDeserializer::class,
-            valueDeserializer = ProfileringDeserializer::class
-        )
-    val profileringBatchConsumer =
-        BatchConsumer(config.profileringTopic, profileringConsumer, profileringService::lagreBatch)
+    val profileringKafkaConsumer = kafkaFactory.createConsumer<Long, Profilering>(
+        groupId = applicationConfig.gruppeId,
+        clientId = applicationConfig.gruppeId,
+        keyDeserializer = LongDeserializer::class,
+        valueDeserializer = ProfileringDeserializer::class
+    )
+    val profileringBatchKafkaConsumer = BatchConsumer(
+        applicationConfig.profileringTopic,
+        profileringKafkaConsumer,
+        profileringService::lagreAlleProfileringer
+    )
 
     return Dependencies(
-        registry,
-        dataSource,
-        arbeidssoekerperiodeService,
-        arbeidssoekerperiodeBatchConsumer,
-        opplysningerOmArbeidssoekerService,
-        opplysningerOmArbeidssoekerBatchConsumer,
-        profileringService,
-        profileringBatchConsumer,
-        autorisasjonService,
-        scheduleGetAktivePerioderGaugeService
+        registry = registry,
+        dataSource = dataSource,
+        authorizationService = authorizationService,
+        periodeService = periodeService,
+        opplysningerService = opplysningerService,
+        profileringService = profileringService,
+        periodeKafkaConsumer = periodeBatchKafkaConsumer,
+        opplysningerKafkaConsumer = opplysningerBatchKafkaConsumer,
+        profileringKafkaConsumer = profileringBatchKafkaConsumer,
+        scheduleGetAktivePerioderGaugeService = scheduleGetAktivePerioderGaugeService
     )
 }
 
 data class Dependencies(
     val registry: PrometheusMeterRegistry,
     val dataSource: DataSource,
-    val arbeidssoekerperiodeService: ArbeidssoekerperiodeService,
-    val arbeidssoekerperiodeConsumer: BatchConsumer<Long, Periode>,
-    val opplysningerOmArbeidssoekerService: OpplysningerOmArbeidssoekerService,
-    val opplysningerOmArbeidssoekerConsumer: BatchConsumer<Long, OpplysningerOmArbeidssoeker>,
+    val authorizationService: AuthorizationService,
+    val periodeService: PeriodeService,
+    val opplysningerService: OpplysningerService,
     val profileringService: ProfileringService,
-    val profileringConsumer: BatchConsumer<Long, Profilering>,
-    val autorisasjonService: AutorisasjonService,
+    val periodeKafkaConsumer: BatchConsumer<Long, Periode>,
+    val opplysningerKafkaConsumer: BatchConsumer<Long, OpplysningerOmArbeidssoeker>,
+    val profileringKafkaConsumer: BatchConsumer<Long, Profilering>,
     val scheduleGetAktivePerioderGaugeService: ScheduleGetAktivePerioderGaugeService
 )

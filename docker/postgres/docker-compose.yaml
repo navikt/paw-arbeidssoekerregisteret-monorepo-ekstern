@@ -1,6 +1,6 @@
 ### SERVICES ###
 services:
-  database:
+  postgres:
     image: postgres:14
     container_name: postgres
     ports:
@@ -21,5 +21,5 @@ volumes:
 
 ### NETWORKS ###
 networks:
-  mocks:
+  postgres:
     name: postgres

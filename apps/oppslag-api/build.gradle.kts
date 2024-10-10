@@ -64,6 +64,9 @@ dependencies {
     implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
     implementation(libs.nav.poao.tilgang.client)
+    implementation(libs.nav.paw.pdl.client)
+
+    implementation(libs.arrow.core)
 
     // Test
     testImplementation(libs.ktor.server.tests)

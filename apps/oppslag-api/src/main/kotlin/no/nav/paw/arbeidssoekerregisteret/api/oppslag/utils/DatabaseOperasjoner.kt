@@ -60,7 +60,12 @@ fun Transaction.finnOpplysninger(periodeId: UUID): List<OpplysningerOmArbeidssoe
         .join(UtdanningTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.utdanningId, UtdanningTable.id)
         .join(HelseTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.helseId, HelseTable.id)
         .join(AnnetTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.annetId, AnnetTable.id)
-        .join(PeriodeOpplysningerTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.id, PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId)
+        .join(
+            PeriodeOpplysningerTable,
+            JoinType.LEFT,
+            OpplysningerOmArbeidssoekerTable.id,
+            PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId
+        )
         .selectAll()
         .where { PeriodeOpplysningerTable.periodeId eq periodeId }
         .mapNotNull {
@@ -78,7 +83,12 @@ fun Transaction.finnOpplysninger(identitetsnummer: Identitetsnummer): List<Opply
         .join(UtdanningTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.utdanningId, UtdanningTable.id)
         .join(HelseTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.helseId, HelseTable.id)
         .join(AnnetTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.annetId, AnnetTable.id)
-        .join(PeriodeOpplysningerTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.id, PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId)
+        .join(
+            PeriodeOpplysningerTable,
+            JoinType.LEFT,
+            OpplysningerOmArbeidssoekerTable.id,
+            PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId
+        )
         .join(PeriodeTable, JoinType.LEFT, PeriodeOpplysningerTable.periodeId, PeriodeTable.periodeId)
         .selectAll()
         .where { PeriodeTable.identitetsnummer eq identitetsnummer.verdi }
@@ -91,7 +101,12 @@ fun Transaction.finnOpplysninger(identitetsnummer: Identitetsnummer): List<Opply
 
 private fun Transaction.finnBeskrivelseMedDetaljer(opplysningerOmArbeidssoekerId: Long): List<BeskrivelseMedDetaljerResponse> {
     return BeskrivelseMedDetaljerTable
-        .join(BeskrivelseTable, JoinType.LEFT, BeskrivelseMedDetaljerTable.id, BeskrivelseTable.beskrivelseMedDetaljerId)
+        .join(
+            BeskrivelseTable,
+            JoinType.LEFT,
+            BeskrivelseMedDetaljerTable.id,
+            BeskrivelseTable.beskrivelseMedDetaljerId
+        )
         .selectAll()
         .where { BeskrivelseMedDetaljerTable.opplysningerOmArbeidssoekerId eq opplysningerOmArbeidssoekerId }
         .mapNotNull {
@@ -182,7 +197,12 @@ fun Transaction.opprettPeriodeOpplysninger(
 
 fun Transaction.finnOpplysningerRow(opplysningerId: UUID): OpplysningerRow? {
     return OpplysningerOmArbeidssoekerTable
-        .join(PeriodeOpplysningerTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.id, PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId)
+        .join(
+            PeriodeOpplysningerTable,
+            JoinType.LEFT,
+            OpplysningerOmArbeidssoekerTable.id,
+            PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId
+        )
         .selectAll()
         .where { OpplysningerOmArbeidssoekerTable.opplysningerOmArbeidssoekerId eq opplysningerId }
         .singleOrNull()?.toOpplysningerRow()
@@ -190,7 +210,12 @@ fun Transaction.finnOpplysningerRow(opplysningerId: UUID): OpplysningerRow? {
 
 fun Transaction.finnOpplysningerRows(opplysningerIdList: List<UUID>): List<OpplysningerRow> {
     return OpplysningerOmArbeidssoekerTable
-        .join(PeriodeOpplysningerTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.id, PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId)
+        .join(
+            PeriodeOpplysningerTable,
+            JoinType.LEFT,
+            OpplysningerOmArbeidssoekerTable.id,
+            PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId
+        )
         .selectAll()
         .where { OpplysningerOmArbeidssoekerTable.opplysningerOmArbeidssoekerId inList opplysningerIdList }
         .map { it.toOpplysningerRow() }
@@ -198,7 +223,12 @@ fun Transaction.finnOpplysningerRows(opplysningerIdList: List<UUID>): List<Opply
 
 fun Transaction.finnOpplysningerRows() =
     OpplysningerOmArbeidssoekerTable
-        .join(PeriodeOpplysningerTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.id, PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId)
+        .join(
+            PeriodeOpplysningerTable,
+            JoinType.LEFT,
+            OpplysningerOmArbeidssoekerTable.id,
+            PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId
+        )
         .selectAll()
         .map { it.toOpplysningerRow() }
 
@@ -208,24 +238,65 @@ fun Transaction.finnPeriode(periodeId: UUID): PeriodeRow? {
     return PeriodeTable
         .join(StartetMetadataAlias, JoinType.LEFT, PeriodeTable.startetId, StartetMetadataAlias[MetadataTable.id])
         .join(AvsluttetMetadataAlias, JoinType.LEFT, PeriodeTable.avsluttetId, AvsluttetMetadataAlias[MetadataTable.id])
-        .join(StartetBrukerAlias, JoinType.LEFT, StartetMetadataAlias[MetadataTable.utfoertAvId], StartetBrukerAlias[BrukerTable.id])
-        .join(AvsluttetBrukerAlias, JoinType.LEFT, AvsluttetMetadataAlias[MetadataTable.utfoertAvId], AvsluttetBrukerAlias[BrukerTable.id])
-        .join(StartetTidspunktAlias, JoinType.LEFT, StartetMetadataAlias[MetadataTable.tidspunktFraKildeId], StartetTidspunktAlias[TidspunktFraKildeTable.id])
-        .join(AvsluttetTidspunktAlias, JoinType.LEFT, AvsluttetMetadataAlias[MetadataTable.tidspunktFraKildeId], AvsluttetTidspunktAlias[TidspunktFraKildeTable.id])
+        .join(
+            StartetBrukerAlias,
+            JoinType.LEFT,
+            StartetMetadataAlias[MetadataTable.utfoertAvId],
+            StartetBrukerAlias[BrukerTable.id]
+        )
+        .join(
+            AvsluttetBrukerAlias,
+            JoinType.LEFT,
+            AvsluttetMetadataAlias[MetadataTable.utfoertAvId],
+            AvsluttetBrukerAlias[BrukerTable.id]
+        )
+        .join(
+            StartetTidspunktAlias,
+            JoinType.LEFT,
+            StartetMetadataAlias[MetadataTable.tidspunktFraKildeId],
+            StartetTidspunktAlias[TidspunktFraKildeTable.id]
+        )
+        .join(
+            AvsluttetTidspunktAlias,
+            JoinType.LEFT,
+            AvsluttetMetadataAlias[MetadataTable.tidspunktFraKildeId],
+            AvsluttetTidspunktAlias[TidspunktFraKildeTable.id]
+        )
         .selectAll()
         .where { PeriodeTable.periodeId eq periodeId }.singleOrNull()?.toPeriodeRow()
 }
 
-fun Transaction.finnPerioder(identitetsnummer: Identitetsnummer): List<PeriodeRow> {
+fun Transaction.finnPerioderForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<PeriodeRow> {
+    val identer = identitetsnummerList.map { it.verdi }
     return PeriodeTable
         .join(StartetMetadataAlias, JoinType.LEFT, PeriodeTable.startetId, StartetMetadataAlias[MetadataTable.id])
         .join(AvsluttetMetadataAlias, JoinType.LEFT, PeriodeTable.avsluttetId, AvsluttetMetadataAlias[MetadataTable.id])
-        .join(StartetBrukerAlias, JoinType.LEFT, StartetMetadataAlias[MetadataTable.utfoertAvId], StartetBrukerAlias[BrukerTable.id])
-        .join(AvsluttetBrukerAlias, JoinType.LEFT, AvsluttetMetadataAlias[MetadataTable.utfoertAvId], AvsluttetBrukerAlias[BrukerTable.id])
-        .join(StartetTidspunktAlias, JoinType.LEFT, StartetMetadataAlias[MetadataTable.tidspunktFraKildeId], StartetTidspunktAlias[TidspunktFraKildeTable.id])
-        .join(AvsluttetTidspunktAlias, JoinType.LEFT, AvsluttetMetadataAlias[MetadataTable.tidspunktFraKildeId], AvsluttetTidspunktAlias[TidspunktFraKildeTable.id])
+        .join(
+            StartetBrukerAlias,
+            JoinType.LEFT,
+            StartetMetadataAlias[MetadataTable.utfoertAvId],
+            StartetBrukerAlias[BrukerTable.id]
+        )
+        .join(
+            AvsluttetBrukerAlias,
+            JoinType.LEFT,
+            AvsluttetMetadataAlias[MetadataTable.utfoertAvId],
+            AvsluttetBrukerAlias[BrukerTable.id]
+        )
+        .join(
+            StartetTidspunktAlias,
+            JoinType.LEFT,
+            StartetMetadataAlias[MetadataTable.tidspunktFraKildeId],
+            StartetTidspunktAlias[TidspunktFraKildeTable.id]
+        )
+        .join(
+            AvsluttetTidspunktAlias,
+            JoinType.LEFT,
+            AvsluttetMetadataAlias[MetadataTable.tidspunktFraKildeId],
+            AvsluttetTidspunktAlias[TidspunktFraKildeTable.id]
+        )
         .selectAll()
-        .where { PeriodeTable.identitetsnummer eq identitetsnummer.verdi }
+        .where { PeriodeTable.identitetsnummer inList identer }
         .map { it.toPeriodeRow() }
 }
 
@@ -233,10 +304,30 @@ fun Transaction.finnPerioder(periodeIdList: List<UUID>): List<PeriodeRow> {
     return PeriodeTable
         .join(StartetMetadataAlias, JoinType.LEFT, PeriodeTable.startetId, StartetMetadataAlias[MetadataTable.id])
         .join(AvsluttetMetadataAlias, JoinType.LEFT, PeriodeTable.avsluttetId, AvsluttetMetadataAlias[MetadataTable.id])
-        .join(StartetBrukerAlias, JoinType.LEFT, StartetMetadataAlias[MetadataTable.utfoertAvId], StartetBrukerAlias[BrukerTable.id])
-        .join(AvsluttetBrukerAlias, JoinType.LEFT, AvsluttetMetadataAlias[MetadataTable.utfoertAvId], AvsluttetBrukerAlias[BrukerTable.id])
-        .join(StartetTidspunktAlias, JoinType.LEFT, StartetMetadataAlias[MetadataTable.tidspunktFraKildeId], StartetTidspunktAlias[TidspunktFraKildeTable.id])
-        .join(AvsluttetTidspunktAlias, JoinType.LEFT, AvsluttetMetadataAlias[MetadataTable.tidspunktFraKildeId], AvsluttetTidspunktAlias[TidspunktFraKildeTable.id])
+        .join(
+            StartetBrukerAlias,
+            JoinType.LEFT,
+            StartetMetadataAlias[MetadataTable.utfoertAvId],
+            StartetBrukerAlias[BrukerTable.id]
+        )
+        .join(
+            AvsluttetBrukerAlias,
+            JoinType.LEFT,
+            AvsluttetMetadataAlias[MetadataTable.utfoertAvId],
+            AvsluttetBrukerAlias[BrukerTable.id]
+        )
+        .join(
+            StartetTidspunktAlias,
+            JoinType.LEFT,
+            StartetMetadataAlias[MetadataTable.tidspunktFraKildeId],
+            StartetTidspunktAlias[TidspunktFraKildeTable.id]
+        )
+        .join(
+            AvsluttetTidspunktAlias,
+            JoinType.LEFT,
+            AvsluttetMetadataAlias[MetadataTable.tidspunktFraKildeId],
+            AvsluttetTidspunktAlias[TidspunktFraKildeTable.id]
+        )
         .selectAll()
         .where { PeriodeTable.periodeId inList periodeIdList }
         .map { it.toPeriodeRow() }
@@ -290,13 +381,14 @@ fun Transaction.finnProfileringer(periodeId: UUID): List<ProfileringResponse> {
         .selectAll().where { ProfileringTable.periodeId eq periodeId }.map { it.toProfileringResponse() }
 }
 
-fun Transaction.finnProfileringer(identitetsnummer: Identitetsnummer): List<ProfileringResponse> {
+fun Transaction.finnProfileringer(identitetsnummerList: List<Identitetsnummer>): List<ProfileringResponse> {
+    val identer = identitetsnummerList.map { it.verdi }
     return ProfileringTable
         .join(MetadataTable, JoinType.LEFT, ProfileringTable.sendtInnAvId, MetadataTable.id)
         .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
         .join(TidspunktFraKildeTable, JoinType.LEFT, MetadataTable.tidspunktFraKildeId, TidspunktFraKildeTable.id)
         .join(PeriodeTable, JoinType.LEFT, ProfileringTable.periodeId, PeriodeTable.periodeId)
-        .selectAll().where { PeriodeTable.identitetsnummer eq identitetsnummer.verdi }.map { it.toProfileringResponse() }
+        .selectAll().where { PeriodeTable.identitetsnummer inList identer }.map { it.toProfileringResponse() }
 }
 
 fun Transaction.opprettProfilering(profilering: Profilering) {
@@ -329,7 +421,8 @@ private fun Transaction.oppdaterMetadata(metadata: Metadata, eksisterendeMetadat
         it[tidspunkt] = metadata.tidspunkt
         it[kilde] = metadata.kilde
         it[aarsak] = metadata.aarsak
-        it[tidspunktFraKildeId] = opprettEllerOppdatereTidspunktFraKilde(metadata.tidspunktFraKilde, eksisterendeMetadata.tidspunktFraKilde)
+        it[tidspunktFraKildeId] =
+            opprettEllerOppdatereTidspunktFraKilde(metadata.tidspunktFraKilde, eksisterendeMetadata.tidspunktFraKilde)
     }
 }
 

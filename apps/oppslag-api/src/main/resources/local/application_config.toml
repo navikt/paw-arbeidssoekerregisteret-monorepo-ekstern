@@ -5,8 +5,8 @@ profileringTopic = "paw.arbeidssoker-profilering-v1"
 
 [[authProviders]]
 name = "tokenx"
-discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
-tokenEndpointUrl = "http://localhost:8081/default/token"
+discoveryUrl = "http://localhost:8081/tokenx/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/tokenx/token"
 clientId = "paw-arbeidssoekerregisteret-api-oppslag"
 
     [authProviders.claims]
@@ -15,8 +15,8 @@ clientId = "paw-arbeidssoekerregisteret-api-oppslag"
 
 [[authProviders]]
 name = "azure"
-discoveryUrl = "http://localhost:8081/default/.well-known/openid-configuration"
-tokenEndpointUrl = "http://localhost:8081/default/token"
+discoveryUrl = "http://localhost:8081/azure/.well-known/openid-configuration"
+tokenEndpointUrl = "http://localhost:8081/azure/token"
 clientId = "paw-arbeidssoekerregisteret-api-oppslag"
 
     [authProviders.claims]
@@ -26,6 +26,11 @@ clientId = "paw-arbeidssoekerregisteret-api-oppslag"
 [poaoClientConfig]
 url = "http://localhost:8090/poao-tilgang/"
 scope = "api://test.test.poao-tilgang/.default"
+
+[pdlClientConfig]
+url = "http://localhost:8091/pdl"
+tema = "OPP"
+scope = "api://test.pdl.pdl-api/.default"
 
 [database]
 host = "localhost"

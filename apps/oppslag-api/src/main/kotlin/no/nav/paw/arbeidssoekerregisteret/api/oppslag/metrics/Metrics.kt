@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.metrics
 
 import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ArbeidssoekerperiodeRepository
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
@@ -10,7 +10,7 @@ private val antallAktivePerioderReference = AtomicLong()
 
 fun gaugeAntallAktivePerioder(
     registry: PrometheusMeterRegistry,
-    repository: ArbeidssoekerperiodeRepository
+    repository: PeriodeRepository
 ) {
     val antallAktivePerioder = repository.hentAntallAktivePerioder()
     antallAktivePerioderReference.set(antallAktivePerioder)
@@ -25,13 +25,13 @@ fun gaugeAntallAktivePerioder(
 
 class ScheduleGetAktivePerioderGaugeService(
     registry: PrometheusMeterRegistry,
-    arbeidssoekerperiodeRepository: ArbeidssoekerperiodeRepository
+    periodeRepository: PeriodeRepository
 ) {
     private val timer = Timer()
     private val task =
         object : TimerTask() {
             override fun run() {
-                gaugeAntallAktivePerioder(registry, arbeidssoekerperiodeRepository)
+                gaugeAntallAktivePerioder(registry, periodeRepository)
             }
         }
 

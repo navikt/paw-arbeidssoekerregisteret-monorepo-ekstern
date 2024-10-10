@@ -7,9 +7,10 @@ import java.util.*
 
 class ProfileringService(private val profileringRepository: ProfileringRepository) {
 
-    fun hentProfileringForArbeidssoekerMedPeriodeId(periodeId: UUID) = profileringRepository.hentProfilering(periodeId)
+    fun finnProfileringerForPeriodeId(periodeId: UUID) = profileringRepository.finnProfileringerForPeriodeId(periodeId)
 
-    fun hentProfileringForArbeidssoekerMedIdentitetsnummer(identitetsnummer: Identitetsnummer) = profileringRepository.hentProfilering(identitetsnummer)
+    fun finnProfileringerForIdentiteter(identitetsnummerList: List<Identitetsnummer>) =
+        profileringRepository.finnProfileringerForIdentiteter(identitetsnummerList)
 
-    fun lagreBatch(batch: Sequence<Profilering>) = profileringRepository.lagreProfileringer(batch)
+    fun lagreAlleProfileringer(batch: Sequence<Profilering>) = profileringRepository.lagreAlleProfileringer(batch)
 }

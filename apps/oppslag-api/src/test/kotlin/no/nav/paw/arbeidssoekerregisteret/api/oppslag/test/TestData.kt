@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils
+package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AvviksTypeResponse
@@ -18,8 +18,9 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 object TestData {
-    val foedselsnummer = Identitetsnummer("18908396568")
+    val identitetsnummer = Identitetsnummer("18908396568")
     val navAnsatt = NavAnsatt(UUID.randomUUID().toString(), "Z999999")
+    val periodeId = UUID.randomUUID()
 }
 
 typealias Arbeidssoekerperioder = List<ArbeidssoekerperiodeResponse>
