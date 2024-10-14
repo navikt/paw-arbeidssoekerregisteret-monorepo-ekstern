@@ -29,7 +29,6 @@ siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-test"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 beriket14aVedtakTopic = "paw.beriket-14a-vedtak-v1"
-rapporteringTopic = "paw.rapportering-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 periodeStoreName = "microfrontendTogglePeriodeStore"
 

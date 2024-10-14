@@ -170,25 +170,6 @@ topic?
       :send inaktiver aia-behovsvurdering
 ```
 
-## Rapportering
-```
- rapportering-endringslogg topic
-    rapportering.tilgjengelig event mottatt
-       :send varsel(@event_name=opprett type=oppgave) event
-    rapportering.melding_mottatt event mottatt
-       vil fortsette som arbeidssøker
-          :send varsel(@event_name=inaktiver type=oppgave) event
-       vil slutte som arbeidssøker
-          for alle aktive oppgaver
-             :send varsel(@event_name=inaktiver type=oppgave) event
-    rapportering.leveringsfrist_naermer_seg event mottatt TODO: Definisjon mangler?
-       :send varsel(@event_name=opprett type=innboks eksternVarsel=false varselId=2) event
-    rapportering.leveringsfrist_utloept event mottatt
-       :send varsel(@event_name=inaktiver type=innboks) event
-       :send varsel(@event_name=opprett type=innboks eksternVarsel=true) event
-    rapportering.grace_periode_utloept event mottatt
-```
-
 ### Tidslinje
 * 20+1 dager siden siste melding så deaktiveres man som arbeidsøker -> ISERV
 * 28 dager etter ISERV kan man reaktiveres

@@ -48,7 +48,6 @@ data class KafkaStreamsConfig(
     val periodeTopic: String,
     val siste14aVedtakTopic: String,
     val beriket14aVedtakTopic: String,
-    val rapporteringTopic: String,
     val microfrontendTopic: String,
     val periodeStoreName: String,
 )
