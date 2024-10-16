@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.oppdaterPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPerioder
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPerioderForIdentiteter
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opprettPeriode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.jetbrains.exposed.sql.Database
@@ -15,16 +16,16 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class ArbeidssoekerperiodeRepository(private val database: Database) {
+class PeriodeRepository(private val database: Database) {
 
-    fun hentArbeidssoekerperiode(periodeId: UUID): Periode? =
+    fun finnPerioderForId(periodeId: UUID): Periode? =
         transaction(database) {
             finnPeriode(periodeId)?.toPeriode()
         }
 
-    fun hentArbeidssoekerperioder(identitetsnummer: Identitetsnummer): List<ArbeidssoekerperiodeResponse> =
+    fun finnPerioderForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<ArbeidssoekerperiodeResponse> =
         transaction(database) {
-            finnPerioder(identitetsnummer)
+            finnPerioderForIdentiteter(identitetsnummerList)
                 .map { it.toArbeidssoekerperiodeResponse() }
         }
 
@@ -33,7 +34,7 @@ class ArbeidssoekerperiodeRepository(private val database: Database) {
             PeriodeTable.selectAll().where { PeriodeTable.avsluttetId eq null }.count()
         }
 
-    fun lagreArbeidssoekerperiode(periode: Periode) {
+    fun lagrePeriode(periode: Periode) {
         transaction(database) {
             val eksisterendePeriode = finnPeriode(periode.id)
 
@@ -45,7 +46,7 @@ class ArbeidssoekerperiodeRepository(private val database: Database) {
         }
     }
 
-    fun lagreArbeidssoekerperioder(perioder: Sequence<Periode>) {
+    fun lagreAllePerioder(perioder: Sequence<Periode>) {
         if (perioder.iterator().hasNext()) {
             transaction(database) {
                 maxAttempts = 2

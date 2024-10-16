@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/pdl"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "data": {
+        "hentIdenter": {
+          "identer": [
+            {
+              "ident": "12345678901",
+              "gruppe": "FOLKEREGISTERIDENT"
+            },
+            {
+              "ident": "12345678902",
+              "gruppe": "FOLKEREGISTERIDENT"
+            }
+          ]
+        }
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

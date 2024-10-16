@@ -5,22 +5,24 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.*
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.IgnoreTrailingSlash
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildErrorLogger
+
+private val logger = buildErrorLogger
 
 fun Application.configureHTTP() {
     install(IgnoreTrailingSlash)
     install(StatusPages) {
         exception<StatusException> { call, cause ->
-            buildLogger.error("Request failed with status: ${cause.status}. Description: ${cause.description}")
+            logger.error("Request failed with status: ${cause.status}. Description: ${cause.description}")
             call.respondText(
                 status = cause.status,
                 text = cause.status.description
             )
         }
         exception<Throwable> { call, cause ->
-            buildLogger.info("Feil ved kall", cause)
+            logger.info("Feil ved kall", cause)
             call.respondText(
                 status = HttpStatusCode.InternalServerError,
                 text = cause.message ?: HttpStatusCode.InternalServerError.description

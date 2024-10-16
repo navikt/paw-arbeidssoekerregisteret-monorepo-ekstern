@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FreeSpec
 import io.mockk.*
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers.BatchConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.producers.TestMessages
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ArbeidssoekerperiodeService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -18,15 +18,15 @@ class BatchConsumerTest : FreeSpec({
     "should consume and process messages when startet and stop when stopped" {
         val topic = "test-topic"
         val consumerMock = mockk<KafkaConsumer<Long, Periode>>()
-        val serviceMock = mockk<ArbeidssoekerperiodeService>()
+        val serviceMock = mockk<PeriodeService>()
 
-        val consumer = BatchConsumer(topic, consumerMock, serviceMock::lagreBatch)
+        val consumer = BatchConsumer(topic, consumerMock, serviceMock::lagreAllePerioder)
 
         every { consumerMock.subscribe(listOf(topic)) } just Runs
         every { consumerMock.unsubscribe() } just Runs
         every { consumerMock.close() } just Runs
         every { consumerMock.poll(any<Duration>()) } returns createConsumerRecords()
-        every { serviceMock.lagreBatch(any()) } just Runs
+        every { serviceMock.lagreAllePerioder(any()) } just Runs
         every { consumerMock.commitSync() } just Runs
 
         thread {
@@ -36,7 +36,7 @@ class BatchConsumerTest : FreeSpec({
 
         verify { consumerMock.subscribe(listOf(topic)) }
         verify { consumerMock.poll(any<Duration>()) }
-        verify { serviceMock.lagreBatch(any()) }
+        verify { serviceMock.lagreAllePerioder(any()) }
         verify { consumerMock.commitSync() }
 
         consumer.stop()

@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.producers
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG_FILE
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.OpplysningerOmArbeidssoekerSerializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.PeriodeSerializer
@@ -35,7 +35,7 @@ import java.util.*
 
 fun main() {
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE)
+    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
 
     produserMeldinger(kafkaConfig, applicationConfig, TestMessages()::perioder, applicationConfig.periodeTopic, PeriodeSerializer())
     produserMeldinger(kafkaConfig, applicationConfig, TestMessages()::opplysningerOmArbeidssoeker, applicationConfig.opplysningerOmArbeidssoekerTopic, OpplysningerOmArbeidssoekerSerializer())

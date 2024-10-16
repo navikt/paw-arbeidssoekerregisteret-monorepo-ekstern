@@ -10,6 +10,11 @@ spec:
   ingresses:
     - https://oppslag-arbeidssoekerregisteret.intern.dev.nav.no
   port: 8080
+  env:
+    - name: PDL_URL
+      value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: PDL_SCOPE
+      value: api://dev-fss.pdl.pdl-api/.default
   azure:
     application:
       enabled: true
@@ -96,6 +101,8 @@ spec:
       rules:
         - application: poao-tilgang
           namespace: poao
+      external:
+        - host: pdl-api.dev-fss-pub.nais.io
   gcp:
     sqlInstances:
       - type: POSTGRES_14

@@ -1,48 +1,83 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.services
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
 import io.mockk.every
-import io.mockk.mockk
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.TestData
+import io.mockk.verify
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
+import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
+import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.poao_tilgang.client.Decision
-import no.nav.poao_tilgang.client.PoaoTilgangCachedClient
+import no.nav.poao_tilgang.client.PolicyRequest
+import no.nav.poao_tilgang.client.PolicyResult
 import no.nav.poao_tilgang.client.api.ApiResult
+import java.util.*
 
-class AutorisasjonServiceTest : FunSpec({
-    test("verifiserTilgangTilBruker should return true if access is granted") {
-        val poaoTilgangHttpClient = mockk<PoaoTilgangCachedClient>()
-        val autorisasjonService = AutorisasjonService(poaoTilgangHttpClient)
+class AutorisasjonServiceTest : FreeSpec({
+    with(ApplicationTestContext()) {
 
-        val navAnsatt = TestData.navAnsatt
-        val foedselsnummer = TestData.foedselsnummer
-
-        every { poaoTilgangHttpClient.evaluatePolicy(any()) } returns
-            ApiResult(
-                throwable = null,
-                result = Decision.Permit
+        afterSpec {
+            confirmVerified(
+                pdlHttpConsumerMock,
+                poaoTilgangHttpClientMock
             )
+        }
 
-        val result = autorisasjonService.verifiserTilgangTilBruker(navAnsatt, foedselsnummer)
-
-        result shouldBe true
-    }
-
-    test("verifiserTilgangTilBruker should return false if access is denied") {
-        val poaoTilgangHttpClient = mockk<PoaoTilgangCachedClient>()
-        val autorisasjonService = AutorisasjonService(poaoTilgangHttpClient)
-
-        val navAnsatt = TestData.navAnsatt
-        val foedselsnummer = TestData.foedselsnummer
-
-        every { poaoTilgangHttpClient.evaluatePolicy(any()) } returns
-            ApiResult(
-                throwable = null,
-                result = Decision.Deny("", "")
+        "Skal finne identer for fnr" {
+            val identer: List<IdentInformasjon> = listOf(
+                IdentInformasjon("01017012345", IdentGruppe.FOLKEREGISTERIDENT),
+                IdentInformasjon("12345", IdentGruppe.NPID),
+                IdentInformasjon("23456", IdentGruppe.NPID),
+                IdentInformasjon("98765", IdentGruppe.AKTORID),
+                IdentInformasjon("02017012345", IdentGruppe.FOLKEREGISTERIDENT),
+                IdentInformasjon("87654", IdentGruppe.__UNKNOWN_VALUE)
             )
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns identer
 
-        val result = autorisasjonService.verifiserTilgangTilBruker(navAnsatt, foedselsnummer)
+            val identiteter = authorizationService.finnIdentiteter(TestData.identitetsnummer)
 
-        result shouldBe false
+            identiteter shouldHaveSize 2
+            identiteter shouldContain Identitetsnummer("01017012345")
+            identiteter shouldContain Identitetsnummer("02017012345")
+            coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+        }
+
+        "verifiserTilgangTilBruker should return true if access is granted" {
+            every { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) } returns
+                    ApiResult(
+                        throwable = null,
+                        result = listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+                    )
+
+            val result =
+                authorizationService.verifiserTilgangTilBruker(TestData.navAnsatt, listOf(TestData.identitetsnummer))
+
+            result shouldBe true
+            verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+
+        }
+
+        "verifiserTilgangTilBruker should return false if access is denied" {
+            every { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) } returns
+                    ApiResult(
+                        throwable = null,
+                        result = listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")))
+                    )
+
+            val result =
+                authorizationService.verifiserTilgangTilBruker(TestData.navAnsatt, listOf(TestData.identitetsnummer))
+
+            result shouldBe false
+            verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+        }
     }
 })

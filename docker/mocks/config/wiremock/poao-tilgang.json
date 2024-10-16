@@ -12,6 +12,12 @@
           "decision": {
             "type": "PERMIT"
           }
+        },
+        {
+          "requestId": "3b5db64b-c64a-43f7-bed6-8626bb74925a",
+          "decision": {
+            "type": "PERMIT"
+          }
         }
       ]
     },
