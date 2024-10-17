@@ -25,11 +25,12 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getArbeidssoekerperiodeResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.fnr2
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getOpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyStartetPeriode
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.poao_tilgang.client.Decision
@@ -143,14 +144,38 @@ class OpplysningerRoutesTest : FreeSpec({
             }
         }
 
+        "/opplysninger-om-arbeidssoeker/{periodeId} should return 400 BadRequest if periode does not exist for periodeId" {
+            every {
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns null
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${TestData.periodeId}") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
+            }
+        }
+
         "/opplysninger-om-arbeidssoeker/{periodeId} should return 403 Forbidden if periodeId does not exist for user" {
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns emptyList()
-
-            every {
-                opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode(identitetsnummer = fnr2)
 
             testApplication {
                 application {
@@ -171,14 +196,14 @@ class OpplysningerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
             }
         }
 
         "/opplysninger-om-arbeidssoeker/{periodeId} should return OK" {
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode()
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
@@ -204,7 +229,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
                 verify { opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>()) }
             }
         }
@@ -260,8 +285,8 @@ class OpplysningerRoutesTest : FreeSpec({
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
 
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns emptyList()
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode(identitetsnummer = fnr2)
 
             testApplication {
                 application {
@@ -291,7 +316,7 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
             }
         }
 
@@ -306,8 +331,8 @@ class OpplysningerRoutesTest : FreeSpec({
             )
 
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode()
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
@@ -343,7 +368,7 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
                 verify { opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>()) }
             }
         }
@@ -354,8 +379,8 @@ class OpplysningerRoutesTest : FreeSpec({
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
 
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode()
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
@@ -392,7 +417,7 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
                 verify { opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>()) }
             }
         }

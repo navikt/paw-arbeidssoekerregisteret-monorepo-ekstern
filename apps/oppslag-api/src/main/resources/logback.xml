@@ -27,6 +27,7 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <logger name="no.nav.paw.pdl" level="WARN"/>
             <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </else>
     </if>

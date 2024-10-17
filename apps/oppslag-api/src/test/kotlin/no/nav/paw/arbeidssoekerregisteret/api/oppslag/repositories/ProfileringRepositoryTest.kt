@@ -4,8 +4,12 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyOpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyOpplysning
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyProfilering
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.opplysningerId1
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.opplysningerId2
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.periodeId1
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.periodeId2
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Database
 import java.util.*
@@ -15,18 +19,14 @@ class ProfileringRepositoryTest : StringSpec({
     lateinit var dataSource: DataSource
     lateinit var database: Database
     lateinit var repository: ProfileringRepository
-    val periodeId1: UUID = UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1feb")
-    val periodeId2: UUID = UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1fec")
-    val opplysningerId1: UUID = UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1fed")
-    val opplysningerId2: UUID = UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1fee")
 
     beforeEach {
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
         repository = ProfileringRepository(database)
         val opplysningerRepository = OpplysningerRepository(database)
-        val opplysninger1 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId1, opplysningerId = opplysningerId1)
-        val opplysninger2 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId2, opplysningerId = opplysningerId2)
+        val opplysninger1 = nyOpplysning(opplysningerId = opplysningerId1, periodeId = periodeId1)
+        val opplysninger2 = nyOpplysning(opplysningerId = opplysningerId2, periodeId = periodeId2)
         opplysningerRepository.lagreOpplysninger(opplysninger1)
         opplysningerRepository.lagreOpplysninger(opplysninger2)
     }
@@ -47,8 +47,8 @@ class ProfileringRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut flere profileringer" {
-        val profilering1 = nyProfilering(periodeId1, opplysningerId1)
-        val profilering2 = nyProfilering(periodeId1, opplysningerId2)
+        val profilering1 = nyProfilering(periodeId = periodeId1, opplysningerId = opplysningerId1)
+        val profilering2 = nyProfilering(periodeId = periodeId1, opplysningerId = opplysningerId2)
         repository.lagreProfilering(profilering1)
         repository.lagreProfilering(profilering2)
 
@@ -62,7 +62,7 @@ class ProfileringRepositoryTest : StringSpec({
     }
 
     "Hent ut profilering med PeriodeId" {
-        val profilering = nyProfilering(periodeId1, opplysningerId1)
+        val profilering = nyProfilering(periodeId = periodeId1, opplysningerId = opplysningerId1)
         repository.lagreProfilering(profilering)
         val profileringResponser = repository.finnProfileringerForPeriodeId(periodeId1)
 
@@ -79,9 +79,9 @@ class ProfileringRepositoryTest : StringSpec({
 
     "Lagre profileringer med samme periodeId i batch" {
         val periodeId = UUID.randomUUID()
-        val profilering1 = nyProfilering(periodeId, UUID.randomUUID())
-        val profilering2 = nyProfilering(periodeId, UUID.randomUUID())
-        val profilering3 = nyProfilering(periodeId, UUID.randomUUID())
+        val profilering1 = nyProfilering(periodeId = periodeId, opplysningerId = UUID.randomUUID())
+        val profilering2 = nyProfilering(periodeId = periodeId, opplysningerId = UUID.randomUUID())
+        val profilering3 = nyProfilering(periodeId = periodeId, opplysningerId = UUID.randomUUID())
         val profileringer = sequenceOf(profilering1, profilering2, profilering3)
         repository.lagreAlleProfileringer(profileringer)
 

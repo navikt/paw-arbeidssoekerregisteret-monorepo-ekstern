@@ -20,10 +20,26 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 
-fun nyOpplysningerOmArbeidssoeker(
-    periodeId: UUID = UUID.randomUUID(),
+const val fnr1 = "01017012345"
+const val fnr2 = "02017012345"
+const val fnr3 = "03017012345"
+val periodeId1 = UUID.fromString("6d6302a7-7ed1-40a3-8257-c3e8ade4c049")
+val periodeId2 = UUID.fromString("2656398c-a355-4f9b-8b34-a76abaf3c61a")
+val periodeId3 = UUID.fromString("44b44747-f65d-46b3-89a8-997a63d0d489")
+val opplysningerId1 = UUID.fromString("d4086937-2d27-4c87-ad6d-81deb76f50d3")
+val opplysningerId2 = UUID.fromString("f0e09ebf-e9f7-4025-9bd7-31bbff037eaa")
+val opplysningerId3 = UUID.fromString("e7b8c9f6-9ada-457c-bed5-ec45656c73b2")
+val profileringId1 = UUID.fromString("e7b8c9f6-9ada-457c-bed5-ec45656c73b2")
+val profileringId2 = UUID.fromString("91d5e8cc-0edb-4378-ba71-39465e2ebfb8")
+val profileringId3 = UUID.fromString("0bd29537-64e8-4e09-97da-886aa3a63103")
+const val navIdent1 = "NO12345"
+const val navIdent2 = "NO23456"
+const val navIdent3 = "NO34567"
+
+fun nyOpplysning(
     opplysningerId: UUID = UUID.randomUUID(),
-    sendtInAv: Metadata = nyMetadata(bruker = nyBruker(id = "01017012345")),
+    periodeId: UUID = periodeId1,
+    sendtInAv: Metadata = nyMetadata(bruker = nyBruker(id = fnr1)),
     utdanning: Utdanning? = nyUtdanning(),
     helse: Helse? = nyHelse(),
     jobbsituasjon: Jobbsituasjon? = nyJobbsituasjon(
@@ -68,7 +84,7 @@ fun nyJobbsituasjon(vararg besktivelser: Beskrivelse): Jobbsituasjon {
 }
 
 fun nyStartetPeriode(
-    identitetsnummer: String = "01017012345",
+    identitetsnummer: String = fnr1,
     periodeId: UUID = UUID.randomUUID(),
     startetMetadata: Metadata = nyMetadata(
         tidspunkt = Instant.now().minus(Duration.ofDays(30)),
@@ -83,7 +99,7 @@ fun nyStartetPeriode(
 )
 
 fun nyAvsluttetPeriode(
-    identitetsnummer: String = "01017012345",
+    identitetsnummer: String = fnr1,
     periodeId: UUID = UUID.randomUUID(),
     startetMetadata: Metadata = nyMetadata(
         tidspunkt = Instant.now().minus(Duration.ofDays(30)),
@@ -101,17 +117,21 @@ fun nyAvsluttetPeriode(
 )
 
 fun nyProfilering(
-    periodeId: UUID,
-    opplysningerOmArbeidssoekerId: UUID,
-    sendtInAv: Metadata = nyMetadata()
+    profileringId: UUID = UUID.randomUUID(),
+    periodeId: UUID = periodeId1,
+    opplysningerId: UUID = opplysningerId1,
+    sendtInAv: Metadata = nyMetadata(),
+    profilertTil: ProfilertTil = ProfilertTil.UDEFINERT,
+    jobbetSammenhengendeSeksAvTolvSisteMnd: Boolean = true,
+    alder: Int = 30
 ) = Profilering(
-    UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1feb"),
+    profileringId,
     periodeId,
-    opplysningerOmArbeidssoekerId,
+    opplysningerId,
     sendtInAv,
-    ProfilertTil.UDEFINERT,
-    true,
-    30
+    profilertTil,
+    jobbetSammenhengendeSeksAvTolvSisteMnd,
+    alder
 )
 
 fun nyMetadata(
@@ -130,7 +150,7 @@ fun nyMetadata(
 
 fun nyBruker(
     type: BrukerType = BrukerType.SLUTTBRUKER,
-    id: String = "01017012345"
+    id: String = fnr1
 ) = Bruker(type, id)
 
 fun nyTidspunktFraKilde(

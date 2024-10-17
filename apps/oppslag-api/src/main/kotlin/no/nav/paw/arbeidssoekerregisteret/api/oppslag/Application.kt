@@ -9,6 +9,7 @@ import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureLogging
@@ -38,24 +39,23 @@ fun main() {
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
 
-    // Avhengigheter
-    val dependencies = createDependencies(applicationConfig, kafkaConfig)
+    val applicationContext = ApplicationContext.build(applicationConfig, kafkaConfig)
 
     // Clean database pga versjon oppdatering
     // cleanDatabase(dependencies.dataSource)
 
     // Kjør migration på database
-    migrateDatabase(dependencies.dataSource)
+    migrateDatabase(applicationContext.dataSource)
 
     // Konsumer periode meldinger fra Kafka
     val threadPoolExecutor = ThreadPoolExecutor(4, 8, 1, TimeUnit.MINUTES, LinkedBlockingQueue())
     runAsync({
         try {
-            dependencies.periodeKafkaConsumer.subscribe()
-            dependencies.opplysningerKafkaConsumer.subscribe()
-            dependencies.profileringKafkaConsumer.subscribe()
+            applicationContext.periodeKafkaConsumer.subscribe()
+            applicationContext.opplysningerKafkaConsumer.subscribe()
+            applicationContext.profileringKafkaConsumer.subscribe()
             while (true) {
-                consume(dependencies, applicationConfig)
+                consume(applicationContext, applicationConfig)
             }
         } catch (e: Exception) {
             logger.error("Consumer error: ${e.message}", e)
@@ -65,7 +65,7 @@ fun main() {
 
     // Oppdaterer grafana gauge for antall aktive perioder
     thread {
-        dependencies.scheduleGetAktivePerioderGaugeService.scheduleGetAktivePerioderTask()
+        applicationContext.scheduleGetAktivePerioderGaugeService.scheduleGetAktivePerioderTask()
     }
 
     val server =
@@ -78,28 +78,28 @@ fun main() {
             },
             port = 8080,
             host = "0.0.0.0",
-            module = { module(dependencies, applicationConfig) }
+            module = { module(applicationContext, applicationConfig) }
         )
             .start(wait = true)
 
     server.addShutdownHook {
         server.stop(300, 300)
-        dependencies.profileringKafkaConsumer.stop()
-        dependencies.opplysningerKafkaConsumer.stop()
-        dependencies.periodeKafkaConsumer.stop()
+        applicationContext.profileringKafkaConsumer.stop()
+        applicationContext.opplysningerKafkaConsumer.stop()
+        applicationContext.periodeKafkaConsumer.stop()
     }
 }
 
 fun Application.module(
-    dependencies: Dependencies,
+    applicationContext: ApplicationContext,
     config: ApplicationConfig
 ) {
     // Konfigurerer plugins
     configureMetrics(
-        dependencies.registry,
-        dependencies.profileringKafkaConsumer.consumer,
-        dependencies.periodeKafkaConsumer.consumer,
-        dependencies.opplysningerKafkaConsumer.consumer
+        applicationContext.registry,
+        applicationContext.profileringKafkaConsumer.consumer,
+        applicationContext.periodeKafkaConsumer.consumer,
+        applicationContext.opplysningerKafkaConsumer.consumer
     )
     configureHTTP()
     configureAuthentication(config.authProviders)
@@ -108,27 +108,27 @@ fun Application.module(
 
     // Ruter
     routing {
-        healthRoutes(dependencies.registry)
+        healthRoutes(applicationContext.registry)
         swaggerRoutes()
         perioderRoutes(
-            dependencies.authorizationService,
-            dependencies.periodeService
+            applicationContext.authorizationService,
+            applicationContext.periodeService
         )
         opplysningerRoutes(
-            dependencies.authorizationService,
-            dependencies.periodeService,
-            dependencies.opplysningerService
+            applicationContext.authorizationService,
+            applicationContext.periodeService,
+            applicationContext.opplysningerService
         )
         profileringRoutes(
-            dependencies.authorizationService,
-            dependencies.periodeService,
-            dependencies.profileringService
+            applicationContext.authorizationService,
+            applicationContext.periodeService,
+            applicationContext.profileringService
         )
         samletInformasjonRoutes(
-            dependencies.authorizationService,
-            dependencies.periodeService,
-            dependencies.opplysningerService,
-            dependencies.profileringService
+            applicationContext.authorizationService,
+            applicationContext.periodeService,
+            applicationContext.opplysningerService,
+            applicationContext.profileringService
         )
     }
 }
@@ -138,10 +138,10 @@ fun Application.module(
     kind = SpanKind.INTERNAL
 )
 fun consume(
-    dependencies: Dependencies,
+    applicationContext: ApplicationContext,
     config: ApplicationConfig
 ) {
-    dependencies.periodeKafkaConsumer.getAndProcessBatch(config.periodeTopic)
-    dependencies.opplysningerKafkaConsumer.getAndProcessBatch(config.opplysningerOmArbeidssoekerTopic)
-    dependencies.profileringKafkaConsumer.getAndProcessBatch(config.profileringTopic)
+    applicationContext.periodeKafkaConsumer.getAndProcessBatch(config.periodeTopic)
+    applicationContext.opplysningerKafkaConsumer.getAndProcessBatch(config.opplysningerOmArbeidssoekerTopic)
+    applicationContext.profileringKafkaConsumer.getAndProcessBatch(config.profileringTopic)
 }

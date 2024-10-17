@@ -18,9 +18,9 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 object TestData {
-    val identitetsnummer = Identitetsnummer("18908396568")
-    val navAnsatt = NavAnsatt(UUID.randomUUID().toString(), "Z999999")
-    val periodeId = UUID.randomUUID()
+    val identitetsnummer = Identitetsnummer(fnr1)
+    val navAnsatt = NavAnsatt(UUID.randomUUID().toString(), navIdent1)
+    val periodeId = periodeId1
 }
 
 typealias Arbeidssoekerperioder = List<ArbeidssoekerperiodeResponse>
@@ -35,7 +35,7 @@ fun getArbeidssoekerperiodeResponse(sistePeriodeId: UUID): Arbeidssoekerperioder
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",
@@ -54,7 +54,7 @@ fun getArbeidssoekerperiodeResponse(sistePeriodeId: UUID): Arbeidssoekerperioder
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",
@@ -73,7 +73,7 @@ fun getArbeidssoekerperiodeResponse(sistePeriodeId: UUID): Arbeidssoekerperioder
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",
@@ -98,7 +98,7 @@ fun getOpplysningerOmArbeidssoekerResponse(periodeId: UUID): List<OpplysningerOm
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",
@@ -121,7 +121,7 @@ fun getOpplysningerOmArbeidssoekerResponse(periodeId: UUID): List<OpplysningerOm
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",
@@ -144,7 +144,7 @@ fun getOpplysningerOmArbeidssoekerResponse(periodeId: UUID): List<OpplysningerOm
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",
@@ -172,7 +172,7 @@ fun getProfileringResponse(periodeId: UUID): List<ProfileringResponse> =
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",
@@ -192,7 +192,7 @@ fun getProfileringResponse(periodeId: UUID): List<ProfileringResponse> =
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",
@@ -212,7 +212,7 @@ fun getProfileringResponse(periodeId: UUID): List<ProfileringResponse> =
                 utfoertAv =
                 BrukerResponse(
                     type = BrukerType.SLUTTBRUKER,
-                    id = "12345678901"
+                    id = fnr1
                 ),
                 kilde = "arbeidssokerregisteret",
                 aarsak = "",

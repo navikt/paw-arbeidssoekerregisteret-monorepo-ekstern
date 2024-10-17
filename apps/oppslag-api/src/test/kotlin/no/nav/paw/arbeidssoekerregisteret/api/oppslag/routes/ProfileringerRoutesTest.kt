@@ -25,10 +25,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyStartetPeriode
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.poao_tilgang.client.Decision
@@ -86,9 +86,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
         "/profilering/{periodeId} should return OK" {
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
-
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode()
             every {
                 profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
             } returns getProfileringResponse(TestData.periodeId)
@@ -114,7 +113,7 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer.size shouldBe 3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
                 verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
@@ -185,8 +184,8 @@ class ProfileringerRoutesTest : FreeSpec({
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test"))))
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns emptyList()
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode()
             every {
                 profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
             } returns getProfileringResponse(TestData.periodeId)
@@ -218,7 +217,7 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
                 verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
@@ -228,8 +227,8 @@ class ProfileringerRoutesTest : FreeSpec({
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode()
             every {
                 profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
             } returns getProfileringResponse(TestData.periodeId)
@@ -263,7 +262,7 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
                 verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
@@ -273,8 +272,8 @@ class ProfileringerRoutesTest : FreeSpec({
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+                periodeRepositoryMock.finnPerioderForId(any<UUID>())
+            } returns nyStartetPeriode()
             every {
                 profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
             } returns getProfileringResponse(TestData.periodeId)
@@ -309,7 +308,7 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepositoryMock.finnPerioderForId(any<UUID>()) }
                 verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }

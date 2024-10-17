@@ -5,8 +5,12 @@ import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyAnnet
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyAvsluttetPeriode
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyOpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyOpplysning
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyUtdanning
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.opplysningerId1
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.opplysningerId2
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.periodeId1
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.periodeId2
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnOpplysningerRows
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPeriodeOpplysningerRows
@@ -20,10 +24,6 @@ class OpplysningerRepositoryTest : StringSpec({
     lateinit var dataSource: DataSource
     lateinit var database: Database
     lateinit var repository: OpplysningerRepository
-    val periodeId1: UUID = UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1feb")
-    val periodeId2: UUID = UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1fec")
-    val opplysningerId1: UUID = UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1fed")
-    val opplysningerId2: UUID = UUID.fromString("84201f96-363b-4aab-a589-89fa4b9b1fee")
 
     beforeEach {
         dataSource = initTestDatabase()
@@ -41,7 +41,7 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut opplysninger om arbeidssøker" {
-        val opplysninger = nyOpplysningerOmArbeidssoeker(periodeId = periodeId1, opplysningerId = opplysningerId1)
+        val opplysninger = nyOpplysning(periodeId = periodeId1, opplysningerId = opplysningerId1)
         repository.lagreOpplysninger(opplysninger)
 
         val retrievedOpplysninger = repository.finnOpplysningerForPeriodeId(opplysninger.periodeId)
@@ -56,7 +56,7 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut opplysninger om arbeidssøker med utdanning, helse og annet lik null" {
-        val opplysninger = nyOpplysningerOmArbeidssoeker(
+        val opplysninger = nyOpplysning(
             periodeId = periodeId1,
             opplysningerId = opplysningerId1,
             utdanning = null,
@@ -77,7 +77,7 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut opplysninger om arbeidssøker med utdanning og annet felter lik null" {
-        val opplysninger = nyOpplysningerOmArbeidssoeker(
+        val opplysninger = nyOpplysning(
             periodeId = periodeId1,
             opplysningerId = opplysningerId1,
             utdanning = nyUtdanning(bestaat = null, godkjent = null),
@@ -97,8 +97,8 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut flere opplysninger om arbeidssøker med samme periodeId" {
-        val opplysninger1 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId2, opplysningerId = opplysningerId1)
-        val opplysninger2 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId2, opplysningerId = opplysningerId2)
+        val opplysninger1 = nyOpplysning(periodeId = periodeId2, opplysningerId = opplysningerId1)
+        val opplysninger2 = nyOpplysning(periodeId = periodeId2, opplysningerId = opplysningerId2)
         repository.lagreOpplysninger(opplysninger1)
         repository.lagreOpplysninger(opplysninger2)
 
@@ -118,8 +118,8 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut opplysninger om arbeidssøker med forskjellig periodeId" {
-        val opplysninger1 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId1, opplysningerId = opplysningerId1)
-        val opplysninger2 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId2, opplysningerId = opplysningerId1)
+        val opplysninger1 = nyOpplysning(periodeId = periodeId1, opplysningerId = opplysningerId1)
+        val opplysninger2 = nyOpplysning(periodeId = periodeId2, opplysningerId = opplysningerId1)
 
         repository.lagreOpplysninger(opplysninger1)
         repository.lagreOpplysninger(opplysninger2)
@@ -138,8 +138,8 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Like opplysninger med samme periodeId skal ikke lagres på nytt" {
-        val opplysninger1 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId1, opplysningerId = opplysningerId1)
-        val opplysninger2 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId1, opplysningerId = opplysningerId1)
+        val opplysninger1 = nyOpplysning(periodeId = periodeId1, opplysningerId = opplysningerId1)
+        val opplysninger2 = nyOpplysning(periodeId = periodeId1, opplysningerId = opplysningerId1)
 
         repository.lagreOpplysninger(opplysninger1)
         repository.lagreOpplysninger(opplysninger2)
@@ -163,9 +163,9 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Lagre opplysninger med samme periodeId i batch" {
         val periodeId = UUID.randomUUID()
-        val opplysninger1 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId)
-        val opplysninger2 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId)
-        val opplysninger3 = nyOpplysningerOmArbeidssoeker(periodeId = periodeId)
+        val opplysninger1 = nyOpplysning(periodeId = periodeId)
+        val opplysninger2 = nyOpplysning(periodeId = periodeId)
+        val opplysninger3 = nyOpplysning(periodeId = periodeId)
         val opplysninger = sequenceOf(opplysninger1, opplysninger2, opplysninger3)
         repository.lagreAlleOpplysninger(opplysninger)
 
