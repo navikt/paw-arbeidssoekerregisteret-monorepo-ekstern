@@ -76,7 +76,12 @@ fun ApplicationCall.verifyAccessFromToken(
     authorizationService: AuthorizationService,
     identitetsnummerList: List<Identitetsnummer>,
 ) {
+    if (identitetsnummerList.isEmpty()) {
+        throw StatusException(HttpStatusCode.Forbidden, "Fant ingen identitetsnummer for sluttbruker")
+    }
+
     val navAnsatt = getNavAnsattFromToken()
+
     if (navAnsatt != null) {
         authorizationService.verifiserTilgangTilBruker(navAnsatt, identitetsnummerList).let { harTilgang ->
             if (!harTilgang) {
@@ -93,11 +98,20 @@ fun verifyPeriodeId(
     identitetsnummerList: List<Identitetsnummer>,
     periodeService: PeriodeService
 ) {
+    if (identitetsnummerList.isEmpty()) {
+        throw StatusException(HttpStatusCode.Forbidden, "Fant ingen identitetsnummer for sluttbruker")
+    }
+
     if (periodeId != null) {
-        periodeService.periodeTilhoererIdentiteter(periodeId, identitetsnummerList).let { harTilgang ->
-            if (!harTilgang) {
-                throw StatusException(HttpStatusCode.Forbidden, "PeriodeId tilhører ikke bruker: $periodeId")
-            }
+
+        val periode = periodeService.hentPeriodeForId(periodeId) ?: throw StatusException(
+            HttpStatusCode.BadRequest,
+            "Finner ikke periode $periodeId"
+        )
+
+        val identiteter = identitetsnummerList.map { it.verdi }
+        if (!identiteter.contains(periode.identitetsnummer)) {
+            throw StatusException(HttpStatusCode.Forbidden, "Periode $periodeId tilhører ikke sluttbruker")
         }
     }
 }

@@ -18,7 +18,7 @@ import java.util.*
 
 class PeriodeRepository(private val database: Database) {
 
-    fun finnPerioderForId(periodeId: UUID): Periode? =
+    fun hentPeriodeForId(periodeId: UUID): Periode? =
         transaction(database) {
             finnPeriode(periodeId)?.toPeriode()
         }

@@ -23,8 +23,7 @@ class AuthorizationService(
         identitetsnummer: Identitetsnummer,
         identGruppe: IdentGruppe = IdentGruppe.FOLKEREGISTERIDENT
     ): List<Identitetsnummer> {
-        val identer = pdlHttpConsumer.finnIdenter(identitetsnummer)
-        return identer
+        return pdlHttpConsumer.finnIdenter(identitetsnummer)
             .filter { it.gruppe == identGruppe }
             .map { Identitetsnummer(it.ident) }
     }
@@ -42,18 +41,16 @@ class AuthorizationService(
             logger.warn("POAO Tilgang returnerte et hetrogent svar")
         }
 
-        val harNavAnsattTilgang = deny.isEmpty()
-
-        if (harNavAnsattTilgang) {
-            auditLogger.audit(
-                identitetsnummerList.first(),
-                navAnsatt,
-                "NAV ansatt har hentet informasjon om bruker"
-            )
-        } else {
-            logger.info("NAV-ansatt har ikke tilgang til bruker")
+        return deny.isEmpty().also { harTilgang ->
+            if (harTilgang) {
+                auditLogger.audit(
+                    identitetsnummerList.first(),
+                    navAnsatt,
+                    "NAV ansatt har hentet informasjon om bruker"
+                )
+            } else {
+                logger.info("NAV-ansatt har ikke tilgang til bruker")
+            }
         }
-
-        return harNavAnsattTilgang
     }
 }

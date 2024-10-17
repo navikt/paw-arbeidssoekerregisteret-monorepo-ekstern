@@ -39,7 +39,7 @@ class PeriodeRepositoryTest : StringSpec({
         val periode = nyStartetPeriode()
         repository.lagrePeriode(periode)
 
-        val retrievedPeriode = repository.finnPerioderForId(periode.id)
+        val retrievedPeriode = repository.hentPeriodeForId(periode.id)
 
         retrievedPeriode shouldNotBe null
         retrievedPeriode!! shouldBe periode
@@ -76,7 +76,7 @@ class PeriodeRepositoryTest : StringSpec({
         )
         repository.lagrePeriode(updatedPeriode)
 
-        val retrievedPeriode = repository.finnPerioderForId(periode.id)
+        val retrievedPeriode = repository.hentPeriodeForId(periode.id)
 
         retrievedPeriode shouldNotBe null
         retrievedPeriode!! shouldBe updatedPeriode
@@ -102,7 +102,7 @@ class PeriodeRepositoryTest : StringSpec({
         )
         repository.lagrePeriode(updatedPeriode)
 
-        val retrievedPeriode = repository.finnPerioderForId(periode.id)
+        val retrievedPeriode = repository.hentPeriodeForId(periode.id)
 
         retrievedPeriode shouldNotBe null
         retrievedPeriode shouldBe updatedPeriode
@@ -126,7 +126,7 @@ class PeriodeRepositoryTest : StringSpec({
         )
         repository.lagrePeriode(updatedPeriode)
 
-        val retrievedPeriode = repository.finnPerioderForId(periode.id)
+        val retrievedPeriode = repository.hentPeriodeForId(periode.id)
 
         retrievedPeriode shouldNotBe null
         retrievedPeriode shouldBe updatedPeriode
@@ -138,8 +138,8 @@ class PeriodeRepositoryTest : StringSpec({
         val perioder = sequenceOf(periode1, periode2)
         repository.lagreAllePerioder(perioder)
 
-        val lagretPeriode1 = repository.finnPerioderForId(periode1.id)
-        val lagretPeriode2 = repository.finnPerioderForId(periode2.id)
+        val lagretPeriode1 = repository.hentPeriodeForId(periode1.id)
+        val lagretPeriode2 = repository.hentPeriodeForId(periode2.id)
 
         lagretPeriode1 shouldNotBe null
         lagretPeriode2 shouldNotBe null
@@ -194,11 +194,11 @@ class PeriodeRepositoryTest : StringSpec({
         repository.lagreAllePerioder(startedePerioder)
         repository.lagreAllePerioder(avsluttedePerioder)
 
-        val lagretPeriode1 = repository.finnPerioderForId(periode1.id)
-        val lagretPeriode2 = repository.finnPerioderForId(periode2.id)
-        val lagretPeriode3 = repository.finnPerioderForId(periode3.id)
-        val lagretPeriode4 = repository.finnPerioderForId(periode4.id)
-        val lagretPeriode5 = repository.finnPerioderForId(periode5.id)
+        val lagretPeriode1 = repository.hentPeriodeForId(periode1.id)
+        val lagretPeriode2 = repository.hentPeriodeForId(periode2.id)
+        val lagretPeriode3 = repository.hentPeriodeForId(periode3.id)
+        val lagretPeriode4 = repository.hentPeriodeForId(periode4.id)
+        val lagretPeriode5 = repository.hentPeriodeForId(periode5.id)
 
         lagretPeriode1 shouldNotBe null
         lagretPeriode2 shouldNotBe null
