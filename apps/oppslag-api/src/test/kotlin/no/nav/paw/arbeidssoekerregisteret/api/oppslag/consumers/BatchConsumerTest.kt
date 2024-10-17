@@ -1,7 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumers
 
 import io.kotest.core.spec.style.FreeSpec
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers.BatchConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.producers.TestMessages
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
@@ -22,11 +26,11 @@ class BatchConsumerTest : FreeSpec({
 
         val consumer = BatchConsumer(topic, consumerMock, serviceMock::lagreAllePerioder)
 
-        every { consumerMock.subscribe(listOf(topic)) } just Runs
+        every { consumerMock.subscribe(any<List<String>>()) } just Runs
         every { consumerMock.unsubscribe() } just Runs
         every { consumerMock.close() } just Runs
         every { consumerMock.poll(any<Duration>()) } returns createConsumerRecords()
-        every { serviceMock.lagreAllePerioder(any()) } just Runs
+        every { serviceMock.lagreAllePerioder(any<Sequence<Periode>>()) } just Runs
         every { consumerMock.commitSync() } just Runs
 
         thread {
@@ -34,7 +38,7 @@ class BatchConsumerTest : FreeSpec({
             consumer.getAndProcessBatch(topic)
         }
 
-        verify { consumerMock.subscribe(listOf(topic)) }
+        verify { consumerMock.subscribe(any<List<String>>()) }
         verify { consumerMock.poll(any<Duration>()) }
         verify { serviceMock.lagreAllePerioder(any()) }
         verify { consumerMock.commitSync() }
