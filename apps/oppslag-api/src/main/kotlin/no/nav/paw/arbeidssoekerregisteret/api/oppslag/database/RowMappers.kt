@@ -1,22 +1,9 @@
-package no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils
+package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.AnnetTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.BeskrivelseMedDetaljerTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.BeskrivelseTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.BrukerTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.HelseTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.MetadataTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerOmArbeidssoekerTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeOpplysningerTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.ProfileringTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.TidspunktFraKildeTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.UtdanningTable
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.JaNeiVetIkke
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.JobbSituasjonBeskrivelse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse

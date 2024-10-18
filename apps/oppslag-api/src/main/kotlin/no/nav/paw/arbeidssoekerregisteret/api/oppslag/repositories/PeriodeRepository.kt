@@ -5,11 +5,11 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Arbeidssoekerperiod
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.oppdaterPeriode
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPeriode
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPerioder
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPerioderForIdentiteter
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opprettPeriode
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.oppdaterPeriode
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnPeriode
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnPerioder
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnPerioderForIdentiteter
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.opprettPeriode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.selectAll

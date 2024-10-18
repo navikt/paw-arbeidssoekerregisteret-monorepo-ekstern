@@ -2,8 +2,8 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnProfileringer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opprettProfilering
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnProfileringer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.opprettProfilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction

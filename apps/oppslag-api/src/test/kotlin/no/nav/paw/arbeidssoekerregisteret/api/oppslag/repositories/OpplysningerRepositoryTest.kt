@@ -12,8 +12,8 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.opplysningerId2
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.periodeId1
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.periodeId2
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnOpplysningerRows
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPeriodeOpplysningerRows
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnOpplysningerRows
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnPeriodeOpplysningerRows
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
