@@ -19,7 +19,8 @@ class PdlHttpConsumer(
             ident = identitetsnummer.verdi,
             callId = UUID.randomUUID().toString(),
             navConsumerId = consumerId,
-            behandlingsnummer = PdlClientConfig.BEHANDLINGSNUMMER
+            behandlingsnummer = PdlClientConfig.BEHANDLINGSNUMMER,
+            historikk = true
         ) ?: emptyList()
     }
 }
