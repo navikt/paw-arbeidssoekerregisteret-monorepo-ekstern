@@ -3,10 +3,10 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnOpplysninger
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnOpplysningerRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnOpplysningerRows
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opprettOpplysninger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnOpplysninger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnOpplysningerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnOpplysningerRows
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.opprettOpplysninger
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
