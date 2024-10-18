@@ -5,6 +5,7 @@ import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.copy
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyAvsluttetPeriode
@@ -33,6 +34,18 @@ class PeriodeRepositoryTest : StringSpec({
 
     afterSpec {
         dataSource.connection.close()
+    }
+
+    "Verifiser at vi ser eier av periode ved bruk av alias liste" {
+        val periode = nyStartetPeriode(identitetsnummer = "11223312345")
+        repository.lagrePeriode(periode)
+        val identiteter = listOf(
+            Identitetsnummer("44223312345"),
+            Identitetsnummer(periode.identitetsnummer),
+            Identitetsnummer("55223312345")
+        )
+        val tilhorerIdentiteter = PeriodeService(repository).periodeTilhoererIdentiteter(periode.id, identiteter)
+        tilhorerIdentiteter shouldBe true
     }
 
     "Opprett og hent en periode" {
