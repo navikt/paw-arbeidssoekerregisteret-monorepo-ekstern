@@ -545,6 +545,39 @@ components:
         - "arbeidssoekerperioder"
         - "opplysningerOmArbeidssoeker"
         - "profilering"
+    BekreftelseResponse:
+      type: "object"
+      properties:
+        periodeId:
+          type: "string"
+          format: "uuid"
+        svar:
+          $ref: "#/components/schemas/BekreftelseSvarResponse"
+      required:
+        - "periodeId"
+        - "svar"
+    BekreftelseSvarResponse:
+      type: "object"
+      properties:
+        sendtInn:
+            $ref: "#/components/schemas/MetadataResponse"
+        gjelderFra:
+            type: "string"
+            format: "date-time"
+        gjelderTil:
+            type: "string"
+            format: "date-time"
+        harJobbetIDennePerioden:
+            type: "boolean"
+        vilFortsetteSomArbeidssoeker:
+            type: "boolean"
+      required:
+        - "sendtInn"
+        - "gjelderFra"
+        - "gjelderTil"
+        - "harJobbetIDennePerioden"
+        - "vilFortsetteSomArbeidssoeker"
+
     ArbeidssoekerperiodeRequest:
       type: "object"
       properties:

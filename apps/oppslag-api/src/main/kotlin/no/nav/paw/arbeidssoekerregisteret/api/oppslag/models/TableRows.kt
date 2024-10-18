@@ -46,6 +46,23 @@ data class PeriodeOpplysningerRow(
     val opplysningerOmArbeidssoekerTableId: Long
 )
 
+data class BekreftelseSvarRow(
+    val id: Long,
+    val sendtInn: MetadataRow,
+    val gjelderFra: Instant,
+    val gjelderTil: Instant,
+    val harJobbetIDennePerioden: Boolean,
+    val vilFortsetteSomArbeidssoeker: Boolean,
+)
+
+data class BekreftelseRow(
+    val id: Long,
+    val bekreftelseMeldingId: UUID,
+    val periodeId: UUID,
+    val namespace: String,
+    val svar: BekreftelseSvarRow
+)
+
 infix fun BrukerRow.eq(bruker: Bruker): Boolean {
     return this.type == bruker.type && this.brukerId == bruker.id
 }

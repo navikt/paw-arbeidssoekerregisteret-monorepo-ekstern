@@ -1,6 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseSvarResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseResponse
@@ -18,6 +20,29 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toJobbSituasjonBesk
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toMetadataResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringsResultat
 import org.jetbrains.exposed.sql.ResultRow
+
+fun ResultRow.toBekreftelseResponse(): BekreftelseResponse {
+    val periodeId = get(BekreftelseTable.periodeId)
+    return BekreftelseResponse(
+        periodeId = periodeId,
+        svar = toBekreftelseSvarResponse()
+    )
+}
+
+fun ResultRow.toBekreftelseSvarResponse(): BekreftelseSvarResponse {
+    val sendtInn = toMetadataRow().toMetadataResponse()
+    val gjelderFra = get(BekreftelseSvarTable.gjelderFra)
+    val gjelderTil = get(BekreftelseSvarTable.gjelderTil)
+    val harJobbetIDennePerioden = get(BekreftelseSvarTable.harJobbetIDennePerioden)
+    val vilFortsetteSomArbeidssoeker = get(BekreftelseSvarTable.vilFortsetteSomArbeidssoeker)
+    return BekreftelseSvarResponse(
+        sendtInn,
+        gjelderFra,
+        gjelderTil,
+        harJobbetIDennePerioden,
+        vilFortsetteSomArbeidssoeker
+    )
+}
 
 fun ResultRow.toOpplysningerResponse(beskrivelseMedDetaljer: List<BeskrivelseMedDetaljerResponse>): OpplysningerOmArbeidssoekerResponse {
     val opplysningerId = get(OpplysningerOmArbeidssoekerTable.opplysningerOmArbeidssoekerId)

@@ -116,6 +116,12 @@ fun verifyPeriodeId(
     }
 }
 
+fun String.asUUID(): UUID = try {
+    UUID.fromString(this)
+} catch (e: IllegalArgumentException) {
+    throw StatusException(HttpStatusCode.BadRequest, "UUID har feil format")
+}
+
 fun createSisteSamletInformasjonResponse(
     identitetsnummerList: List<Identitetsnummer>,
     periodeService: PeriodeService,

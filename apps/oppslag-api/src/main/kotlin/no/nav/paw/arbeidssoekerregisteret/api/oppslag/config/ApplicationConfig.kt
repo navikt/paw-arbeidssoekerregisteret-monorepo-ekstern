@@ -7,6 +7,7 @@ data class ApplicationConfig(
     val periodeTopic: String,
     val opplysningerOmArbeidssoekerTopic: String,
     val profileringTopic: String,
+    val bekreftelseTopic: String,
     val authProviders: List<AuthProvider>,
     val poaoClientConfig: ServiceClientConfig,
     val database: DatabaseConfig

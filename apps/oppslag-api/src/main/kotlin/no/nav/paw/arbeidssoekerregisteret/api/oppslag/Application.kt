@@ -15,6 +15,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.bekreftelseRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.healthRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.opplysningerRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.perioderRoutes
@@ -54,6 +55,7 @@ fun main() {
             applicationContext.periodeKafkaConsumer.subscribe()
             applicationContext.opplysningerKafkaConsumer.subscribe()
             applicationContext.profileringKafkaConsumer.subscribe()
+            applicationContext.bekreftelseKafkaConsumer.subscribe()
             while (true) {
                 consume(applicationContext, applicationConfig)
             }
@@ -130,6 +132,11 @@ fun Application.module(
             applicationContext.opplysningerService,
             applicationContext.profileringService
         )
+        bekreftelseRoutes(
+            applicationContext.authorizationService,
+            applicationContext.bekreftelseService,
+            applicationContext.periodeService
+        )
     }
 }
 
@@ -144,4 +151,5 @@ fun consume(
     applicationContext.periodeKafkaConsumer.getAndProcessBatch(config.periodeTopic)
     applicationContext.opplysningerKafkaConsumer.getAndProcessBatch(config.opplysningerOmArbeidssoekerTopic)
     applicationContext.profileringKafkaConsumer.getAndProcessBatch(config.profileringTopic)
+    applicationContext.bekreftelseKafkaConsumer.getAndProcessBatch(config.bekreftelseTopic)
 }

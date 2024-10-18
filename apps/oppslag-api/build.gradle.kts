@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":lib:kafka"))
     implementation(project(":lib:pdl-client"))
     implementation(project(":domain:main-avro-schema"))
+    implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)
