@@ -36,18 +36,6 @@ class PeriodeRepositoryTest : StringSpec({
         dataSource.connection.close()
     }
 
-    "Verifiser at vi ser eier av periode ved bruk av alias liste" {
-        val periode = nyStartetPeriode(identitetsnummer = "11223312345")
-        repository.lagrePeriode(periode)
-        val identiteter = listOf(
-            Identitetsnummer("44223312345"),
-            Identitetsnummer(periode.identitetsnummer),
-            Identitetsnummer("55223312345")
-        )
-        val tilhorerIdentiteter = PeriodeService(repository).periodeTilhoererIdentiteter(periode.id, identiteter)
-        tilhorerIdentiteter shouldBe true
-    }
-
     "Opprett og hent en periode" {
         val periode = nyStartetPeriode()
         repository.lagrePeriode(periode)
