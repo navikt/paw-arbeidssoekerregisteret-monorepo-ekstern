@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:kafka"))
     implementation(project(":domain:main-avro-schema"))
+    implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)

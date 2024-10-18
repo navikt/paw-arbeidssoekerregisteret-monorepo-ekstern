@@ -115,8 +115,8 @@ nav-tms-varsel-kotlin-builder = { group = "no.nav.tms.varsel", name = "kotlin-bu
 nav-paw-pdl-client = { group = "no.nav.paw", name = "pdl-client", version.ref = "nav-paw-pdl-client" }
 nav-paw-aareg-client = { group = "no.nav.paw", name = "aareg-client", version.ref = "nav-paw-aareg-client" }
 nav-paw-main-schema = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "main-avro-schema", version.ref = "nav-paw-main-schema" }
-nav-paw-bekreftelsesansvar-schema = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelsesansvar-schema", version.ref = "nav-paw-bekreftelse-schema" }
-nav-paw-bekreftelsesmelding-schema = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelsesmelding-schema", version.ref = "nav-paw-bekreftelse-schema" }
+nav-paw-schema-bekreftelsesansvar = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelsesansvar-schema", version.ref = "nav-paw-bekreftelse-schema" }
+nav-paw-schema-bekreftelsesmelding = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelsesmelding-schema", version.ref = "nav-paw-bekreftelse-schema" }
 
 [bundles]
 ktor-server-instrumented = ["ktor-server-netty", "ktor-server-metrics-micrometer"]

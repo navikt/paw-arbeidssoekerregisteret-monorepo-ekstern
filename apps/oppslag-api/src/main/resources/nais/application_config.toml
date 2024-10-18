@@ -2,6 +2,7 @@ gruppeId = "paw.arbeidssoekerregisteret-api-oppslag-v9"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 opplysningerOmArbeidssoekerTopic = "paw.opplysninger-om-arbeidssoeker-v1"
 profileringTopic = "paw.arbeidssoker-profilering-v1"
+bekreftelseTopic = "paw.arbeidssoker-bekreftelse-beta-v1"
 
 [[authProviders]]
 name = "tokenx"
