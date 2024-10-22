@@ -17,5 +17,6 @@ class ProfileringService(private val profileringRepository: ProfileringRepositor
         profileringRepository.finnProfileringerForIdentiteter(identitetsnummerList)
             .map { it.toProfileringResponse() }
 
-    fun lagreAlleProfileringer(batch: Sequence<Profilering>) = profileringRepository.lagreAlleProfileringer(batch)
+    fun lagreAlleProfileringer(profileringer: Sequence<Profilering>) =
+        profileringRepository.lagreAlleProfileringer(profileringer)
 }

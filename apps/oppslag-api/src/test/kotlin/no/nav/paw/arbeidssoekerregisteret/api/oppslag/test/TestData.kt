@@ -15,11 +15,29 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRo
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
+import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
+import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
+import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
+import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
+import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
+import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
+import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
+import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
+import no.nav.paw.bekreftelse.melding.v1.vo.Svar
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import no.nav.paw.bekreftelse.melding.v1.vo.Bruker as BekreftelseBruker
+import no.nav.paw.bekreftelse.melding.v1.vo.BrukerType as BekreftelseBrukerType
+import no.nav.paw.bekreftelse.melding.v1.vo.Metadata as BekreftelseMetadata
 
 object TestData {
 
@@ -48,6 +66,9 @@ object TestData {
     const val navIdent1 = "NAV1001"
     const val navIdent2 = "NAV1002"
     const val navIdent3 = "NAV1003"
+    val kafkaKey1 = fnr1.toLong()
+    val kafkaKey2 = fnr2.toLong()
+    val kafkaKey3 = fnr3.toLong()
 
     fun nyNavAnsatt(
         azureId: String = UUID.randomUUID().toString(),
@@ -59,7 +80,7 @@ object TestData {
         opplysningerId: UUID = UUID.randomUUID(),
         periodeId: UUID = periodeId1,
         sendtInnAv: MetadataRow = nyMetadataRow(),
-        jobbsituasjon: List<BeskrivelseMedDetaljerRow> = nyJobbsituasjon(
+        jobbsituasjon: List<BeskrivelseMedDetaljerRow> = nyJobbsituasjonRows(
             listOf(
                 Beskrivelse.AKKURAT_FULLFORT_UTDANNING,
                 Beskrivelse.IKKE_VAERT_I_JOBB_SISTE_2_AAR
@@ -79,7 +100,7 @@ object TestData {
         annet = annet
     )
 
-    fun nyJobbsituasjon(
+    fun nyJobbsituasjonRows(
         beskrivelser: List<Beskrivelse> = listOf(Beskrivelse.HAR_SAGT_OPP)
     ): List<BeskrivelseMedDetaljerRow> =
         beskrivelser.map { nyBeskrivelseMedDetaljerRow(beskrivelse = it) }
@@ -237,4 +258,172 @@ object TestData {
         nyProfileringRow(profileringId = profileringId2, periodeId = periodeId2, opplysningerId = opplysningerId2),
         nyProfileringRow(profileringId = profileringId3, periodeId = periodeId3, opplysningerId = opplysningerId3)
     )
+
+    fun nyStartetPeriode(
+        periodeId: UUID = UUID.randomUUID(),
+        identitetsnummer: String = fnr1,
+        startetMetadata: Metadata = nyMetadata(
+            tidspunkt = Instant.now().minus(Duration.ofDays(30)),
+            utfoertAv = nyBruker(brukerId = identitetsnummer)
+        ),
+        avsluttetMetadata: Metadata? = null
+    ) = Periode(
+        periodeId,
+        identitetsnummer,
+        startetMetadata,
+        avsluttetMetadata
+    )
+
+    fun nyAvsluttetPeriode(
+        identitetsnummer: String = fnr1,
+        periodeId: UUID = UUID.randomUUID(),
+        startetMetadata: Metadata = nyMetadata(
+            tidspunkt = Instant.now().minus(Duration.ofDays(30)),
+            utfoertAv = nyBruker(brukerId = identitetsnummer)
+        ),
+        avsluttetMetadata: Metadata = nyMetadata(
+            tidspunkt = Instant.now(),
+            utfoertAv = nyBruker(
+                type = BrukerType.SYSTEM,
+                brukerId = "ARENA"
+            )
+        )
+    ) = Periode(
+        periodeId,
+        identitetsnummer,
+        startetMetadata,
+        avsluttetMetadata
+    )
+
+    fun nyOpplysningerOmArbeidssoeker(
+        opplysningerId: UUID = UUID.randomUUID(),
+        periodeId: UUID = periodeId1,
+        sendtInnAv: Metadata = nyMetadata(),
+        jobbsituasjon: Jobbsituasjon = nyJobbsituasjon(
+            listOf(
+                Beskrivelse.AKKURAT_FULLFORT_UTDANNING,
+                Beskrivelse.IKKE_VAERT_I_JOBB_SISTE_2_AAR
+            )
+        ),
+        utdanning: Utdanning? = nyUtdanning(),
+        helse: Helse? = nyHelse(),
+        annet: Annet? = nyAnnet(),
+    ) = OpplysningerOmArbeidssoeker(
+        opplysningerId,
+        periodeId,
+        sendtInnAv,
+        utdanning,
+        helse,
+        jobbsituasjon,
+        annet
+    )
+
+    fun nyJobbsituasjon(
+        beskrivelser: List<Beskrivelse> = listOf(Beskrivelse.HAR_SAGT_OPP)
+    ): Jobbsituasjon {
+        val beskrivelseMedDetaljer = beskrivelser.map { nyBeskrivelseMedDetaljer(beskrivelse = it) }
+        return Jobbsituasjon(beskrivelseMedDetaljer)
+    }
+
+    fun nyBeskrivelseMedDetaljer(
+        beskrivelse: Beskrivelse = Beskrivelse.HAR_SAGT_OPP,
+        detaljer: Map<String, String> = mapOf("NOEKKEL" to "VERDI"),
+    ) = BeskrivelseMedDetaljer(
+        beskrivelse,
+        detaljer
+    )
+
+    fun nyUtdanning(
+        nus: String = "NUS_KODE",
+        bestaatt: JaNeiVetIkke? = JaNeiVetIkke.JA,
+        godkjent: JaNeiVetIkke? = JaNeiVetIkke.JA
+    ) = Utdanning(nus, bestaatt, godkjent)
+
+    fun nyHelse(
+        helsetilstandHindrerArbeid: JaNeiVetIkke = JaNeiVetIkke.NEI
+    ) = Helse(helsetilstandHindrerArbeid)
+
+    fun nyAnnet(
+        andreForholdHindrerArbeid: JaNeiVetIkke? = JaNeiVetIkke.NEI
+    ) = Annet(andreForholdHindrerArbeid)
+
+    fun nyProfilering(
+        profileringId: UUID = UUID.randomUUID(),
+        periodeId: UUID = periodeId1,
+        opplysningerId: UUID = opplysningerId1,
+        sendtInAv: Metadata = nyMetadata(),
+        profilertTil: ProfilertTil = ProfilertTil.UDEFINERT,
+        jobbetSammenhengendeSeksAvTolvSisteManeder: Boolean = true,
+        alder: Int = 30
+    ) = Profilering(
+        profileringId,
+        periodeId,
+        opplysningerId,
+        sendtInAv,
+        profilertTil,
+        jobbetSammenhengendeSeksAvTolvSisteManeder,
+        alder
+    )
+
+    fun nyMetadata(
+        tidspunkt: Instant = Instant.now(),
+        utfoertAv: Bruker = nyBruker(),
+        kilde: String = "KILDE",
+        aarsak: String = "AARSAK",
+        tidspunktFraKilde: TidspunktFraKilde = nyTidspunktFraKilde()
+    ) = Metadata(
+        tidspunkt,
+        utfoertAv,
+        kilde,
+        aarsak,
+        tidspunktFraKilde
+    )
+
+    fun nyBruker(
+        type: BrukerType = BrukerType.SLUTTBRUKER,
+        brukerId: String = fnr1
+    ) = Bruker(type, brukerId)
+
+    fun nyTidspunktFraKilde(
+        tidspunkt: Instant = Instant.now(),
+        avviksType: AvviksType = AvviksType.UKJENT_VERDI
+    ) = TidspunktFraKilde(tidspunkt, avviksType)
+
+    fun nyBekreftelse(
+        bekreftelseId: UUID = UUID.randomUUID(),
+        periodeId: UUID = periodeId1,
+        bekreftelsesloesning: Bekreftelsesloesning = Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET,
+        svar: Svar = nyBekreftelseSvar()
+    ) = Bekreftelse(periodeId, bekreftelsesloesning, bekreftelseId, svar)
+
+    fun nyBekreftelseSvar(
+        sendtInn: BekreftelseMetadata = nyBekreftelseMetadata(),
+        gjelderFra: Instant = Instant.now(),
+        gjelderTil: Instant = Instant.now().plus(Duration.ofDays(14)),
+        harJobbetIDennePerioden: Boolean = false,
+        vilFortsetteSomArbeidssoeker: Boolean = true
+    ) = Svar(
+        sendtInn,
+        gjelderFra,
+        gjelderTil,
+        harJobbetIDennePerioden,
+        vilFortsetteSomArbeidssoeker
+    )
+
+    fun nyBekreftelseMetadata(
+        tidspunkt: Instant = Instant.now(),
+        utfoertAv: BekreftelseBruker = nyBekreftelseBruker(),
+        kilde: String = "KILDE",
+        aarsak: String = "AARSAK",
+    ) = BekreftelseMetadata(tidspunkt, utfoertAv, kilde, aarsak)
+
+    fun nyBekreftelseBruker(
+        type: BekreftelseBrukerType = BekreftelseBrukerType.SLUTTBRUKER,
+        brukerId: String = fnr1
+    ) = BekreftelseBruker(type, brukerId)
+
+    fun nyBekreftelseList(
+        size: Int = 1,
+        periodeId: UUID = periodeId1
+    ) = IntRange(1, size).map { nyBekreftelse(periodeId = periodeId) }
 }

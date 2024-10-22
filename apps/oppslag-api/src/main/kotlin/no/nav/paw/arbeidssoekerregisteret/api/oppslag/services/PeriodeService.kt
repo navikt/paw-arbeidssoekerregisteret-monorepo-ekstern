@@ -16,5 +16,5 @@ class PeriodeService(private val periodeRepository: PeriodeRepository) {
 
     fun hentPeriodeForId(periodeId: UUID): Periode? = periodeRepository.hentPeriodeForId(periodeId)?.toPeriode()
 
-    fun lagreAllePerioder(periodeList: Sequence<Periode>) = periodeRepository.lagreAllePerioder(periodeList)
+    fun lagreAllePerioder(perioder: Sequence<Periode>) = periodeRepository.lagreAllePerioder(perioder)
 }

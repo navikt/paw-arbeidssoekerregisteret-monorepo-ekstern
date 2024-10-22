@@ -155,7 +155,7 @@ data class ApplicationContext(
             val bekreftelseBatchKafkaConsumer = BatchConsumer(
                 applicationConfig.bekreftelseTopic,
                 bekreftelseKafkaConsumer,
-                bekreftelseService::lagreBekreftelse
+                bekreftelseService::lagreAlleBekreftelser
             )
 
             return ApplicationContext(

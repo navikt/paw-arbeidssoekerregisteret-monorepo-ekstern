@@ -11,7 +11,7 @@ class BekreftelseService(private val bekreftelseRepository: BekreftelseRepositor
     fun finnBekreftelserForPeriodeId(periodeId: UUID): List<BekreftelseResponse> =
         bekreftelseRepository.finnBekreftelserForPeriodeId(periodeId).map { it.toBekreftelseResponse() }
 
-    fun lagreBekreftelse(batch: Sequence<Bekreftelse>) {
-        batch.forEach(bekreftelseRepository::opprettBekreftelse)
+    fun lagreAlleBekreftelser(bekreftelser: Sequence<Bekreftelse>) {
+        bekreftelseRepository.lagreAlleBekreftelser(bekreftelser)
     }
 }

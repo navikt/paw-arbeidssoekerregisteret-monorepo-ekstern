@@ -17,6 +17,6 @@ class OpplysningerService(private val opplysningerRepository: OpplysningerReposi
         opplysningerRepository.finnOpplysningerForIdentiteter(identitetsnummerList)
             .map { it.toOpplysningerOmArbeidssoekerResponse() }
 
-    fun lagreAlleOpplysninger(batch: Sequence<OpplysningerOmArbeidssoeker>) =
-        opplysningerRepository.lagreAlleOpplysninger(batch)
+    fun lagreAlleOpplysninger(opplysninger: Sequence<OpplysningerOmArbeidssoeker>) =
+        opplysningerRepository.lagreAlleOpplysninger(opplysninger)
 }
