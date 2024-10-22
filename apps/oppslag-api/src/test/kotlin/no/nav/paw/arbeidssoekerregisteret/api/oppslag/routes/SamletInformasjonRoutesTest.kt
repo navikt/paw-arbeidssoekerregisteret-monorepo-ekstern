@@ -25,9 +25,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getArbeidssoekerperiodeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getOpplysningerOmArbeidssoekerResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
@@ -59,27 +56,27 @@ class SamletInformasjonRoutesTest : FreeSpec({
         beforeTest {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.identitetsnummer.verdi, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
 
             every {
                 periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+            } returns TestData.nyPeriodeRowList()
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             every {
                 profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
-            } returns getProfileringResponse(TestData.periodeId)
+            } returns TestData.nyProfileringRowList()
 
             every {
                 profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getProfileringResponse(TestData.periodeId)
+            } returns TestData.nyProfileringRowList()
         }
 
         "/samlet-informasjon should return 401 Unauthorized without token" {

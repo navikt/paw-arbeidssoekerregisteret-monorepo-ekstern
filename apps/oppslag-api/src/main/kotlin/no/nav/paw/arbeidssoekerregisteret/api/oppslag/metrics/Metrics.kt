@@ -12,7 +12,7 @@ fun gaugeAntallAktivePerioder(
     registry: PrometheusMeterRegistry,
     repository: PeriodeRepository
 ) {
-    val antallAktivePerioder = repository.hentAntallAktivePerioder()
+    val antallAktivePerioder = repository.tellAntallAktivePerioder()
     antallAktivePerioderReference.set(antallAktivePerioder)
     registry.gauge(
         "paw_arbeidssoekerregisteret_api_oppslag_antall_aktive_perioder",

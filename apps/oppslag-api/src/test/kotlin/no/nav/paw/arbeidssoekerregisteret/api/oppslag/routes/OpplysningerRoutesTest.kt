@@ -25,12 +25,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.fnr2
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getOpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyStartetPeriode
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.poao_tilgang.client.Decision
@@ -60,7 +57,7 @@ class OpplysningerRoutesTest : FreeSpec({
         beforeTest {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.identitetsnummer.verdi, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
         }
 
         "/opplysninger-om-arbeidssoeker should return 401 Unauthorized without token" {
@@ -86,7 +83,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/opplysninger-om-arbeidssoeker should return OK" {
             every {
                 opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             testApplication {
                 application {
@@ -116,7 +113,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/opplysninger-om-arbeidssoeker med siste-flagg should return OK" {
             every {
                 opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             testApplication {
                 application {
@@ -137,7 +134,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val opplysninger = response.body<List<OpplysningerOmArbeidssoekerResponse>>()
                 opplysninger.size shouldBe 1
-                opplysninger[0].periodeId shouldBe TestData.periodeId
+                opplysninger[0].periodeId shouldBe TestData.periodeId1
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>()) }
@@ -161,7 +158,7 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${TestData.periodeId}") {
+                val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${TestData.periodeId1}") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken())
                 }
 
@@ -175,7 +172,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/opplysninger-om-arbeidssoeker/{periodeId} should return 403 Forbidden if periodeId does not exist for user" {
             every {
                 periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode(identitetsnummer = fnr2)
+            } returns TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr2)
 
             testApplication {
                 application {
@@ -189,7 +186,7 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${TestData.periodeId}") {
+                val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${TestData.periodeId1}") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken())
                 }
 
@@ -203,11 +200,11 @@ class OpplysningerRoutesTest : FreeSpec({
         "/opplysninger-om-arbeidssoeker/{periodeId} should return OK" {
             every {
                 periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode()
+            } returns TestData.nyStartetPeriodeRow()
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             testApplication {
                 application {
@@ -222,7 +219,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 val testClient = configureTestClient()
 
                 val response = testClient
-                    .get("api/v1/opplysninger-om-arbeidssoeker/${TestData.periodeId}") {
+                    .get("api/v1/opplysninger-om-arbeidssoeker/${TestData.periodeId1}") {
                         bearerAuth(mockOAuth2Server.issueTokenXToken())
                     }
 
@@ -246,7 +243,7 @@ class OpplysningerRoutesTest : FreeSpec({
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             testApplication {
                 application {
@@ -266,8 +263,8 @@ class OpplysningerRoutesTest : FreeSpec({
                         contentType(ContentType.Application.Json)
                         setBody(
                             OpplysningerOmArbeidssoekerRequest(
-                                identitetsnummer = TestData.identitetsnummer.verdi,
-                                periodeId = TestData.periodeId
+                                identitetsnummer = TestData.fnr1,
+                                periodeId = TestData.periodeId1
                             )
                         )
                     }
@@ -286,7 +283,7 @@ class OpplysningerRoutesTest : FreeSpec({
 
             every {
                 periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode(identitetsnummer = fnr2)
+            } returns TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr2)
 
             testApplication {
                 application {
@@ -306,8 +303,8 @@ class OpplysningerRoutesTest : FreeSpec({
                         contentType(ContentType.Application.Json)
                         setBody(
                             OpplysningerOmArbeidssoekerRequest(
-                                identitetsnummer = TestData.identitetsnummer.verdi,
-                                periodeId = TestData.periodeId
+                                identitetsnummer = TestData.fnr1,
+                                periodeId = TestData.periodeId1
                             )
                         )
                     }
@@ -332,11 +329,11 @@ class OpplysningerRoutesTest : FreeSpec({
 
             every {
                 periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode()
+            } returns TestData.nyStartetPeriodeRow()
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             testApplication {
                 application {
@@ -356,8 +353,8 @@ class OpplysningerRoutesTest : FreeSpec({
                         contentType(ContentType.Application.Json)
                         setBody(
                             OpplysningerOmArbeidssoekerRequest(
-                                identitetsnummer = TestData.identitetsnummer.verdi,
-                                periodeId = TestData.periodeId
+                                identitetsnummer = TestData.fnr1,
+                                periodeId = TestData.periodeId1
                             )
                         )
                     }
@@ -380,11 +377,11 @@ class OpplysningerRoutesTest : FreeSpec({
 
             every {
                 periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode()
+            } returns TestData.nyStartetPeriodeRow()
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             testApplication {
                 application {
@@ -404,8 +401,8 @@ class OpplysningerRoutesTest : FreeSpec({
                         contentType(ContentType.Application.Json)
                         setBody(
                             OpplysningerOmArbeidssoekerRequest(
-                                identitetsnummer = TestData.identitetsnummer.verdi,
-                                periodeId = TestData.periodeId
+                                identitetsnummer = TestData.fnr1,
+                                periodeId = TestData.periodeId1
                             )
                         )
                     }
@@ -413,7 +410,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val opplysninger = response.body<List<OpplysningerOmArbeidssoekerResponse>>()
                 opplysninger.size shouldBe 1
-                opplysninger[0].periodeId shouldBe TestData.periodeId
+                opplysninger[0].periodeId shouldBe TestData.periodeId1
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
@@ -429,7 +426,7 @@ class OpplysningerRoutesTest : FreeSpec({
 
             every {
                 opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             testApplication {
                 application {
@@ -449,7 +446,7 @@ class OpplysningerRoutesTest : FreeSpec({
                         contentType(ContentType.Application.Json)
                         setBody(
                             OpplysningerOmArbeidssoekerRequest(
-                                identitetsnummer = TestData.identitetsnummer.verdi
+                                identitetsnummer = TestData.fnr1
                             )
                         )
                     }
@@ -467,7 +464,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/veileder/opplysninger-om-arbeidssoeker should return 200 OK for identiteter med M2M token" {
             every {
                 opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
+            } returns TestData.nyOpplysningerRowList()
 
             testApplication {
                 application {
@@ -487,7 +484,7 @@ class OpplysningerRoutesTest : FreeSpec({
                         contentType(ContentType.Application.Json)
                         setBody(
                             OpplysningerOmArbeidssoekerRequest(
-                                identitetsnummer = TestData.identitetsnummer.verdi
+                                identitetsnummer = TestData.fnr1
                             )
                         )
                     }

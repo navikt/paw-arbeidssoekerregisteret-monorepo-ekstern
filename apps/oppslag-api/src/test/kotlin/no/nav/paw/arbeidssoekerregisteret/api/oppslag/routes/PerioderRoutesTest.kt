@@ -25,7 +25,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
@@ -58,7 +57,7 @@ class PerioderRoutesTest : FreeSpec({
         beforeTest {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.identitetsnummer.verdi, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
         }
 
         "/arbeidssoekerperioder should respond with 401 Unauthorized without token" {
@@ -83,7 +82,7 @@ class PerioderRoutesTest : FreeSpec({
         "/arbeidssoekerperioder should respond with 200 OK" {
             every {
                 periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+            } returns TestData.nyPeriodeRowList()
 
             testApplication {
                 application {
@@ -113,7 +112,7 @@ class PerioderRoutesTest : FreeSpec({
         "/arbeidssoekerperioder med siste-flagg should respond with 200 OK" {
             every {
                 periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+            } returns TestData.nyPeriodeRowList()
 
             testApplication {
                 application {
@@ -134,7 +133,7 @@ class PerioderRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val perioder = response.body<List<ArbeidssoekerperiodeResponse>>()
                 perioder.size shouldBe 1
-                perioder[0].periodeId shouldBe TestData.periodeId
+                perioder[0].periodeId shouldBe TestData.periodeId3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
@@ -182,7 +181,7 @@ class PerioderRoutesTest : FreeSpec({
 
             every {
                 periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+            } returns TestData.nyPeriodeRowList()
 
             testApplication {
                 application {
@@ -223,7 +222,7 @@ class PerioderRoutesTest : FreeSpec({
 
             every {
                 periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+            } returns TestData.nyPeriodeRowList()
 
             testApplication {
                 application {
@@ -265,7 +264,7 @@ class PerioderRoutesTest : FreeSpec({
 
             every {
                 periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
+            } returns TestData.nyPeriodeRowList()
 
             testApplication {
                 application {

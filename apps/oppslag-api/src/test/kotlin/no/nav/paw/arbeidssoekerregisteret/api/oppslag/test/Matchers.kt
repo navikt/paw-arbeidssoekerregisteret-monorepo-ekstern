@@ -2,87 +2,118 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningResponse
-import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
-import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
-import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
-import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
-import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
-import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
-import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningRow
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
-infix fun TidspunktFraKildeResponse.shouldBeEqualTo(tidspunktFraKilde: TidspunktFraKilde): TidspunktFraKildeResponse {
-    tidspunkt shouldBe tidspunktFraKilde.tidspunkt
-    avviksType.name shouldBe tidspunktFraKilde.avviksType.name
+infix fun OpplysningerRow.shouldBeEqualTo(other: OpplysningerRow?): OpplysningerRow {
+    other shouldNotBe null
+    opplysningerId shouldBe other?.opplysningerId
+    periodeId shouldBe other?.periodeId
+    sendtInnAv shouldBeEqualTo other?.sendtInnAv
+    jobbsituasjon.size shouldBe other?.jobbsituasjon?.size
+    for (i in jobbsituasjon.indices) {
+        jobbsituasjon[i] shouldBeEqualTo other?.jobbsituasjon?.get(i)
+    }
+    utdanning?.shouldBeEqualTo(other?.utdanning)
+    helse?.shouldBeEqualTo(other?.helse)
+    annet?.shouldBeEqualTo(other?.annet)
     return this
 }
 
-infix fun BrukerResponse.shouldBeEqualTo(bruker: Bruker): BrukerResponse {
-    id shouldBe bruker.id
-    type.name shouldBe bruker.type.name
+infix fun BeskrivelseMedDetaljerRow.shouldBeEqualTo(other: BeskrivelseMedDetaljerRow?): BeskrivelseMedDetaljerRow {
+    other shouldNotBe null
+    beskrivelse shouldBe other?.beskrivelse
+    detaljer.size shouldBe other?.detaljer?.size
+    for (i in detaljer.indices) {
+        detaljer[i] shouldBeEqualTo other?.detaljer?.get(i)
+    }
     return this
 }
 
-infix fun MetadataResponse.shouldBeEqualTo(metadata: Metadata): MetadataResponse {
-    tidspunkt shouldBe metadata.tidspunkt
-    utfoertAv shouldBeEqualTo metadata.utfoertAv
-    kilde shouldBe metadata.kilde
-    aarsak shouldBe metadata.aarsak
-    tidspunktFraKilde?.shouldBeEqualTo(metadata.tidspunktFraKilde)
+infix fun DetaljerRow.shouldBeEqualTo(other: DetaljerRow?): DetaljerRow {
+    other shouldNotBe null
+    noekkel shouldBe other?.noekkel
+    verdi shouldBe other?.verdi
     return this
 }
 
-infix fun UtdanningResponse.shouldBeEqualTo(utdanning: Utdanning): UtdanningResponse {
-    nus shouldBe utdanning.nus
-    bestaatt?.name shouldBe utdanning.bestaatt?.name
-    godkjent?.name shouldBe utdanning.godkjent?.name
+infix fun UtdanningRow.shouldBeEqualTo(other: UtdanningRow?): UtdanningRow {
+    other shouldNotBe null
+    nus shouldBe other?.nus
+    bestaatt shouldBe other?.bestaatt
+    godkjent shouldBe other?.godkjent
     return this
 }
 
-infix fun HelseResponse.shouldBeEqualTo(helse: Helse): HelseResponse {
-    helsetilstandHindrerArbeid.name shouldBe helse.helsetilstandHindrerArbeid.name
+infix fun HelseRow.shouldBeEqualTo(other: HelseRow?): HelseRow {
+    other shouldNotBe null
+    helsetilstandHindrerArbeid shouldBe other?.helsetilstandHindrerArbeid
     return this
 }
 
-infix fun AnnetResponse.shouldBeEqualTo(annet: Annet): AnnetResponse {
-    andreForholdHindrerArbeid?.name shouldBe annet.andreForholdHindrerArbeid?.name
+infix fun AnnetRow.shouldBeEqualTo(other: AnnetRow?): AnnetRow {
+    other shouldNotBe null
+    andreForholdHindrerArbeid shouldBe other?.andreForholdHindrerArbeid
     return this
 }
 
-infix fun OpplysningerOmArbeidssoekerResponse.shouldBeEqualTo(opplysninger: OpplysningerOmArbeidssoeker): OpplysningerOmArbeidssoekerResponse {
-    opplysningerOmArbeidssoekerId shouldBe opplysninger.id
-    periodeId shouldBe opplysninger.periodeId
-    sendtInnAv shouldBeEqualTo opplysninger.sendtInnAv
-    utdanning?.shouldBeEqualTo(opplysninger.utdanning)
-    helse?.shouldBeEqualTo(opplysninger.helse)
-    annet?.shouldBeEqualTo(opplysninger.annet)
+infix fun PeriodeRow.shouldBeEqualTo(other: PeriodeRow?): PeriodeRow {
+    other shouldNotBe null
+    periodeId shouldBe other?.periodeId
+    startet shouldBeEqualTo other?.startet
+    avsluttet?.shouldBeEqualTo(other?.avsluttet)
     return this
 }
 
-infix fun ArbeidssoekerperiodeResponse.shouldBeEqualTo(periode: Periode): ArbeidssoekerperiodeResponse {
-    periode shouldNotBe null
-    periodeId shouldBe periode.id
-    startet shouldBeEqualTo periode.startet
-    avsluttet?.shouldBeEqualTo(periode.avsluttet)
+infix fun ProfileringRow.shouldBeEqualTo(other: ProfileringRow?): ProfileringRow {
+    other shouldNotBe null
+    profileringId shouldBe other?.profileringId
+    periodeId shouldBe other?.periodeId
+    opplysningerOmArbeidssoekerId shouldBe other?.opplysningerOmArbeidssoekerId
+    sendtInnAv shouldBeEqualTo other?.sendtInnAv
+    profilertTil shouldBe other?.profilertTil
+    jobbetSammenhengendeSeksAvTolvSisteManeder shouldBe other?.jobbetSammenhengendeSeksAvTolvSisteManeder
+    alder shouldBe other?.alder
     return this
 }
 
-infix fun ProfileringResponse.shouldBeEqualTo(profilering: Profilering): ProfileringResponse {
-    profileringId shouldBe profilering.id
-    periodeId shouldBe profilering.periodeId
-    opplysningerOmArbeidssoekerId shouldBe profilering.opplysningerOmArbeidssokerId
-    sendtInnAv shouldBeEqualTo profilering.sendtInnAv
-    jobbetSammenhengendeSeksAvTolvSisteManeder shouldBe profilering.jobbetSammenhengendeSeksAvTolvSisteMnd
-    alder shouldBe profilering.alder
+infix fun MetadataRow.shouldBeEqualTo(other: MetadataRow?): MetadataRow {
+    other shouldNotBe null
+    tidspunkt shouldBeEqualTo other?.tidspunkt
+    utfoertAv shouldBeEqualTo other?.utfoertAv
+    kilde shouldBe other?.kilde
+    aarsak shouldBe other?.aarsak
+    tidspunktFraKilde?.shouldBeEqualTo(other?.tidspunktFraKilde)
+    return this
+}
+
+infix fun BrukerRow.shouldBeEqualTo(other: BrukerRow?): BrukerRow {
+    other shouldNotBe null
+    type shouldBe other?.type
+    brukerId shouldBe other?.brukerId
+    return this
+}
+
+infix fun TidspunktFraKildeRow.shouldBeEqualTo(other: TidspunktFraKildeRow?): TidspunktFraKildeRow {
+    other shouldNotBe null
+    tidspunkt shouldBeEqualTo other?.tidspunkt
+    avviksType.name shouldBe other?.avviksType?.name
+    return this
+}
+
+infix fun Instant.shouldBeEqualTo(other: Instant?): Instant {
+    other shouldNotBe null
+    this.truncatedTo(ChronoUnit.SECONDS) shouldBe other?.truncatedTo(ChronoUnit.SECONDS)
     return this
 }
