@@ -18,13 +18,14 @@ class OpplysningerRepositoryTest : StringSpec({
 
     lateinit var dataSource: DataSource
     lateinit var database: Database
-    lateinit var repository: OpplysningerRepository
+    lateinit var opplysningerRepository: OpplysningerRepository
+    lateinit var periodeRepository: PeriodeRepository
 
     beforeEach {
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
-        repository = OpplysningerRepository(database)
-        val periodeRepository = PeriodeRepository(database)
+        opplysningerRepository = OpplysningerRepository(database)
+        periodeRepository = PeriodeRepository(database)
         val periode1 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId1).toPeriode()
         val periode2 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId2).toPeriode()
         periodeRepository.lagrePeriode(periode1)
@@ -40,9 +41,9 @@ class OpplysningerRepositoryTest : StringSpec({
             periodeId = TestData.periodeId1,
             opplysningerId = TestData.opplysningerId1
         )
-        repository.lagreOpplysninger(opplysninger.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger.toOpplysningerOmArbeidssoeker())
 
-        val retrievedOpplysninger = repository.finnOpplysningerForPeriodeId(opplysninger.periodeId)
+        val retrievedOpplysninger = opplysningerRepository.finnOpplysningerForPeriodeId(opplysninger.periodeId)
         val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId1)
 
         retrievedOpplysninger.size shouldBe 1
@@ -61,9 +62,9 @@ class OpplysningerRepositoryTest : StringSpec({
             helse = null,
             annet = null
         )
-        repository.lagreOpplysninger(opplysninger.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger.toOpplysningerOmArbeidssoeker())
 
-        val retrievedOpplysninger = repository.finnOpplysningerForPeriodeId(opplysninger.periodeId)
+        val retrievedOpplysninger = opplysningerRepository.finnOpplysningerForPeriodeId(opplysninger.periodeId)
         val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId1)
 
         retrievedOpplysninger.size shouldBe 1
@@ -81,9 +82,9 @@ class OpplysningerRepositoryTest : StringSpec({
             utdanning = TestData.nyUtdanningRow(bestaatt = null, godkjent = null),
             annet = TestData.nyAnnetRow(andreForholdHindrerArbeid = null)
         )
-        repository.lagreOpplysninger(opplysninger.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger.toOpplysningerOmArbeidssoeker())
 
-        val retrievedOpplysninger = repository.finnOpplysningerForPeriodeId(opplysninger.periodeId)
+        val retrievedOpplysninger = opplysningerRepository.finnOpplysningerForPeriodeId(opplysninger.periodeId)
         val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId1)
 
         retrievedOpplysninger.size shouldBe 1
@@ -101,10 +102,10 @@ class OpplysningerRepositoryTest : StringSpec({
         val opplysninger2 = TestData.nyOpplysningerRow(
             periodeId = TestData.periodeId2, opplysningerId = TestData.opplysningerId2
         )
-        repository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
-        repository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
 
-        val retrievedOpplysninger = repository.finnOpplysningerForPeriodeId(TestData.periodeId2)
+        val retrievedOpplysninger = opplysningerRepository.finnOpplysningerForPeriodeId(TestData.periodeId2)
         val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId2)
 
         retrievedOpplysninger.size shouldBe 2
@@ -125,8 +126,8 @@ class OpplysningerRepositoryTest : StringSpec({
         val opplysninger2 =
             TestData.nyOpplysningerRow(periodeId = TestData.periodeId2, opplysningerId = TestData.opplysningerId1)
 
-        repository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
-        repository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
 
         val retrievedOpplysninger = finnOpplysninger(database)
         val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database)
@@ -147,10 +148,10 @@ class OpplysningerRepositoryTest : StringSpec({
         val opplysninger2 = TestData
             .nyOpplysningerRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
 
-        repository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
-        repository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
+        opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
 
-        val retrievedOpplysninger = repository.finnOpplysningerForPeriodeId(opplysninger1.periodeId)
+        val retrievedOpplysninger = opplysningerRepository.finnOpplysningerForPeriodeId(opplysninger1.periodeId)
         val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId1)
 
         retrievedOpplysninger.size shouldBe 1
@@ -162,13 +163,17 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Hent ut ikke-eksisterende opplysninger om arbeidssøker" {
-        val retrievedOpplysninger = repository.finnOpplysningerForPeriodeId(UUID.randomUUID())
+        val retrievedOpplysninger = opplysningerRepository.finnOpplysningerForPeriodeId(UUID.randomUUID())
 
         retrievedOpplysninger.size shouldBe 0
     }
 
-    "Lagre opplysninger med samme periodeId i batch" {
+
+
+    "Lagre flere opplysninger og hent med identitetsnummer" {
         val periodeId = UUID.randomUUID()
+        val periode = TestData.nyStartetPeriode(periodeId = periodeId, identitetsnummer = TestData.fnr8)
+        periodeRepository.lagrePeriode(periode)
         val opplysninger1 = TestData.nyOpplysningerRow(periodeId = periodeId)
         val opplysninger2 = TestData.nyOpplysningerRow(periodeId = periodeId)
         val opplysninger3 = TestData.nyOpplysningerRow(periodeId = periodeId)
@@ -177,9 +182,10 @@ class OpplysningerRepositoryTest : StringSpec({
             opplysninger2.toOpplysningerOmArbeidssoeker(),
             opplysninger3.toOpplysningerOmArbeidssoeker()
         )
-        repository.lagreAlleOpplysninger(opplysninger)
+        opplysningerRepository.lagreAlleOpplysninger(opplysninger)
 
-        val retrievedOpplysninger = repository.finnOpplysningerForPeriodeId(periodeId)
+        val retrievedOpplysninger = opplysningerRepository
+            .finnOpplysningerForIdentiteter(listOf(TestData.identitetsnummer8))
 
         retrievedOpplysninger.size shouldBe 3
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
