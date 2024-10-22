@@ -12,11 +12,11 @@ CREATE TABLE bekreftelse_svar
 CREATE TABLE bekreftelse
 (
     id BIGSERIAL PRIMARY KEY,
-    bekreftelse_melding_id UUID NOT NULL,
+    bekreftelse_id UUID NOT NULL,
     periode_id UUID NOT NULL,
-    namespace VARCHAR(255) NOT NULL,
+    bekreftelsesloesning VARCHAR(50) NOT NULL,
     svar_id BIGINT REFERENCES bekreftelse_svar(id)
 );
 
 CREATE INDEX idx_bekreftelse_periode_id ON bekreftelse(periode_id);
-CREATE INDEX idx_bekreftelse_bekreftelse_melding_id ON bekreftelse(bekreftelse_melding_id);
+CREATE INDEX idx_bekreftelse_bekreftelse_id ON bekreftelse(bekreftelse_id);

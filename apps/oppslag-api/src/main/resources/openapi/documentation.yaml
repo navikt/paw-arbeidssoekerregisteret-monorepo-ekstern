@@ -551,6 +551,8 @@ components:
         periodeId:
           type: "string"
           format: "uuid"
+        bekreftelsesloesning:
+          $ref: "#/components/schemas/Bekreftelsesloesning"
         svar:
           $ref: "#/components/schemas/BekreftelseSvarResponse"
       required:
@@ -577,7 +579,6 @@ components:
         - "gjelderTil"
         - "harJobbetIDennePerioden"
         - "vilFortsetteSomArbeidssoeker"
-
     ArbeidssoekerperiodeRequest:
       type: "object"
       properties:
@@ -652,3 +653,9 @@ components:
         - "ANTATT_GODE_MULIGHETER"
         - "ANTATT_BEHOV_FOR_VEILEDNING"
         - "OPPGITT_HINDRINGER"
+    Bekreftelsesloesning:
+      type: "string"
+      enum:
+        - "UKJENT_VERDI"
+        - "ARBEIDSSOEKERREGISTERET"
+        - "DAGPENGER"

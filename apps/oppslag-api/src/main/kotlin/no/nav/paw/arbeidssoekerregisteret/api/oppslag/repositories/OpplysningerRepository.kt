@@ -1,12 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnOpplysninger
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnOpplysningerRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.finnOpplysningerRows
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.opprettOpplysninger
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -16,29 +13,29 @@ class OpplysningerRepository(private val database: Database) {
 
     private val logger = buildLogger
 
-    fun finnOpplysningerForPeriodeId(periodeId: UUID): List<OpplysningerOmArbeidssoekerResponse> =
+    fun finnOpplysningerForPeriodeId(periodeId: UUID): List<OpplysningerRow> =
         transaction(database) {
-            finnOpplysninger(periodeId)
+            OpplysningerFunctions.findForPeriodeId(periodeId)
         }
 
-    fun finnOpplysningerForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<OpplysningerOmArbeidssoekerResponse> =
+    fun finnOpplysningerForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<OpplysningerRow> =
         transaction(database) {
             // TODO Optimalisering vha joins
             val periodeIder = PeriodeRepository(database).finnPerioderForIdentiteter(identitetsnummerList)
                 .map { it.periodeId }
             periodeIder.flatMap { periodeId ->
-                finnOpplysninger(periodeId)
+                OpplysningerFunctions.findForPeriodeId(periodeId)
             }
         }
 
     fun lagreOpplysninger(opplysninger: OpplysningerOmArbeidssoeker) {
         transaction(database) {
-            val eksisterendeOpplysninger = finnOpplysningerRow(opplysninger.id)
+            val eksisterendeOpplysninger = OpplysningerFunctions.getRow(opplysninger.id)
 
             if (eksisterendeOpplysninger != null) {
                 logger.warn("Opplysning med samme ID finnes allerede i databasen, ignorer derfor ny opplysning som duplikat")
             } else {
-                opprettOpplysninger(opplysninger)
+                OpplysningerFunctions.insert(opplysninger)
             }
         }
     }
@@ -50,7 +47,7 @@ class OpplysningerRepository(private val database: Database) {
                 minRetryDelay = 20
 
                 val opplysningerIdList = opplysninger.map { it.id }.toList()
-                val eksisterendeOpplysningerList = finnOpplysningerRows(opplysningerIdList)
+                val eksisterendeOpplysningerList = OpplysningerFunctions.finnRows(opplysningerIdList)
                 val eksisterendeOpplysningerMap = eksisterendeOpplysningerList.associateBy { it.opplysningerId }
 
                 opplysninger.forEach { opplysninger ->
@@ -58,7 +55,7 @@ class OpplysningerRepository(private val database: Database) {
                     if (eksisterendeOpplysninger != null) {
                         logger.warn("Opplysning med samme ID finnes allerede i databasen, ignorer derfor ny opplysning som duplikat")
                     } else {
-                        opprettOpplysninger(opplysninger)
+                        OpplysningerFunctions.insert(opplysninger)
                     }
                 }
             }

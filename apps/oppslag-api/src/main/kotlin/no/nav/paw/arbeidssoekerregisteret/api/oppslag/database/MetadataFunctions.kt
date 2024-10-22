@@ -5,7 +5,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRo
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
-import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertAndGetId
@@ -19,68 +18,75 @@ val AvsluttetBrukerAlias = BrukerTable.alias("avsluttet_bruker")
 val StartetTidspunktAlias = TidspunktFraKildeTable.alias("startet_tidspunkt")
 val AvsluttetTidspunktAlias = TidspunktFraKildeTable.alias("avsluttet_tidspunkt")
 
-fun Transaction.opprettMetadata(metadata: Metadata): Long {
-    return MetadataTable.insertAndGetId {
-        it[utfoertAvId] = opprettEllerOppdaterBruker(metadata.utfoertAv)
-        it[tidspunkt] = metadata.tidspunkt
-        it[kilde] = metadata.kilde
-        it[aarsak] = metadata.aarsak
-        it[tidspunktFraKildeId] = metadata.tidspunktFraKilde?.let { tidspunkt -> opprettTidspunktFraKilde(tidspunkt) }
-    }.value
-}
+object MetadataFunctions {
 
-fun Transaction.oppdaterMetadata(metadata: Metadata, eksisterendeMetadata: MetadataRow) {
-    MetadataTable.update(where = { MetadataTable.id eq eksisterendeMetadata.id }) {
-        it[utfoertAvId] = opprettEllerOppdaterBruker(metadata.utfoertAv)
-        it[tidspunkt] = metadata.tidspunkt
-        it[kilde] = metadata.kilde
-        it[aarsak] = metadata.aarsak
-        it[tidspunktFraKildeId] =
-            opprettEllerOppdatereTidspunktFraKilde(metadata.tidspunktFraKilde, eksisterendeMetadata.tidspunktFraKilde)
+    fun insert(metadata: Metadata): Long {
+        return MetadataTable.insertAndGetId {
+            it[utfoertAvId] = upsert(metadata.utfoertAv)
+            it[tidspunkt] = metadata.tidspunkt
+            it[kilde] = metadata.kilde
+            it[aarsak] = metadata.aarsak
+            it[tidspunktFraKildeId] =
+                metadata.tidspunktFraKilde?.let { tidspunkt -> insert(tidspunkt) }
+        }.value
     }
-}
 
-private fun Transaction.opprettEllerOppdaterBruker(bruker: Bruker): Long {
-    val result = BrukerTable.upsert(
-        BrukerTable.type,
-        BrukerTable.brukerId,
-        where = { (BrukerTable.type eq bruker.type) and (BrukerTable.brukerId eq bruker.id) }
-    ) {
-        it[type] = bruker.type
-        it[brukerId] = bruker.id
-    }.resultedValues?.singleOrNull() ?: throw IllegalStateException("Upsert-operasjon returnerte ingen resultat")
-    return result[BrukerTable.id].value
-}
-
-private fun Transaction.opprettEllerOppdatereTidspunktFraKilde(
-    tidspunktFraKilde: TidspunktFraKilde?,
-    eksisterendeTidspunktFraKilde: TidspunktFraKildeRow?
-): Long? {
-    return if (tidspunktFraKilde == null) {
-        null
-    } else {
-        if (eksisterendeTidspunktFraKilde == null) {
-            opprettTidspunktFraKilde(tidspunktFraKilde)
-        } else {
-            oppdatereTidspunktFraKilde(tidspunktFraKilde, eksisterendeTidspunktFraKilde)
+    fun update(metadata: Metadata, eksisterendeMetadata: MetadataRow) {
+        MetadataTable.update(where = { MetadataTable.id eq eksisterendeMetadata.id }) {
+            it[utfoertAvId] = upsert(metadata.utfoertAv)
+            it[tidspunkt] = metadata.tidspunkt
+            it[kilde] = metadata.kilde
+            it[aarsak] = metadata.aarsak
+            it[tidspunktFraKildeId] =
+                insertOrUpdate(
+                    metadata.tidspunktFraKilde,
+                    eksisterendeMetadata.tidspunktFraKilde
+                )
         }
     }
-}
 
-private fun Transaction.opprettTidspunktFraKilde(tidspunktFraKilde: TidspunktFraKilde): Long {
-    return TidspunktFraKildeTable.insertAndGetId {
-        it[tidspunkt] = tidspunktFraKilde.tidspunkt
-        it[avviksType] = tidspunktFraKilde.avviksType
-    }.value
-}
-
-private fun Transaction.oppdatereTidspunktFraKilde(
-    tidspunktFraKilde: TidspunktFraKilde,
-    eksisterendeTidspunktFraKilde: TidspunktFraKildeRow
-): Long {
-    TidspunktFraKildeTable.update(where = { TidspunktFraKildeTable.id eq eksisterendeTidspunktFraKilde.id }) {
-        it[tidspunkt] = tidspunktFraKilde.tidspunkt
-        it[avviksType] = tidspunktFraKilde.avviksType
+    private fun upsert(bruker: Bruker): Long {
+        val result = BrukerTable.upsert(
+            BrukerTable.type,
+            BrukerTable.brukerId,
+            where = { (BrukerTable.type eq bruker.type) and (BrukerTable.brukerId eq bruker.id) }
+        ) {
+            it[type] = bruker.type
+            it[brukerId] = bruker.id
+        }.resultedValues?.singleOrNull() ?: throw IllegalStateException("Upsert-operasjon returnerte ingen resultat")
+        return result[BrukerTable.id].value
     }
-    return eksisterendeTidspunktFraKilde.id
+
+    private fun insertOrUpdate(
+        tidspunktFraKilde: TidspunktFraKilde?,
+        eksisterendeTidspunktFraKilde: TidspunktFraKildeRow?
+    ): Long? {
+        return if (tidspunktFraKilde == null) {
+            null
+        } else {
+            if (eksisterendeTidspunktFraKilde == null) {
+                insert(tidspunktFraKilde)
+            } else {
+                update(tidspunktFraKilde, eksisterendeTidspunktFraKilde)
+            }
+        }
+    }
+
+    private fun insert(tidspunktFraKilde: TidspunktFraKilde): Long {
+        return TidspunktFraKildeTable.insertAndGetId {
+            it[tidspunkt] = tidspunktFraKilde.tidspunkt
+            it[avviksType] = tidspunktFraKilde.avviksType
+        }.value
+    }
+
+    private fun update(
+        tidspunktFraKilde: TidspunktFraKilde,
+        eksisterendeTidspunktFraKilde: TidspunktFraKildeRow
+    ): Long {
+        TidspunktFraKildeTable.update(where = { TidspunktFraKildeTable.id eq eksisterendeTidspunktFraKilde.id }) {
+            it[tidspunkt] = tidspunktFraKilde.tidspunkt
+            it[avviksType] = tidspunktFraKilde.avviksType
+        }
+        return eksisterendeTidspunktFraKilde.id
+    }
 }

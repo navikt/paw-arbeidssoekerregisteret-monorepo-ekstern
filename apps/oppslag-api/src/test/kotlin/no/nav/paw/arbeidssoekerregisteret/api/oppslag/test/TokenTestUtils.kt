@@ -5,7 +5,7 @@ import java.util.*
 
 fun MockOAuth2Server.issueTokenXToken(
     acr: String = "idporten-loa-high",
-    pid: String = fnr1
+    pid: String = TestData.fnr1
 ): String {
     return issueToken(
         claims = mapOf(
@@ -18,7 +18,7 @@ fun MockOAuth2Server.issueTokenXToken(
 fun MockOAuth2Server.issueAzureToken(
     oid: UUID = UUID.randomUUID(),
     name: String = "Kari Nordmann",
-    navIdent: String = navIdent1
+    navIdent: String = TestData.navIdent1
 ): String {
     return issueToken(
         claims = mapOf(
