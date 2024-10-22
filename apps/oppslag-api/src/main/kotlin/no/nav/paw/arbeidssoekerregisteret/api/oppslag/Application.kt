@@ -149,7 +149,7 @@ fun consume(
     config: ApplicationConfig
 ) {
     applicationContext.periodeKafkaConsumer.getAndProcessBatch(config.periodeTopic)
-    applicationContext.opplysningerKafkaConsumer.getAndProcessBatch(config.opplysningerOmArbeidssoekerTopic)
+    applicationContext.opplysningerKafkaConsumer.getAndProcessBatch(config.opplysningerTopic)
     applicationContext.profileringKafkaConsumer.getAndProcessBatch(config.profileringTopic)
     applicationContext.bekreftelseKafkaConsumer.getAndProcessBatch(config.bekreftelseTopic)
 }

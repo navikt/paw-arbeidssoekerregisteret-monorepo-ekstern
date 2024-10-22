@@ -53,8 +53,9 @@ class OpplysningerRepository(private val database: Database) {
                 opplysninger.forEach { opplysninger ->
                     val eksisterendeOpplysninger = eksisterendeOpplysningerMap[opplysninger.id]
                     if (eksisterendeOpplysninger != null) {
-                        logger.warn("Opplysning med samme ID finnes allerede i databasen, ignorer derfor ny opplysning som duplikat")
+                        logger.warn("Ignorerer mottatte opplysninger {} som duplikat", opplysninger.id)
                     } else {
+                        logger.debug("Lagrer nye opplysninger {}", opplysninger.id)
                         OpplysningerFunctions.insert(opplysninger)
                     }
                 }

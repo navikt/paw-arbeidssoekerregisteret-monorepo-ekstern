@@ -22,22 +22,22 @@ fun main() {
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
     val periodeKafkaProducer = buildKafkaProducer(
-        applicationConfig.gruppeId,
+        applicationConfig.consumerId,
         kafkaConfig,
         PeriodeSerializer()
     )
     val opplysningerKafkaProducer = buildKafkaProducer(
-        applicationConfig.gruppeId,
+        applicationConfig.consumerId,
         kafkaConfig,
         OpplysningerOmArbeidssoekerSerializer()
     )
     val profileringKafkaProducer = buildKafkaProducer(
-        applicationConfig.gruppeId,
+        applicationConfig.consumerId,
         kafkaConfig,
         ProfileringSerializer()
     )
     val bekreftelseKafkaProducer = buildKafkaProducer(
-        applicationConfig.gruppeId,
+        applicationConfig.consumerId,
         kafkaConfig,
         BekreftelseSerializer()
     )
@@ -68,7 +68,7 @@ fun main() {
 
     try {
         opplysninger.forEach { (key, value) ->
-            opplysningerKafkaProducer.sendRecord(applicationConfig.opplysningerOmArbeidssoekerTopic, key, value)
+            opplysningerKafkaProducer.sendRecord(applicationConfig.opplysningerTopic, key, value)
         }
     } catch (e: Exception) {
         opplysningerKafkaProducer.close()
