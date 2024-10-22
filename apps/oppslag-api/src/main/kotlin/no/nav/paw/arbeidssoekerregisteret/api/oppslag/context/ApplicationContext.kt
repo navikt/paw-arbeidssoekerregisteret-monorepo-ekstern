@@ -94,8 +94,8 @@ data class ApplicationContext(
                 ScheduleGetAktivePerioderGaugeService(registry, periodeRepository)
             val periodeService = PeriodeService(periodeRepository)
             val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
-                groupId = applicationConfig.gruppeId,
-                clientId = applicationConfig.gruppeId,
+                groupId = applicationConfig.consumerId,
+                clientId = applicationConfig.consumerId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class
             )
@@ -106,13 +106,13 @@ data class ApplicationContext(
             val opplysningerRepository = OpplysningerRepository(database)
             val opplysningerService = OpplysningerService(opplysningerRepository)
             val opplysningerKafkaConsumer = kafkaFactory.createConsumer<Long, OpplysningerOmArbeidssoeker>(
-                groupId = applicationConfig.gruppeId,
-                clientId = applicationConfig.gruppeId,
+                groupId = applicationConfig.consumerId,
+                clientId = applicationConfig.consumerId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
             )
             val opplysningerBatchKafkaConsumer = BatchConsumer(
-                applicationConfig.opplysningerOmArbeidssoekerTopic,
+                applicationConfig.opplysningerTopic,
                 opplysningerKafkaConsumer,
                 opplysningerService::lagreAlleOpplysninger
             )
@@ -121,8 +121,8 @@ data class ApplicationContext(
             val profileringRepository = ProfileringRepository(database)
             val profileringService = ProfileringService(profileringRepository)
             val profileringKafkaConsumer = kafkaFactory.createConsumer<Long, Profilering>(
-                groupId = applicationConfig.gruppeId,
-                clientId = applicationConfig.gruppeId,
+                groupId = applicationConfig.consumerId,
+                clientId = applicationConfig.consumerId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = ProfileringDeserializer::class
             )
@@ -136,8 +136,8 @@ data class ApplicationContext(
             val bekreftelseRepository = BekreftelseRepository(database)
             val bekreftelseService = BekreftelseService(bekreftelseRepository)
             val bekreftelseKafkaConsumer = kafkaFactory.createConsumer<Long, Bekreftelse>(
-                groupId = applicationConfig.gruppeId,
-                clientId = applicationConfig.gruppeId,
+                groupId = applicationConfig.consumerId,
+                clientId = applicationConfig.consumerId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = BekreftelseDeserializer::class
             )
