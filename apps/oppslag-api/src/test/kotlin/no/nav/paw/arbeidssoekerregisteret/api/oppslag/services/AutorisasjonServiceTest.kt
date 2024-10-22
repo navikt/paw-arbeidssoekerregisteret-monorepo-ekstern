@@ -21,7 +21,7 @@ import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class AutorisasjonServiceTest : FreeSpec({
-    with(ApplicationTestContext()) {
+    with(ApplicationTestContext.withMockDataAccess()) {
 
         afterSpec {
             confirmVerified(

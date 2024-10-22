@@ -8,8 +8,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.delay
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers.BatchConsumer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.producers.TestMessages
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -56,6 +56,6 @@ class BatchConsumerTest : FreeSpec({
 private fun createConsumerRecords(): ConsumerRecords<Long, Periode> {
     val records = mutableMapOf<TopicPartition, MutableList<ConsumerRecord<Long, Periode>>>()
     val topic = "test-topic"
-    records[TopicPartition(topic, 0)] = mutableListOf(ConsumerRecord(topic, 0, 0, 1L, TestMessages().perioder()[0]))
+    records[TopicPartition(topic, 0)] = mutableListOf(ConsumerRecord(topic, 0, 0, 1L, TestData.nyStartetPeriode()))
     return ConsumerRecords(records)
 }

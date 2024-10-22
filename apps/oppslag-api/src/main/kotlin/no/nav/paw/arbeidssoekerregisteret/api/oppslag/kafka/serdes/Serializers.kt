@@ -4,6 +4,7 @@ import io.confluent.kafka.serializers.KafkaAvroSerializer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.Serializer
 
@@ -32,3 +33,5 @@ class PeriodeSerializer : GenericSerializer<Periode>()
 class OpplysningerOmArbeidssoekerSerializer : GenericSerializer<OpplysningerOmArbeidssoeker>()
 
 class ProfileringSerializer : GenericSerializer<Profilering>()
+
+class BekreftelseSerializer : GenericSerializer<Bekreftelse>()

@@ -4,6 +4,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeTable
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.selectAll
@@ -11,6 +12,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class PeriodeRepository(private val database: Database) {
+    private val logger = buildLogger
 
     fun hentPeriodeForId(periodeId: UUID): PeriodeRow? =
         transaction(database) {
@@ -52,8 +54,10 @@ class PeriodeRepository(private val database: Database) {
                 perioder.forEach { periode ->
                     val eksisterendePeriode = eksisterendePeriodeIdMap[periode.id]
                     if (eksisterendePeriode != null) {
+                        logger.debug("Endrer eksisterende periode {}", periode.id)
                         PeriodeFunctions.update(periode, eksisterendePeriode)
                     } else {
+                        logger.debug("Lagrer ny periode {}", periode.id)
                         PeriodeFunctions.insert(periode)
                     }
                 }

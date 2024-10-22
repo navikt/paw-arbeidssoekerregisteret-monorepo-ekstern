@@ -36,7 +36,7 @@ import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class SamletInformasjonRoutesTest : FreeSpec({
-    with(ApplicationTestContext()) {
+    with(ApplicationTestContext.withMockDataAccess()) {
 
         beforeSpec {
             mockOAuth2Server.start()
@@ -47,9 +47,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
             confirmVerified(
                 pdlHttpConsumerMock,
                 poaoTilgangHttpClientMock,
-                periodeRepositoryMock,
-                opplysningerRepositoryMock,
-                profileringRepositoryMock
+                periodeRepository,
+                opplysningerRepository,
+                profileringRepository,
+                bekreftelseRepository
             )
         }
 
@@ -59,23 +60,23 @@ class SamletInformasjonRoutesTest : FreeSpec({
             } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
 
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
+                periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyPeriodeRowList()
 
             every {
-                opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
+                opplysningerRepository.finnOpplysningerForPeriodeId(any<UUID>())
             } returns TestData.nyOpplysningerRowList()
 
             every {
-                opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
+                opplysningerRepository.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyOpplysningerRowList()
 
             every {
-                profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
+                profileringRepository.finnProfileringerForPeriodeId(any<UUID>())
             } returns TestData.nyProfileringRowList()
 
             every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
+                profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyProfileringRowList()
         }
 
@@ -132,9 +133,9 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 samletInfo.profilering.size shouldBe 3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { opplysningerRepository.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
@@ -167,9 +168,9 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 samletInfo.profilering.size shouldBe 1
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { opplysningerRepository.finnOpplysningerForPeriodeId(any<UUID>()) }
+                verify { profileringRepository.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
 
@@ -252,9 +253,9 @@ class SamletInformasjonRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { opplysningerRepository.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
@@ -298,9 +299,9 @@ class SamletInformasjonRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { opplysningerRepository.finnOpplysningerForPeriodeId(any<UUID>()) }
+                verify { profileringRepository.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
     }

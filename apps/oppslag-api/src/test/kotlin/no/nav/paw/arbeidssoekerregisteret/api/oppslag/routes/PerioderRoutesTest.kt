@@ -37,7 +37,7 @@ import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class PerioderRoutesTest : FreeSpec({
-    with(ApplicationTestContext()) {
+    with(ApplicationTestContext.withMockDataAccess()) {
 
         beforeSpec {
             mockOAuth2Server.start()
@@ -48,9 +48,10 @@ class PerioderRoutesTest : FreeSpec({
             confirmVerified(
                 pdlHttpConsumerMock,
                 poaoTilgangHttpClientMock,
-                periodeRepositoryMock,
-                opplysningerRepositoryMock,
-                profileringRepositoryMock
+                periodeRepository,
+                opplysningerRepository,
+                profileringRepository,
+                bekreftelseRepository
             )
         }
 
@@ -81,7 +82,7 @@ class PerioderRoutesTest : FreeSpec({
 
         "/arbeidssoekerperioder should respond with 200 OK" {
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
+                periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyPeriodeRowList()
 
             testApplication {
@@ -105,13 +106,13 @@ class PerioderRoutesTest : FreeSpec({
                 perioder.size shouldBe 3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
         "/arbeidssoekerperioder med siste-flagg should respond with 200 OK" {
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
+                periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyPeriodeRowList()
 
             testApplication {
@@ -136,7 +137,7 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[0].periodeId shouldBe TestData.periodeId3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
@@ -180,7 +181,7 @@ class PerioderRoutesTest : FreeSpec({
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
 
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
+                periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyPeriodeRowList()
 
             testApplication {
@@ -211,7 +212,7 @@ class PerioderRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
@@ -221,7 +222,7 @@ class PerioderRoutesTest : FreeSpec({
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
 
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
+                periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyPeriodeRowList()
 
             testApplication {
@@ -252,7 +253,7 @@ class PerioderRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
@@ -263,7 +264,7 @@ class PerioderRoutesTest : FreeSpec({
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
 
             every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
+                periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyPeriodeRowList()
 
             testApplication {
@@ -294,7 +295,7 @@ class PerioderRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepository.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
     }

@@ -16,12 +16,15 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
 import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
+import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Bekreftelsesloesning as BekreftelsesloesningResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerType as BrukerTypeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.JaNeiVetIkke as JaNeiVetIkkeResponse
 
 fun BekreftelseRow.toBekreftelseResponse(): BekreftelseResponse =
     BekreftelseResponse(
         periodeId = periodeId,
+        bekreftelsesloesning = bekreftelsesloesning.toBekreftelsesloesningResponse(),
         svar = svar.toBekreftelseSvarResponse()
     )
 
@@ -223,4 +226,11 @@ fun Beskrivelse.toJobbSituasjonBeskrivelse() =
         Beskrivelse.ANNET -> JobbSituasjonBeskrivelse.ANNET
         Beskrivelse.UDEFINERT -> JobbSituasjonBeskrivelse.UDEFINERT
         Beskrivelse.UKJENT_VERDI -> JobbSituasjonBeskrivelse.UKJENT_VERDI
+    }
+
+fun Bekreftelsesloesning.toBekreftelsesloesningResponse() =
+    when (this) {
+        Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET -> BekreftelsesloesningResponse.ARBEIDSSOEKERREGISTERET
+        Bekreftelsesloesning.DAGPENGER -> BekreftelsesloesningResponse.DAGPENGER
+        Bekreftelsesloesning.UKJENT_VERDI -> BekreftelsesloesningResponse.UKJENT_VERDI
     }

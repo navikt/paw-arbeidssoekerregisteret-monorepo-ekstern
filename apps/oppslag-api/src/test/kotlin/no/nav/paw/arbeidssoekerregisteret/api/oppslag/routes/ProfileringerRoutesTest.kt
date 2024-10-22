@@ -36,7 +36,7 @@ import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class ProfileringerRoutesTest : FreeSpec({
-    with(ApplicationTestContext()) {
+    with(ApplicationTestContext.withMockDataAccess()) {
 
         beforeSpec {
             mockOAuth2Server.start()
@@ -47,9 +47,10 @@ class ProfileringerRoutesTest : FreeSpec({
             confirmVerified(
                 pdlHttpConsumerMock,
                 poaoTilgangHttpClientMock,
-                periodeRepositoryMock,
-                opplysningerRepositoryMock,
-                profileringRepositoryMock
+                periodeRepository,
+                opplysningerRepository,
+                profileringRepository,
+                bekreftelseRepository
             )
         }
 
@@ -61,7 +62,7 @@ class ProfileringerRoutesTest : FreeSpec({
 
         "/profilering/{periodeId} should return 401 Unauthorized without token" {
             every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
+                profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
             } returns emptyList()
 
             testApplication {
@@ -84,10 +85,10 @@ class ProfileringerRoutesTest : FreeSpec({
 
         "/profilering/{periodeId} should return OK" {
             every {
-                periodeRepositoryMock.hentPeriodeForId(any<UUID>())
+                periodeRepository.hentPeriodeForId(any<UUID>())
             } returns TestData.nyStartetPeriodeRow()
             every {
-                profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
+                profileringRepository.finnProfileringerForPeriodeId(any<UUID>())
             } returns TestData.nyProfileringRowList()
 
             testApplication {
@@ -111,14 +112,14 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer.size shouldBe 3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.hentPeriodeForId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
+                verify { periodeRepository.hentPeriodeForId(any<UUID>()) }
+                verify { profileringRepository.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
 
         "/profilering should return OK" {
             every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
+                profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyProfileringRowList()
 
             testApplication {
@@ -142,13 +143,13 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer.size shouldBe 3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
         "/profilering med siste-flagg should return OK" {
             every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
+                profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyProfileringRowList()
 
             testApplication {
@@ -173,7 +174,7 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer[0].periodeId shouldBe TestData.periodeId3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
@@ -182,10 +183,10 @@ class ProfileringerRoutesTest : FreeSpec({
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test"))))
             every {
-                periodeRepositoryMock.hentPeriodeForId(any<UUID>())
+                periodeRepository.hentPeriodeForId(any<UUID>())
             } returns TestData.nyStartetPeriodeRow()
             every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
+                profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
             } returns TestData.nyProfileringRowList()
 
             testApplication {
@@ -215,8 +216,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.hentPeriodeForId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
+                verify { periodeRepository.hentPeriodeForId(any<UUID>()) }
+                verify { profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
@@ -225,10 +226,10 @@ class ProfileringerRoutesTest : FreeSpec({
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
             every {
-                periodeRepositoryMock.hentPeriodeForId(any<UUID>())
+                periodeRepository.hentPeriodeForId(any<UUID>())
             } returns TestData.nyStartetPeriodeRow()
             every {
-                profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
+                profileringRepository.finnProfileringerForPeriodeId(any<UUID>())
             } returns TestData.nyProfileringRowList()
 
             testApplication {
@@ -260,8 +261,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.hentPeriodeForId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
+                verify { periodeRepository.hentPeriodeForId(any<UUID>()) }
+                verify { profileringRepository.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
 
@@ -270,10 +271,10 @@ class ProfileringerRoutesTest : FreeSpec({
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
             every {
-                periodeRepositoryMock.hentPeriodeForId(any<UUID>())
+                periodeRepository.hentPeriodeForId(any<UUID>())
             } returns TestData.nyStartetPeriodeRow()
             every {
-                profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
+                profileringRepository.finnProfileringerForPeriodeId(any<UUID>())
             } returns TestData.nyProfileringRowList()
 
             testApplication {
@@ -306,8 +307,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.hentPeriodeForId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
+                verify { periodeRepository.hentPeriodeForId(any<UUID>()) }
+                verify { profileringRepository.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
     }
