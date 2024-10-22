@@ -42,7 +42,8 @@ object OpplysningerFunctions {
             }
     }
 
-    fun findForIdentitetsnummer(identitetsnummer: Identitetsnummer): List<OpplysningerRow> {
+    fun findForIdentitetsnummerList(identitetsnummerList: List<Identitetsnummer>): List<OpplysningerRow> {
+        val identiteter = identitetsnummerList.map { it.verdi }
         return OpplysningerOmArbeidssoekerTable
             .join(MetadataTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.sendtInnAvId, MetadataTable.id)
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
@@ -58,7 +59,7 @@ object OpplysningerFunctions {
             )
             .join(PeriodeTable, JoinType.LEFT, PeriodeOpplysningerTable.periodeId, PeriodeTable.periodeId)
             .selectAll()
-            .where { PeriodeTable.identitetsnummer eq identitetsnummer.verdi }
+            .where { PeriodeTable.identitetsnummer inList identiteter }
             .mapNotNull {
                 val opplysningerId = it[OpplysningerOmArbeidssoekerTable.id].value
                 val jobbsituasjon = findJobbsituasjon(opplysningerId)

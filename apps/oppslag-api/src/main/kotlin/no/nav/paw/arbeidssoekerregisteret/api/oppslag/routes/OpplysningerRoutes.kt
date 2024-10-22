@@ -54,7 +54,6 @@ fun Route.opplysningerRoutes(
                 val identitetsnummer = call.getPidClaim()
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
-                // TODO Fiks med å kaste exception fra service
                 verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
                 val opplysningerOmArbeidssoeker = opplysningerOmArbeidssoekerService

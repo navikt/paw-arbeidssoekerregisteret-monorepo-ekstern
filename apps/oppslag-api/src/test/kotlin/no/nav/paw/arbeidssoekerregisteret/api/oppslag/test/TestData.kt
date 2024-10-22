@@ -54,6 +54,7 @@ object TestData {
     val identitetsnummer1 = Identitetsnummer(fnr1)
     val identitetsnummer2 = Identitetsnummer(fnr2)
     val identitetsnummer3 = Identitetsnummer(fnr3)
+    val identitetsnummer8 = Identitetsnummer(fnr8)
     val periodeId1 = UUID.fromString("6d6302a7-7ed1-40a3-8257-c3e8ade4c049")
     val periodeId2 = UUID.fromString("2656398c-a355-4f9b-8b34-a76abaf3c61a")
     val periodeId3 = UUID.fromString("44b44747-f65d-46b3-89a8-997a63d0d489")

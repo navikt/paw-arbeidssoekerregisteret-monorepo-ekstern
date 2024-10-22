@@ -20,12 +20,7 @@ class OpplysningerRepository(private val database: Database) {
 
     fun finnOpplysningerForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<OpplysningerRow> =
         transaction(database) {
-            // TODO Optimalisering vha joins
-            val periodeIder = PeriodeRepository(database).finnPerioderForIdentiteter(identitetsnummerList)
-                .map { it.periodeId }
-            periodeIder.flatMap { periodeId ->
-                OpplysningerFunctions.findForPeriodeId(periodeId)
-            }
+            OpplysningerFunctions.findForIdentitetsnummerList(identitetsnummerList)
         }
 
     fun lagreOpplysninger(opplysninger: OpplysningerOmArbeidssoeker) {
