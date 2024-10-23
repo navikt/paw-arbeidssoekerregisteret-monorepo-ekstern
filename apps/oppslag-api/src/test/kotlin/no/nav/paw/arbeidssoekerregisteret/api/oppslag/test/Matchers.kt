@@ -2,21 +2,47 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AvviksTypeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseSvarResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.JobbSituasjonBeskrivelse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringsResultat
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningRow
+import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
+import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
+import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
+import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
+import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
+import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
+import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
+import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
+import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar
@@ -24,9 +50,125 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Bekreftelsesloesning as BekreftelsesloesningResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerType as BrukerTypeResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.JaNeiVetIkke as JaNeiVetIkkeResponse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bruker as BekreftelseBruker
 import no.nav.paw.bekreftelse.melding.v1.vo.BrukerType as BekreftelseBrukerType
 import no.nav.paw.bekreftelse.melding.v1.vo.Metadata as BekreftelseMetadata
+
+infix fun Periode.shouldBeEqualTo(other: ArbeidssoekerperiodeResponse?): Periode {
+    other shouldNotBe null
+    id shouldBe other?.periodeId
+    startet shouldBeEqualTo other?.startet
+    avsluttet?.shouldBeEqualTo(other?.avsluttet)
+    return this
+}
+
+infix fun OpplysningerOmArbeidssoeker.shouldBeEqualTo(other: OpplysningerOmArbeidssoekerResponse?): OpplysningerOmArbeidssoeker {
+    other shouldNotBe null
+    id shouldBe other?.opplysningerOmArbeidssoekerId
+    periodeId shouldBe other?.periodeId
+    sendtInnAv shouldBeEqualTo other?.sendtInnAv
+    for (i in jobbsituasjon.beskrivelser.indices) {
+        jobbsituasjon.beskrivelser[i] shouldBeEqualTo other?.jobbsituasjon?.get(i)
+    }
+    utdanning shouldBeEqualTo other?.utdanning
+    helse shouldBeEqualTo other?.helse
+    annet shouldBeEqualTo other?.annet
+    return this
+}
+
+infix fun BeskrivelseMedDetaljer.shouldBeEqualTo(other: BeskrivelseMedDetaljerResponse?): BeskrivelseMedDetaljer {
+    other shouldNotBe null
+    beskrivelse shouldBeEqualTo other?.beskrivelse
+    detaljer shouldBe other?.detaljer
+    return this
+}
+
+infix fun Beskrivelse.shouldBeEqualTo(other: JobbSituasjonBeskrivelse?): Beskrivelse {
+    other shouldNotBe null
+    name shouldBe other?.name
+    return this
+}
+
+infix fun Utdanning.shouldBeEqualTo(other: UtdanningResponse?): Utdanning {
+    other shouldNotBe null
+    nus shouldBe other?.nus
+    bestaatt shouldBeEqualTo other?.bestaatt
+    godkjent shouldBeEqualTo other?.godkjent
+    return this
+}
+
+infix fun Helse.shouldBeEqualTo(other: HelseResponse?): Helse {
+    other shouldNotBe null
+    helsetilstandHindrerArbeid shouldBeEqualTo other?.helsetilstandHindrerArbeid
+    return this
+}
+
+infix fun Annet.shouldBeEqualTo(other: AnnetResponse?): Annet {
+    other shouldNotBe null
+    andreForholdHindrerArbeid shouldBeEqualTo other?.andreForholdHindrerArbeid
+    return this
+}
+
+infix fun JaNeiVetIkke.shouldBeEqualTo(other: JaNeiVetIkkeResponse?): JaNeiVetIkke {
+    other shouldNotBe null
+    name shouldBe other?.name
+    return this
+}
+
+infix fun Profilering.shouldBeEqualTo(other: ProfileringResponse?): Profilering {
+    other shouldNotBe null
+    id shouldBe other?.profileringId
+    periodeId shouldBe other?.periodeId
+    opplysningerOmArbeidssokerId shouldBe other?.opplysningerOmArbeidssoekerId
+    sendtInnAv shouldBeEqualTo other?.sendtInnAv
+    profilertTil shouldBeEqualTo other?.profilertTil
+    jobbetSammenhengendeSeksAvTolvSisteMnd shouldBe other?.jobbetSammenhengendeSeksAvTolvSisteManeder
+    alder shouldBe other?.alder
+    return this
+}
+
+infix fun ProfilertTil.shouldBeEqualTo(other: ProfileringsResultat?): ProfilertTil {
+    other shouldNotBe null
+    name shouldBe other?.name
+    return this
+}
+
+infix fun Metadata.shouldBeEqualTo(other: MetadataResponse?): Metadata {
+    other shouldNotBe null
+    tidspunkt shouldBe other?.tidspunkt
+    utfoertAv shouldBeEqualTo other?.utfoertAv
+    kilde shouldBe other?.kilde
+    aarsak shouldBe other?.aarsak
+    tidspunktFraKilde shouldBeEqualTo other?.tidspunktFraKilde
+    return this
+}
+
+infix fun Bruker.shouldBeEqualTo(other: BrukerResponse?): Bruker {
+    other shouldNotBe null
+    type shouldBeEqualTo other?.type
+    id shouldBe other?.id
+    return this
+}
+
+infix fun BrukerType.shouldBeEqualTo(other: BrukerTypeResponse?): BrukerType {
+    other shouldNotBe null
+    name shouldBe other?.name
+    return this
+}
+
+infix fun TidspunktFraKilde.shouldBeEqualTo(other: TidspunktFraKildeResponse?): TidspunktFraKilde {
+    other shouldNotBe null
+    tidspunkt shouldBe other?.tidspunkt
+    avviksType shouldBeEqualTo other?.avviksType
+    return this
+}
+
+infix fun AvviksType.shouldBeEqualTo(other: AvviksTypeResponse?): AvviksType {
+    other shouldNotBe null
+    name shouldBe other?.name
+    return this
+}
 
 infix fun Bekreftelse.shouldBeEqualTo(other: BekreftelseResponse?): Bekreftelse {
     other shouldNotBe null
