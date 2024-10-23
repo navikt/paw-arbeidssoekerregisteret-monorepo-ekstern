@@ -21,6 +21,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContex
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.poao_tilgang.client.Decision
@@ -153,6 +154,9 @@ class BekreftelseRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val bekreftelseResponses = response.body<List<BekreftelseResponse>>()
                 bekreftelseResponses.size shouldBe 3
+                bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
+                bekreftelser[1] shouldBeEqualTo bekreftelseResponses[1]
+                bekreftelser[2] shouldBeEqualTo bekreftelseResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -283,6 +287,9 @@ class BekreftelseRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val bekreftelseResponses = response.body<List<BekreftelseResponse>>()
                 bekreftelseResponses.size shouldBe 3
+                bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
+                bekreftelser[1] shouldBeEqualTo bekreftelseResponses[1]
+                bekreftelser[2] shouldBeEqualTo bekreftelseResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 coVerify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }

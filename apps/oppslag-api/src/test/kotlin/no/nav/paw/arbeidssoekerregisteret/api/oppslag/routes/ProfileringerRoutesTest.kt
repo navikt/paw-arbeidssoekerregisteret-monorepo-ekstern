@@ -84,12 +84,14 @@ class ProfileringerRoutesTest : FreeSpec({
         }
 
         "/profilering/{periodeId} should return OK" {
+            val periode = TestData.nyStartetPeriodeRow()
+            val profileringer = TestData.nyProfileringRowList(size = 3, periodeId = periode.periodeId)
             every {
                 periodeRepository.hentPeriodeForId(any<UUID>())
-            } returns TestData.nyStartetPeriodeRow()
+            } returns periode
             every {
                 profileringRepository.finnProfileringerForPeriodeId(any<UUID>())
-            } returns TestData.nyProfileringRowList()
+            } returns profileringer
 
             testApplication {
                 application {
@@ -103,13 +105,13 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val response = testClient.get("api/v1/profilering/${TestData.periodeId1}") {
+                val response = testClient.get("api/v1/profilering/${periode.periodeId}") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken())
                 }
 
                 response.status shouldBe HttpStatusCode.OK
-                val profileringer = response.body<List<ProfileringResponse>>()
-                profileringer.size shouldBe 3
+                val profileringResponses = response.body<List<ProfileringResponse>>()
+                profileringResponses.size shouldBe 3
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { periodeRepository.hentPeriodeForId(any<UUID>()) }
@@ -120,7 +122,7 @@ class ProfileringerRoutesTest : FreeSpec({
         "/profilering should return OK" {
             every {
                 profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns TestData.nyProfileringRowList()
+            } returns TestData.nyProfileringRowList(size = 3)
 
             testApplication {
                 application {
@@ -150,7 +152,7 @@ class ProfileringerRoutesTest : FreeSpec({
         "/profilering med siste-flagg should return OK" {
             every {
                 profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns TestData.nyProfileringRowList()
+            } returns TestData.nyProfileringRowList(size = 3, periodeId = TestData.periodeId3)
 
             testApplication {
                 application {
@@ -230,7 +232,7 @@ class ProfileringerRoutesTest : FreeSpec({
             } returns TestData.nyStartetPeriodeRow()
             every {
                 profileringRepository.finnProfileringerForPeriodeId(any<UUID>())
-            } returns TestData.nyProfileringRowList()
+            } returns TestData.nyProfileringRowList(size = 3)
 
             testApplication {
                 application {
@@ -275,7 +277,7 @@ class ProfileringerRoutesTest : FreeSpec({
             } returns TestData.nyStartetPeriodeRow()
             every {
                 profileringRepository.finnProfileringerForPeriodeId(any<UUID>())
-            } returns TestData.nyProfileringRowList()
+            } returns TestData.nyProfileringRowList(size = 3, periodeId = TestData.periodeId3)
 
             testApplication {
                 application {
