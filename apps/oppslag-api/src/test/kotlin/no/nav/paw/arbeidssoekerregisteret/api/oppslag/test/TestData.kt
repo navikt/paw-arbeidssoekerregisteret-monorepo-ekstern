@@ -254,11 +254,14 @@ object TestData {
         nyAvsluttetPeriodeRow(periodeId = periodeId3),
     )
 
-    fun nyProfileringRowList(): List<ProfileringRow> = listOf(
-        nyProfileringRow(profileringId = profileringId1, periodeId = periodeId1, opplysningerId = opplysningerId1),
-        nyProfileringRow(profileringId = profileringId2, periodeId = periodeId2, opplysningerId = opplysningerId2),
-        nyProfileringRow(profileringId = profileringId3, periodeId = periodeId3, opplysningerId = opplysningerId3)
-    )
+    fun nyProfileringRowList(size: Int = 1, periodeId: UUID = periodeId1): List<ProfileringRow> =
+        IntRange(1, size).map {
+            nyProfileringRow(
+                profileringId = profileringId1,
+                periodeId = periodeId,
+                opplysningerId = opplysningerId1
+            )
+        }
 
     fun nyStartetPeriode(
         periodeId: UUID = UUID.randomUUID(),

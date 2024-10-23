@@ -3,18 +3,74 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseSvarResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningRow
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
+import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
+import no.nav.paw.bekreftelse.melding.v1.vo.Svar
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Bekreftelsesloesning as BekreftelsesloesningResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerType as BrukerTypeResponse
+import no.nav.paw.bekreftelse.melding.v1.vo.Bruker as BekreftelseBruker
+import no.nav.paw.bekreftelse.melding.v1.vo.BrukerType as BekreftelseBrukerType
+import no.nav.paw.bekreftelse.melding.v1.vo.Metadata as BekreftelseMetadata
+
+infix fun Bekreftelse.shouldBeEqualTo(other: BekreftelseResponse?): Bekreftelse {
+    other shouldNotBe null
+    periodeId shouldBe other?.periodeId
+    bekreftelsesloesning shouldBeEqualTo other?.bekreftelsesloesning
+    svar shouldBeEqualTo other?.svar
+    return this
+}
+
+infix fun Svar.shouldBeEqualTo(other: BekreftelseSvarResponse?): Svar {
+    sendtInn shouldBeEqualTo other?.sendtInn
+    gjelderFra shouldBe other?.gjelderFra
+    gjelderTil shouldBe other?.gjelderTil
+    harJobbetIDennePerioden shouldBe other?.harJobbetIDennePerioden
+    vilFortsetteSomArbeidssoeker shouldBe other?.vilFortsetteSomArbeidssoeker
+    return this
+}
+
+infix fun BekreftelseMetadata.shouldBeEqualTo(other: MetadataResponse?): BekreftelseMetadata {
+    other shouldNotBe null
+    tidspunkt shouldBe other?.tidspunkt
+    utfoertAv shouldBeEqualTo other?.utfoertAv
+    kilde shouldBe other?.kilde
+    aarsak shouldBe other?.aarsak
+    return this
+}
+
+infix fun BekreftelseBruker.shouldBeEqualTo(other: BrukerResponse?): BekreftelseBruker {
+    type shouldBeEqualTo other?.type
+    id shouldBe other?.id
+    return this
+}
+
+infix fun Bekreftelsesloesning.shouldBeEqualTo(other: BekreftelsesloesningResponse?): Bekreftelsesloesning {
+    other shouldNotBe null
+    name shouldBe other?.name
+    return this
+}
+
+infix fun BekreftelseBrukerType.shouldBeEqualTo(other: BrukerTypeResponse?): BekreftelseBrukerType {
+    other shouldNotBe null
+    name shouldBe other?.name
+    return this
+}
 
 infix fun OpplysningerRow.shouldBeEqualTo(other: OpplysningerRow?): OpplysningerRow {
     other shouldNotBe null

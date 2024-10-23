@@ -73,11 +73,11 @@ class SamletInformasjonRoutesTest : FreeSpec({
 
             every {
                 profileringRepository.finnProfileringerForPeriodeId(any<UUID>())
-            } returns TestData.nyProfileringRowList()
+            } returns TestData.nyProfileringRowList(size = 3)
 
             every {
                 profileringRepository.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns TestData.nyProfileringRowList()
+            } returns TestData.nyProfileringRowList(size = 3)
         }
 
         "/samlet-informasjon should return 401 Unauthorized without token" {
