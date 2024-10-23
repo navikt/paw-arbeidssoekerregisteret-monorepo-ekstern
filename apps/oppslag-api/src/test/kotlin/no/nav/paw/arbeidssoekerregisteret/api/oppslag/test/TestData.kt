@@ -51,6 +51,7 @@ object TestData {
     const val fnr8 = "08017012345"
     const val fnr9 = "09017012345"
     const val fnr10 = "10017012345"
+    const val fnr11 = "11017012345"
     val identitetsnummer1 = Identitetsnummer(fnr1)
     val identitetsnummer2 = Identitetsnummer(fnr2)
     val identitetsnummer3 = Identitetsnummer(fnr3)
@@ -299,6 +300,9 @@ object TestData {
         avsluttetMetadata
     )
 
+    fun nyPeriodeList(size: Int = 1, identitetsnummer: String = fnr1) =
+        IntRange(1, size).map { nyStartetPeriode(identitetsnummer = identitetsnummer) }
+
     fun nyOpplysningerOmArbeidssoeker(
         opplysningerId: UUID = UUID.randomUUID(),
         periodeId: UUID = periodeId1,
@@ -321,6 +325,9 @@ object TestData {
         jobbsituasjon,
         annet
     )
+
+    fun nyOpplysningerOmArbeidssoekerList(size: Int = 1, periodeId: UUID = UUID.randomUUID()) =
+        IntRange(1, size).map { nyOpplysningerOmArbeidssoeker(periodeId = periodeId) }
 
     fun nyJobbsituasjon(
         beskrivelser: List<Beskrivelse> = listOf(Beskrivelse.HAR_SAGT_OPP)
@@ -368,6 +375,9 @@ object TestData {
         jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder
     )
+
+    fun nyProfileringList(size: Int = 1, periodeId: UUID = periodeId1) =
+        IntRange(1, size).map { nyProfilering(periodeId = periodeId) }
 
     fun nyMetadata(
         tidspunkt: Instant = Instant.now(),
