@@ -10,6 +10,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerRequest
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
@@ -31,18 +32,13 @@ fun Route.opplysningerRoutes(
 
         authenticate("tokenx") {
             get("/opplysninger-om-arbeidssoeker") {
-                val siste = call.request.queryParameters["siste"]
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
                 val identitetsnummer = call.getPidClaim()
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
-                val opplysninger = opplysningerOmArbeidssoekerService
-                    .finnOpplysningerForIdentiteter(identitetsnummerList)
-                val response =
-                    if (siste != null && siste.toBoolean()) {
-                        opplysninger.maxByOrNull { it.sendtInnAv.tidspunkt }?.let { listOf(it) } ?: emptyList()
-                    } else {
-                        opplysninger
-                    }
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = opplysningerOmArbeidssoekerService
+                    .finnOpplysningerForIdentiteter(identitetsnummerList, paging)
 
                 logger.info("Hentet opplysninger for bruker")
 
@@ -73,21 +69,14 @@ fun Route.opplysningerRoutes(
 
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)
 
-                val opplysninger = if (periodeId != null) {
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = if (periodeId != null) {
                     verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
-                    opplysningerOmArbeidssoekerService.finnOpplysningerForPeriodeId(periodeId)
+                    opplysningerOmArbeidssoekerService.finnOpplysningerForPeriodeId(periodeId, paging)
                 } else {
-                    opplysningerOmArbeidssoekerService.finnOpplysningerForIdentiteter(identitetsnummerList)
+                    opplysningerOmArbeidssoekerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
                 }
-
-                val response =
-                    if (siste) {
-                        // TODO Fiks med order by og limit mot databasen
-                        opplysninger.maxByOrNull { it.sendtInnAv.tidspunkt }?.let { listOf(it) } ?: emptyList()
-                    } else {
-                        opplysninger
-                    }
 
                 logger.info("Veileder hentet opplysninger-om-arbeidssøker for bruker")
 

@@ -98,9 +98,9 @@ class PerioderRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeResponse>>()
                 periodeResponses.size shouldBe 3
-                perioder[2] shouldBeEqualTo periodeResponses[0]
+                perioder[0] shouldBeEqualTo periodeResponses[0]
                 perioder[1] shouldBeEqualTo periodeResponses[1]
-                perioder[0] shouldBeEqualTo periodeResponses[2]
+                perioder[2] shouldBeEqualTo periodeResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -133,7 +133,7 @@ class PerioderRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeResponse>>()
                 periodeResponses.size shouldBe 1
-                perioder[2] shouldBeEqualTo periodeResponses[0]
+                perioder[0] shouldBeEqualTo periodeResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -212,9 +212,9 @@ class PerioderRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeResponse>>()
                 periodeResponses.size shouldBe 3
-                perioder[2] shouldBeEqualTo periodeResponses[0]
+                perioder[0] shouldBeEqualTo periodeResponses[0]
                 perioder[1] shouldBeEqualTo periodeResponses[1]
-                perioder[0] shouldBeEqualTo periodeResponses[2]
+                perioder[2] shouldBeEqualTo periodeResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
@@ -257,7 +257,7 @@ class PerioderRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeResponse>>()
                 periodeResponses.size shouldBe 1
-                perioder[2] shouldBeEqualTo periodeResponses[0]
+                perioder[0] shouldBeEqualTo periodeResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
@@ -301,9 +301,9 @@ class PerioderRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeResponse>>()
                 periodeResponses.size shouldBe 3
-                perioder[2] shouldBeEqualTo periodeResponses[0]
+                perioder[0] shouldBeEqualTo periodeResponses[0]
                 perioder[1] shouldBeEqualTo periodeResponses[1]
-                perioder[0] shouldBeEqualTo periodeResponses[2]
+                perioder[2] shouldBeEqualTo periodeResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }

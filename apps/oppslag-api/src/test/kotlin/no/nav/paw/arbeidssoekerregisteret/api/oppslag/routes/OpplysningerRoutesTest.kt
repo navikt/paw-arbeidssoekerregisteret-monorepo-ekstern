@@ -136,7 +136,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val opplysningerResponses = response.body<List<OpplysningerOmArbeidssoekerResponse>>()
                 opplysningerResponses.size shouldBe 1
-                //opplysninger[1] shouldBeEqualTo opplysningerResponses[0] // TODO Ordering??
+                opplysninger[0] shouldBeEqualTo opplysningerResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -405,7 +405,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 val opplysningerResponses = response.body<List<OpplysningerOmArbeidssoekerResponse>>()
                 opplysningerResponses.size shouldBe 1
-                //opplysninger[1] shouldBeEqualTo opplysningerResponses[0] // TODO Ordering??
+                opplysninger[0] shouldBeEqualTo opplysningerResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }

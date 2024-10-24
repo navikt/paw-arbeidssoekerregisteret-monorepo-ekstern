@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import org.jetbrains.exposed.sql.Database
@@ -13,14 +14,20 @@ class OpplysningerRepository(private val database: Database) {
 
     private val logger = buildLogger
 
-    fun finnOpplysningerForPeriodeId(periodeId: UUID): List<OpplysningerRow> =
+    fun finnOpplysningerForPeriodeId(
+        periodeId: UUID,
+        paging: Paging = Paging()
+    ): List<OpplysningerRow> =
         transaction(database) {
-            OpplysningerFunctions.findForPeriodeId(periodeId)
+            OpplysningerFunctions.findForPeriodeId(periodeId, paging)
         }
 
-    fun finnOpplysningerForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<OpplysningerRow> =
+    fun finnOpplysningerForIdentiteter(
+        identitetsnummerList: List<Identitetsnummer>,
+        paging: Paging = Paging()
+    ): List<OpplysningerRow> =
         transaction(database) {
-            OpplysningerFunctions.findForIdentitetsnummerList(identitetsnummerList)
+            OpplysningerFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
         }
 
     fun lagreOpplysninger(opplysninger: OpplysningerOmArbeidssoeker) {

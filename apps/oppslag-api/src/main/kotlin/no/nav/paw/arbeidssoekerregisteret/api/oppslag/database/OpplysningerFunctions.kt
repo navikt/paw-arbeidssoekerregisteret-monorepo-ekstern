@@ -5,6 +5,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerMarkerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
@@ -19,7 +20,10 @@ import java.util.*
 
 object OpplysningerFunctions {
 
-    fun findForPeriodeId(periodeId: UUID): List<OpplysningerRow> {
+    fun findForPeriodeId(
+        periodeId: UUID,
+        paging: Paging = Paging()
+    ): List<OpplysningerRow> {
         return OpplysningerOmArbeidssoekerTable
             .join(MetadataTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.sendtInnAvId, MetadataTable.id)
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
@@ -35,6 +39,8 @@ object OpplysningerFunctions {
             )
             .selectAll()
             .where { PeriodeOpplysningerTable.periodeId eq periodeId }
+            .orderBy(MetadataTable.tidspunkt, paging.ordering)
+            .limit(paging.size).offset(paging.offset)
             .mapNotNull {
                 val opplysningerId = it[OpplysningerOmArbeidssoekerTable.id].value
                 val jobbsituasjon = findJobbsituasjon(opplysningerId)
@@ -42,7 +48,10 @@ object OpplysningerFunctions {
             }
     }
 
-    fun findForIdentitetsnummerList(identitetsnummerList: List<Identitetsnummer>): List<OpplysningerRow> {
+    fun findForIdentitetsnummerList(
+        identitetsnummerList: List<Identitetsnummer>,
+        paging: Paging = Paging()
+    ): List<OpplysningerRow> {
         val identiteter = identitetsnummerList.map { it.verdi }
         return OpplysningerOmArbeidssoekerTable
             .join(MetadataTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.sendtInnAvId, MetadataTable.id)
@@ -60,6 +69,8 @@ object OpplysningerFunctions {
             .join(PeriodeTable, JoinType.LEFT, PeriodeOpplysningerTable.periodeId, PeriodeTable.periodeId)
             .selectAll()
             .where { PeriodeTable.identitetsnummer inList identiteter }
+            .orderBy(MetadataTable.tidspunkt, paging.ordering)
+            .limit(paging.size).offset(paging.offset)
             .mapNotNull {
                 val opplysningerId = it[OpplysningerOmArbeidssoekerTable.id].value
                 val jobbsituasjon = findJobbsituasjon(opplysningerId)

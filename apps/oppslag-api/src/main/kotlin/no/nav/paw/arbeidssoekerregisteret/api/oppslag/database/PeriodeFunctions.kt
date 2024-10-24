@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.jetbrains.exposed.sql.JoinType
@@ -48,7 +49,10 @@ object PeriodeFunctions {
             .where { PeriodeTable.periodeId eq periodeId }.singleOrNull()?.toPeriodeRow()
     }
 
-    fun findForIdentitetsnummerList(identitetsnummerList: List<Identitetsnummer>): List<PeriodeRow> {
+    fun findForIdentitetsnummerList(
+        identitetsnummerList: List<Identitetsnummer>,
+        paging: Paging = Paging()
+    ): List<PeriodeRow> {
         val identer = identitetsnummerList.map { it.verdi }
         return PeriodeTable
             .join(StartetMetadataAlias, JoinType.LEFT, PeriodeTable.startetId, StartetMetadataAlias[MetadataTable.id])
@@ -84,6 +88,8 @@ object PeriodeFunctions {
             )
             .selectAll()
             .where { PeriodeTable.identitetsnummer inList identer }
+            .orderBy(StartetMetadataAlias[MetadataTable.tidspunkt], paging.ordering)
+            .limit(paging.size).offset(paging.offset)
             .map { it.toPeriodeRow() }
     }
 

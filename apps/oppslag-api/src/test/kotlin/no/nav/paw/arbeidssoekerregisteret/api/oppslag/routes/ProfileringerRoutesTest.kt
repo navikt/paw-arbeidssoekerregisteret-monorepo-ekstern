@@ -85,7 +85,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode()
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 profileringService.lagreAlleProfileringer(profileringer.asSequence())
@@ -159,7 +159,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode()
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 profileringService.lagreAlleProfileringer(profileringer.asSequence())

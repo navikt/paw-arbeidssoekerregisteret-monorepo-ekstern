@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bruker
 import no.nav.paw.bekreftelse.melding.v1.vo.Metadata
@@ -25,13 +26,16 @@ object BekreftelseFunctions {
             .singleOrNull()?.toBekreftelseRow()
     }
 
-    fun findForPeriodeId(periodeId: UUID): List<BekreftelseRow> {
+    fun findForPeriodeId(periodeId: UUID, paging: Paging = Paging()): List<BekreftelseRow> {
         return BekreftelseTable
             .join(BekreftelseSvarTable, JoinType.LEFT, BekreftelseTable.svarId, BekreftelseSvarTable.id)
             .join(MetadataTable, JoinType.LEFT, BekreftelseSvarTable.sendtInnId, MetadataTable.id)
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
             .selectAll()
-            .where { BekreftelseTable.periodeId eq periodeId }.map { it.toBekreftelseRow() }
+            .where { BekreftelseTable.periodeId eq periodeId }
+            .orderBy(MetadataTable.tidspunkt, paging.ordering)
+            .limit(paging.size).offset(paging.offset)
+            .map { it.toBekreftelseRow() }
     }
 
     fun insert(bekreftelse: Bekreftelse) {

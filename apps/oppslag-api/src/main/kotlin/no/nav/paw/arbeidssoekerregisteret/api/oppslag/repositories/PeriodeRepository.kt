@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeTable
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -19,9 +20,12 @@ class PeriodeRepository(private val database: Database) {
             PeriodeFunctions.getForPeriodeId(periodeId)
         }
 
-    fun finnPerioderForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<PeriodeRow> =
+    fun finnPerioderForIdentiteter(
+        identitetsnummerList: List<Identitetsnummer>,
+        paging: Paging = Paging()
+    ): List<PeriodeRow> =
         transaction(database) {
-            PeriodeFunctions.findForIdentitetsnummerList(identitetsnummerList)
+            PeriodeFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
         }
 
     fun tellAntallAktivePerioder(): Long =
