@@ -9,6 +9,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
@@ -35,14 +36,8 @@ fun Route.profileringRoutes(
                 val identitetsnummer = call.getPidClaim()
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
-                val profileringer = profileringService
-                    .finnProfileringerForIdentiteter(identitetsnummerList)
-
-                val response = if (siste) {
-                    profileringer.maxByOrNull { it.sendtInnAv.tidspunkt }?.let { listOf(it) } ?: emptyList()
-                } else {
-                    profileringer
-                }
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
 
                 logger.info("Hentet profilering for bruker")
 
@@ -72,19 +67,13 @@ fun Route.profileringRoutes(
 
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)
 
-                val profileringer = if (periodeId != null) {
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = if (periodeId != null) {
                     verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
-                    profileringService.finnProfileringerForPeriodeId(periodeId)
+                    profileringService.finnProfileringerForPeriodeId(periodeId, paging)
                 } else {
-                    profileringService.finnProfileringerForIdentiteter(identitetsnummerList)
-                }
-
-                val response = if (siste) {
-                    // TODO Fiks med order by og limit mot databasen
-                    profileringer.maxByOrNull { it.sendtInnAv.tidspunkt }?.let { listOf(it) } ?: emptyList()
-                } else {
-                    profileringer
+                    profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
                 }
 
                 logger.info("Veileder hentet profilering for bruker")

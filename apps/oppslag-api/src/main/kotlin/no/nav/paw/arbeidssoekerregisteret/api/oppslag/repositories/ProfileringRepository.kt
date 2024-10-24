@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.ProfileringFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
@@ -12,14 +13,20 @@ import java.util.*
 class ProfileringRepository(private val database: Database) {
     private val logger = buildLogger
 
-    fun finnProfileringerForPeriodeId(periodeId: UUID): List<ProfileringRow> =
+    fun finnProfileringerForPeriodeId(
+        periodeId: UUID,
+        paging: Paging = Paging()
+    ): List<ProfileringRow> =
         transaction(database) {
-            ProfileringFunctions.findForPeriodeId(periodeId)
+            ProfileringFunctions.findForPeriodeId(periodeId, paging)
         }
 
-    fun finnProfileringerForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<ProfileringRow> =
+    fun finnProfileringerForIdentiteter(
+        identitetsnummerList: List<Identitetsnummer>,
+        paging: Paging = Paging()
+    ): List<ProfileringRow> =
         transaction(database) {
-            ProfileringFunctions.findForIdentitetsnummerList(identitetsnummerList)
+            ProfileringFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
         }
 
     fun lagreProfilering(profilering: Profilering) {

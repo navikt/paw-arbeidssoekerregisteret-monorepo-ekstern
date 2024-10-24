@@ -41,6 +41,7 @@ import no.nav.paw.bekreftelse.melding.v1.vo.Metadata as BekreftelseMetadata
 
 object TestData {
 
+    private const val fnrDefault = "09099912345"
     const val fnr1 = "01017012345"
     const val fnr2 = "02017012345"
     const val fnr3 = "03017012345"
@@ -80,7 +81,7 @@ object TestData {
     fun nyOpplysningerRow(
         id: Long = 1L,
         opplysningerId: UUID = UUID.randomUUID(),
-        periodeId: UUID = periodeId1,
+        periodeId: UUID = UUID.randomUUID(),
         sendtInnAv: MetadataRow = nyMetadataRow(),
         jobbsituasjon: List<BeskrivelseMedDetaljerRow> = nyJobbsituasjonRows(
             listOf(
@@ -157,7 +158,7 @@ object TestData {
 
     fun nyStartetPeriodeRow(
         id: Long = 1L,
-        identitetsnummer: String = fnr1,
+        identitetsnummer: String = fnrDefault,
         periodeId: UUID = UUID.randomUUID(),
         startetMetadata: MetadataRow = nyMetadataRow(
             tidspunkt = Instant.now().minus(Duration.ofDays(30)),
@@ -174,7 +175,7 @@ object TestData {
 
     fun nyAvsluttetPeriodeRow(
         id: Long = 1L,
-        identitetsnummer: String = fnr1,
+        identitetsnummer: String = fnrDefault,
         periodeId: UUID = UUID.randomUUID(),
         startetMetadata: MetadataRow = nyMetadataRow(
             tidspunkt = Instant.now().minus(Duration.ofDays(30)),
@@ -198,8 +199,8 @@ object TestData {
     fun nyProfileringRow(
         id: Long = 1L,
         profileringId: UUID = UUID.randomUUID(),
-        periodeId: UUID = periodeId1,
-        opplysningerId: UUID = opplysningerId1,
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID(),
         sendtInAv: MetadataRow = nyMetadataRow(),
         profilertTil: ProfilertTil = ProfilertTil.UDEFINERT,
         jobbetSammenhengendeSeksAvTolvSisteManeder: Boolean = true,
@@ -233,8 +234,8 @@ object TestData {
 
     fun nyBrukerRow(
         id: Long = 1L,
-        type: no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType = no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType.SLUTTBRUKER,
-        brukerId: String = fnr1
+        type: BrukerType = BrukerType.SLUTTBRUKER,
+        brukerId: String = fnrDefault
     ) = BrukerRow(id = id, type = type, brukerId = brukerId)
 
     fun nyTidspunktFraKildeRow(
@@ -255,18 +256,23 @@ object TestData {
         nyAvsluttetPeriodeRow(periodeId = periodeId3),
     )
 
-    fun nyProfileringRowList(size: Int = 1, periodeId: UUID = periodeId1): List<ProfileringRow> =
+    fun nyProfileringRowList(
+        size: Int = 1,
+        profileringId: UUID = UUID.randomUUID(),
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID()
+    ): List<ProfileringRow> =
         IntRange(1, size).map {
             nyProfileringRow(
-                profileringId = profileringId1,
+                profileringId = profileringId,
                 periodeId = periodeId,
-                opplysningerId = opplysningerId1
+                opplysningerId = opplysningerId
             )
         }
 
     fun nyStartetPeriode(
         periodeId: UUID = UUID.randomUUID(),
-        identitetsnummer: String = fnr1,
+        identitetsnummer: String = fnrDefault,
         startetMetadata: Metadata = nyMetadata(
             tidspunkt = Instant.now().minus(Duration.ofDays(30)),
             utfoertAv = nyBruker(brukerId = identitetsnummer)
@@ -280,7 +286,7 @@ object TestData {
     )
 
     fun nyAvsluttetPeriode(
-        identitetsnummer: String = fnr1,
+        identitetsnummer: String = fnrDefault,
         periodeId: UUID = UUID.randomUUID(),
         startetMetadata: Metadata = nyMetadata(
             tidspunkt = Instant.now().minus(Duration.ofDays(30)),
@@ -300,12 +306,15 @@ object TestData {
         avsluttetMetadata
     )
 
-    fun nyPeriodeList(size: Int = 1, identitetsnummer: String = fnr1) =
-        IntRange(1, size).map { nyStartetPeriode(identitetsnummer = identitetsnummer) }
+    fun nyPeriodeList(size: Int = 1, identitetsnummer: String = fnrDefault) =
+        IntRange(1, size).map { i ->
+            val startetMetadata = nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(30 + i.toLong())))
+            nyStartetPeriode(identitetsnummer = identitetsnummer, startetMetadata = startetMetadata)
+        }
 
     fun nyOpplysningerOmArbeidssoeker(
         opplysningerId: UUID = UUID.randomUUID(),
-        periodeId: UUID = periodeId1,
+        periodeId: UUID = UUID.randomUUID(),
         sendtInnAv: Metadata = nyMetadata(),
         jobbsituasjon: Jobbsituasjon = nyJobbsituasjon(
             listOf(
@@ -327,7 +336,10 @@ object TestData {
     )
 
     fun nyOpplysningerOmArbeidssoekerList(size: Int = 1, periodeId: UUID = UUID.randomUUID()) =
-        IntRange(1, size).map { nyOpplysningerOmArbeidssoeker(periodeId = periodeId) }
+        IntRange(1, size).map { i ->
+            val sendtInnAv = nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(i.toLong())))
+            nyOpplysningerOmArbeidssoeker(periodeId = periodeId, sendtInnAv = sendtInnAv)
+        }
 
     fun nyJobbsituasjon(
         beskrivelser: List<Beskrivelse> = listOf(Beskrivelse.HAR_SAGT_OPP)
@@ -360,8 +372,8 @@ object TestData {
 
     fun nyProfilering(
         profileringId: UUID = UUID.randomUUID(),
-        periodeId: UUID = periodeId1,
-        opplysningerId: UUID = opplysningerId1,
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID(),
         sendtInAv: Metadata = nyMetadata(),
         profilertTil: ProfilertTil = ProfilertTil.UDEFINERT,
         jobbetSammenhengendeSeksAvTolvSisteManeder: Boolean = true,
@@ -376,8 +388,15 @@ object TestData {
         alder
     )
 
-    fun nyProfileringList(size: Int = 1, periodeId: UUID = periodeId1) =
-        IntRange(1, size).map { nyProfilering(periodeId = periodeId) }
+    fun nyProfileringList(
+        size: Int = 1,
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID()
+    ) =
+        IntRange(1, size).map { i ->
+            val sendtInnAv = nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(i.toLong())))
+            nyProfilering(periodeId = periodeId, opplysningerId = opplysningerId, sendtInAv = sendtInnAv)
+        }
 
     fun nyMetadata(
         tidspunkt: Instant = Instant.now(),
@@ -395,7 +414,7 @@ object TestData {
 
     fun nyBruker(
         type: BrukerType = BrukerType.SLUTTBRUKER,
-        brukerId: String = fnr1
+        brukerId: String = fnrDefault
     ) = Bruker(type, brukerId)
 
     fun nyTidspunktFraKilde(
@@ -405,7 +424,7 @@ object TestData {
 
     fun nyBekreftelse(
         bekreftelseId: UUID = UUID.randomUUID(),
-        periodeId: UUID = periodeId1,
+        periodeId: UUID = UUID.randomUUID(),
         bekreftelsesloesning: Bekreftelsesloesning = Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET,
         svar: Svar = nyBekreftelseSvar()
     ) = Bekreftelse(periodeId, bekreftelsesloesning, bekreftelseId, svar)
@@ -433,11 +452,11 @@ object TestData {
 
     fun nyBekreftelseBruker(
         type: BekreftelseBrukerType = BekreftelseBrukerType.SLUTTBRUKER,
-        brukerId: String = fnr1
+        brukerId: String = fnrDefault
     ) = BekreftelseBruker(type, brukerId)
 
     fun nyBekreftelseList(
         size: Int = 1,
-        periodeId: UUID = periodeId1
+        periodeId: UUID = UUID.randomUUID()
     ) = IntRange(1, size).map { nyBekreftelse(periodeId = periodeId) }
 }

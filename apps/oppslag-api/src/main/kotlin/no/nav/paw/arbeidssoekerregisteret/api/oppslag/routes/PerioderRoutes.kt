@@ -10,6 +10,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
@@ -30,13 +31,8 @@ fun Route.perioderRoutes(
                 val identitetsnummer = call.getPidClaim()
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
-                val response = if (siste) {
-                    val arbeidssoekerperioder = periodeService.finnPerioderForIdentiteter(identitetsnummerList)
-                    // TODO Fiks med order by og limit mot databasen
-                    arbeidssoekerperioder.maxByOrNull { it.startet.tidspunkt }?.let { listOf(it) } ?: emptyList()
-                } else {
-                    periodeService.finnPerioderForIdentiteter(identitetsnummerList)
-                }
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
 
                 logger.info("Hentet arbeidssøkerperioder for bruker")
 
@@ -52,13 +48,8 @@ fun Route.perioderRoutes(
 
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)
 
-                val response = if (siste) {
-                    // TODO Fiks med order by og limit mot databasen
-                    val arbeidssoekerperioder = periodeService.finnPerioderForIdentiteter(identitetsnummerList)
-                    arbeidssoekerperioder.maxByOrNull { it.startet.tidspunkt }?.let { listOf(it) } ?: emptyList()
-                } else {
-                    periodeService.finnPerioderForIdentiteter(identitetsnummerList)
-                }
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
 
                 logger.info("Veileder hentet arbeidssøkerperioder for bruker")
 

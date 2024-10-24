@@ -140,7 +140,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode()
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
