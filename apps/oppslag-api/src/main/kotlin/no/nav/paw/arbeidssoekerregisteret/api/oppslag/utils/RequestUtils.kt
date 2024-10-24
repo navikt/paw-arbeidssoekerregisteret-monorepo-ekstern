@@ -6,13 +6,10 @@ import io.ktor.server.auth.authentication
 import io.ktor.server.request.receive
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.NavAnsatt
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toIdentitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.StatusException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 import java.util.*
 
@@ -120,46 +117,4 @@ fun String.asUUID(): UUID = try {
     UUID.fromString(this)
 } catch (e: IllegalArgumentException) {
     throw StatusException(HttpStatusCode.BadRequest, "UUID har feil format")
-}
-
-fun createSisteSamletInformasjonResponse(
-    identitetsnummerList: List<Identitetsnummer>,
-    periodeService: PeriodeService,
-    opplysningerService: OpplysningerService,
-    profileringService: ProfileringService
-): SamletInformasjonResponse {
-    val arbeidssoekerperioder = periodeService.finnPerioderForIdentiteter(identitetsnummerList)
-    val sistePeriode = arbeidssoekerperioder.maxByOrNull { it.startet.tidspunkt }
-
-    val sisteOpplysninger = sistePeriode?.let { periode ->
-        opplysningerService
-            .finnOpplysningerForPeriodeId(periode.periodeId).maxByOrNull { it.sendtInnAv.tidspunkt }
-    }
-    val sisteProfilering = sistePeriode?.let { periode ->
-        profileringService
-            .finnProfileringerForPeriodeId(periode.periodeId).maxByOrNull { it.sendtInnAv.tidspunkt }
-    }
-
-    return SamletInformasjonResponse(
-        arbeidssoekerperioder = listOfNotNull(sistePeriode),
-        opplysningerOmArbeidssoeker = listOfNotNull(sisteOpplysninger),
-        profilering = listOfNotNull(sisteProfilering)
-    )
-}
-
-fun createSamletInformasjonResponse(
-    identitetsnummerList: List<Identitetsnummer>,
-    periodeService: PeriodeService,
-    opplysningerService: OpplysningerService,
-    profileringService: ProfileringService
-): SamletInformasjonResponse {
-    val arbeidssoekerperioder = periodeService.finnPerioderForIdentiteter(identitetsnummerList)
-    val opplysningerOmArbeidssoeker = opplysningerService.finnOpplysningerForIdentiteter(identitetsnummerList)
-    val profilering = profileringService.finnProfileringerForIdentiteter(identitetsnummerList)
-
-    return SamletInformasjonResponse(
-        arbeidssoekerperioder = arbeidssoekerperioder,
-        opplysningerOmArbeidssoeker = opplysningerOmArbeidssoeker,
-        profilering = profilering
-    )
 }

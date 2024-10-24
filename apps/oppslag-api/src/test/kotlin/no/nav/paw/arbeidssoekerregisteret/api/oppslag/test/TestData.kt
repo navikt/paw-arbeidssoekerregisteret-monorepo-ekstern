@@ -53,6 +53,7 @@ object TestData {
     const val fnr9 = "09017012345"
     const val fnr10 = "10017012345"
     const val fnr11 = "11017012345"
+    const val fnr31 = "31017012345"
     val identitetsnummer1 = Identitetsnummer(fnr1)
     val identitetsnummer2 = Identitetsnummer(fnr2)
     val identitetsnummer3 = Identitetsnummer(fnr3)
@@ -458,5 +459,9 @@ object TestData {
     fun nyBekreftelseList(
         size: Int = 1,
         periodeId: UUID = UUID.randomUUID()
-    ) = IntRange(1, size).map { nyBekreftelse(periodeId = periodeId) }
+    ) = IntRange(1, size).map { i ->
+        val gjelderFra = Instant.now().minus(Duration.ofDays(i.toLong()))
+        val svar = nyBekreftelseSvar(gjelderFra = gjelderFra, gjelderTil = gjelderFra.plus(Duration.ofDays(14)))
+        nyBekreftelse(periodeId = periodeId, svar = svar)
+    }
 }

@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bruker
@@ -33,7 +34,24 @@ object BekreftelseFunctions {
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
             .selectAll()
             .where { BekreftelseTable.periodeId eq periodeId }
-            .orderBy(MetadataTable.tidspunkt, paging.ordering)
+            .orderBy(BekreftelseSvarTable.gjelderFra, paging.ordering)
+            .limit(paging.size).offset(paging.offset)
+            .map { it.toBekreftelseRow() }
+    }
+
+    fun findForIdentitetsnummerList(
+        identitetsnummerList: List<Identitetsnummer>,
+        paging: Paging = Paging()
+    ): List<BekreftelseRow> {
+        val identiteter = identitetsnummerList.map { it.verdi }
+        return BekreftelseTable
+            .join(BekreftelseSvarTable, JoinType.LEFT, BekreftelseTable.svarId, BekreftelseSvarTable.id)
+            .join(MetadataTable, JoinType.LEFT, BekreftelseSvarTable.sendtInnId, MetadataTable.id)
+            .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
+            .join(PeriodeTable, JoinType.LEFT, BekreftelseTable.periodeId, PeriodeTable.periodeId)
+            .selectAll()
+            .where { PeriodeTable.identitetsnummer inList identiteter }
+            .orderBy(BekreftelseSvarTable.gjelderFra, paging.ordering)
             .limit(paging.size).offset(paging.offset)
             .map { it.toBekreftelseRow() }
     }
