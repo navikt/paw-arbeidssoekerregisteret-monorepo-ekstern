@@ -1,10 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka
+
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 class PeriodeProducerUtils {
     val testPeriodeId1 = UUID.fromString("00000000-0000-0000-0000-000000000001")
@@ -22,7 +23,8 @@ class PeriodeProducerUtils {
                         "12345678911"
                     ),
                     "test",
-                    "test"
+                    "test",
+                    null
                 ),
                 null
             ),
@@ -36,7 +38,8 @@ class PeriodeProducerUtils {
                         "12345678911"
                     ),
                     "test",
-                    "test"
+                    "test",
+                    null
                 ),
                 Metadata(
                     Instant.now().plusSeconds(100),
@@ -45,7 +48,8 @@ class PeriodeProducerUtils {
                         "12345678911"
                     ),
                     "test",
-                    "test"
+                    "test",
+                    null
                 )
             )
         )

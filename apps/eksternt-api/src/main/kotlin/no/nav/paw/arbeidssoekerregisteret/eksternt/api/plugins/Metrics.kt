@@ -5,7 +5,7 @@ import io.ktor.server.metrics.micrometer.*
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 fun Application.configureMetrics(

@@ -1,86 +1,86 @@
-import com.github.davidmc24.gradle.plugin.avro.GenerateAvroProtocolTask
-import org.jmailen.gradle.kotlinter.tasks.LintTask
-
 plugins {
-    kotlin("jvm") version "1.9.20"
-    id("io.ktor.plugin") version "2.3.5"
-    id("org.jmailen.kotlinter") version "4.0.0"
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
-    id("org.openapi.generator") version "7.4.0"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.openapi.generator)
+    alias(libs.plugins.google.jib)
     application
 }
 
-val arbeidssoekerregisteretVersion = "1.8062260419.22-1"
-val logbackVersion = "1.4.14"
-val logstashVersion = "7.3"
-val pawUtilsVersion = "24.01.11.9-1"
-val navCommonModulesVersion = "2.2023.01.02_13.51-1c6adeb1653b"
-val tokenSupportVersion = "4.1.0"
-val koTestVersion = "5.8.0"
-val ktorVersion = pawObservability.versions.ktor
-val exposedVersion = "0.46.0"
-
-val schema by configurations.creating {
-    isTransitive = false
-}
+val jvmMajorVersion: String by project
+val baseImage: String by project
+val image: String? by project
 
 dependencies {
-    // Arbeidssoekerregisteret schema
-    schema("no.nav.paw.arbeidssokerregisteret.api:main-avro-schema:$arbeidssoekerregisteretVersion")
-    implementation(pawObservability.bundles.ktorNettyOpentelemetryMicrometerPrometheus)
+    implementation(project(":lib:hoplite-config"))
+    implementation(project(":lib:error-handling"))
+    implementation(project(":lib:kafka"))
+    implementation(project(":domain:main-avro-schema"))
 
-    // Token support
-    implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
-    implementation("no.nav.security:token-client-core:$tokenSupportVersion")
-    implementation("no.nav.common:token-client:$navCommonModulesVersion")
+    // Server
+    implementation(libs.bundles.ktor.server.instrumented)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.callid)
+
+    // Client
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+
+    // Serialization
+    implementation(libs.ktor.serialization.jackson)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.jackson.datatype.jsr310)
 
     // Logging
-    implementation("no.nav.common:log:$navCommonModulesVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
+    implementation(libs.logback.classic)
+    implementation(libs.logstash.logback.encoder)
+    implementation(libs.nav.common.log)
+    implementation(libs.nav.common.audit.log)
 
-    // Paw-utils
-    implementation("no.nav.paw.hoplite-config:hoplite-config:$pawUtilsVersion")
-    implementation("no.nav.paw.kafka:kafka:$pawUtilsVersion")
+    // Docs
+    implementation(libs.ktor.server.openapi)
+    implementation(libs.ktor.server.swagger)
+
+    // Instrumentation
+    implementation(libs.micrometer.registry.prometheus)
+    implementation(libs.opentelemetry.api)
+    implementation(libs.opentelemetry.annotations)
 
     // Kafka
-    implementation("io.confluent:kafka-avro-serializer:7.5.3")
-    implementation("org.apache.avro:avro:1.11.3")
-
-    // Ktor client
-    implementation("io.ktor:ktor-server-cors:$ktorVersion")
-    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-id:$ktorVersion")
-    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2")
-
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion}")
+    implementation(libs.avro)
+    implementation(libs.confluent.kafka.avro.serializer)
 
     // Database
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-crypt:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
-    implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.postgresql:postgresql:42.6.0")
-    implementation("org.flywaydb:flyway-core:9.21.2")
+    implementation(libs.exposed.crypt)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.java.time)
+    implementation(libs.hikari.connection.pool)
+    implementation(libs.postgres.driver)
+    implementation(libs.flyway.postgres)
 
-    // kotest
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
-    testImplementation("io.kotest:kotest-runner-junit5:$koTestVersion")
-    testImplementation("io.kotest:kotest-assertions-core:$koTestVersion")
-    testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("org.testcontainers:testcontainers:1.19.1")
-    testImplementation("org.testcontainers:postgresql:1.19.1")
-    testImplementation("no.nav.security:mock-oauth2-server:2.0.0")
+    // Security
+    implementation(libs.ktor.server.auth)
+    implementation(libs.nav.common.token.client)
+    implementation(libs.nav.security.token.client.core)
+    implementation(libs.nav.security.token.validation.ktor)
 
-    // Opentelemetry instrumentation annotation
-    implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.1.0")
+    // Test
+    testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.bundles.unit.testing.kotest)
+    testImplementation(libs.mockk)
+    testImplementation(libs.nav.security.mock.oauth2.server)
+    testImplementation(libs.testcontainers.postgresql)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(jvmMajorVersion))
+    }
+}
+
+application {
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 sourceSets {
@@ -91,14 +91,31 @@ sourceSets {
     }
 }
 
-val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
-val generatedCodePackageName = "no.nav.paw.arbeidssoekerregisteret.eksternt.api"
-val generatedCodeOutputDir = "${layout.buildDirectory.get()}/generated/"
-
-tasks.withType<LintTask>() {
-    dependsOn("openApiGenerate")
-    source = (source - fileTree("build")).asFileTree
+tasks.named("compileTestKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
 }
+
+tasks.named("compileKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
+tasks.withType(Jar::class) {
+    manifest {
+        attributes["Implementation-Version"] = project.version
+        attributes["Main-Class"] = application.mainClass.get()
+        attributes["Implementation-Title"] = rootProject.name
+    }
+}
+
+val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
 
 openApiValidate {
     inputSpec = openApiDocFile
@@ -108,8 +125,8 @@ openApiGenerate {
     generatorName.set("kotlin-server")
     library = "ktor"
     inputSpec = openApiDocFile
-    outputDir = generatedCodeOutputDir
-    packageName = generatedCodePackageName
+    outputDir = "${layout.buildDirectory.get()}/generated/"
+    packageName = "no.nav.paw.arbeidssoekerregisteret.eksternt.api"
     configOptions.set(
         mapOf(
             "serializationLibrary" to "jackson",
@@ -128,43 +145,15 @@ openApiGenerate {
     )
 }
 
-tasks.named("generateAvroProtocol", GenerateAvroProtocolTask::class.java) {
-    source(zipTree(schema.singleFile))
-}
-
-tasks.named("compileTestKotlin") {
-    dependsOn("generateTestAvroJava", "openApiValidate", "openApiGenerate")
-}
-
-tasks.named("compileKotlin") {
-    dependsOn("generateAvroProtocol", "openApiValidate", "openApiGenerate")
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
-
-task<JavaExec>("produceLocalMessagesForTopics") {
-    mainClass.set("no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka.PeriodeProducerKt")
-    classpath = sourceSets["main"].runtimeClasspath
-}
-task<JavaExec>("cleanDatabase") {
-    mainClass.set("no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.DatabaseUtilsKt")
-    classpath = sourceSets["main"].runtimeClasspath
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
-}
-
-application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
-}
-
-ktor {
-    fatJar {
-        archiveFileName.set("fat.jar")
+jib {
+    from.image = "$baseImage:$jvmMajorVersion"
+    to.image = "${image ?: project.name}:${project.version}"
+    container {
+        environment = mapOf(
+            "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}"
+        )
+        jvmFlags = listOf(
+            "-XX:ActiveProcessorCount=4", "-XX:+UseZGC", "-XX:+ZGenerational"
+        )
     }
 }

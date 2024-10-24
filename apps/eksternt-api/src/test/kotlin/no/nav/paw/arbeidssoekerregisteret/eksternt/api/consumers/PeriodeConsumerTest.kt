@@ -32,7 +32,7 @@ class PeriodeConsumerTest : FreeSpec({
         every { consumerMock.subscribe(listOf(topic)) } just Runs
         every { consumerMock.unsubscribe() } just Runs
         every { consumerMock.poll(any<Duration>()) } returns createConsumerRecords()
-        every { serviceMock.storeBatch(any()) } just Runs
+        every { serviceMock.lagreAlleArbeidssoekerperioder(any()) } just Runs
         every { consumerMock.commitSync() } just Runs
 
         thread {
@@ -41,7 +41,7 @@ class PeriodeConsumerTest : FreeSpec({
 
         verify { consumerMock.subscribe(listOf(topic)) }
         verify { consumerMock.poll(any<Duration>()) }
-        verify { serviceMock.storeBatch(any()) }
+        verify { serviceMock.lagreAlleArbeidssoekerperioder(any()) }
         verify { consumerMock.commitSync() }
 
         consumer.stop()
@@ -67,7 +67,8 @@ private fun createConsumerRecords(): ConsumerRecords<Long, Periode> {
                             "12345678901"
                         ),
                         "test",
-                        "test"
+                        "test",
+                        null
                     ),
                     null
                 )

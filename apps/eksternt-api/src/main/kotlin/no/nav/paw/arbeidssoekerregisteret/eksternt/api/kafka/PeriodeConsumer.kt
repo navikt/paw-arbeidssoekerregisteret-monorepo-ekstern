@@ -46,7 +46,7 @@ class PeriodeConsumer(
 
     private fun processAndCommitBatch(batch: Sequence<Periode>) =
         try {
-            arbeidssoekerService.storeBatch(batch)
+            arbeidssoekerService.lagreAlleArbeidssoekerperioder(batch)
             consumer.commitSync()
         } catch (error: Exception) {
             throw Exception("Feil ved konsumering av melding fra $topic", error)

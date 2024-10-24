@@ -8,12 +8,15 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import java.time.LocalDate
 
 class ArbeidssoekerService(private val arbeidssoekerperiodeRepository: ArbeidssoekerperiodeRepository) {
-    fun storeBatch(arbeidssoekerperioder: Sequence<Periode>) {
-        arbeidssoekerperiodeRepository.storeBatch(arbeidssoekerperioder)
+
+    fun lagreAlleArbeidssoekerperioder(arbeidssoekerperioder: Sequence<Periode>) {
+        arbeidssoekerperiodeRepository.lagreAlleArbeidssoekerperioder(arbeidssoekerperioder)
     }
 
     fun hentArbeidssoekerperioder(
         identitetsnummer: Identitetsnummer,
         fraStartetDato: LocalDate?
-    ): List<ArbeidssoekerperiodeResponse?> = arbeidssoekerperiodeRepository.hentArbeidssoekerperioder(identitetsnummer, fraStartetDato).map { it?.toArbeidssoekerperiodeResponse() }
+    ): List<ArbeidssoekerperiodeResponse> = arbeidssoekerperiodeRepository
+        .hentArbeidssoekerperioder(identitetsnummer, fraStartetDato)
+        .map { it.toArbeidssoekerperiodeResponse() }
 }

@@ -11,6 +11,7 @@ include(
     "apps:microfrontend-toggler",
     "apps:profilering",
     "apps:oppslag-api",
+    "apps:eksternt-api",
 )
 
 dependencyResolutionManagement {

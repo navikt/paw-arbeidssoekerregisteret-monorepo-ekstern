@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api
 
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.APPLICATION_CONFIG_FILE
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.ApplicationConfiguration
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka.PeriodeConsumer

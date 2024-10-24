@@ -5,7 +5,6 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.Arbeidssoekerperio
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.toArbeidssoekerperiode
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.logger
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.toInstant
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.toLocalDateTime
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.jetbrains.exposed.sql.Database
@@ -18,13 +17,14 @@ import org.jetbrains.exposed.sql.update
 import java.sql.SQLException
 import java.time.Instant
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 class ArbeidssoekerperiodeRepository(private val database: Database) {
-    fun storeBatch(arbeidssoekerperioder: Sequence<Periode>) {
+
+    fun lagreAlleArbeidssoekerperioder(arbeidssoekerperioder: Sequence<Periode>) {
         transaction(database) {
-            repetitionAttempts = 2
-            minRepetitionDelay = 20
+            maxAttempts = 2
+            minRetryDelay = 20
 
             arbeidssoekerperioder.forEach { periode ->
                 if (finnesArbeidssoekerperiode(periode.id)) {
@@ -39,20 +39,17 @@ class ArbeidssoekerperiodeRepository(private val database: Database) {
     fun hentArbeidssoekerperioder(
         identitetsnummer: Identitetsnummer,
         fraStartetDato: LocalDate?
-    ): List<Arbeidssoekerperiode?> =
+    ): List<Arbeidssoekerperiode> =
         transaction(database) {
             PeriodeTable.selectAll().where { PeriodeTable.identitetsnummer eq identitetsnummer.verdi }.filter {
                 val startetDateTime = it[PeriodeTable.startet].toLocalDateTime().toLocalDate()
                 fraStartetDato == null || startetDateTime >= fraStartetDato
             }.map { resultRow ->
-                val startet = resultRow[PeriodeTable.startet].toLocalDateTime()
-                val avsluttet = resultRow[PeriodeTable.avsluttet]?.toLocalDateTime()
-
                 Arbeidssoekerperiode(
                     Identitetsnummer(resultRow[PeriodeTable.identitetsnummer]),
                     resultRow[PeriodeTable.periodeId],
-                    startet,
-                    avsluttet
+                    resultRow[PeriodeTable.startet],
+                    resultRow[PeriodeTable.avsluttet]
                 )
             }
         }
@@ -66,14 +63,11 @@ class ArbeidssoekerperiodeRepository(private val database: Database) {
     fun hentArbeidssoekerperiode(periodeId: UUID): Arbeidssoekerperiode? =
         transaction(database) {
             PeriodeTable.selectAll().where { PeriodeTable.periodeId eq periodeId }.map { resultRow ->
-                val startet = resultRow[PeriodeTable.startet].toLocalDateTime()
-                val avsluttet = resultRow[PeriodeTable.avsluttet]?.toLocalDateTime()
-
                 Arbeidssoekerperiode(
                     Identitetsnummer(resultRow[PeriodeTable.identitetsnummer]),
                     resultRow[PeriodeTable.periodeId],
-                    startet,
-                    avsluttet
+                    resultRow[PeriodeTable.startet],
+                    resultRow[PeriodeTable.avsluttet]
                 )
             }.firstOrNull()
         }
@@ -88,8 +82,8 @@ class ArbeidssoekerperiodeRepository(private val database: Database) {
             PeriodeTable.insert {
                 it[periodeId] = periode.periodeId
                 it[identitetsnummer] = periode.identitetsnummer.verdi
-                it[startet] = periode.startet.toInstant()
-                it[avsluttet] = periode.avsluttet?.toInstant()
+                it[startet] = periode.startet
+                it[avsluttet] = periode.avsluttet
             }
         }
     }
@@ -99,7 +93,7 @@ class ArbeidssoekerperiodeRepository(private val database: Database) {
             try {
                 PeriodeTable.update({ PeriodeTable.periodeId eq periode.periodeId }) {
                     it[identitetsnummer] = periode.identitetsnummer.verdi
-                    it[avsluttet] = periode.avsluttet?.toInstant()
+                    it[avsluttet] = periode.avsluttet
                 }
             } catch (e: SQLException) {
                 logger.error("Feil ved oppdatering av periode", e)

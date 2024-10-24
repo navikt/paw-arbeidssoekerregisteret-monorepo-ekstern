@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api.metrics
 
 import io.micrometer.core.instrument.Tags
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories.ArbeidssoekerperiodeRepository
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong

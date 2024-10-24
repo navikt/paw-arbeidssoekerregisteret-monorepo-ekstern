@@ -6,16 +6,16 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 fun Arbeidssoekerperiode.toArbeidssoekerperiodeResponse() =
     ArbeidssoekerperiodeResponse(
         periodeId = periodeId,
-        startet = startet,
-        avsluttet = avsluttet
+        startet = startet.toLocalDateTime(),
+        avsluttet = avsluttet?.toLocalDateTime()
     )
 
 fun Periode.toArbeidssoekerperiode() =
     Arbeidssoekerperiode(
         identitetsnummer = Identitetsnummer(identitetsnummer),
         periodeId = id,
-        startet = startet.tidspunkt.toLocalDateTime(),
-        avsluttet = avsluttet?.tidspunkt?.toLocalDateTime()
+        startet = startet.tidspunkt,
+        avsluttet = avsluttet?.tidspunkt
     )
 
 fun EksternRequest.getIdentitetsnummer() = this.identitetsnummer.toIdentitetsnummer()

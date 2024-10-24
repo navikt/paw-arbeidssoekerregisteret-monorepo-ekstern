@@ -9,7 +9,8 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.TimeUtils.getMaxDateForDatabaseStorage
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.toInstant
 import org.jetbrains.exposed.sql.Database
-import java.time.LocalDateTime
+import java.time.Duration
+import java.time.Instant
 import java.util.*
 import javax.sql.DataSource
 
@@ -53,7 +54,7 @@ class ArbeidssokerperiodeRepositoryTest : StringSpec({
         val periode = hentTestPeriode()
         repository.opprettArbeidssoekerperiode(periode)
 
-        val updatedPeriode = periode.copy(avsluttet = LocalDateTime.now().minusDays(2))
+        val updatedPeriode = periode.copy(avsluttet = Instant.now().minus(Duration.ofDays(2)))
 
         repository.oppdaterArbeidssoekerperiode(updatedPeriode)
 
@@ -69,7 +70,7 @@ class ArbeidssokerperiodeRepositoryTest : StringSpec({
         val periode = hentTestPeriode().copy(avsluttet = null)
         repository.opprettArbeidssoekerperiode(periode)
 
-        val updatedPeriode = periode.copy(avsluttet = LocalDateTime.now().minusDays(2))
+        val updatedPeriode = periode.copy(avsluttet = Instant.now().minus(Duration.ofDays(2)))
 
         repository.oppdaterArbeidssoekerperiode(updatedPeriode)
 
@@ -109,14 +110,17 @@ class ArbeidssokerperiodeRepositoryTest : StringSpec({
     }
 })
 
-fun hentTestPeriode(periodeId: UUID? = null): Arbeidssoekerperiode {
-    val startetTimestamp = LocalDateTime.now().minusDays(10)
-    val avsluttetTimestamp = LocalDateTime.now()
+fun hentTestPeriode(
+    identitetsnummer: Identitetsnummer = Identitetsnummer("12345678911"),
+    periodeId: UUID = UUID.randomUUID(),
+    startet: Instant = Instant.now().minus(Duration.ofDays(10)),
+    avsluttet: Instant = Instant.now()
+): Arbeidssoekerperiode {
     return Arbeidssoekerperiode(
-        Identitetsnummer("12345678911"),
-        periodeId ?: UUID.randomUUID(),
-        startetTimestamp,
-        avsluttetTimestamp
+        identitetsnummer = identitetsnummer,
+        periodeId = periodeId,
+        startet = startet,
+        avsluttet = avsluttet
     )
 }
 
@@ -125,16 +129,16 @@ fun hentGamleTestPerioder(): List<Arbeidssoekerperiode> {
     val avsluttet = getMaxDateForDatabaseStorage()
     return listOf(
         Arbeidssoekerperiode(
-            Identitetsnummer("12345678913"),
-            UUID.randomUUID(),
-            startet,
-            avsluttet.plusDays(1)
+            identitetsnummer = Identitetsnummer("12345678913"),
+            periodeId = UUID.randomUUID(),
+            startet = startet.toInstant(),
+            avsluttet = avsluttet.plusDays(1).toInstant()
         ),
         Arbeidssoekerperiode(
-            Identitetsnummer("12345678914"),
-            UUID.randomUUID(),
-            startet,
-            avsluttet.minusDays(1)
+            identitetsnummer = Identitetsnummer("12345678914"),
+            periodeId = UUID.randomUUID(),
+            startet = startet.toInstant(),
+            avsluttet = avsluttet.minusDays(1).toInstant()
         )
     )
 }

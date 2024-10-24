@@ -76,36 +76,6 @@ dependencies {
     testImplementation(libs.testcontainers.postgresql)
 }
 
-val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
-
-openApiValidate {
-    inputSpec = openApiDocFile
-}
-
-openApiGenerate {
-    generatorName.set("kotlin-server")
-    library = "ktor"
-    inputSpec = openApiDocFile
-    outputDir = "${layout.buildDirectory.get()}/generated/"
-    packageName = "no.nav.paw.arbeidssoekerregisteret.api.oppslag"
-    configOptions.set(
-        mapOf(
-            "serializationLibrary" to "jackson",
-            "enumPropertyNaming" to "original",
-        ),
-    )
-    typeMappings = mapOf(
-        "DateTime" to "Instant"
-    )
-    globalProperties = mapOf(
-        "apis" to "none",
-        "models" to ""
-    )
-    importMappings = mapOf(
-        "Instant" to "java.time.Instant"
-    )
-}
-
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(jvmMajorVersion))
@@ -146,6 +116,36 @@ tasks.withType(Jar::class) {
         attributes["Main-Class"] = application.mainClass.get()
         attributes["Implementation-Title"] = rootProject.name
     }
+}
+
+val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
+
+openApiValidate {
+    inputSpec = openApiDocFile
+}
+
+openApiGenerate {
+    generatorName.set("kotlin-server")
+    library = "ktor"
+    inputSpec = openApiDocFile
+    outputDir = "${layout.buildDirectory.get()}/generated/"
+    packageName = "no.nav.paw.arbeidssoekerregisteret.api.oppslag"
+    configOptions.set(
+        mapOf(
+            "serializationLibrary" to "jackson",
+            "enumPropertyNaming" to "original",
+        ),
+    )
+    typeMappings = mapOf(
+        "DateTime" to "Instant"
+    )
+    globalProperties = mapOf(
+        "apis" to "none",
+        "models" to ""
+    )
+    importMappings = mapOf(
+        "Instant" to "java.time.Instant"
+    )
 }
 
 jib {
