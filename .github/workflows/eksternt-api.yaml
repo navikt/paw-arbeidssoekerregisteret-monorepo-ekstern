@@ -1,0 +1,67 @@
+name: Build, push, and deploy
+
+on:
+  push:
+    branches:
+      - main
+      - dev/*
+jobs:
+  build:
+    name: Build and push Docker container
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: gradle
+      - uses: gradle/gradle-build-action@v2
+        env:
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          arguments: build
+      - name: Push docker image to GAR
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: paw
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # Provided as Organization Secret
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # Provided as Organization Variable
+
+  deploy-til-dev:
+    name: Deploy to dev-gcp
+    permissions:
+      contents: read
+      id-token: write
+    needs: build
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/dev')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: nais/nais-dev.yaml
+          VAR: image=${{ needs.build.outputs.image }}
+
+  deploy-til-prod:
+    name: Deploy to prod-gcp
+    permissions:
+      contents: read
+      id-token: write
+    needs: [deploy-til-dev, build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: nais/nais-prod.yaml
+          VAR: image=${{ needs.build.outputs.image }}

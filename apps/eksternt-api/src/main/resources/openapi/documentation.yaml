@@ -1,0 +1,106 @@
+openapi: "3.0.3"
+info:
+  title: "paw_arbeidssoekerregisteret_eksternt_api API"
+  description: "paw_arbeidssoekerregisteret_eksternt_api API"
+  version: "1.0.0"
+servers:
+    - url: "https://arbeidssoekerperioder.nav.no"
+      description: "Production"
+    - url: "https://arbeidssoekerperioder.ekstern.dev.nav.no"
+      description: "Development"
+paths:
+  /api/v1/arbeidssoekerperioder:
+    post:
+      description: ""
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EksternRequest"
+        required: true
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            'string':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ugyldig dato 'fraStartetDato' må være satt med yyyy-mm-dd"
+                Example#2:
+                  value: "Ugyldig request body"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ArbeidssoekerperiodeResponse"
+  /internal/isAlive:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "ALIVE"
+  /internal/isReady:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "READY"
+  /internal/metrics:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "string"
+components:
+  schemas:
+    EksternRequest:
+      type: "object"
+      properties:
+        identitetsnummer:
+          type: "string"
+          example: "12345678901"
+        fraStartetDato:
+          type: "string"
+          example: "2021-01-01"
+      required:
+      - "identitetsnummer"
+    ArbeidssoekerperiodeResponse:
+      type: "object"
+      properties:
+        periodeId:
+          type: "string"
+          format: "uuid"
+        startet:
+          type: "string"
+          format: "date-time"
+          example: "2021-01-01T12:00:00Z"
+        avsluttet:
+          type: "string"
+          format: "date-time"
+          nullable: true
+      required:
+      - "periodeId"
+      - "startet"
