@@ -130,7 +130,8 @@ fun Application.module(
             applicationContext.authorizationService,
             applicationContext.periodeService,
             applicationContext.opplysningerService,
-            applicationContext.profileringService
+            applicationContext.profileringService,
+            applicationContext.bekreftelseService
         )
         bekreftelseRoutes(
             applicationContext.authorizationService,

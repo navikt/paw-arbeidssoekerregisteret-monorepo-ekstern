@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.BekreftelseFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
@@ -18,6 +19,14 @@ class BekreftelseRepository(private val database: Database) {
     ): List<BekreftelseRow> =
         transaction(database) {
             BekreftelseFunctions.findForPeriodeId(periodeId, paging)
+        }
+
+    fun finnBekreftelserForIdentitetsnummerList(
+        identitetsnummerList: List<Identitetsnummer>,
+        paging: Paging = Paging()
+    ): List<BekreftelseRow> =
+        transaction(database) {
+            BekreftelseFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
         }
 
     fun lagreAlleBekreftelser(bekreftelser: Sequence<Bekreftelse>) =

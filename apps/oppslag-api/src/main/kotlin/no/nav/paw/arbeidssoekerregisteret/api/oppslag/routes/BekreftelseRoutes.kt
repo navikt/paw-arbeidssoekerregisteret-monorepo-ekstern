@@ -8,6 +8,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.StatusException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
@@ -24,20 +25,36 @@ fun Route.bekreftelseRoutes(
 ) {
     route("/api/v1") {
         authenticate("tokenx") {
+            get("/arbeidssoekerbekreftelser") {
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
+                val identitetsnummer = call.getPidClaim()
+                val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
+
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = bekreftelseService.finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
+
+                call.respond(response)
+            }
+
             get("/arbeidssoekerbekreftelser/{periodeId}") {
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
                 val identitetsnummer = call.getPidClaim()
                 val periodeId = call.parameters["periodeId"]?.asUUID()
                     ?: throw StatusException(HttpStatusCode.BadRequest, "mangler periodeId")
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
                 verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
-                val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId)
+
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId, paging)
+
                 call.respond(response)
             }
         }
 
         authenticate("azure") {
             get("/veileder/arbeidssoekerbekreftelser/{periodeId}") {
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
                 val periodeId = call.parameters["periodeId"]?.asUUID()
                     ?: throw StatusException(HttpStatusCode.BadRequest, "mangler periodeId")
 
@@ -49,7 +66,9 @@ fun Route.bekreftelseRoutes(
                     .finnIdentiteter(Identitetsnummer(periode.identitetsnummer))
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)
 
-                val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId)
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId, paging)
+
                 call.respond(response)
             }
         }

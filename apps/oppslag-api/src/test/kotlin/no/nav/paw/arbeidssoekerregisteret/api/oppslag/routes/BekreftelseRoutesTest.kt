@@ -66,66 +66,7 @@ class BekreftelseRoutesTest : FreeSpec({
             }
         }
 
-        "/arbeidssoekerbekreftelser/{periodeId} should return 400 BadRequest if unknown periode" {
-            coEvery {
-                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
-
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
-                    }
-                }
-
-                val testClient = configureTestClient()
-
-                val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${TestData.periodeId3}") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken())
-                }
-
-                response.status shouldBe HttpStatusCode.BadRequest
-
-                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-            }
-        }
-
-        "/arbeidssoekerbekreftelser/{periodeId} should return 403 Forbidden if periode not owned by user" {
-            coEvery {
-                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr7, IdentGruppe.FOLKEREGISTERIDENT))
-
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
-                    }
-                }
-
-                val periode = TestData.nyStartetPeriode()
-                val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse).asSequence())
-
-                val testClient = configureTestClient()
-
-                val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${periode.id}") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr7))
-                }
-
-                response.status shouldBe HttpStatusCode.Forbidden
-
-                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-            }
-        }
-
-        "/arbeidssoekerbekreftelser/{periodeId} should return 200 OK" {
+        "/arbeidssoekerbekreftelser should return 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
@@ -147,8 +88,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${periode.id}") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = periode.identitetsnummer))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -157,6 +98,172 @@ class BekreftelseRoutesTest : FreeSpec({
                 bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
                 bekreftelser[1] shouldBeEqualTo bekreftelseResponses[1]
                 bekreftelser[2] shouldBeEqualTo bekreftelseResponses[2]
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/arbeidssoekerbekreftelser med siste-flagg should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr2, IdentGruppe.FOLKEREGISTERIDENT))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                    }
+                }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr2)
+                val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser?siste=true") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = periode.identitetsnummer))
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                val bekreftelseResponses = response.body<List<BekreftelseResponse>>()
+                bekreftelseResponses.size shouldBe 1
+                bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/arbeidssoekerbekreftelser/{periodeId} should return 400 BadRequest if unknown periode" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${TestData.periodeId3}") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr3))
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/arbeidssoekerbekreftelser/{periodeId} should return 403 Forbidden if periode not owned by user" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                    }
+                }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr31)
+                val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse).asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${periode.id}") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr4))
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/arbeidssoekerbekreftelser/{periodeId} should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                    }
+                }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr5)
+                val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${periode.id}") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = periode.identitetsnummer))
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                val bekreftelseResponses = response.body<List<BekreftelseResponse>>()
+                bekreftelseResponses.size shouldBe 3
+                bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
+                bekreftelser[1] shouldBeEqualTo bekreftelseResponses[1]
+                bekreftelser[2] shouldBeEqualTo bekreftelseResponses[2]
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/arbeidssoekerbekreftelser/{periodeId} med siste-flagg should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr6, IdentGruppe.FOLKEREGISTERIDENT))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                    }
+                }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr6)
+                val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${periode.id}?siste=true") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = periode.identitetsnummer))
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                val bekreftelseResponses = response.body<List<BekreftelseResponse>>()
+                bekreftelseResponses.size shouldBe 1
+                bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -185,7 +292,7 @@ class BekreftelseRoutesTest : FreeSpec({
         "/veileder/arbeidssoekerbekreftelser/{periodeId} should return 400 BadRequest if unknown periode" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr7, IdentGruppe.FOLKEREGISTERIDENT))
 
             testApplication {
                 application {
@@ -212,7 +319,7 @@ class BekreftelseRoutesTest : FreeSpec({
         "/veileder/arbeidssoekerbekreftelser/{periodeId} should return 403 Forbidden is no access to user" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr7, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr8, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(
@@ -232,7 +339,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode()
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr8)
                 val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse).asSequence())
@@ -253,7 +360,7 @@ class BekreftelseRoutesTest : FreeSpec({
         "/veileder/arbeidssoekerbekreftelser/{periodeId} should return 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr9, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(
@@ -273,7 +380,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode()
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
@@ -290,6 +397,50 @@ class BekreftelseRoutesTest : FreeSpec({
                 bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
                 bekreftelser[1] shouldBeEqualTo bekreftelseResponses[1]
                 bekreftelser[2] shouldBeEqualTo bekreftelseResponses[2]
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+                coVerify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+            }
+        }
+
+        "/veileder/arbeidssoekerbekreftelser/{periodeId} med siste-flagg should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr10, IdentGruppe.FOLKEREGISTERIDENT))
+            every {
+                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns ApiResult.success(
+                listOf(
+                    PolicyResult(UUID.randomUUID(), Decision.Permit),
+                    PolicyResult(UUID.randomUUID(), Decision.Permit)
+                )
+            )
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                    }
+                }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
+                val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/veileder/arbeidssoekerbekreftelser/${periode.id}?siste=true") {
+                    bearerAuth(mockOAuth2Server.issueAzureToken())
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                val bekreftelseResponses = response.body<List<BekreftelseResponse>>()
+                bekreftelseResponses.size shouldBe 1
+                bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 coVerify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }

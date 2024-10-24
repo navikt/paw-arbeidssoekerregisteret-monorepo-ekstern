@@ -148,6 +148,33 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ProfileringResponse"
+  /api/v1/arbeidssoekerbekreftelser:
+    get:
+      description: ""
+      security:
+        - TokenXAuth: [ ]
+      parameters:
+        - name: "siste"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+          description: "siste=true returnerer siste periode."
+      responses:
+        "500":
+          description: "Internal Server Error"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BekreftelseResponse"
   /api/v1/arbeidssoekerbekreftelser/{periodeId}:
     get:
       description: ""
@@ -159,6 +186,12 @@ paths:
           required: true
           schema:
             type: "string"
+        - name: "siste"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+          description: "siste=true returnerer siste periode."
       responses:
         "400":
           description: "Bad Request"
@@ -345,6 +378,12 @@ paths:
           required: true
           schema:
             type: "string"
+        - name: "siste"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+          description: "siste=true returnerer siste periode."
       responses:
         "400":
           description: "Bad Request"
@@ -617,10 +656,15 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/ProfileringResponse"
+        bekreftelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BekreftelseResponse"
       required:
         - "arbeidssoekerperioder"
         - "opplysningerOmArbeidssoeker"
         - "profilering"
+        - "bekreftelser"
     BekreftelseResponse:
       type: "object"
       properties:
