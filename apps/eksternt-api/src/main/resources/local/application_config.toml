@@ -1,0 +1,9 @@
+gruppeId = "paw.arbeidssoekerregisteret-eksternt-api-v1"
+periodeTopic = "paw.arbeidssokerperioder-v1"
+
+[database]
+host = "localhost"
+port = "5432"
+username = "admin"
+password = "admin"
+name = "arbeidssoekerregisteretapiekstern"

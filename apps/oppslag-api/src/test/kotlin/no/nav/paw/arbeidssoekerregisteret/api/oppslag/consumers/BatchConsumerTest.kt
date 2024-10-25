@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.delay
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers.BatchConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.producers.TestMessages
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
@@ -37,6 +38,8 @@ class BatchConsumerTest : FreeSpec({
             consumer.subscribe()
             consumer.getAndProcessBatch(topic)
         }
+
+        delay(100)
 
         verify { consumerMock.subscribe(any<List<String>>()) }
         verify { consumerMock.poll(any<Duration>()) }

@@ -53,6 +53,7 @@ dependencies {
     // Database
     implementation(libs.exposed.crypt)
     implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.dao)
     implementation(libs.exposed.java.time)
     implementation(libs.hikari.connection.pool)
     implementation(libs.postgres.driver)
@@ -63,10 +64,6 @@ dependencies {
     implementation(libs.nav.common.token.client)
     implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
-    implementation(libs.nav.poao.tilgang.client)
-    implementation(libs.nav.paw.pdl.client)
-
-    implementation(libs.arrow.core)
 
     // Test
     testImplementation(libs.ktor.server.tests)
@@ -83,7 +80,7 @@ java {
 }
 
 application {
-    mainClass.set("no.nav.paw.arbeidssoekerregisteret.api.oppslag.ApplicationKt")
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 sourceSets {
@@ -129,7 +126,7 @@ openApiGenerate {
     library = "ktor"
     inputSpec = openApiDocFile
     outputDir = "${layout.buildDirectory.get()}/generated/"
-    packageName = "no.nav.paw.arbeidssoekerregisteret.api.oppslag"
+    packageName = "no.nav.paw.arbeidssoekerregisteret.eksternt.api"
     configOptions.set(
         mapOf(
             "serializationLibrary" to "jackson",
@@ -137,14 +134,14 @@ openApiGenerate {
         ),
     )
     typeMappings = mapOf(
-        "DateTime" to "Instant"
+        "DateTime" to "LocalDateTime",
     )
     globalProperties = mapOf(
         "apis" to "none",
         "models" to ""
     )
     importMappings = mapOf(
-        "Instant" to "java.time.Instant"
+        "LocalDateTime" to "java.time.LocalDateTime"
     )
 }
 
