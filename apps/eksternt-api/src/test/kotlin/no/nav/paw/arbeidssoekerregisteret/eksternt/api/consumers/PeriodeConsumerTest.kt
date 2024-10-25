@@ -29,19 +29,19 @@ class PeriodeConsumerTest : FreeSpec({
 
         val consumer = PeriodeConsumer(topic, consumerMock, serviceMock)
 
-        every { consumerMock.subscribe(listOf(topic)) } just Runs
+        every { consumerMock.subscribe(any<List<String>>()) } just Runs
         every { consumerMock.unsubscribe() } just Runs
         every { consumerMock.poll(any<Duration>()) } returns createConsumerRecords()
-        every { serviceMock.lagreAlleArbeidssoekerperioder(any()) } just Runs
+        every { serviceMock.lagreAlleArbeidssoekerperioder(any<Sequence<Periode>>()) } just Runs
         every { consumerMock.commitSync() } just Runs
 
         thread {
             consumer.start()
         }
 
-        verify { consumerMock.subscribe(listOf(topic)) }
+        verify { consumerMock.subscribe(any<List<String>>()) }
         verify { consumerMock.poll(any<Duration>()) }
-        verify { serviceMock.lagreAlleArbeidssoekerperioder(any()) }
+        verify { serviceMock.lagreAlleArbeidssoekerperioder(any<Sequence<Periode>>()) }
         verify { consumerMock.commitSync() }
 
         consumer.stop()
