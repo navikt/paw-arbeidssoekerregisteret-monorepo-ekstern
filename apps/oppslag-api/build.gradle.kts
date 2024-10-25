@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:kafka"))
+    implementation(project(":lib:pdl-client"))
     implementation(project(":domain:main-avro-schema"))
 
     // Server
@@ -28,7 +29,7 @@ dependencies {
 
     // Serialization
     implementation(libs.ktor.serialization.jackson)
-    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.jackson.datatype.jsr310)
 
     // Logging
@@ -64,7 +65,6 @@ dependencies {
     implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
     implementation(libs.nav.poao.tilgang.client)
-    implementation(libs.nav.paw.pdl.client)
 
     implementation(libs.arrow.core)
 

@@ -7,6 +7,8 @@ include(
     "lib:kafka",
     "lib:kafka-streams",
     "lib:kafka-key-generator-client",
+    "lib:pdl-client",
+    "lib:aareg-client",
     "test:test-data-factory",
     "apps:microfrontend-toggler",
     "apps:profilering",
