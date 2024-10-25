@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.delay
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka.PeriodeConsumer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ArbeidssoekerService
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
@@ -38,6 +39,8 @@ class PeriodeConsumerTest : FreeSpec({
         thread {
             consumer.start()
         }
+
+        delay(100)
 
         verify { consumerMock.subscribe(any<List<String>>()) }
         verify { consumerMock.poll(any<Duration>()) }
