@@ -12,10 +12,10 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:kafka"))
     implementation(project(":lib:kafka-streams"))
+    implementation(project(":lib:pdl-client"))
+    implementation(project(":lib:aareg-client"))
 
     // NAV
-    implementation(libs.nav.paw.aareg.client)
-    implementation(libs.nav.paw.pdl.client)
     implementation(libs.nav.common.token.client)
 
     // Ktor
