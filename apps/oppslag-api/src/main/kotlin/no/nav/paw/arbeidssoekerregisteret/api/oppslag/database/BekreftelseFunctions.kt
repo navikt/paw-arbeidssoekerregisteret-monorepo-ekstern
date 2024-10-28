@@ -67,7 +67,7 @@ object BekreftelseFunctions {
 
     private fun insert(svar: Svar) =
         BekreftelseSvarTable.insertAndGetId {
-            it[sendtInnId] = insert(svar.sendtInn)
+            it[sendtInnId] = insert(svar.sendtInnAv)
             it[gjelderFra] = svar.gjelderFra
             it[gjelderTil] = svar.gjelderTil
             it[harJobbetIDennePerioden] = svar.harJobbetIDennePerioden

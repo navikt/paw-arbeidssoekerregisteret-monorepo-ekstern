@@ -30,7 +30,7 @@ spec:
     - name: PAW_PROFILERING_TOPIC
       value: "paw.arbeidssoker-profilering-v1"
     - name: PAW_BEKREFTELSE_TOPIC
-      value: "paw.arbeidssoker-bekreftelse-beta-v2"
+      value: "paw.arbeidssoker-bekreftelse-beta-v3"
   azure:
     application:
       enabled: true

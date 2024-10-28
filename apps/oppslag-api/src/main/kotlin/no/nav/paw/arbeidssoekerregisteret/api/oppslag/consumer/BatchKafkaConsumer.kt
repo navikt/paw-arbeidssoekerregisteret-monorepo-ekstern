@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers
+package no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer
 
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
@@ -7,7 +7,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 
-class BatchConsumer<K, V>(
+class BatchKafkaConsumer<K, V>(
     private val topic: String,
     val consumer: KafkaConsumer<K, V>,
     private val receiver: (Sequence<V>) -> Unit

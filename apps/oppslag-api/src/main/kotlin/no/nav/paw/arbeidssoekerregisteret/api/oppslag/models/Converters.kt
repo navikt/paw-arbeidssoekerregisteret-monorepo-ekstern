@@ -30,7 +30,7 @@ fun BekreftelseRow.toBekreftelseResponse(): BekreftelseResponse =
 
 private fun BekreftelseSvarRow.toBekreftelseSvarResponse(): BekreftelseSvarResponse =
     BekreftelseSvarResponse(
-        sendtInn = sendtInn.toMetadataResponse(),
+        sendtInnAv = sendtInnAv.toMetadataResponse(),
         gjelderFra = gjelderFra,
         gjelderTil = gjelderTil,
         harJobbetIDennePerioden = harJobbetIDennePerioden,

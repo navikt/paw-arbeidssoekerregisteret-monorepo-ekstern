@@ -64,9 +64,9 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val noTokenResponse = testClient.get("api/v1/profilering/${TestData.periodeId1}")
+                val response = testClient.get("api/v1/profilering/${TestData.periodeId1}")
 
-                noTokenResponse.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 

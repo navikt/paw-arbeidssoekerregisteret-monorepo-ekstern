@@ -64,9 +64,9 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val noTokenResponse = testClient.get("api/v1/opplysninger-om-arbeidssoeker")
+                val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker")
 
-                noTokenResponse.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 

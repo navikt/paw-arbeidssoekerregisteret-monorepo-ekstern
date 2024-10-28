@@ -682,7 +682,7 @@ components:
     BekreftelseSvarResponse:
       type: "object"
       properties:
-        sendtInn:
+        sendtInnAv:
             $ref: "#/components/schemas/MetadataResponse"
         gjelderFra:
             type: "string"
@@ -695,7 +695,7 @@ components:
         vilFortsetteSomArbeidssoeker:
             type: "boolean"
       required:
-        - "sendtInn"
+        - "sendtInnAv"
         - "gjelderFra"
         - "gjelderTil"
         - "harJobbetIDennePerioden"

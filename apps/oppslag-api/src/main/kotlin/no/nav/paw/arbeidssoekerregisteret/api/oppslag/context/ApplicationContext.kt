@@ -6,13 +6,8 @@ import io.ktor.serialization.jackson.jackson
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.BatchKafkaConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers.BatchConsumer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.BekreftelseDeserializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.OpplysningerOmArbeidssoekerDeserializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.PeriodeDeserializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.ProfileringDeserializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.metrics.ScheduleGetAktivePerioderGaugeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
@@ -23,7 +18,12 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerServi
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.TokenService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.BekreftelseDeserializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerDeserializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeDeserializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.RetryInterceptor
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ScheduleGetAktivePerioderGaugeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.configureJackson
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.generateDatasource
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -50,10 +50,10 @@ data class ApplicationContext(
     val opplysningerService: OpplysningerService,
     val profileringService: ProfileringService,
     val bekreftelseService: BekreftelseService,
-    val periodeKafkaConsumer: BatchConsumer<Long, Periode>,
-    val opplysningerKafkaConsumer: BatchConsumer<Long, OpplysningerOmArbeidssoeker>,
-    val profileringKafkaConsumer: BatchConsumer<Long, Profilering>,
-    val bekreftelseKafkaConsumer: BatchConsumer<Long, Bekreftelse>,
+    val periodeKafkaConsumer: BatchKafkaConsumer<Long, Periode>,
+    val opplysningerKafkaConsumer: BatchKafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
+    val profileringKafkaConsumer: BatchKafkaConsumer<Long, Profilering>,
+    val bekreftelseKafkaConsumer: BatchKafkaConsumer<Long, Bekreftelse>,
     val scheduleGetAktivePerioderGaugeService: ScheduleGetAktivePerioderGaugeService
 ) {
     companion object {
@@ -83,7 +83,6 @@ data class ApplicationContext(
 
             val pdlClient = createPdlClient()
 
-            // OBO vs StS token
             val authorizationService = AuthorizationService(PdlHttpConsumer(pdlClient), poaoTilgangHttpClient)
 
             val kafkaFactory = KafkaFactory(kafkaConfig)
@@ -99,8 +98,11 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class
             )
-            val periodeBatchKafkaConsumer =
-                BatchConsumer(applicationConfig.periodeTopic, periodeKafkaConsumer, periodeService::lagreAllePerioder)
+            val periodeBatchKafkaConsumer = BatchKafkaConsumer(
+                applicationConfig.periodeTopic,
+                periodeKafkaConsumer,
+                periodeService::lagreAllePerioder
+            )
 
             // Situasjon avhengigheter
             val opplysningerRepository = OpplysningerRepository(database)
@@ -111,7 +113,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
             )
-            val opplysningerBatchKafkaConsumer = BatchConsumer(
+            val opplysningerBatchKafkaConsumer = BatchKafkaConsumer(
                 applicationConfig.opplysningerTopic,
                 opplysningerKafkaConsumer,
                 opplysningerService::lagreAlleOpplysninger
@@ -126,7 +128,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = ProfileringDeserializer::class
             )
-            val profileringBatchKafkaConsumer = BatchConsumer(
+            val profileringBatchKafkaConsumer = BatchKafkaConsumer(
                 applicationConfig.profileringTopic,
                 profileringKafkaConsumer,
                 profileringService::lagreAlleProfileringer
@@ -141,7 +143,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = BekreftelseDeserializer::class
             )
-            val bekreftelseBatchKafkaConsumer = BatchConsumer(
+            val bekreftelseBatchKafkaConsumer = BatchKafkaConsumer(
                 applicationConfig.bekreftelseTopic,
                 bekreftelseKafkaConsumer,
                 bekreftelseService::lagreAlleBekreftelser

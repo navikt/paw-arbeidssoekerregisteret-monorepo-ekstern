@@ -59,10 +59,10 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val noTokenResponse = testClient
+                val response = testClient
                     .get("api/v1/arbeidssoekerbekreftelser/${TestData.periodeId1}")
 
-                noTokenResponse.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
@@ -282,10 +282,10 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val noTokenResponse = testClient
+                val response = testClient
                     .get("api/v1/veileder/arbeidssoekerbekreftelser/${TestData.periodeId1}")
 
-                noTokenResponse.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 

@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.api.oppslag.metrics
+package no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils
 
 import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry

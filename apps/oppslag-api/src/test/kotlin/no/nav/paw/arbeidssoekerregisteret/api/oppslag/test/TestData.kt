@@ -245,32 +245,6 @@ object TestData {
         avviksType: AvviksType = AvviksType.UKJENT_VERDI
     ) = TidspunktFraKildeRow(id = id, tidspunkt = tidspunkt, avviksType = avviksType)
 
-    fun nyOpplysningerRowList(periodeId: UUID = periodeId1): List<OpplysningerRow> = listOf(
-        nyOpplysningerRow(opplysningerId = opplysningerId1, periodeId = periodeId),
-        nyOpplysningerRow(opplysningerId = opplysningerId2, periodeId = periodeId),
-        nyOpplysningerRow(opplysningerId = opplysningerId3, periodeId = periodeId)
-    )
-
-    fun nyPeriodeRowList(): List<PeriodeRow> = listOf(
-        nyStartetPeriodeRow(periodeId = periodeId1),
-        nyAvsluttetPeriodeRow(periodeId = periodeId2),
-        nyAvsluttetPeriodeRow(periodeId = periodeId3),
-    )
-
-    fun nyProfileringRowList(
-        size: Int = 1,
-        profileringId: UUID = UUID.randomUUID(),
-        periodeId: UUID = UUID.randomUUID(),
-        opplysningerId: UUID = UUID.randomUUID()
-    ): List<ProfileringRow> =
-        IntRange(1, size).map {
-            nyProfileringRow(
-                profileringId = profileringId,
-                periodeId = periodeId,
-                opplysningerId = opplysningerId
-            )
-        }
-
     fun nyStartetPeriode(
         periodeId: UUID = UUID.randomUUID(),
         identitetsnummer: String = fnrDefault,
@@ -431,13 +405,13 @@ object TestData {
     ) = Bekreftelse(periodeId, bekreftelsesloesning, bekreftelseId, svar)
 
     fun nyBekreftelseSvar(
-        sendtInn: BekreftelseMetadata = nyBekreftelseMetadata(),
+        sendtInnAv: BekreftelseMetadata = nyBekreftelseMetadata(),
         gjelderFra: Instant = Instant.now(),
         gjelderTil: Instant = Instant.now().plus(Duration.ofDays(14)),
         harJobbetIDennePerioden: Boolean = false,
         vilFortsetteSomArbeidssoeker: Boolean = true
     ) = Svar(
-        sendtInn,
+        sendtInnAv,
         gjelderFra,
         gjelderTil,
         harJobbetIDennePerioden,

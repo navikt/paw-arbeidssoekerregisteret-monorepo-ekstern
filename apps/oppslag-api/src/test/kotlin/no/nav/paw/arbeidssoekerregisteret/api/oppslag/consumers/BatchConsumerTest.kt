@@ -7,7 +7,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.delay
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers.BatchConsumer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.BatchKafkaConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -25,7 +25,7 @@ class BatchConsumerTest : FreeSpec({
         val consumerMock = mockk<KafkaConsumer<Long, Periode>>()
         val serviceMock = mockk<PeriodeService>()
 
-        val consumer = BatchConsumer(topic, consumerMock, serviceMock::lagreAllePerioder)
+        val consumer = BatchKafkaConsumer(topic, consumerMock, serviceMock::lagreAllePerioder)
 
         every { consumerMock.subscribe(any<List<String>>()) } just Runs
         every { consumerMock.unsubscribe() } just Runs

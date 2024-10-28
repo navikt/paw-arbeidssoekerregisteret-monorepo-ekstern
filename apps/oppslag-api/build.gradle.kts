@@ -51,6 +51,7 @@ dependencies {
     // Kafka
     implementation(libs.avro)
     implementation(libs.confluent.kafka.avro.serializer)
+    implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Database
     implementation(libs.exposed.crypt)

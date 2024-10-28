@@ -179,7 +179,7 @@ infix fun Bekreftelse.shouldBeEqualTo(other: BekreftelseResponse?): Bekreftelse 
 }
 
 infix fun Svar.shouldBeEqualTo(other: BekreftelseSvarResponse?): Svar {
-    sendtInn shouldBeEqualTo other?.sendtInn
+    sendtInnAv shouldBeEqualTo other?.sendtInnAv
     gjelderFra shouldBe other?.gjelderFra
     gjelderTil shouldBe other?.gjelderTil
     harJobbetIDennePerioden shouldBe other?.harJobbetIDennePerioden

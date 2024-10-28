@@ -117,7 +117,7 @@ data class BekreftelseRow(
 
 data class BekreftelseSvarRow(
     val id: Long,
-    val sendtInn: MetadataRow,
+    val sendtInnAv: MetadataRow,
     val gjelderFra: Instant,
     val gjelderTil: Instant,
     val harJobbetIDennePerioden: Boolean,

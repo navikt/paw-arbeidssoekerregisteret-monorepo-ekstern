@@ -65,9 +65,9 @@ class PerioderRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val noPidInTokenResponse = testClient.get("api/v1/arbeidssoekerperioder")
+                val response = testClient.get("api/v1/arbeidssoekerperioder")
 
-                noPidInTokenResponse.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 

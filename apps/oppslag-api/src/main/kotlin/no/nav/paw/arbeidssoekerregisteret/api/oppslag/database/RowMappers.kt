@@ -30,7 +30,7 @@ fun ResultRow.toBekreftelseRow(): BekreftelseRow {
 private fun ResultRow.toBekreftelseSvarRow(): BekreftelseSvarRow {
     return BekreftelseSvarRow(
         id = get(BekreftelseSvarTable.id).value,
-        sendtInn = toMetadataRow(),
+        sendtInnAv = toMetadataRow(),
         gjelderFra = get(BekreftelseSvarTable.gjelderFra),
         gjelderTil = get(BekreftelseSvarTable.gjelderTil),
         harJobbetIDennePerioden = get(BekreftelseSvarTable.harJobbetIDennePerioden),

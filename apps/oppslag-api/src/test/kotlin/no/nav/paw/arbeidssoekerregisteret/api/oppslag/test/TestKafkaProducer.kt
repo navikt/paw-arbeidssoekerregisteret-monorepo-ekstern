@@ -2,11 +2,11 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.BekreftelseSerializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.GenericSerializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.OpplysningerOmArbeidssoekerSerializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.PeriodeSerializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.serdes.ProfileringSerializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.BekreftelseSerializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.GenericSerializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerSerializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeSerializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringSerializer
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
