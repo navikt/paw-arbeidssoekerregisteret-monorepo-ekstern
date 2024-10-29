@@ -1,8 +1,8 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
@@ -12,7 +12,6 @@ import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.initKtor
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.meterIdMap
 import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.streams.KafkaStreamsFactory

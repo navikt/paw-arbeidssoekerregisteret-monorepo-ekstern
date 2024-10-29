@@ -4,7 +4,7 @@ import io.micrometer.core.instrument.Gauge.builder
 import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
@@ -16,6 +16,7 @@ import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.Processor
 import org.apache.kafka.streams.processor.api.ProcessorContext
+import org.apache.kafka.streams.processor.api.ProcessorSupplier
 import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
 import org.slf4j.LoggerFactory
@@ -24,8 +25,24 @@ import java.time.Instant
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.reflect.KClass
 
 val meterIdMap = ConcurrentHashMap<Int, Pair<Meter.Id, AtomicLong>>()
+
+class StateStoreSaveSupplier(
+    private val type: KClass<out BaseStateStoreSave>,
+    private val storeName: String,
+    private val registry: PrometheusMeterRegistry
+) : ProcessorSupplier<Long, SpecificRecord, Long, ArenaArbeidssokerregisterTilstand> {
+    override fun get(): Processor<Long, SpecificRecord, Long, ArenaArbeidssokerregisterTilstand> {
+        return when (type) {
+            ProfileringStateStoreSave::class -> ProfileringStateStoreSave(storeName, registry)
+            OpplysningerOmArbeidssoekerStateStoreSave::class -> OpplysningerOmArbeidssoekerStateStoreSave(storeName, registry)
+            PeriodeStateStoreSave::class -> PeriodeStateStoreSave(storeName, registry)
+            else -> throw IllegalArgumentException("Ukjent type ${type.simpleName}")
+        }
+    }
+}
 
 sealed class BaseStateStoreSave(
     private val stateStoreName: String,

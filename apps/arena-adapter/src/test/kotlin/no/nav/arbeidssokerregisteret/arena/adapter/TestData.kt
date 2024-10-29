@@ -36,7 +36,8 @@ object TestData {
                     "12345678911"
                 ),
                 "test",
-                "test"
+                "test",
+                null
             ),
             null
         ),
@@ -50,7 +51,8 @@ object TestData {
                     "12345678911"
                 ),
                 "test",
-                "test"
+                "test",
+                null
             ),
             ApiMetadata(
                 Instant.now().plusSeconds(100),
@@ -59,7 +61,8 @@ object TestData {
                     "12345678911"
                 ),
                 "test",
-                "test"
+                "test",
+                null
             )
         )
     )
@@ -75,7 +78,8 @@ object TestData {
                     "12345678911"
                 ),
                 "test",
-                "test"
+                "test",
+                null
             ),
             Utdanning(
                 "1a",
@@ -121,7 +125,8 @@ object TestData {
                     "12345678911"
                 ),
                 "test",
-                "test"
+                "test",
+                null
             ),
             ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING,
             true,

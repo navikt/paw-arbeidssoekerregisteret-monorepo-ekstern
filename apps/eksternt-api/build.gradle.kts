@@ -103,10 +103,6 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
-
 tasks.withType(Jar::class) {
     manifest {
         attributes["Implementation-Version"] = project.version

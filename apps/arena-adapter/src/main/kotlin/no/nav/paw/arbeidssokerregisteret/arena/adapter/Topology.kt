@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker

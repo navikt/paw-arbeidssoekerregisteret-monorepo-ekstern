@@ -3,8 +3,8 @@ package no.nav.arbeidssokerregisteret.arena.adapter
 import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
