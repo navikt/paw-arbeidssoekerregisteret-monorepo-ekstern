@@ -1,0 +1,6 @@
+applicationIdSuffix = "v3"
+[topics]
+opplysningerOmArbeidssoeker = "paw.opplysninger-om-arbeidssoeker-beta-v14"
+arbeidssokerperioder = "paw.arbeidssokerperioder-beta-v14"
+profilering = "paw.arbeidssoker-profilering-beta-v14"
+arena = "paw.arbeidssoker-arena-beta-v14"

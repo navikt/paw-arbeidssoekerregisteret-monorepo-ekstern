@@ -1,0 +1,41 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: paw-arbeidssokerregisteret-arena-adapter
+  namespace: paw
+  labels:
+    team: paw
+spec:
+  image: {{ image }}
+  port: 8080
+  env:
+    - name: OTEL_METRICS_EXPORTER
+      value: "none"
+    - name: OTEL_TRACES_EXPORTER
+      value: "maskert_oltp"
+    - name: OTEL_JAVAAGENT_DEBUG
+      value: "false"
+  replicas:
+    min: {{ replicas}}
+    max: {{ replicas}}
+  liveness:
+    path: /isAlive
+    initialDelay: 10
+  readiness:
+    path: /isReady
+    initialDelay: 10
+  prometheus:
+    enabled: true
+    path: /metrics
+  observability:
+    tracing:
+      enabled: true
+  kafka:
+    pool: {{ kafka }}
+    streams: true
+  resources:
+    limits:
+      memory: 1000Mi
+    requests:
+      memory: 500Mi
+      cpu: 50m
