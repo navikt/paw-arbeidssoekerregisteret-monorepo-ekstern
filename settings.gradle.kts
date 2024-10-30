@@ -2,6 +2,7 @@ rootProject.name = "paw-arbeidssoekerregisteret-monorepo-ekstern"
 
 include(
     "domain:main-avro-schema",
+    "domain:arena-avro-schema",
     "lib:hoplite-config",
     "lib:error-handling",
     "lib:kafka",
@@ -14,6 +15,7 @@ include(
     "apps:profilering",
     "apps:oppslag-api",
     "apps:eksternt-api",
+    "apps:arena-adapter",
 )
 
 dependencyResolutionManagement {

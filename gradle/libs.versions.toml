@@ -1,5 +1,6 @@
 [versions]
-nav-paw-main-schema = "1.9348086045.48-1"
+nav-paw-avro-schema = "1.9348086045.48-1"
+nav-paw-arena-avro-schema = "1.8537427677.37-1" # TODO Oppdater til å bruke nav-paw-avro-schema versjonen
 nav-paw-bekreftelse-schema = "24.09.16.1-1"
 nav-common = "3.2024.05.23_05.46-2b29fa343e8e"
 nav-security = "5.0.1"
@@ -114,7 +115,8 @@ nav-common-token-client = { group = "no.nav.common", name = "token-client", vers
 nav-poao-tilgang-client = { group = "no.nav.poao-tilgang", name = "client", version.ref = "nav-poao-tilgang" }
 nav-pto-schema = { group = "no.nav", name = "pto-schema", version.ref = "nav-pto-schema" }
 nav-tms-varsel-kotlin-builder = { group = "no.nav.tms.varsel", name = "kotlin-builder", version.ref = "nav-tms-varsel" }
-nav-paw-main-schema = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "main-avro-schema", version.ref = "nav-paw-main-schema" }
+nav-paw-main-schema = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "main-avro-schema", version.ref = "nav-paw-avro-schema" }
+nav-paw-arena-schema = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "arena-avro-schema", version.ref = "nav-paw-arena-avro-schema" }
 nav-paw-bekreftelsesansvar-schema = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelsesansvar-schema", version.ref = "nav-paw-bekreftelse-schema" }
 nav-paw-bekreftelsesmelding-schema = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelsesmelding-schema", version.ref = "nav-paw-bekreftelse-schema" }
 
