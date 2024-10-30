@@ -1,9 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG_FILE_NAME
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.BekreftelseSerializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.GenericSerializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerSerializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeSerializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringSerializer
@@ -102,7 +102,7 @@ private fun <T : SpecificRecord> Producer<Long, T>.sendRecord(
 private fun <T : SpecificRecord> buildKafkaProducer(
     producerId: String,
     kafkaConfig: KafkaConfig,
-    valueSerializer: GenericSerializer<T>
+    valueSerializer: SpecificAvroSerializer<T>
 ): Producer<Long, T> {
     val kafkaFactory = KafkaFactory(kafkaConfig)
 
