@@ -16,7 +16,7 @@ class MaskinportenAuthenticationTest : FunSpec({
     val claims = mapOf("scope" to AuthTestData.maskinportenScope)
 
     beforeSpec {
-        oauth.start(8081)
+        oauth.start()
     }
 
     afterSpec {

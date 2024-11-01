@@ -12,7 +12,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyOrNullBlocking
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafkakeygenerator.auth.azureAdM2MTokenClient
-import no.nav.paw.kafkakeygenerator.client.kafkaKeysKlient
+import no.nav.paw.kafkakeygenerator.client.kafkaKeysClient
 import org.apache.kafka.streams.KafkaStreams
 
 data class ApplicationContext(
@@ -34,7 +34,7 @@ data class ApplicationContext(
                 applicationConfig.azureM2M
             )
 
-            val kafkaKeysClient = kafkaKeysKlient(applicationConfig.kafkaKeysClient) {
+            val kafkaKeysClient = kafkaKeysClient(applicationConfig.kafkaKeysClient) {
                 azureM2MTokenClient.createMachineToMachineToken(applicationConfig.kafkaKeysClient.scope)
             }
 
