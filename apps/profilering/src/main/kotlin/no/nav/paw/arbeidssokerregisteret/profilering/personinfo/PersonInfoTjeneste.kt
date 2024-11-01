@@ -14,7 +14,7 @@ import no.nav.paw.arbeidssokerregisteret.profilering.personinfo.pdl.createHttpCl
 import no.nav.paw.arbeidssokerregisteret.profilering.utils.ApplicationInfo
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.pdl.PdlClient
-import no.nav.paw.pdl.hentFoedsel
+import no.nav.paw.pdl.hentFoedselsdato
 import java.time.LocalDate
 import java.util.*
 
@@ -42,18 +42,18 @@ fun interface PersonInfoTjeneste {
                             callId = opplysningsId.toString()
                         )
                     }
-                    val foedselDeferred = async {
-                        pdlClient.hentFoedsel(
+                    val foedselsdatoDeferred = async {
+                        pdlClient.hentFoedselsdato(
                             ident = identitetsnummer,
                             callId = opplysningsId.toString(),
                             navConsumerId = ApplicationInfo.name,
                             behandlingsnummer = BEHANDLINGSNUMMER
                         )
                     }
-                    foedselDeferred.await().let { foedsel ->
+                    foedselsdatoDeferred.await().let { foedselsdato ->
                         PersonInfo(
-                            foedselsdato = foedsel?.foedselsdato?.let(LocalDate::parse),
-                            foedselsAar = foedsel?.foedselsaar,
+                            foedselsdato = foedselsdato?.foedselsdato?.let(LocalDate::parse),
+                            foedselsAar = foedselsdato?.foedselsaar,
                             arbeidsforhold = arbeidsforholdDeferred.await()
                         )
                     }
