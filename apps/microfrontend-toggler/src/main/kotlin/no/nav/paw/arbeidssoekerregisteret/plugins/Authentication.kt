@@ -10,13 +10,13 @@ import no.nav.security.token.support.v2.tokenValidationSupport
 
 fun Application.configureAuthentication(applicationContext: ApplicationContext) = authentication {
     with(applicationContext) {
-        applicationConfig.authProviders.forEach { provider ->
+        securityConfig.authProviders.forEach { provider ->
             tokenValidationSupport(
                 name = provider.name,
                 requiredClaims = RequiredClaims(
                     provider.name,
-                    provider.requiredClaims.map.toTypedArray(),
-                    provider.requiredClaims.combineWithOr
+                    provider.claims.map.toTypedArray(),
+                    provider.claims.combineWithOr
                 ),
                 config = TokenSupportConfig(
                     IssuerConfig(

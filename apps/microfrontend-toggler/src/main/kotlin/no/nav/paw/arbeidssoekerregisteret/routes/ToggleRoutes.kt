@@ -8,12 +8,14 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
-import no.nav.paw.arbeidssoekerregisteret.context.resolveRequest
-import no.nav.paw.arbeidssoekerregisteret.exception.BrukerHarIkkeTilgangException
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.model.buildToggle
+import no.nav.paw.arbeidssoekerregisteret.utils.hentSluttbrukerIdentitet
+import no.nav.paw.security.authorization.exception.IngenTilgangException
+import no.nav.paw.security.authorization.interceptor.authorize
+import no.nav.paw.security.authorization.model.Action
 
 fun Route.toggleRoutes(applicationContext: ApplicationContext) {
     val authorizationService = applicationContext.authorizationService
@@ -22,19 +24,17 @@ fun Route.toggleRoutes(applicationContext: ApplicationContext) {
     route("/api/v1") {
         authenticate("tokenx") {
             post<ToggleRequest>("/microfrontend-toggle") { toggleRequest ->
-                val requestContext = resolveRequest()
-                val securityContext = authorizationService.authorize(requestContext)
+                val accessPolicies = authorizationService.accessPolicies()
+                authorize(Action.WRITE, accessPolicies) { (_, securityContext) ->
 
-                if (toggleRequest.action == ToggleAction.ENABLE) {
-                    throw BrukerHarIkkeTilgangException(
-                        "Det er ikke tillatt å aktivere microfrontends via dette endepunktet"
-                    )
+                    if (toggleRequest.action == ToggleAction.ENABLE) {
+                        throw IngenTilgangException("Det er ikke tillatt å aktivere microfrontends via dette endepunktet")
+                    }
+
+                    val toggle = toggleRequest.buildToggle(securityContext.bruker.hentSluttbrukerIdentitet())
+                    toggleService.sendToggle(toggle)
+                    call.respond<Toggle>(HttpStatusCode.Accepted, toggle)
                 }
-
-
-                val toggle = toggleRequest.buildToggle(securityContext.innloggetBruker.ident)
-                toggleService.sendToggle(toggle)
-                call.respond<Toggle>(HttpStatusCode.Accepted, toggle)
             }
         }
     }

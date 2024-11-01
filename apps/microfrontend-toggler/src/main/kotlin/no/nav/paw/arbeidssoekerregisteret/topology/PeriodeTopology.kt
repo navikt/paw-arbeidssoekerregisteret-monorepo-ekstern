@@ -14,7 +14,7 @@ import org.apache.kafka.streams.state.Stores
 private fun StreamsBuilder.addPeriodeStateStore(applicationConfig: ApplicationConfig) {
     this.addStateStore(
         Stores.keyValueStoreBuilder(
-            Stores.persistentKeyValueStore(applicationConfig.kafkaStreams.periodeStoreName),
+            Stores.persistentKeyValueStore(applicationConfig.kafkaTopology.periodeStoreName),
             Serdes.Long(),
             buildPeriodeInfoSerde()
         )

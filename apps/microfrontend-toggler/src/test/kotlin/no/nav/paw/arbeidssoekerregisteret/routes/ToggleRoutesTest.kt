@@ -15,7 +15,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.just
-import no.nav.paw.arbeidssoekerregisteret.TestContext
+import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
@@ -139,7 +139,7 @@ class ToggleRoutesTest : FreeSpec({
                     response.status shouldBe HttpStatusCode.Forbidden
                     val body = response.body<ProblemDetails>()
                     body.status shouldBe HttpStatusCode.Forbidden
-                    body.code shouldBe "PAW_BRUKER_HAR_IKKE_TILGANG"
+                    body.code shouldBe "PAW_INGEN_TILGANG"
                 }
             }
 

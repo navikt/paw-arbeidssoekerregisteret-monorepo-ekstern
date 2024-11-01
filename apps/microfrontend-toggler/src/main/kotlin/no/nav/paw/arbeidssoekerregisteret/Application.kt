@@ -4,10 +4,6 @@ import io.ktor.server.application.Application
 import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG_FILE_NAME
-import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG_FILE_NAME
-import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
@@ -19,39 +15,37 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureTracing
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.config.env.appNameOrDefaultForLocal
-import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 
 fun main() {
     val logger = buildApplicationLogger
+    val applicationContext = ApplicationContext.create()
 
-    val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG_FILE_NAME)
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
-    val runtimeEnvironment = applicationConfig.runtimeEnvironment
+    with(applicationContext) {
+        val appName = serverConfig.runtimeEnvironment.appNameOrDefaultForLocal()
 
-    logger.info("Starter ${runtimeEnvironment.appNameOrDefaultForLocal()}")
+        logger.info("Starter $appName med port $serverConfig.port")
 
-    embeddedServer(
-        factory = Netty,
-        port = serverConfig.port,
-        configure = {
-            callGroupSize = serverConfig.callGroupSize
-            workerGroupSize = serverConfig.workerGroupSize
-            connectionGroupSize = serverConfig.connectionGroupSize
+        embeddedServer(
+            factory = Netty,
+            port = serverConfig.port,
+            configure = {
+                callGroupSize = serverConfig.callGroupSize
+                workerGroupSize = serverConfig.workerGroupSize
+                connectionGroupSize = serverConfig.connectionGroupSize
+            }
+        ) {
+            module(applicationContext)
+        }.apply {
+            addShutdownHook {
+                stop(serverConfig.gracePeriodMillis, serverConfig.timeoutMillis)
+                logger.info("Avslutter $appName")
+            }
+            start(wait = true)
         }
-    ) {
-        module(applicationConfig)
-    }.apply {
-        addShutdownHook {
-            stop(serverConfig.gracePeriodMillis, serverConfig.timeoutMillis)
-            logger.info("Avslutter ${runtimeEnvironment.appNameOrDefaultForLocal()}")
-        }
-        start(wait = true)
     }
 }
 
-fun Application.module(applicationConfig: ApplicationConfig) {
-    val applicationContext = ApplicationContext.create(applicationConfig)
-
+fun Application.module(applicationContext: ApplicationContext) {
     configureSerialization()
     configureRequestHandling()
     configureLogging()

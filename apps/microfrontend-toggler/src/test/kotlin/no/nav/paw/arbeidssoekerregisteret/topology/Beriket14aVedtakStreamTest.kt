@@ -3,9 +3,9 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import no.nav.paw.arbeidssoekerregisteret.TestContext
-import no.nav.paw.arbeidssoekerregisteret.buildBeriket14aVedtak
-import no.nav.paw.arbeidssoekerregisteret.buildPeriode
+import no.nav.paw.arbeidssoekerregisteret.test.TestContext
+import no.nav.paw.arbeidssoekerregisteret.test.buildBeriket14aVedtak
+import no.nav.paw.arbeidssoekerregisteret.test.buildPeriode
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
@@ -82,7 +82,7 @@ class Beriket14aVedtakStreamTest : FreeSpec({
                 with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.DISABLE
                     ident shouldBe avsluttetPeriode.identitetsnummer
-                    microfrontendId shouldBe applicationConfig.microfrontends.aiaBehovsvurdering
+                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe null
                     initialedBy shouldBe "paw"
                 }
@@ -97,7 +97,7 @@ class Beriket14aVedtakStreamTest : FreeSpec({
         val testDriver = StreamsBuilder().apply {
             addStateStore(
                 Stores.keyValueStoreBuilder(
-                    Stores.inMemoryKeyValueStore(applicationConfig.kafkaStreams.periodeStoreName),
+                    Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStoreName),
                     Serdes.Long(),
                     periodeInfoSerde
                 )
@@ -108,16 +108,16 @@ class Beriket14aVedtakStreamTest : FreeSpec({
 
 
         val periodeKeyValueStore =
-            testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaStreams.periodeStoreName)
+            testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaTopology.periodeStoreName)
 
         val beriket14aVedtakTopic = testDriver.createInputTopic(
-            applicationConfig.kafkaStreams.beriket14aVedtakTopic,
+            applicationConfig.kafkaTopology.beriket14aVedtakTopic,
             Serdes.Long().serializer(),
             beriket14aVedtakSerde.serializer()
         )
 
         val microfrontendTopic = testDriver.createOutputTopic(
-            applicationConfig.kafkaStreams.microfrontendTopic,
+            applicationConfig.kafkaTopology.microfrontendTopic,
             Serdes.Long().deserializer(),
             toggleSerde.deserializer()
         )

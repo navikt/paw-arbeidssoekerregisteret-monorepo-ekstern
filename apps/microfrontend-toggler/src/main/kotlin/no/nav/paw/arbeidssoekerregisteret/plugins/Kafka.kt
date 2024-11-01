@@ -8,7 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 fun Application.configureKafka(applicationContext: ApplicationContext) {
     with(applicationContext) {
         install(KafkaStreamsPlugin) {
-            shutDownTimeout = applicationConfig.kafkaStreams.shutDownTimeout
+            shutDownTimeout = applicationConfig.kafkaTopology.shutDownTimeout
             kafkaStreams = listOf(periodeKafkaStreams, siste14aVedtakKafkaStreams)
         }
     }

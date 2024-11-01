@@ -6,6 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.utils.ToggleJsonSerializer
 import no.nav.paw.arbeidssoekerregisteret.utils.buildLogger
+import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.KafkaFactory
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.kafka.clients.producer.Producer
@@ -14,15 +15,16 @@ import org.apache.kafka.common.serialization.LongSerializer
 
 class ToggleService(
     private val applicationConfig: ApplicationConfig,
+    private val kafkaConfig: KafkaConfig,
     private val kafkaKeysFunction: suspend (ident: String) -> KafkaKeysResponse
 ) {
     private val logger = buildLogger
     private var producer: Producer<Long, Toggle>
 
     init {
-        val kafkaFactory = KafkaFactory(applicationConfig.kafka)
+        val kafkaFactory = KafkaFactory(kafkaConfig)
         producer = kafkaFactory.createProducer(
-            clientId = "${applicationConfig.kafka.applicationIdPrefix}_${applicationConfig.kafkaProducer.toggleProducerIdSuffix}",
+            clientId = "${kafkaConfig.applicationIdPrefix}_${applicationConfig.kafkaTopology.toggleProducerIdSuffix}",
             keySerializer = LongSerializer::class,
             valueSerializer = ToggleJsonSerializer::class
         )
@@ -38,7 +40,7 @@ class ToggleService(
             logger.info("Mottok ekstern forespørsel om deaktivering av {}.", toggle.microfrontendId)
         }
 
-        producer.send(ProducerRecord(applicationConfig.kafkaStreams.microfrontendTopic, arbeidssoekerId, toggle))
+        producer.send(ProducerRecord(applicationConfig.kafkaTopology.microfrontendTopic, arbeidssoekerId, toggle))
     }
 
     fun closeKafkaProducer() {

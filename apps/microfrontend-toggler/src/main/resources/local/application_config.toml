@@ -1,0 +1,16 @@
+[kafkaTopology]
+shutDownTimeout = "PT1S"
+periodeStreamIdSuffix = "arbeidssokerperioder-stream-v1"
+siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-v1"
+periodeTopic = "paw.arbeidssokerperioder-v1"
+siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
+beriket14aVedtakTopic = "paw.beriket-14a-vedtak-v1"
+microfrontendTopic = "min-side.aapen-microfrontend-v1"
+periodeStoreName = "microfrontendTogglePeriodeStore"
+toggleProducerIdSuffix = "toggle-producer-v1"
+
+[microfrontendToggle]
+aiaMinSide = "aia-min-side"
+aiaBehovsvurdering = "aia-behovsvurdering"
+periodeTogglePunctuatorSchedule = "PT60S"
+utsattDeaktiveringAvAiaMinSide = "PT10M"

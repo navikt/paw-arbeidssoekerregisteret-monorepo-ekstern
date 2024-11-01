@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.model
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.utils.buildObjectMapper
+import no.nav.paw.security.authentication.model.Identitetsnummer
 
 class ToggleTest : FreeSpec({
     with(ToggleTestContext()) {
@@ -32,7 +33,7 @@ class ToggleTest : FreeSpec({
                 val toggle = ToggleRequest(
                     action = ToggleAction.ENABLE,
                     microfrontendId = "aia-min-side"
-                ).buildToggle("01017012345")
+                ).buildToggle(Identitetsnummer("01017012345"))
                 val jsonToggle = objectMapper.writeValueAsString(toggle)
                 jsonToggle shouldBe enableToggleJsonString
             }
@@ -40,7 +41,7 @@ class ToggleTest : FreeSpec({
                 val toggle = ToggleRequest(
                     action = ToggleAction.DISABLE,
                     microfrontendId = "aia-min-side"
-                ).buildToggle("01017012345")
+                ).buildToggle(Identitetsnummer("01017012345"))
                 val jsonToggle = objectMapper.writeValueAsString(toggle)
                 jsonToggle shouldBe disableToggleJsonString
             }

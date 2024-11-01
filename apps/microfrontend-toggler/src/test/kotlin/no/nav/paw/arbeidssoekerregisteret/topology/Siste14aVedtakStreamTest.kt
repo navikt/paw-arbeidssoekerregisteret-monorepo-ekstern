@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
-import no.nav.paw.arbeidssoekerregisteret.TestContext
-import no.nav.paw.arbeidssoekerregisteret.buildSiste14aVedtak
+import no.nav.paw.arbeidssoekerregisteret.test.TestContext
+import no.nav.paw.arbeidssoekerregisteret.test.buildSiste14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildSiste14aVedtakStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyOrNullBlocking
@@ -74,13 +74,13 @@ class Siste14aVedtakStreamTest : FreeSpec({
         }.build().let { TopologyTestDriver(it, kafkaStreamProperties) }
 
         val siste14aVedtakTopic = testDriver.createInputTopic(
-            applicationConfig.kafkaStreams.siste14aVedtakTopic,
+            applicationConfig.kafkaTopology.siste14aVedtakTopic,
             Serdes.String().serializer(),
             siste14aVedtakSerde.serializer()
         )
 
         val beriket14aVedtakTopic = testDriver.createOutputTopic(
-            applicationConfig.kafkaStreams.beriket14aVedtakTopic,
+            applicationConfig.kafkaTopology.beriket14aVedtakTopic,
             Serdes.Long().deserializer(),
             beriket14aVedtakSerde.deserializer()
         )

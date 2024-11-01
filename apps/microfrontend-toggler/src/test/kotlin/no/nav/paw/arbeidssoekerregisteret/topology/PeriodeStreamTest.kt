@@ -5,12 +5,12 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
-import no.nav.paw.arbeidssoekerregisteret.TestContext
-import no.nav.paw.arbeidssoekerregisteret.buildPeriode
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
+import no.nav.paw.arbeidssoekerregisteret.test.TestContext
+import no.nav.paw.arbeidssoekerregisteret.test.buildPeriode
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildPeriodeStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
@@ -45,7 +45,7 @@ class PeriodeStreamTest : FreeSpec({
             "Testsuite for toggling av microfrontends basert på arbeidssøkerperiode" - {
 
                 "Skal aktivere begge microfrontends ved start av periode eldre en 21 dager (p1)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKeyBlocking(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
                         p1ArbeidssoekerId,
                         1
                     )
@@ -63,7 +63,7 @@ class PeriodeStreamTest : FreeSpec({
                     with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.ENABLE
                         ident shouldBe p1StartetPeriode.identitetsnummer
-                        microfrontendId shouldBe applicationConfig.microfrontends.aiaMinSide
+                        microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                         sensitivitet shouldBe Sensitivitet.HIGH
                         initialedBy shouldBe "paw"
                     }
@@ -72,7 +72,7 @@ class PeriodeStreamTest : FreeSpec({
                     with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.ENABLE
                         ident shouldBe p1StartetPeriode.identitetsnummer
-                        microfrontendId shouldBe applicationConfig.microfrontends.aiaBehovsvurdering
+                        microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                         sensitivitet shouldBe Sensitivitet.HIGH
                         initialedBy shouldBe "paw"
                     }
@@ -88,7 +88,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere begge microfrontend ved avslutting av periode eldre enn 21 dager (p1)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKeyBlocking(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
                         p1ArbeidssoekerId,
                         1
                     )
@@ -106,7 +106,7 @@ class PeriodeStreamTest : FreeSpec({
                     with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.DISABLE
                         ident shouldBe p1StartetPeriode.identitetsnummer
-                        microfrontendId shouldBe applicationConfig.microfrontends.aiaMinSide
+                        microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                         sensitivitet shouldBe null
                         initialedBy shouldBe "paw"
                     }
@@ -115,7 +115,7 @@ class PeriodeStreamTest : FreeSpec({
                     with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.DISABLE
                         ident shouldBe p1AvsluttetPeriode.identitetsnummer
-                        microfrontendId shouldBe applicationConfig.microfrontends.aiaBehovsvurdering
+                        microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                         sensitivitet shouldBe null
                         initialedBy shouldBe "paw"
                     }
@@ -124,7 +124,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal aktivere begge microfrontends ved start av periode (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKeyBlocking(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -142,7 +142,7 @@ class PeriodeStreamTest : FreeSpec({
                     with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.ENABLE
                         ident shouldBe p2StartetPeriode.identitetsnummer
-                        microfrontendId shouldBe applicationConfig.microfrontends.aiaMinSide
+                        microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                         sensitivitet shouldBe Sensitivitet.HIGH
                         initialedBy shouldBe "paw"
                     }
@@ -151,7 +151,7 @@ class PeriodeStreamTest : FreeSpec({
                     with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.ENABLE
                         ident shouldBe p2StartetPeriode.identitetsnummer
-                        microfrontendId shouldBe applicationConfig.microfrontends.aiaBehovsvurdering
+                        microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                         sensitivitet shouldBe Sensitivitet.HIGH
                         initialedBy shouldBe "paw"
                     }
@@ -167,7 +167,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere aia-behovsvurdering microfrontend ved avslutting av periode nyere enn 21 dager (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKeyBlocking(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -184,7 +184,7 @@ class PeriodeStreamTest : FreeSpec({
                     with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.DISABLE
                         ident shouldBe p2AvsluttetPeriode.identitetsnummer
-                        microfrontendId shouldBe applicationConfig.microfrontends.aiaBehovsvurdering
+                        microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                         sensitivitet shouldBe null
                         initialedBy shouldBe "paw"
                     }
@@ -200,7 +200,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere aia-min-side microfrontend 21 dager etter avslutting av periode (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKeyBlocking(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -217,7 +217,7 @@ class PeriodeStreamTest : FreeSpec({
                     with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.DISABLE
                         ident shouldBe p2AvsluttetPeriode.identitetsnummer
-                        microfrontendId shouldBe applicationConfig.microfrontends.aiaMinSide
+                        microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                         sensitivitet shouldBe null
                         initialedBy shouldBe "paw"
                     }
@@ -233,7 +233,7 @@ class PeriodeStreamTest : FreeSpec({
         val testDriver = StreamsBuilder().apply {
             addStateStore(
                 Stores.keyValueStoreBuilder(
-                    Stores.inMemoryKeyValueStore(applicationConfig.kafkaStreams.periodeStoreName),
+                    Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStoreName),
                     Serdes.Long(),
                     periodeInfoSerde
                 )
@@ -247,16 +247,16 @@ class PeriodeStreamTest : FreeSpec({
             .let { TopologyTestDriver(it, kafkaStreamProperties) }
 
         val periodeStateStore =
-            testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaStreams.periodeStoreName)
+            testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaTopology.periodeStoreName)
 
         val periodeTopic = testDriver.createInputTopic(
-            applicationConfig.kafkaStreams.periodeTopic,
+            applicationConfig.kafkaTopology.periodeTopic,
             Serdes.Long().serializer(),
             periodeSerde.serializer()
         )
 
         val microfrontendTopic = testDriver.createOutputTopic(
-            applicationConfig.kafkaStreams.microfrontendTopic,
+            applicationConfig.kafkaTopology.microfrontendTopic,
             Serdes.Long().deserializer(),
             toggleSerde.deserializer()
         )

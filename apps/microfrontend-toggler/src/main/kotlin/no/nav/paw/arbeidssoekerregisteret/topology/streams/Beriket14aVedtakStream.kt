@@ -36,19 +36,19 @@ fun StreamsBuilder.buildBeriket14aVedtakStream(
     meterRegistry: MeterRegistry
 ) {
     logger.info("Oppretter KStream for beriket 14a-vedtak")
-    val kafkaStreamsConfig = applicationConfig.kafkaStreams
+    val kafkaTopology = applicationConfig.kafkaTopology
 
     this.stream(
-        kafkaStreamsConfig.beriket14aVedtakTopic, Consumed.with(Serdes.Long(), buildBeriket14aVedtakSerde())
+        kafkaTopology.beriket14aVedtakTopic, Consumed.with(Serdes.Long(), buildBeriket14aVedtakSerde())
     ).peek { key, _ ->
-        logger.debug("Mottok event på {} med key {}", kafkaStreamsConfig.beriket14aVedtakTopic, key)
+        logger.debug("Mottok event på {} med key {}", kafkaTopology.beriket14aVedtakTopic, key)
         meterRegistry.tellAntallMottatteBeriket14aVedtak()
     }.genericProcess<Long, Beriket14aVedtak, Long, Toggle>(
         name = "handtereToggleForBeriket14aVedtak",
-        stateStoreNames = arrayOf(kafkaStreamsConfig.periodeStoreName)
+        stateStoreNames = arrayOf(kafkaTopology.periodeStoreName)
     ) { record ->
         processBeriket14aVedtak(applicationConfig, meterRegistry, record)
-    }.to(kafkaStreamsConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
+    }.to(kafkaTopology.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
 }
 
 @WithSpan(value = "beriket_14a_vedtak_toggle_processor")
@@ -60,17 +60,17 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
     val beriket14aVedtak = record.value()
     val toggleSource = ToggleSource.SISTE_14A_VEDTAK
 
-    val kafkaStreamsConfig = applicationConfig.kafkaStreams
-    val microfrontendConfig = applicationConfig.microfrontends
+    val kafkaTopology = applicationConfig.kafkaTopology
+    val microfrontendToggle = applicationConfig.microfrontendToggle
 
-    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaStreamsConfig.periodeStoreName)
+    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopology.periodeStoreName)
     val periodeInfo = stateStore.get(beriket14aVedtak.arbeidssoekerId)
 
     // Sjekk om vedtak er innenfor en aktiv periode
     if (periodeInfo == null) {
         logger.debug("Det ble gjort et 14a vedtak, men fant ingen tilhørende arbeidsøkerperiode")
         meterRegistry.tellAntallIkkeSendteToggles(
-            microfrontendConfig.aiaBehovsvurdering,
+            microfrontendToggle.aiaBehovsvurdering,
             toggleSource,
             ToggleAction.DISABLE,
             "mangler_periode"
@@ -78,7 +78,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
     } else if (periodeInfo.erAvsluttet()) {
         logger.debug("Det ble gjort et 14a vedtak, men tilhørende arbeidsøkerperiode er avsluttet")
         meterRegistry.tellAntallIkkeSendteToggles(
-            microfrontendConfig.aiaBehovsvurdering,
+            microfrontendToggle.aiaBehovsvurdering,
             toggleSource,
             ToggleAction.DISABLE,
             "avsluttet_periode"
@@ -87,7 +87,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
         // Send event for å deaktivere AIA Behovsvurdering
         val disableAiaBehovsvurderingToggle = iverksettDeaktiverToggle(
             periodeInfo,
-            microfrontendConfig.aiaBehovsvurdering,
+            microfrontendToggle.aiaBehovsvurdering,
             toggleSource
         )
         // Registrer metrikk for toggle
@@ -102,7 +102,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
             periodeInfo.id
         )
         meterRegistry.tellAntallIkkeSendteToggles(
-            microfrontendConfig.aiaBehovsvurdering,
+            microfrontendToggle.aiaBehovsvurdering,
             toggleSource,
             ToggleAction.DISABLE,
             "vedtak_utenfor_periode"

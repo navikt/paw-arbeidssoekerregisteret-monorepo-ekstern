@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonValue
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.apache.kafka.streams.processor.api.Record
 import java.time.Instant
 
@@ -41,12 +42,12 @@ data class ToggleRequest(
     @JsonProperty("microfrontend_id") val microfrontendId: String
 )
 
-fun ToggleRequest.buildToggle(identitetsnummer: String): Toggle {
+fun ToggleRequest.buildToggle(identitetsnummer: Identitetsnummer): Toggle {
     val sensitivitet = if (action == ToggleAction.ENABLE) Sensitivitet.HIGH else null
 
     return Toggle(
         action = action,
-        ident = identitetsnummer,
+        ident = identitetsnummer.verdi,
         microfrontendId = microfrontendId,
         sensitivitet = sensitivitet,
         initialedBy = "paw" // TODO Styre dette med konfig/miljøvar?

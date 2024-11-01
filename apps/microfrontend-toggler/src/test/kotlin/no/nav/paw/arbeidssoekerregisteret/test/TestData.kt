@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret
+package no.nav.paw.arbeidssoekerregisteret.test
 
 import no.nav.common.types.identer.AktorId
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak

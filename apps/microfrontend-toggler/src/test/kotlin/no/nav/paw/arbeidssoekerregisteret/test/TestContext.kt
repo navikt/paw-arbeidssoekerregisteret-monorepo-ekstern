@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret
+package no.nav.paw.arbeidssoekerregisteret.test
 
 import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
@@ -10,10 +10,10 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.mockk
+import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.config.AuthProvider
-import no.nav.paw.arbeidssoekerregisteret.config.AuthProviders
-import no.nav.paw.arbeidssoekerregisteret.config.RequiredClaims
+import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
+import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
@@ -30,6 +30,10 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.security.authentication.config.AuthProvider
+import no.nav.paw.security.authentication.config.AuthProviderClaims
+import no.nav.paw.security.authentication.config.SECURITY_CONFIG
+import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.Serde
@@ -41,10 +45,11 @@ import java.util.*
 
 open class TestContext {
 
-    val TEST_APPLICATION_CONFIG_FILE_NAME = "test_application_configuration.toml"
     val SCHEMA_REGISTRY_SCOPE = "test-registry"
 
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(TEST_APPLICATION_CONFIG_FILE_NAME)
+    val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
+    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
+    val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
     val mockOAuth2Server = MockOAuth2Server()
     val meterRegistry = SimpleMeterRegistry()
     val kafkaKeysClientMock = mockk<KafkaKeysClient>()
@@ -90,7 +95,9 @@ open class TestContext {
 
     fun ApplicationTestBuilder.configureTestApplication() {
         val applicationContext = ApplicationContext(
-            applicationConfig.copy(authProviders = mockOAuth2Server.createAuthProviders()),
+            serverConfig,
+            applicationConfig,
+            securityConfig.copy(authProviders = mockOAuth2Server.createAuthProviders()),
             prometheusMeterRegistryMock,
             healthIndicatorRepository,
             authorizationService,
@@ -118,14 +125,13 @@ open class TestContext {
         }
     }
 
-    fun MockOAuth2Server.createAuthProviders(): AuthProviders {
+    fun MockOAuth2Server.createAuthProviders(): List<AuthProvider> {
         return listOf(
             AuthProvider(
                 name = "tokenx",
                 clientId = "default",
                 discoveryUrl = wellKnownUrl("default").toString(),
-                tokenEndpointUrl = tokenEndpointUrl("default").toString(),
-                requiredClaims = RequiredClaims(listOf(), true)
+                claims = AuthProviderClaims(map = listOf(), combineWithOr = true)
             )
         )
     }

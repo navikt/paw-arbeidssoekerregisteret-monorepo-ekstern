@@ -23,9 +23,7 @@ spec:
       value: "pto.siste-14a-vedtak-v1"
     - name: KAFKA_TMS_MICROFRONTEND_TOPIC
       value: "min-side.aapen-microfrontend-v1"
-    - name: KAFKA_KEY_URL
-      value: "http://paw-kafka-key-generator/api/v2/hentEllerOpprett"
-    - name: KAFKA_KEY_SCOPE
+    - name: KAFKA_KEYS_SCOPE
       value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
   resources:
     limits:

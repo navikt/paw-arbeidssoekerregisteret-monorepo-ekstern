@@ -1,6 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
-const val SERVER_CONFIG_FILE_NAME = "server_configuration.toml"
+import no.nav.paw.config.env.RuntimeEnvironment
+import no.nav.paw.config.env.currentRuntimeEnvironment
+
+const val SERVER_CONFIG = "server_config.toml"
 
 data class ServerConfig(
     val port: Int,
@@ -8,5 +11,6 @@ data class ServerConfig(
     val workerGroupSize: Int,
     val connectionGroupSize: Int,
     val gracePeriodMillis: Long,
-    val timeoutMillis: Long
+    val timeoutMillis: Long,
+    val runtimeEnvironment: RuntimeEnvironment = currentRuntimeEnvironment
 )
