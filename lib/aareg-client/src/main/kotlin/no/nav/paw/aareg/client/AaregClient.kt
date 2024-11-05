@@ -1,5 +1,6 @@
-package no.nav.paw.aareg
+package no.nav.paw.aareg.client
 
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.bearerAuth
@@ -9,6 +10,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.JsonConvertException
+import no.nav.paw.aareg.model.Arbeidsforhold
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.ConnectException
@@ -19,11 +21,11 @@ import java.net.ConnectException
 
 class AaregClient(
     private val url: String,
+    private val httpClient: HttpClient,
     private val getAccessToken: () -> String
 ) {
     private val sikkerLogger: Logger = LoggerFactory.getLogger("tjenestekall")
     private val logger: Logger = LoggerFactory.getLogger("paw-aareg-client")
-    private val httpClient = createHttpClient()
 
     suspend fun hentArbeidsforhold(ident: String, callId: String): List<Arbeidsforhold> {
         val token = getAccessToken()

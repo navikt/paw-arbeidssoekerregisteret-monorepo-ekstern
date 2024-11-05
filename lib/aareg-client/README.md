@@ -15,8 +15,7 @@ val tokenproviderVersion: String by project
 val aaregClientVersion: String by project
 
 dependencies {
-    implementation("no.nav.paw:tokenprovider:$tokenproviderVersion")
-    implementation("no.nav.paw:aareg-client:$aaregClientVersion")
+    implementation(project(":lib:aareg-client"))
 }
 ```
 

@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.application.profilering
 
-import no.nav.paw.aareg.Arbeidsforhold
+import no.nav.paw.aareg.model.Arbeidsforhold
 import java.time.LocalDate
 import java.util.*
 

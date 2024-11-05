@@ -1,8 +1,10 @@
-package no.nav.paw.aareg
+package no.nav.paw.aareg.client
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContain
 import kotlinx.coroutines.runBlocking
+import no.nav.paw.aareg.test.MockResponse
+import no.nav.paw.aareg.test.mockAaregClient
 
 class AaregClientTest : FreeSpec({
 

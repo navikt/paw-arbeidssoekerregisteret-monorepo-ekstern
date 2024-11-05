@@ -1,9 +1,9 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.application.profilering
 
-import no.nav.paw.aareg.Ansettelsesperiode
-import no.nav.paw.aareg.Arbeidsforhold
-import no.nav.paw.aareg.Arbeidsgiver
-import no.nav.paw.aareg.Opplysningspliktig
+import no.nav.paw.aareg.model.Ansettelsesperiode
+import no.nav.paw.aareg.model.Arbeidsforhold
+import no.nav.paw.aareg.model.Arbeidsgiver
+import no.nav.paw.aareg.model.Opplysningspliktig
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
@@ -23,7 +23,7 @@ import java.time.LocalDate
 import java.time.Month
 import java.time.ZoneOffset
 import java.util.*
-import no.nav.paw.aareg.Periode as AaregPeriode
+import no.nav.paw.aareg.model.Periode as AaregPeriode
 
 object ProfileringTestData {
     private val today = LocalDate.now()

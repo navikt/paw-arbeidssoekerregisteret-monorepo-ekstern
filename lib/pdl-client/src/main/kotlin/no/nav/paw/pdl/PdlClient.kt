@@ -8,7 +8,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.header
-import no.nav.paw.pdl.factory.createObjectMapper
+import no.nav.paw.client.factory.createObjectMapper
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.net.URI
