@@ -27,11 +27,6 @@ clientId = "paw-arbeidssoekerregisteret-api-oppslag"
 url = "http://localhost:8090/poao-tilgang/"
 scope = "api://test.test.poao-tilgang/.default"
 
-[pdlClientConfig]
-url = "http://localhost:8091/pdl"
-tema = "OPP"
-scope = "api://test.pdl.pdl-api/.default"
-
 [database]
 host = "localhost"
 port = 5_432

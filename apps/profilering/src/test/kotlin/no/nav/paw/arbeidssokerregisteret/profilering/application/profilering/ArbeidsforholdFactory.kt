@@ -1,6 +1,10 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.application.profilering
 
-import no.nav.paw.aareg.*
+import no.nav.paw.aareg.model.Ansettelsesperiode
+import no.nav.paw.aareg.model.Arbeidsforhold
+import no.nav.paw.aareg.model.Arbeidsgiver
+import no.nav.paw.aareg.model.Opplysningspliktig
+import no.nav.paw.aareg.model.Periode
 import java.time.LocalDate
 import java.util.concurrent.atomic.AtomicLong
 

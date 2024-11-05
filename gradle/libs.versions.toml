@@ -97,8 +97,10 @@ postgres-driver = { group = "org.postgresql", name = "postgresql", version.ref =
 flyway-core = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
 flyway-postgres = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
 hikari-connection-pool = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
-graphql-client = { group = "com.expediagroup", name = "graphql-kotlin-client", version.ref = "graphql-client" }
-graphql-ktor-client = { group = "com.expediagroup", name = "graphql-kotlin-ktor-client", version.ref = "graphql-client" }
+graphql-kotlin-client = { group = "com.expediagroup", name = "graphql-kotlin-client", version.ref = "graphql-client" }
+graphql-kotlin-ktor-client = { group = "com.expediagroup", name = "graphql-kotlin-ktor-client", version.ref = "graphql-client" }
+graphql-kotlin-serialization-kotlinx = { group = "com.expediagroup", name = "graphql-kotlin-client-serialization", version.ref = "graphql-client" }
+graphql-kotlin-serialization-jackson = { group = "com.expediagroup", name = "graphql-kotlin-client-jackson", version.ref = "graphql-client" }
 kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-core = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }

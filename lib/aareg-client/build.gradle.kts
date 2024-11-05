@@ -6,11 +6,12 @@ plugins {
 val jvmMajorVersion: String by project
 
 dependencies {
-    api(libs.kotlinx.serialization.json)
-
+    implementation(project(":lib:hoplite-config"))
+    implementation(project(":lib:http-client-utils"))
+    implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.serialization.jackson)
+    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.ktor.client.logging)
 
     testImplementation(libs.bundles.unit.testing.kotest)

@@ -35,6 +35,8 @@ spec:
       value: https://pdl-api.prod-fss-pub.nais.io/graphql
     - name: PDL_SCOPE
       value: api://prod-fss.pdl.pdl-api/.default
+    - name: PDL_TEMA
+      value: OPP
   accessPolicy:
     outbound:
       external:

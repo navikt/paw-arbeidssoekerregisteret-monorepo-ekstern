@@ -7,13 +7,18 @@ plugins {
 val jvmMajorVersion: String by project
 
 dependencies {
-    api(libs.kotlinx.serialization.json)
+    implementation(project(":lib:hoplite-config"))
+    implementation(project(":lib:http-client-utils"))
 
+    implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.serialization.jackson)
     implementation(libs.ktor.client.logging)
-    api(libs.graphql.ktor.client)
+    implementation(libs.jackson.datatype.jsr310)
+    api(libs.graphql.kotlin.ktor.client) {
+        exclude("com.expediagroup", "graphql-kotlin-client-serialization")
+    }
+    api(libs.graphql.kotlin.serialization.jackson)
 
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.ktor.client.mock)
@@ -27,13 +32,12 @@ java {
     }
 }
 
-
 graphql {
     client {
         packageName = "no.nav.paw.pdl.graphql.generated"
         schemaFile = File("src/main/resources/pdl-schema.graphql")
         queryFiles = file("src/main/resources").listFiles()?.toList()?.filter { it.name.endsWith(".graphql") }.orEmpty()
-        serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
+        serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.JACKSON
     }
 }
 

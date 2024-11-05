@@ -7,7 +7,6 @@ val jvmVersion = JavaVersion.valueOf("VERSION_$jvmMajorVersion")
 
 dependencies {
     implementation(project(":lib:hoplite-config"))
-    implementation(project(":lib:http-client-utils"))
     implementation(libs.ktor.serialization.jackson)
     implementation(libs.jackson.datatype.jsr310)
     implementation(libs.jackson.kotlin)

@@ -29,6 +29,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.KafkaFactory
 import no.nav.paw.pdl.PdlClient
+import no.nav.paw.pdl.factory.createPdlClient
 import no.nav.poao_tilgang.client.PoaoTilgangCachedClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import okhttp3.OkHttpClient
@@ -59,14 +60,6 @@ data class ApplicationContext(
 
             val database = Database.connect(dataSource)
 
-            val httpClient = HttpClient {
-                install(ContentNegotiation) {
-                    jackson {
-                        configureJackson()
-                    }
-                }
-            }
-
             val tokenService =
                 applicationConfig.authProviders.find {
                     it.name == "azure"
@@ -82,11 +75,7 @@ data class ApplicationContext(
                     )
                 )
 
-            val pdlClient = PdlClient(
-                applicationConfig.pdlClientConfig.url,
-                applicationConfig.pdlClientConfig.tema,
-                httpClient
-            ) { tokenService.createMachineToMachineToken(applicationConfig.pdlClientConfig.scope) }
+            val pdlClient = createPdlClient()
 
             // OBO vs StS token
             val authorizationService = AuthorizationService(PdlHttpConsumer(pdlClient), poaoTilgangHttpClient)

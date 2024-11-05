@@ -9,7 +9,6 @@ data class ApplicationConfig(
     val profileringTopic: String,
     val authProviders: List<AuthProvider>,
     val poaoClientConfig: ServiceClientConfig,
-    val pdlClientConfig: PdlClientConfig,
     val database: DatabaseConfig
 )
 
@@ -30,16 +29,6 @@ data class ServiceClientConfig(
     val url: String,
     val scope: String
 )
-
-data class PdlClientConfig(
-    val url: String,
-    val tema: String,
-    val scope: String
-) {
-    companion object {
-        const val BEHANDLINGSNUMMER = "B452"
-    }
-}
 
 data class DatabaseConfig(
     val host: String,
