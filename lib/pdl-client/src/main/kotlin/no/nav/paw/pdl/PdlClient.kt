@@ -1,5 +1,6 @@
 package no.nav.paw.pdl
 
+import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientError
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
@@ -7,6 +8,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.header
+import no.nav.paw.pdl.factory.createObjectMapper
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.net.URI
@@ -16,16 +18,16 @@ class PdlClient(
     url: String,
     // Tema: https://confluence.adeo.no/pages/viewpage.action?pageId=309311397
     private val tema: String,
-    httpClient: HttpClient,
+    private val httpClient: HttpClient,
     private val getAccessToken: () -> String,
 ) {
     internal val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val graphQLClient =
-        GraphQLKtorClient(
-            url = URI.create(url).toURL(),
-            httpClient = httpClient,
-        )
+    private val graphQLClient = GraphQLKtorClient(
+        url = URI.create(url).toURL(),
+        httpClient = httpClient,
+        serializer = GraphQLClientJacksonSerializer(createObjectMapper())
+    )
 
     internal suspend fun <T : Any> execute(
         query: GraphQLClientRequest<T>,

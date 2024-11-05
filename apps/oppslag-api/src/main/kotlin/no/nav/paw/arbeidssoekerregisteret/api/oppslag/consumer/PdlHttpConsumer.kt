@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.PdlClientConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -8,6 +7,8 @@ import no.nav.paw.pdl.PdlClient
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.pdl.hentIdenter
 import java.util.*
+
+const val PDL_BEHANDLINGSNUMMER = "B452"
 
 class PdlHttpConsumer(
     private val pdlClient: PdlClient,
@@ -19,7 +20,7 @@ class PdlHttpConsumer(
             ident = identitetsnummer.verdi,
             callId = UUID.randomUUID().toString(),
             navConsumerId = consumerId,
-            behandlingsnummer = PdlClientConfig.BEHANDLINGSNUMMER,
+            behandlingsnummer = PDL_BEHANDLINGSNUMMER,
             historikk = true
         ) ?: emptyList()
     }
