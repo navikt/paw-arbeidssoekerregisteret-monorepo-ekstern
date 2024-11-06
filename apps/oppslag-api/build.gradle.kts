@@ -157,7 +157,10 @@ jib {
             "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}"
         )
         jvmFlags = listOf(
-            "-XX:ActiveProcessorCount=4", "-XX:+UseZGC", "-XX:+ZGenerational"
+            "-XX:+UseZGC",
+            "-XX:+ZGenerational",
+            "-XX:ActiveProcessorCount=4",
+            "-Dotel.javaagent.logging=application"
         )
     }
 }
