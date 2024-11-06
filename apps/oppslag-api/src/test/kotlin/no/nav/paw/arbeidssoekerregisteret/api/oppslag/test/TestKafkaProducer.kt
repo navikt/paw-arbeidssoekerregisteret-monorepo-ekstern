@@ -7,6 +7,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.BekreftelseSerialize
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerSerializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeSerializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringSerializer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.config.kafka.KafkaConfig
@@ -17,22 +18,24 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.common.serialization.LongSerializer
 
+private val logger = buildApplicationLogger
+
 fun main() {
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
     val periodeKafkaProducer = buildKafkaProducer(
-        "${applicationConfig.groupId}-producer",
+        "${applicationConfig.perioderGroupId}-producer",
         kafkaConfig,
         PeriodeSerializer()
     )
     val opplysningerKafkaProducer = buildKafkaProducer(
-        "${applicationConfig.groupId}-producer",
+        "${applicationConfig.opplysningerGroupId}-producer",
         kafkaConfig,
         OpplysningerOmArbeidssoekerSerializer()
     )
     val profileringKafkaProducer = buildKafkaProducer(
-        "${applicationConfig.groupId}-producer",
+        "${applicationConfig.profileringGroupId}-producer",
         kafkaConfig,
         ProfileringSerializer()
     )
@@ -43,7 +46,7 @@ fun main() {
     )
 
     val perioder = mapOf(
-        TestData.kafkaKey1 to TestData.nyStartetPeriode()
+        TestData.kafkaKey1 to TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
     )
 
     val opplysninger = perioder.mapValues { (_, value) ->
@@ -60,33 +63,41 @@ fun main() {
 
     try {
         perioder.forEach { (key, value) ->
-            periodeKafkaProducer.sendRecord(applicationConfig.periodeTopic, key, value)
+            logger.info("Sender periode {}", value.id)
+            periodeKafkaProducer.sendRecord(applicationConfig.perioderTopic, key, value)
         }
     } catch (e: Exception) {
+        logger.error("Send periode feilet", e)
         periodeKafkaProducer.close()
     }
 
     try {
         opplysninger.forEach { (key, value) ->
+            logger.info("Sender opplysninger for periode {}", value.periodeId)
             opplysningerKafkaProducer.sendRecord(applicationConfig.opplysningerTopic, key, value)
         }
     } catch (e: Exception) {
+        logger.error("Send opplysninger feilet", e)
         opplysningerKafkaProducer.close()
     }
 
     try {
         profileringer.forEach { (key, value) ->
+            logger.info("Sender profilering for periode {}", value.periodeId)
             profileringKafkaProducer.sendRecord(applicationConfig.profileringTopic, key, value)
         }
     } catch (e: Exception) {
+        logger.error("Send profilering feilet", e)
         profileringKafkaProducer.close()
     }
 
     try {
         bekreftelser.forEach { (key, value) ->
+            logger.info("Sender bekreftelse for periode {}", value.periodeId)
             bekreftelseKafkaProducer.sendRecord(applicationConfig.bekreftelseTopic, key, value)
         }
     } catch (e: Exception) {
+        logger.error("Send bekreftelse feilet", e)
         bekreftelseKafkaProducer.close()
     }
 }

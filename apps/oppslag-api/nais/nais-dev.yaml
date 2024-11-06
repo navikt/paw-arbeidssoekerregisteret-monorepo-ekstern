@@ -21,11 +21,15 @@ spec:
       value: "http://poao-tilgang.poao.svc.cluster.local"
     - name: POAO_TILGANG_SCOPE
       value: "api://dev-gcp.poao.poao-tilgang/.default"
-    - name: KAFKA_GROUP_ID
+    - name: KAFKA_GROUP_ID_PERIODER
+      value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
+    - name: KAFKA_GROUP_ID_OPPLYSNINGER
+      value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
+    - name: KAFKA_GROUP_ID_PROFILERING
       value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
     - name: KAFKA_GROUP_ID_BEKREFTELSE
       value: "paw.arbeidssoekerregisteret-api-oppslag-bekreftelse-v1"
-    - name: KAFKA_TOPIC_PERIODE
+    - name: KAFKA_TOPIC_PERIODER
       value: "paw.arbeidssokerperioder-v1"
     - name: KAFKA_TOPIC_OPPLYSNINGER
       value: "paw.opplysninger-om-arbeidssoeker-v1"

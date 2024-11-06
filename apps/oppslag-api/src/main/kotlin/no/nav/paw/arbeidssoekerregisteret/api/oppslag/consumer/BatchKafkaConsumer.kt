@@ -46,7 +46,7 @@ class BatchKafkaConsumer<K, V>(
                 .runCatching(receiver)
                 .mapCatching { commitSync() }
                 .fold(
-                    onSuccess = { buildLogger.debug("Batch behandlet og commitet") },
+                    onSuccess = { buildLogger.debug("Batch behandlet og committet") },
                     onFailure = { error -> throw Exception("Feil ved konsumering av melding fra $topic", error) }
                 )
         }

@@ -88,23 +88,23 @@ data class ApplicationContext(
                 ScheduleGetAktivePerioderGaugeService(registry, periodeRepository)
             val periodeService = PeriodeService(periodeRepository)
             val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
-                groupId = applicationConfig.groupId,
-                clientId = applicationConfig.groupId,
+                groupId = applicationConfig.perioderGroupId,
+                clientId = applicationConfig.perioderGroupId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class
             )
             val periodeBatchKafkaConsumer = BatchKafkaConsumer(
-                applicationConfig.periodeTopic,
+                applicationConfig.perioderTopic,
                 periodeKafkaConsumer,
                 periodeService::lagreAllePerioder
             )
 
-            // Situasjon avhengigheter
+            // Opplysninger avhengigheter
             val opplysningerRepository = OpplysningerRepository(database)
             val opplysningerService = OpplysningerService(opplysningerRepository)
             val opplysningerKafkaConsumer = kafkaFactory.createConsumer<Long, OpplysningerOmArbeidssoeker>(
-                groupId = applicationConfig.groupId,
-                clientId = applicationConfig.groupId,
+                groupId = applicationConfig.opplysningerGroupId,
+                clientId = applicationConfig.opplysningerGroupId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
             )
@@ -118,8 +118,8 @@ data class ApplicationContext(
             val profileringRepository = ProfileringRepository(database)
             val profileringService = ProfileringService(profileringRepository)
             val profileringKafkaConsumer = kafkaFactory.createConsumer<Long, Profilering>(
-                groupId = applicationConfig.groupId,
-                clientId = applicationConfig.groupId,
+                groupId = applicationConfig.profileringGroupId,
+                clientId = applicationConfig.profileringGroupId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = ProfileringDeserializer::class
             )
