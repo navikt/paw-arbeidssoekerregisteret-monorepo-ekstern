@@ -1,8 +1,9 @@
-consumerId = "${KAFKA_CONSUMER_ID}"
-periodeTopic = "${PAW_PERIODE_TOPIC}"
-opplysningerTopic = "${PAW_OPPLYSNINGER_TOPIC}"
-profileringTopic = "${PAW_PROFILERING_TOPIC}"
-bekreftelseTopic = "${PAW_BEKREFTELSE_TOPIC}"
+groupId = "${KAFKA_GROUP_ID}"
+bekreftelseGroupId = "${KAFKA_GROUP_ID_BEKREFTELSE}"
+periodeTopic = "${KAFKA_TOPIC_PERIODE}"
+opplysningerTopic = "${KAFKA_TOPIC_OPPLYSNINGER}"
+profileringTopic = "${KAFKA_TOPIC_PROFILERING}"
+bekreftelseTopic = "${KAFKA_TOPIC_BEKREFTELSE}"
 
 [[authProviders]]
 name = "tokenx"

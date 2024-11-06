@@ -1,4 +1,5 @@
-consumerId = "paw.arbeidsseokerregisteret-api-oppslag-v1"
+groupId = "paw.arbeidsseokerregisteret-api-oppslag-v1"
+bekreftelseGroupId = "paw.arbeidsseokerregisteret-api-oppslag-bekreftelse-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 opplysningerTopic = "paw.opplysninger-om-arbeidssoeker-v1"
 profileringTopic = "paw.arbeidssoker-profilering-v1"

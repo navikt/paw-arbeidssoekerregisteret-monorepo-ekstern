@@ -39,7 +39,7 @@ fun Route.profileringRoutes(
                 val paging = if (siste) Paging(size = 1) else Paging()
                 val response = profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
 
-                logger.info("Hentet profilering for bruker")
+                logger.info("Bruker hentet profilering")
 
                 call.respond(HttpStatusCode.OK, response)
             }
@@ -53,7 +53,7 @@ fun Route.profileringRoutes(
 
                 val profileringer = profileringService.finnProfileringerForPeriodeId(periodeId)
 
-                logger.info("Hentet profilering for bruker")
+                logger.info("Bruker hentet profilering")
 
                 call.respond(HttpStatusCode.OK, profileringer)
             }

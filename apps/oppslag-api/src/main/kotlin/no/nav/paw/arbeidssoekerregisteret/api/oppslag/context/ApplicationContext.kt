@@ -1,8 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.context
 
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.serialization.jackson.jackson
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
@@ -24,7 +21,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.RetryInterceptor
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ScheduleGetAktivePerioderGaugeService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.configureJackson
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.generateDatasource
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
@@ -32,7 +28,6 @@ import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.config.kafka.KafkaConfig
 import no.nav.paw.config.kafka.KafkaFactory
-import no.nav.paw.pdl.PdlClient
 import no.nav.paw.pdl.factory.createPdlClient
 import no.nav.poao_tilgang.client.PoaoTilgangCachedClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
@@ -93,8 +88,8 @@ data class ApplicationContext(
                 ScheduleGetAktivePerioderGaugeService(registry, periodeRepository)
             val periodeService = PeriodeService(periodeRepository)
             val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
-                groupId = applicationConfig.consumerId,
-                clientId = applicationConfig.consumerId,
+                groupId = applicationConfig.groupId,
+                clientId = applicationConfig.groupId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class
             )
@@ -108,8 +103,8 @@ data class ApplicationContext(
             val opplysningerRepository = OpplysningerRepository(database)
             val opplysningerService = OpplysningerService(opplysningerRepository)
             val opplysningerKafkaConsumer = kafkaFactory.createConsumer<Long, OpplysningerOmArbeidssoeker>(
-                groupId = applicationConfig.consumerId,
-                clientId = applicationConfig.consumerId,
+                groupId = applicationConfig.groupId,
+                clientId = applicationConfig.groupId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
             )
@@ -123,8 +118,8 @@ data class ApplicationContext(
             val profileringRepository = ProfileringRepository(database)
             val profileringService = ProfileringService(profileringRepository)
             val profileringKafkaConsumer = kafkaFactory.createConsumer<Long, Profilering>(
-                groupId = applicationConfig.consumerId,
-                clientId = applicationConfig.consumerId,
+                groupId = applicationConfig.groupId,
+                clientId = applicationConfig.groupId,
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = ProfileringDeserializer::class
             )
@@ -138,8 +133,8 @@ data class ApplicationContext(
             val bekreftelseRepository = BekreftelseRepository(database)
             val bekreftelseService = BekreftelseService(bekreftelseRepository)
             val bekreftelseKafkaConsumer = kafkaFactory.createConsumer<Long, Bekreftelse>(
-                groupId = applicationConfig.consumerId,
-                clientId = applicationConfig.consumerId,
+                groupId = applicationConfig.bekreftelseGroupId,
+                clientId = "${applicationConfig.bekreftelseGroupId}-consumer",
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = BekreftelseDeserializer::class
             )

@@ -14,9 +14,12 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationServ
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.asUUID
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPidClaim
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyAccessFromToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyPeriodeId
+
+private val logger = buildApplicationLogger
 
 fun Route.bekreftelseRoutes(
     authorizationService: AuthorizationService,
@@ -33,6 +36,8 @@ fun Route.bekreftelseRoutes(
                 val paging = if (siste) Paging(size = 1) else Paging()
                 val response = bekreftelseService.finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
 
+                logger.info("Bruker hentet bekreftelser")
+
                 call.respond(response)
             }
 
@@ -47,6 +52,8 @@ fun Route.bekreftelseRoutes(
 
                 val paging = if (siste) Paging(size = 1) else Paging()
                 val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId, paging)
+
+                logger.info("Bruker hentet bekreftelser")
 
                 call.respond(response)
             }
@@ -68,6 +75,8 @@ fun Route.bekreftelseRoutes(
 
                 val paging = if (siste) Paging(size = 1) else Paging()
                 val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId, paging)
+
+                logger.info("Veileder hentet bekreftelser for bruker")
 
                 call.respond(response)
             }

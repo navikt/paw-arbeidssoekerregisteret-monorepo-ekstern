@@ -54,7 +54,7 @@ fun Route.samletInformasjonRoutes(
                     bekreftelser = bekreftelser
                 )
 
-                logger.info("Hentet siste samlet informasjon for bruker")
+                logger.info("Bruker hentet samlet informasjon")
 
                 call.respond(HttpStatusCode.OK, response)
             }

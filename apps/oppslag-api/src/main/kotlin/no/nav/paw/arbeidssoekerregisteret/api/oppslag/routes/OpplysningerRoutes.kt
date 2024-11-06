@@ -40,7 +40,7 @@ fun Route.opplysningerRoutes(
                 val response = opplysningerOmArbeidssoekerService
                     .finnOpplysningerForIdentiteter(identitetsnummerList, paging)
 
-                logger.info("Hentet opplysninger for bruker")
+                logger.info("Bruker hentet opplysninger")
 
                 call.respond(HttpStatusCode.OK, response)
             }
@@ -55,7 +55,7 @@ fun Route.opplysningerRoutes(
                 val opplysningerOmArbeidssoeker = opplysningerOmArbeidssoekerService
                     .finnOpplysningerForPeriodeId(periodeId)
 
-                logger.info("Hentet opplysninger for bruker")
+                logger.info("Bruker hentet opplysninger")
 
                 call.respond(HttpStatusCode.OK, opplysningerOmArbeidssoeker)
             }
@@ -78,7 +78,7 @@ fun Route.opplysningerRoutes(
                     opplysningerOmArbeidssoekerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
                 }
 
-                logger.info("Veileder hentet opplysninger-om-arbeidssøker for bruker")
+                logger.info("Veileder hentet opplysninger for bruker")
 
                 call.respond(HttpStatusCode.OK, response)
             }

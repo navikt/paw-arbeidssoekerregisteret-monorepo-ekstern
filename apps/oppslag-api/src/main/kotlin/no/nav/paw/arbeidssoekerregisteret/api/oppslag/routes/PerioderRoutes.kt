@@ -34,7 +34,7 @@ fun Route.perioderRoutes(
                 val paging = if (siste) Paging(size = 1) else Paging()
                 val response = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
 
-                logger.info("Hentet arbeidssøkerperioder for bruker")
+                logger.info("Bruker hentet arbeidssøkerperioder")
 
                 call.respond(HttpStatusCode.OK, response)
             }

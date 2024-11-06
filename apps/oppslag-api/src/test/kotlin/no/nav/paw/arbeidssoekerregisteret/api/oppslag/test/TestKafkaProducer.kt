@@ -22,22 +22,22 @@ fun main() {
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
     val periodeKafkaProducer = buildKafkaProducer(
-        applicationConfig.consumerId,
+        "${applicationConfig.groupId}-producer",
         kafkaConfig,
         PeriodeSerializer()
     )
     val opplysningerKafkaProducer = buildKafkaProducer(
-        applicationConfig.consumerId,
+        "${applicationConfig.groupId}-producer",
         kafkaConfig,
         OpplysningerOmArbeidssoekerSerializer()
     )
     val profileringKafkaProducer = buildKafkaProducer(
-        applicationConfig.consumerId,
+        "${applicationConfig.groupId}-producer",
         kafkaConfig,
         ProfileringSerializer()
     )
     val bekreftelseKafkaProducer = buildKafkaProducer(
-        applicationConfig.consumerId,
+        "${applicationConfig.bekreftelseGroupId}-producer",
         kafkaConfig,
         BekreftelseSerializer()
     )
