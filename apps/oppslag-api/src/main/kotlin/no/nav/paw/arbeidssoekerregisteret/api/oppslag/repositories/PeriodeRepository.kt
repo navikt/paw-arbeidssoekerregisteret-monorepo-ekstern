@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
@@ -25,7 +26,12 @@ class PeriodeRepository(private val database: Database) {
         paging: Paging = Paging()
     ): List<PeriodeRow> =
         transaction(database) {
-            PeriodeFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
+            val rows = PeriodeFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
+            if (paging.ordering == SortOrder.ASC) {
+                rows.sortedBy { it.startet.tidspunkt }.take(paging.size)
+            } else {
+                rows.sortedByDescending { it.startet.tidspunkt }.take(paging.size)
+            }
         }
 
     fun tellAntallAktivePerioder(): Long =

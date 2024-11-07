@@ -21,8 +21,8 @@ object ProfileringFunctions {
             .join(TidspunktFraKildeTable, JoinType.LEFT, MetadataTable.tidspunktFraKildeId, TidspunktFraKildeTable.id)
             .selectAll()
             .where { ProfileringTable.periodeId eq periodeId }
-            .orderBy(MetadataTable.tidspunkt, paging.ordering)
-            .limit(paging.size).offset(paging.offset)
+            //.orderBy(MetadataTable.tidspunkt, paging.ordering)
+            //.limit(paging.size).offset(paging.offset)
             .map { it.toProfileringRow() }
     }
 
@@ -38,8 +38,8 @@ object ProfileringFunctions {
             .join(PeriodeTable, JoinType.LEFT, ProfileringTable.periodeId, PeriodeTable.periodeId)
             .selectAll()
             .where { PeriodeTable.identitetsnummer inList identer }
-            .orderBy(MetadataTable.tidspunkt, paging.ordering)
-            .limit(paging.size).offset(paging.offset)
+            //.orderBy(MetadataTable.tidspunkt, paging.ordering)
+            //.limit(paging.size).offset(paging.offset)
             .map { it.toProfileringRow() }
     }
 
