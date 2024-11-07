@@ -88,8 +88,8 @@ object PeriodeFunctions {
             )
             .selectAll()
             .where { PeriodeTable.identitetsnummer inList identer }
-            .orderBy(StartetMetadataAlias[MetadataTable.tidspunkt], paging.ordering)
-            .limit(paging.size).offset(paging.offset)
+            //.orderBy(StartetMetadataAlias[MetadataTable.tidspunkt], paging.ordering)
+            //.limit(paging.size).offset(paging.offset)
             .map { it.toPeriodeRow() }
     }
 

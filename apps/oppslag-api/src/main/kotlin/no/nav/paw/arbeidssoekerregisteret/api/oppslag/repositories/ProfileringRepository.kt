@@ -7,6 +7,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -18,7 +19,12 @@ class ProfileringRepository(private val database: Database) {
         paging: Paging = Paging()
     ): List<ProfileringRow> =
         transaction(database) {
-            ProfileringFunctions.findForPeriodeId(periodeId, paging)
+            val rows = ProfileringFunctions.findForPeriodeId(periodeId, paging)
+            if (paging.ordering == SortOrder.ASC) {
+                rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
+            } else {
+                rows.sortedByDescending { it.sendtInnAv.tidspunkt }.take(paging.size)
+            }
         }
 
     fun finnProfileringerForIdentiteter(
@@ -26,7 +32,12 @@ class ProfileringRepository(private val database: Database) {
         paging: Paging = Paging()
     ): List<ProfileringRow> =
         transaction(database) {
-            ProfileringFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
+            val rows = ProfileringFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
+            if (paging.ordering == SortOrder.ASC) {
+                rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
+            } else {
+                rows.sortedByDescending { it.sendtInnAv.tidspunkt }.take(paging.size)
+            }
         }
 
     fun lagreProfilering(profilering: Profilering) {

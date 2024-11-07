@@ -7,6 +7,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -18,7 +19,12 @@ class BekreftelseRepository(private val database: Database) {
         paging: Paging = Paging()
     ): List<BekreftelseRow> =
         transaction(database) {
-            BekreftelseFunctions.findForPeriodeId(periodeId, paging)
+            val rows = BekreftelseFunctions.findForPeriodeId(periodeId, paging)
+            if (paging.ordering == SortOrder.ASC) {
+                rows.sortedBy { it.svar.gjelderFra }.take(paging.size)
+            } else {
+                rows.sortedByDescending { it.svar.gjelderFra }.take(paging.size)
+            }
         }
 
     fun finnBekreftelserForIdentitetsnummerList(
@@ -26,7 +32,12 @@ class BekreftelseRepository(private val database: Database) {
         paging: Paging = Paging()
     ): List<BekreftelseRow> =
         transaction(database) {
-            BekreftelseFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
+            val rows = BekreftelseFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
+            if (paging.ordering == SortOrder.ASC) {
+                rows.sortedBy { it.svar.gjelderFra }.take(paging.size)
+            } else {
+                rows.sortedByDescending { it.svar.gjelderFra }.take(paging.size)
+            }
         }
 
     fun lagreAlleBekreftelser(bekreftelser: Sequence<Bekreftelse>) =

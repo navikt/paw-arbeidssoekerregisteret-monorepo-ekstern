@@ -39,8 +39,8 @@ object OpplysningerFunctions {
             )
             .selectAll()
             .where { PeriodeOpplysningerTable.periodeId eq periodeId }
-            .orderBy(MetadataTable.tidspunkt, paging.ordering)
-            .limit(paging.size).offset(paging.offset)
+            //.orderBy(MetadataTable.tidspunkt, paging.ordering)
+            //.limit(paging.size).offset(paging.offset)
             .mapNotNull {
                 val opplysningerId = it[OpplysningerOmArbeidssoekerTable.id].value
                 val jobbsituasjon = findJobbsituasjon(opplysningerId)
@@ -69,8 +69,8 @@ object OpplysningerFunctions {
             .join(PeriodeTable, JoinType.LEFT, PeriodeOpplysningerTable.periodeId, PeriodeTable.periodeId)
             .selectAll()
             .where { PeriodeTable.identitetsnummer inList identiteter }
-            .orderBy(MetadataTable.tidspunkt, paging.ordering)
-            .limit(paging.size).offset(paging.offset)
+            //.orderBy(MetadataTable.tidspunkt, paging.ordering)
+            //.limit(paging.size).offset(paging.offset)
             .mapNotNull {
                 val opplysningerId = it[OpplysningerOmArbeidssoekerTable.id].value
                 val jobbsituasjon = findJobbsituasjon(opplysningerId)
