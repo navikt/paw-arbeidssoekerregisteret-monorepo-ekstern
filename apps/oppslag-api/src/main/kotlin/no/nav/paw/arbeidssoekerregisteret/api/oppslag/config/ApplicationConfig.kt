@@ -3,10 +3,14 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.config
 const val APPLICATION_CONFIG_FILE_NAME = "application_config.toml"
 
 data class ApplicationConfig(
-    val gruppeId: String,
-    val periodeTopic: String,
-    val opplysningerOmArbeidssoekerTopic: String,
+    val perioderGroupId: String,
+    val opplysningerGroupId: String,
+    val profileringGroupId: String,
+    val bekreftelseGroupId: String,
+    val perioderTopic: String,
+    val opplysningerTopic: String,
     val profileringTopic: String,
+    val bekreftelseTopic: String,
     val authProviders: List<AuthProvider>,
     val poaoClientConfig: ServiceClientConfig,
     val database: DatabaseConfig

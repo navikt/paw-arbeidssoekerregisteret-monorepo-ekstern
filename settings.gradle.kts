@@ -3,6 +3,7 @@ rootProject.name = "paw-arbeidssoekerregisteret-monorepo-ekstern"
 include(
     "domain:main-avro-schema",
     "domain:arena-avro-schema",
+    "domain:bekreftelsesmelding-avro-schema",
     "lib:hoplite-config",
     "lib:error-handling",
     "lib:security",

@@ -6,81 +6,79 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.StatusException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.asUUID
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPidClaim
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getRequestBody
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyAccessFromToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyPeriodeId
-import java.util.*
 
 private val logger = buildApplicationLogger
 
-fun Route.opplysningerRoutes(
+fun Route.bekreftelseRoutes(
     authorizationService: AuthorizationService,
-    periodeService: PeriodeService,
-    opplysningerOmArbeidssoekerService: OpplysningerService,
+    bekreftelseService: BekreftelseService,
+    periodeService: PeriodeService
 ) {
     route("/api/v1") {
-
         authenticate("tokenx") {
-            get("/opplysninger-om-arbeidssoeker") {
+            get("/arbeidssoekerbekreftelser") {
                 val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
                 val identitetsnummer = call.getPidClaim()
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
                 val paging = if (siste) Paging(size = 1) else Paging()
-                val response = opplysningerOmArbeidssoekerService
-                    .finnOpplysningerForIdentiteter(identitetsnummerList, paging)
+                val response = bekreftelseService.finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
 
-                logger.info("Bruker hentet opplysninger")
+                logger.info("Bruker hentet bekreftelser")
 
-                call.respond(HttpStatusCode.OK, response)
+                call.respond(response)
             }
 
-            get("/opplysninger-om-arbeidssoeker/{periodeId}") {
-                val periodeId = UUID.fromString(call.parameters["periodeId"])
+            get("/arbeidssoekerbekreftelser/{periodeId}") {
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
                 val identitetsnummer = call.getPidClaim()
+                val periodeId = call.parameters["periodeId"]?.asUUID()
+                    ?: throw StatusException(HttpStatusCode.BadRequest, "mangler periodeId")
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
                 verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
-                val opplysningerOmArbeidssoeker = opplysningerOmArbeidssoekerService
-                    .finnOpplysningerForPeriodeId(periodeId)
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId, paging)
 
-                logger.info("Bruker hentet opplysninger")
+                logger.info("Bruker hentet bekreftelser")
 
-                call.respond(HttpStatusCode.OK, opplysningerOmArbeidssoeker)
+                call.respond(response)
             }
         }
 
         authenticate("azure") {
-            post("/veileder/opplysninger-om-arbeidssoeker") {
+            get("/veileder/arbeidssoekerbekreftelser/{periodeId}") {
                 val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
-                val (identitetsnummer, periodeId) = call.getRequestBody<OpplysningerOmArbeidssoekerRequest>()
-                val identitetsnummerList = authorizationService.finnIdentiteter(Identitetsnummer(identitetsnummer))
+                val periodeId = call.parameters["periodeId"]?.asUUID()
+                    ?: throw StatusException(HttpStatusCode.BadRequest, "mangler periodeId")
 
+                val periode = periodeService.hentPeriodeForId(periodeId) ?: throw StatusException(
+                    HttpStatusCode.BadRequest,
+                    "Finner ikke periode $periodeId"
+                )
+                val identitetsnummerList = authorizationService
+                    .finnIdentiteter(Identitetsnummer(periode.identitetsnummer))
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)
 
                 val paging = if (siste) Paging(size = 1) else Paging()
-                val response = if (periodeId != null) {
-                    verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
+                val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId, paging)
 
-                    opplysningerOmArbeidssoekerService.finnOpplysningerForPeriodeId(periodeId, paging)
-                } else {
-                    opplysningerOmArbeidssoekerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
-                }
+                logger.info("Veileder hentet bekreftelser for bruker")
 
-                logger.info("Veileder hentet opplysninger for bruker")
-
-                call.respond(HttpStatusCode.OK, response)
+                call.respond(response)
             }
         }
     }

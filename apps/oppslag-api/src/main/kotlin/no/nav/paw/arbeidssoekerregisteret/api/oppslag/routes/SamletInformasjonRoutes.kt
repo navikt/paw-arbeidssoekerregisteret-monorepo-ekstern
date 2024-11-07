@@ -10,13 +10,14 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.createSamletInformasjonResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.createSisteSamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPidClaim
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getRequestBody
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyAccessFromToken
@@ -26,8 +27,9 @@ private val logger = buildApplicationLogger
 fun Route.samletInformasjonRoutes(
     authorizationService: AuthorizationService,
     periodeService: PeriodeService,
-    opplysningerOmArbeidssoekerService: OpplysningerService,
-    profileringService: ProfileringService
+    opplysningerService: OpplysningerService,
+    profileringService: ProfileringService,
+    bekreftelseService: BekreftelseService
 ) {
     route("/api/v1") {
 
@@ -37,24 +39,22 @@ fun Route.samletInformasjonRoutes(
                 val identitetsnummer = call.getPidClaim()
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
-                val response = if (siste) {
-                    // TODO Fiks med order by og limit mot databasen
-                    createSisteSamletInformasjonResponse(
-                        identitetsnummerList,
-                        periodeService,
-                        opplysningerOmArbeidssoekerService,
-                        profileringService
-                    )
-                } else {
-                    createSamletInformasjonResponse(
-                        identitetsnummerList,
-                        periodeService,
-                        opplysningerOmArbeidssoekerService,
-                        profileringService
-                    )
-                }
 
-                logger.info("Hentet siste samlet informasjon for bruker")
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val perioder = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
+                val opplysninger = opplysningerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
+                val profilering = profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
+                val bekreftelser = bekreftelseService
+                    .finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
+
+                val response = SamletInformasjonResponse(
+                    arbeidssoekerperioder = perioder,
+                    opplysningerOmArbeidssoeker = opplysninger,
+                    profilering = profilering,
+                    bekreftelser = bekreftelser
+                )
+
+                logger.info("Bruker hentet samlet informasjon")
 
                 call.respond(HttpStatusCode.OK, response)
             }
@@ -68,22 +68,19 @@ fun Route.samletInformasjonRoutes(
 
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)
 
-                val response = if (siste) {
-                    // TODO Fiks med order by og limit mot databasen
-                    createSisteSamletInformasjonResponse(
-                        identitetsnummerList,
-                        periodeService,
-                        opplysningerOmArbeidssoekerService,
-                        profileringService
-                    )
-                } else {
-                    createSamletInformasjonResponse(
-                        identitetsnummerList,
-                        periodeService,
-                        opplysningerOmArbeidssoekerService,
-                        profileringService
-                    )
-                }
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val perioder = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
+                val opplysninger = opplysningerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
+                val profilering = profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
+                val bekreftelser = bekreftelseService
+                    .finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
+
+                val response = SamletInformasjonResponse(
+                    arbeidssoekerperioder = perioder,
+                    opplysningerOmArbeidssoeker = opplysninger,
+                    profilering = profilering,
+                    bekreftelser = bekreftelser
+                )
 
                 logger.info("Veileder hentet siste samlet informasjon for bruker")
 
