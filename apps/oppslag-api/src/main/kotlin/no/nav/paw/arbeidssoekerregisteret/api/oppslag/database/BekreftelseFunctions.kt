@@ -27,15 +27,18 @@ object BekreftelseFunctions {
             .singleOrNull()?.toBekreftelseRow()
     }
 
-    fun findForPeriodeId(periodeId: UUID, paging: Paging = Paging()): List<BekreftelseRow> {
+    fun findForPeriodeId(
+        periodeId: UUID,
+        paging: Paging = Paging()
+    ): List<BekreftelseRow> {
         return BekreftelseTable
             .join(BekreftelseSvarTable, JoinType.LEFT, BekreftelseTable.svarId, BekreftelseSvarTable.id)
             .join(MetadataTable, JoinType.LEFT, BekreftelseSvarTable.sendtInnId, MetadataTable.id)
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
             .selectAll()
             .where { BekreftelseTable.periodeId eq periodeId }
-            .orderBy(BekreftelseSvarTable.gjelderFra, paging.ordering)
-            .limit(paging.size).offset(paging.offset)
+            //.orderBy(BekreftelseSvarTable.gjelderFra, paging.ordering)
+            //.limit(paging.size).offset(paging.offset)
             .map { it.toBekreftelseRow() }
     }
 
@@ -51,8 +54,8 @@ object BekreftelseFunctions {
             .join(PeriodeTable, JoinType.LEFT, BekreftelseTable.periodeId, PeriodeTable.periodeId)
             .selectAll()
             .where { PeriodeTable.identitetsnummer inList identiteter }
-            .orderBy(BekreftelseSvarTable.gjelderFra, paging.ordering)
-            .limit(paging.size).offset(paging.offset)
+            //.orderBy(BekreftelseSvarTable.gjelderFra, paging.ordering)
+            //.limit(paging.size).offset(paging.offset)
             .map { it.toBekreftelseRow() }
     }
 
