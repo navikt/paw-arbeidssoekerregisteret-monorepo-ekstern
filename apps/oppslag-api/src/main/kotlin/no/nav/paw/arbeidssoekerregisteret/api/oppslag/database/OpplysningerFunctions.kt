@@ -20,8 +20,8 @@ import java.util.*
 
 object OpplysningerFunctions {
 
-    fun findForPeriodeId(
-        periodeId: UUID,
+    fun findForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> {
         return OpplysningerOmArbeidssoekerTable
@@ -38,7 +38,7 @@ object OpplysningerFunctions {
                 PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId
             )
             .selectAll()
-            .where { PeriodeOpplysningerTable.periodeId eq periodeId }
+            .where { PeriodeOpplysningerTable.periodeId inList periodeIdList }
             //.orderBy(MetadataTable.tidspunkt, paging.ordering)
             //.limit(paging.size).offset(paging.offset)
             .mapNotNull {
