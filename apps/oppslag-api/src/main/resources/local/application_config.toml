@@ -1,7 +1,11 @@
-gruppeId = "paw.arbeidsseokerregisteret-api-oppslag-v1"
-periodeTopic = "paw.arbeidssokerperioder-v1"
-opplysningerOmArbeidssoekerTopic = "paw.opplysninger-om-arbeidssoeker-v1"
+perioderGroupId = "paw.arbeidsseokerregisteret-api-oppslag-v1"
+opplysningerGroupId = "paw.arbeidsseokerregisteret-api-oppslag-v1"
+profileringGroupId = "paw.arbeidsseokerregisteret-api-oppslag-v1"
+bekreftelseGroupId = "paw.arbeidsseokerregisteret-api-oppslag-bekreftelse-v1"
+perioderTopic = "paw.arbeidssokerperioder-v1"
+opplysningerTopic = "paw.opplysninger-om-arbeidssoeker-v1"
 profileringTopic = "paw.arbeidssoker-profilering-v1"
+bekreftelseTopic = "paw.arbeidssoker-bekreftelse-v1"
 
 [[authProviders]]
 name = "tokenx"

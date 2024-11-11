@@ -1,10 +1,20 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.models
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
-import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
+import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
+import org.jetbrains.exposed.sql.SortOrder
 import java.time.Instant
 import java.util.*
+
+data class Paging(
+    val size: Int = Int.MAX_VALUE,
+    val offset: Long = 0,
+    val ordering: SortOrder = SortOrder.DESC
+)
 
 data class BrukerRow(
     val id: Long,
@@ -30,6 +40,46 @@ data class MetadataRow(
 data class OpplysningerRow(
     val id: Long,
     val opplysningerId: UUID,
+    val periodeId: UUID,
+    val sendtInnAv: MetadataRow,
+    val jobbsituasjon: List<BeskrivelseMedDetaljerRow>,
+    val utdanning: UtdanningRow?,
+    val helse: HelseRow?,
+    val annet: AnnetRow?
+)
+
+data class BeskrivelseMedDetaljerRow(
+    val id: Long,
+    val beskrivelse: Beskrivelse,
+    val detaljer: List<DetaljerRow>
+)
+
+data class DetaljerRow(
+    val id: Long,
+    val noekkel: String,
+    val verdi: String
+)
+
+data class UtdanningRow(
+    val id: Long,
+    val nus: String,
+    val bestaatt: JaNeiVetIkke?,
+    val godkjent: JaNeiVetIkke?
+)
+
+data class HelseRow(
+    val id: Long,
+    val helsetilstandHindrerArbeid: JaNeiVetIkke
+)
+
+data class AnnetRow(
+    val id: Long,
+    val andreForholdHindrerArbeid: JaNeiVetIkke?
+)
+
+data class OpplysningerMarkerRow(
+    val id: Long,
+    val opplysningerId: UUID,
     val periodeId: UUID?
 )
 
@@ -46,6 +96,30 @@ data class PeriodeOpplysningerRow(
     val opplysningerOmArbeidssoekerTableId: Long
 )
 
-infix fun BrukerRow.eq(bruker: Bruker): Boolean {
-    return this.type == bruker.type && this.brukerId == bruker.id
-}
+data class ProfileringRow(
+    val id: Long,
+    val profileringId: UUID,
+    val periodeId: UUID,
+    val opplysningerOmArbeidssoekerId: UUID,
+    val sendtInnAv: MetadataRow,
+    val profilertTil: ProfilertTil,
+    val jobbetSammenhengendeSeksAvTolvSisteManeder: Boolean? = null,
+    val alder: Int? = null
+)
+
+data class BekreftelseRow(
+    val id: Long,
+    val bekreftelseId: UUID,
+    val periodeId: UUID,
+    val bekreftelsesloesning: Bekreftelsesloesning,
+    val svar: BekreftelseSvarRow
+)
+
+data class BekreftelseSvarRow(
+    val id: Long,
+    val sendtInnAv: MetadataRow,
+    val gjelderFra: Instant,
+    val gjelderTil: Instant,
+    val harJobbetIDennePerioden: Boolean,
+    val vilFortsetteSomArbeidssoeker: Boolean,
+)

@@ -21,7 +21,7 @@ import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class AutorisasjonServiceTest : FreeSpec({
-    with(ApplicationTestContext()) {
+    with(ApplicationTestContext.withMockDataAccess()) {
 
         afterSpec {
             confirmVerified(
@@ -43,7 +43,7 @@ class AutorisasjonServiceTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns identer
 
-            val identiteter = authorizationService.finnIdentiteter(TestData.identitetsnummer)
+            val identiteter = authorizationService.finnIdentiteter(TestData.identitetsnummer1)
 
             identiteter shouldHaveSize 2
             identiteter shouldContain Identitetsnummer("01017012345")
@@ -59,7 +59,10 @@ class AutorisasjonServiceTest : FreeSpec({
                     )
 
             val result =
-                authorizationService.verifiserTilgangTilBruker(TestData.navAnsatt, listOf(TestData.identitetsnummer))
+                authorizationService.verifiserTilgangTilBruker(
+                    TestData.nyNavAnsatt(),
+                    listOf(TestData.identitetsnummer1)
+                )
 
             result shouldBe true
             verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
@@ -74,7 +77,10 @@ class AutorisasjonServiceTest : FreeSpec({
                     )
 
             val result =
-                authorizationService.verifiserTilgangTilBruker(TestData.navAnsatt, listOf(TestData.identitetsnummer))
+                authorizationService.verifiserTilgangTilBruker(
+                    TestData.nyNavAnsatt(),
+                    listOf(TestData.identitetsnummer1)
+                )
 
             result shouldBe false
             verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }

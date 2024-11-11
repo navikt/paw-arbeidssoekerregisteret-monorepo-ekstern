@@ -25,21 +25,21 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getArbeidssoekerperiodeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getOpplysningerOmArbeidssoekerResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.PolicyRequest
 import no.nav.poao_tilgang.client.PolicyResult
 import no.nav.poao_tilgang.client.api.ApiResult
+import java.time.Duration
+import java.time.Instant
 import java.util.*
 
 class SamletInformasjonRoutesTest : FreeSpec({
-    with(ApplicationTestContext()) {
+    with(ApplicationTestContext.withRealDataAccess()) {
 
         beforeSpec {
             mockOAuth2Server.start()
@@ -50,36 +50,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
             confirmVerified(
                 pdlHttpConsumerMock,
                 poaoTilgangHttpClientMock,
-                periodeRepositoryMock,
-                opplysningerRepositoryMock,
-                profileringRepositoryMock
             )
-        }
-
-        beforeTest {
-            coEvery {
-                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.identitetsnummer.verdi, IdentGruppe.FOLKEREGISTERIDENT))
-
-            every {
-                periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getArbeidssoekerperiodeResponse(TestData.periodeId)
-
-            every {
-                opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
-
-            every {
-                opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getOpplysningerOmArbeidssoekerResponse(TestData.periodeId)
-
-            every {
-                profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
-            } returns getProfileringResponse(TestData.periodeId)
-
-            every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getProfileringResponse(TestData.periodeId)
         }
 
         "/samlet-informasjon should return 401 Unauthorized without token" {
@@ -93,7 +64,8 @@ class SamletInformasjonRoutesTest : FreeSpec({
                             authorizationService,
                             periodeService,
                             opplysningerService,
-                            profileringService
+                            profileringService,
+                            bekreftelseService
                         )
                     }
                 }
@@ -106,7 +78,11 @@ class SamletInformasjonRoutesTest : FreeSpec({
             }
         }
 
-        "/samlet-informasjon should return OK" {
+        "/samlet-informasjon should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
+
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
@@ -117,15 +93,40 @@ class SamletInformasjonRoutesTest : FreeSpec({
                             authorizationService,
                             periodeService,
                             opplysningerService,
-                            profileringService
+                            profileringService,
+                            bekreftelseService
                         )
                     }
                 }
 
+                val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr1)
+                val opplysinger = perioder.mapIndexed { index, periode ->
+                    val sendtInnAv = TestData
+                        .nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
+                    TestData.nyOpplysningerOmArbeidssoeker(periodeId = periode.id, sendtInnAv = sendtInnAv)
+                }
+                val profileringer = perioder.mapIndexed { index, periode ->
+                    val sendtInnAv =
+                        TestData.nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
+                    TestData.nyProfilering(periodeId = periode.id, sendtInAv = sendtInnAv)
+                }
+                val bekreftelser = perioder.mapIndexed { index, periode ->
+                    val gjelderFra = Instant.now().minus(Duration.ofDays(index.toLong()))
+                    val svar = TestData.nyBekreftelseSvar(
+                        gjelderFra = gjelderFra,
+                        gjelderTil = gjelderFra.plus(Duration.ofDays(14))
+                    )
+                    TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
+                }
+                periodeService.lagreAllePerioder(perioder.asSequence())
+                opplysningerService.lagreAlleOpplysninger(opplysinger.asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
                 val testClient = configureTestClient()
 
                 val response = testClient.get("api/v1/samlet-informasjon") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr1))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -133,15 +134,29 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 samletInfo.arbeidssoekerperioder.size shouldBe 3
                 samletInfo.opplysningerOmArbeidssoeker.size shouldBe 3
                 samletInfo.profilering.size shouldBe 3
+                samletInfo.bekreftelser.size shouldBe 3
+                perioder[0] shouldBeEqualTo samletInfo.arbeidssoekerperioder[0]
+                perioder[1] shouldBeEqualTo samletInfo.arbeidssoekerperioder[1]
+                perioder[2] shouldBeEqualTo samletInfo.arbeidssoekerperioder[2]
+                opplysinger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
+                opplysinger[1] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[1]
+                opplysinger[2] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[2]
+                profileringer[0] shouldBeEqualTo samletInfo.profilering[0]
+                profileringer[1] shouldBeEqualTo samletInfo.profilering[1]
+                profileringer[2] shouldBeEqualTo samletInfo.profilering[2]
+                bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
+                bekreftelser[1] shouldBeEqualTo samletInfo.bekreftelser[1]
+                bekreftelser[2] shouldBeEqualTo samletInfo.bekreftelser[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
-        "/samlet-informasjon med siste-flagg should return OK" {
+        "/samlet-informasjon med siste-flagg should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr2, IdentGruppe.FOLKEREGISTERIDENT))
+
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
@@ -152,15 +167,40 @@ class SamletInformasjonRoutesTest : FreeSpec({
                             authorizationService,
                             periodeService,
                             opplysningerService,
-                            profileringService
+                            profileringService,
+                            bekreftelseService
                         )
                     }
                 }
 
+                val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr2)
+                val opplysinger = perioder.mapIndexed { index, periode ->
+                    val sendtInnAv = TestData
+                        .nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
+                    TestData.nyOpplysningerOmArbeidssoeker(periodeId = periode.id, sendtInnAv = sendtInnAv)
+                }
+                val profileringer = perioder.mapIndexed { index, periode ->
+                    val sendtInnAv =
+                        TestData.nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
+                    TestData.nyProfilering(periodeId = periode.id, sendtInAv = sendtInnAv)
+                }
+                val bekreftelser = perioder.mapIndexed { index, periode ->
+                    val gjelderFra = Instant.now().minus(Duration.ofDays(index.toLong()))
+                    val svar = TestData.nyBekreftelseSvar(
+                        gjelderFra = gjelderFra,
+                        gjelderTil = gjelderFra.plus(Duration.ofDays(14))
+                    )
+                    TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
+                }
+                periodeService.lagreAllePerioder(perioder.asSequence())
+                opplysningerService.lagreAlleOpplysninger(opplysinger.asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
                 val testClient = configureTestClient()
 
                 val response = testClient.get("api/v1/samlet-informasjon?siste=true") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr2))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -168,15 +208,20 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 samletInfo.arbeidssoekerperioder.size shouldBe 1
                 samletInfo.opplysningerOmArbeidssoeker.size shouldBe 1
                 samletInfo.profilering.size shouldBe 1
+                samletInfo.bekreftelser.size shouldBe 1
+                perioder[0] shouldBeEqualTo samletInfo.arbeidssoekerperioder[0]
+                opplysinger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
+                profileringer[0] shouldBeEqualTo samletInfo.profilering[0]
+                bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
 
         "/veileder/samlet-informasjon should return 403 uten POAO Tilgang" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test"))))
@@ -191,7 +236,8 @@ class SamletInformasjonRoutesTest : FreeSpec({
                             authorizationService,
                             periodeService,
                             opplysningerService,
-                            profileringService
+                            profileringService,
+                            bekreftelseService
                         )
                     }
                 }
@@ -203,7 +249,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         SamletInformasjonRequest(
-                            identitetsnummer = "12345678901"
+                            identitetsnummer = TestData.fnr3
                         )
                     )
                 }
@@ -215,7 +261,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
             }
         }
 
-        "/veileder/samlet-informasjon should return OK" {
+        "/veileder/samlet-informasjon should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
@@ -230,10 +279,35 @@ class SamletInformasjonRoutesTest : FreeSpec({
                             authorizationService,
                             periodeService,
                             opplysningerService,
-                            profileringService
+                            profileringService,
+                            bekreftelseService
                         )
                     }
                 }
+
+                val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr4)
+                val opplysinger = perioder.mapIndexed { index, periode ->
+                    val sendtInnAv = TestData
+                        .nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
+                    TestData.nyOpplysningerOmArbeidssoeker(periodeId = periode.id, sendtInnAv = sendtInnAv)
+                }
+                val profileringer = perioder.mapIndexed { index, periode ->
+                    val sendtInnAv =
+                        TestData.nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
+                    TestData.nyProfilering(periodeId = periode.id, sendtInAv = sendtInnAv)
+                }
+                val bekreftelser = perioder.mapIndexed { index, periode ->
+                    val gjelderFra = Instant.now().minus(Duration.ofDays(index.toLong()))
+                    val svar = TestData.nyBekreftelseSvar(
+                        gjelderFra = gjelderFra,
+                        gjelderTil = gjelderFra.plus(Duration.ofDays(14))
+                    )
+                    TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
+                }
+                periodeService.lagreAllePerioder(perioder.asSequence())
+                opplysningerService.lagreAlleOpplysninger(opplysinger.asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
 
                 val testClient = configureTestClient()
 
@@ -242,7 +316,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         SamletInformasjonRequest(
-                            identitetsnummer = "12345678901"
+                            identitetsnummer = TestData.fnr4
                         )
                     )
                 }
@@ -252,16 +326,29 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 samletInfo.arbeidssoekerperioder.size shouldBe 3
                 samletInfo.opplysningerOmArbeidssoeker.size shouldBe 3
                 samletInfo.profilering.size shouldBe 3
+                samletInfo.bekreftelser.size shouldBe 3
+                perioder[0] shouldBeEqualTo samletInfo.arbeidssoekerperioder[0]
+                perioder[1] shouldBeEqualTo samletInfo.arbeidssoekerperioder[1]
+                perioder[2] shouldBeEqualTo samletInfo.arbeidssoekerperioder[2]
+                opplysinger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
+                opplysinger[1] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[1]
+                opplysinger[2] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[2]
+                profileringer[0] shouldBeEqualTo samletInfo.profilering[0]
+                profileringer[1] shouldBeEqualTo samletInfo.profilering[1]
+                profileringer[2] shouldBeEqualTo samletInfo.profilering[2]
+                bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
+                bekreftelser[1] shouldBeEqualTo samletInfo.bekreftelser[1]
+                bekreftelser[2] shouldBeEqualTo samletInfo.bekreftelser[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { opplysningerRepositoryMock.finnOpplysningerForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
-        "/veileder/samlet-informasjon med siste-flagg should return OK" {
+        "/veileder/samlet-informasjon med siste-flagg should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
@@ -276,10 +363,35 @@ class SamletInformasjonRoutesTest : FreeSpec({
                             authorizationService,
                             periodeService,
                             opplysningerService,
-                            profileringService
+                            profileringService,
+                            bekreftelseService
                         )
                     }
                 }
+
+                val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr5)
+                val opplysinger = perioder.mapIndexed { index, periode ->
+                    val sendtInnAv = TestData
+                        .nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
+                    TestData.nyOpplysningerOmArbeidssoeker(periodeId = periode.id, sendtInnAv = sendtInnAv)
+                }
+                val profileringer = perioder.mapIndexed { index, periode ->
+                    val sendtInnAv =
+                        TestData.nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
+                    TestData.nyProfilering(periodeId = periode.id, sendtInAv = sendtInnAv)
+                }
+                val bekreftelser = perioder.mapIndexed { index, periode ->
+                    val gjelderFra = Instant.now().minus(Duration.ofDays(index.toLong()))
+                    val svar = TestData.nyBekreftelseSvar(
+                        gjelderFra = gjelderFra,
+                        gjelderTil = gjelderFra.plus(Duration.ofDays(14))
+                    )
+                    TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
+                }
+                periodeService.lagreAllePerioder(perioder.asSequence())
+                opplysningerService.lagreAlleOpplysninger(opplysinger.asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
 
                 val testClient = configureTestClient()
 
@@ -288,7 +400,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         SamletInformasjonRequest(
-                            identitetsnummer = "12345678901"
+                            identitetsnummer = TestData.fnr5
                         )
                     )
                 }
@@ -298,12 +410,14 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 samletInfo.arbeidssoekerperioder.size shouldBe 1
                 samletInfo.opplysningerOmArbeidssoeker.size shouldBe 1
                 samletInfo.profilering.size shouldBe 1
+                samletInfo.bekreftelser.size shouldBe 1
+                perioder[0] shouldBeEqualTo samletInfo.arbeidssoekerperioder[0]
+                opplysinger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
+                profileringer[0] shouldBeEqualTo samletInfo.profilering[0]
+                bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.finnPerioderForIdentiteter(any<List<Identitetsnummer>>()) }
-                verify { opplysningerRepositoryMock.finnOpplysningerForPeriodeId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
     }

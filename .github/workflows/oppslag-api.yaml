@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev/*
+      - prod/*
     paths:
       - 'apps/oppslag-api/**'
       - '.github/workflows/oppslag-api.yaml'
@@ -22,10 +23,11 @@ env:
 jobs:
   build:
     name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       id-token: write
-    runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
@@ -61,7 +63,7 @@ jobs:
           image_ref: ${{ env.IMAGE }}@${{ env.DIGEST }}
 
   deploy-dev:
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/dev')
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/dev') || startsWith(github.ref, 'refs/heads/prod')
     name: Deploy to dev-gcp
     needs:
       - build
@@ -80,7 +82,7 @@ jobs:
           VAR: image=${{ needs.build.outputs.image }}
 
   deploy-prod:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/prod')
     name: Deploy to prod-gcp
     needs:
       - build

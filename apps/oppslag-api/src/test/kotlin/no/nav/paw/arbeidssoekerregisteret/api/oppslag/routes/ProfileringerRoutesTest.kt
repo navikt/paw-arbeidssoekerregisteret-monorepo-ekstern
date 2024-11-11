@@ -25,10 +25,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.getProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.nyStartetPeriode
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.poao_tilgang.client.Decision
@@ -38,7 +37,7 @@ import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class ProfileringerRoutesTest : FreeSpec({
-    with(ApplicationTestContext()) {
+    with(ApplicationTestContext.withRealDataAccess()) {
 
         beforeSpec {
             mockOAuth2Server.start()
@@ -48,24 +47,11 @@ class ProfileringerRoutesTest : FreeSpec({
             mockOAuth2Server.shutdown()
             confirmVerified(
                 pdlHttpConsumerMock,
-                poaoTilgangHttpClientMock,
-                periodeRepositoryMock,
-                opplysningerRepositoryMock,
-                profileringRepositoryMock
+                poaoTilgangHttpClientMock
             )
         }
 
-        beforeTest {
-            coEvery {
-                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.identitetsnummer.verdi, IdentGruppe.FOLKEREGISTERIDENT))
-        }
-
         "/profilering/{periodeId} should return 401 Unauthorized without token" {
-            every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns emptyList()
-
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
@@ -78,19 +64,16 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val testClient = configureTestClient()
 
-                val noTokenResponse = testClient.get("api/v1/profilering/${TestData.periodeId}")
+                val response = testClient.get("api/v1/profilering/${TestData.periodeId1}")
 
-                noTokenResponse.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
         "/profilering/{periodeId} should return OK" {
-            every {
-                periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode()
-            every {
-                profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
-            } returns getProfileringResponse(TestData.periodeId)
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
 
             testApplication {
                 application {
@@ -102,26 +85,32 @@ class ProfileringerRoutesTest : FreeSpec({
                     }
                 }
 
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
+                val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+
                 val testClient = configureTestClient()
 
-                val response = testClient.get("api/v1/profilering/${TestData.periodeId}") {
+                val response = testClient.get("api/v1/profilering/${periode.id}") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken())
                 }
 
                 response.status shouldBe HttpStatusCode.OK
-                val profileringer = response.body<List<ProfileringResponse>>()
-                profileringer.size shouldBe 3
+                val profileringResponses = response.body<List<ProfileringResponse>>()
+                profileringResponses.size shouldBe 3
+                profileringer[0] shouldBeEqualTo profileringResponses[0]
+                profileringer[1] shouldBeEqualTo profileringResponses[1]
+                profileringer[2] shouldBeEqualTo profileringResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { periodeRepositoryMock.hentPeriodeForId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
 
         "/profilering should return OK" {
-            every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getProfileringResponse(TestData.periodeId)
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
 
             testApplication {
                 application {
@@ -132,26 +121,33 @@ class ProfileringerRoutesTest : FreeSpec({
                         profileringRoutes(authorizationService, periodeService, profileringService)
                     }
                 }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr3)
+                val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
 
                 val testClient = configureTestClient()
 
                 val response = testClient.get("api/v1/profilering") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr3))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
-                val profileringer = response.body<List<ProfileringResponse>>()
-                profileringer.size shouldBe 3
+                val profileringResponses = response.body<List<ProfileringResponse>>()
+                profileringResponses.size shouldBe 3
+                profileringer[0] shouldBeEqualTo profileringResponses[0]
+                profileringer[1] shouldBeEqualTo profileringResponses[1]
+                profileringer[2] shouldBeEqualTo profileringResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
         "/profilering med siste-flagg should return OK" {
-            every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getProfileringResponse(TestData.periodeId)
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
 
             testApplication {
                 application {
@@ -162,6 +158,11 @@ class ProfileringerRoutesTest : FreeSpec({
                         profileringRoutes(authorizationService, periodeService, profileringService)
                     }
                 }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
+                val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
 
                 val testClient = configureTestClient()
 
@@ -170,25 +171,21 @@ class ProfileringerRoutesTest : FreeSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.OK
-                val profileringer = response.body<List<ProfileringResponse>>()
-                profileringer.size shouldBe 1
-                profileringer[0].periodeId shouldBe TestData.periodeId
+                val profileringResponses = response.body<List<ProfileringResponse>>()
+                profileringResponses.size shouldBe 1
+                profileringer[0] shouldBeEqualTo profileringResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
         "/veileder/profilering should return 403 Forbidden uten POAO Tilgang" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test"))))
-            every {
-                periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode()
-            every {
-                profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>())
-            } returns getProfileringResponse(TestData.periodeId)
 
             testApplication {
                 application {
@@ -207,8 +204,8 @@ class ProfileringerRoutesTest : FreeSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         ProfileringRequest(
-                            identitetsnummer = TestData.identitetsnummer.verdi,
-                            periodeId = TestData.periodeId
+                            identitetsnummer = TestData.fnr1,
+                            periodeId = TestData.periodeId3
                         )
                     )
                 }
@@ -217,21 +214,16 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.hentPeriodeForId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForIdentiteter(any<List<Identitetsnummer>>()) }
             }
         }
 
         "/veileder/profilering should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
-            every {
-                periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode()
-            every {
-                profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
-            } returns getProfileringResponse(TestData.periodeId)
 
             testApplication {
                 application {
@@ -242,6 +234,11 @@ class ProfileringerRoutesTest : FreeSpec({
                         profileringRoutes(authorizationService, periodeService, profileringService)
                     }
                 }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr4)
+                val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
 
                 val testClient = configureTestClient()
 
@@ -250,33 +247,31 @@ class ProfileringerRoutesTest : FreeSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         ProfileringRequest(
-                            identitetsnummer = TestData.identitetsnummer.verdi,
-                            periodeId = TestData.periodeId
+                            identitetsnummer = periode.identitetsnummer,
+                            periodeId = periode.id
                         )
                     )
                 }
 
                 response.status shouldBe HttpStatusCode.OK
-                val profileringer = response.body<List<ProfileringResponse>>()
-                profileringer.size shouldBe 3
+                val profileringResponses = response.body<List<ProfileringResponse>>()
+                profileringResponses.size shouldBe 3
+                profileringer[0] shouldBeEqualTo profileringResponses[0]
+                profileringer[1] shouldBeEqualTo profileringResponses[1]
+                profileringer[2] shouldBeEqualTo profileringResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.hentPeriodeForId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
 
         "/veileder/profilering med siste-flagg should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
-            every {
-                periodeRepositoryMock.hentPeriodeForId(any<UUID>())
-            } returns nyStartetPeriode()
-            every {
-                profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>())
-            } returns getProfileringResponse(TestData.periodeId)
 
             testApplication {
                 application {
@@ -288,6 +283,11 @@ class ProfileringerRoutesTest : FreeSpec({
                     }
                 }
 
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr5)
+                val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+
                 val testClient = configureTestClient()
 
                 val response = testClient.post("api/v1/veileder/profilering?siste=true") {
@@ -295,21 +295,19 @@ class ProfileringerRoutesTest : FreeSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         ProfileringRequest(
-                            identitetsnummer = TestData.identitetsnummer.verdi,
-                            periodeId = TestData.periodeId
+                            identitetsnummer = periode.identitetsnummer,
+                            periodeId = periode.id
                         )
                     )
                 }
 
                 response.status shouldBe HttpStatusCode.OK
-                val profileringer = response.body<List<ProfileringResponse>>()
-                profileringer.size shouldBe 1
-                profileringer[0].periodeId shouldBe TestData.periodeId
+                val profileringResponses = response.body<List<ProfileringResponse>>()
+                profileringResponses.size shouldBe 1
+                profileringer[0] shouldBeEqualTo profileringResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
-                verify { periodeRepositoryMock.hentPeriodeForId(any<UUID>()) }
-                verify { profileringRepositoryMock.finnProfileringerForPeriodeId(any<UUID>()) }
             }
         }
     }

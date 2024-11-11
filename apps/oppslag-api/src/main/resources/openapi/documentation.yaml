@@ -148,6 +148,77 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ProfileringResponse"
+  /api/v1/arbeidssoekerbekreftelser:
+    get:
+      description: ""
+      security:
+        - TokenXAuth: [ ]
+      parameters:
+        - name: "siste"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+          description: "siste=true returnerer siste periode."
+      responses:
+        "500":
+          description: "Internal Server Error"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BekreftelseResponse"
+  /api/v1/arbeidssoekerbekreftelser/{periodeId}:
+    get:
+      description: ""
+      security:
+        - TokenXAuth: []
+      parameters:
+        - name: "periodeId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+        - name: "siste"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+          description: "siste=true returnerer siste periode."
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "403":
+          description: "Forbidden"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BekreftelseResponse"
   /api/v1/samlet-informasjon:
     get:
       description: "Henter samlet informasjon om arbeidssøkerperioder, opplysninger og profilering."
@@ -296,6 +367,50 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ProfileringResponse"
+  /api/v1/veileder/arbeidssoekerbekreftelser/{periodeId}:
+    get:
+      description: ""
+      security:
+        - AzureAuth: []
+      parameters:
+        - name: "periodeId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+        - name: "siste"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+          description: "siste=true returnerer siste periode."
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "403":
+          description: "Forbidden"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/BekreftelseResponse"
   /api/v1/veileder/samlet-informasjon:
     post:
       description: "Veileder henter samlet informasjon om arbeidssøkerperioder, opplysninger og profilering."
@@ -541,10 +656,50 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/ProfileringResponse"
+        bekreftelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BekreftelseResponse"
       required:
         - "arbeidssoekerperioder"
         - "opplysningerOmArbeidssoeker"
         - "profilering"
+        - "bekreftelser"
+    BekreftelseResponse:
+      type: "object"
+      properties:
+        periodeId:
+          type: "string"
+          format: "uuid"
+        bekreftelsesloesning:
+          $ref: "#/components/schemas/Bekreftelsesloesning"
+        svar:
+          $ref: "#/components/schemas/BekreftelseSvarResponse"
+      required:
+        - "periodeId"
+        - "bekreftelsesloesning"
+        - "svar"
+    BekreftelseSvarResponse:
+      type: "object"
+      properties:
+        sendtInnAv:
+            $ref: "#/components/schemas/MetadataResponse"
+        gjelderFra:
+            type: "string"
+            format: "date-time"
+        gjelderTil:
+            type: "string"
+            format: "date-time"
+        harJobbetIDennePerioden:
+            type: "boolean"
+        vilFortsetteSomArbeidssoeker:
+            type: "boolean"
+      required:
+        - "sendtInnAv"
+        - "gjelderFra"
+        - "gjelderTil"
+        - "harJobbetIDennePerioden"
+        - "vilFortsetteSomArbeidssoeker"
     ArbeidssoekerperiodeRequest:
       type: "object"
       properties:
@@ -619,3 +774,9 @@ components:
         - "ANTATT_GODE_MULIGHETER"
         - "ANTATT_BEHOV_FOR_VEILEDNING"
         - "OPPGITT_HINDRINGER"
+    Bekreftelsesloesning:
+      type: "string"
+      enum:
+        - "UKJENT_VERDI"
+        - "ARBEIDSSOEKERREGISTERET"
+        - "DAGPENGER"

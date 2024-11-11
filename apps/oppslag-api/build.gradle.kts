@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":lib:kafka"))
     implementation(project(":lib:pdl-client"))
     implementation(project(":domain:main-avro-schema"))
+    implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)
@@ -50,6 +51,7 @@ dependencies {
     // Kafka
     implementation(libs.avro)
     implementation(libs.confluent.kafka.avro.serializer)
+    implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Database
     implementation(libs.exposed.crypt)
@@ -155,7 +157,10 @@ jib {
             "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}"
         )
         jvmFlags = listOf(
-            "-XX:ActiveProcessorCount=4", "-XX:+UseZGC", "-XX:+ZGenerational"
+            "-XX:+UseZGC",
+            "-XX:+ZGenerational",
+            "-XX:ActiveProcessorCount=4",
+            "-Dotel.javaagent.logging=application"
         )
     }
 }

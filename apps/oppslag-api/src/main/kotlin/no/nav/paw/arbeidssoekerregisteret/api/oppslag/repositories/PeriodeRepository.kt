@@ -1,47 +1,52 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerperiodeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.oppdaterPeriode
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPeriode
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPerioder
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.finnPerioderForIdentiteter
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opprettPeriode
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class PeriodeRepository(private val database: Database) {
+    private val logger = buildLogger
 
-    fun hentPeriodeForId(periodeId: UUID): Periode? =
+    fun hentPeriodeForId(periodeId: UUID): PeriodeRow? =
         transaction(database) {
-            finnPeriode(periodeId)?.toPeriode()
+            PeriodeFunctions.getForPeriodeId(periodeId)
         }
 
-    fun finnPerioderForIdentiteter(identitetsnummerList: List<Identitetsnummer>): List<ArbeidssoekerperiodeResponse> =
+    fun finnPerioderForIdentiteter(
+        identitetsnummerList: List<Identitetsnummer>,
+        paging: Paging = Paging()
+    ): List<PeriodeRow> =
         transaction(database) {
-            finnPerioderForIdentiteter(identitetsnummerList)
-                .map { it.toArbeidssoekerperiodeResponse() }
+            val rows = PeriodeFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
+            if (paging.ordering == SortOrder.ASC) {
+                rows.sortedBy { it.startet.tidspunkt }.take(paging.size)
+            } else {
+                rows.sortedByDescending { it.startet.tidspunkt }.take(paging.size)
+            }
         }
 
-    fun hentAntallAktivePerioder(): Long =
+    fun tellAntallAktivePerioder(): Long =
         transaction(database) {
             PeriodeTable.selectAll().where { PeriodeTable.avsluttetId eq null }.count()
         }
 
     fun lagrePeriode(periode: Periode) {
         transaction(database) {
-            val eksisterendePeriode = finnPeriode(periode.id)
+            val eksisterendePeriode = PeriodeFunctions.getForPeriodeId(periode.id)
 
             if (eksisterendePeriode != null) {
-                oppdaterPeriode(periode, eksisterendePeriode)
+                PeriodeFunctions.update(periode, eksisterendePeriode)
             } else {
-                opprettPeriode(periode)
+                PeriodeFunctions.insert(periode)
             }
         }
     }
@@ -53,15 +58,17 @@ class PeriodeRepository(private val database: Database) {
                 minRetryDelay = 20
 
                 val periodeIdList = perioder.map { it.id }.toList()
-                val eksisterendePerioder = finnPerioder(periodeIdList)
+                val eksisterendePerioder = PeriodeFunctions.finnForPeriodeIdList(periodeIdList)
                 val eksisterendePeriodeIdMap = eksisterendePerioder.associateBy { it.periodeId }
 
                 perioder.forEach { periode ->
                     val eksisterendePeriode = eksisterendePeriodeIdMap[periode.id]
                     if (eksisterendePeriode != null) {
-                        oppdaterPeriode(periode, eksisterendePeriode)
+                        logger.debug("Endrer eksisterende periode {}", periode.id)
+                        PeriodeFunctions.update(periode, eksisterendePeriode)
                     } else {
-                        opprettPeriode(periode)
+                        logger.debug("Lagrer ny periode {}", periode.id)
+                        PeriodeFunctions.insert(periode)
                     }
                 }
             }

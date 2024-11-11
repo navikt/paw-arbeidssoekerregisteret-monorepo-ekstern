@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.api.oppslag.kafka.consumers
+package no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer
 
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
@@ -7,7 +7,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 
-class BatchConsumer<K, V>(
+class BatchKafkaConsumer<K, V>(
     private val topic: String,
     val consumer: KafkaConsumer<K, V>,
     private val receiver: (Sequence<V>) -> Unit
@@ -46,7 +46,7 @@ class BatchConsumer<K, V>(
                 .runCatching(receiver)
                 .mapCatching { commitSync() }
                 .fold(
-                    onSuccess = { buildLogger.debug("Batch behandlet og commitet") },
+                    onSuccess = { buildLogger.debug("Batch behandlet og committet") },
                     onFailure = { error -> throw Exception("Feil ved konsumering av melding fra $topic", error) }
                 )
         }

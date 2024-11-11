@@ -12,11 +12,31 @@ spec:
   port: 8080
   env:
     - name: PDL_URL
-      value: https://pdl-api.prod-fss-pub.nais.io/graphql
+      value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
     - name: PDL_SCOPE
-      value: api://prod-fss.pdl.pdl-api/.default
+      value: "api://prod-fss.pdl.pdl-api/.default"
     - name: PDL_TEMA
-      value: OPP
+      value: "OPP"
+    - name: POAO_TILGANG_URL
+      value: "http://poao-tilgang.poao.svc.cluster.local"
+    - name: POAO_TILGANG_SCOPE
+      value: "api://prod-gcp.poao.poao-tilgang/.default"
+    - name: KAFKA_GROUP_ID_PERIODER
+      value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
+    - name: KAFKA_GROUP_ID_OPPLYSNINGER
+      value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
+    - name: KAFKA_GROUP_ID_PROFILERING
+      value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
+    - name: KAFKA_GROUP_ID_BEKREFTELSE
+      value: "paw.arbeidssoekerregisteret-api-oppslag-bekreftelse-v1"
+    - name: KAFKA_TOPIC_PERIODER
+      value: "paw.arbeidssokerperioder-v1"
+    - name: KAFKA_TOPIC_OPPLYSNINGER
+      value: "paw.opplysninger-om-arbeidssoeker-v1"
+    - name: KAFKA_TOPIC_PROFILERING
+      value: "paw.arbeidssoker-profilering-v1"
+    - name: KAFKA_TOPIC_BEKREFTELSE
+      value: "paw.arbeidssoker-bekreftelse-v1"
   azure:
     application:
       enabled: true
