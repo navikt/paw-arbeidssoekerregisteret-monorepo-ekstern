@@ -131,6 +131,16 @@ object PeriodeFunctions {
             .map { it.toPeriodeRow() }
     }
 
+    fun findPeriodeIdForIdentitetsnummerList(
+        identitetsnummerList: List<Identitetsnummer>
+    ): List<UUID> {
+        val identer = identitetsnummerList.map { it.verdi }
+        return PeriodeTable
+            .select(PeriodeTable.periodeId)
+            .where { PeriodeTable.identitetsnummer inList identer }
+            .map { it[PeriodeTable.periodeId] }
+    }
+
     fun insert(periode: Periode) {
         PeriodeTable.insert {
             it[periodeId] = periode.id

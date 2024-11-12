@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerFunctions
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
@@ -20,7 +21,7 @@ class OpplysningerRepository(private val database: Database) {
         paging: Paging = Paging()
     ): List<OpplysningerRow> =
         transaction(database) {
-            val rows = OpplysningerFunctions.findForPeriodeId(periodeId, paging)
+            val rows = OpplysningerFunctions.findForPeriodeIdList(listOf(periodeId), paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
             } else {
@@ -33,7 +34,8 @@ class OpplysningerRepository(private val database: Database) {
         paging: Paging = Paging()
     ): List<OpplysningerRow> =
         transaction(database) {
-            val rows = OpplysningerFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
+            val periodeIdList = PeriodeFunctions.findPeriodeIdForIdentitetsnummerList(identitetsnummerList)
+            val rows = OpplysningerFunctions.findForPeriodeIdList(periodeIdList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
             } else {
