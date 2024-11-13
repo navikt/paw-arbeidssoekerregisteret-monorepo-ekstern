@@ -27,8 +27,8 @@ object BekreftelseFunctions {
             .singleOrNull()?.toBekreftelseRow()
     }
 
-    fun findForPeriodeId(
-        periodeId: UUID,
+    fun findForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> {
         return BekreftelseTable
@@ -36,7 +36,7 @@ object BekreftelseFunctions {
             .join(MetadataTable, JoinType.LEFT, BekreftelseSvarTable.sendtInnId, MetadataTable.id)
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
             .selectAll()
-            .where { BekreftelseTable.periodeId eq periodeId }
+            .where { BekreftelseTable.periodeId inList periodeIdList }
             //.orderBy(BekreftelseSvarTable.gjelderFra, paging.ordering)
             //.limit(paging.size).offset(paging.offset)
             .map { it.toBekreftelseRow() }

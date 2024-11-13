@@ -51,7 +51,7 @@ fun Route.bekreftelseRoutes(
                 verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
                 val paging = if (siste) Paging(size = 1) else Paging()
-                val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId, paging)
+                val response = bekreftelseService.finnBekreftelserForPeriodeIdList(listOf(periodeId), paging)
 
                 logger.info("Bruker hentet bekreftelser")
 
@@ -74,7 +74,7 @@ fun Route.bekreftelseRoutes(
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)
 
                 val paging = if (siste) Paging(size = 1) else Paging()
-                val response = bekreftelseService.finnBekreftelserForPeriodeId(periodeId, paging)
+                val response = bekreftelseService.finnBekreftelserForPeriodeIdList(listOf(periodeId), paging)
 
                 logger.info("Veileder hentet bekreftelser for bruker")
 

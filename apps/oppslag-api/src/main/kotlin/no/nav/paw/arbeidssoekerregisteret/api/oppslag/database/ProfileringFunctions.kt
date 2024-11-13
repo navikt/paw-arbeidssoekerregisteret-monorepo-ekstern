@@ -11,8 +11,8 @@ import java.util.*
 
 object ProfileringFunctions {
 
-    fun findForPeriodeId(
-        periodeId: UUID,
+    fun findForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<ProfileringRow> {
         return ProfileringTable
@@ -20,7 +20,7 @@ object ProfileringFunctions {
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
             .join(TidspunktFraKildeTable, JoinType.LEFT, MetadataTable.tidspunktFraKildeId, TidspunktFraKildeTable.id)
             .selectAll()
-            .where { ProfileringTable.periodeId eq periodeId }
+            .where { ProfileringTable.periodeId inList periodeIdList }
             //.orderBy(MetadataTable.tidspunkt, paging.ordering)
             //.limit(paging.size).offset(paging.offset)
             .map { it.toProfileringRow() }

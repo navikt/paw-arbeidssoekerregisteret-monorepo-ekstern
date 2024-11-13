@@ -52,12 +52,11 @@ fun Route.opplysningerRoutes(
 
                 verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
-                val opplysningerOmArbeidssoeker = opplysningerOmArbeidssoekerService
-                    .finnOpplysningerForPeriodeId(periodeId)
+                val response = opplysningerOmArbeidssoekerService.finnOpplysningerForPeriodeIdList(listOf(periodeId))
 
                 logger.info("Bruker hentet opplysninger")
 
-                call.respond(HttpStatusCode.OK, opplysningerOmArbeidssoeker)
+                call.respond(HttpStatusCode.OK, response)
             }
         }
 
@@ -73,7 +72,7 @@ fun Route.opplysningerRoutes(
                 val response = if (periodeId != null) {
                     verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
-                    opplysningerOmArbeidssoekerService.finnOpplysningerForPeriodeId(periodeId, paging)
+                    opplysningerOmArbeidssoekerService.finnOpplysningerForPeriodeIdList(listOf(periodeId), paging)
                 } else {
                     opplysningerOmArbeidssoekerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
                 }

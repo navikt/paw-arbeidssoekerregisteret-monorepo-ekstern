@@ -10,11 +10,11 @@ import java.util.*
 
 class BekreftelseService(private val bekreftelseRepository: BekreftelseRepository) {
 
-    fun finnBekreftelserForPeriodeId(
-        periodeId: UUID,
+    fun finnBekreftelserForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<BekreftelseResponse> =
-        bekreftelseRepository.finnBekreftelserForPeriodeId(periodeId, paging)
+        bekreftelseRepository.finnBekreftelserForPeriodeIdList(periodeIdList, paging)
             .map { it.toBekreftelseResponse() }
 
     fun finnBekreftelserForIdentitetsnummerList(

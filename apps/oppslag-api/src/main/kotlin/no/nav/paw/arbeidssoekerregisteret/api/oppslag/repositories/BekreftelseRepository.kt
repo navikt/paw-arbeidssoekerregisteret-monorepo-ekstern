@@ -14,12 +14,12 @@ import java.util.*
 class BekreftelseRepository(private val database: Database) {
     private val logger = buildLogger
 
-    fun finnBekreftelserForPeriodeId(
-        periodeId: UUID,
+    fun finnBekreftelserForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> =
         transaction(database) {
-            val rows = BekreftelseFunctions.findForPeriodeId(periodeId, paging)
+            val rows = BekreftelseFunctions.findForPeriodeIdList(periodeIdList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.svar.gjelderFra }.take(paging.size)
             } else {

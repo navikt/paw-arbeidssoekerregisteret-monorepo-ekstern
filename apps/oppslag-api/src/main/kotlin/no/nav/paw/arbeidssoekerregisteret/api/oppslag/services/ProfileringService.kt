@@ -10,11 +10,11 @@ import java.util.*
 
 class ProfileringService(private val profileringRepository: ProfileringRepository) {
 
-    fun finnProfileringerForPeriodeId(
-        periodeId: UUID,
+    fun finnProfileringerForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<ProfileringResponse> =
-        profileringRepository.finnProfileringerForPeriodeId(periodeId, paging)
+        profileringRepository.finnProfileringerForPeriodeIdList(periodeIdList, paging)
             .map { it.toProfileringResponse() }
 
     fun finnProfileringerForIdentiteter(

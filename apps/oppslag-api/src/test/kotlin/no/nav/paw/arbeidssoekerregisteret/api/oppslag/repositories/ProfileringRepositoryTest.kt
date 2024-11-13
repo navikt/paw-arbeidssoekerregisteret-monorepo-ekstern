@@ -39,7 +39,7 @@ class ProfileringRepositoryTest : StringSpec({
             TestData.nyProfileringRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
         repository.lagreProfilering(profilering.toProfilering())
 
-        val profileringResponser = repository.finnProfileringerForPeriodeId(profilering.periodeId)
+        val profileringResponser = repository.finnProfileringerForPeriodeIdList(listOf(profilering.periodeId))
 
         profileringResponser.size shouldBe 1
         val profileringResponse = profileringResponser[0]
@@ -54,7 +54,7 @@ class ProfileringRepositoryTest : StringSpec({
         repository.lagreProfilering(profilering1.toProfilering())
         repository.lagreProfilering(profilering2.toProfilering())
 
-        val profileringResponser = repository.finnProfileringerForPeriodeId(TestData.periodeId1)
+        val profileringResponser = repository.finnProfileringerForPeriodeIdList(listOf(TestData.periodeId1))
 
         profileringResponser.size shouldBe 2
         val profileringResponse1 = profileringResponser[0]
@@ -67,7 +67,7 @@ class ProfileringRepositoryTest : StringSpec({
         val profilering =
             TestData.nyProfileringRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
         repository.lagreProfilering(profilering.toProfilering())
-        val profileringResponser = repository.finnProfileringerForPeriodeId(TestData.periodeId1)
+        val profileringResponser = repository.finnProfileringerForPeriodeIdList(listOf(TestData.periodeId1))
 
         profileringResponser.size shouldBe 1
         val profileringResponse = profileringResponser[0]
@@ -75,7 +75,7 @@ class ProfileringRepositoryTest : StringSpec({
     }
 
     "Hent ut ikke-eksisterende profilering" {
-        val profileringResponser = repository.finnProfileringerForPeriodeId(UUID.randomUUID())
+        val profileringResponser = repository.finnProfileringerForPeriodeIdList(listOf(UUID.randomUUID()))
 
         profileringResponser.size shouldBe 0
     }
@@ -89,7 +89,7 @@ class ProfileringRepositoryTest : StringSpec({
             sequenceOf(profilering1.toProfilering(), profilering2.toProfilering(), profilering3.toProfilering())
         repository.lagreAlleProfileringer(profileringer)
 
-        val lagredeProfileringer = repository.finnProfileringerForPeriodeId(periodeId)
+        val lagredeProfileringer = repository.finnProfileringerForPeriodeIdList(listOf(periodeId))
 
         lagredeProfileringer.size shouldBeExactly 3
         val lagredeProfilering1 = lagredeProfileringer[0]

@@ -10,11 +10,11 @@ import java.util.*
 
 class OpplysningerService(private val opplysningerRepository: OpplysningerRepository) {
 
-    fun finnOpplysningerForPeriodeId(
-        periodeId: UUID,
+    fun finnOpplysningerForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<OpplysningerOmArbeidssoekerResponse> =
-        opplysningerRepository.finnOpplysningerForPeriodeId(periodeId, paging)
+        opplysningerRepository.finnOpplysningerForPeriodeIdList(periodeIdList, paging)
             .map { it.toOpplysningerOmArbeidssoekerResponse() }
 
     fun finnOpplysningerForIdentiteter(

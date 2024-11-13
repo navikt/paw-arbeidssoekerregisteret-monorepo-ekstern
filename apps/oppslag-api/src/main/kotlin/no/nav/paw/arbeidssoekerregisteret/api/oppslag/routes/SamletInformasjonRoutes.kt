@@ -39,13 +39,12 @@ fun Route.samletInformasjonRoutes(
                 val identitetsnummer = call.getPidClaim()
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
-
                 val paging = if (siste) Paging(size = 1) else Paging()
                 val perioder = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
-                val opplysninger = opplysningerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
-                val profilering = profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
-                val bekreftelser = bekreftelseService
-                    .finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
+                val periodeIdList = perioder.map { it.periodeId }
+                val opplysninger = opplysningerService.finnOpplysningerForPeriodeIdList(periodeIdList, paging)
+                val profilering = profileringService.finnProfileringerForPeriodeIdList(periodeIdList, paging)
+                val bekreftelser = bekreftelseService.finnBekreftelserForPeriodeIdList(periodeIdList, paging)
 
                 val response = SamletInformasjonResponse(
                     arbeidssoekerperioder = perioder,
@@ -70,10 +69,10 @@ fun Route.samletInformasjonRoutes(
 
                 val paging = if (siste) Paging(size = 1) else Paging()
                 val perioder = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
-                val opplysninger = opplysningerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
-                val profilering = profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
-                val bekreftelser = bekreftelseService
-                    .finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
+                val periodeIdList = perioder.map { it.periodeId }
+                val opplysninger = opplysningerService.finnOpplysningerForPeriodeIdList(periodeIdList, paging)
+                val profilering = profileringService.finnProfileringerForPeriodeIdList(periodeIdList, paging)
+                val bekreftelser = bekreftelseService.finnBekreftelserForPeriodeIdList(periodeIdList, paging)
 
                 val response = SamletInformasjonResponse(
                     arbeidssoekerperioder = perioder,

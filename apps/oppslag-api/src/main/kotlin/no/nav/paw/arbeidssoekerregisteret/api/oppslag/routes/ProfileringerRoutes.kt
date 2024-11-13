@@ -51,11 +51,11 @@ fun Route.profileringRoutes(
 
                 verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
-                val profileringer = profileringService.finnProfileringerForPeriodeId(periodeId)
+                val response = profileringService.finnProfileringerForPeriodeIdList(listOf(periodeId))
 
                 logger.info("Bruker hentet profilering")
 
-                call.respond(HttpStatusCode.OK, profileringer)
+                call.respond(HttpStatusCode.OK, response)
             }
         }
 
@@ -71,7 +71,7 @@ fun Route.profileringRoutes(
                 val response = if (periodeId != null) {
                     verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
 
-                    profileringService.finnProfileringerForPeriodeId(periodeId, paging)
+                    profileringService.finnProfileringerForPeriodeIdList(listOf(periodeId), paging)
                 } else {
                     profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
                 }

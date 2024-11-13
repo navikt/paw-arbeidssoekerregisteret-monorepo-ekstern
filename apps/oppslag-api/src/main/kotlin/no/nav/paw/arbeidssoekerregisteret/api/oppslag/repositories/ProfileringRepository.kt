@@ -14,12 +14,12 @@ import java.util.*
 class ProfileringRepository(private val database: Database) {
     private val logger = buildLogger
 
-    fun finnProfileringerForPeriodeId(
-        periodeId: UUID,
+    fun finnProfileringerForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<ProfileringRow> =
         transaction(database) {
-            val rows = ProfileringFunctions.findForPeriodeId(periodeId, paging)
+            val rows = ProfileringFunctions.findForPeriodeIdList(periodeIdList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
             } else {

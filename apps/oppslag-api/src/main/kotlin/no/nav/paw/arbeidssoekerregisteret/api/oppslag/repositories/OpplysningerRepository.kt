@@ -16,12 +16,12 @@ class OpplysningerRepository(private val database: Database) {
 
     private val logger = buildLogger
 
-    fun finnOpplysningerForPeriodeId(
-        periodeId: UUID,
+    fun finnOpplysningerForPeriodeIdList(
+        periodeIdList: List<UUID>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> =
         transaction(database) {
-            val rows = OpplysningerFunctions.findForPeriodeIdList(listOf(periodeId), paging)
+            val rows = OpplysningerFunctions.findForPeriodeIdList(periodeIdList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
             } else {
