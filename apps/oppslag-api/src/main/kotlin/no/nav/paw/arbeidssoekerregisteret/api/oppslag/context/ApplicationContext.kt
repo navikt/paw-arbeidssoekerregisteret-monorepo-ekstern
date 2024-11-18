@@ -84,9 +84,13 @@ data class ApplicationContext(
 
             // Arbeidssøkerperiode avhengigheter
             val periodeRepository = PeriodeRepository(database)
+            val opplysningerRepository = OpplysningerRepository(database)
+            val profileringRepository = ProfileringRepository(database)
+            val bekreftelseRepository = BekreftelseRepository(database)
+
             val scheduleGetAktivePerioderGaugeService =
                 ScheduleGetAktivePerioderGaugeService(registry, periodeRepository)
-            val periodeService = PeriodeService(periodeRepository)
+            val periodeService = PeriodeService(periodeRepository, opplysningerRepository, profileringRepository, bekreftelseRepository)
             val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
                 groupId = applicationConfig.perioderGroupId,
                 clientId = applicationConfig.perioderGroupId,
@@ -100,7 +104,7 @@ data class ApplicationContext(
             )
 
             // Opplysninger avhengigheter
-            val opplysningerRepository = OpplysningerRepository(database)
+
             val opplysningerService = OpplysningerService(opplysningerRepository)
             val opplysningerKafkaConsumer = kafkaFactory.createConsumer<Long, OpplysningerOmArbeidssoeker>(
                 groupId = applicationConfig.opplysningerGroupId,
@@ -115,7 +119,6 @@ data class ApplicationContext(
             )
 
             // Profilering avhengigheter
-            val profileringRepository = ProfileringRepository(database)
             val profileringService = ProfileringService(profileringRepository)
             val profileringKafkaConsumer = kafkaFactory.createConsumer<Long, Profilering>(
                 groupId = applicationConfig.profileringGroupId,
@@ -130,7 +133,6 @@ data class ApplicationContext(
             )
 
             // Bekreftelse avhengigheter
-            val bekreftelseRepository = BekreftelseRepository(database)
             val bekreftelseService = BekreftelseService(bekreftelseRepository)
             val bekreftelseKafkaConsumer = kafkaFactory.createConsumer<Long, Bekreftelse>(
                 groupId = applicationConfig.bekreftelseGroupId,

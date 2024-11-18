@@ -234,3 +234,24 @@ fun Bekreftelsesloesning.toBekreftelsesloesningResponse() =
         Bekreftelsesloesning.DAGPENGER -> BekreftelsesloesningResponse.DAGPENGER
         Bekreftelsesloesning.UKJENT_VERDI -> BekreftelsesloesningResponse.UKJENT_VERDI
     }
+
+fun OpplysningerRow.toOpplysningerOmArbeidssoekerAggregertResponse(profilering: ProfileringResponse?): OpplysningerOmArbeidssoekerAggregertResponse =
+    OpplysningerOmArbeidssoekerAggregertResponse(
+        opplysningerOmArbeidssoekerId = opplysningerId,
+        periodeId = periodeId,
+        sendtInnAv = sendtInnAv.toMetadataResponse(),
+        jobbsituasjon = jobbsituasjon.map { it.toBeskrivelseMedDetaljerResponse() },
+        utdanning = utdanning?.toUtdanningResponse(),
+        helse = helse?.toHelseResponse(),
+        annet = annet?.toAnnetResponse(),
+        profilering = profilering
+    )
+
+fun PeriodeRow.toArbeidssoekerPeriodeAggregertResponse(opplysninger: List<OpplysningerOmArbeidssoekerAggregertResponse>, bekreftelser: List<BekreftelseResponse>): ArbeidssoekerperiodeAggregertResponse =
+    ArbeidssoekerperiodeAggregertResponse(
+        periodeId = periodeId,
+        startet = startet.toMetadataResponse(),
+        avsluttet = avsluttet?.toMetadataResponse(),
+        opplysningerOmArbeidssoeker = opplysninger,
+        bekreftelser = bekreftelser
+    )

@@ -42,6 +42,39 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ArbeidssoekerperiodeResponse"
+  /api/v1/arbeidssoekerperioder-aggregert:
+    get:
+      description: "Returnerer aggregerte arbeidssøkerperioder med opplysninger, profilering og bekreftelser."
+      security:
+        - TokenXAuth: [ ]
+      parameters:
+        - name: "siste"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+          description: "siste=true returnerer siste aggregerte periode."
+      responses:
+        "403":
+          description: "Forbidden"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ArbeidssoekerperiodeAggregertResponse"
   /api/v1/opplysninger-om-arbeidssoeker:
     get:
       description: ""
@@ -289,6 +322,45 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ArbeidssoekerperiodeResponse"
+  /api/v1/veileder/arbeidssoekerperioder-aggregert:
+    post:
+      description: "Returnerer aggregerte arbeidssøkerperioder med opplysninger, profilering og bekreftelser."
+      security:
+        - AzureAuth: []
+      parameters:
+        - name: "siste"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+          description: "siste=true returnerer siste aggregerte periode."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArbeidssoekerperiodeRequest"
+        required: true
+      responses:
+        "500":
+          description: "Internal Server Error"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "403":
+          description: "Forbidden"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ArbeidssoekerperiodeAggregertResponse"
   /api/v1/veileder/opplysninger-om-arbeidssoeker:
     post:
       description: ""
@@ -551,6 +623,27 @@ components:
       required:
         - "periodeId"
         - "startet"
+    ArbeidssoekerperiodeAggregertResponse:
+      type: "object"
+      properties:
+        periodeId:
+          type: "string"
+          format: "uuid"
+        startet:
+          $ref: "#/components/schemas/MetadataResponse"
+        avsluttet:
+          $ref: "#/components/schemas/MetadataResponse"
+        opplysningerOmArbeidssoeker:
+            type: "array"
+            items:
+                $ref: "#/components/schemas/OpplysningerOmArbeidssoekerAggregertResponse"
+        bekreftelser:
+            type: "array"
+            items:
+                $ref: "#/components/schemas/BekreftelseResponse"
+      required:
+        - "periodeId"
+        - "startet"
     UtdanningResponse:
       type: "object"
       properties:
@@ -609,6 +702,34 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/BeskrivelseMedDetaljerResponse"
+      required:
+        - "opplysningerOmArbeidssoekerId"
+        - "periodeId"
+        - "sendtInnAv"
+        - "jobbsituasjon"
+    OpplysningerOmArbeidssoekerAggregertResponse:
+      type: "object"
+      properties:
+        opplysningerOmArbeidssoekerId:
+          type: "string"
+          format: "uuid"
+        periodeId:
+          type: "string"
+          format: "uuid"
+        sendtInnAv:
+          $ref: "#/components/schemas/MetadataResponse"
+        utdanning:
+          $ref: "#/components/schemas/UtdanningResponse"
+        helse:
+          $ref: "#/components/schemas/HelseResponse"
+        annet:
+          $ref: "#/components/schemas/AnnetResponse"
+        jobbsituasjon:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BeskrivelseMedDetaljerResponse"
+        profilering:
+          $ref: "#/components/schemas/ProfileringResponse"
       required:
         - "opplysningerOmArbeidssoekerId"
         - "periodeId"

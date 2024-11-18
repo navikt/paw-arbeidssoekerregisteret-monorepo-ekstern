@@ -13,7 +13,7 @@ flowchart RL;
     A(Frontend/backend løsninger);
     subgraph paw-arbeidssoekerregisteret-api-oppslag
         B[TOKENX/AZURE];
-        id1[REST API <br/> <br/> GET <br/> /arbeidssoekerperioder <br/> /opplysninger-om-arbeidssoeker <br/> /profilering <br/> <br/> POST <br/> /veileder/arbeidssoekerperioder <br/> /veileder/opplysninger-om-arbeidssoeker <br/> /veileder/profilering];
+        id1[REST API <br/> <br/> GET <br/> /arbeidssoekerperioder <br/> /arbeidssoekerperioder-aggregert <br/> /opplysninger-om-arbeidssoeker <br/> /profilering <br/> /samlet-innformasjon <br/> <br/> POST <br/> /veileder/arbeidssoekerperioder <br/> /veileder/arbeidssoekerperioder-aggregert <br/> /veileder/opplysninger-om-arbeidssoeker <br/> /veileder/profilering <br/> /veileder/samlet-innformasjon];
         id2[Helse endepunkter <br/> Opentelemetry tracing <br/> Logging];
         C[Services];
         D[(Postgres database)];
@@ -45,8 +45,10 @@ Eksempel: `Authorization: Bearer <token>`
 ### TOKENX
 For oppslag som gjøres av arbeidssoker selv:
 - `/arbeidssoekerperioder`
+- `/arbeidssoekerperioder-aggregert`
 - `/opplysninger-om-arbeidssoeker/{periodeId}`
 - `/profilering/{periodeId}`
+- `/samlet-innformasjon`
 ```json
 { "acr": "Level4", "pid": "<fnr>" }
 ```
@@ -54,8 +56,10 @@ For oppslag som gjøres av arbeidssoker selv:
 ### AZURE:
 For oppslag som gjøres av veileder eller system:
 - `/veileder/arbeidssoekerperioder`
+- `/veileder/arbeidssoekerperioder-aggregert`
 - `/veileder/opplysninger-om-arbeidssoeker/{periodeId}`
 - `/veileder/profilering/{periodeId}`
+- `/veileder/samlet-innformasjon`
 
 Token med veileder-ident:
 ```json

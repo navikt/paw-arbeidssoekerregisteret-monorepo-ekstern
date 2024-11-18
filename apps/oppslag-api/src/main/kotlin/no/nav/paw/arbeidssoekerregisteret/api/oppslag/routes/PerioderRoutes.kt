@@ -38,6 +38,18 @@ fun Route.perioderRoutes(
 
                 call.respond(HttpStatusCode.OK, response)
             }
+            get("/arbeidssoekerperioder-aggregert") {
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
+                val identitetsnummer = call.getPidClaim()
+                val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
+
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = periodeService.finnAggregertePerioderForIdenter(identitetsnummerList, paging)
+
+                logger.info("Bruker hentet aggregert arbeidssøkerperioder")
+
+                call.respond(HttpStatusCode.OK, response)
+            }
         }
 
         authenticate("azure") {
@@ -52,6 +64,20 @@ fun Route.perioderRoutes(
                 val response = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
 
                 logger.info("Veileder hentet arbeidssøkerperioder for bruker")
+
+                call.respond(HttpStatusCode.OK, response)
+            }
+            post("/veileder/arbeidssoekerperioder-aggregert") {
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
+                val (identitetsnummer) = call.getRequestBody<ArbeidssoekerperiodeRequest>()
+                val identitetsnummerList = authorizationService.finnIdentiteter(Identitetsnummer(identitetsnummer))
+
+                call.verifyAccessFromToken(authorizationService, identitetsnummerList)
+
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = periodeService.finnAggregertePerioderForIdenter(identitetsnummerList, paging)
+
+                logger.info("Veileder hentet aggregert arbeidssøkerperioder for bruker")
 
                 call.respond(HttpStatusCode.OK, response)
             }

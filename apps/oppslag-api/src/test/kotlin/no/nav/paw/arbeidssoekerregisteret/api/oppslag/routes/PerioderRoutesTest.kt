@@ -18,6 +18,7 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.auth.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
@@ -134,6 +135,100 @@ class PerioderRoutesTest : FreeSpec({
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeResponse>>()
                 periodeResponses.size shouldBe 1
                 perioder[0] shouldBeEqualTo periodeResponses[0]
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/arbeidssoekerperioder-aggregert should respond with 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr12, IdentGruppe.FOLKEREGISTERIDENT))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr12)
+                val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = perioder[0].id)
+                val profilering1 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[0].id)
+                val profilering2 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[1].id)
+                val profilering3 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[2].id)
+                val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
+                periodeService.lagreAllePerioder(perioder.asSequence())
+                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                profileringService.lagreAlleProfileringer(profilering1.asSequence())
+                profileringService.lagreAlleProfileringer(profilering2.asSequence())
+                profileringService.lagreAlleProfileringer(profilering3.asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerperioder-aggregert") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                val periodeResponses = response.body<List<ArbeidssoekerperiodeAggregertResponse>>()
+                periodeResponses.size shouldBe 3
+                perioder[0] shouldBeEqualTo periodeResponses[0]
+                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0) ?: error("Missing opplysninger"))
+                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering ?: error("Missing profilering"))
+                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering ?: error("Missing profilering"))
+                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering ?: error("Missing profilering"))
+                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0) ?: error("Missing bekreftelse"))
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/arbeidssoekerperioder-aggregert?siste=true should respond with 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr13, IdentGruppe.FOLKEREGISTERIDENT))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr13)
+                val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = perioder[0].id)
+                val profilering1 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[0].id)
+                val profilering2 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[1].id)
+                val profilering3 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[2].id)
+                val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
+                periodeService.lagreAllePerioder(perioder.asSequence())
+                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                profileringService.lagreAlleProfileringer(profilering1.asSequence())
+                profileringService.lagreAlleProfileringer(profilering2.asSequence())
+                profileringService.lagreAlleProfileringer(profilering3.asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerperioder-aggregert?siste=true") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                val periodeResponses = response.body<List<ArbeidssoekerperiodeAggregertResponse>>()
+                periodeResponses.size shouldBe 1
+                perioder[0] shouldBeEqualTo periodeResponses[0]
+                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0) ?: error("Missing opplysninger"))
+                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering ?: error("Missing profilering"))
+                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0) ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -258,6 +353,122 @@ class PerioderRoutesTest : FreeSpec({
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeResponse>>()
                 periodeResponses.size shouldBe 1
                 perioder[0] shouldBeEqualTo periodeResponses[0]
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+                verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+            }
+        }
+
+        "/veileder/arbeidssoekerperioder-aggregert should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr14, IdentGruppe.FOLKEREGISTERIDENT))
+            every {
+                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr14)
+                val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = perioder[0].id)
+                val profilering1 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[0].id)
+                val profilering2 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[1].id)
+                val profilering3 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[2].id)
+                val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
+                periodeService.lagreAllePerioder(perioder.asSequence())
+                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                profileringService.lagreAlleProfileringer(profilering1.asSequence())
+                profileringService.lagreAlleProfileringer(profilering2.asSequence())
+                profileringService.lagreAlleProfileringer(profilering3.asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.post("api/v1/veileder/arbeidssoekerperioder-aggregert") {
+                    bearerAuth(mockOAuth2Server.issueAzureToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        ArbeidssoekerperiodeRequest(
+                            identitetsnummer = TestData.fnr5
+                        )
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                val periodeResponses = response.body<List<ArbeidssoekerperiodeAggregertResponse>>()
+                periodeResponses.size shouldBe 3
+                perioder[0] shouldBeEqualTo periodeResponses[0]
+                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0) ?: error("Missing opplysninger"))
+                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering ?: error("Missing profilering"))
+                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering ?: error("Missing profilering"))
+                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering ?: error("Missing profilering"))
+                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0) ?: error("Missing bekreftelse"))
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+                verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+            }
+        }
+
+        "/veileder/arbeidssoekerperioder-aggregert?siste=true should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr15, IdentGruppe.FOLKEREGISTERIDENT))
+            every {
+                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr15)
+                val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = perioder[0].id)
+                val profilering1 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[0].id)
+                val profilering2 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[1].id)
+                val profilering3 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[2].id)
+                val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
+                periodeService.lagreAllePerioder(perioder.asSequence())
+                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                profileringService.lagreAlleProfileringer(profilering1.asSequence())
+                profileringService.lagreAlleProfileringer(profilering2.asSequence())
+                profileringService.lagreAlleProfileringer(profilering3.asSequence())
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.post("api/v1/veileder/arbeidssoekerperioder-aggregert?siste=true") {
+                    bearerAuth(mockOAuth2Server.issueAzureToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        ArbeidssoekerperiodeRequest(
+                            identitetsnummer = TestData.fnr5
+                        )
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                val periodeResponses = response.body<List<ArbeidssoekerperiodeAggregertResponse>>()
+                periodeResponses.size shouldBe 1
+                perioder[0] shouldBeEqualTo periodeResponses[0]
+                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0) ?: error("Missing opplysninger"))
+                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering ?: error("Missing profilering"))
+                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering ?: error("Missing profilering"))
+                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering ?: error("Missing profilering"))
+                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0) ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }

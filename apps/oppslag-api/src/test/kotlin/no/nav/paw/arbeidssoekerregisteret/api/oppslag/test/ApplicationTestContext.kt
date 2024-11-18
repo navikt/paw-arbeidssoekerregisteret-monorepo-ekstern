@@ -38,7 +38,7 @@ class ApplicationTestContext private constructor(
         pdlHttpConsumerMock,
         poaoTilgangHttpClientMock
     )
-    val periodeService = PeriodeService(periodeRepository)
+    val periodeService = PeriodeService(periodeRepository, opplysningerRepository, profileringRepository, bekreftelseRepository)
     val opplysningerService = OpplysningerService(opplysningerRepository)
     val profileringService = ProfileringService(profileringRepository)
     val bekreftelseService = BekreftelseService(bekreftelseRepository)

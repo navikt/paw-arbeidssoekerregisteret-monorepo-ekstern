@@ -5,6 +5,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import java.util.*
@@ -41,6 +42,20 @@ object ProfileringFunctions {
             //.orderBy(MetadataTable.tidspunkt, paging.ordering)
             //.limit(paging.size).offset(paging.offset)
             .map { it.toProfileringRow() }
+    }
+
+    fun hentForPeriodeIdAndOpplysningId(
+        periodeId: UUID,
+        opplysningId: UUID
+    ): ProfileringRow? {
+        return ProfileringTable
+            .join(MetadataTable, JoinType.LEFT, ProfileringTable.sendtInnAvId, MetadataTable.id)
+            .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
+            .join(TidspunktFraKildeTable, JoinType.LEFT, MetadataTable.tidspunktFraKildeId, TidspunktFraKildeTable.id)
+            .selectAll()
+            .where { ProfileringTable.periodeId eq periodeId and (ProfileringTable.opplysningerOmArbeidssoekerId eq opplysningId) }
+            .firstOrNull()
+            ?.toProfileringRow()
     }
 
     fun insert(profilering: Profilering) {

@@ -40,6 +40,11 @@ class ProfileringRepository(private val database: Database) {
             }
         }
 
+    fun hentProfileringForPeriodeIdOgOpplysningerId(periodeId: UUID, opplysningId: UUID): ProfileringRow? =
+        transaction(database) {
+            ProfileringFunctions.hentForPeriodeIdAndOpplysningId(periodeId, opplysningId)
+        }
+
     fun lagreProfilering(profilering: Profilering) {
         transaction(database) {
             ProfileringFunctions.insert(profilering)

@@ -2,32 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AvviksTypeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseSvarResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.JobbSituasjonBeskrivelse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringsResultat
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.*
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
@@ -60,6 +35,28 @@ infix fun Periode.shouldBeEqualTo(other: ArbeidssoekerperiodeResponse?): Periode
     id shouldBe other?.periodeId
     startet shouldBeEqualTo other?.startet
     avsluttet?.shouldBeEqualTo(other?.avsluttet)
+    return this
+}
+
+infix fun Periode.shouldBeEqualTo(periode: ArbeidssoekerperiodeAggregertResponse?): Periode {
+    periode shouldNotBe null
+    id shouldBe periode?.periodeId
+    startet shouldBeEqualTo periode?.startet
+    avsluttet?.shouldBeEqualTo(periode?.avsluttet)
+    return this
+}
+
+infix fun OpplysningerOmArbeidssoeker.shouldBeEqualTo(opplysning: OpplysningerOmArbeidssoekerAggregertResponse?): OpplysningerOmArbeidssoeker {
+    opplysning shouldNotBe null
+    id shouldBe opplysning?.opplysningerOmArbeidssoekerId
+    periodeId shouldBe opplysning?.periodeId
+    sendtInnAv shouldBeEqualTo opplysning?.sendtInnAv
+    for (i in jobbsituasjon.beskrivelser.indices) {
+        jobbsituasjon.beskrivelser[i] shouldBeEqualTo opplysning?.jobbsituasjon?.get(i)
+    }
+    utdanning shouldBeEqualTo opplysning?.utdanning
+    helse shouldBeEqualTo opplysning?.helse
+    annet shouldBeEqualTo opplysning?.annet
     return this
 }
 

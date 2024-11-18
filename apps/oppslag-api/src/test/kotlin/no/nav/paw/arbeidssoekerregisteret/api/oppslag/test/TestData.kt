@@ -53,6 +53,10 @@ object TestData {
     const val fnr9 = "09017012345"
     const val fnr10 = "10017012345"
     const val fnr11 = "11017012345"
+    const val fnr12 = "12017012345"
+    const val fnr13 = "13017012345"
+    const val fnr14 = "14017012345"
+    const val fnr15 = "15017012345"
     const val fnr31 = "31017012345"
     val identitetsnummer1 = Identitetsnummer(fnr1)
     val identitetsnummer2 = Identitetsnummer(fnr2)
