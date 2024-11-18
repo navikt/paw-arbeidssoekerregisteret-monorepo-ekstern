@@ -3,12 +3,15 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.ProfileringTable
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfilering
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import javax.sql.DataSource
 
@@ -17,7 +20,7 @@ class ProfileringRepositoryTest : StringSpec({
     lateinit var database: Database
     lateinit var repository: ProfileringRepository
 
-    beforeEach {
+    beforeSpec {
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
         repository = ProfileringRepository(database)
@@ -31,6 +34,10 @@ class ProfileringRepositoryTest : StringSpec({
     }
 
     afterEach {
+        slettAlleProfileringer(database)
+    }
+
+    afterSpec {
         dataSource.connection.close()
     }
 
@@ -100,3 +107,9 @@ class ProfileringRepositoryTest : StringSpec({
         lagredeProfilering3 shouldBeEqualTo profilering3
     }
 })
+
+private fun slettAlleProfileringer(database: Database) {
+    transaction(database) {
+        ProfileringTable.deleteAll()
+    }
+}

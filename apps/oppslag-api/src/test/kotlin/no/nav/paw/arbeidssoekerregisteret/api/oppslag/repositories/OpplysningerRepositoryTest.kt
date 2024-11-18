@@ -2,14 +2,14 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerFunctions
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeOpplysningerFunctions
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.*
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import javax.sql.DataSource
@@ -21,7 +21,7 @@ class OpplysningerRepositoryTest : StringSpec({
     lateinit var opplysningerRepository: OpplysningerRepository
     lateinit var periodeRepository: PeriodeRepository
 
-    beforeEach {
+    beforeSpec {
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
         opplysningerRepository = OpplysningerRepository(database)
@@ -33,6 +33,10 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     afterEach {
+        deleteAllOpplysninger(database)
+    }
+
+    afterSpec {
         dataSource.connection.close()
     }
 
@@ -77,7 +81,7 @@ class OpplysningerRepositoryTest : StringSpec({
         retrievedPeriodeOpplysninger1.periodeId shouldBe retrievedOpplysninger1.periodeId
     }
 
-    "Opprett og hent ut opplysninger om arbeidssøker med utdanning og annet felter lik null" {
+    "Opprett og hent ut opplysninger om arbeidssøker med utdanning og annet med felter lik null" {
         val opplysninger = TestData.nyOpplysningerRow(
             periodeId = TestData.periodeId1,
             opplysningerId = TestData.opplysningerId1,
@@ -217,4 +221,13 @@ private fun finnPeriodeOpplysninger(database: Database, periodeId: UUID) =
 private fun finnPeriodeOpplysninger(database: Database) =
     transaction(database) {
         PeriodeOpplysningerFunctions.findAll()
+    }
+
+private fun deleteAllOpplysninger(database: Database) =
+    transaction(database) {
+        DetaljerTable.deleteAll()
+        BeskrivelseTable.deleteAll()
+        BeskrivelseMedDetaljerTable.deleteAll()
+        PeriodeOpplysningerTable.deleteAll()
+        OpplysningerOmArbeidssoekerTable.deleteAll()
     }
