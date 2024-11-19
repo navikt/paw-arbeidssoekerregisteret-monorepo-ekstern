@@ -13,6 +13,7 @@ include(
     "lib:kafka-key-generator-client",
     "lib:pdl-client",
     "lib:aareg-client",
+    "lib:aareg-client-v2",
     "test:test-data-factory",
     "apps:microfrontend-toggler",
     "apps:profilering",
