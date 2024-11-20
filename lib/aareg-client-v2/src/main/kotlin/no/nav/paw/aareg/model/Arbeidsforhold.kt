@@ -26,7 +26,7 @@ data class Ansettelsesperiode(
 )
 
 data class Arbeidssted(
-    val type: String, // Underenehet, Person
+    val type: String, // Underenhet, Person
     val identer: List<Ident>
 )
 

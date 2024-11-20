@@ -9,7 +9,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import javax.sql.DataSource
@@ -26,14 +25,22 @@ class OpplysningerRepositoryTest : StringSpec({
         database = Database.connect(dataSource)
         opplysningerRepository = OpplysningerRepository(database)
         periodeRepository = PeriodeRepository(database)
-        val periode1 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId1).toPeriode()
-        val periode2 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId2).toPeriode()
-        periodeRepository.lagrePeriode(periode1)
-        periodeRepository.lagrePeriode(periode2)
-    }
-
-    afterEach {
-        deleteAllOpplysninger(database)
+        val periode1 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId1, identitetsnummer = TestData.fnr1)
+            .toPeriode()
+        val periode2 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId2, identitetsnummer = TestData.fnr2)
+            .toPeriode()
+        val periode3 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId3, identitetsnummer = TestData.fnr3)
+            .toPeriode()
+        val periode4 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId4, identitetsnummer = TestData.fnr4)
+            .toPeriode()
+        val periode5 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId5, identitetsnummer = TestData.fnr5)
+            .toPeriode()
+        val periode6 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId6, identitetsnummer = TestData.fnr6)
+            .toPeriode()
+        val periode7 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId7, identitetsnummer = TestData.fnr7)
+            .toPeriode()
+        val perioder = sequenceOf(periode1, periode2, periode3, periode4, periode5, periode6, periode7)
+        periodeRepository.lagreAllePerioder(perioder)
     }
 
     afterSpec {
@@ -61,8 +68,8 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Opprett og hent ut opplysninger om arbeidssøker med utdanning, helse og annet lik null" {
         val opplysninger = TestData.nyOpplysningerRow(
-            periodeId = TestData.periodeId1,
-            opplysningerId = TestData.opplysningerId1,
+            periodeId = TestData.periodeId2,
+            opplysningerId = TestData.opplysningerId2,
             utdanning = null,
             helse = null,
             annet = null
@@ -71,7 +78,7 @@ class OpplysningerRepositoryTest : StringSpec({
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForPeriodeIdList(listOf(opplysninger.periodeId))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId1)
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId2)
 
         retrievedOpplysninger.size shouldBe 1
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -83,8 +90,8 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Opprett og hent ut opplysninger om arbeidssøker med utdanning og annet med felter lik null" {
         val opplysninger = TestData.nyOpplysningerRow(
-            periodeId = TestData.periodeId1,
-            opplysningerId = TestData.opplysningerId1,
+            periodeId = TestData.periodeId3,
+            opplysningerId = TestData.opplysningerId3,
             utdanning = TestData.nyUtdanningRow(bestaatt = null, godkjent = null),
             annet = TestData.nyAnnetRow(andreForholdHindrerArbeid = null)
         )
@@ -92,7 +99,7 @@ class OpplysningerRepositoryTest : StringSpec({
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForPeriodeIdList(listOf(opplysninger.periodeId))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId1)
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId3)
 
         retrievedOpplysninger.size shouldBe 1
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -104,17 +111,17 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Opprett og hent ut flere opplysninger om arbeidssøker med samme periodeId" {
         val opplysninger1 = TestData.nyOpplysningerRow(
-            periodeId = TestData.periodeId2, opplysningerId = TestData.opplysningerId1
+            periodeId = TestData.periodeId4, opplysningerId = TestData.opplysningerId4
         )
         val opplysninger2 = TestData.nyOpplysningerRow(
-            periodeId = TestData.periodeId2, opplysningerId = TestData.opplysningerId2
+            periodeId = TestData.periodeId4, opplysningerId = TestData.opplysningerId5
         )
         opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
         opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
 
         val retrievedOpplysninger = opplysningerRepository
-            .finnOpplysningerForPeriodeIdList(listOf(TestData.periodeId2))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId2)
+            .finnOpplysningerForPeriodeIdList(listOf(TestData.periodeId4))
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId4)
 
         retrievedOpplysninger.size shouldBe 2
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -130,21 +137,30 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Opprett og hent ut opplysninger om arbeidssøker med forskjellig periodeId" {
         val opplysninger1 = TestData
-            .nyOpplysningerRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
+            .nyOpplysningerRow(periodeId = TestData.periodeId5, opplysningerId = TestData.opplysningerId6)
         val opplysninger2 =
-            TestData.nyOpplysningerRow(periodeId = TestData.periodeId2, opplysningerId = TestData.opplysningerId1)
+            TestData.nyOpplysningerRow(
+                periodeId = TestData.periodeId6,
+                opplysningerId = TestData.opplysningerId7
+            )
 
         opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
         opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
 
-        val retrievedOpplysninger = finnOpplysninger(database)
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database)
+        val retrievedOpplysninger =
+            finnOpplysninger(database).filter { it.periodeId in listOf(TestData.periodeId5, TestData.periodeId6) }
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database).filter {
+            it.periodeId in listOf(
+                TestData.periodeId5,
+                TestData.periodeId6
+            )
+        }
 
-        retrievedOpplysninger.size shouldBe 1
+        retrievedOpplysninger.size shouldBe 2
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
         retrievedOpplysninger1.opplysningerId shouldBe opplysninger1.opplysningerId
         retrievedOpplysninger1.periodeId shouldBe opplysninger1.periodeId
-        retrievedPeriodeOpplysninger.size shouldBe 1
+        retrievedPeriodeOpplysninger.size shouldBe 2
         val retrievedPeriodeOpplysninger1 = retrievedPeriodeOpplysninger[0]
         retrievedPeriodeOpplysninger1.periodeId shouldBe opplysninger1.periodeId
         retrievedPeriodeOpplysninger1.opplysningerOmArbeidssoekerTableId shouldBe retrievedOpplysninger1.id
@@ -152,16 +168,16 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Like opplysninger med samme periodeId skal ikke lagres på nytt" {
         val opplysninger1 = TestData
-            .nyOpplysningerRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
+            .nyOpplysningerRow(periodeId = TestData.periodeId7, opplysningerId = TestData.opplysningerId8)
         val opplysninger2 = TestData
-            .nyOpplysningerRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
+            .nyOpplysningerRow(periodeId = TestData.periodeId7, opplysningerId = TestData.opplysningerId8)
 
         opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
         opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForPeriodeIdList(listOf(opplysninger1.periodeId))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId1)
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId7)
 
         retrievedOpplysninger.size shouldBe 1
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -178,15 +194,16 @@ class OpplysningerRepositoryTest : StringSpec({
         retrievedOpplysninger.size shouldBe 0
     }
 
-
-
     "Lagre flere opplysninger og hent med identitetsnummer" {
         val periodeId = UUID.randomUUID()
-        val periode = TestData.nyStartetPeriode(periodeId = periodeId, identitetsnummer = TestData.fnr8)
+        val periode = TestData.nyStartetPeriode(periodeId = periodeId, identitetsnummer = TestData.identitetsnummer8.verdi)
         periodeRepository.lagrePeriode(periode)
-        val opplysninger1 = TestData.nyOpplysningerRow(periodeId = periodeId)
-        val opplysninger2 = TestData.nyOpplysningerRow(periodeId = periodeId)
-        val opplysninger3 = TestData.nyOpplysningerRow(periodeId = periodeId)
+        val opplysninger1 =
+            TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId9)
+        val opplysninger2 =
+            TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId10)
+        val opplysninger3 =
+            TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId11)
         val opplysninger = sequenceOf(
             opplysninger1.toOpplysningerOmArbeidssoeker(),
             opplysninger2.toOpplysningerOmArbeidssoeker(),
@@ -221,13 +238,4 @@ private fun finnPeriodeOpplysninger(database: Database, periodeId: UUID) =
 private fun finnPeriodeOpplysninger(database: Database) =
     transaction(database) {
         PeriodeOpplysningerFunctions.findAll()
-    }
-
-private fun deleteAllOpplysninger(database: Database) =
-    transaction(database) {
-        DetaljerTable.deleteAll()
-        BeskrivelseTable.deleteAll()
-        BeskrivelseMedDetaljerTable.deleteAll()
-        PeriodeOpplysningerTable.deleteAll()
-        OpplysningerOmArbeidssoekerTable.deleteAll()
     }
