@@ -1,9 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.application.profilering
 
-import no.nav.paw.aareg.model.Ansettelsesperiode
-import no.nav.paw.aareg.model.Arbeidsforhold
-import no.nav.paw.aareg.model.Arbeidsgiver
-import no.nav.paw.aareg.model.Opplysningspliktig
+import no.nav.paw.aareg.model.*
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
@@ -23,7 +20,6 @@ import java.time.LocalDate
 import java.time.Month
 import java.time.ZoneOffset
 import java.util.*
-import no.nav.paw.aareg.model.Periode as AaregPeriode
 
 object ProfileringTestData {
     private val today = LocalDate.now()
@@ -101,26 +97,29 @@ object ProfileringTestData {
         fom: LocalDate = today.minusYears(1),
         tom: LocalDate? = null
     ) = Ansettelsesperiode(
-        periode = AaregPeriode(
-            fom = fom,
-            tom = tom
-        )
+        startdato = fom,
+        sluttdato = tom
     )
 
     fun arbeidsforhold(
         ansettelsesperiode: Ansettelsesperiode = ansettelsesperiode()
     ) = Arbeidsforhold(
-        Arbeidsgiver(
+        Arbeidssted(
             type = "Arbeidsgiver",
-            organisasjonsnummer = organisasjonsNummer
+            identer = listOf(Ident("ORGANISASJONSNUMMER", organisasjonsNummer))
         ),
         ansettelsesperiode = ansettelsesperiode,
         opplysningspliktig = Opplysningspliktig(
             type = "",
-            organisasjonsnummer = organisasjonsNummer
+            identer = listOf(Ident("ORGANISASJONSNUMMER", organisasjonsNummer))
         ),
-        arbeidsavtaler = emptyList(),
-        registrert = today.minusDays(1).atStartOfDay()
+        ansettelsesdetaljer = listOf(
+            Ansettelsesdetaljer(
+                type = "Ordinaer",
+                avtaltStillingsprosent = 100.0
+            )
+        ),
+        opprettet = today.minusDays(1).atStartOfDay()
     )
 
     val ansattSisteAar = listOf(arbeidsforhold())

@@ -39,6 +39,6 @@ fun harArbeidsforholdPaaDato(
     flereArbeidsforhold: List<Arbeidsforhold>,
 ): Boolean =
     flereArbeidsforhold.any {
-        innevaerendeMnd.isAfter(it.ansettelsesperiode.periode.fom.minusDays(1)) &&
-                (Objects.isNull(it.ansettelsesperiode.periode.tom) || innevaerendeMnd.isBefore(it.ansettelsesperiode.periode.tom!!.plusDays(1)))
+        innevaerendeMnd.isAfter(it.ansettelsesperiode.startdato.minusDays(1)) &&
+                (Objects.isNull(it.ansettelsesperiode.sluttdato) || innevaerendeMnd.isBefore(it.ansettelsesperiode.sluttdato!!.plusDays(1)))
     }

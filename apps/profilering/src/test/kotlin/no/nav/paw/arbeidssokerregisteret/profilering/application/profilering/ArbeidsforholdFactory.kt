@@ -1,49 +1,51 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.application.profilering
 
-import no.nav.paw.aareg.model.Ansettelsesperiode
-import no.nav.paw.aareg.model.Arbeidsforhold
-import no.nav.paw.aareg.model.Arbeidsgiver
-import no.nav.paw.aareg.model.Opplysningspliktig
-import no.nav.paw.aareg.model.Periode
+import no.nav.paw.aareg.model.*
 import java.time.LocalDate
 import java.util.concurrent.atomic.AtomicLong
 
 private val sequence = AtomicLong(0)
 
 fun arbeidsforhold(
-    arbeidsgiver: Arbeidsgiver = arbeidsgiver(),
+    arbeidssted: Arbeidssted = arbeidssted(),
     fra: String,
     til: String? = null
 ) = Arbeidsforhold(
-    arbeidsgiver = arbeidsgiver,
+    arbeidssted = arbeidssted,
     ansettelsesperiode = ansettelsesPeriode(
-        fra = fra,
-        til = til
+        startDato = fra,
+        sluttDato = til
     ),
     opplysningspliktig = Opplysningspliktig(
         type = "",
-        organisasjonsnummer = arbeidsgiver.organisasjonsnummer
+        identer = arbeidssted.identer
     ),
-    arbeidsavtaler = emptyList(),
-    registrert = (til?.let(LocalDate::parse)?.atStartOfDay() ?: LocalDate.parse(fra).atStartOfDay())
+    ansettelsesdetaljer = listOf(
+        Ansettelsesdetaljer(
+            type = "Ordinaer",
+            avtaltStillingsprosent = 100.0
+        )
+    ),
+    opprettet = (til?.let(LocalDate::parse)?.atStartOfDay() ?: LocalDate.parse(fra).atStartOfDay())
         .plusDays(60)
 )
 
-fun arbeidsgiver(
-    type: String = "Arbeidsgiver ${sequence.getAndIncrement()}",
-    organisasjonsnummer: String = sequence.getAndIncrement()
+fun arbeidssted(
+    type: String = "Arbeidssted ${sequence.getAndIncrement()}",
+    identer: String = sequence.getAndIncrement()
         .toString().padStart(9, '0')
-) = Arbeidsgiver(
+) = Arbeidssted(
     type = type,
-    organisasjonsnummer = organisasjonsnummer
+    identer = listOf(Ident(
+        type = "ORGANISASJONSNUMMER",
+        ident = identer
+    ))
 )
 
 fun ansettelsesPeriode(
-    fra: String,
-    til: String? = null
+    startDato: String,
+    sluttDato: String? = null
 ) = Ansettelsesperiode(
-    periode = Periode(
-        fom = LocalDate.parse(fra),
-        tom = til?.let(LocalDate::parse)
-    )
+    LocalDate.parse(startDato),
+    sluttDato?.let(LocalDate::parse)
 )

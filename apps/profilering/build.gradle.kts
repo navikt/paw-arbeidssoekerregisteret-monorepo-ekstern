@@ -13,7 +13,7 @@ dependencies {
     implementation(project(":lib:kafka"))
     implementation(project(":lib:kafka-streams"))
     implementation(project(":lib:pdl-client"))
-    implementation(project(":lib:aareg-client"))
+    implementation(project(":lib:aareg-client-v2"))
 
     // NAV
     implementation(libs.nav.common.token.client)

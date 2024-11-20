@@ -79,8 +79,8 @@ fun List<Arbeidsforhold>.flettSammenhengendeJobber(marginInDays: Int): List<Samm
 fun somSammenhengendeJobb(arbeidsforhold: Arbeidsforhold, marginInDays: Int): SammhengendeJobb {
     return SammhengendeJobb(
         marginInDays = marginInDays,
-        tid = arbeidsforhold.ansettelsesperiode.periode.fom.rangeUntil(
-            arbeidsforhold.ansettelsesperiode.periode.tom ?: LocalDate.MAX
+        tid = arbeidsforhold.ansettelsesperiode.startdato.rangeUntil(
+            arbeidsforhold.ansettelsesperiode.sluttdato ?: LocalDate.MAX
         ),
         arbeidsforhold = listOf(arbeidsforhold)
     )
@@ -100,8 +100,8 @@ data class SammhengendeJobb(
         )
 
     fun erDelAv(arbeidsforhold: Arbeidsforhold): Boolean {
-        return tidMedMargin overlapsWith arbeidsforhold.ansettelsesperiode.periode.fom.rangeUntil(
-            arbeidsforhold.ansettelsesperiode.periode.tom ?: LocalDate.MAX
+        return tidMedMargin overlapsWith arbeidsforhold.ansettelsesperiode.startdato.rangeUntil(
+            arbeidsforhold.ansettelsesperiode.sluttdato ?: LocalDate.MAX
         )
     }
 
@@ -109,11 +109,11 @@ data class SammhengendeJobb(
         if (!erDelAv(arbeidsforhold)) throw IllegalArgumentException("Arbeidsforholdet er ikke del av denne tidslinjen")
         val nyStart = minOf(
             a = tid.start,
-            b = arbeidsforhold.ansettelsesperiode.periode.fom
+            b = arbeidsforhold.ansettelsesperiode.startdato
         )
         val nySlutt = maxOf(
             a = tid.endExclusive,
-            b = arbeidsforhold.ansettelsesperiode.periode.tom ?: LocalDate.MAX
+            b = arbeidsforhold.ansettelsesperiode.sluttdato ?: LocalDate.MAX
         )
         return copy(
             tid = nyStart.rangeUntil(nySlutt),

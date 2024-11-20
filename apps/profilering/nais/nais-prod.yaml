@@ -28,7 +28,7 @@ spec:
       runtime: java
   env:
     - name: AAREG_URL
-      value: https://aareg-services.prod-fss-pub.nais.io/api/v1/arbeidstaker/arbeidsforhold
+      value: https://aareg-services.prod-fss-pub.nais.io/api/v2/arbeidstaker/arbeidsforhold
     - name: AAREG_SCOPE
       value: api://prod-fss.arbeidsforhold.aareg-services-nais/.default
     - name: PDL_URL

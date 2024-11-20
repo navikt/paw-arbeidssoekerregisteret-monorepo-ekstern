@@ -17,7 +17,6 @@ data class Arbeidsforhold(
     val ansettelsesdetaljer: List<Ansettelsesdetaljer>,
     val opplysningspliktig: Opplysningspliktig,
     val ansettelsesperiode: Ansettelsesperiode,
-    val bruksperiode: Bruksperiode,
     val opprettet: LocalDateTime
 )
 
@@ -27,23 +26,18 @@ data class Ansettelsesperiode(
 )
 
 data class Arbeidssted(
-    val type: String,
-    val identer: List<Ident> // Inneholder organisjonsnummer om type er 'ORGANISJONSNUMMER
+    val type: String, // Underenehet, Person
+    val identer: List<Ident>
 )
 
 data class Opplysningspliktig(
-    val type: String,
+    val type: String, // Hovedenhet, Person
     val identer: List<Ident>
 )
 
 data class Ident(
+    val type: String, // AKTORID, FOLKEREGISTERIDENT, ORGANISASJONSNUMMER
     val ident: String,
-    val type: String
-)
-
-data class Bruksperiode(
-    val fom: LocalDateTime,
-    val tom: LocalDateTime? = null
 )
 
 data class Ansettelsesdetaljer(

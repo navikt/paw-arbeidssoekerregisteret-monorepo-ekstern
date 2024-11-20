@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssokerregisteret.profilering.personinfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import no.nav.paw.aareg.model.Result
 import no.nav.paw.aareg.factory.createAaregClient
 import no.nav.paw.arbeidssokerregisteret.profilering.utils.ApplicationInfo
 import no.nav.paw.pdl.factory.createPdlClient
@@ -39,7 +40,12 @@ fun interface PersonInfoTjeneste {
                         PersonInfo(
                             foedselsdato = foedselsdato?.foedselsdato?.let(LocalDate::parse),
                             foedselsAar = foedselsdato?.foedselsaar,
-                            arbeidsforhold = arbeidsforholdDeferred.await()
+                            arbeidsforhold = arbeidsforholdDeferred.await().let { result ->
+                                when (result) {
+                                    is Result.Success -> result.arbeidsforhold
+                                    is Result.Failure -> emptyList()
+                                }
+                            }
                         )
                     }
                 }
