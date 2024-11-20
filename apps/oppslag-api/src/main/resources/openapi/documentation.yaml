@@ -578,6 +578,8 @@ components:
         - "UKJENT_VERDI"
         - "FORSINKELSE"
         - "RETTING"
+        - "SLETTET"
+        - "TIDSPUNKT_KORRIGERT"
     TidspunktFraKildeResponse:
       type: "object"
       properties:

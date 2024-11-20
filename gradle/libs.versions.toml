@@ -1,5 +1,5 @@
 [versions]
-nav-paw-schema-main = "1.9348086045.48-1"
+nav-paw-schema-main = "1.11931397294.51-1"
 nav-paw-schema-arena = "1.8537427677.37-1" # TODO Oppdater til å bruke nav-paw-avro-schema versjonen
 nav-paw-schema-bekreftelse = "24.10.28.13-1"
 nav-common = "3.2024.05.23_05.46-2b29fa343e8e"

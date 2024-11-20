@@ -200,6 +200,8 @@ fun AvviksType.toAvviksTypeResponse() =
         AvviksType.RETTING -> AvviksTypeResponse.RETTING
         AvviksType.FORSINKELSE -> AvviksTypeResponse.FORSINKELSE
         AvviksType.UKJENT_VERDI -> AvviksTypeResponse.UKJENT_VERDI
+        AvviksType.SLETTET -> AvviksTypeResponse.SLETTET
+        AvviksType.TIDSPUNKT_KORRIGERT -> AvviksTypeResponse.TIDSPUNKT_KORRIGERT
     }
 
 fun JaNeiVetIkke.toJaNeiVetIkkeResponse() =
