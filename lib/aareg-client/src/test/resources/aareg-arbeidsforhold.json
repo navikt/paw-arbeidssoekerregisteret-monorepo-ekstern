@@ -1,164 +1,128 @@
 [
   {
-    "navArbeidsforholdId": 51505573,
-    "arbeidsforholdId": "1",
-    "arbeidstaker": {
-      "type": "Person",
-      "offentligIdent": "22018520056",
-      "aktoerId": "2884609777831"
+    "id": "V911050676R16054L0001",
+    "type": {
+      "kode": "ordinaertArbeidsforhold",
+      "beskrivelse": "Ordinært arbeidsforhold"
     },
-    "arbeidsgiver": {
-      "type": "Organisasjon",
-      "organisasjonsnummer": "896929119"
+    "arbeidstaker": {
+      "identer": [
+        {
+          "type": "AKTORID",
+          "ident": "2175141353812",
+          "gjeldende": true
+        },
+        {
+          "type": "FOLKEREGISTERIDENT",
+          "ident": "30063000562",
+          "gjeldende": true
+        }
+      ]
+    },
+    "arbeidssted": {
+      "type": "Underenhet",
+      "identer": [
+        {
+          "type": "ORGANISASJONSNUMMER",
+          "ident": "910825518"
+        }
+      ]
     },
     "opplysningspliktig": {
-      "type": "Organisasjon",
-      "organisasjonsnummer": "928497704"
+      "type": "Hovedenhet",
+      "identer": [
+        {
+          "type": "ORGANISASJONSNUMMER",
+          "ident": "810825472"
+        }
+      ]
     },
-    "type": "ordinaertArbeidsforhold",
     "ansettelsesperiode": {
-      "periode": {
-        "fom": "2001-01-22"
-      },
-      "bruksperiode": {
-        "fom": "2021-01-22T12:07:35.844"
-      },
-      "sporingsinformasjon": {
-        "opprettetTidspunkt": "2021-01-22T12:07:35.844",
-        "opprettetAv": "srvtestnorge-aareg",
-        "opprettetKilde": "AAREG",
-        "opprettetKildereferanse": "Dolly 92e7cef8-7097-4cf5-8ffa-b9960d0dd3f8",
-        "endretTidspunkt": "2021-01-22T12:07:35.844",
-        "endretAv": "srvtestnorge-aareg",
-        "endretKilde": "AAREG",
-        "endretKildereferanse": "Dolly 92e7cef8-7097-4cf5-8ffa-b9960d0dd3f8"
-      }
+      "startdato": "2014-01-01"
     },
-    "arbeidsavtaler": [
+    "ansettelsesdetaljer": [
       {
         "type": "Ordinaer",
-        "arbeidstidsordning": "ikkeSkift",
-        "yrke": "3310101",
-        "stillingsprosent": 100.0,
+        "arbeidstidsordning": {
+          "kode": "ikkeSkift",
+          "beskrivelse": "Ikke skift"
+        },
+        "ansettelsesform": {
+          "kode": "fast",
+          "beskrivelse": "Fast ansettelse"
+        },
+        "yrke": {
+          "kode": "1231119",
+          "beskrivelse": "KONTORLEDER"
+        },
         "antallTimerPrUke": 37.5,
-        "beregnetAntallTimerPrUke": 37.5,
-        "bruksperiode": {
-          "fom": "2021-01-22T12:07:35.844"
+        "avtaltStillingsprosent": 100,
+        "sisteStillingsprosentendring": "2014-01-01",
+        "sisteLoennsendring": "2014-01-01",
+        "rapporteringsmaaneder": {
+          "fra": "2019-11",
+          "til": null
+        }
+      },
+      {
+        "type": "Ordinaer",
+        "arbeidstidsordning": {
+          "kode": "ikkeSkift",
+          "beskrivelse": "Ikke skift"
         },
-        "gyldighetsperiode": {
-          "fom": "2001-01-01"
+        "ansettelsesform": {
+          "kode": "fast",
+          "beskrivelse": "Fast ansettelse"
         },
-        "sporingsinformasjon": {
-          "opprettetTidspunkt": "2021-01-22T12:07:35.844",
-          "opprettetAv": "srvtestnorge-aareg",
-          "opprettetKilde": "AAREG",
-          "opprettetKildereferanse": "Dolly 92e7cef8-7097-4cf5-8ffa-b9960d0dd3f8",
-          "endretTidspunkt": "2021-01-22T12:07:35.844",
-          "endretAv": "srvtestnorge-aareg",
-          "endretKilde": "AAREG",
-          "endretKildereferanse": "Dolly 92e7cef8-7097-4cf5-8ffa-b9960d0dd3f8"
+        "yrke": {
+          "kode": "1231119",
+          "beskrivelse": "KONTORLEDER"
+        },
+        "antallTimerPrUke": 37.5,
+        "avtaltStillingsprosent": 100,
+        "sisteStillingsprosentendring": "2016-01-01",
+        "sisteLoennsendring": "2016-01-01",
+        "rapporteringsmaaneder": {
+          "fra": "2016-01",
+          "til": "2019-10"
         }
       }
     ],
-    "varsler": [
+    "permisjoner": [
       {
-        "entitet": "ARBEIDSFORHOLD",
-        "varslingskode": "NAVEND"
-      }
-    ],
-    "innrapportertEtterAOrdningen": true,
-    "registrert": "2021-01-22T12:07:35.785",
-    "sistBekreftet": "2021-01-22T12:07:35",
-    "sporingsinformasjon": {
-      "opprettetTidspunkt": "2021-01-22T12:07:35.844",
-      "opprettetAv": "srvtestnorge-aareg",
-      "opprettetKilde": "AAREG",
-      "opprettetKildereferanse": "Dolly 92e7cef8-7097-4cf5-8ffa-b9960d0dd3f8",
-      "endretTidspunkt": "2021-01-22T12:07:35.844",
-      "endretAv": "srvtestnorge-aareg",
-      "endretKilde": "AAREG",
-      "endretKildereferanse": "Dolly 92e7cef8-7097-4cf5-8ffa-b9960d0dd3f8"
-    }
-  },
-  {
-    "navArbeidsforholdId": 51507953,
-    "arbeidsforholdId": "2",
-    "arbeidstaker": {
-      "type": "Person",
-      "offentligIdent": "22018520056",
-      "aktoerId": "2884609777831"
-    },
-    "arbeidsgiver": {
-      "type": "Organisasjon",
-      "organisasjonsnummer": "896929119"
-    },
-    "opplysningspliktig": {
-      "type": "Organisasjon",
-      "organisasjonsnummer": "928497704"
-    },
-    "type": "ordinaertArbeidsforhold",
-    "ansettelsesperiode": {
-      "periode": {
-        "fom": "2001-03-15"
-      },
-      "bruksperiode": {
-        "fom": "2021-03-15T12:45:29.413"
-      },
-      "sporingsinformasjon": {
-        "opprettetTidspunkt": "2021-03-15T12:45:29.413",
-        "opprettetAv": "srvtestnorge-aareg",
-        "opprettetKilde": "AAREG",
-        "opprettetKildereferanse": "DOLLY",
-        "endretTidspunkt": "2021-03-15T12:45:29.413",
-        "endretAv": "srvtestnorge-aareg",
-        "endretKilde": "AAREG",
-        "endretKildereferanse": "DOLLY"
-      }
-    },
-    "arbeidsavtaler": [
-      {
-        "type": "Ordinaer",
-        "arbeidstidsordning": "ikkeSkift",
-        "yrke": "5221126",
-        "stillingsprosent": 100.0,
-        "antallTimerPrUke": 37.5,
-        "beregnetAntallTimerPrUke": 37.5,
-        "bruksperiode": {
-          "fom": "2021-03-15T12:45:29.413"
+        "id": "68796",
+        "type": {
+          "kode": "permisjonMedForeldrepenger",
+          "beskrivelse": "Permisjon med foreldrepenger"
         },
-        "gyldighetsperiode": {
-          "fom": "2001-03-01"
-        },
-        "sporingsinformasjon": {
-          "opprettetTidspunkt": "2021-03-15T12:45:29.413",
-          "opprettetAv": "srvtestnorge-aareg",
-          "opprettetKilde": "AAREG",
-          "opprettetKildereferanse": "DOLLY",
-          "endretTidspunkt": "2021-03-15T12:45:29.413",
-          "endretAv": "srvtestnorge-aareg",
-          "endretKilde": "AAREG",
-          "endretKildereferanse": "DOLLY"
-        }
+        "startdato": "2021-01-29",
+        "prosent": 50
       }
     ],
-    "varsler": [
+    "permitteringer": [
       {
-        "entitet": "ARBEIDSFORHOLD",
-        "varslingskode": "NAVEND"
+        "id": "54232",
+        "type": {
+          "kode": "permittering",
+          "beskrivelse": "Permittering"
+        },
+        "startdato": "2020-10-30",
+        "prosent": 50
       }
     ],
-    "innrapportertEtterAOrdningen": true,
-    "registrert": "2021-03-15T12:45:29.319",
-    "sistBekreftet": "2021-03-15T12:45:29",
-    "sporingsinformasjon": {
-      "opprettetTidspunkt": "2021-03-15T12:45:29.413",
-      "opprettetAv": "srvtestnorge-aareg",
-      "opprettetKilde": "AAREG",
-      "opprettetKildereferanse": "DOLLY",
-      "endretTidspunkt": "2021-03-15T12:45:29.413",
-      "endretAv": "srvtestnorge-aareg",
-      "endretKilde": "AAREG",
-      "endretKildereferanse": "DOLLY"
+    "rapporteringsordning": {
+      "kode": "a-ordningen",
+      "beskrivelse": "Rapportert via a-ordningen (2015-d.d.)"
+    },
+    "navArbeidsforholdId": 12345,
+    "navVersjon": 5,
+    "navUuid": "28199f29-29e3-42fc-8784-049772bc72fe",
+    "opprettet": "2020-05-28T08:52:01.793",
+    "sistBekreftet": "2020-09-15T08:19:53",
+    "sistEndret": "2020-07-03T14:13:00",
+    "bruksperiode": {
+      "fom": "2020-07-03T14:06:00.286",
+      "tom": null
     }
   }
 ]

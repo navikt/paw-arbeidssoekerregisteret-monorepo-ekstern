@@ -3,34 +3,44 @@ package no.nav.paw.aareg.model
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class Arbeidsforhold(
-    val arbeidsgiver: Arbeidsgiver,
-    val opplysningspliktig: Opplysningspliktig,
-    val arbeidsavtaler: List<Arbeidsavtale>,
-    val ansettelsesperiode: Ansettelsesperiode,
-    val registrert: LocalDateTime
+sealed class Result {
+    data class Success(val arbeidsforhold: List<Arbeidsforhold>) : Result()
+    data class Failure(val error: Error) : Result()
+}
+
+data class Error(
+    val meldinger: List<String>
 )
 
-data class Arbeidsavtale(
-    val stillingsprosent: Double?,
-    val gyldighetsperiode: Periode
+data class Arbeidsforhold(
+    val arbeidssted: Arbeidssted,
+    val ansettelsesdetaljer: List<Ansettelsesdetaljer>,
+    val opplysningspliktig: Opplysningspliktig,
+    val ansettelsesperiode: Ansettelsesperiode,
+    val opprettet: LocalDateTime
 )
 
 data class Ansettelsesperiode(
-    val periode: Periode
+    val startdato: LocalDate,
+    val sluttdato: LocalDate? = null
 )
 
-data class Arbeidsgiver(
-    val type: String,
-    val organisasjonsnummer: String?
-)
-
-data class Periode(
-    val fom: LocalDate,
-    val tom: LocalDate? = null
+data class Arbeidssted(
+    val type: String, // Underenhet, Person
+    val identer: List<Ident>
 )
 
 data class Opplysningspliktig(
+    val type: String, // Hovedenhet, Person
+    val identer: List<Ident>
+)
+
+data class Ident(
+    val type: String, // AKTORID, FOLKEREGISTERIDENT, ORGANISASJONSNUMMER
+    val ident: String,
+)
+
+data class Ansettelsesdetaljer(
     val type: String,
-    val organisasjonsnummer: String?
+    val avtaltStillingsprosent: Double,
 )

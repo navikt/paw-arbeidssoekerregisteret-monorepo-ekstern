@@ -4,7 +4,7 @@ Henter arbeidsforhold fra Arbeidsgiver- og arbeidstakerregisteret ([aareg](https
 
 Se URL-er på https://github.com/navikt/aareg-services
 
-Se dokumentasjon for aareg på https://aareg-services.dev.intern.nav.no/swagger-ui/index.html
+Se dokumentasjon for aareg på https://aareg-services.intern.dev.nav.no/swagger-ui/index.html?urls.primaryName=aareg.api.v2
 
 ### Bruk av paw-aareg-client
 
@@ -15,7 +15,7 @@ val tokenproviderVersion: String by project
 val aaregClientVersion: String by project
 
 dependencies {
-    implementation(project(":lib:aareg-client"))
+    implementation(project(":lib:aareg-client-v2"))
 }
 ```
 
@@ -27,7 +27,7 @@ import no.nav.paw.tokenprovider.OAuth2TokenProvider
 import no.nav.paw.aareg.AaregClient
 
 fun main() {
-    val url = "https://modapp-q1.adeo.no/aareg-services"
+    val url = "https://aareg-services.intern.dev.nav.no/api/v2/arbeidstaker/arbeidsforhold"
     val tokenProvider = OAuth2TokenProvider(
         // Token config
     )
