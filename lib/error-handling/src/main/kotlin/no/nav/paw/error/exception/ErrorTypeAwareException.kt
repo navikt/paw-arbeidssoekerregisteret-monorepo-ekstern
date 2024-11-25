@@ -1,7 +1,9 @@
 package no.nav.paw.error.exception
 
-open class ErrorCodeAwareException(
-    open val code: String,
+import java.net.URI
+
+open class ErrorTypeAwareException(
+    open val type: URI,
     override val message: String,
     override val cause: Throwable? = null
 ) :

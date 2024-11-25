@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import io.ktor.http.HttpStatusCode
 import no.nav.paw.error.serialize.HttpStatusCodeDeserializer
 import no.nav.paw.error.serialize.HttpStatusCodeSerializer
+import java.net.URI
 import java.time.Instant
 import java.util.*
 
@@ -14,30 +15,51 @@ import java.util.*
  */
 data class ProblemDetails(
     val id: UUID = UUID.randomUUID(),
-    val code: String, // Maskinelt lesbar feilkode
-    val title: String,
+    val type: URI = ErrorTypeBuilder.default(),
     @JsonSerialize(using = HttpStatusCodeSerializer::class) @JsonDeserialize(using = HttpStatusCodeDeserializer::class) val status: HttpStatusCode,
-    val detail: String,
+    val title: String,
+    val detail: String? = null,
     val instance: String,
-    val type: String = "about:blank",
     val timestamp: Instant = Instant.now()
 )
 
-fun build400Error(code: String, detail: String, instance: String, type: String = "about:blank") =
-    buildError(code, detail, HttpStatusCode.BadRequest, instance, type)
+class ErrorTypeBuilder private constructor(
+    var team: String = "paw",
+    var domain: String = "default",
+    var error: String = "ukjent-feil",
+) {
+    fun team(team: String) = apply { this.team = team }
+    fun domain(domain: String) = apply { this.domain = domain }
+    fun error(error: String) = apply { this.error = error }
+    fun build(): URI = URI.create("urn:${team.lowercase()}:${domain.lowercase()}:${error.lowercase()}")
 
-fun build403Error(code: String, detail: String, instance: String, type: String = "about:blank") =
-    buildError(code, detail, HttpStatusCode.Forbidden, instance, type)
+    companion object {
+        fun builder(): ErrorTypeBuilder = ErrorTypeBuilder()
+        fun default(): URI = ErrorTypeBuilder().build()
+    }
+}
 
-fun build500Error(code: String, detail: String, instance: String, type: String = "about:blank") =
-    buildError(code, detail, HttpStatusCode.InternalServerError, instance, type)
-
-fun buildError(code: String, detail: String, status: HttpStatusCode, instance: String, type: String = "about:blank") =
-    ProblemDetails(
-        code = code,
-        title = status.description,
+class ProblemDetailsBuilder private constructor(
+    var type: URI = ErrorTypeBuilder.default(),
+    var status: HttpStatusCode = HttpStatusCode.InternalServerError,
+    var title: String? = null,
+    var detail: String? = null,
+    var instance: String = "/"
+) {
+    fun type(type: URI) = apply { this.type = type }
+    fun status(status: HttpStatusCode) = apply { this.status = status }
+    fun title(title: String) = apply { this.title = title }
+    fun detail(detail: String) = apply { this.detail = detail }
+    fun instance(instance: String) = apply { this.instance = instance }
+    fun build(): ProblemDetails = ProblemDetails(
+        type = type,
         status = status,
+        title = title ?: status.description,
         detail = detail,
-        instance = instance,
-        type = type
+        instance = instance
     )
+
+    companion object {
+        fun builder(): ProblemDetailsBuilder = ProblemDetailsBuilder()
+    }
+}

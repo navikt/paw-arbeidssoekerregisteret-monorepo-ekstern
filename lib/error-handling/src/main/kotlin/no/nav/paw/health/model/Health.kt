@@ -8,29 +8,41 @@ enum class HealthStatus(val value: String) {
     UNHEALTHY("UNHEALTHY"),
 }
 
-open class HealthIndicator(initialStatus: HealthStatus) {
+interface HealthIndicator {
+    fun getStatus(): HealthStatus
+}
+
+interface MutableHealthIndicator : HealthIndicator {
+    fun setUnknown();
+
+    fun setHealthy();
+
+    fun setUnhealthy();
+}
+
+open class DefaultHealthIndicator(initialStatus: HealthStatus) : MutableHealthIndicator {
 
     private val status = AtomicReference(initialStatus)
 
-    fun setUnknown() {
+    override fun setUnknown() {
         status.set(HealthStatus.UNKNOWN)
     }
 
-    fun setHealthy() {
+    override fun setHealthy() {
         status.set(HealthStatus.HEALTHY)
     }
 
-    fun setUnhealthy() {
+    override fun setUnhealthy() {
         status.set(HealthStatus.UNHEALTHY)
     }
 
-    fun getStatus(): HealthStatus {
+    override fun getStatus(): HealthStatus {
         return status.get()
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        other as HealthIndicator
+        if (other !is DefaultHealthIndicator) return false
         return status == other.status
     }
 
@@ -53,5 +65,8 @@ fun HealthIndicatorList.getAggregatedStatus(): HealthStatus {
     }
 }
 
-class ReadinessHealthIndicator(initialStatus: HealthStatus = HealthStatus.UNKNOWN) : HealthIndicator(initialStatus)
-class LivenessHealthIndicator(initialStatus: HealthStatus = HealthStatus.HEALTHY) : HealthIndicator(initialStatus)
+class ReadinessHealthIndicator(initialStatus: HealthStatus = HealthStatus.UNKNOWN) :
+    DefaultHealthIndicator(initialStatus)
+
+class LivenessHealthIndicator(initialStatus: HealthStatus = HealthStatus.HEALTHY) :
+    DefaultHealthIndicator(initialStatus)
