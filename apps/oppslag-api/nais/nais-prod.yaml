@@ -123,6 +123,9 @@ spec:
         - application: veilarbperson
           namespace: obo
           cluster: prod-gcp
+        - application: familie-ef-sak
+          namespace: teamfamilie
+          cluster: prod-gcp
     outbound:
       rules:
         - application: poao-tilgang
