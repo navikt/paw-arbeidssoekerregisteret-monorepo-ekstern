@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -11,6 +12,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.buildPeriode
+import no.nav.paw.arbeidssoekerregisteret.test.shouldBeEqualTo
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildPeriodeStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
@@ -45,7 +47,7 @@ class PeriodeStreamTest : FreeSpec({
             "Testsuite for toggling av microfrontends basert på arbeidssøkerperiode" - {
 
                 "Skal aktivere begge microfrontends ved start av periode eldre en 21 dager (p1)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p1Identitetsnummer) } returns KafkaKeysResponse(
                         p1ArbeidssoekerId,
                         1
                     )
@@ -88,7 +90,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere begge microfrontend ved avslutting av periode eldre enn 21 dager (p1)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer) } returns KafkaKeysResponse(
                         p1ArbeidssoekerId,
                         1
                     )
@@ -124,7 +126,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal aktivere begge microfrontends ved start av periode (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -167,7 +169,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere aia-behovsvurdering microfrontend ved avslutting av periode nyere enn 21 dager (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -200,7 +202,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere aia-min-side microfrontend 21 dager etter avslutting av periode (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(any<String>()) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -223,6 +225,30 @@ class PeriodeStreamTest : FreeSpec({
                     }
 
                     periodeStateStore.size() shouldBe 0
+                }
+
+                "Skal ignorere duplikat start periode" {
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p3Identitetsnummer) } returns KafkaKeysResponse(
+                        p3ArbeidssoekerId,
+                        1
+                    )
+
+                    microfrontendTopic.isEmpty shouldBe true
+                    periodeTopic.pipeInput(p3ArbeidssoekerId, p3StartetPeriode1)
+
+                    periodeStateStore.size() shouldBe 1
+                    val periodeInfo1 = periodeStateStore.get(p3ArbeidssoekerId)
+                    periodeInfo1 shouldNotBe null
+                    periodeInfo1.arbeidssoekerId shouldBe p3ArbeidssoekerId
+                    periodeInfo1 shouldBeEqualTo p3StartetPeriode1
+
+                    periodeTopic.pipeInput(p3ArbeidssoekerId, p3StartetPeriode2)
+
+                    periodeStateStore.size() shouldBe 1
+                    val periodeInfo2 = periodeStateStore.get(p3ArbeidssoekerId)
+                    periodeInfo2 shouldNotBe null
+                    periodeInfo2.arbeidssoekerId shouldBe p3ArbeidssoekerId
+                    periodeInfo2 shouldBeEqualTo p3StartetPeriode1
                 }
             }
         }
@@ -295,6 +321,22 @@ class PeriodeStreamTest : FreeSpec({
             identitetsnummer = p2Identitetsnummer,
             startetTidspunkt = p2StartetTidspunkt,
             avsluttetTidspunkt = p2AvsluttetTidspunkt
+        )
+
+        val p3Id = UUID.randomUUID()
+        val p3Identitetsnummer = "03017012345"
+        val p3ArbeidssoekerId = p3Identitetsnummer.toLong()
+        val p3StartetTidspunkt1 = Instant.now().minus(Duration.ofDays(30))
+        val p3StartetTidspunkt2 = Instant.now().minus(Duration.ofDays(60))
+        val p3StartetPeriode1 = buildPeriode(
+            id = p3Id,
+            identitetsnummer = p3Identitetsnummer,
+            startetTidspunkt = p3StartetTidspunkt1
+        )
+        val p3StartetPeriode2 = buildPeriode(
+            id = p3Id,
+            identitetsnummer = p3Identitetsnummer,
+            startetTidspunkt = p3StartetTidspunkt2
         )
     }
 }

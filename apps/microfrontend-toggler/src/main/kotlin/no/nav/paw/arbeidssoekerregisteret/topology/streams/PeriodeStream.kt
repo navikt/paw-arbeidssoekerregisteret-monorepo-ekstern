@@ -5,6 +5,8 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.config.KafkaTopologyConfig
+import no.nav.paw.arbeidssoekerregisteret.config.MicrofrontendToggleConfig
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
@@ -17,6 +19,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.buildRecord
 import no.nav.paw.arbeidssoekerregisteret.model.erAvsluttet
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.buildToggleSerde
+import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallIkkeSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredeAktivePerioder
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredeAvsluttedePerioder
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredePerioderTotalt
@@ -68,83 +71,113 @@ private fun ProcessorContext<Long, Toggle>.processPeriode(
     record: Record<Long, PeriodeInfo>
 ) {
     val periodeInfo = record.value()
-    val toggleSource = ToggleSource.ARBEIDSSOEKERPERIODE
+    val kafkaTopologyConfig = applicationConfig.kafkaTopology
+    val microfrontendToggleConfig = applicationConfig.microfrontendToggle
 
-    val kafkaTopology = applicationConfig.kafkaTopology
-    val microfrontendToggle = applicationConfig.microfrontendToggle
+    if (periodeInfo.erAvsluttet()) {
+        processAvsluttetPeriode(kafkaTopologyConfig, microfrontendToggleConfig, meterRegistry, periodeInfo)
+    } else {
+        processStartetPeriode(kafkaTopologyConfig, microfrontendToggleConfig, meterRegistry, periodeInfo)
+    }
+}
 
-    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopology.periodeStoreName)
+private fun ProcessorContext<Long, Toggle>.processAvsluttetPeriode(
+    kafkaTopologyConfig: KafkaTopologyConfig,
+    microfrontendToggleConfig: MicrofrontendToggleConfig,
+    meterRegistry: MeterRegistry,
+    periodeInfo: PeriodeInfo
+) {
+    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStoreName)
 
-    when {
-        periodeInfo.erAvsluttet() -> { // Avsluttet periode
-            val utsattDeaktiveringsfrist = Instant.now().minus(microfrontendToggle.utsattDeaktiveringAvAiaMinSide)
-            if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
-                // Send event for å deaktiver AIA Min Side
-                val disableAiaMinSideToggle = iverksettDeaktiverToggle(
-                    periodeInfo,
-                    microfrontendToggle.aiaMinSide,
-                    toggleSource
-                )
-                // Slett periode fra state store
-                stateStore.delete(periodeInfo.arbeidssoekerId)
-                // Registrer metrikk for toggle
-                meterRegistry.tellAntallSendteToggles(
-                    disableAiaMinSideToggle,
-                    toggleSource,
-                    "avsluttet_periode"
-                )
-            } else {
-                logger.debug(
-                    "Arbeidsøkerperiode {} er avluttet. Lagrer forsinket deaktivering av {}.",
-                    periodeInfo.id,
-                    microfrontendToggle.aiaMinSide
-                )
-                // Lagre periode i state store
-                stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
-            }
+    val utsattDeaktiveringsfrist = Instant.now().minus(microfrontendToggleConfig.utsattDeaktiveringAvAiaMinSide)
+    if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
+        // Send event for å deaktiver AIA Min Side
+        val disableAiaMinSideToggle = iverksettDeaktiverToggle(
+            periodeInfo,
+            microfrontendToggleConfig.aiaMinSide,
+            ToggleSource.ARBEIDSSOEKERPERIODE
+        )
+        // Slett periode fra state store
+        stateStore.delete(periodeInfo.arbeidssoekerId)
+        // Registrer metrikk for toggle
+        meterRegistry.tellAntallSendteToggles(
+            disableAiaMinSideToggle,
+            ToggleSource.ARBEIDSSOEKERPERIODE,
+            "avsluttet_periode"
+        )
+    } else {
+        logger.debug(
+            "Arbeidsøkerperiode {} er avluttet. Lagrer forsinket deaktivering av {}.",
+            periodeInfo.id,
+            microfrontendToggleConfig.aiaMinSide
+        )
+        // Lagre periode i state store
+        stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
+    }
 
-            // Send event for å deaktivere AIA Behovsvurdering
-            val disableAiaBehovsvurderingToggle = iverksettDeaktiverToggle(
-                periodeInfo,
-                microfrontendToggle.aiaBehovsvurdering,
-                toggleSource
-            )
-            // Registrer metrikk for toggle
-            meterRegistry.tellAntallSendteToggles(
-                disableAiaBehovsvurderingToggle,
-                toggleSource,
-                "avsluttet_periode"
-            )
-        }
+    // Send event for å deaktivere AIA Behovsvurdering
+    val disableAiaBehovsvurderingToggle = iverksettDeaktiverToggle(
+        periodeInfo,
+        microfrontendToggleConfig.aiaBehovsvurdering,
+        ToggleSource.ARBEIDSSOEKERPERIODE
+    )
+    // Registrer metrikk for toggle
+    meterRegistry.tellAntallSendteToggles(
+        disableAiaBehovsvurderingToggle,
+        ToggleSource.ARBEIDSSOEKERPERIODE,
+        "avsluttet_periode"
+    )
+}
 
-        else -> {
-            // Lagre periode i state store
-            stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
+private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
+    kafkaTopologyConfig: KafkaTopologyConfig,
+    microfrontendToggleConfig: MicrofrontendToggleConfig,
+    meterRegistry: MeterRegistry,
+    periodeInfo: PeriodeInfo
+) {
+    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStoreName)
+    val eksisterendePeriodeInfo = stateStore.get(periodeInfo.arbeidssoekerId)
 
-            // Send event for å aktivere AIA Min Side
-            val enableAiaMinSideToggle = iverksettAktiverToggle(
-                periodeInfo,
-                microfrontendToggle.aiaMinSide,
-                toggleSource
-            )
-            meterRegistry.tellAntallSendteToggles(
-                enableAiaMinSideToggle,
-                toggleSource,
-                "aktiv_periode"
-            )
+    if (eksisterendePeriodeInfo != null && eksisterendePeriodeInfo.id == periodeInfo.id) {
+        meterRegistry.tellAntallIkkeSendteToggles(
+            microfrontendToggleConfig.aiaMinSide,
+            ToggleSource.ARBEIDSSOEKERPERIODE,
+            ToggleAction.ENABLE,
+            "duplikat_periode"
+        )
+        meterRegistry.tellAntallIkkeSendteToggles(
+            microfrontendToggleConfig.aiaBehovsvurdering,
+            ToggleSource.ARBEIDSSOEKERPERIODE,
+            ToggleAction.ENABLE,
+            "duplikat_periode"
+        )
+    } else {
+        // Lagre periode i state store
+        stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
 
-            // Send event for å aktivere AIA Behovsvurdering
-            val enableAiaBehovsvurderingToggle = iverksettAktiverToggle(
-                periodeInfo,
-                microfrontendToggle.aiaBehovsvurdering,
-                toggleSource
-            )
-            meterRegistry.tellAntallSendteToggles(
-                enableAiaBehovsvurderingToggle,
-                toggleSource,
-                "aktiv_periode"
-            )
-        }
+        // Send event for å aktivere AIA Min Side
+        val enableAiaMinSideToggle = iverksettAktiverToggle(
+            periodeInfo,
+            microfrontendToggleConfig.aiaMinSide,
+            ToggleSource.ARBEIDSSOEKERPERIODE
+        )
+        meterRegistry.tellAntallSendteToggles(
+            enableAiaMinSideToggle,
+            ToggleSource.ARBEIDSSOEKERPERIODE,
+            "aktiv_periode"
+        )
+
+        // Send event for å aktivere AIA Behovsvurdering
+        val enableAiaBehovsvurderingToggle = iverksettAktiverToggle(
+            periodeInfo,
+            microfrontendToggleConfig.aiaBehovsvurdering,
+            ToggleSource.ARBEIDSSOEKERPERIODE
+        )
+        meterRegistry.tellAntallSendteToggles(
+            enableAiaBehovsvurderingToggle,
+            ToggleSource.ARBEIDSSOEKERPERIODE,
+            "aktiv_periode"
+        )
     }
 }
 
