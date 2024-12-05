@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.graphql)
 }
 
 val jvmMajorVersion: String by project
@@ -15,29 +14,16 @@ dependencies {
     implementation(libs.ktor.serialization.jackson)
     implementation(libs.ktor.client.logging)
     implementation(libs.jackson.datatype.jsr310)
-    api(libs.graphql.kotlin.ktor.client) {
-        exclude("com.expediagroup", "graphql-kotlin-client-serialization")
-    }
-    api(libs.graphql.kotlin.serialization.jackson)
+    implementation(libs.nav.poao.tilgang.client)
 
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.ktor.client.mock)
-    testImplementation(libs.kotlinx.coroutines.core)
 }
 
 java {
     withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(jvmMajorVersion))
-    }
-}
-
-graphql {
-    client {
-        packageName = "no.nav.paw.pdl.graphql.generated"
-        schemaFile = File("src/main/resources/pdl-schema.graphql")
-        queryFiles = file("src/main/resources").listFiles()?.toList()?.filter { it.name.endsWith(".graphql") }.orEmpty()
-        serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.JACKSON
     }
 }
 

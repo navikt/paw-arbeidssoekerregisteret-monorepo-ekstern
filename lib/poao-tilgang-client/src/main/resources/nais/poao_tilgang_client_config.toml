@@ -1,0 +1,2 @@
+url = "${POAO_TILGANG_URL}"
+scope = "${POAO_TILGANG_SCOPE}"
