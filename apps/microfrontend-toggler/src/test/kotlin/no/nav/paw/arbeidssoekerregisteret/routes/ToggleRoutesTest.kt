@@ -19,8 +19,9 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
-import no.nav.paw.error.model.ErrorTypeBuilder
 import no.nav.paw.error.model.ProblemDetails
+import no.nav.paw.security.authorization.exception.IngenTilgangException
+import no.nav.paw.security.authorization.exception.UgyldigBearerTokenException
 
 class ToggleRoutesTest : FreeSpec({
     with(LocalTestContext()) {
@@ -91,10 +92,7 @@ class ToggleRoutesTest : FreeSpec({
                     response.status shouldBe HttpStatusCode.Forbidden
                     val body = response.body<ProblemDetails>()
                     body.status shouldBe HttpStatusCode.Forbidden
-                    body.type shouldBe ErrorTypeBuilder.builder()
-                        .domain("security")
-                        .error("ugyldig-bearer-token")
-                        .build()
+                    body.type shouldBe UgyldigBearerTokenException("").type
                 }
             }
 
@@ -118,10 +116,7 @@ class ToggleRoutesTest : FreeSpec({
                     response.status shouldBe HttpStatusCode.Forbidden
                     val body = response.body<ProblemDetails>()
                     body.status shouldBe HttpStatusCode.Forbidden
-                    body.type shouldBe ErrorTypeBuilder.builder()
-                        .domain("security")
-                        .error("ugyldig-bearer-token")
-                        .build()
+                    body.type shouldBe UgyldigBearerTokenException("").type
                 }
             }
 
@@ -146,10 +141,7 @@ class ToggleRoutesTest : FreeSpec({
                     response.status shouldBe HttpStatusCode.Forbidden
                     val body = response.body<ProblemDetails>()
                     body.status shouldBe HttpStatusCode.Forbidden
-                    body.type shouldBe ErrorTypeBuilder.builder()
-                        .domain("security")
-                        .error("ingen-tilgang")
-                        .build()
+                    body.type shouldBe IngenTilgangException("").type
                 }
             }
 

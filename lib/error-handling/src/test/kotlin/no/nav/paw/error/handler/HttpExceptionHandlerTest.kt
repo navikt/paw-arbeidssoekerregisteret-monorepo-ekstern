@@ -15,7 +15,6 @@ import io.ktor.server.routing.IgnoreTrailingSlash
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import no.nav.paw.error.model.ErrorTypeBuilder
 import no.nav.paw.error.model.ProblemDetails
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 import io.ktor.server.application.install as serverInstall
@@ -56,10 +55,7 @@ class HttpExceptionHandlerTest : FreeSpec({
             val response400 = client.get("/api/400")
             val responseBody400 = response400.body<ProblemDetails>()
             response400.status shouldBe HttpStatusCode.BadRequest
-            responseBody400.type shouldBe ErrorTypeBuilder.builder()
-                .domain("http")
-                .error("kunne-ikke-tolke-forespoersel")
-                .build()
+            responseBody400.type shouldBe httpErrorType("kunne-ikke-tolke-forespoersel")
             responseBody400.status shouldBe HttpStatusCode.BadRequest
             responseBody400.title shouldBe HttpStatusCode.BadRequest.description
         }

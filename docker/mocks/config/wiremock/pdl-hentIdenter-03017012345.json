@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "POST",
-    "urlPathPattern": "/pdl"
+    "urlPathPattern": "/pdl",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.variables[?(@.ident == '03017012345')]"
+      }
+    ]
   },
   "response": {
     "status": 200,
@@ -10,8 +15,9 @@
         "hentIdenter": {
           "identer": [
             {
-              "ident": "01017012345",
-              "gruppe": "FOLKEREGISTERIDENT"
+              "ident": "03017012345",
+              "gruppe": "FOLKEREGISTERIDENT",
+              "historisk": false
             }
           ]
         }
