@@ -10,12 +10,13 @@ import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import no.nav.paw.error.exception.ClientResponseException
 import no.nav.paw.error.exception.ServerResponseException
-import no.nav.paw.error.model.ErrorTypeBuilder
+import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.ProblemDetailsBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
+import java.net.URI
 
 private val logger: Logger = LoggerFactory.getLogger("no.nav.paw.logger.error.http")
 private const val MDC_ERROR_ID_KEY = "x_error_id"
@@ -54,7 +55,7 @@ fun resolveProblemDetails(
     when (throwable) {
         is BadRequestException -> {
             return ProblemDetailsBuilder.builder()
-                .type(ErrorTypeBuilder.builder().domain("http").error("kunne-ikke-tolke-forespoersel").build())
+                .type(httpErrorType("kunne-ikke-tolke-forespoersel"))
                 .status(HttpStatusCode.BadRequest)
                 .detail("Kunne ikke tolke forespørsel")
                 .instance(request.uri)
@@ -63,7 +64,7 @@ fun resolveProblemDetails(
 
         is ContentTransformationException -> {
             return ProblemDetailsBuilder.builder()
-                .type(ErrorTypeBuilder.builder().domain("http").error("kunne-ikke-tolke-innhold").build())
+                .type(httpErrorType("kunne-ikke-tolke-innhold"))
                 .status(HttpStatusCode.BadRequest)
                 .detail("Kunne ikke tolke innhold i forespørsel")
                 .instance(request.uri)
@@ -72,7 +73,7 @@ fun resolveProblemDetails(
 
         is RequestAlreadyConsumedException -> {
             return ProblemDetailsBuilder.builder()
-                .type(ErrorTypeBuilder.builder().domain("http").error("forespoersel-allerede-mottatt").build())
+                .type(httpErrorType("forespoersel-allerede-mottatt"))
                 .status(HttpStatusCode.InternalServerError)
                 .detail("Forespørsel er allerede mottatt. Dette er en kodefeil")
                 .instance(request.uri)
@@ -105,3 +106,5 @@ fun resolveProblemDetails(
         }
     }
 }
+
+fun httpErrorType(error: String): URI = ErrorType.domain("http").error(error).build()

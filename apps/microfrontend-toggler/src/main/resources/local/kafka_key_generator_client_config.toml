@@ -1,2 +1,2 @@
-url = "http://localhost:8090/kafka-keys"
+url = "http://localhost:8090/api/v2/hentEllerOpprett"
 scope = "api://test.test.kafka-keys/.default"

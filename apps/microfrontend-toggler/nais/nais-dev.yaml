@@ -61,6 +61,10 @@ spec:
     inbound:
       rules:
         - application: aia-backend
+        - application: tokenx-token-generator
+          namespace: aura
+        - application: azure-token-generator
+          namespace: aura
     outbound:
       rules:
         - application: paw-kafka-key-generator

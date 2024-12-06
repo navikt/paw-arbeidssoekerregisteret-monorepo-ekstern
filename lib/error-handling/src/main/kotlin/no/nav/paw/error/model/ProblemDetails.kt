@@ -15,7 +15,7 @@ import java.util.*
  */
 data class ProblemDetails(
     val id: UUID = UUID.randomUUID(),
-    val type: URI = ErrorTypeBuilder.default(),
+    val type: URI = ErrorType.default().build(),
     @JsonSerialize(using = HttpStatusCodeSerializer::class) @JsonDeserialize(using = HttpStatusCodeDeserializer::class) val status: HttpStatusCode,
     val title: String,
     val detail: String? = null,
@@ -23,24 +23,8 @@ data class ProblemDetails(
     val timestamp: Instant = Instant.now()
 )
 
-class ErrorTypeBuilder private constructor(
-    var team: String = "paw",
-    var domain: String = "default",
-    var error: String = "ukjent-feil",
-) {
-    fun team(team: String) = apply { this.team = team }
-    fun domain(domain: String) = apply { this.domain = domain }
-    fun error(error: String) = apply { this.error = error }
-    fun build(): URI = URI.create("urn:${team.lowercase()}:${domain.lowercase()}:${error.lowercase()}")
-
-    companion object {
-        fun builder(): ErrorTypeBuilder = ErrorTypeBuilder()
-        fun default(): URI = ErrorTypeBuilder().build()
-    }
-}
-
 class ProblemDetailsBuilder private constructor(
-    var type: URI = ErrorTypeBuilder.default(),
+    var type: URI = ErrorType.default().build(),
     var status: HttpStatusCode = HttpStatusCode.InternalServerError,
     var title: String? = null,
     var detail: String? = null,

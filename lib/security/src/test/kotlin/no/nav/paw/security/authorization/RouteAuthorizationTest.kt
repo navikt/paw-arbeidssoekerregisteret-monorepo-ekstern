@@ -57,5 +57,25 @@ class RouteAuthorizationTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
             }
         }
+
+        "Skal få 200 OK ved en PERMIT policy" {
+            testApplication {
+                application {
+                    configureApplication(
+                        listOf(
+                            TestPermitPolicy()
+                        )
+                    )
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("/api/dummy") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = "01017012345"))
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+            }
+        }
     }
 })

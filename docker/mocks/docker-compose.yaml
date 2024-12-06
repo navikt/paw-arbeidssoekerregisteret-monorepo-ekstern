@@ -5,18 +5,10 @@ services:
     container_name: wiremock
     ports:
       - "8090:8080"
+    environment:
+        WIREMOCK_OPTIONS: "--verbose"
     volumes:
       - ./config/wiremock:/home/wiremock/mappings/
-    networks:
-      - mocks
-
-  wiremock-pdl-hent-identer:
-    image: wiremock/wiremock:3.4.2
-    container_name: wiremock-pdl-hent-identer
-    ports:
-      - "8091:8080"
-    volumes:
-      - ./config/wiremock-pdl-hent-identer:/home/wiremock/mappings/
     networks:
       - mocks
 

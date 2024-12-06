@@ -9,7 +9,6 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.install
-import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.authentication
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
@@ -19,7 +18,9 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.paw.error.handler.handleException
-import no.nav.paw.security.authorization.interceptor.authorize
+import no.nav.paw.security.authentication.interceptor.autentisering
+import no.nav.paw.security.authentication.model.TokenX
+import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
 import no.nav.paw.security.authorization.policy.AccessPolicy
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -54,17 +55,18 @@ class TestApplicationContext {
         configureRouting(policies)
     }
 
-    fun Application.configureRouting(policies: List<AccessPolicy> = emptyList()) {
+    private fun Application.configureRouting(policies: List<AccessPolicy> = emptyList()) {
         routing {
-            authenticate("tokenx") {
+            autentisering(TokenX) {
                 get("/api/dummy") {
-                    authorize(Action.READ, policies) {
+                    autorisering(Action.READ, policies) {
                         call.respond(TestResponse("All Quiet on the Western Front"))
                     }
                 }
 
                 post("/api/dummy") {
-                    authorize(Action.WRITE, policies) {
+                    autorisering(Action.WRITE, policies) {
+
                         call.respond(TestResponse("All Quiet on the Western Front"))
                     }
                 }
@@ -72,7 +74,7 @@ class TestApplicationContext {
         }
     }
 
-    fun Application.configureSerialization() {
+    private fun Application.configureSerialization() {
         install(ServerContentNegotiation) {
             jackson {
                 disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -83,7 +85,7 @@ class TestApplicationContext {
         }
     }
 
-    fun Application.configureRequestHandling() {
+    private fun Application.configureRequestHandling() {
         install(IgnoreTrailingSlash)
         install(StatusPages) {
             exception<Throwable> { call, cause ->
@@ -93,7 +95,7 @@ class TestApplicationContext {
     }
 
 
-    fun Application.configureAuthentication() {
+    private fun Application.configureAuthentication() {
         val authProviders = mockOAuth2Server.getAuthProviders()
 
         authentication {
