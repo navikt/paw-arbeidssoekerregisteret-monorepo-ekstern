@@ -14,7 +14,7 @@
                         "aud": [
                             "paw-microfrontend-toggler"
                         ],
-                        "pid": "17830348441",
+                        "pid": "01017012345",
                         "acr": "idporten-loa-high"
                     }
                 },
@@ -26,7 +26,7 @@
                         "aud": [
                             "paw-arbeidssoekerregisteret-api-oppslag"
                         ],
-                        "pid": "17830348441",
+                        "pid": "01017012345",
                         "acr": "idporten-loa-high"
                     }
                 }
@@ -56,7 +56,7 @@
                         "aud": [
                             "paw-microfrontend-toggler"
                         ],
-                        "pid": "17830348441",
+                        "pid": "01017012345",
                         "acr": "idporten-loa-high"
                     }
                 },
@@ -68,7 +68,7 @@
                         "aud": [
                             "paw-arbeidssoekerregisteret-api-oppslag"
                         ],
-                        "pid": "12345678901",
+                        "pid": "01017012345",
                         "acr": "idporten-loa-high"
                     }
                 }
