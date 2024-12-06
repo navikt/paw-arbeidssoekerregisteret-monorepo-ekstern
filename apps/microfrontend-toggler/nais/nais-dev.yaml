@@ -61,11 +61,11 @@ spec:
     inbound:
       rules:
         - application: aia-backend
-    outbound:
-      rules:
-        - application: paw-kafka-key-generator
-          namespace: paw
         - application: tokenx-token-generator
           namespace: aura
         - application: azure-token-generator
           namespace: aura
+    outbound:
+      rules:
+        - application: paw-kafka-key-generator
+          namespace: paw
