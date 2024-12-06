@@ -18,9 +18,9 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.paw.error.handler.handleException
-import no.nav.paw.security.authentication.interceptor.authenticate
+import no.nav.paw.security.authentication.interceptor.autentisering
 import no.nav.paw.security.authentication.model.TokenX
-import no.nav.paw.security.authorization.interceptor.authorize
+import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
 import no.nav.paw.security.authorization.policy.AccessPolicy
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -57,15 +57,15 @@ class TestApplicationContext {
 
     private fun Application.configureRouting(policies: List<AccessPolicy> = emptyList()) {
         routing {
-            authenticate(TokenX) {
+            autentisering(TokenX) {
                 get("/api/dummy") {
-                    authorize(Action.READ, policies) {
+                    autorisering(Action.READ, policies) {
                         call.respond(TestResponse("All Quiet on the Western Front"))
                     }
                 }
 
                 post("/api/dummy") {
-                    authorize(Action.WRITE, policies) {
+                    autorisering(Action.WRITE, policies) {
 
                         call.respond(TestResponse("All Quiet on the Western Front"))
                     }

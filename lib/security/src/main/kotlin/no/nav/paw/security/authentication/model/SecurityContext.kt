@@ -23,10 +23,6 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
     val accessToken = tokenContext.resolveTokens().firstOrNull() // Kan støtte flere tokens
         ?: throw UgyldigBearerTokenException("Ingen gyldige Bearer Tokens funnet")
 
-    if (accessToken.claims.isEmpty()) {
-        throw UgyldigBearerTokenException("Bearer Token mangler påkrevd innhold")
-    }
-
     val bruker = when (accessToken.issuer) {
         is IdPorten -> Sluttbruker(accessToken.claims.getOrThrow(PID))
         is TokenX -> Sluttbruker(accessToken.claims.getOrThrow(PID))

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authorization")
 
-suspend fun PipelineContext<Unit, ApplicationCall>.authorize(
+suspend fun PipelineContext<Unit, ApplicationCall>.autorisering(
     action: Action,
     accessPolicies: List<AccessPolicy> = emptyList(),
     body: suspend PipelineContext<Unit, ApplicationCall>.() -> Unit

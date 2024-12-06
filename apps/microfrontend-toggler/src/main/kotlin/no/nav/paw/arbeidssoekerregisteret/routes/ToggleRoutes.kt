@@ -11,12 +11,12 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.model.buildToggle
-import no.nav.paw.security.authentication.interceptor.authenticate
+import no.nav.paw.security.authentication.interceptor.autentisering
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.bruker
 import no.nav.paw.security.authorization.exception.IngenTilgangException
-import no.nav.paw.security.authorization.interceptor.authorize
+import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
 
 fun Route.toggleRoutes(applicationContext: ApplicationContext) {
@@ -24,10 +24,10 @@ fun Route.toggleRoutes(applicationContext: ApplicationContext) {
     val toggleService = applicationContext.toggleService
 
     route("/api/v1") {
-        authenticate(TokenX) {
+        autentisering(TokenX) {
             post<ToggleRequest>("/microfrontend-toggle") { toggleRequest ->
                 val accessPolicies = authorizationService.accessPolicies()
-                authorize(Action.WRITE, accessPolicies) {
+                autorisering(Action.WRITE, accessPolicies) {
 
                     if (toggleRequest.action == ToggleAction.ENABLE) {
                         throw IngenTilgangException("Det er ikke tillatt å aktivere microfrontends via dette endepunktet")
