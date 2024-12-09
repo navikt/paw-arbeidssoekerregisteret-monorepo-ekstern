@@ -1,24 +1,24 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.services
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import java.util.*
 
 class ProfileringService(private val profileringRepository: ProfileringRepository) {
 
     fun finnProfileringerForPeriodeIdList(
-        periodeIdList: List<UUID>,
+        periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<ProfileringResponse> =
         profileringRepository.finnProfileringerForPeriodeIdList(periodeIdList, paging)
             .map { it.toProfileringResponse() }
 
     fun finnProfileringerForIdentiteter(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<ProfileringResponse> =
         profileringRepository.finnProfileringerForIdentiteter(identitetsnummerList, paging)

@@ -21,7 +21,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.auth.configureAuthenticati
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
@@ -32,6 +31,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.PolicyRequest
 import no.nav.poao_tilgang.client.PolicyResult
@@ -157,9 +157,21 @@ class PerioderRoutesTest : FreeSpec({
 
                 val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr12)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = perioder[0].id)
-                val profilering1 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[0].id)
-                val profilering2 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[1].id)
-                val profilering3 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[2].id)
+                val profilering1 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[0].id
+                )
+                val profilering2 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[1].id
+                )
+                val profilering3 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[2].id
+                )
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
                 periodeService.lagreAllePerioder(perioder.asSequence())
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
@@ -178,11 +190,16 @@ class PerioderRoutesTest : FreeSpec({
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeAggregertResponse>>()
                 periodeResponses.size shouldBe 3
                 perioder[0] shouldBeEqualTo periodeResponses[0]
-                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0) ?: error("Missing opplysninger"))
-                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering ?: error("Missing profilering"))
-                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering ?: error("Missing profilering"))
-                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering ?: error("Missing profilering"))
-                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0) ?: error("Missing bekreftelse"))
+                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)
+                    ?: error("Missing opplysninger"))
+                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering
+                    ?: error("Missing profilering"))
+                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering
+                    ?: error("Missing profilering"))
+                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering
+                    ?: error("Missing profilering"))
+                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
+                    ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -205,9 +222,21 @@ class PerioderRoutesTest : FreeSpec({
 
                 val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr13)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = perioder[0].id)
-                val profilering1 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[0].id)
-                val profilering2 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[1].id)
-                val profilering3 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[2].id)
+                val profilering1 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[0].id
+                )
+                val profilering2 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[1].id
+                )
+                val profilering3 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[2].id
+                )
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
                 periodeService.lagreAllePerioder(perioder.asSequence())
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
@@ -226,9 +255,12 @@ class PerioderRoutesTest : FreeSpec({
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeAggregertResponse>>()
                 periodeResponses.size shouldBe 1
                 perioder[0] shouldBeEqualTo periodeResponses[0]
-                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0) ?: error("Missing opplysninger"))
-                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering ?: error("Missing profilering"))
-                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0) ?: error("Missing bekreftelse"))
+                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)
+                    ?: error("Missing opplysninger"))
+                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering
+                    ?: error("Missing profilering"))
+                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
+                    ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -379,9 +411,21 @@ class PerioderRoutesTest : FreeSpec({
 
                 val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr14)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = perioder[0].id)
-                val profilering1 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[0].id)
-                val profilering2 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[1].id)
-                val profilering3 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[2].id)
+                val profilering1 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[0].id
+                )
+                val profilering2 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[1].id
+                )
+                val profilering3 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[2].id
+                )
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
                 periodeService.lagreAllePerioder(perioder.asSequence())
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
@@ -406,11 +450,16 @@ class PerioderRoutesTest : FreeSpec({
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeAggregertResponse>>()
                 periodeResponses.size shouldBe 3
                 perioder[0] shouldBeEqualTo periodeResponses[0]
-                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0) ?: error("Missing opplysninger"))
-                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering ?: error("Missing profilering"))
-                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering ?: error("Missing profilering"))
-                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering ?: error("Missing profilering"))
-                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0) ?: error("Missing bekreftelse"))
+                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)
+                    ?: error("Missing opplysninger"))
+                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering
+                    ?: error("Missing profilering"))
+                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering
+                    ?: error("Missing profilering"))
+                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering
+                    ?: error("Missing profilering"))
+                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
+                    ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
@@ -437,9 +486,21 @@ class PerioderRoutesTest : FreeSpec({
 
                 val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr15)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = perioder[0].id)
-                val profilering1 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[0].id)
-                val profilering2 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[1].id)
-                val profilering3 = TestData.nyProfileringList(size = 1, periodeId = perioder[0].id, opplysningerId = opplysninger[2].id)
+                val profilering1 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[0].id
+                )
+                val profilering2 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[1].id
+                )
+                val profilering3 = TestData.nyProfileringList(
+                    size = 1,
+                    periodeId = perioder[0].id,
+                    opplysningerId = opplysninger[2].id
+                )
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
                 periodeService.lagreAllePerioder(perioder.asSequence())
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
@@ -464,11 +525,16 @@ class PerioderRoutesTest : FreeSpec({
                 val periodeResponses = response.body<List<ArbeidssoekerperiodeAggregertResponse>>()
                 periodeResponses.size shouldBe 1
                 perioder[0] shouldBeEqualTo periodeResponses[0]
-                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0) ?: error("Missing opplysninger"))
-                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering ?: error("Missing profilering"))
-                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering ?: error("Missing profilering"))
-                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering ?: error("Missing profilering"))
-                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0) ?: error("Missing bekreftelse"))
+                opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)
+                    ?: error("Missing opplysninger"))
+                profilering1[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering
+                    ?: error("Missing profilering"))
+                profilering2[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering
+                    ?: error("Missing profilering"))
+                profilering3[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering
+                    ?: error("Missing profilering"))
+                bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
+                    ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }

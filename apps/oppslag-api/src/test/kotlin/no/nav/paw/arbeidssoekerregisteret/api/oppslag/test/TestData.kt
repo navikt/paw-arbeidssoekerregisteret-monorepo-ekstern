@@ -5,7 +5,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetal
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.NavAnsatt
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
@@ -32,6 +31,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -86,9 +86,9 @@ object TestData {
     const val navIdent1 = "NAV1001"
     const val navIdent2 = "NAV1002"
     const val navIdent3 = "NAV1003"
-    val kafkaKey1 = fnr1.toLong()
-    val kafkaKey2 = fnr2.toLong()
-    val kafkaKey3 = fnr3.toLong()
+    val kafkaKey1 = 10001L
+    val kafkaKey2 = 10002L
+    val kafkaKey3 = 10003L
 
     fun nyNavAnsatt(
         azureId: String = UUID.randomUUID().toString(),

@@ -12,6 +12,7 @@ val image: String? by project
 dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
+    implementation(project(":lib:security"))
     implementation(project(":lib:kafka"))
     implementation(project(":lib:pdl-client"))
     implementation(project(":domain:main-avro-schema"))

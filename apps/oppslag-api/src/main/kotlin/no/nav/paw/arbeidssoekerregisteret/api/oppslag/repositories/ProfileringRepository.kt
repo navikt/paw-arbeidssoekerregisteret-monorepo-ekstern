@@ -1,11 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.ProfileringFunctions
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -15,7 +15,7 @@ class ProfileringRepository(private val database: Database) {
     private val logger = buildLogger
 
     fun finnProfileringerForPeriodeIdList(
-        periodeIdList: List<UUID>,
+        periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<ProfileringRow> =
         transaction(database) {
@@ -28,7 +28,7 @@ class ProfileringRepository(private val database: Database) {
         }
 
     fun finnProfileringerForIdentiteter(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<ProfileringRow> =
         transaction(database) {

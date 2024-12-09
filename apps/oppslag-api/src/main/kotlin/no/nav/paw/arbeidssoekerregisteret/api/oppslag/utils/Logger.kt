@@ -3,8 +3,8 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.NavAnsatt
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

@@ -9,7 +9,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeRequest
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
@@ -21,6 +20,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogg
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPidClaim
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getRequestBody
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyAccessFromToken
+import no.nav.paw.security.authentication.model.Identitetsnummer
 
 private val logger = buildApplicationLogger
 

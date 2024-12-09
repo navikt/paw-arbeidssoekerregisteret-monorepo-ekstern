@@ -1,11 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.pdl.PdlClient
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.pdl.hentIdenter
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import java.util.*
 
 const val PDL_BEHANDLINGSNUMMER = "B452"

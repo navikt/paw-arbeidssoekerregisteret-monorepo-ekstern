@@ -1,12 +1,12 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bruker
 import no.nav.paw.bekreftelse.melding.v1.vo.Metadata
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
@@ -28,7 +28,7 @@ object BekreftelseFunctions {
     }
 
     fun findForPeriodeIdList(
-        periodeIdList: List<UUID>,
+        periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> {
         return BekreftelseTable
@@ -43,7 +43,7 @@ object BekreftelseFunctions {
     }
 
     fun findForIdentitetsnummerList(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> {
         val identiteter = identitetsnummerList.map { it.verdi }

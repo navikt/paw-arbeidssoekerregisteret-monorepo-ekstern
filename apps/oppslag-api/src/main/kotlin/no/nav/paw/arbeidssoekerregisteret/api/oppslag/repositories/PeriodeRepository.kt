@@ -2,11 +2,11 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeTable
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.selectAll
@@ -22,7 +22,7 @@ class PeriodeRepository(private val database: Database) {
         }
 
     fun finnPerioderForIdentiteter(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<PeriodeRow> =
         transaction(database) {

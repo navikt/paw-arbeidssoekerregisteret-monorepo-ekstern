@@ -1,9 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -50,7 +50,7 @@ object PeriodeFunctions {
     }
 
     fun findForIdentitetsnummerList(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<PeriodeRow> {
         val identer = identitetsnummerList.map { it.verdi }
@@ -93,7 +93,7 @@ object PeriodeFunctions {
             .map { it.toPeriodeRow() }
     }
 
-    fun finnForPeriodeIdList(periodeIdList: List<UUID>): List<PeriodeRow> {
+    fun finnForPeriodeIdList(periodeIdList: Collection<UUID>): List<PeriodeRow> {
         return PeriodeTable
             .join(StartetMetadataAlias, JoinType.LEFT, PeriodeTable.startetId, StartetMetadataAlias[MetadataTable.id])
             .join(
@@ -132,7 +132,7 @@ object PeriodeFunctions {
     }
 
     fun findPeriodeIdForIdentitetsnummerList(
-        identitetsnummerList: List<Identitetsnummer>
+        identitetsnummerList: Collection<Identitetsnummer>
     ): List<UUID> {
         val identer = identitetsnummerList.map { it.verdi }
         return PeriodeTable

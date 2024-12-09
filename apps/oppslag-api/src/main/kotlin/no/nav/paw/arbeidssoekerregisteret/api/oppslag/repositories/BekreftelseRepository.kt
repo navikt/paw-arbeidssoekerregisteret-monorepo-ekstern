@@ -2,10 +2,10 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.BekreftelseFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -15,7 +15,7 @@ class BekreftelseRepository(private val database: Database) {
     private val logger = buildLogger
 
     fun finnBekreftelserForPeriodeIdList(
-        periodeIdList: List<UUID>,
+        periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> =
         transaction(database) {
@@ -28,7 +28,7 @@ class BekreftelseRepository(private val database: Database) {
         }
 
     fun finnBekreftelserForIdentitetsnummerList(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> =
         transaction(database) {

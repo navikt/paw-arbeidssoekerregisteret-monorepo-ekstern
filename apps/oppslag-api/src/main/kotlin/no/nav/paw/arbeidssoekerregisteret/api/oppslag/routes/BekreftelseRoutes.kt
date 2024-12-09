@@ -7,7 +7,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.StatusException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
@@ -18,6 +17,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogg
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPidClaim
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyAccessFromToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyPeriodeId
+import no.nav.paw.security.authentication.model.Identitetsnummer
 
 private val logger = buildApplicationLogger
 

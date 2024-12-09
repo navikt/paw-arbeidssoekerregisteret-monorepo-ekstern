@@ -4,12 +4,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authentication
 import io.ktor.server.request.receive
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.NavAnsatt
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toIdentitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.StatusException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
+import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.security.authentication.model.asIdentitetsnummer
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 import java.util.*
 
@@ -32,7 +32,7 @@ private fun ApplicationCall.getClaim(
         ?.getStringClaim(name)
 
 fun ApplicationCall.getPidClaim(): Identitetsnummer =
-    getClaim("tokenx", "pid")?.toIdentitetsnummer()
+    getClaim("tokenx", "pid")?.asIdentitetsnummer()
         ?: throw StatusException(HttpStatusCode.Forbidden, "Fant ikke 'pid'-claim i token fra tokenx-issuer")
 
 private fun ApplicationCall.getNavAnsattAzureId(): String = getClaim("azure", "oid") ?: throw StatusException(

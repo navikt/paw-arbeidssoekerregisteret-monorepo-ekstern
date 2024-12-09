@@ -2,11 +2,11 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -17,7 +17,7 @@ class OpplysningerRepository(private val database: Database) {
     private val logger = buildLogger
 
     fun finnOpplysningerForPeriodeIdList(
-        periodeIdList: List<UUID>,
+        periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> =
         transaction(database) {
@@ -30,7 +30,7 @@ class OpplysningerRepository(private val database: Database) {
         }
 
     fun finnOpplysningerForIdentiteter(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> =
         transaction(database) {

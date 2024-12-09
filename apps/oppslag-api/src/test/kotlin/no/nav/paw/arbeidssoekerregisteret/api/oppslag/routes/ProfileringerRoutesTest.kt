@@ -18,7 +18,6 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.auth.configureAuthentication
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
@@ -30,6 +29,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.PolicyRequest
 import no.nav.poao_tilgang.client.PolicyResult

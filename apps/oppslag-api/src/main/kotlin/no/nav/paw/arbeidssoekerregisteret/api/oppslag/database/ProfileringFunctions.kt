@@ -1,9 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
@@ -13,7 +13,7 @@ import java.util.*
 object ProfileringFunctions {
 
     fun findForPeriodeIdList(
-        periodeIdList: List<UUID>,
+        periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<ProfileringRow> {
         return ProfileringTable
@@ -28,7 +28,7 @@ object ProfileringFunctions {
     }
 
     fun findForIdentitetsnummerList(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<ProfileringRow> {
         val identer = identitetsnummerList.map { it.verdi }

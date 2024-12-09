@@ -2,7 +2,6 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerMarkerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
@@ -12,6 +11,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
@@ -21,7 +21,7 @@ import java.util.*
 object OpplysningerFunctions {
 
     fun findForPeriodeIdList(
-        periodeIdList: List<UUID>,
+        periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> {
         return OpplysningerOmArbeidssoekerTable
@@ -49,7 +49,7 @@ object OpplysningerFunctions {
     }
 
     fun findForIdentitetsnummerList(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> {
         val identiteter = identitetsnummerList.map { it.verdi }
@@ -186,7 +186,7 @@ object OpplysningerFunctions {
             .singleOrNull()?.toOpplysningerMarkerRow()
     }
 
-    fun finnRows(opplysningerIdList: List<UUID>): List<OpplysningerMarkerRow> {
+    fun finnRows(opplysningerIdList: Collection<UUID>): List<OpplysningerMarkerRow> {
         return OpplysningerOmArbeidssoekerTable
             .join(
                 PeriodeOpplysningerTable,

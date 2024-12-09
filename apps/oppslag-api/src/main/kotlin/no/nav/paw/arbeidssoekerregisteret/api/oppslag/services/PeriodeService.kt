@@ -1,11 +1,20 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.services
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.*
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerPeriodeAggregertResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerperiodeResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toBekreftelseResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoekerAggregertResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import java.util.*
 
 class PeriodeService(
@@ -17,14 +26,14 @@ class PeriodeService(
     fun hentPeriodeForId(periodeId: UUID): Periode? = periodeRepository.hentPeriodeForId(periodeId)?.toPeriode()
 
     fun finnPerioderForIdentiteter(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<ArbeidssoekerperiodeResponse> =
         periodeRepository.finnPerioderForIdentiteter(identitetsnummerList, paging)
             .map { it.toArbeidssoekerperiodeResponse() }
 
     fun finnAggregertePerioderForIdenter(
-        identitetsnummerList: List<Identitetsnummer>,
+        identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<ArbeidssoekerperiodeAggregertResponse> =
         periodeRepository.finnPerioderForIdentiteter(identitetsnummerList, paging).map { periode ->
