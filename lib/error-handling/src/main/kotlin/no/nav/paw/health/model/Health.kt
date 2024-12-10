@@ -55,7 +55,7 @@ typealias HealthIndicatorList = MutableList<HealthIndicator>
 
 fun HealthIndicatorList.getAggregatedStatus(): HealthStatus {
     return if (this.isEmpty()) {
-        HealthStatus.UNKNOWN
+        HealthStatus.HEALTHY // Default til healthy
     } else if (this.all { it.getStatus() == HealthStatus.HEALTHY }) {
         HealthStatus.HEALTHY
     } else if (this.any { it.getStatus() == HealthStatus.UNHEALTHY }) {

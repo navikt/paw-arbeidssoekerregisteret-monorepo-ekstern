@@ -2,6 +2,7 @@ package no.nav.paw.security.authentication.model
 
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.Principal
+import io.ktor.server.auth.authentication
 import io.ktor.server.auth.principal
 import no.nav.paw.security.authentication.exception.BearerTokenManglerException
 import no.nav.paw.security.authentication.token.AccessToken
@@ -47,8 +48,12 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
 }
 
 fun ApplicationCall.securityContext(): SecurityContext {
-    return principal<SecurityContext>()
+    return authentication.principal<SecurityContext>()
         ?: throw SecurityContextManglerException("Finner ikke security context principal")
+}
+
+fun ApplicationCall.securityContext(securityContext: SecurityContext) {
+    authentication.principal(securityContext)
 }
 
 inline fun <reified T : Bruker<*>> SecurityContext.resolveBruker(): T {

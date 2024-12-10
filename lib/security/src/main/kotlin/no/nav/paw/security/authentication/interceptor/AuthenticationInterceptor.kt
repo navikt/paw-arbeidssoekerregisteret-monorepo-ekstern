@@ -8,8 +8,16 @@ import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.plugin.AuthenticationPlugin
 
 fun Route.autentisering(
+    issuer: Issuer,
+    securityContextFunction: (suspend (SecurityContext) -> SecurityContext)? = null,
+    build: Route.() -> Unit
+): Route {
+    return autentisering(issuers = arrayOf(issuer), securityContextFunction = securityContextFunction, build = build)
+}
+
+fun Route.autentisering(
     vararg issuers: Issuer = emptyArray(),
-    securityContextFunction: ((SecurityContext) -> SecurityContext)? = null,
+    securityContextFunction: (suspend (SecurityContext) -> SecurityContext)? = null,
     build: Route.() -> Unit
 ): Route {
     install(AuthenticationPlugin) {

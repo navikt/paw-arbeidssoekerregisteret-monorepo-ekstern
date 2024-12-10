@@ -8,7 +8,7 @@ sealed class Bruker<ID : Any>(
 
 data class Sluttbruker(
     override val ident: Identitetsnummer,
-    val historiskeIdenter: List<Identitetsnummer> = emptyList()
+    val historiskeIdenter: Set<Identitetsnummer> = hashSetOf(ident),
 ) : Bruker<Identitetsnummer>(ident)
 
 data class NavAnsatt(val oid: UUID, override val ident: String) : Bruker<String>(ident)
