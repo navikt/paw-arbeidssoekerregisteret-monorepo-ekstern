@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -18,7 +19,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPidClaim
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getRequestBody
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyAccessFromToken
 import no.nav.paw.security.authentication.model.Identitetsnummer
 
@@ -62,7 +62,7 @@ fun Route.samletInformasjonRoutes(
         authenticate("azure") {
             post("/veileder/samlet-informasjon") {
                 val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
-                val (identitetsnummer) = call.getRequestBody<ArbeidssoekerperiodeRequest>()
+                val (identitetsnummer) = call.receive<ArbeidssoekerperiodeRequest>()
                 val identitetsnummerList = authorizationService.finnIdentiteter(Identitetsnummer(identitetsnummer))
 
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)

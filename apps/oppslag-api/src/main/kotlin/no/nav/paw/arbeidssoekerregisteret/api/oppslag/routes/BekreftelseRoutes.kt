@@ -1,14 +1,13 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.StatusException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
@@ -45,7 +44,7 @@ fun Route.bekreftelseRoutes(
                 val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
                 val identitetsnummer = call.getPidClaim()
                 val periodeId = call.parameters["periodeId"]?.asUUID()
-                    ?: throw StatusException(HttpStatusCode.BadRequest, "mangler periodeId")
+                    ?: throw BadRequestException("Forespørsel mangler periodeId")
                 val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
                 verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
@@ -63,12 +62,10 @@ fun Route.bekreftelseRoutes(
             get("/veileder/arbeidssoekerbekreftelser/{periodeId}") {
                 val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
                 val periodeId = call.parameters["periodeId"]?.asUUID()
-                    ?: throw StatusException(HttpStatusCode.BadRequest, "mangler periodeId")
+                    ?: throw BadRequestException("Forespørsel mangler periodeId")
 
-                val periode = periodeService.hentPeriodeForId(periodeId) ?: throw StatusException(
-                    HttpStatusCode.BadRequest,
-                    "Finner ikke periode $periodeId"
-                )
+                val periode = periodeService.hentPeriodeForId(periodeId)
+                    ?: throw BadRequestException("Finner ikke periode $periodeId")
                 val identitetsnummerList = authorizationService
                     .finnIdentiteter(Identitetsnummer(periode.identitetsnummer))
                 call.verifyAccessFromToken(authorizationService, identitetsnummerList)

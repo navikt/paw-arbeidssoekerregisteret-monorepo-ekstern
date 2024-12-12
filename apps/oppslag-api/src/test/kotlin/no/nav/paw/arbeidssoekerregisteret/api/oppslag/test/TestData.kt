@@ -6,7 +6,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.NavAnsatt
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
@@ -32,6 +31,7 @@ import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar
 import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.security.authentication.model.NavAnsatt
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -91,9 +91,9 @@ object TestData {
     val kafkaKey3 = 10003L
 
     fun nyNavAnsatt(
-        azureId: String = UUID.randomUUID().toString(),
+        oid: UUID = UUID.randomUUID(),
         navIdent: String = navIdent1
-    ) = NavAnsatt(azureId = azureId, navIdent = navIdent)
+    ) = NavAnsatt(oid = oid, ident = navIdent)
 
     fun nyOpplysningerRow(
         id: Long = 1L,

@@ -5,9 +5,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.mockk.mockk
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG_FILE_NAME
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.SERVER_CONFIG
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PoaoTilgangHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
@@ -19,7 +22,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.configureJackson
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.poao_tilgang.client.PoaoTilgangCachedClient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 
@@ -29,16 +31,22 @@ class ApplicationTestContext private constructor(
     val profileringRepository: ProfileringRepository,
     val bekreftelseRepository: BekreftelseRepository
 ) {
-
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
+    val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
+    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
     val mockOAuth2Server = MockOAuth2Server()
     val pdlHttpConsumerMock: PdlHttpConsumer = mockk<PdlHttpConsumer>()
-    val poaoTilgangHttpClientMock: PoaoTilgangCachedClient = mockk<PoaoTilgangCachedClient>()
+    val poaoTilgangHttpConsumerMock: PoaoTilgangHttpConsumer = mockk<PoaoTilgangHttpConsumer>()
     val authorizationService: AuthorizationService = AuthorizationService(
-        pdlHttpConsumerMock,
-        poaoTilgangHttpClientMock
+        serverConfig = serverConfig,
+        pdlHttpConsumer = pdlHttpConsumerMock,
+        poaoTilgangHttpConsumer = poaoTilgangHttpConsumerMock
     )
-    val periodeService = PeriodeService(periodeRepository, opplysningerRepository, profileringRepository, bekreftelseRepository)
+    val periodeService = PeriodeService(
+        periodeRepository = periodeRepository,
+        opplysningerRepository = opplysningerRepository,
+        profileringRepository = profileringRepository,
+        bekreftelseRepository = bekreftelseRepository
+    )
     val opplysningerService = OpplysningerService(opplysningerRepository)
     val profileringService = ProfileringService(profileringRepository)
     val bekreftelseService = BekreftelseService(bekreftelseRepository)
@@ -69,11 +77,11 @@ class ApplicationTestContext private constructor(
 
         fun withRealDataAccess(): ApplicationTestContext {
             val dataSource = initTestDatabase()
-            val database = Database.connect(dataSource)
-            val periodeRepository = PeriodeRepository(database)
-            val opplysningerRepository = OpplysningerRepository(database)
-            val profileringRepository = ProfileringRepository(database)
-            val bekreftelseRepository = BekreftelseRepository(database)
+            Database.connect(dataSource)
+            val periodeRepository = PeriodeRepository()
+            val opplysningerRepository = OpplysningerRepository()
+            val profileringRepository = ProfileringRepository()
+            val bekreftelseRepository = BekreftelseRepository()
             return ApplicationTestContext(
                 periodeRepository,
                 opplysningerRepository,

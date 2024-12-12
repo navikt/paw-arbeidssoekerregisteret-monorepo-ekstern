@@ -6,19 +6,18 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class ProfileringRepository(private val database: Database) {
+class ProfileringRepository {
     private val logger = buildLogger
 
     fun finnProfileringerForPeriodeIdList(
         periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<ProfileringRow> =
-        transaction(database) {
+        transaction {
             val rows = ProfileringFunctions.findForPeriodeIdList(periodeIdList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
@@ -31,7 +30,7 @@ class ProfileringRepository(private val database: Database) {
         identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<ProfileringRow> =
-        transaction(database) {
+        transaction {
             val rows = ProfileringFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
@@ -41,19 +40,19 @@ class ProfileringRepository(private val database: Database) {
         }
 
     fun hentProfileringForPeriodeIdOgOpplysningerId(periodeId: UUID, opplysningId: UUID): ProfileringRow? =
-        transaction(database) {
+        transaction {
             ProfileringFunctions.hentForPeriodeIdAndOpplysningId(periodeId, opplysningId)
         }
 
     fun lagreProfilering(profilering: Profilering) {
-        transaction(database) {
+        transaction {
             ProfileringFunctions.insert(profilering)
         }
     }
 
     fun lagreAlleProfileringer(profileringer: Sequence<Profilering>) {
         if (profileringer.iterator().hasNext()) {
-            transaction(database) {
+            transaction {
                 maxAttempts = 2
                 minRetryDelay = 20
                 profileringer.forEach { profilering ->

@@ -3,8 +3,9 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.NavAnsatt
-import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.config.env.RuntimeEnvironment
+import no.nav.paw.config.env.appNameOrDefaultForLocal
+import no.nav.paw.security.authorization.model.Action
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -15,21 +16,29 @@ inline val buildErrorLogger: Logger get() = LoggerFactory.getLogger("no.nav.paw.
 inline val buildAuditLogger get(): Logger = LoggerFactory.getLogger("AuditLogger")
 
 fun Logger.audit(
-    identitetsnummer: Identitetsnummer,
-    navAnsatt: NavAnsatt,
-    melding: String
+    runtimeEnvironment: RuntimeEnvironment,
+    aktorIdent: String,
+    sluttbrukerIdent: String,
+    action: Action,
+    melding: String,
 ) {
     val message = CefMessage.builder()
-        .applicationName("paw-arbeidssoekerregisteret-api-oppslag")
-        .event(CefMessageEvent.ACCESS)
+        .applicationName(runtimeEnvironment.appNameOrDefaultForLocal())
+        .event(action.asCefMessageEvent())
         .name("Sporingslogg")
         .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navAnsatt.navIdent)
-        .destinationUserId(identitetsnummer.verdi)
+        .sourceUserId(aktorIdent)
+        .destinationUserId(sluttbrukerIdent)
         .timeEnded(System.currentTimeMillis())
         .extension("msg", melding)
         .build()
         .toString()
-
     this.info(message)
+}
+
+fun Action.asCefMessageEvent(): CefMessageEvent {
+    return when (this) {
+        Action.READ -> CefMessageEvent.ACCESS
+        Action.WRITE -> CefMessageEvent.UPDATE
+    }
 }

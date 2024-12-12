@@ -7,17 +7,16 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class PeriodeRepository(private val database: Database) {
+class PeriodeRepository {
     private val logger = buildLogger
 
     fun hentPeriodeForId(periodeId: UUID): PeriodeRow? =
-        transaction(database) {
+        transaction {
             PeriodeFunctions.getForPeriodeId(periodeId)
         }
 
@@ -25,7 +24,7 @@ class PeriodeRepository(private val database: Database) {
         identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<PeriodeRow> =
-        transaction(database) {
+        transaction {
             val rows = PeriodeFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.startet.tidspunkt }.take(paging.size)
@@ -35,12 +34,12 @@ class PeriodeRepository(private val database: Database) {
         }
 
     fun tellAntallAktivePerioder(): Long =
-        transaction(database) {
+        transaction {
             PeriodeTable.selectAll().where { PeriodeTable.avsluttetId eq null }.count()
         }
 
     fun lagrePeriode(periode: Periode) {
-        transaction(database) {
+        transaction {
             val eksisterendePeriode = PeriodeFunctions.getForPeriodeId(periode.id)
 
             if (eksisterendePeriode != null) {
@@ -53,7 +52,7 @@ class PeriodeRepository(private val database: Database) {
 
     fun lagreAllePerioder(perioder: Sequence<Periode>) {
         if (perioder.iterator().hasNext()) {
-            transaction(database) {
+            transaction {
                 maxAttempts = 2
                 minRetryDelay = 20
 

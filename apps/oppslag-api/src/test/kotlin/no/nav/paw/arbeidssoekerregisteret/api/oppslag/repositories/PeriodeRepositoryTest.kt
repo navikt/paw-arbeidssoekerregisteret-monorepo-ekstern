@@ -15,13 +15,12 @@ import javax.sql.DataSource
 
 class PeriodeRepositoryTest : StringSpec({
     lateinit var dataSource: DataSource
-    lateinit var database: Database
     lateinit var repository: PeriodeRepository
 
     beforeSpec {
         dataSource = initTestDatabase()
-        database = Database.connect(dataSource)
-        repository = PeriodeRepository(database)
+        Database.connect(dataSource)
+        repository = PeriodeRepository()
     }
 
     afterSpec {

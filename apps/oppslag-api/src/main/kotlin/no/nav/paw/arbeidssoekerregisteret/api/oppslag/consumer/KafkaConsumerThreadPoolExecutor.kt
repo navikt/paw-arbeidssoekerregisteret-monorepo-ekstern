@@ -2,7 +2,6 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer
 
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.context.ApplicationContext
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture.runAsync
@@ -13,7 +12,7 @@ import kotlin.system.exitProcess
 
 private val logger = LoggerFactory.getLogger("KafkaConsumerThreadPoolExecutor")
 
-fun kafkaConsumerThreadPoolExecutor(applicationContext: ApplicationContext, config: ApplicationConfig) {
+fun kafkaConsumerThreadPoolExecutor(applicationContext: ApplicationContext) {
     val threadPoolExecutor = ThreadPoolExecutor(4, 8, 1, TimeUnit.MINUTES, LinkedBlockingQueue())
     runAsync({
         try {
@@ -23,7 +22,7 @@ fun kafkaConsumerThreadPoolExecutor(applicationContext: ApplicationContext, conf
             applicationContext.bekreftelseKafkaConsumer.subscribe()
 
             while (true) {
-                consume(applicationContext, config)
+                consume(applicationContext)
             }
         } catch (e: Exception) {
             logger.error("Consumer error: ${e.message}", e)
@@ -36,12 +35,10 @@ fun kafkaConsumerThreadPoolExecutor(applicationContext: ApplicationContext, conf
     value = "consume",
     kind = SpanKind.INTERNAL
 )
-fun consume(
-    applicationContext: ApplicationContext,
-    config: ApplicationConfig
-) {
-    applicationContext.periodeKafkaConsumer.getAndProcessBatch(config.perioderTopic)
-    applicationContext.opplysningerKafkaConsumer.getAndProcessBatch(config.opplysningerTopic)
-    applicationContext.profileringKafkaConsumer.getAndProcessBatch(config.profileringTopic)
-    applicationContext.bekreftelseKafkaConsumer.getAndProcessBatch(config.bekreftelseTopic)
+fun consume(applicationContext: ApplicationContext) {
+    val applicationConfig = applicationContext.applicationConfig
+    applicationContext.periodeKafkaConsumer.getAndProcessBatch(applicationConfig.perioderTopic)
+    applicationContext.opplysningerKafkaConsumer.getAndProcessBatch(applicationConfig.opplysningerTopic)
+    applicationContext.profileringKafkaConsumer.getAndProcessBatch(applicationConfig.profileringTopic)
+    applicationContext.bekreftelseKafkaConsumer.getAndProcessBatch(applicationConfig.bekreftelseTopic)
 }

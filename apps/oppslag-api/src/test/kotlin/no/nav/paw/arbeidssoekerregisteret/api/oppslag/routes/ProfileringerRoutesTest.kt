@@ -17,7 +17,7 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.auth.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
@@ -33,7 +33,6 @@ import no.nav.paw.security.authentication.model.Identitetsnummer
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.PolicyRequest
 import no.nav.poao_tilgang.client.PolicyResult
-import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class ProfileringerRoutesTest : FreeSpec({
@@ -47,7 +46,7 @@ class ProfileringerRoutesTest : FreeSpec({
             mockOAuth2Server.shutdown()
             confirmVerified(
                 pdlHttpConsumerMock,
-                poaoTilgangHttpClientMock
+                poaoTilgangHttpConsumerMock
             )
         }
 
@@ -184,8 +183,8 @@ class ProfileringerRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
             every {
-                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test"))))
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")))
 
             testApplication {
                 application {
@@ -213,7 +212,7 @@ class ProfileringerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
             }
         }
 
@@ -222,8 +221,8 @@ class ProfileringerRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
             every {
-                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
 
             testApplication {
                 application {
@@ -261,7 +260,7 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer[2] shouldBeEqualTo profileringResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
             }
         }
 
@@ -270,8 +269,8 @@ class ProfileringerRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
             every {
-                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns ApiResult.success(listOf(PolicyResult(UUID.randomUUID(), Decision.Permit)))
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
 
             testApplication {
                 application {
@@ -307,7 +306,7 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer[0] shouldBeEqualTo profileringResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
             }
         }
     }

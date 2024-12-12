@@ -17,7 +17,6 @@ import no.nav.paw.security.authentication.model.Identitetsnummer
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.PolicyRequest
 import no.nav.poao_tilgang.client.PolicyResult
-import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class AutorisasjonServiceTest : FreeSpec({
@@ -26,7 +25,7 @@ class AutorisasjonServiceTest : FreeSpec({
         afterSpec {
             confirmVerified(
                 pdlHttpConsumerMock,
-                poaoTilgangHttpClientMock
+                poaoTilgangHttpConsumerMock
             )
         }
 
@@ -52,11 +51,9 @@ class AutorisasjonServiceTest : FreeSpec({
         }
 
         "verifiserTilgangTilBruker should return true if access is granted" {
-            every { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) } returns
-                    ApiResult(
-                        throwable = null,
-                        result = listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
-                    )
+            every {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
 
             val result =
                 authorizationService.verifiserTilgangTilBruker(
@@ -65,16 +62,14 @@ class AutorisasjonServiceTest : FreeSpec({
                 )
 
             result shouldBe true
-            verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+            verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
 
         }
 
         "verifiserTilgangTilBruker should return false if access is denied" {
-            every { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) } returns
-                    ApiResult(
-                        throwable = null,
-                        result = listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")))
-                    )
+            every {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")))
 
             val result =
                 authorizationService.verifiserTilgangTilBruker(
@@ -83,7 +78,7 @@ class AutorisasjonServiceTest : FreeSpec({
                 )
 
             result shouldBe false
-            verify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+            verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
         }
     }
 })
