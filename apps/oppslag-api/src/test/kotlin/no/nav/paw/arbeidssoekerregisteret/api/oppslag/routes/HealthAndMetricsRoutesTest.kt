@@ -7,12 +7,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.health.repository.HealthIndicatorRepository
+import no.nav.paw.health.route.healthRoutes
 
-class HealthRoutesTest : FunSpec({
+class HealthAndMetricsRoutesTest : FunSpec({
     test("should respond with 200 OK") {
         testApplication {
             routing {
-                healthRoutes(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
+                healthRoutes(HealthIndicatorRepository())
+                metricsRoutes(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
             }
 
             val isAliveResponse = client.get("/internal/isAlive")

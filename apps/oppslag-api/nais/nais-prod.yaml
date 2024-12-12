@@ -75,10 +75,6 @@ spec:
       rules:
         - application: arbeidssokerregistrering-for-veileder
         - application: arbeidssoekerregisteret-for-personbruker
-        - application: tokenx-token-generator
-          namespace: aura
-        - application: azure-token-generator
-          namespace: aura
         - application: saas-proxy
           namespace: teamcrm
         - application: salesforce

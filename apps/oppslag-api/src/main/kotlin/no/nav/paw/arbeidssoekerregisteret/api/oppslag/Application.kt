@@ -1,105 +1,74 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag
 
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.routing.*
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG_FILE_NAME
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
+import io.ktor.server.application.Application
+import io.ktor.server.engine.addShutdownHook
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.kafkaConsumerThreadPoolExecutor
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.context.ApplicationContext
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.*
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.*
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.migrateDatabase
-import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.config.kafka.KAFKA_CONFIG_WITH_SCHEME_REG
-import no.nav.paw.config.kafka.KafkaConfig
-import kotlin.concurrent.thread
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureDatabase
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureLogging
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureMetrics
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureRouting
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureScheduledTask
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
+import no.nav.paw.config.env.appNameOrDefaultForLocal
 
 fun main() {
-    val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
+    val logger = buildApplicationLogger
 
-    val applicationContext = ApplicationContext.build(applicationConfig, kafkaConfig)
+    val applicationContext = ApplicationContext.build()
+    val appName = applicationContext.serverConfig.runtimeEnvironment.appNameOrDefaultForLocal()
 
-    // cleanDatabase(dependencies.dataSource)
-    migrateDatabase(applicationContext.dataSource)
+    with(applicationContext) {
+        logger.info("Starter $appName med hostname ${serverConfig.host} og port ${serverConfig.port}")
 
-    // Konsumer meldinger fra Kafka
-    kafkaConsumerThreadPoolExecutor(applicationContext, applicationConfig)
+        // Konsumer meldinger fra Kafka
+        kafkaConsumerThreadPoolExecutor(applicationContext)
 
-    // Oppdaterer grafana gauge for antall aktive perioder
-    thread {
-        applicationContext.scheduleGetAktivePerioderGaugeService.scheduleGetAktivePerioderTask()
-    }
-
-    val server =
         embeddedServer(
             factory = Netty,
+            host = serverConfig.host,
+            port = serverConfig.port,
             configure = {
-                callGroupSize = 8
-                workerGroupSize = 8
-                connectionGroupSize = 8
-            },
-            port = 8080,
-            host = "0.0.0.0",
-            module = { module(applicationContext, applicationConfig) }
-        )
-            .start(wait = true)
-
-    server.addShutdownHook {
-        server.stop(300, 300)
-        applicationContext.profileringKafkaConsumer.stop()
-        applicationContext.opplysningerKafkaConsumer.stop()
-        applicationContext.periodeKafkaConsumer.stop()
+                callGroupSize = serverConfig.callGroupSize
+                workerGroupSize = serverConfig.workerGroupSize
+                connectionGroupSize = serverConfig.connectionGroupSize
+            }) {
+            module(applicationContext)
+        }.apply {
+            addShutdownHook {
+                logger.info("Avslutter $appName")
+                stop(
+                    gracePeriodMillis = serverConfig.gracePeriodMillis,
+                    timeoutMillis = serverConfig.timeoutMillis
+                )
+                applicationContext.profileringKafkaConsumer.stop()
+                applicationContext.opplysningerKafkaConsumer.stop()
+                applicationContext.periodeKafkaConsumer.stop()
+                applicationContext.bekreftelseKafkaConsumer.stop()
+            }
+            start(wait = true)
+        }
     }
 }
 
-fun Application.module(
-    applicationContext: ApplicationContext,
-    config: ApplicationConfig
-) {
-    // Konfigurerer plugins
-    configureMetrics(
-        applicationContext.registry,
-        applicationContext.profileringKafkaConsumer.consumer,
-        applicationContext.periodeKafkaConsumer.consumer,
-        applicationContext.opplysningerKafkaConsumer.consumer
-    )
+fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
-    configureAuthentication(config.authProviders)
     configureLogging()
     configureSerialization()
-
-    // Ruter
-    routing {
-        healthRoutes(applicationContext.registry)
-        swaggerRoutes()
-        perioderRoutes(
-            applicationContext.authorizationService,
-            applicationContext.periodeService
-        )
-        opplysningerRoutes(
-            applicationContext.authorizationService,
-            applicationContext.periodeService,
-            applicationContext.opplysningerService
-        )
-        profileringRoutes(
-            applicationContext.authorizationService,
-            applicationContext.periodeService,
-            applicationContext.profileringService
-        )
-        samletInformasjonRoutes(
-            applicationContext.authorizationService,
-            applicationContext.periodeService,
-            applicationContext.opplysningerService,
-            applicationContext.profileringService,
-            applicationContext.bekreftelseService
-        )
-        bekreftelseRoutes(
-            applicationContext.authorizationService,
-            applicationContext.bekreftelseService,
-            applicationContext.periodeService
-        )
-    }
+    configureMetrics(
+        applicationContext.prometheusMeterRegistry,
+        applicationContext.periodeKafkaConsumer,
+        applicationContext.opplysningerKafkaConsumer,
+        applicationContext.profileringKafkaConsumer,
+        applicationContext.bekreftelseKafkaConsumer
+    )
+    configureAuthentication(applicationContext.securityConfig)
+    configureDatabase(applicationContext.dataSource)
+    configureScheduledTask(applicationContext.metricsService::tellAntallAktivePerioder)
+    configureRouting(applicationContext)
 }

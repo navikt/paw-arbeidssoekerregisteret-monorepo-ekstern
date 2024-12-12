@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG_FILE_NAME
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.BekreftelseSerializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerSerializer
@@ -21,7 +21,7 @@ import org.apache.kafka.common.serialization.LongSerializer
 private val logger = buildApplicationLogger
 
 fun main() {
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG_FILE_NAME)
+    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
     val periodeKafkaProducer = buildKafkaProducer(

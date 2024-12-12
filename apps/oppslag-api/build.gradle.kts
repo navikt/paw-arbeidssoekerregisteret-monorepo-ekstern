@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
     implementation(project(":lib:kafka"))
+    implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:pdl-client"))
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:bekreftelsesmelding-avro-schema"))

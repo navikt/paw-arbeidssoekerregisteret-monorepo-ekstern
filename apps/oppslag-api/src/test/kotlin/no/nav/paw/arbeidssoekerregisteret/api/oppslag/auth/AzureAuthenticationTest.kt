@@ -12,6 +12,7 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.testing.testApplication
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getNavAnsattFromToken
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -46,8 +47,8 @@ class AzureAuthenticationTest : FunSpec({
                     get(testAuthUrl) {
                         val navAnsatt = call.getNavAnsattFromToken()
                         navAnsatt shouldNotBe null
-                        navAnsatt?.azureId shouldBe tokenMap["oid"]
-                        navAnsatt?.navIdent shouldBe tokenMap["NAVident"]
+                        navAnsatt?.oid?.toString() shouldBe tokenMap["oid"]
+                        navAnsatt?.ident shouldBe tokenMap["NAVident"]
 
                         call.respond(HttpStatusCode.OK)
                     }
@@ -80,8 +81,8 @@ class AzureAuthenticationTest : FunSpec({
                         if (call.request.headers["Nav-Ident"] != null) {
                             val navAnsatt = call.getNavAnsattFromToken()
                             navAnsatt shouldNotBe null
-                            navAnsatt?.azureId shouldBe tokenMap["oid"]
-                            navAnsatt?.navIdent shouldBe call.request.headers["Nav-Ident"]
+                            navAnsatt?.oid?.toString() shouldBe tokenMap["oid"]
+                            navAnsatt?.ident shouldBe call.request.headers["Nav-Ident"]
 
                             call.respond(HttpStatusCode.OK)
                         } else {

@@ -6,19 +6,18 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class BekreftelseRepository(private val database: Database) {
+class BekreftelseRepository {
     private val logger = buildLogger
 
     fun finnBekreftelserForPeriodeIdList(
         periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> =
-        transaction(database) {
+        transaction {
             val rows = BekreftelseFunctions.findForPeriodeIdList(periodeIdList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.svar.gjelderFra }.take(paging.size)
@@ -31,7 +30,7 @@ class BekreftelseRepository(private val database: Database) {
         identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> =
-        transaction(database) {
+        transaction {
             val rows = BekreftelseFunctions.findForIdentitetsnummerList(identitetsnummerList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.svar.gjelderFra }.take(paging.size)
@@ -41,7 +40,7 @@ class BekreftelseRepository(private val database: Database) {
         }
 
     fun lagreAlleBekreftelser(bekreftelser: Sequence<Bekreftelse>) =
-        transaction(database) {
+        transaction {
             bekreftelser.forEach { bekreftelse ->
                 if (BekreftelseFunctions.getForBekreftelseId(bekreftelse.id) != null) {
                     logger.warn("Ignorerer mottatt bekreftelse {} som duplikat", bekreftelse.id)

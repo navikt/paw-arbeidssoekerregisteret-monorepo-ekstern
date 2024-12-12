@@ -7,12 +7,11 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class OpplysningerRepository(private val database: Database) {
+class OpplysningerRepository {
 
     private val logger = buildLogger
 
@@ -20,7 +19,7 @@ class OpplysningerRepository(private val database: Database) {
         periodeIdList: Collection<UUID>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> =
-        transaction(database) {
+        transaction {
             val rows = OpplysningerFunctions.findForPeriodeIdList(periodeIdList, paging)
             if (paging.ordering == SortOrder.ASC) {
                 rows.sortedBy { it.sendtInnAv.tidspunkt }.take(paging.size)
@@ -33,7 +32,7 @@ class OpplysningerRepository(private val database: Database) {
         identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> =
-        transaction(database) {
+        transaction {
             val periodeIdList = PeriodeFunctions.findPeriodeIdForIdentitetsnummerList(identitetsnummerList)
             val rows = OpplysningerFunctions.findForPeriodeIdList(periodeIdList, paging)
             if (paging.ordering == SortOrder.ASC) {
@@ -44,7 +43,7 @@ class OpplysningerRepository(private val database: Database) {
         }
 
     fun lagreOpplysninger(opplysninger: OpplysningerOmArbeidssoeker) {
-        transaction(database) {
+        transaction {
             val eksisterendeOpplysninger = OpplysningerFunctions.getRow(opplysninger.id)
 
             if (eksisterendeOpplysninger != null) {
@@ -57,7 +56,7 @@ class OpplysningerRepository(private val database: Database) {
 
     fun lagreAlleOpplysninger(opplysninger: Sequence<OpplysningerOmArbeidssoeker>) {
         if (opplysninger.iterator().hasNext()) {
-            transaction(database) {
+            transaction {
                 maxAttempts = 2
                 minRetryDelay = 20
 

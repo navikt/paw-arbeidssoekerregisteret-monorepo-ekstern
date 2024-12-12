@@ -12,7 +12,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.auth.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
@@ -27,7 +27,6 @@ import no.nav.paw.security.authentication.model.Identitetsnummer
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.PolicyRequest
 import no.nav.poao_tilgang.client.PolicyResult
-import no.nav.poao_tilgang.client.api.ApiResult
 import java.util.*
 
 class BekreftelseRoutesTest : FreeSpec({
@@ -42,7 +41,7 @@ class BekreftelseRoutesTest : FreeSpec({
             mockOAuth2Server.shutdown()
             confirmVerified(
                 pdlHttpConsumerMock,
-                poaoTilgangHttpClientMock
+                poaoTilgangHttpConsumerMock
             )
         }
 
@@ -321,12 +320,10 @@ class BekreftelseRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr8, IdentGruppe.FOLKEREGISTERIDENT))
             every {
-                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns ApiResult.success(
-                listOf(
-                    PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")),
-                    PolicyResult(UUID.randomUUID(), Decision.Permit)
-                )
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns listOf(
+                PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")),
+                PolicyResult(UUID.randomUUID(), Decision.Permit)
             )
 
             testApplication {
@@ -353,7 +350,7 @@ class BekreftelseRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
             }
         }
 
@@ -362,12 +359,10 @@ class BekreftelseRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr9, IdentGruppe.FOLKEREGISTERIDENT))
             every {
-                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns ApiResult.success(
-                listOf(
-                    PolicyResult(UUID.randomUUID(), Decision.Permit),
-                    PolicyResult(UUID.randomUUID(), Decision.Permit)
-                )
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns listOf(
+                PolicyResult(UUID.randomUUID(), Decision.Permit),
+                PolicyResult(UUID.randomUUID(), Decision.Permit)
             )
 
             testApplication {
@@ -399,7 +394,7 @@ class BekreftelseRoutesTest : FreeSpec({
                 bekreftelser[2] shouldBeEqualTo bekreftelseResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
             }
         }
 
@@ -408,12 +403,10 @@ class BekreftelseRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr10, IdentGruppe.FOLKEREGISTERIDENT))
             every {
-                poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns ApiResult.success(
-                listOf(
-                    PolicyResult(UUID.randomUUID(), Decision.Permit),
-                    PolicyResult(UUID.randomUUID(), Decision.Permit)
-                )
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
+            } returns listOf(
+                PolicyResult(UUID.randomUUID(), Decision.Permit),
+                PolicyResult(UUID.randomUUID(), Decision.Permit)
             )
 
             testApplication {
@@ -443,7 +436,7 @@ class BekreftelseRoutesTest : FreeSpec({
                 bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpClientMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
             }
         }
     }

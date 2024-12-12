@@ -1,0 +1,16 @@
+[[authProviders]]
+name = "tokenx"
+clientId = "paw-arbeidssoekerregisteret-api-oppslag"
+discoveryUrl = "http://localhost:8081/tokenx/.well-known/openid-configuration"
+
+    [authProviders.claims]
+    map = ["acr=Level4", "acr=idporten-loa-high"]
+    combineWithOr = true
+
+[[authProviders]]
+name = "azure"
+clientId = "paw-arbeidssoekerregisteret-api-oppslag"
+discoveryUrl = "http://localhost:8081/azure/.well-known/openid-configuration"
+
+    [authProviders.claims]
+    map = ["NAVident"]

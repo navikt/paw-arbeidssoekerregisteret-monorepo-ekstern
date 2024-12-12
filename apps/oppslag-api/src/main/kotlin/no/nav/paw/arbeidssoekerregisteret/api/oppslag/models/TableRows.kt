@@ -6,15 +6,8 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
-import org.jetbrains.exposed.sql.SortOrder
 import java.time.Instant
 import java.util.*
-
-data class Paging(
-    val size: Int = Int.MAX_VALUE,
-    val offset: Long = 0,
-    val ordering: SortOrder = SortOrder.DESC
-)
 
 data class BrukerRow(
     val id: Long,

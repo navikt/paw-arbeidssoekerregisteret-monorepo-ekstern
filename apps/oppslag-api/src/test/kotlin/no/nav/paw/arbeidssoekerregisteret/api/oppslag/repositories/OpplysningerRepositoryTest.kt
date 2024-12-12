@@ -23,8 +23,8 @@ class OpplysningerRepositoryTest : StringSpec({
     beforeSpec {
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
-        opplysningerRepository = OpplysningerRepository(database)
-        periodeRepository = PeriodeRepository(database)
+        opplysningerRepository = OpplysningerRepository()
+        periodeRepository = PeriodeRepository()
         val periode1 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId1, identitetsnummer = TestData.fnr1)
             .toPeriode()
         val periode2 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId2, identitetsnummer = TestData.fnr2)

@@ -23,8 +23,8 @@ class ProfileringRepositoryTest : StringSpec({
     beforeSpec {
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
-        repository = ProfileringRepository(database)
-        val opplysningerRepository = OpplysningerRepository(database)
+        repository = ProfileringRepository()
+        val opplysningerRepository = OpplysningerRepository()
         val opplysninger1 = TestData
             .nyOpplysningerRow(opplysningerId = TestData.opplysningerId1, periodeId = TestData.periodeId1)
         val opplysninger2 = TestData

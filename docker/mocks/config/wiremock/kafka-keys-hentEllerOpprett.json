@@ -1,0 +1,16 @@
+{
+    "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v2/hentEllerOpprett"
+    },
+    "response": {
+        "status": 200,
+        "jsonBody": {
+            "id": "{{jsonPath request.body '$.ident'}}",
+            "key": "-{{jsonPath request.body '$.ident'}}"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+}
