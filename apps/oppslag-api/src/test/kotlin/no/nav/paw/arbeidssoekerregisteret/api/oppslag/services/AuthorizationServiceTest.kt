@@ -5,12 +5,12 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.ktor.server.plugins.BadRequestException
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.exception.PeriodeIkkeFunnetException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
@@ -118,7 +118,7 @@ class AuthorizationServiceTest : FreeSpec({
             shouldThrow<IngenTilgangException> {
                 policy3.checkAccess(Action.READ, m2mTokenSecurityContext)
             }
-            shouldThrow<BadRequestException> {
+            shouldThrow<PeriodeIkkeFunnetException> {
                 policy4.checkAccess(Action.READ, sluttbrukerSecurityContext)
             }
             shouldThrow<IngenTilgangException> {
@@ -148,7 +148,7 @@ class AuthorizationServiceTest : FreeSpec({
             val navAnsattSecurityContext = TestData.nySecurityContext(bruker = TestData.nyNavAnsatt())
             val m2mTokenSecurityContext = TestData.nySecurityContext(bruker = TestData.nyM2MToken())
             val policies1 = authorizationService.veilederAccessPolicies(TestData.periodeId3)
-            shouldThrow<BadRequestException> {
+            shouldThrow<PeriodeIkkeFunnetException> {
                 authorizationService.veilederAccessPolicies(TestData.periodeId4)
             }
             val policies2 = authorizationService.veilederAccessPolicies(listOf(TestData.identitetsnummer5))
@@ -206,10 +206,10 @@ class AuthorizationServiceTest : FreeSpec({
             shouldThrow<IngenTilgangException> {
                 policy5.checkAccess(Action.READ, sluttbrukerSecurityContext)
             }
-            shouldThrow<BadRequestException> {
+            shouldThrow<PeriodeIkkeFunnetException> {
                 policy6.checkAccess(Action.READ, navAnsattSecurityContext)
             }
-            shouldThrow<BadRequestException> {
+            shouldThrow<PeriodeIkkeFunnetException> {
                 policy6.checkAccess(Action.READ, m2mTokenSecurityContext)
             }
             shouldThrow<IngenTilgangException> {
