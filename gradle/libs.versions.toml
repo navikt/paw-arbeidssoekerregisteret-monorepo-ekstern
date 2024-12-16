@@ -35,7 +35,7 @@ foojay-resolver-convention = "0.8.0"
 kotlinx-coroutines = "1.9.0"
 kotlinx-serialization-json = "1.7.3"
 kotlin = "2.0.0"
-ktor = "2.3.12"
+ktor = "2.3.13"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
