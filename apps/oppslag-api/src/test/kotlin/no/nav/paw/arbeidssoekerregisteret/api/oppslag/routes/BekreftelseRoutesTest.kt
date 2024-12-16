@@ -12,12 +12,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
@@ -40,28 +41,68 @@ class BekreftelseRoutesTest : FreeSpec({
         afterSpec {
             mockOAuth2Server.shutdown()
             confirmVerified(
-                pdlHttpConsumerMock,
-                poaoTilgangHttpConsumerMock
+                pdlHttpConsumerMock, poaoTilgangHttpConsumerMock
             )
         }
 
-        "/arbeidssoekerbekreftelser/{periodeId} should return 401 Unauthorized without token" {
+        "/arbeidssoekerbekreftelser should return 401 Unauthorized without token" {
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
                 val testClient = configureTestClient()
 
-                val response = testClient
-                    .get("api/v1/arbeidssoekerbekreftelser/${TestData.periodeId1}")
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser")
 
                 response.status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
+
+        "/arbeidssoekerbekreftelser should return 403 Forbidden with Azure token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser") {
+                    bearerAuth(mockOAuth2Server.issueAzureToken())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
+        "/arbeidssoekerbekreftelser should return 403 Forbidden with Azure M2M token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerbekreftelser") {
+                    bearerAuth(mockOAuth2Server.issueAzureM2MToken())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 
@@ -76,7 +117,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
@@ -113,7 +154,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
@@ -148,7 +189,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
@@ -175,7 +216,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
@@ -207,7 +248,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
@@ -244,7 +285,7 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
@@ -275,31 +316,26 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
                 val testClient = configureTestClient()
 
-                val response = testClient
-                    .get("api/v1/veileder/arbeidssoekerbekreftelser/${TestData.periodeId1}")
+                val response = testClient.get("api/v1/veileder/arbeidssoekerbekreftelser/${TestData.periodeId1}")
 
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
         "/veileder/arbeidssoekerbekreftelser/{periodeId} should return 400 BadRequest if unknown periode" {
-            coEvery {
-                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr7, IdentGruppe.FOLKEREGISTERIDENT))
-
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
@@ -315,10 +351,36 @@ class BekreftelseRoutesTest : FreeSpec({
             }
         }
 
-        "/veileder/arbeidssoekerbekreftelser/{periodeId} should return 403 Forbidden is no access to user" {
+        "/veileder/arbeidssoekerbekreftelser/{periodeId} should return 403 Forbidden with TokenX token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
+                    }
+                }
+
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr8)
+                val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
+                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse).asSequence())
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/veileder/arbeidssoekerbekreftelser/${periode.id}") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
+        "/veileder/arbeidssoekerbekreftelser/{periodeId} should return 403 Forbidden if no access to user" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr8, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr9, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns listOf(
@@ -332,11 +394,11 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr8)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
                 val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse).asSequence())
@@ -357,12 +419,11 @@ class BekreftelseRoutesTest : FreeSpec({
         "/veileder/arbeidssoekerbekreftelser/{periodeId} should return 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr9, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr10, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns listOf(
-                PolicyResult(UUID.randomUUID(), Decision.Permit),
-                PolicyResult(UUID.randomUUID(), Decision.Permit)
+                PolicyResult(UUID.randomUUID(), Decision.Permit), PolicyResult(UUID.randomUUID(), Decision.Permit)
             )
 
             testApplication {
@@ -371,11 +432,11 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
@@ -401,12 +462,11 @@ class BekreftelseRoutesTest : FreeSpec({
         "/veileder/arbeidssoekerbekreftelser/{periodeId} med siste-flagg should return 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr10, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr11, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns listOf(
-                PolicyResult(UUID.randomUUID(), Decision.Permit),
-                PolicyResult(UUID.randomUUID(), Decision.Permit)
+                PolicyResult(UUID.randomUUID(), Decision.Permit), PolicyResult(UUID.randomUUID(), Decision.Permit)
             )
 
             testApplication {
@@ -415,11 +475,11 @@ class BekreftelseRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        bekreftelseRoutes(authorizationService, bekreftelseService, periodeService)
+                        bekreftelseRoutes(authorizationService, bekreftelseService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr11)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
