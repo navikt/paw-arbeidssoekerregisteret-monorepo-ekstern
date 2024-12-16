@@ -71,6 +71,48 @@ class PerioderRoutesTest : FreeSpec({
             }
         }
 
+        "/arbeidssoekerperioder should respond with 403 Forbidden with Azure token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerperioder") {
+                    bearerAuth(mockOAuth2Server.issueAzureToken())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
+        "/arbeidssoekerperioder should respond with 403 Forbidden with Azure M2M token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerperioder") {
+                    bearerAuth(mockOAuth2Server.issueAzureM2MToken())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
         "/arbeidssoekerperioder should respond with 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
@@ -262,6 +304,33 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/veileder/arbeidssoekerperioder should respond with 403 Forbidden with TokenX token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.post("api/v1/veileder/arbeidssoekerperioder") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        ArbeidssoekerperiodeRequest(
+                            identitetsnummer = TestData.fnr3
+                        )
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 

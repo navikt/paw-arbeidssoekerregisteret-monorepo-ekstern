@@ -102,6 +102,20 @@
                         "name": "Nav Navesen",
                         "NAVident": "12345"
                     }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-oppslag-m2m",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-oppslag",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-oppslag"
+                        ],
+                        "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
+                        "roles": [
+                            "access_as_application"
+                        ]
+                    }
                 }
             ]
         }
