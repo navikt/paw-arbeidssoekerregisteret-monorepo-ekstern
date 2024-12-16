@@ -9,19 +9,19 @@ import no.nav.paw.security.authentication.plugin.AuthenticationPlugin
 
 fun Route.autentisering(
     issuer: Issuer,
-    securityContextFunction: (suspend (SecurityContext) -> SecurityContext)? = null,
+    modifyPrincipal: (suspend (SecurityContext) -> SecurityContext)? = null,
     build: Route.() -> Unit
 ): Route {
-    return autentisering(issuers = arrayOf(issuer), securityContextFunction = securityContextFunction, build = build)
+    return autentisering(issuers = arrayOf(issuer), modifyPrincipal = modifyPrincipal, build = build)
 }
 
 fun Route.autentisering(
     vararg issuers: Issuer = emptyArray(),
-    securityContextFunction: (suspend (SecurityContext) -> SecurityContext)? = null,
+    modifyPrincipal: (suspend (SecurityContext) -> SecurityContext)? = null,
     build: Route.() -> Unit
 ): Route {
     install(AuthenticationPlugin) {
-        this.securityContextFunction = securityContextFunction
+        this.modifyPrincipal = modifyPrincipal
     }
     val configurations: Array<String> = issuers.map { issuer -> issuer.name }.toTypedArray()
     return authenticate(*configurations, optional = false, build = build)

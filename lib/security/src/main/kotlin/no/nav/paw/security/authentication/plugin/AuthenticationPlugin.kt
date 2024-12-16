@@ -1,6 +1,8 @@
 package no.nav.paw.security.authentication.plugin
 
+import io.ktor.server.application.RouteScopedPlugin
 import io.ktor.server.application.createRouteScopedPlugin
+import io.ktor.server.application.log
 import io.ktor.server.auth.AuthenticationChecked
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.resolveSecurityContext
@@ -9,16 +11,27 @@ import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authentication")
 
+data object AuthenticationPluginName : PluginName("AuthenticationPlugin")
+
 class AuthenticationPluginConfig {
-    var securityContextFunction: (suspend (SecurityContext) -> SecurityContext)? = null
+    var modifyPrincipal: (suspend (SecurityContext) -> SecurityContext)? = null
 }
 
-val AuthenticationPlugin = createRouteScopedPlugin("AuthenticationPlugin", ::AuthenticationPluginConfig) {
-    val securityContextFunction = pluginConfig.securityContextFunction ?: { it }
+val AuthenticationPlugin
+    get(): RouteScopedPlugin<AuthenticationPluginConfig> = createRouteScopedPlugin(
+        AuthenticationPluginName.pluginInstanceName,
+        ::AuthenticationPluginConfig
+    ) {
+        application.log.info(
+            "Installerer {}{}",
+            AuthenticationPluginName.pluginName,
+            AuthenticationPluginName.pluginInstance
+        )
+        val modifyPrincipal = pluginConfig.modifyPrincipal ?: { it }
 
-    on(AuthenticationChecked) { call ->
-        logger.debug("Kjører autentisering")
-        val securityContext = securityContextFunction(call.resolveSecurityContext())
-        call.securityContext(securityContext)
+        on(AuthenticationChecked) { call ->
+            logger.debug("Kjører autentisering")
+            val securityContext = modifyPrincipal(call.resolveSecurityContext())
+            call.securityContext(securityContext)
+        }
     }
-}
