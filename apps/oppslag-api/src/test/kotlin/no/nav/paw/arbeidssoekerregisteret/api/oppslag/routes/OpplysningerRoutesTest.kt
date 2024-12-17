@@ -17,13 +17,13 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
@@ -58,51 +58,15 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
                 val testClient = configureTestClient()
+
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker")
+
                 response.status shouldBe HttpStatusCode.Unauthorized
-            }
-        }
-
-        "/opplysninger-om-arbeidssoeker should return 403 Forbidden with Azure token" {
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
-                    }
-                }
-
-                val testClient = configureTestClient()
-                val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker") {
-                    bearerAuth(mockOAuth2Server.issueAzureToken())
-                }
-                response.status shouldBe HttpStatusCode.Forbidden
-            }
-        }
-
-        "/opplysninger-om-arbeidssoeker should return 403 Forbidden with Azure M2M token" {
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
-                    }
-                }
-
-                val testClient = configureTestClient()
-                val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker") {
-                    bearerAuth(mockOAuth2Server.issueAzureM2MToken())
-                }
-                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 
@@ -117,7 +81,7 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
@@ -127,6 +91,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken(pid = periode.identitetsnummer))
                 }
@@ -153,7 +118,7 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
@@ -163,6 +128,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker?siste=true") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken(pid = periode.identitetsnummer))
                 }
@@ -187,11 +153,12 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
                 val testClient = configureTestClient()
+
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${TestData.periodeId1}") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr3))
                 }
@@ -213,7 +180,7 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
@@ -221,9 +188,11 @@ class OpplysningerRoutesTest : FreeSpec({
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${periode.id}") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr4))
                 }
+
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
@@ -241,7 +210,7 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
@@ -251,6 +220,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${periode.id}") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken())
                 }
@@ -264,37 +234,10 @@ class OpplysningerRoutesTest : FreeSpec({
             }
         }
 
-        "/veileder/opplysninger-om-arbeidssoeker should return 403 Forbidden with TokenX token" {
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
-                    }
-                }
-
-                val testClient = configureTestClient()
-                val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken())
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        OpplysningerOmArbeidssoekerRequest(
-                            identitetsnummer = TestData.fnr6,
-                            periodeId = TestData.periodeId6
-                        )
-                    )
-                }
-
-                response.status shouldBe HttpStatusCode.Forbidden
-            }
-        }
-
         "/veileder/opplysninger-om-arbeidssoeker should return 403 Forbidden uten POAO Tilgang" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr7, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr6, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns listOf(
@@ -308,21 +251,18 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr7)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-
                 val testClient = configureTestClient()
+
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
                     bearerAuth(mockOAuth2Server.issueAzureToken())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpplysningerOmArbeidssoekerRequest(
-                            identitetsnummer = periode.identitetsnummer,
-                            periodeId = periode.id
+                            identitetsnummer = TestData.fnr6, periodeId = TestData.periodeId1
                         )
                     )
                 }
@@ -337,7 +277,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/veileder/opplysninger-om-arbeidssoeker should return 403 Forbidden når periode ikke tilhører sluttbruker" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr8, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr7, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
@@ -348,7 +288,7 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
@@ -356,13 +296,13 @@ class OpplysningerRoutesTest : FreeSpec({
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
                     bearerAuth(mockOAuth2Server.issueAzureToken())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpplysningerOmArbeidssoekerRequest(
-                            identitetsnummer = periode.identitetsnummer,
-                            periodeId = periode.id
+                            identitetsnummer = TestData.fnr7, periodeId = periode.id
                         )
                     )
                 }
@@ -377,7 +317,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/veileder/opplysninger-om-arbeidssoeker should return 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr9, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr8, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns listOf(
@@ -391,23 +331,23 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr8)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
                     bearerAuth(mockOAuth2Server.issueAzureToken())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpplysningerOmArbeidssoekerRequest(
-                            identitetsnummer = periode.identitetsnummer,
-                            periodeId = periode.id
+                            identitetsnummer = periode.identitetsnummer, periodeId = periode.id
                         )
                     )
                 }
@@ -427,7 +367,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/veileder/opplysninger-om-arbeidssoeker med siste-flagg should return 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr10, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr9, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
@@ -438,23 +378,23 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker?siste=true") {
                     bearerAuth(mockOAuth2Server.issueAzureToken())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpplysningerOmArbeidssoekerRequest(
-                            identitetsnummer = periode.identitetsnummer,
-                            periodeId = periode.id
+                            identitetsnummer = periode.identitetsnummer, periodeId = periode.id
                         )
                     )
                 }
@@ -472,7 +412,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/veileder/opplysninger-om-arbeidssoeker should return 200 OK for identiteter" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr11, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr10, IdentGruppe.FOLKEREGISTERIDENT))
             every {
                 poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
             } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
@@ -483,16 +423,17 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr11)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
                     bearerAuth(mockOAuth2Server.issueAzureToken())
                     contentType(ContentType.Application.Json)
@@ -518,7 +459,7 @@ class OpplysningerRoutesTest : FreeSpec({
         "/veileder/opplysninger-om-arbeidssoeker should return 200 OK for identiteter med M2M token" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr12, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr11, IdentGruppe.FOLKEREGISTERIDENT))
 
             testApplication {
                 application {
@@ -526,16 +467,17 @@ class OpplysningerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        opplysningerRoutes(authorizationService, opplysningerService)
+                        opplysningerRoutes(authorizationService, periodeService, opplysningerService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr12)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr11)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode).asSequence())
                 opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
 
                 val testClient = configureTestClient()
+
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
                     bearerAuth(mockOAuth2Server.issueAzureM2MToken())
                     contentType(ContentType.Application.Json)

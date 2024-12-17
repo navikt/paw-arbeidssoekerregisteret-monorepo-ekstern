@@ -30,15 +30,8 @@ import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar
-import no.nav.paw.security.authentication.model.Claims
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.paw.security.authentication.model.Issuer
-import no.nav.paw.security.authentication.model.M2MToken
 import no.nav.paw.security.authentication.model.NavAnsatt
-import no.nav.paw.security.authentication.model.SecurityContext
-import no.nav.paw.security.authentication.model.Sluttbruker
-import no.nav.paw.security.authentication.model.TokenX
-import no.nav.paw.security.authentication.token.AccessToken
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -68,8 +61,6 @@ object TestData {
     val identitetsnummer1 = Identitetsnummer(fnr1)
     val identitetsnummer2 = Identitetsnummer(fnr2)
     val identitetsnummer3 = Identitetsnummer(fnr3)
-    val identitetsnummer4 = Identitetsnummer(fnr4)
-    val identitetsnummer5 = Identitetsnummer(fnr5)
     val identitetsnummer8 = Identitetsnummer(fnr8)
     val periodeId1 = UUID.fromString("6d6302a7-7ed1-40a3-8257-c3e8ade4c049")
     val periodeId2 = UUID.fromString("2656398c-a355-4f9b-8b34-a76abaf3c61a")
@@ -99,35 +90,10 @@ object TestData {
     val kafkaKey2 = 10002L
     val kafkaKey3 = 10003L
 
-    fun nySluttbruker(
-        identitetsnummer: Identitetsnummer = identitetsnummer1
-    ) = Sluttbruker(identitetsnummer)
-
     fun nyNavAnsatt(
         oid: UUID = UUID.randomUUID(),
         navIdent: String = navIdent1
     ) = NavAnsatt(oid = oid, ident = navIdent)
-
-    fun nyM2MToken(
-        oid: UUID = UUID.randomUUID()
-    ) = M2MToken(oid = oid)
-
-    fun nyttAccessToken(
-        issuser: Issuer = TokenX,
-        claims: Claims = Claims(emptyMap()),
-    ) = AccessToken(
-        jwt = "jwt",
-        issuer = issuser,
-        claims = claims
-    )
-
-    fun nySecurityContext(
-        bruker: no.nav.paw.security.authentication.model.Bruker<*> = nySluttbruker(),
-        accessToken: AccessToken = nyttAccessToken()
-    ) = SecurityContext(
-        bruker = bruker,
-        accessToken = accessToken
-    )
 
     fun nyOpplysningerRow(
         id: Long = 1L,

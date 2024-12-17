@@ -25,7 +25,7 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 
-class ApplicationTestContext(
+class ApplicationTestContext private constructor(
     val periodeRepository: PeriodeRepository,
     val opplysningerRepository: OpplysningerRepository,
     val profileringRepository: ProfileringRepository,
@@ -38,7 +38,6 @@ class ApplicationTestContext(
     val poaoTilgangHttpConsumerMock: PoaoTilgangHttpConsumer = mockk<PoaoTilgangHttpConsumer>()
     val authorizationService: AuthorizationService = AuthorizationService(
         serverConfig = serverConfig,
-        periodeRepository = periodeRepository,
         pdlHttpConsumer = pdlHttpConsumerMock,
         poaoTilgangHttpConsumer = poaoTilgangHttpConsumerMock
     )

@@ -17,14 +17,13 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
@@ -71,58 +70,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 }
 
                 val testClient = configureTestClient()
+
                 val response = testClient.get("api/v1/samlet-informasjon")
+
                 response.status shouldBe HttpStatusCode.Unauthorized
-            }
-        }
-
-        "/samlet-informasjon should return 403 Forbidden with Azure token" {
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        samletInformasjonRoutes(
-                            authorizationService,
-                            periodeService,
-                            opplysningerService,
-                            profileringService,
-                            bekreftelseService
-                        )
-                    }
-                }
-
-                val testClient = configureTestClient()
-                val response = testClient.get("api/v1/samlet-informasjon") {
-                    bearerAuth(mockOAuth2Server.issueAzureToken())
-                }
-                response.status shouldBe HttpStatusCode.Forbidden
-            }
-        }
-
-        "/samlet-informasjon should return 403 Forbidden with Azure M2M token" {
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        samletInformasjonRoutes(
-                            authorizationService,
-                            periodeService,
-                            opplysningerService,
-                            profileringService,
-                            bekreftelseService
-                        )
-                    }
-                }
-
-                val testClient = configureTestClient()
-                val response = testClient.get("api/v1/samlet-informasjon") {
-                    bearerAuth(mockOAuth2Server.issueAzureM2MToken())
-                }
-                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 
@@ -263,39 +214,6 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-            }
-        }
-
-        "/veileder/samlet-informasjon should return 403 with TokenX token" {
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        samletInformasjonRoutes(
-                            authorizationService,
-                            periodeService,
-                            opplysningerService,
-                            profileringService,
-                            bekreftelseService
-                        )
-                    }
-                }
-
-                val testClient = configureTestClient()
-
-                val response = testClient.post("api/v1/veileder/samlet-informasjon") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken())
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        SamletInformasjonRequest(
-                            identitetsnummer = TestData.fnr3
-                        )
-                    )
-                }
-
-                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 

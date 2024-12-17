@@ -1,67 +1,81 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes
 
 import io.ktor.server.application.call
+import io.ktor.server.auth.authenticate
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.asUUID
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPaging
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.periodeIdParam
-import no.nav.paw.security.authentication.interceptor.autentisering
-import no.nav.paw.security.authentication.model.AzureAd
-import no.nav.paw.security.authentication.model.Sluttbruker
-import no.nav.paw.security.authentication.model.TokenX
-import no.nav.paw.security.authentication.model.bruker
-import no.nav.paw.security.authorization.interceptor.autorisering
-import no.nav.paw.security.authorization.model.Action
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPidClaim
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyAccessFromToken
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.verifyPeriodeId
+import no.nav.paw.security.authentication.model.Identitetsnummer
 
 private val logger = buildApplicationLogger
 
 fun Route.bekreftelseRoutes(
     authorizationService: AuthorizationService,
-    bekreftelseService: BekreftelseService
+    bekreftelseService: BekreftelseService,
+    periodeService: PeriodeService
 ) {
     route("/api/v1") {
-        autentisering(issuers = arrayOf(TokenX, AzureAd), modifyPrincipal = authorizationService::utvidPrincipal) {
+        authenticate("tokenx") {
             get("/arbeidssoekerbekreftelser") {
-                val paging = call.getPaging()
-                val accessPolicies = authorizationService.sluttbrukerAccessPolicies()
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
+                val identitetsnummer = call.getPidClaim()
+                val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
-                autorisering(Action.READ, accessPolicies) {
-                    val sluttbruker = call.bruker<Sluttbruker>()
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = bekreftelseService.finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
 
-                    val response = bekreftelseService
-                        .finnBekreftelserForIdentitetsnummerList(sluttbruker.alleIdenter, paging)
-                    logger.info("Bruker hentet bekreftelser")
-                    call.respond(response)
-                }
+                logger.info("Bruker hentet bekreftelser")
+
+                call.respond(response)
             }
 
             get("/arbeidssoekerbekreftelser/{periodeId}") {
-                val paging = call.getPaging()
-                val periodeId = call.periodeIdParam()
-                val accessPolicies = authorizationService.sluttbrukerAccessPolicies(periodeId)
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
+                val identitetsnummer = call.getPidClaim()
+                val periodeId = call.parameters["periodeId"]?.asUUID()
+                    ?: throw BadRequestException("Forespørsel mangler periodeId")
+                val identitetsnummerList = authorizationService.finnIdentiteter(identitetsnummer)
 
-                autorisering(Action.READ, accessPolicies) {
-                    val response = bekreftelseService.finnBekreftelserForPeriodeIdList(listOf(periodeId), paging)
-                    logger.info("Bruker hentet bekreftelser for periode")
-                    call.respond(response)
-                }
+                verifyPeriodeId(periodeId, identitetsnummerList, periodeService)
+
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = bekreftelseService.finnBekreftelserForPeriodeIdList(listOf(periodeId), paging)
+
+                logger.info("Bruker hentet bekreftelser")
+
+                call.respond(response)
             }
+        }
 
+        authenticate("azure") {
             get("/veileder/arbeidssoekerbekreftelser/{periodeId}") {
-                val paging = call.getPaging()
-                val periodeId = call.periodeIdParam()
-                val accessPolicies = authorizationService.veilederAccessPolicies(periodeId)
+                val siste = call.request.queryParameters["siste"]?.toBoolean() ?: false
+                val periodeId = call.parameters["periodeId"]?.asUUID()
+                    ?: throw BadRequestException("Forespørsel mangler periodeId")
 
-                autorisering(Action.READ, accessPolicies) {
-                    val response = bekreftelseService.finnBekreftelserForPeriodeIdList(listOf(periodeId), paging)
-                    logger.info("Veileder hentet bekreftelser for bruker")
-                    call.respond(response)
-                }
+                val periode = periodeService.hentPeriodeForId(periodeId)
+                    ?: throw BadRequestException("Finner ikke periode $periodeId")
+                val identitetsnummerList = authorizationService
+                    .finnIdentiteter(Identitetsnummer(periode.identitetsnummer))
+                call.verifyAccessFromToken(authorizationService, identitetsnummerList)
+
+                val paging = if (siste) Paging(size = 1) else Paging()
+                val response = bekreftelseService.finnBekreftelserForPeriodeIdList(listOf(periodeId), paging)
+
+                logger.info("Veileder hentet bekreftelser for bruker")
+
+                call.respond(response)
             }
         }
     }

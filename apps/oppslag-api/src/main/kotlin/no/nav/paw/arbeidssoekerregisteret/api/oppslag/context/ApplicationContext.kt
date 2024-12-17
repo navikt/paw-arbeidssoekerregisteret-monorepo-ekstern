@@ -83,7 +83,6 @@ data class ApplicationContext(
 
             val authorizationService = AuthorizationService(
                 serverConfig = serverConfig,
-                periodeRepository = periodeRepository,
                 pdlHttpConsumer = PdlHttpConsumer(pdlClient),
                 poaoTilgangHttpConsumer = PoaoTilgangHttpConsumer(poaoTilgangClient)
             )
