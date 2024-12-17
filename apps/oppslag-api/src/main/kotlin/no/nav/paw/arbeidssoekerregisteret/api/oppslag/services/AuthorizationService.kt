@@ -1,10 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.services
 
+import io.ktor.server.plugins.BadRequestException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PoaoTilgangHttpConsumer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.exception.PeriodeIkkeFunnetException
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.policy.SluttbrukerAccessPolicy
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.policy.VeilederAccessPolicy
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
@@ -39,18 +38,27 @@ class AuthorizationService(
     }
 
     suspend fun veilederAccessPolicies(periodeId: UUID): List<AccessPolicy> {
-        val periodeRow = hentPeriodeRow(periodeId)
-        val identiteter = finnIdentiteter(Identitetsnummer(periodeRow.identitetsnummer))
-        return veilederAccessPolicies(periodeId, identiteter)
+        val periodeRow = periodeRepository.hentPeriodeForId(periodeId)
+            ?: throw BadRequestException("Finner ikke periode for periodeId")
+        val identiteter = this.finnIdentiteter(Identitetsnummer(periodeRow.identitetsnummer))
+        return listOf(
+            VeilederAccessPolicy(
+                serverConfig.runtimeEnvironment,
+                identiteter,
+                periodeId,
+                this::harVeilederTilgangTilSluttbruker,
+                this::harTilgangTilPeriode
+            )
+        )
     }
 
-    fun veilederAccessPolicies(
+    suspend fun veilederAccessPolicies(
         identiteter: Collection<Identitetsnummer>
     ): List<AccessPolicy> {
         return veilederAccessPolicies(null, identiteter)
     }
 
-    fun veilederAccessPolicies(
+    suspend fun veilederAccessPolicies(
         periodeId: UUID?,
         identiteter: Collection<Identitetsnummer>
     ): List<AccessPolicy> {
@@ -79,11 +87,6 @@ class AuthorizationService(
         }
     }
 
-    private fun hentPeriodeRow(periodeId: UUID): PeriodeRow {
-        return periodeRepository.hentPeriodeForId(periodeId)
-            ?: throw PeriodeIkkeFunnetException("Finner ikke periode for periodeId")
-    }
-
     suspend fun finnIdentiteter(
         identitetsnummer: Identitetsnummer,
         identGruppe: IdentGruppe = IdentGruppe.FOLKEREGISTERIDENT
@@ -96,7 +99,8 @@ class AuthorizationService(
         periodeId: UUID,
         identiteter: Collection<Identitetsnummer>
     ): Boolean {
-        val periodeRow = hentPeriodeRow(periodeId)
+        val periodeRow = periodeRepository.hentPeriodeForId(periodeId)
+            ?: throw BadRequestException("Finner ikke periode for periodeId")
         return periodeRow.identitetsnummer
             .let { identiteter.contains(Identitetsnummer(it)) }
     }
