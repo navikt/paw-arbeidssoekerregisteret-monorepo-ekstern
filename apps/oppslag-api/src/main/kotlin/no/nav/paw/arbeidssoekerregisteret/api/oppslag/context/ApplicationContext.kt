@@ -8,7 +8,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.DATABASE_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.DatabaseConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.BatchKafkaConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PoaoTilgangHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
@@ -32,13 +31,14 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.pdl.factory.createPdlClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.LongDeserializer
 import javax.sql.DataSource
 
@@ -56,10 +56,10 @@ data class ApplicationContext(
     val opplysningerService: OpplysningerService,
     val profileringService: ProfileringService,
     val bekreftelseService: BekreftelseService,
-    val periodeKafkaConsumer: BatchKafkaConsumer<Long, Periode>,
-    val opplysningerKafkaConsumer: BatchKafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
-    val profileringKafkaConsumer: BatchKafkaConsumer<Long, Profilering>,
-    val bekreftelseKafkaConsumer: BatchKafkaConsumer<Long, Bekreftelse>
+    val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
+    val opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
+    val profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
+    val bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>
 ) {
     companion object {
         fun build(): ApplicationContext {
@@ -98,11 +98,6 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class
             )
-            val periodeBatchKafkaConsumer = BatchKafkaConsumer(
-                applicationConfig.perioderTopic,
-                periodeKafkaConsumer,
-                periodeService::lagreAllePerioder
-            )
 
             // Opplysninger avhengigheter
 
@@ -113,11 +108,6 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
             )
-            val opplysningerBatchKafkaConsumer = BatchKafkaConsumer(
-                applicationConfig.opplysningerTopic,
-                opplysningerKafkaConsumer,
-                opplysningerService::lagreAlleOpplysninger
-            )
 
             // Profilering avhengigheter
             val profileringService = ProfileringService(profileringRepository)
@@ -127,11 +117,6 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = ProfileringDeserializer::class
             )
-            val profileringBatchKafkaConsumer = BatchKafkaConsumer(
-                applicationConfig.profileringTopic,
-                profileringKafkaConsumer,
-                profileringService::lagreAlleProfileringer
-            )
 
             // Bekreftelse avhengigheter
             val bekreftelseService = BekreftelseService(bekreftelseRepository)
@@ -140,11 +125,6 @@ data class ApplicationContext(
                 clientId = "${applicationConfig.bekreftelseGroupId}-consumer",
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = BekreftelseDeserializer::class
-            )
-            val bekreftelseBatchKafkaConsumer = BatchKafkaConsumer(
-                applicationConfig.bekreftelseTopic,
-                bekreftelseKafkaConsumer,
-                bekreftelseService::lagreAlleBekreftelser
             )
 
             return ApplicationContext(
@@ -161,10 +141,10 @@ data class ApplicationContext(
                 opplysningerService = opplysningerService,
                 profileringService = profileringService,
                 bekreftelseService = bekreftelseService,
-                periodeKafkaConsumer = periodeBatchKafkaConsumer,
-                opplysningerKafkaConsumer = opplysningerBatchKafkaConsumer,
-                profileringKafkaConsumer = profileringBatchKafkaConsumer,
-                bekreftelseKafkaConsumer = bekreftelseBatchKafkaConsumer
+                periodeKafkaConsumer = periodeKafkaConsumer,
+                opplysningerKafkaConsumer = opplysningerKafkaConsumer,
+                profileringKafkaConsumer = profileringKafkaConsumer,
+                bekreftelseKafkaConsumer = bekreftelseKafkaConsumer
             )
         }
     }

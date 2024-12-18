@@ -54,7 +54,7 @@ class OpplysningerRepository {
         }
     }
 
-    fun lagreAlleOpplysninger(opplysninger: Sequence<OpplysningerOmArbeidssoeker>) {
+    fun lagreAlleOpplysninger(opplysninger: Iterable<OpplysningerOmArbeidssoeker>) {
         if (opplysninger.iterator().hasNext()) {
             transaction {
                 maxAttempts = 2
@@ -67,9 +67,9 @@ class OpplysningerRepository {
                 opplysninger.forEach { opplysninger ->
                     val eksisterendeOpplysninger = eksisterendeOpplysningerMap[opplysninger.id]
                     if (eksisterendeOpplysninger != null) {
-                        logger.warn("Ignorerer mottatte opplysninger {} som duplikat", opplysninger.id)
+                        logger.warn("Ignorerer mottatte opplysninger som duplikat")
                     } else {
-                        logger.debug("Lagrer nye opplysninger {}", opplysninger.id)
+                        logger.debug("Lagrer nye opplysninger")
                         OpplysningerFunctions.insert(opplysninger)
                     }
                 }

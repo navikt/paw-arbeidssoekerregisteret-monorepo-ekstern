@@ -6,6 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringRespon
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.security.authentication.model.Identitetsnummer
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 
 class ProfileringService(private val profileringRepository: ProfileringRepository) {
@@ -24,6 +25,9 @@ class ProfileringService(private val profileringRepository: ProfileringRepositor
         profileringRepository.finnProfileringerForIdentiteter(identitetsnummerList, paging)
             .map { it.toProfileringResponse() }
 
-    fun lagreAlleProfileringer(profileringer: Sequence<Profilering>) =
+    fun lagreAlleProfileringer(profileringer: Iterable<Profilering>) =
         profileringRepository.lagreAlleProfileringer(profileringer)
+
+    fun handleRecords(records: ConsumerRecords<Long, Profilering>) =
+        lagreAlleProfileringer(records.map { it.value() })
 }

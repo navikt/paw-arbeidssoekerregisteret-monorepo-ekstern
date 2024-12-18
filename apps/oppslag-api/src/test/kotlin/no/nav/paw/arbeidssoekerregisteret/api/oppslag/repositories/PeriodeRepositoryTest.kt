@@ -120,7 +120,7 @@ class PeriodeRepositoryTest : StringSpec({
     "Lagre startede perioder i batch" {
         val periode1 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr6)
         val periode2 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr7)
-        repository.lagreAllePerioder(sequenceOf(periode1.toPeriode(), periode2.toPeriode()))
+        repository.lagreAllePerioder(listOf(periode1.toPeriode(), periode2.toPeriode()))
 
         val lagretPeriode1 = repository.hentPeriodeForId(periode1.periodeId)
         val lagretPeriode2 = repository.hentPeriodeForId(periode2.periodeId)
@@ -171,8 +171,8 @@ class PeriodeRepositoryTest : StringSpec({
                 utfoertAv = TestData.nyBrukerRow(type = BrukerType.SYSTEM, brukerId = "ARENA")
             )
         )
-        val startedePerioder = sequenceOf(periode1.toPeriode(), periode2.toPeriode(), periode3.toPeriode())
-        val avsluttedePerioder = sequenceOf(periode4.toPeriode(), periode5.toPeriode())
+        val startedePerioder = listOf(periode1.toPeriode(), periode2.toPeriode(), periode3.toPeriode())
+        val avsluttedePerioder = listOf(periode4.toPeriode(), periode5.toPeriode())
         repository.lagreAllePerioder(startedePerioder)
         repository.lagreAllePerioder(avsluttedePerioder)
 

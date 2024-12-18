@@ -17,13 +17,13 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
@@ -86,8 +86,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
 
@@ -123,8 +123,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr3)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
 
@@ -160,8 +160,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
 
@@ -236,8 +236,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr4)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
 
@@ -284,8 +284,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr5)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
 

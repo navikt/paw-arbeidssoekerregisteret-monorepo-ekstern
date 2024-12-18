@@ -2,7 +2,8 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.*
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerFunctions
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeOpplysningerFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
@@ -39,7 +40,7 @@ class OpplysningerRepositoryTest : StringSpec({
             .toPeriode()
         val periode7 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId7, identitetsnummer = TestData.fnr7)
             .toPeriode()
-        val perioder = sequenceOf(periode1, periode2, periode3, periode4, periode5, periode6, periode7)
+        val perioder = listOf(periode1, periode2, periode3, periode4, periode5, periode6, periode7)
         periodeRepository.lagreAllePerioder(perioder)
     }
 
@@ -196,7 +197,8 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Lagre flere opplysninger og hent med identitetsnummer" {
         val periodeId = UUID.randomUUID()
-        val periode = TestData.nyStartetPeriode(periodeId = periodeId, identitetsnummer = TestData.identitetsnummer8.verdi)
+        val periode =
+            TestData.nyStartetPeriode(periodeId = periodeId, identitetsnummer = TestData.identitetsnummer8.verdi)
         periodeRepository.lagrePeriode(periode)
         val opplysninger1 =
             TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId9)
@@ -204,7 +206,7 @@ class OpplysningerRepositoryTest : StringSpec({
             TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId10)
         val opplysninger3 =
             TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId11)
-        val opplysninger = sequenceOf(
+        val opplysninger = listOf(
             opplysninger1.toOpplysningerOmArbeidssoeker(),
             opplysninger2.toOpplysningerOmArbeidssoeker(),
             opplysninger3.toOpplysningerOmArbeidssoeker()

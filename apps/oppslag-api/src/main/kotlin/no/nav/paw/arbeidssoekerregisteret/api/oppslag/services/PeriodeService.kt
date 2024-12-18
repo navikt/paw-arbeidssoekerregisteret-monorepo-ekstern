@@ -13,8 +13,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.security.authentication.model.Identitetsnummer
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 
 class PeriodeService(
@@ -23,6 +25,8 @@ class PeriodeService(
     private val profileringRepository: ProfileringRepository,
     private val bekreftelseRepository: BekreftelseRepository
 ) {
+    private val logger = buildLogger
+
     fun hentPeriodeForId(periodeId: UUID): Periode? = periodeRepository.hentPeriodeForId(periodeId)?.toPeriode()
 
     fun finnPerioderForIdentiteter(
@@ -52,5 +56,9 @@ class PeriodeService(
             periode.toArbeidssoekerPeriodeAggregertResponse(opplysningerAggregert, bekreftelser)
         }
 
-    fun lagreAllePerioder(perioder: Sequence<Periode>) = periodeRepository.lagreAllePerioder(perioder)
+    fun lagreAllePerioder(perioder: Iterable<Periode>) =
+        periodeRepository.lagreAllePerioder(perioder)
+
+    fun handleRecords(records: ConsumerRecords<Long, Periode>) =
+        lagreAllePerioder(records.map { it.value() })
 }
