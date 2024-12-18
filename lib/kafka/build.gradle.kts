@@ -3,9 +3,10 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.ktor.server.core)
     compileOnly(libs.kotlinx.coroutines.core)
-    implementation(libs.kafka.clients)
     compileOnly(libs.confluent.kafka.avro.serializer)
+    implementation(libs.kafka.clients)
 
     // Test
     testImplementation(libs.bundles.unit.testing.kotest)
