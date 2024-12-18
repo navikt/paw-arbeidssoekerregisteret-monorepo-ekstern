@@ -1,7 +1,5 @@
 package no.nav.paw.kafka.plugin
 
-import io.ktor.events.EventDefinition
-import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationPlugin
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.ApplicationStopping
@@ -23,9 +21,7 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.kafka.consumer")
-val KafkaConsumerReady: EventDefinition<Application> = EventDefinition()
-
-data object KafkaConsumerPluginName : PluginName("KafkaConsumerPlugin")
+private const val PLUGIN_NAME_SUFFIX = "KafkaConsumerPlugin"
 
 @KtorDsl
 class KafkaConsumerPluginConfig<K, V> {
@@ -41,13 +37,10 @@ class KafkaConsumerPluginConfig<K, V> {
 }
 
 @Suppress("FunctionName")
-fun <K, V> KafkaConsumerPlugin(): ApplicationPlugin<KafkaConsumerPluginConfig<K, V>> =
-    createApplicationPlugin(KafkaConsumerPluginName.pluginInstanceName, ::KafkaConsumerPluginConfig) {
-        application.log.info(
-            "Installerer {}{}",
-            KafkaConsumerPluginName.pluginName,
-            KafkaConsumerPluginName.pluginInstance
-        )
+fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaConsumerPluginConfig<K, V>> {
+    val pluginName = "${pluginInstance}${PLUGIN_NAME_SUFFIX}"
+    return createApplicationPlugin(pluginName, ::KafkaConsumerPluginConfig) {
+        application.log.info("Installerer {}", pluginName)
         val kafkaTopics = requireNotNull(pluginConfig.kafkaTopics) { "KafkaTopics er null" }
         val kafkaConsumer = requireNotNull(pluginConfig.kafkaConsumer) { "KafkaConsumer er null" }
         val consumeFunction = requireNotNull(pluginConfig.consumeFunction) { "ConsumeFunction er null" }
@@ -60,22 +53,11 @@ fun <K, V> KafkaConsumerPlugin(): ApplicationPlugin<KafkaConsumerPluginConfig<K,
         var consumeJob: Job? = null
 
         on(MonitoringEvent(ApplicationStarted)) { application ->
-            logger.info("Kafka Consumer klargjøres")
+            logger.info("Klargjør {} Kafka Consumer", pluginInstance)
             kafkaConsumer.subscribe(kafkaTopics, rebalanceListener)
-            application.environment.monitor.raise(KafkaConsumerReady, application)
-        }
 
-        on(MonitoringEvent(ApplicationStopping)) { _ ->
-            logger.info("Kafka Consumer stopper")
-            kafkaConsumer.unsubscribe()
-            kafkaConsumer.close(closeTimeout)
-            shutdownFlag.set(true)
-            consumeJob?.cancel()
-        }
-
-        on(MonitoringEvent(KafkaConsumerReady)) { application ->
             consumeJob = application.launch(Dispatchers.IO) {
-                logger.info("Kafka Consumer starter")
+                logger.info("Starter {} Kafka Consumer", pluginInstance)
                 while (!shutdownFlag.get()) {
                     try {
                         val records = kafkaConsumer.poll(pollTimeout)
@@ -88,8 +70,17 @@ fun <K, V> KafkaConsumerPlugin(): ApplicationPlugin<KafkaConsumerPluginConfig<K,
                         errorFunction(throwable)
                     }
                 }
-                logger.info("Kafka Consumer avsluttet")
+                logger.info("Stoppet {} Kafka Consumer", pluginInstance)
                 consumeJob?.cancel()
             }
         }
+
+        on(MonitoringEvent(ApplicationStopping)) { _ ->
+            logger.info("Stopper {} Kafka Consumer", pluginInstance)
+            shutdownFlag.set(true)
+            consumeJob?.cancel()
+            kafkaConsumer.unsubscribe()
+            kafkaConsumer.close(closeTimeout)
+        }
     }
+}

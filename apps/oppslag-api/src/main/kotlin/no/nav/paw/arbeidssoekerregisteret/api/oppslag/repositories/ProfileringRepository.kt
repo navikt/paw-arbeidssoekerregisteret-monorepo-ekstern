@@ -50,13 +50,13 @@ class ProfileringRepository {
         }
     }
 
-    fun lagreAlleProfileringer(profileringer: Sequence<Profilering>) {
+    fun lagreAlleProfileringer(profileringer: Iterable<Profilering>) {
         if (profileringer.iterator().hasNext()) {
             transaction {
                 maxAttempts = 2
                 minRetryDelay = 20
                 profileringer.forEach { profilering ->
-                    logger.debug("Lagrer ny profilering {}", profilering.id)
+                    logger.debug("Lagrer ny profilering")
                     ProfileringFunctions.insert(profilering)
                 }
             }

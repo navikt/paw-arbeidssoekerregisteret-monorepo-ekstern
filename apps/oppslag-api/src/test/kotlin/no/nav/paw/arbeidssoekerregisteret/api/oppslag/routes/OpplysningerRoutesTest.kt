@@ -17,13 +17,13 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
@@ -87,8 +87,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                opplysningerService.lagreAlleOpplysninger(opplysninger)
 
                 val testClient = configureTestClient()
 
@@ -124,8 +124,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr2)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                opplysningerService.lagreAlleOpplysninger(opplysninger)
 
                 val testClient = configureTestClient()
 
@@ -185,7 +185,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 }
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
 
                 val testClient = configureTestClient()
 
@@ -216,8 +216,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr5)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                opplysningerService.lagreAlleOpplysninger(opplysninger)
 
                 val testClient = configureTestClient()
 
@@ -293,7 +293,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 }
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
 
                 val testClient = configureTestClient()
 
@@ -337,8 +337,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr8)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                opplysningerService.lagreAlleOpplysninger(opplysninger)
 
                 val testClient = configureTestClient()
 
@@ -384,8 +384,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                opplysningerService.lagreAlleOpplysninger(opplysninger)
 
                 val testClient = configureTestClient()
 
@@ -429,8 +429,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                opplysningerService.lagreAlleOpplysninger(opplysninger)
 
                 val testClient = configureTestClient()
 
@@ -473,8 +473,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr11)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysninger.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                opplysningerService.lagreAlleOpplysninger(opplysninger)
 
                 val testClient = configureTestClient()
 
