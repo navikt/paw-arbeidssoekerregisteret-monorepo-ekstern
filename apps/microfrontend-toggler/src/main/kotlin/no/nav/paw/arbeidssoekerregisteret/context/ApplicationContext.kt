@@ -14,8 +14,8 @@ import no.nav.paw.arbeidssoekerregisteret.topology.buildSiste14aVedtakTopology
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyOrNullBlocking
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.config.kafka.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
-import no.nav.paw.config.kafka.KafkaConfig
+import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
+import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG

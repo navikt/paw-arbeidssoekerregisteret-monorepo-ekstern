@@ -7,7 +7,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildSiste14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallMottatteSiste14aVedtak
-import no.nav.paw.config.kafka.streams.mapKeyAndValue
+import no.nav.paw.kafka.processor.mapKeyAndValue
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder

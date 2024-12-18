@@ -20,7 +20,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallIkkeSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallMottatteBeriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallSendteToggles
-import no.nav.paw.config.kafka.streams.genericProcess
+import no.nav.paw.kafka.processor.genericProcess
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Consumed
