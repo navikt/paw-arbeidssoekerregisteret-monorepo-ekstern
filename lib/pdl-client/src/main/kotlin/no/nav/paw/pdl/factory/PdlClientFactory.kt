@@ -8,7 +8,7 @@ import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.env.RuntimeEnvironment
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.pdl.PdlClient
+import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.pdl.config.PDL_CLIENT_CONFIG
 import no.nav.paw.pdl.config.PdlClientConfig
 

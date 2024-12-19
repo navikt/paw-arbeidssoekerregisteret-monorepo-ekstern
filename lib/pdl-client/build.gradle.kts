@@ -8,6 +8,7 @@ val jvmMajorVersion: String by project
 
 dependencies {
     implementation(project(":lib:hoplite-config"))
+    implementation(project(":lib:error-handling"))
     implementation(project(":lib:http-client-utils"))
 
     implementation(libs.ktor.client.cio)
