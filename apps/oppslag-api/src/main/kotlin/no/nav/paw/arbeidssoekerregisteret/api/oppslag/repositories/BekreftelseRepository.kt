@@ -46,7 +46,7 @@ class BekreftelseRepository {
                     if (BekreftelseFunctions.getForBekreftelseId(bekreftelse.id) != null) {
                         logger.warn("Ignorerer mottatt bekreftelse som duplikat")
                     } else {
-                        logger.debug("Lagrer ny bekreftelse")
+                        logger.info("Lagrer ny bekreftelse")
                         BekreftelseFunctions.insert(bekreftelse)
                     }
                 }

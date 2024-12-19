@@ -47,8 +47,9 @@ class OpplysningerRepository {
             val eksisterendeOpplysninger = OpplysningerFunctions.getRow(opplysninger.id)
 
             if (eksisterendeOpplysninger != null) {
-                logger.warn("Opplysning med samme ID finnes allerede i databasen, ignorer derfor ny opplysning som duplikat")
+                logger.warn("Ignorerer mottatte opplysninger som duplikat")
             } else {
+                logger.info("Lagrer nye opplysninger")
                 OpplysningerFunctions.insert(opplysninger)
             }
         }
@@ -69,7 +70,7 @@ class OpplysningerRepository {
                     if (eksisterendeOpplysninger != null) {
                         logger.warn("Ignorerer mottatte opplysninger som duplikat")
                     } else {
-                        logger.debug("Lagrer nye opplysninger")
+                        logger.info("Lagrer nye opplysninger")
                         OpplysningerFunctions.insert(opplysninger)
                     }
                 }

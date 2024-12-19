@@ -46,6 +46,7 @@ class ProfileringRepository {
 
     fun lagreProfilering(profilering: Profilering) {
         transaction {
+            logger.info("Lagrer ny profilering")
             ProfileringFunctions.insert(profilering)
         }
     }
@@ -56,7 +57,7 @@ class ProfileringRepository {
                 maxAttempts = 2
                 minRetryDelay = 20
                 profileringer.forEach { profilering ->
-                    logger.debug("Lagrer ny profilering")
+                    logger.info("Lagrer ny profilering")
                     ProfileringFunctions.insert(profilering)
                 }
             }

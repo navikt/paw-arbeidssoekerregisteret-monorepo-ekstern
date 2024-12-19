@@ -43,8 +43,10 @@ class PeriodeRepository {
             val eksisterendePeriode = PeriodeFunctions.getForPeriodeId(periode.id)
 
             if (eksisterendePeriode != null) {
+                logger.info("Endrer eksisterende periode")
                 PeriodeFunctions.update(periode, eksisterendePeriode)
             } else {
+                logger.info("Lagrer ny periode")
                 PeriodeFunctions.insert(periode)
             }
         }
@@ -63,10 +65,10 @@ class PeriodeRepository {
                 perioder.forEach { periode ->
                     val eksisterendePeriode = eksisterendePeriodeIdMap[periode.id]
                     if (eksisterendePeriode != null) {
-                        logger.debug("Endrer eksisterende periode")
+                        logger.info("Endrer eksisterende periode")
                         PeriodeFunctions.update(periode, eksisterendePeriode)
                     } else {
-                        logger.debug("Lagrer ny periode")
+                        logger.info("Lagrer ny periode")
                         PeriodeFunctions.insert(periode)
                     }
                 }
