@@ -4,11 +4,11 @@ import io.ktor.server.application.Application
 import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.kafkaConsumerThreadPoolExecutor
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureRouting
@@ -25,9 +25,6 @@ fun main() {
 
     with(applicationContext) {
         logger.info("Starter $appName med hostname ${serverConfig.host} og port ${serverConfig.port}")
-
-        // Konsumer meldinger fra Kafka
-        kafkaConsumerThreadPoolExecutor(applicationContext)
 
         embeddedServer(
             factory = Netty,
@@ -46,10 +43,6 @@ fun main() {
                     gracePeriodMillis = serverConfig.gracePeriodMillis,
                     timeoutMillis = serverConfig.timeoutMillis
                 )
-                applicationContext.profileringKafkaConsumer.stop()
-                applicationContext.opplysningerKafkaConsumer.stop()
-                applicationContext.periodeKafkaConsumer.stop()
-                applicationContext.bekreftelseKafkaConsumer.stop()
             }
             start(wait = true)
         }
@@ -70,5 +63,16 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureAuthentication(applicationContext.securityConfig)
     configureDatabase(applicationContext.dataSource)
     configureScheduledTask(applicationContext.metricsService::tellAntallAktivePerioder)
+    configureKafka(
+        applicationContext.applicationConfig,
+        applicationContext.periodeKafkaConsumer,
+        applicationContext.opplysningerKafkaConsumer,
+        applicationContext.profileringKafkaConsumer,
+        applicationContext.bekreftelseKafkaConsumer,
+        applicationContext.periodeService,
+        applicationContext.opplysningerService,
+        applicationContext.profileringService,
+        applicationContext.bekreftelseService
+    )
     configureRouting(applicationContext)
 }

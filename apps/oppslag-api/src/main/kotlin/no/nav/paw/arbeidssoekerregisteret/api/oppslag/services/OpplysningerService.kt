@@ -6,6 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArb
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.security.authentication.model.Identitetsnummer
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 
 class OpplysningerService(private val opplysningerRepository: OpplysningerRepository) {
@@ -24,6 +25,9 @@ class OpplysningerService(private val opplysningerRepository: OpplysningerReposi
         opplysningerRepository.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
             .map { it.toOpplysningerOmArbeidssoekerResponse() }
 
-    fun lagreAlleOpplysninger(opplysninger: Sequence<OpplysningerOmArbeidssoeker>) =
+    fun lagreAlleOpplysninger(opplysninger: Iterable<OpplysningerOmArbeidssoeker>) =
         opplysningerRepository.lagreAlleOpplysninger(opplysninger)
+
+    fun handleRecords(records: ConsumerRecords<Long, OpplysningerOmArbeidssoeker>) =
+        lagreAlleOpplysninger(records.map { it.value() })
 }

@@ -12,12 +12,12 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
@@ -82,8 +82,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 
@@ -119,8 +119,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr2)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 
@@ -181,8 +181,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr31)
                 val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse).asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse))
 
                 val testClient = configureTestClient()
 
@@ -213,8 +213,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr5)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 
@@ -250,8 +250,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr6)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 
@@ -338,8 +338,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr8)
                 val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse).asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse))
 
                 val testClient = configureTestClient()
 
@@ -377,8 +377,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 
@@ -421,8 +421,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode).asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(listOf(periode))
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 

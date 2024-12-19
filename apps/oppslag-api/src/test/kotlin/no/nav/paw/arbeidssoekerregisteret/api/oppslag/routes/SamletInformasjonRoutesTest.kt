@@ -17,13 +17,13 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.verify
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
@@ -117,10 +117,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     )
                     TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
                 }
-                periodeService.lagreAllePerioder(perioder.asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysinger.asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(perioder)
+                opplysningerService.lagreAlleOpplysninger(opplysinger)
+                profileringService.lagreAlleProfileringer(profileringer)
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 
@@ -191,10 +191,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     )
                     TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
                 }
-                periodeService.lagreAllePerioder(perioder.asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysinger.asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(perioder)
+                opplysningerService.lagreAlleOpplysninger(opplysinger)
+                profileringService.lagreAlleProfileringer(profileringer)
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 
@@ -303,10 +303,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     )
                     TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
                 }
-                periodeService.lagreAllePerioder(perioder.asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysinger.asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(perioder)
+                opplysningerService.lagreAlleOpplysninger(opplysinger)
+                profileringService.lagreAlleProfileringer(profileringer)
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 
@@ -387,10 +387,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     )
                     TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
                 }
-                periodeService.lagreAllePerioder(perioder.asSequence())
-                opplysningerService.lagreAlleOpplysninger(opplysinger.asSequence())
-                profileringService.lagreAlleProfileringer(profileringer.asSequence())
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser.asSequence())
+                periodeService.lagreAllePerioder(perioder)
+                opplysningerService.lagreAlleOpplysninger(opplysinger)
+                profileringService.lagreAlleProfileringer(profileringer)
+                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
 
                 val testClient = configureTestClient()
 

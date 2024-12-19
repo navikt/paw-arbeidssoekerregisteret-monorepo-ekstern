@@ -93,7 +93,7 @@ class ProfileringRepositoryTest : StringSpec({
         val profilering2 = TestData.nyProfileringRow(periodeId = periodeId, opplysningerId = UUID.randomUUID())
         val profilering3 = TestData.nyProfileringRow(periodeId = periodeId, opplysningerId = UUID.randomUUID())
         val profileringer =
-            sequenceOf(profilering1.toProfilering(), profilering2.toProfilering(), profilering3.toProfilering())
+            listOf(profilering1.toProfilering(), profilering2.toProfilering(), profilering3.toProfilering())
         repository.lagreAlleProfileringer(profileringer)
 
         val lagredeProfileringer = repository.finnProfileringerForPeriodeIdList(listOf(periodeId))

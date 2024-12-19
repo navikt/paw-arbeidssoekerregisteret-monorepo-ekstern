@@ -9,15 +9,15 @@ import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.BatchKafkaConsumer
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 
 fun Application.configureMetrics(
     meterRegistry: MeterRegistry,
-    vararg batchKafkaConsumers: BatchKafkaConsumer<*, *>
+    vararg kafkaConsumers: KafkaConsumer<*, *>
 ) {
-    val extraMeterBinders = batchKafkaConsumers
-        .map { KafkaClientMetrics(it.consumer) }
+    val extraMeterBinders = kafkaConsumers
+        .map { KafkaClientMetrics(it) }
         .toList()
     install(MicrometerMetrics) {
         registry = meterRegistry

@@ -50,7 +50,7 @@ class PeriodeRepository {
         }
     }
 
-    fun lagreAllePerioder(perioder: Sequence<Periode>) {
+    fun lagreAllePerioder(perioder: Iterable<Periode>) {
         if (perioder.iterator().hasNext()) {
             transaction {
                 maxAttempts = 2
@@ -63,10 +63,10 @@ class PeriodeRepository {
                 perioder.forEach { periode ->
                     val eksisterendePeriode = eksisterendePeriodeIdMap[periode.id]
                     if (eksisterendePeriode != null) {
-                        logger.debug("Endrer eksisterende periode {}", periode.id)
+                        logger.debug("Endrer eksisterende periode")
                         PeriodeFunctions.update(periode, eksisterendePeriode)
                     } else {
-                        logger.debug("Lagrer ny periode {}", periode.id)
+                        logger.debug("Lagrer ny periode")
                         PeriodeFunctions.insert(periode)
                     }
                 }
