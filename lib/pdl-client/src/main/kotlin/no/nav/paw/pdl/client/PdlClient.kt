@@ -1,8 +1,7 @@
-package no.nav.paw.pdl
+package no.nav.paw.pdl.client
 
 import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
-import com.expediagroup.graphql.client.types.GraphQLClientError
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
@@ -10,7 +9,6 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.header
 import no.nav.paw.client.factory.createObjectMapper
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import java.net.URI
 
 // Se https://pdldocs-navno.msappproxy.net/ for dokumentasjon av PDL API-et
@@ -36,21 +34,23 @@ class PdlClient(
         traceparent: String? = null,
         navConsumerId: String?,
     ): GraphQLClientResponse<T> {
-        if (behandlingsnummer.isBlank()) {
-            throw IllegalArgumentException("Behandlingsnummer kan ikke være tom")
-        }
+        val safeBehandlingsnummer = require(behandlingsnummer.isNotBlank()) { "Behandlingsnummer kan ikke være tom" }
         return graphQLClient.execute(query) {
             bearerAuth(getAccessToken())
             header("Tema", tema)
             header("Nav-Call-Id", callId)
             header("Nav-Consumer-Id", navConsumerId)
-            header("Behandlingsnummer", behandlingsnummer)
+            header("Behandlingsnummer", safeBehandlingsnummer)
             traceparent?.let { header("traceparent", it) }
         }
     }
 }
 
-class PdlException(
-    message: String? = null,
-    val errors: List<GraphQLClientError>?,
-) : IOException(message)
+fun <T> GraphQLClientResponse<T>.hasNotFoundError(): Boolean {
+    return errors
+        ?.mapNotNull { it.extensions }
+        ?.mapNotNull { it["code"] }
+        ?.map { it.toString() }
+        ?.contains("not_found")
+        ?: false
+}

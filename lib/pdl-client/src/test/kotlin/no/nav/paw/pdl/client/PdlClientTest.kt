@@ -1,36 +1,46 @@
-package no.nav.paw.pdl
+package no.nav.paw.pdl.client
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import no.nav.paw.mockPdlClient
+import no.nav.paw.pdl.exception.PdlPersonIkkeFunnetException
+import no.nav.paw.pdl.exception.PdlUkjentFeilException
 import no.nav.paw.pdl.graphql.generated.enums.Oppholdstillatelse
+import no.nav.paw.pdl.mock.mockPdlClient
 import java.util.*
+
+private fun readResource(filename: String) = ClassLoader.getSystemResource(filename).readText()
 
 class PdlClientTest : FreeSpec({
 
     val callId = UUID.randomUUID().toString()
     val navConsumerId = "nav-consumer-id"
 
-    "Forventer gyldig respons fra hentAktorId" {
-        val respons = readResource("hentIdenter-response.json")
-        val pdlClient = mockPdlClient(respons)
-
-        val resultat = runBlocking {
-            pdlClient.hentAktorId("2649500819544", callId, navConsumerId, "B123")
-        }
-        val forventet = "2649500819544"
-
-        resultat shouldBe forventet
-    }
-
-    "Forventer feilmelding fra hentIdenter" {
+    "Skal kaste ukjent feil exception ved hentIdenter" {
         val respons = readResource("error-response.json")
         val pdlClient = mockPdlClient(respons)
 
-        shouldThrow<PdlException>(
+        shouldThrow<PdlUkjentFeilException>(
+            block = {
+                runBlocking {
+                    pdlClient.hentIdenter(
+                        ident = "2649500819544",
+                        callId = callId,
+                        navConsumerId = navConsumerId,
+                        behandlingsnummer = "B123",
+                    )
+                }
+            },
+        )
+    }
+
+    "Skal kaste person ikke funnet exception ved hentIdenter" {
+        val respons = readResource("not-found-error-response.json")
+        val pdlClient = mockPdlClient(respons)
+
+        shouldThrow<PdlPersonIkkeFunnetException>(
             block = {
                 runBlocking {
                     pdlClient.hentIdenter(
@@ -58,7 +68,7 @@ class PdlClientTest : FreeSpec({
         }
         val forventet = "09127821914"
 
-        resultat!!.first().ident shouldBe forventet
+        resultat.first().ident shouldBe forventet
     }
 
     "Forventer gyldig respons fra hentOpphold" {
@@ -169,5 +179,3 @@ class PdlClientTest : FreeSpec({
         resultat.foedekommune shouldBe forventetKommune
     }
 })
-
-private fun readResource(filename: String) = ClassLoader.getSystemResource(filename).readText()

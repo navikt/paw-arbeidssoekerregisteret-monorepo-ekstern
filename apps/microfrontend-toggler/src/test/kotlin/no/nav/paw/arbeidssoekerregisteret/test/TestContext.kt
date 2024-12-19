@@ -16,7 +16,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.routes.toggleRoutes
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
@@ -107,7 +107,7 @@ open class TestContext {
         )
         application {
             configureSerialization()
-            configureRequestHandling()
+            configureHTTP()
             configureAuthentication(applicationContext)
         }
         routing {

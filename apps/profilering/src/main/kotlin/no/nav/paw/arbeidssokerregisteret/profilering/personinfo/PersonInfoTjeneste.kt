@@ -7,7 +7,7 @@ import no.nav.paw.aareg.model.Result
 import no.nav.paw.aareg.factory.createAaregClient
 import no.nav.paw.arbeidssokerregisteret.profilering.utils.ApplicationInfo
 import no.nav.paw.pdl.factory.createPdlClient
-import no.nav.paw.pdl.hentFoedselsdato
+import no.nav.paw.pdl.client.hentFoedselsdato
 import java.time.LocalDate
 import java.util.*
 

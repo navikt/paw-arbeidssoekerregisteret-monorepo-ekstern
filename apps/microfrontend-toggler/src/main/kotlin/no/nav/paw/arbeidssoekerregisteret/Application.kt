@@ -9,7 +9,7 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureRequestHandling
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureTracing
@@ -47,7 +47,7 @@ fun main() {
 
 fun Application.module(applicationContext: ApplicationContext) {
     configureSerialization()
-    configureRequestHandling()
+    configureHTTP()
     configureLogging()
     configureTracing()
     configureMetrics(applicationContext)
