@@ -14,8 +14,7 @@ dependencies {
     implementation(libs.ktor.serialization.jackson)
     implementation(libs.ktor.client.logging)
     implementation(libs.jackson.datatype.jsr310)
-    implementation(libs.nav.poao.tilgang.client)
-
+    api(libs.nav.poao.tilgang.api)
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.ktor.client.mock)
 }

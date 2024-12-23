@@ -4,7 +4,6 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.Principal
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.principal
-import no.nav.paw.security.authentication.exception.BearerTokenManglerException
 import no.nav.paw.security.authentication.token.AccessToken
 import no.nav.paw.security.authentication.token.resolveTokens
 import no.nav.paw.security.authorization.exception.SecurityContextManglerException
@@ -19,7 +18,8 @@ data class SecurityContext(
 
 fun ApplicationCall.resolveSecurityContext(): SecurityContext {
     val principal = principal<TokenValidationContextPrincipal>()
-    val tokenContext = principal?.context ?: throw BearerTokenManglerException("Bearer Token mangler")
+    val tokenContext = principal?.context
+        ?: throw UgyldigBearerTokenException("Ugyldig eller manglende Bearer Token")
 
     val accessToken = tokenContext.resolveTokens().firstOrNull() // Kan støtte flere tokens
         ?: throw UgyldigBearerTokenException("Ingen gyldige Bearer Tokens funnet")

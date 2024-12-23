@@ -15,7 +15,7 @@ suspend fun PdlClient.hentPersonBolk(
 ): List<HentPersonBolkResult>? {
     val query = HentPersonBolk(HentPersonBolk.Variables(ident, historisk))
 
-    logger.trace("Henter person bolk fra PDL")
+    logger.debug("Henter person bolk fra PDL")
 
     val response = execute(
         query = query,
@@ -34,7 +34,7 @@ suspend fun PdlClient.hentPersonBolk(
         }
     }
 
-    logger.trace("Hentet person bolk fra PDL")
+    logger.debug("Hentet person bolk fra PDL")
 
     return response
         .data

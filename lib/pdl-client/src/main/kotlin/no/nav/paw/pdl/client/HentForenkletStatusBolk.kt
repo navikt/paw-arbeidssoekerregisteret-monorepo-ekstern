@@ -14,7 +14,7 @@ suspend fun PdlClient.hentForenkletStatusBolk(
 ): List<HentPersonBolkResult>? {
     val query = HentForenkletStatusBolk(HentForenkletStatusBolk.Variables(ident))
 
-    logger.info("Henter forenklet status bolk fra PDL")
+    logger.debug("Henter forenklet status bolk fra PDL")
 
     val response = execute(
         query = query,

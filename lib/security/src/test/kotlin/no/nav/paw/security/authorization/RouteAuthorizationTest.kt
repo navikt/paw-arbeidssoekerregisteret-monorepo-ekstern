@@ -23,7 +23,7 @@ class RouteAuthorizationTest : FreeSpec({
             mockOAuth2Server.shutdown()
         }
 
-        "Skal få 401 Unauthorized uten Bearer Token header" {
+        "Skal få 403 Forbidden uten Bearer Token header" {
             testApplication {
                 application {
                     configureApplication()
@@ -33,7 +33,7 @@ class RouteAuthorizationTest : FreeSpec({
 
                 val response = testClient.get("/api/dummy")
 
-                response.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 

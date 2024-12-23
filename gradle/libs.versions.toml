@@ -110,6 +110,7 @@ nav-common-types = { group = "no.nav.common", name = "types", version.ref = "nav
 nav-common-log = { group = "no.nav.common", name = "log", version.ref = "nav-common" }
 nav-common-audit-log = { group = "no.nav.common", name = "audit-log", version.ref = "nav-common" }
 nav-common-token-client = { group = "no.nav.common", name = "token-client", version.ref = "nav-common" }
+nav-poao-tilgang-api = { group = "no.nav.poao-tilgang", name = "api", version.ref = "nav-poao-tilgang" }
 nav-poao-tilgang-client = { group = "no.nav.poao-tilgang", name = "client", version.ref = "nav-poao-tilgang" }
 nav-pto-schema = { group = "no.nav", name = "pto-schema", version.ref = "nav-pto-schema" }
 nav-tms-varsel-kotlin-builder = { group = "no.nav.tms.varsel", name = "kotlin-builder", version.ref = "nav-tms-varsel" }

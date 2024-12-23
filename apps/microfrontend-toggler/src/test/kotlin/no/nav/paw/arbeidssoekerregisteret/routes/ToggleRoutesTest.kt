@@ -39,7 +39,7 @@ class ToggleRoutesTest : FreeSpec({
 
         "Test av toggle routes" - {
 
-            "Skal få 401 ved manglende Bearer Token" {
+            "Skal få 403 ved manglende Bearer Token" {
                 testApplication {
                     configureTestApplication()
                     val client = configureTestClient()
@@ -49,11 +49,11 @@ class ToggleRoutesTest : FreeSpec({
                         setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
                     }
 
-                    response.status shouldBe HttpStatusCode.Unauthorized
+                    response.status shouldBe HttpStatusCode.Forbidden
                 }
             }
 
-            "Skal få 401 ved token utstedt av ukjent issuer" {
+            "Skal få 403 ved token utstedt av ukjent issuer" {
                 testApplication {
                     configureTestApplication()
                     val client = configureTestClient()
@@ -72,7 +72,7 @@ class ToggleRoutesTest : FreeSpec({
                         setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
                     }
 
-                    response.status shouldBe HttpStatusCode.Unauthorized
+                    response.status shouldBe HttpStatusCode.Forbidden
                 }
             }
 

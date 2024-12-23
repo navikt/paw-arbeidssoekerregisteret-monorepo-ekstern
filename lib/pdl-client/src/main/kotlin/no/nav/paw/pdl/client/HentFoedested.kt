@@ -14,7 +14,7 @@ suspend fun PdlClient.hentFoedested(
 ): Foedested? {
     val query = HentFoedested(HentFoedested.Variables(ident))
 
-    logger.info("Henter fødested fra PDL")
+    logger.debug("Henter fødested fra PDL")
 
     val response = execute(
         query = query,

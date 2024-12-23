@@ -15,7 +15,7 @@ suspend fun PdlClient.hentPerson(
 ): Person? {
     val query = HentPerson(HentPerson.Variables(ident, historisk))
 
-    logger.trace("Henter person fra PDL")
+    logger.debug("Henter person fra PDL")
 
     val response = execute(
         query = query,
@@ -34,7 +34,7 @@ suspend fun PdlClient.hentPerson(
         }
     }
 
-    logger.trace("Hentet person fra PDL")
+    logger.debug("Hentet person fra PDL")
 
     return response
         .data
