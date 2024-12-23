@@ -15,8 +15,6 @@ import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
-import io.mockk.every
-import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
@@ -32,10 +30,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.poao_tilgang.client.Decision
-import no.nav.poao_tilgang.client.PolicyRequest
-import no.nav.poao_tilgang.client.PolicyResult
-import java.util.*
+import no.nav.poao_tilgang.api.dto.response.DecisionType
 
 class PerioderRoutesTest : FreeSpec({
     with(ApplicationTestContext.withRealDataAccess()) {
@@ -52,7 +47,7 @@ class PerioderRoutesTest : FreeSpec({
             )
         }
 
-        "/arbeidssoekerperioder should respond with 401 Unauthorized without token" {
+        "/arbeidssoekerperioder should respond with 403 Forbidden without token" {
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
@@ -67,7 +62,49 @@ class PerioderRoutesTest : FreeSpec({
 
                 val response = testClient.get("api/v1/arbeidssoekerperioder")
 
-                response.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
+        "/arbeidssoekerperioder should respond with 403 Forbidden with Azure token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerperioder") {
+                    bearerAuth(mockOAuth2Server.issueAzureToken())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
+        "/arbeidssoekerperioder should respond with 403 Forbidden with Azure M2M token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.get("api/v1/arbeidssoekerperioder") {
+                    bearerAuth(mockOAuth2Server.issueAzureM2MToken())
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 
@@ -265,13 +302,40 @@ class PerioderRoutesTest : FreeSpec({
             }
         }
 
+        "/veileder/arbeidssoekerperioder should respond with 403 Forbidden with TokenX token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        perioderRoutes(authorizationService, periodeService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.post("api/v1/veileder/arbeidssoekerperioder") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        ArbeidssoekerperiodeRequest(
+                            identitetsnummer = TestData.fnr3
+                        )
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
         "/veileder/arbeidssoekerperioder should return 403 Forbidden uten POAO Tilgang" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.DENY, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -298,7 +362,7 @@ class PerioderRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
@@ -306,9 +370,9 @@ class PerioderRoutesTest : FreeSpec({
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -343,7 +407,7 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[2] shouldBeEqualTo periodeResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
@@ -351,9 +415,9 @@ class PerioderRoutesTest : FreeSpec({
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -386,7 +450,7 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[0] shouldBeEqualTo periodeResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
@@ -394,9 +458,9 @@ class PerioderRoutesTest : FreeSpec({
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr14, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -461,7 +525,7 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
@@ -469,9 +533,9 @@ class PerioderRoutesTest : FreeSpec({
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr15, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -536,7 +600,7 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
@@ -545,9 +609,9 @@ class PerioderRoutesTest : FreeSpec({
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr6, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -582,7 +646,7 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[2] shouldBeEqualTo periodeResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
     }

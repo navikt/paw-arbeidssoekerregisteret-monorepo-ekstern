@@ -15,8 +15,6 @@ import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
-import io.mockk.every
-import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.SamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
@@ -24,18 +22,16 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerializa
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.poao_tilgang.client.Decision
-import no.nav.poao_tilgang.client.PolicyRequest
-import no.nav.poao_tilgang.client.PolicyResult
+import no.nav.poao_tilgang.api.dto.response.DecisionType
 import java.time.Duration
 import java.time.Instant
-import java.util.*
 
 class SamletInformasjonRoutesTest : FreeSpec({
     with(ApplicationTestContext.withRealDataAccess()) {
@@ -52,7 +48,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
             )
         }
 
-        "/samlet-informasjon should return 401 Unauthorized without token" {
+        "/samlet-informasjon should return 403 Forbidden without token" {
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
@@ -70,10 +66,58 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 }
 
                 val testClient = configureTestClient()
-
                 val response = testClient.get("api/v1/samlet-informasjon")
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
 
-                response.status shouldBe HttpStatusCode.Unauthorized
+        "/samlet-informasjon should return 403 Forbidden with Azure token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        samletInformasjonRoutes(
+                            authorizationService,
+                            periodeService,
+                            opplysningerService,
+                            profileringService,
+                            bekreftelseService
+                        )
+                    }
+                }
+
+                val testClient = configureTestClient()
+                val response = testClient.get("api/v1/samlet-informasjon") {
+                    bearerAuth(mockOAuth2Server.issueAzureToken())
+                }
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
+        "/samlet-informasjon should return 403 Forbidden with Azure M2M token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        samletInformasjonRoutes(
+                            authorizationService,
+                            periodeService,
+                            opplysningerService,
+                            profileringService,
+                            bekreftelseService
+                        )
+                    }
+                }
+
+                val testClient = configureTestClient()
+                val response = testClient.get("api/v1/samlet-informasjon") {
+                    bearerAuth(mockOAuth2Server.issueAzureM2MToken())
+                }
+                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 
@@ -217,13 +261,46 @@ class SamletInformasjonRoutesTest : FreeSpec({
             }
         }
 
+        "/veileder/samlet-informasjon should return 403 with TokenX token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        samletInformasjonRoutes(
+                            authorizationService,
+                            periodeService,
+                            opplysningerService,
+                            profileringService,
+                            bekreftelseService
+                        )
+                    }
+                }
+
+                val testClient = configureTestClient()
+
+                val response = testClient.post("api/v1/veileder/samlet-informasjon") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        SamletInformasjonRequest(
+                            identitetsnummer = TestData.fnr3
+                        )
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
         "/veileder/samlet-informasjon should return 403 uten POAO Tilgang" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.DENY, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -256,7 +333,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
@@ -264,9 +341,9 @@ class SamletInformasjonRoutesTest : FreeSpec({
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -340,7 +417,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 bekreftelser[2] shouldBeEqualTo samletInfo.bekreftelser[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
@@ -348,9 +425,9 @@ class SamletInformasjonRoutesTest : FreeSpec({
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -416,7 +493,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
     }

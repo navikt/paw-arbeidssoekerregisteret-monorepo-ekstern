@@ -15,8 +15,6 @@ import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
-import io.mockk.every
-import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
@@ -24,16 +22,14 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerializa
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.poao_tilgang.client.Decision
-import no.nav.poao_tilgang.client.PolicyRequest
-import no.nav.poao_tilgang.client.PolicyResult
-import java.util.*
+import no.nav.poao_tilgang.api.dto.response.DecisionType
 
 class ProfileringerRoutesTest : FreeSpec({
     with(ApplicationTestContext.withRealDataAccess()) {
@@ -50,26 +46,62 @@ class ProfileringerRoutesTest : FreeSpec({
             )
         }
 
-        "/profilering/{periodeId} should return 401 Unauthorized without token" {
+        "/profilering/{periodeId} should return 403 Forbidden without token" {
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, periodeService, profileringService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
                 val testClient = configureTestClient()
-
                 val response = testClient.get("api/v1/profilering/${TestData.periodeId1}")
-
-                response.status shouldBe HttpStatusCode.Unauthorized
+                response.status shouldBe HttpStatusCode.Forbidden
             }
         }
 
-        "/profilering/{periodeId} should return OK" {
+        "/profilering/{periodeId} should return 403 Forbidden with Azure token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        profileringRoutes(authorizationService, profileringService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+                val response = testClient.get("api/v1/profilering/${TestData.periodeId1}") {
+                    bearerAuth(mockOAuth2Server.issueAzureToken())
+                }
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
+        "/profilering/{periodeId} should return 403 Forbidden with Azure M2M token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        profileringRoutes(authorizationService, profileringService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+                val response = testClient.get("api/v1/profilering/${TestData.periodeId1}") {
+                    bearerAuth(mockOAuth2Server.issueAzureM2MToken())
+                }
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
+        "/profilering/{periodeId} should return 400 Bad Request with unknown periode" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
@@ -80,7 +112,33 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, periodeService, profileringService)
+                        profileringRoutes(authorizationService, profileringService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+                val response = testClient.get("api/v1/profilering/${TestData.periodeId1}") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/profilering/{periodeId} should return 200 OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
+
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -90,7 +148,6 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
-
                 val response = testClient.get("api/v1/profilering/${periode.id}") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken())
                 }
@@ -109,7 +166,7 @@ class ProfileringerRoutesTest : FreeSpec({
         "/profilering should return OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr2, IdentGruppe.FOLKEREGISTERIDENT))
 
             testApplication {
                 application {
@@ -117,19 +174,18 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, periodeService, profileringService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr3)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr2)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode))
                 profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
-
                 val response = testClient.get("api/v1/profilering") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr3))
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr2))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -146,7 +202,7 @@ class ProfileringerRoutesTest : FreeSpec({
         "/profilering med siste-flagg should return OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
 
             testApplication {
                 application {
@@ -154,19 +210,18 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, periodeService, profileringService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr3)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode))
                 profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
-
                 val response = testClient.get("api/v1/profilering?siste=true") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr3))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -178,13 +233,40 @@ class ProfileringerRoutesTest : FreeSpec({
             }
         }
 
+        "/veileder/profilering should return 403 Forbidden with TokenX token" {
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        profileringRoutes(authorizationService, profileringService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+                val response = testClient.post("api/v1/veileder/profilering") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        ProfileringRequest(
+                            identitetsnummer = TestData.fnr4,
+                            periodeId = TestData.periodeId4
+                        )
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+            }
+        }
+
         "/veileder/profilering should return 403 Forbidden uten POAO Tilgang" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr1, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Deny("test", "test")))
+            } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.DENY, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -192,19 +274,18 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, periodeService, profileringService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
                 val testClient = configureTestClient()
-
                 val response = testClient.post("api/v1/veileder/profilering") {
                     bearerAuth(mockOAuth2Server.issueAzureToken())
                     contentType(ContentType.Application.Json)
                     setBody(
                         ProfileringRequest(
-                            identitetsnummer = TestData.fnr1,
-                            periodeId = TestData.periodeId3
+                            identitetsnummer = TestData.fnr5,
+                            periodeId = TestData.periodeId4
                         )
                     )
                 }
@@ -212,17 +293,17 @@ class ProfileringerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
         "/veileder/profilering should return 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            } returns listOf(IdentInformasjon(TestData.fnr6, IdentGruppe.FOLKEREGISTERIDENT))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -230,17 +311,16 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, periodeService, profileringService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr4)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr6)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode))
                 profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
-
                 val response = testClient.post("api/v1/veileder/profilering") {
                     bearerAuth(mockOAuth2Server.issueAzureToken())
                     contentType(ContentType.Application.Json)
@@ -260,17 +340,17 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer[2] shouldBeEqualTo profileringResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
 
         "/veileder/profilering med siste-flagg should return 200 OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
-            every {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>())
-            } returns listOf(PolicyResult(UUID.randomUUID(), Decision.Permit))
+            } returns listOf(IdentInformasjon(TestData.fnr7, IdentGruppe.FOLKEREGISTERIDENT))
+            coEvery {
+                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
+            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
 
             testApplication {
                 application {
@@ -278,17 +358,16 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, periodeService, profileringService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr5)
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr7)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
                 periodeService.lagreAllePerioder(listOf(periode))
                 profileringService.lagreAlleProfileringer(profileringer)
 
                 val testClient = configureTestClient()
-
                 val response = testClient.post("api/v1/veileder/profilering?siste=true") {
                     bearerAuth(mockOAuth2Server.issueAzureToken())
                     contentType(ContentType.Application.Json)
@@ -306,7 +385,7 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer[0] shouldBeEqualTo profileringResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                verify { poaoTilgangHttpConsumerMock.evaluatePolicies(any<List<PolicyRequest>>()) }
+                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
             }
         }
     }

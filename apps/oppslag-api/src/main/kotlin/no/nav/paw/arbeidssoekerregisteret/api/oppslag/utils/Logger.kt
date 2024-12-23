@@ -13,6 +13,7 @@ inline val <reified T : Any> T.buildLogger get(): Logger = LoggerFactory.getLogg
 
 inline val buildApplicationLogger: Logger get() = LoggerFactory.getLogger("no.nav.paw.logger.application")
 inline val buildErrorLogger: Logger get() = LoggerFactory.getLogger("no.nav.paw.logger.error")
+inline val buildHttpLogger: Logger get() = LoggerFactory.getLogger("no.nav.paw.logger.http")
 inline val buildAuditLogger get(): Logger = LoggerFactory.getLogger("AuditLogger")
 
 fun Logger.audit(
