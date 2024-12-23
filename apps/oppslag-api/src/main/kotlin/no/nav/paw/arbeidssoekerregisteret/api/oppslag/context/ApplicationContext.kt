@@ -24,7 +24,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.BekreftelseDeseriali
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringDeserializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.createPoaoTilgangClient
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.generateDatasource
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
@@ -36,6 +35,7 @@ import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.pdl.factory.createPdlClient
+import no.nav.paw.poao.tilgang.factory.createPoaoTilgangClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -83,6 +83,7 @@ data class ApplicationContext(
 
             val authorizationService = AuthorizationService(
                 serverConfig = serverConfig,
+                periodeRepository = periodeRepository,
                 pdlHttpConsumer = PdlHttpConsumer(pdlClient),
                 poaoTilgangHttpConsumer = PoaoTilgangHttpConsumer(poaoTilgangClient)
             )
@@ -90,8 +91,14 @@ data class ApplicationContext(
             val kafkaFactory = KafkaFactory(kafkaConfig)
 
             val metricsService = MetricsService(prometheusMeterRegistry, periodeRepository)
-            val periodeService =
-                PeriodeService(periodeRepository, opplysningerRepository, profileringRepository, bekreftelseRepository)
+
+            // Perioder avhengigheter
+            val periodeService = PeriodeService(
+                periodeRepository,
+                opplysningerRepository,
+                profileringRepository,
+                bekreftelseRepository
+            )
             val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
                 groupId = applicationConfig.perioderGroupId,
                 clientId = "${applicationConfig.perioderGroupId}-perioder-consumer",
@@ -100,7 +107,6 @@ data class ApplicationContext(
             )
 
             // Opplysninger avhengigheter
-
             val opplysningerService = OpplysningerService(opplysningerRepository)
             val opplysningerKafkaConsumer = kafkaFactory.createConsumer<Long, OpplysningerOmArbeidssoeker>(
                 groupId = applicationConfig.opplysningerGroupId,
@@ -109,7 +115,7 @@ data class ApplicationContext(
                 valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
             )
 
-            // Profilering avhengigheter
+            // Profileringer avhengigheter
             val profileringService = ProfileringService(profileringRepository)
             val profileringKafkaConsumer = kafkaFactory.createConsumer<Long, Profilering>(
                 groupId = applicationConfig.profileringGroupId,
@@ -118,7 +124,7 @@ data class ApplicationContext(
                 valueDeserializer = ProfileringDeserializer::class
             )
 
-            // Bekreftelse avhengigheter
+            // Bekreftelser avhengigheter
             val bekreftelseService = BekreftelseService(bekreftelseRepository)
             val bekreftelseKafkaConsumer = kafkaFactory.createConsumer<Long, Bekreftelse>(
                 groupId = applicationConfig.bekreftelseGroupId,

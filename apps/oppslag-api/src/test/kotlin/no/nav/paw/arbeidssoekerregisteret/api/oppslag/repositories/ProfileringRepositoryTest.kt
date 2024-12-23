@@ -12,6 +12,8 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Duration
+import java.time.Instant
 import java.util.*
 import javax.sql.DataSource
 
@@ -25,10 +27,14 @@ class ProfileringRepositoryTest : StringSpec({
         database = Database.connect(dataSource)
         repository = ProfileringRepository()
         val opplysningerRepository = OpplysningerRepository()
-        val opplysninger1 = TestData
-            .nyOpplysningerRow(opplysningerId = TestData.opplysningerId1, periodeId = TestData.periodeId1)
-        val opplysninger2 = TestData
-            .nyOpplysningerRow(opplysningerId = TestData.opplysningerId2, periodeId = TestData.periodeId2)
+        val opplysninger1 = TestData.nyOpplysningerRow(
+            opplysningerId = TestData.opplysningerId1,
+            periodeId = TestData.periodeId1
+        )
+        val opplysninger2 = TestData.nyOpplysningerRow(
+            opplysningerId = TestData.opplysningerId2,
+            periodeId = TestData.periodeId2
+        )
         opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
         opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
     }
@@ -54,10 +60,16 @@ class ProfileringRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut flere profileringer" {
-        val profilering1 =
-            TestData.nyProfileringRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
-        val profilering2 =
-            TestData.nyProfileringRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId2)
+        val profilering1 = TestData.nyProfileringRow(
+            periodeId = TestData.periodeId1,
+            opplysningerId = TestData.opplysningerId1,
+            sendtInAv = TestData.nyMetadataRow(tidspunkt = Instant.now().minus(Duration.ofDays(1)))
+        )
+        val profilering2 = TestData.nyProfileringRow(
+            periodeId = TestData.periodeId1,
+            opplysningerId = TestData.opplysningerId2,
+            sendtInAv = TestData.nyMetadataRow(tidspunkt = Instant.now().minus(Duration.ofDays(2)))
+        )
         repository.lagreProfilering(profilering1.toProfilering())
         repository.lagreProfilering(profilering2.toProfilering())
 
@@ -89,11 +101,26 @@ class ProfileringRepositoryTest : StringSpec({
 
     "Lagre profileringer med samme periodeId i batch" {
         val periodeId = UUID.randomUUID()
-        val profilering1 = TestData.nyProfileringRow(periodeId = periodeId, opplysningerId = UUID.randomUUID())
-        val profilering2 = TestData.nyProfileringRow(periodeId = periodeId, opplysningerId = UUID.randomUUID())
-        val profilering3 = TestData.nyProfileringRow(periodeId = periodeId, opplysningerId = UUID.randomUUID())
-        val profileringer =
-            listOf(profilering1.toProfilering(), profilering2.toProfilering(), profilering3.toProfilering())
+        val profilering1 = TestData.nyProfileringRow(
+            periodeId = periodeId,
+            opplysningerId = UUID.randomUUID(),
+            sendtInAv = TestData.nyMetadataRow(tidspunkt = Instant.now().minus(Duration.ofDays(1)))
+        )
+        val profilering2 = TestData.nyProfileringRow(
+            periodeId = periodeId,
+            opplysningerId = UUID.randomUUID(),
+            sendtInAv = TestData.nyMetadataRow(tidspunkt = Instant.now().minus(Duration.ofDays(2)))
+        )
+        val profilering3 = TestData.nyProfileringRow(
+            periodeId = periodeId,
+            opplysningerId = UUID.randomUUID(),
+            sendtInAv = TestData.nyMetadataRow(tidspunkt = Instant.now().minus(Duration.ofDays(3)))
+        )
+        val profileringer = listOf(
+            profilering1.toProfilering(),
+            profilering2.toProfilering(),
+            profilering3.toProfilering()
+        )
         repository.lagreAlleProfileringer(profileringer)
 
         val lagredeProfileringer = repository.finnProfileringerForPeriodeIdList(listOf(periodeId))

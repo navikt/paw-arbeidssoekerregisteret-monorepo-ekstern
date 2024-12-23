@@ -16,6 +16,7 @@
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
             <logger name="no.nav.paw.pdl" level="WARN"/>
+            <logger name="no.nav.paw.logger.security.authentication" level="DEBUG"/>
             <logger name="io.opentelemetry.sdk.metrics.internal.state.AsynchronousMetricStorage" level="ERROR"/>
             <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
