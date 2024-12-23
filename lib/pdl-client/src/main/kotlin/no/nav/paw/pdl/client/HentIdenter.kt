@@ -14,7 +14,7 @@ suspend fun PdlClient.hentIdenter(
 ): List<IdentInformasjon> {
     val query = HentIdenter(HentIdenter.Variables(ident = ident, historisk = historikk))
 
-    logger.info("Henter identer fra PDL")
+    logger.debug("Henter identer fra PDL")
 
     val response = execute(
         query = query,

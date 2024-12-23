@@ -13,7 +13,7 @@ suspend fun PdlClient.hentOpphold(
 ): List<Opphold>? {
     val query = HentOpphold(HentOpphold.Variables(ident))
 
-    logger.info("Henter opphold fra PDL")
+    logger.debug("Henter opphold fra PDL")
 
     val response = execute(
         query = query,

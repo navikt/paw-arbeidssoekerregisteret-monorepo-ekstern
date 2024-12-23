@@ -14,7 +14,7 @@ suspend fun PdlClient.hentFoedselsdato(
 ): Foedselsdato? {
     val query = HentFoedselsdato(HentFoedselsdato.Variables(ident))
 
-    logger.info("Henter fødselsdato fra PDL")
+    logger.debug("Henter fødselsdato fra PDL")
 
     val response = execute(
         query = query,

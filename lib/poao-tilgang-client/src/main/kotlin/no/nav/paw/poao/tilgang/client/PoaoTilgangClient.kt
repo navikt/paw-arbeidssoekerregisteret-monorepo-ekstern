@@ -7,43 +7,25 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import no.nav.poao_tilgang.api.dto.response.DecisionDto
-import no.nav.poao_tilgang.api.dto.response.DecisionType
-import no.nav.poao_tilgang.api.dto.response.PolicyEvaluationResultDto
-import no.nav.poao_tilgang.client.Decision
-import no.nav.poao_tilgang.client.PolicyRequest
-import no.nav.poao_tilgang.client.PolicyResult
-import no.nav.poao_tilgang.client.toRequestDto
+import no.nav.poao_tilgang.api.dto.request.EvaluatePoliciesRequest
+import no.nav.poao_tilgang.api.dto.response.EvaluatePoliciesResponse
+import org.slf4j.LoggerFactory
 
 class PoaoTilgangClient(
     private val url: String,
     private val httpClient: HttpClient,
     private val getAccessToken: () -> String
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
-    suspend fun evaluatePolicies(requests: List<PolicyRequest>): List<PolicyResult> {
-        val requestBody = requests.map { toRequestDto(it) }
+    suspend fun evaluatePolicies(request: EvaluatePoliciesRequest<Any>): EvaluatePoliciesResponse {
+        logger.debug("Henter tilganger fra POAO Tilgang")
         val response = httpClient.post("${url}/api/v1/policy/evaluate") {
             contentType(ContentType.Application.Json)
             bearerAuth(getAccessToken())
-            setBody(requestBody)
+            setBody(request)
         }
-        val responseBody: List<PolicyEvaluationResultDto> = response.call.body()
-        return responseBody.map { PolicyResult(it.requestId, it.decision.toDecision()) }
-    }
-
-    private fun DecisionDto.toDecision(): Decision {
-        return when (this.type) {
-            DecisionType.PERMIT -> Decision.Permit
-            DecisionType.DENY -> {
-                val message = this.message
-                val reason = this.reason
-
-                check(message != null) { "message cannot be null" }
-                check(reason != null) { "reason cannot be null" }
-
-                Decision.Deny(message, reason)
-            }
-        }
+        logger.debug("Hentet tilganger fra POAO Tilgang")
+        return response.call.body()
     }
 }
