@@ -6,8 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.test.shouldBeEqualTo
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.TimeUtils.getMaxDateForDatabaseStorage
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.toInstant
+import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.TimeUtils
 import java.time.Duration
 import java.time.Instant
 
@@ -61,26 +60,34 @@ class ArbeidssokerperiodeRepositoryTest : FreeSpec({
             updatedPeriodeRow shouldBeEqualTo retrievedPeriodeRow
         }
 
-        "Sletter perioder eldre enn 3 år pluss inneværende år" {
-            val startet = getMaxDateForDatabaseStorage().minusDays(30)
-            val avsluttet = getMaxDateForDatabaseStorage()
-            val periodeRows = listOf(
-                TestData.nyAvsluttetPeriodeRow(
-                    identitetsnummer = TestData.fnr7,
-                    startet = startet.toInstant(),
-                    avsluttet = avsluttet.plusDays(1).toInstant()
-                ),
-                TestData.nyAvsluttetPeriodeRow(
-                    identitetsnummer = TestData.fnr8,
-                    startet = startet.toInstant(),
-                    avsluttet = avsluttet.minusDays(1).toInstant()
-                ),
+        "Sletter avsluttede perioder eldre enn 3 år pluss inneværende år" {
+            val maksAlder = TimeUtils.maksAlderForData()
+            val startet = maksAlder.minus(Duration.ofDays(10))
+            val periode1 = TestData.nyAvsluttetPeriodeRow(
+                identitetsnummer = TestData.fnr7,
+                startet = startet,
+                avsluttet = maksAlder.minus(Duration.ofDays(1))
             )
-            periodeRows.forEach { periodeRepository.opprettPeriode(it) }
-            periodeRepository.slettDataEldreEnnDatoFraDatabase(getMaxDateForDatabaseStorage().toInstant())
+            val periode2 = TestData.nyAvsluttetPeriodeRow(
+                identitetsnummer = TestData.fnr8,
+                startet = startet,
+                avsluttet = maksAlder.plus(Duration.ofDays(1))
+            )
+            val periode3 = TestData.nyAvsluttetPeriodeRow(
+                identitetsnummer = TestData.fnr9,
+                startet = startet
+            )
+            periodeRepository.opprettPeriode(periode1)
+            periodeRepository.opprettPeriode(periode2)
+            periodeRepository.opprettPeriode(periode3)
+            periodeRepository.slettMedStartetEldreEnn(maksAlder)
 
-            val retrievedPerioder = periodeRows.mapNotNull { periodeRepository.hentPeriode(it.periodeId) }
-            retrievedPerioder.size shouldBe 1
+            val retrievedPeriode1 = periodeRepository.hentPeriode(periode1.periodeId)
+            val retrievedPeriode2 = periodeRepository.hentPeriode(periode2.periodeId)
+            val retrievedPeriode3 = periodeRepository.hentPeriode(periode3.periodeId)
+            retrievedPeriode1 shouldBe null
+            periode2 shouldBeEqualTo retrievedPeriode2
+            periode3 shouldBeEqualTo retrievedPeriode3
         }
     }
 })

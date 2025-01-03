@@ -1,2 +1,4 @@
 gruppeId = "paw.arbeidssoekerregisteret-eksternt-api-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
+perioderVedlikeholdTaskInterval = "PT24H"
+perioderMetricsTaskInterval = "PT10M"

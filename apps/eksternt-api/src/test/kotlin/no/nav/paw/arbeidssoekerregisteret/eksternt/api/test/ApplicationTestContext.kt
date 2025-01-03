@@ -16,8 +16,7 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.context.ApplicationContex
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka.PeriodeConsumer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.PeriodeService
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ScheduleDeletionService
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.AktivePerioderGaugeScheduler
+import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ScheduledTaskService
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
@@ -37,25 +36,20 @@ class ApplicationTestContext private constructor(
     val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
     val mockOAuth2Server = MockOAuth2Server()
     val meterRegistryMock: PrometheusMeterRegistry = mockk(relaxed = true)
-    val aktivePerioderGaugeScheduler = AktivePerioderGaugeScheduler(
-        meterRegistry = meterRegistryMock,
-        periodeRepository = periodeRepository
-    )
     val periodeKafkaConsumerMock: KafkaConsumer<Long, Periode> = mockk(relaxed = true)
     val periodeService = PeriodeService(periodeRepository)
     val periodeConsumer = PeriodeConsumer(kafkaTopic, periodeKafkaConsumerMock, periodeService)
-    val scheduleDeletionService = ScheduleDeletionService(periodeRepository)
+    val scheduledTaskService = ScheduledTaskService(meterRegistryMock, periodeRepository)
     val applicationContext = ApplicationContext(
         serverConfig = serverConfig,
         applicationConfig = applicationConfig,
         securityConfig = securityConfig,
         dataSource = dataSource,
         meterRegistry = meterRegistryMock,
-        aktivePerioderGaugeScheduler = aktivePerioderGaugeScheduler,
         periodeKafkaConsumer = periodeKafkaConsumerMock,
         periodeConsumer = periodeConsumer,
         periodeService = periodeService,
-        scheduleDeletionService = scheduleDeletionService
+        scheduledTaskService = scheduledTaskService
     )
 
     fun ApplicationTestBuilder.configureTestClient(): HttpClient {

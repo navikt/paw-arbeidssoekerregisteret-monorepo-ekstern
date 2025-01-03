@@ -41,8 +41,8 @@ class PeriodeRepository(private val database: Database) {
             PeriodeTable.selectAll()
                 .where { PeriodeTable.identitetsnummer eq identitetsnummer.verdi }
                 .filter {
-                    val startetDateTime = it[PeriodeTable.startet].toLocalDateTime().toLocalDate()
-                    fraStartetDato == null || startetDateTime >= fraStartetDato
+                    val startetDateTime = it[PeriodeTable.startet].toLocalDateTime()
+                    fraStartetDato == null || startetDateTime.toLocalDate() >= fraStartetDato
                 }.map { it.asPeriodeRow() }
         }
     }
@@ -98,9 +98,10 @@ class PeriodeRepository(private val database: Database) {
         }
     }
 
-    fun slettDataEldreEnnDatoFraDatabase(dato: Instant): Int {
+    fun slettMedStartetEldreEnn(maksAlder: Instant): Int {
+        logger.info("Sletter perioder som ble avsluttet tidligere enn {}", maksAlder.toString())
         return transaction(database) {
-            PeriodeTable.deleteWhere { avsluttet less dato }
+            PeriodeTable.deleteWhere { avsluttet less maksAlder }
         }
     }
 }

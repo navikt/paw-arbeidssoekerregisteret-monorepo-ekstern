@@ -8,57 +8,27 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
-import org.apache.kafka.clients.producer.Producer
-import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.LongSerializer
 
 fun main() {
-    val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
+    val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
-    produserPeriodeMeldinger(kafkaConfig, applicationConfig)
-}
+    val periodeKafkaProducer = KafkaFactory(kafkaConfig).createProducer<Long, Periode>(
+        clientId = applicationConfig.gruppeId,
+        keySerializer = LongSerializer::class,
+        valueSerializer = PeriodeSerializer::class
+    )
 
-fun produserPeriodeMeldinger(
-    kafkaConfig: KafkaConfig,
-    applicationConfig: ApplicationConfig
-) {
-    val localProducer = LocalProducer(kafkaConfig, applicationConfig)
-    try {
-        PeriodeProducerUtils().lagTestPerioder().forEach { periode ->
-            localProducer.producePeriodeMessage(applicationConfig.periodeTopic, 1234L, periode)
-        }
-    } catch (e: Exception) {
-        println("LocalProducer periode error: ${e.message}")
-        localProducer.closePeriodeProducer()
-    }
-}
-
-class LocalProducer(kafkaConfig: KafkaConfig, applicationConfig: ApplicationConfig) {
-    private val periodeProducer: Producer<Long, Periode> =
-        KafkaFactory(kafkaConfig)
-            .createProducer<Long, Periode>(
-                clientId = applicationConfig.gruppeId,
-                keySerializer = LongSerializer::class,
-                valueSerializer = PeriodeSerializer::class
-            )
-
-    fun producePeriodeMessage(
-        topic: String,
-        key: Long,
-        value: Periode
-    ) {
-        val record = ProducerRecord(topic, key, value)
-        periodeProducer.send(record) { _, exception ->
+    periodeKafkaProducer.use { producer ->
+        val topic = applicationConfig.periodeTopic
+        val record = TestData.nyProducerRecord(topic = topic)
+        producer.send(record) { _, exception ->
             if (exception != null) {
                 println("Failed to send periode message: $exception")
             } else {
                 println("Message sent successfully to topic: $topic")
             }
         }.get()
-    }
-
-    fun closePeriodeProducer() {
-        periodeProducer.close()
     }
 }

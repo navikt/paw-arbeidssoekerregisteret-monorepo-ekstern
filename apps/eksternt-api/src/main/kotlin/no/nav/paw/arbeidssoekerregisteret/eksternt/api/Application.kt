@@ -6,16 +6,16 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureDatabase
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureHTTP
+import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureRouting
+import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureScheduledTasks
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.buildApplicationLogger
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.migrateDatabase
 import no.nav.paw.config.env.appNameOrDefaultForLocal
-import kotlin.concurrent.thread
-import kotlin.system.exitProcess
 
 private val logger = buildApplicationLogger
 
@@ -50,36 +50,26 @@ fun main() {
 }
 
 fun Application.module(applicationContext: ApplicationContext) {
-    // Clean database etter versjon v1
-    // cleanDatabase(dependencies.dataSource)
-
-    // Migrerer database
-    migrateDatabase(applicationContext.dataSource)
-
-    // Konfigurerer plugins
-    configureMetrics(applicationContext.meterRegistry, applicationContext.periodeKafkaConsumer)
+    configureMetrics(
+        applicationContext.meterRegistry,
+        applicationContext.periodeKafkaConsumer
+    )
     configureHTTP()
     configureAuthentication(applicationContext.securityConfig)
     configureLogging()
     configureSerialization()
-    configureRouting(applicationContext.meterRegistry, applicationContext.periodeService)
-
-    // Sletter data eldre enn inneværende år pluss tre år en gang i døgnet
-    thread {
-        applicationContext.scheduleDeletionService.scheduleDatabaseDeletionTask()
-    }
-
-    // Periode consumer
-    thread {
-        try {
-            applicationContext.periodeConsumer.start()
-        } catch (e: Exception) {
-            logger.error("Periode consumer error: ${e.message}", e)
-            exitProcess(1)
-        }
-    }
-    // Oppdaterer grafana gauge for antall aktive perioder
-    thread {
-        applicationContext.aktivePerioderGaugeScheduler.scheduleGetAktivePerioderTask()
-    }
+    configureDatabase(applicationContext.dataSource)
+    configureKafka(
+        applicationContext.applicationConfig,
+        applicationContext.periodeKafkaConsumer,
+        applicationContext.periodeService
+    )
+    configureScheduledTasks(
+        applicationContext.applicationConfig,
+        applicationContext.scheduledTaskService
+    )
+    configureRouting(
+        applicationContext.meterRegistry,
+        applicationContext.periodeService
+    )
 }
