@@ -3,8 +3,8 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.pdl.client.PdlClient
-import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.pdl.client.hentIdenter
+import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.security.authentication.model.Identitetsnummer
 import java.util.*
 
@@ -22,6 +22,6 @@ class PdlHttpConsumer(
             navConsumerId = consumerId,
             behandlingsnummer = PDL_BEHANDLINGSNUMMER,
             historikk = true
-        ) ?: emptyList()
+        )
     }
 }
