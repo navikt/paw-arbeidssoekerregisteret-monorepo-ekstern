@@ -1,0 +1,9 @@
+[[authProviders]]
+name = "maskinporten"
+discoveryUrl = "${MASKINPORTEN_WELL_KNOWN_URL}"
+
+[authProviders.requitedClaims]
+claims = ["scope=nav:arbeid:arbeidssokerregisteret.read"]
+
+[authProviders.optionalClaims]
+claims = ["aud", "sub", "nbf"]

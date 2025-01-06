@@ -49,6 +49,7 @@ dependencies {
     // Kafka
     implementation(libs.avro)
     implementation(libs.confluent.kafka.avro.serializer)
+    implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Database
     implementation(libs.exposed.crypt)
@@ -80,7 +81,7 @@ java {
 }
 
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("no.nav.paw.arbeidssoekerregisteret.eksternt.api.ApplicationKt")
 }
 
 sourceSets {

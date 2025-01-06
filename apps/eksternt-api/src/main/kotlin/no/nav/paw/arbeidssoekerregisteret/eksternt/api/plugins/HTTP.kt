@@ -7,7 +7,9 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.IgnoreTrailingSlash
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.logger
+import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.buildErrorLogger
+
+private val logger = buildErrorLogger
 
 fun Application.configureHTTP() {
     install(IgnoreTrailingSlash)

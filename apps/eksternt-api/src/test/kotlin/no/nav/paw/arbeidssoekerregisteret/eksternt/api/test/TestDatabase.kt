@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories
+package no.nav.paw.arbeidssoekerregisteret.eksternt.api.test
 
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.DatabaseConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.dataSource
@@ -26,8 +26,8 @@ fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
         PostgreSQLContainer(
             "postgres:14"
         ).apply {
-            addEnv("POSTGRES_PASSWORD", "admin")
-            addEnv("POSTGRES_USER", "admin")
+            addEnv("POSTGRES_USER", "eksternt_api")
+            addEnv("POSTGRES_PASSWORD", "Paw1234")
             addEnv("POSTGRES_DB", "arbeidssoekerregisteretapiekstern")
             addExposedPorts(5432)
         }
