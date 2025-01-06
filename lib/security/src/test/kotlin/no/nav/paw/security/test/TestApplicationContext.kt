@@ -10,15 +10,18 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.auth.authentication
-import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.IgnoreTrailingSlash
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.paw.error.handler.handleException
+import no.nav.paw.error.plugin.ErrorHandlingPlugin
 import no.nav.paw.security.authentication.interceptor.autentisering
+import no.nav.paw.security.authentication.model.AzureAd
+import no.nav.paw.security.authentication.model.IdPorten
+import no.nav.paw.security.authentication.model.MaskinPorten
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
@@ -48,7 +51,7 @@ class TestApplicationContext {
         }
     }
 
-    fun Application.configureApplication(policies: List<AccessPolicy> = emptyList()) {
+    fun Application.configureTestApplication(policies: List<AccessPolicy> = emptyList()) {
         configureSerialization()
         configureRequestHandling()
         configureAuthentication()
@@ -57,17 +60,66 @@ class TestApplicationContext {
 
     private fun Application.configureRouting(policies: List<AccessPolicy> = emptyList()) {
         routing {
-            autentisering(TokenX) {
-                get("/api/dummy") {
-                    autorisering(Action.READ, policies) {
-                        call.respond(TestResponse("All Quiet on the Western Front"))
+            route("/api/tokenx") {
+                autentisering(TokenX) {
+                    get("/") {
+                        autorisering(Action.READ, policies) {
+                            call.respond(TestResponse("All Quiet on the Western Front"))
+                        }
+                    }
+
+                    post("/") {
+                        autorisering(Action.WRITE, policies) {
+                            call.respond(TestResponse("All Quiet on the Western Front"))
+                        }
                     }
                 }
+            }
 
-                post("/api/dummy") {
-                    autorisering(Action.WRITE, policies) {
+            route("/api/azuread") {
+                autentisering(AzureAd) {
+                    get("/") {
+                        autorisering(Action.READ, policies) {
+                            call.respond(TestResponse("All Quiet on the Western Front"))
+                        }
+                    }
 
-                        call.respond(TestResponse("All Quiet on the Western Front"))
+                    post("/") {
+                        autorisering(Action.WRITE, policies) {
+                            call.respond(TestResponse("All Quiet on the Western Front"))
+                        }
+                    }
+                }
+            }
+
+            route("/api/idporten") {
+                autentisering(IdPorten) {
+                    get("/") {
+                        autorisering(Action.READ, policies) {
+                            call.respond(TestResponse("All Quiet on the Western Front"))
+                        }
+                    }
+
+                    post("/") {
+                        autorisering(Action.WRITE, policies) {
+                            call.respond(TestResponse("All Quiet on the Western Front"))
+                        }
+                    }
+                }
+            }
+
+            route("/api/maskinporten") {
+                autentisering(MaskinPorten) {
+                    get("/") {
+                        autorisering(Action.READ, policies) {
+                            call.respond(TestResponse("All Quiet on the Western Front"))
+                        }
+                    }
+
+                    post("/") {
+                        autorisering(Action.WRITE, policies) {
+                            call.respond(TestResponse("All Quiet on the Western Front"))
+                        }
                     }
                 }
             }
@@ -87,11 +139,7 @@ class TestApplicationContext {
 
     private fun Application.configureRequestHandling() {
         install(IgnoreTrailingSlash)
-        install(StatusPages) {
-            exception<Throwable> { call, cause ->
-                call.handleException(cause)
-            }
-        }
+        install(ErrorHandlingPlugin)
     }
 
 

@@ -3,36 +3,6 @@
     "httpServer": "NettyWrapper",
     "tokenCallbacks": [
         {
-            "issuerId": "idporten",
-            "tokenExpiry": 3600,
-            "requestMappings": [
-                {
-                    "requestParam": "client_id",
-                    "match": "paw-microfrontend-toggler",
-                    "claims": {
-                        "sub": "admin@paw-microfrontend-toggler",
-                        "aud": [
-                            "paw-microfrontend-toggler"
-                        ],
-                        "pid": "01017012345",
-                        "acr": "idporten-loa-high"
-                    }
-                },
-                {
-                    "requestParam": "client_id",
-                    "match": "paw-arbeidssoekerregisteret-api-oppslag",
-                    "claims": {
-                        "sub": "admin@paw-arbeidssoekerregisteret-api-oppslag",
-                        "aud": [
-                            "paw-arbeidssoekerregisteret-api-oppslag"
-                        ],
-                        "pid": "01017012345",
-                        "acr": "idporten-loa-high"
-                    }
-                }
-            ]
-        },
-        {
             "issuerId": "tokenx",
             "tokenExpiry": 3600,
             "requestMappings": [
@@ -115,6 +85,50 @@
                         "roles": [
                             "access_as_application"
                         ]
+                    }
+                }
+            ]
+        },
+        {
+            "issuerId": "idporten",
+            "tokenExpiry": 3600,
+            "requestMappings": [
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-microfrontend-toggler",
+                    "claims": {
+                        "sub": "admin@paw-microfrontend-toggler",
+                        "aud": [
+                            "paw-microfrontend-toggler"
+                        ],
+                        "pid": "01017012345",
+                        "acr": "idporten-loa-high"
+                    }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-oppslag",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-oppslag",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-oppslag"
+                        ],
+                        "pid": "01017012345",
+                        "acr": "idporten-loa-high"
+                    }
+                }
+            ]
+        },
+        {
+            "issuerId": "maskinporten",
+            "tokenExpiry": 3600,
+            "requestMappings": [
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-eksternt-api",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-eksternt-api",
+                        "scope": "nav:arbeid:arbeidssokerregisteret.read"
                     }
                 }
             ]

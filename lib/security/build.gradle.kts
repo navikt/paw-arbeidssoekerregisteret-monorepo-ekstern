@@ -9,8 +9,6 @@ dependencies {
     implementation(libs.nav.security.token.validation.ktor)
 
     //Test
-    testImplementation(project(":lib:pdl-client"))
-    testImplementation(libs.nav.poao.tilgang.client)
     testImplementation(libs.nav.security.mock.oauth2.server)
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.ktor.server.tests)

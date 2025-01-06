@@ -10,6 +10,10 @@ import no.nav.paw.security.authorization.exception.SecurityContextManglerExcepti
 import no.nav.paw.security.authorization.exception.UgyldigBearerTokenException
 import no.nav.paw.security.authorization.exception.UgyldigBrukerException
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
+import org.slf4j.LoggerFactory
+import java.util.*
+
+private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authentication")
 
 data class SecurityContext(
     val bruker: Bruker<*>,
@@ -25,19 +29,35 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
         ?: throw UgyldigBearerTokenException("Ingen gyldige Bearer Tokens funnet")
 
     val bruker = when (accessToken.issuer) {
-        is IdPorten -> Sluttbruker(accessToken.claims.getOrThrow(PID))
-        is TokenX -> Sluttbruker(accessToken.claims.getOrThrow(PID))
+        is TokenX -> {
+            logger.debug("TokenX token -> Sluttbruker")
+            Sluttbruker(accessToken.claims.getOrThrow(PID))
+        }
+
         is AzureAd -> {
             if (accessToken.isM2MToken()) {
                 val navIdentHeader = request.headers[NavIdentHeader.name]
                 if (navIdentHeader.isNullOrBlank()) {
+                    logger.debug("AzureAd M2M token -> M2MToken")
                     M2MToken(accessToken.claims.getOrThrow(OID))
                 } else {
+                    logger.debug("AzureAd M2M token -> NavAnsatt")
                     NavAnsatt(accessToken.claims.getOrThrow(OID), navIdentHeader)
                 }
             } else {
+                logger.debug("AzureAd token -> NavAnsatt")
                 NavAnsatt(accessToken.claims.getOrThrow(OID), accessToken.claims.getOrThrow(NavIdent))
             }
+        }
+
+        is IdPorten -> {
+            logger.debug("IdPorten token -> Sluttbruker")
+            Sluttbruker(accessToken.claims.getOrThrow(PID))
+        }
+
+        is MaskinPorten -> {
+            logger.debug("MaskinPorten token -> M2MToken")
+            M2MToken(UUID.randomUUID())
         }
     }
 
@@ -58,7 +78,7 @@ fun ApplicationCall.securityContext(securityContext: SecurityContext) {
 
 inline fun <reified T : Bruker<*>> SecurityContext.resolveBruker(): T {
     when (bruker) {
-        is T -> return bruker as T
+        is T -> return bruker
         else -> throw UgyldigBrukerException("Bruker er ikke av forventet type")
     }
 }
