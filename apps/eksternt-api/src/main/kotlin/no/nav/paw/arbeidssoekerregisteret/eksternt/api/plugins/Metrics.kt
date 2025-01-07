@@ -1,7 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins
 
-import io.ktor.server.application.*
-import io.ktor.server.metrics.micrometer.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics

@@ -6,11 +6,8 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.DATABASE_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.DatabaseConfig
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.SECURITY_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.SERVER_CONFIG
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.SecurityConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka.PeriodeConsumer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ScheduledTaskService
@@ -21,6 +18,8 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.security.authentication.config.SECURITY_CONFIG
+import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.sql.Database
@@ -33,7 +32,6 @@ data class ApplicationContext(
     val dataSource: DataSource,
     val meterRegistry: PrometheusMeterRegistry,
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
-    val periodeConsumer: PeriodeConsumer,
     val periodeService: PeriodeService,
     val scheduledTaskService: ScheduledTaskService
 ) {
@@ -61,8 +59,6 @@ data class ApplicationContext(
                 valueDeserializer = PeriodeDeserializer::class
             )
 
-            val periodeConsumer = PeriodeConsumer(applicationConfig.periodeTopic, periodeKafkaConsumer, periodeService)
-
             return ApplicationContext(
                 serverConfig = serverConfig,
                 applicationConfig = applicationConfig,
@@ -70,7 +66,6 @@ data class ApplicationContext(
                 dataSource = dataSource,
                 meterRegistry = meterRegistry,
                 scheduledTaskService = scheduledTaskService,
-                periodeConsumer = periodeConsumer,
                 periodeService = periodeService,
                 periodeKafkaConsumer = periodeKafkaConsumer
             )

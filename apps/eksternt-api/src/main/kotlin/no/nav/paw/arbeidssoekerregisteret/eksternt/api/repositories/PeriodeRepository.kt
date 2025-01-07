@@ -1,12 +1,12 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories
 
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.database.PeriodeTable
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.asPeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.toLocalDateTime
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.deleteWhere

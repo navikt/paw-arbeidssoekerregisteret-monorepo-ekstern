@@ -11,7 +11,8 @@ servers:
 paths:
   /api/v1/arbeidssoekerperioder:
     post:
-      description: ""
+      operationId: "getArbeidssoekerperioder"
+      description: "Hent arbeidssøkerperioder"
       requestBody:
         content:
           application/json:
@@ -19,17 +20,6 @@ paths:
               $ref: "#/components/schemas/EksternRequest"
         required: true
       responses:
-        "400":
-          description: "Bad Request"
-          content:
-            'string':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ugyldig dato 'fraStartetDato' må være satt med yyyy-mm-dd"
-                Example#2:
-                  value: "Ugyldig request body"
         "200":
           description: "OK"
           content:
@@ -38,42 +28,93 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ArbeidssoekerperiodeResponse"
+              example:
+                - periodeId: "e49e5f67-e7a0-4109-92ec-7b2a8bed3d67"
+                  startet: "2021-01-01T12:00:00.000"
+                - periodeId: "7a126dc0-0922-4d5d-a01e-5b37a798095b"
+                  startet: "2020-01-01T12:00:00.000"
+                  avsluttet: "2020-12-31T12:00:00.000"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "fa85c6aa-29a8-4378-bff7-7cbc4a1e9b5a"
+                type: "urn:paw:http:kunne-ikke-tolke-forespoersel"
+                status: 400
+                title: "Bad Request"
+                detail: "Kunne ikke tolke forespørsel"
+                instance: "api/v1/arbeidssoekerperioder"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "3cd944fb-6187-41a8-91b2-b172f2baf890"
+                type: "urn:paw:sikkerhet:bruker-har-ikke-tilgang"
+                status: 403
+                title: "Forbidden"
+                detail: "Bruker har ikke tilgang"
+                instance: "api/v1/arbeidssoekerperioder"
+                timestamp: "2021-01-01T12:00:00.000Z"
   /internal/isAlive:
     get:
-      description: ""
+      operationId: "getIsAlive"
+      description: "Service is alive probe"
       responses:
+        "503":
+          description: "Service Unavailable"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+              example:
+                "UNHEALTHY"
         "200":
           description: "OK"
           content:
             text/plain:
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "ALIVE"
+                $ref: "#/components/schemas/HealthStatus"
+              example:
+                "HEALTHY"
   /internal/isReady:
     get:
-      description: ""
+      operationId: "getIsReady"
+      description: "Service is ready probe"
       responses:
+        "503":
+          description: "Service Unavailable"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+              example:
+                "UNHEALTHY"
         "200":
           description: "OK"
           content:
             text/plain:
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "READY"
+                $ref: "#/components/schemas/HealthStatus"
+              example:
+                "HEALTHY"
   /internal/metrics:
     get:
-      description: ""
+      operationId: "getMetrics"
+      description: "Endepunkt for metrikker"
       responses:
         "200":
           description: "OK"
           content:
             application/json:
               schema:
-                type: "string"
+                type: "object"
 components:
   schemas:
     EksternRequest:
@@ -81,7 +122,7 @@ components:
       properties:
         identitetsnummer:
           type: "string"
-          example: "12345678901"
+          example: "01017012345"
         fraStartetDato:
           type: "string"
           example: "2021-01-01"
@@ -104,3 +145,38 @@ components:
       required:
       - "periodeId"
       - "startet"
+    ProblemDetails:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        type:
+          type: "string"
+          format: "uri"
+        status:
+          type: "integer"
+        title:
+          type: "string"
+        detail:
+          type: "string"
+        instance:
+          type: "string"
+        timestamp:
+          type: "string"
+          format: "date-time"
+          example: "2021-01-01T12:00:00Z"
+      required:
+        - "id"
+        - "type"
+        - "status"
+        - "title"
+        - "detail"
+        - "instance"
+        - "timestamp"
+    HealthStatus:
+      type: "string"
+      enum:
+        - "UNKNOWN"
+        - "HEALTHY"
+        - "UNHEALTHY"
