@@ -97,7 +97,7 @@ spec:
           namespace: teamdagpenger
         - application: dp-mine-dagpenger-frontend
           namespace: teamdagpenger
-        - application: dp-rapportering-personregister
+        - application: dp-arbeidssokerregister-adapter
           namespace: teamdagpenger
         - application: veilarbportefolje
           namespace: pto
