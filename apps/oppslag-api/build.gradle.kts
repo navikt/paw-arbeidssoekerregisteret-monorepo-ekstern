@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":lib:kafka"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:pdl-client"))
+    implementation(project(":lib:poao-tilgang-client"))
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 
@@ -68,7 +69,6 @@ dependencies {
     implementation(libs.nav.common.token.client)
     implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
-    implementation(libs.nav.poao.tilgang.client)
 
     implementation(libs.arrow.core)
 

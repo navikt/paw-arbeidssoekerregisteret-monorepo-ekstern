@@ -6,6 +6,7 @@ import io.ktor.server.plugins.callid.CallId
 import io.ktor.server.plugins.callid.callIdMdc
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.request.path
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildHttpLogger
 import java.util.*
 
 fun Application.configureLogging() {
@@ -18,5 +19,6 @@ fun Application.configureLogging() {
         callIdMdc("x_callId")
         disableDefaultColors()
         filter { !it.request.path().startsWith("/internal") }
+        logger = buildHttpLogger
     }
 }

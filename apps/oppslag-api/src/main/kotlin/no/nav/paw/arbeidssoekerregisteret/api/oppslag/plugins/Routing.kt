@@ -24,12 +24,10 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
         )
         opplysningerRoutes(
             applicationContext.authorizationService,
-            applicationContext.periodeService,
             applicationContext.opplysningerService
         )
         profileringRoutes(
             applicationContext.authorizationService,
-            applicationContext.periodeService,
             applicationContext.profileringService
         )
         samletInformasjonRoutes(
@@ -41,8 +39,7 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
         )
         bekreftelseRoutes(
             applicationContext.authorizationService,
-            applicationContext.bekreftelseService,
-            applicationContext.periodeService
+            applicationContext.bekreftelseService
         )
     }
 }
