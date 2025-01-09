@@ -13,7 +13,7 @@ fun Application.configureAuthentication(oAuth2Server: MockOAuth2Server) {
         securityConfig.authProviders.map {
             it.copy(
                 discoveryUrl = oAuth2Server.wellKnownUrl("default").toString(),
-                clientId = "default"
+                audiences = listOf("default")
             )
         }
     val updatedSecurityConfig = securityConfig.copy(authProviders = authProviders)

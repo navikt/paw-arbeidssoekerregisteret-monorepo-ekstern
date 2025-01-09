@@ -16,7 +16,6 @@
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
             <logger name="no.nav.paw.pdl" level="WARN"/>
-            <logger name="no.nav.paw.logger.security.authentication" level="DEBUG"/>
             <logger name="io.opentelemetry.sdk.metrics.internal.state.AsynchronousMetricStorage" level="ERROR"/>
             <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
@@ -42,6 +41,7 @@
             <logger name="org.apache.kafka.clients.admin.AdminClientConfig" level="WARN"/>
             <logger name="org.apache.kafka.clients.consumer.ConsumerConfig" level="WARN"/>
             <logger name="org.apache.kafka.clients.producer.ProducerConfig" level="WARN"/>
+            <logger name="org.apache.kafka.clients.consumer.internals.ConsumerCoordinator" level="WARN"/>
             <logger name="io.confluent.kafka.serializers.KafkaAvroSerializerConfig" level="WARN"/>
             <logger name="io.confluent.kafka.serializers.KafkaAvroDeserializerConfig" level="WARN"/>
         </then>

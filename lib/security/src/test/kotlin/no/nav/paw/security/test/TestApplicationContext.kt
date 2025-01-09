@@ -18,6 +18,8 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.paw.error.plugin.ErrorHandlingPlugin
+import no.nav.paw.security.authentication.config.asRequiredClaims
+import no.nav.paw.security.authentication.config.asTokenSupportConfig
 import no.nav.paw.security.authentication.interceptor.autentisering
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.IdPorten
@@ -27,9 +29,6 @@ import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
 import no.nav.paw.security.authorization.policy.AccessPolicy
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.security.token.support.v2.IssuerConfig
-import no.nav.security.token.support.v2.RequiredClaims
-import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerContentNegotiation
@@ -147,21 +146,11 @@ class TestApplicationContext {
         val authProviders = mockOAuth2Server.getAuthProviders()
 
         authentication {
-            authProviders.forEach { authProvider ->
+            authProviders.forEach { provider ->
                 tokenValidationSupport(
-                    name = authProvider.name,
-                    config = TokenSupportConfig(
-                        IssuerConfig(
-                            name = authProvider.name,
-                            discoveryUrl = authProvider.discoveryUrl,
-                            acceptedAudience = listOf(authProvider.clientId)
-                        )
-                    ),
-                    requiredClaims = RequiredClaims(
-                        authProvider.name,
-                        authProvider.claims.map.toTypedArray(),
-                        authProvider.claims.combineWithOr
-                    )
+                    name = provider.name,
+                    config = provider.asTokenSupportConfig(),
+                    requiredClaims = provider.asRequiredClaims()
                 )
             }
         }

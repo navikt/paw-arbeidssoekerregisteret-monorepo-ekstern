@@ -1,7 +1,7 @@
 package no.nav.paw.security.test
 
 import no.nav.paw.security.authentication.config.AuthProvider
-import no.nav.paw.security.authentication.config.AuthProviderClaims
+import no.nav.paw.security.authentication.config.AuthProviderRequiredClaims
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -71,8 +71,6 @@ fun MockOAuth2Server.issueMaskinPortenToken(
 }
 
 fun MockOAuth2Server.getAuthProviders(): List<AuthProvider> {
-    val issuerId = "default"
-    val wellKnownUrl = wellKnownUrl(issuerId).toString()
     return listOf(
         "tokenx" to listOf("acr=idporten-loa-high"),
         "azure" to listOf("NAVident"),
@@ -81,9 +79,9 @@ fun MockOAuth2Server.getAuthProviders(): List<AuthProvider> {
     ).map {
         AuthProvider(
             name = it.first,
-            clientId = issuerId,
+            audiences = listOf("default"),
             discoveryUrl = wellKnownUrl(it.first).toString(),
-            claims = AuthProviderClaims(map = it.second)
+            requiredClaims = AuthProviderRequiredClaims(claims = it.second)
         )
     }
 }

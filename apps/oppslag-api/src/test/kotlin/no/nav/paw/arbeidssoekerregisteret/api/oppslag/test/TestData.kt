@@ -35,7 +35,7 @@ import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.security.authentication.model.Claims
 import no.nav.paw.security.authentication.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Issuer
-import no.nav.paw.security.authentication.model.M2MToken
+import no.nav.paw.security.authentication.model.Anonym
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -116,7 +116,7 @@ object TestData {
 
     fun nyM2MToken(
         oid: UUID = UUID.randomUUID()
-    ) = M2MToken(oid = oid)
+    ) = Anonym(oid = oid)
 
     fun nyttAccessToken(
         issuser: Issuer = TokenX,

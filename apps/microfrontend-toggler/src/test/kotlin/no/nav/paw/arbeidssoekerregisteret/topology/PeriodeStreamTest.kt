@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
-import no.nav.paw.arbeidssoekerregisteret.test.buildPeriode
+import no.nav.paw.arbeidssoekerregisteret.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.test.shouldBeEqualTo
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildPeriodeStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
@@ -47,7 +47,7 @@ class PeriodeStreamTest : FreeSpec({
             "Testsuite for toggling av microfrontends basert på arbeidssøkerperiode" - {
 
                 "Skal aktivere begge microfrontends ved start av periode eldre en 21 dager (p1)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p1Identitetsnummer) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p1Identitetsnummer.verdi) } returns KafkaKeysResponse(
                         p1ArbeidssoekerId,
                         1
                     )
@@ -90,7 +90,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere begge microfrontend ved avslutting av periode eldre enn 21 dager (p1)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.verdi) } returns KafkaKeysResponse(
                         p1ArbeidssoekerId,
                         1
                     )
@@ -126,7 +126,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal aktivere begge microfrontends ved start av periode (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.verdi) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -140,7 +140,7 @@ class PeriodeStreamTest : FreeSpec({
                     val minSideKeyValue = keyValueList.first()
                     val behovsvurderingKeyValue = keyValueList.last()
 
-                    minSideKeyValue.key shouldBe p2Identitetsnummer.toLong()
+                    minSideKeyValue.key shouldBe p2ArbeidssoekerId
                     with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                         action shouldBe ToggleAction.ENABLE
                         ident shouldBe p2StartetPeriode.identitetsnummer
@@ -169,7 +169,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere aia-behovsvurdering microfrontend ved avslutting av periode nyere enn 21 dager (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.verdi) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -202,7 +202,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere aia-min-side microfrontend 21 dager etter avslutting av periode (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.verdi) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -228,7 +228,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal ignorere duplikat start periode" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p3Identitetsnummer) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p3Identitetsnummer.verdi) } returns KafkaKeysResponse(
                         p3ArbeidssoekerId,
                         1
                     )
@@ -289,17 +289,17 @@ class PeriodeStreamTest : FreeSpec({
     }
 
     private class LocalTestData {
-        val p1Id = UUID.randomUUID()
-        val p1Identitetsnummer = "02017012345"
-        val p1ArbeidssoekerId = p1Identitetsnummer.toLong()
+        val p1Id = TestData.periodeId1
+        val p1Identitetsnummer = TestData.identitetsnummer2
+        val p1ArbeidssoekerId = TestData.arbeidsoekerId2
         val p1AvsluttetTidspunkt = Instant.now().minus(Duration.ofDays(22))
         val p1StartetTidspunkt = p1AvsluttetTidspunkt.minus(Duration.ofDays(5))
-        val p1StartetPeriode = buildPeriode(
+        val p1StartetPeriode = TestData.buildPeriode(
             id = p1Id,
             identitetsnummer = p1Identitetsnummer,
             startetTidspunkt = p1StartetTidspunkt
         )
-        val p1AvsluttetPeriode = buildPeriode(
+        val p1AvsluttetPeriode = TestData.buildPeriode(
             id = p1Id,
             identitetsnummer = p1Identitetsnummer,
             startetTidspunkt = p1StartetTidspunkt,
@@ -307,16 +307,16 @@ class PeriodeStreamTest : FreeSpec({
         )
 
         val p2Id = UUID.randomUUID()
-        val p2Identitetsnummer = "01017012345"
-        val p2ArbeidssoekerId = p2Identitetsnummer.toLong()
+        val p2Identitetsnummer = TestData.identitetsnummer1
+        val p2ArbeidssoekerId = TestData.arbeidsoekerId1
         val p2AvsluttetTidspunkt = Instant.now().minus(Duration.ofDays(5))
         val p2StartetTidspunkt = p2AvsluttetTidspunkt.minus(Duration.ofDays(10))
-        val p2StartetPeriode = buildPeriode(
+        val p2StartetPeriode = TestData.buildPeriode(
             id = p2Id,
             identitetsnummer = p2Identitetsnummer,
             startetTidspunkt = p2StartetTidspunkt
         )
-        val p2AvsluttetPeriode = buildPeriode(
+        val p2AvsluttetPeriode = TestData.buildPeriode(
             id = p2Id,
             identitetsnummer = p2Identitetsnummer,
             startetTidspunkt = p2StartetTidspunkt,
@@ -324,16 +324,16 @@ class PeriodeStreamTest : FreeSpec({
         )
 
         val p3Id = UUID.randomUUID()
-        val p3Identitetsnummer = "03017012345"
-        val p3ArbeidssoekerId = p3Identitetsnummer.toLong()
+        val p3Identitetsnummer = TestData.identitetsnummer3
+        val p3ArbeidssoekerId = TestData.arbeidsoekerId3
         val p3StartetTidspunkt1 = Instant.now().minus(Duration.ofDays(30))
         val p3StartetTidspunkt2 = Instant.now().minus(Duration.ofDays(60))
-        val p3StartetPeriode1 = buildPeriode(
+        val p3StartetPeriode1 = TestData.buildPeriode(
             id = p3Id,
             identitetsnummer = p3Identitetsnummer,
             startetTidspunkt = p3StartetTidspunkt1
         )
-        val p3StartetPeriode2 = buildPeriode(
+        val p3StartetPeriode2 = TestData.buildPeriode(
             id = p3Id,
             identitetsnummer = p3Identitetsnummer,
             startetTidspunkt = p3StartetTidspunkt2

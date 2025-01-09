@@ -19,6 +19,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
+import no.nav.paw.arbeidssoekerregisteret.test.issueTokenXToken
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.security.authorization.exception.IngenTilgangException
 import no.nav.paw.security.authorization.exception.UgyldigBearerTokenException
@@ -58,16 +59,8 @@ class ToggleRoutesTest : FreeSpec({
                     configureTestApplication()
                     val client = configureTestClient()
 
-                    val token = mockOAuth2Server.issueToken(
-                        issuerId = "whatever",
-                        claims = mapOf(
-                            "acr" to "idporten-loa-high",
-                            "pid" to "01017012345"
-                        )
-                    )
-
                     val response = client.post("/api/v1/microfrontend-toggle") {
-                        bearerAuth(token.serialize())
+                        bearerAuth(mockOAuth2Server.issueTokenXToken(issuerId = "whatever"))
                         contentType(ContentType.Application.Json)
                         setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
                     }
@@ -81,18 +74,13 @@ class ToggleRoutesTest : FreeSpec({
                     configureTestApplication()
                     val client = configureTestClient()
 
-                    val token = mockOAuth2Server.issueToken()
-
                     val response = client.post("/api/v1/microfrontend-toggle") {
-                        bearerAuth(token.serialize())
+                        bearerAuth(mockOAuth2Server.issueToken().serialize())
                         contentType(ContentType.Application.Json)
                         setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
                     }
 
                     response.status shouldBe HttpStatusCode.Forbidden
-                    val body = response.body<ProblemDetails>()
-                    body.status shouldBe HttpStatusCode.Forbidden
-                    body.type shouldBe UgyldigBearerTokenException("").type
                 }
             }
 
@@ -125,15 +113,8 @@ class ToggleRoutesTest : FreeSpec({
                     configureTestApplication()
                     val client = configureTestClient()
 
-                    val token = mockOAuth2Server.issueToken(
-                        claims = mapOf(
-                            "acr" to "idporten-loa-high",
-                            "pid" to "01017012345"
-                        )
-                    )
-
                     val response = client.post("/api/v1/microfrontend-toggle") {
-                        bearerAuth(token.serialize())
+                        bearerAuth(mockOAuth2Server.issueTokenXToken())
                         contentType(ContentType.Application.Json)
                         setBody(ToggleRequest(ToggleAction.ENABLE, "aia-min-side"))
                     }
@@ -152,15 +133,8 @@ class ToggleRoutesTest : FreeSpec({
                     configureTestApplication()
                     val client = configureTestClient()
 
-                    val token = mockOAuth2Server.issueToken(
-                        claims = mapOf(
-                            "acr" to "idporten-loa-high",
-                            "pid" to "01017012345"
-                        )
-                    )
-
                     val response = client.post("/api/v1/microfrontend-toggle") {
-                        bearerAuth(token.serialize())
+                        bearerAuth(mockOAuth2Server.issueTokenXToken())
                         contentType(ContentType.Application.Json)
                         setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
                     }

@@ -30,8 +30,6 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.security.authentication.config.AuthProvider
-import no.nav.paw.security.authentication.config.AuthProviderClaims
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -97,7 +95,12 @@ open class TestContext {
         val applicationContext = ApplicationContext(
             serverConfig,
             applicationConfig,
-            securityConfig.copy(authProviders = mockOAuth2Server.createAuthProviders()),
+            securityConfig.copy(authProviders = securityConfig.authProviders.map {
+                it.copy(
+                    audiences = listOf("default"),
+                    discoveryUrl = mockOAuth2Server.wellKnownUrl("default").toString()
+                )
+            }),
             prometheusMeterRegistryMock,
             healthIndicatorRepository,
             authorizationService,
@@ -123,16 +126,5 @@ open class TestContext {
                 }
             }
         }
-    }
-
-    fun MockOAuth2Server.createAuthProviders(): List<AuthProvider> {
-        return listOf(
-            AuthProvider(
-                name = "tokenx",
-                clientId = "default",
-                discoveryUrl = wellKnownUrl("default").toString(),
-                claims = AuthProviderClaims(map = listOf(), combineWithOr = true)
-            )
-        )
     }
 }

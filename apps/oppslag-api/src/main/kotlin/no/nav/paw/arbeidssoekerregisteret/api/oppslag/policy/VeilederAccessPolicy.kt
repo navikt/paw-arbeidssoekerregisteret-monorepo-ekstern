@@ -3,8 +3,8 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.policy
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.audit
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildAuditLogger
 import no.nav.paw.config.env.RuntimeEnvironment
+import no.nav.paw.security.authentication.model.Anonym
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.paw.security.authentication.model.M2MToken
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authorization.model.AccessDecision
@@ -23,21 +23,20 @@ class VeilederAccessPolicy(
     private val harSluttbrukerTilgangFunction: (NavAnsatt, Collection<Identitetsnummer>, Action) -> Boolean,
     private val harPeriodeTilgangFunction: (UUID, Collection<Identitetsnummer>) -> Boolean
 ) : AccessPolicy {
-
     private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authorization")
     private val auditLogger: Logger = buildAuditLogger
 
     override fun hasAccess(action: Action, securityContext: SecurityContext): AccessDecision {
         val (bruker, _) = securityContext
 
-        logger.debug("Autoriserer brukertype {}", bruker::class.simpleName)
+        logger.info("Autoriserer brukertype {}", bruker::class.simpleName)
 
         return when (bruker) {
             is NavAnsatt -> {
                 hasNavAnsattAccess(action, bruker)
             }
 
-            is M2MToken -> {
+            is Anonym -> {
                 hasM2MTokenAccess(action, bruker)
             }
 
@@ -70,7 +69,7 @@ class VeilederAccessPolicy(
         return Permit("Veileder har $action-tilgang til sluttbruker")
     }
 
-    private fun hasM2MTokenAccess(action: Action, bruker: M2MToken): AccessDecision {
+    private fun hasM2MTokenAccess(action: Action, bruker: Anonym): AccessDecision {
         if (identiteter.isEmpty()) {
             return Deny("M2M-token må sende med identitetsnummer for sluttbruker")
         }

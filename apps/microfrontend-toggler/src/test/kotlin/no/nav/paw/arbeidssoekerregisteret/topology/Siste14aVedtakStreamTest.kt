@@ -4,9 +4,9 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
-import no.nav.paw.arbeidssoekerregisteret.test.TestContext
-import no.nav.paw.arbeidssoekerregisteret.test.buildSiste14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
+import no.nav.paw.arbeidssoekerregisteret.test.TestContext
+import no.nav.paw.arbeidssoekerregisteret.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildSiste14aVedtakStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyOrNullBlocking
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
@@ -21,12 +21,13 @@ class Siste14aVedtakStreamTest : FreeSpec({
 
     with(LocalTestContext()) {
         "Testsuite for berikelse av siste 14a vedtak" - {
-            val aktivAktorId = "12345"
-            val inaktivAktorId = "98765"
-            val aktivArbeidsoekerId = 1234L
-            val aktivKey = 23456L
-            val aktivSiste14aVedtak = buildSiste14aVedtak(aktivAktorId, Instant.now())
-            val inaktivSiste14aVedtak = buildSiste14aVedtak(inaktivAktorId, Instant.now().minus(Duration.ofDays(10)))
+            val aktivAktorId = TestData.aktorId1
+            val inaktivAktorId = TestData.aktorId2
+            val aktivArbeidsoekerId = TestData.arbeidsoekerId1
+            val aktivKey = TestData.kafkaKey1
+            val aktivSiste14aVedtak = TestData.buildSiste14aVedtak(aktivAktorId, Instant.now())
+            val inaktivSiste14aVedtak = TestData
+                .buildSiste14aVedtak(inaktivAktorId, Instant.now().minus(Duration.ofDays(10)))
 
             "Skal ikke berike 14a vedtak om KafkaKeys returnerer null" {
                 coEvery { kafkaKeysClientMock.getIdAndKeyOrNullBlocking(any<String>()) } returns null

@@ -15,13 +15,12 @@ class SluttbrukerAccessPolicy(
     private val periodeId: UUID?,
     private val harPeriodeTilgangFunction: (UUID, Collection<Identitetsnummer>) -> Boolean,
 ) : AccessPolicy {
-
     private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authorization")
 
     override fun hasAccess(action: Action, securityContext: SecurityContext): AccessDecision {
         val (bruker, _) = securityContext
 
-        logger.debug("Autoriserer brukertype {}", bruker::class.simpleName)
+        logger.info("Autoriserer brukertype {}", bruker::class.simpleName)
 
         when (bruker) {
             is Sluttbruker -> {

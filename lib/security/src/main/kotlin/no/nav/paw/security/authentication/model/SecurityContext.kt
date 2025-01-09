@@ -11,7 +11,6 @@ import no.nav.paw.security.authorization.exception.UgyldigBearerTokenException
 import no.nav.paw.security.authorization.exception.UgyldigBrukerException
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 import org.slf4j.LoggerFactory
-import java.util.*
 
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authentication")
 
@@ -20,6 +19,7 @@ data class SecurityContext(
     val accessToken: AccessToken
 ) : Principal
 
+@Suppress("LoggingSimilarMessage")
 fun ApplicationCall.resolveSecurityContext(): SecurityContext {
     val principal = principal<TokenValidationContextPrincipal>()
     val tokenContext = principal?.context
@@ -30,7 +30,7 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
 
     val bruker = when (accessToken.issuer) {
         is TokenX -> {
-            logger.debug("TokenX token -> Sluttbruker")
+            logger.info("Autentiserer {} token -> {}", TokenX::class.simpleName, Sluttbruker::class.simpleName)
             Sluttbruker(accessToken.claims.getOrThrow(PID))
         }
 
@@ -38,26 +38,34 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
             if (accessToken.isM2MToken()) {
                 val navIdentHeader = request.headers[NavIdentHeader.name]
                 if (navIdentHeader.isNullOrBlank()) {
-                    logger.debug("AzureAd M2M token -> M2MToken")
-                    M2MToken(accessToken.claims.getOrThrow(OID))
+                    logger.info(
+                        "Autentiserer {} M2M token -> {}",
+                        AzureAd::class.simpleName,
+                        Anonym::class.simpleName
+                    )
+                    Anonym(accessToken.claims.getOrThrow(OID))
                 } else {
-                    logger.debug("AzureAd M2M token -> NavAnsatt")
+                    logger.info(
+                        "Autentiserer {} M2M token -> {}",
+                        AzureAd::class.simpleName,
+                        NavAnsatt::class.simpleName
+                    )
                     NavAnsatt(accessToken.claims.getOrThrow(OID), navIdentHeader)
                 }
             } else {
-                logger.debug("AzureAd token -> NavAnsatt")
+                logger.info("Autentiserer {} token -> {}", AzureAd::class.simpleName, NavAnsatt::class.simpleName)
                 NavAnsatt(accessToken.claims.getOrThrow(OID), accessToken.claims.getOrThrow(NavIdent))
             }
         }
 
         is IdPorten -> {
-            logger.debug("IdPorten token -> Sluttbruker")
+            logger.info("Autentiserer {} token -> {}", IdPorten::class.simpleName, Sluttbruker::class.simpleName)
             Sluttbruker(accessToken.claims.getOrThrow(PID))
         }
 
         is MaskinPorten -> {
-            logger.debug("MaskinPorten token -> M2MToken")
-            M2MToken(UUID.randomUUID())
+            logger.info("Autentiserer {} token -> {}", MaskinPorten::class.simpleName, Anonym::class.simpleName)
+            Anonym()
         }
     }
 

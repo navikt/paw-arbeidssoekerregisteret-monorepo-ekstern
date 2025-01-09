@@ -1,8 +1,8 @@
 [[authProviders]]
 name = "tokenx"
-clientId = "${TOKEN_X_CLIENT_ID}"
+audiences = ["${TOKEN_X_CLIENT_ID}"]
 discoveryUrl = "${TOKEN_X_WELL_KNOWN_URL}"
 
-    [authProviders.claims]
-    map = ["acr=Level4", "acr=idporten-loa-high"]
+    [authProviders.requiredClaims]
+    claims = ["acr=Level4", "acr=idporten-loa-high"]
     combineWithOr = true
