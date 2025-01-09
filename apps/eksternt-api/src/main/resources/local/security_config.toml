@@ -1,0 +1,9 @@
+[[authProviders]]
+name = "maskinporten"
+discoveryUrl = "http://localhost:8081/maskinporten/.well-known/openid-configuration"
+
+[authProviders.requitedClaims]
+claims = ["scope=nav:arbeid:arbeidssokerregisteret.read"]
+
+[authProviders.optionalClaims]
+claims = ["aud", "sub", "nbf"]

@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka
+package no.nav.paw.arbeidssoekerregisteret.eksternt.api.test
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
