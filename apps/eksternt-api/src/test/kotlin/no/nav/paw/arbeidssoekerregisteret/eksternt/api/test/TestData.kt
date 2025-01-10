@@ -9,6 +9,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -149,4 +150,10 @@ object TestData {
         key: Long = 1,
         value: Periode = nyStartetPeriode()
     ) = ConsumerRecord(topic, partition, offset, key, value)
+
+    fun nyProducerRecord(
+        topic: String,
+        key: Long = 1,
+        value: Periode = nyStartetPeriode()
+    ) = ProducerRecord(topic, key, value)
 }

@@ -13,8 +13,7 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka.PeriodeConsumer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.PeriodeService
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ScheduleDeletionService
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.AktivePerioderGaugeScheduler
+import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ScheduledTaskService
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.PeriodeDeserializer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.generateDatasource
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -33,11 +32,10 @@ data class ApplicationContext(
     val securityConfig: SecurityConfig,
     val dataSource: DataSource,
     val meterRegistry: PrometheusMeterRegistry,
-    val aktivePerioderGaugeScheduler: AktivePerioderGaugeScheduler,
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
     val periodeConsumer: PeriodeConsumer,
     val periodeService: PeriodeService,
-    val scheduleDeletionService: ScheduleDeletionService
+    val scheduledTaskService: ScheduledTaskService
 ) {
     companion object {
         fun build(): ApplicationContext {
@@ -48,13 +46,12 @@ data class ApplicationContext(
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-            val dataSource = generateDatasource(databaseConfig.url)
+            val dataSource = generateDatasource(databaseConfig)
             val database = Database.connect(dataSource)
 
             val periodeRepository = PeriodeRepository(database)
             val periodeService = PeriodeService(periodeRepository)
-            val scheduleDeletionService = ScheduleDeletionService(periodeRepository)
-            val aktivePerioderGaugeScheduler = AktivePerioderGaugeScheduler(meterRegistry, periodeRepository)
+            val scheduledTaskService = ScheduledTaskService(meterRegistry, periodeRepository)
             val kafkaFactory = KafkaFactory(kafkaConfig)
 
             val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
@@ -72,8 +69,7 @@ data class ApplicationContext(
                 securityConfig = securityConfig,
                 dataSource = dataSource,
                 meterRegistry = meterRegistry,
-                aktivePerioderGaugeScheduler = aktivePerioderGaugeScheduler,
-                scheduleDeletionService = scheduleDeletionService,
+                scheduledTaskService = scheduledTaskService,
                 periodeConsumer = periodeConsumer,
                 periodeService = periodeService,
                 periodeKafkaConsumer = periodeKafkaConsumer

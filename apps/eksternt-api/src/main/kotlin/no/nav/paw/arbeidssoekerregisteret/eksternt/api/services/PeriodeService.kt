@@ -21,15 +21,25 @@ class PeriodeService(private val periodeRepository: PeriodeRepository) {
         .map { it.asArbeidssoekerperiodeResponse() }
 
 
-    fun lagreAllePerioder(perioder: Iterable<Periode>) {
+    fun lagrePerioder(perioder: Iterable<Periode>) {
         logger.debug("Lagrer perioder")
         periodeRepository.lagreAllePerioder(perioder)
     }
 
     fun handleRecords(records: ConsumerRecords<Long, Periode>) {
         if (records.count() > 0) {
-            logger.info("Mottok {} perioder fra Kafka", records.count())
-            lagreAllePerioder(records.map { it.value() })
+            val perioder = records.mapIndexed { index, record ->
+                logger.info(
+                    "Mottok melding {}/{} på topic {}, partition {}, offset {}",
+                    index + 1,
+                    records.count(),
+                    record.topic(),
+                    record.partition(),
+                    record.offset()
+                )
+                record.value()
+            }
+            lagrePerioder(perioder)
         }
     }
 }
