@@ -23,7 +23,7 @@ class PeriodeService(private val periodeRepository: PeriodeRepository) {
 
     fun lagrePerioder(perioder: Iterable<Periode>) {
         logger.debug("Lagrer perioder")
-        periodeRepository.lagreAllePerioder(perioder)
+        periodeRepository.lagrePerioder(perioder)
     }
 
     fun handleRecords(records: ConsumerRecords<Long, Periode>) {

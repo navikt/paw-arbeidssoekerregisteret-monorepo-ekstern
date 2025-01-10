@@ -13,7 +13,7 @@ import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
+import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaStreamsFactory
 import org.apache.avro.specific.SpecificRecord
@@ -27,7 +27,7 @@ import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.state.internals.InMemoryKeyValueBytesStoreSupplier
 import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder
-import java.util.UUID
+import java.util.*
 
 
 data class TestScope(
@@ -59,7 +59,7 @@ fun testScope(): TestScope {
             )
         )
 
-    val kafkaConfig: KafkaConfig = loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG)
+    val kafkaConfig: KafkaConfig = loadNaisOrLocalConfiguration(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
     val kafkaStreamsFactory = KafkaStreamsFactory("test", kafkaConfig)
         .withDefaultKeySerde(Serdes.Long()::class)
         .withDefaultValueSerde(SpecificAvroSerde::class)

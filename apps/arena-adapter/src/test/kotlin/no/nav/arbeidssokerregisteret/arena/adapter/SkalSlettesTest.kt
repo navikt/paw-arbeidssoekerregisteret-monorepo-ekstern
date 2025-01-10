@@ -1,16 +1,24 @@
-package no.nav.paw.arbeidssokerregisteret.arena.adapter.utils
+package no.nav.arbeidssokerregisteret.arena.adapter
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.skalSlettes
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
-import no.nav.paw.arbeidssokerregisteret.arena.v1.*
-import no.nav.paw.arbeidssokerregisteret.arena.v1.Metadata as ArenaMetadata
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.arena.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Helse
+import no.nav.paw.arbeidssokerregisteret.arena.v1.JaNeiVetIkke
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Jobbsituasjon
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Profilering
+import no.nav.paw.arbeidssokerregisteret.arena.v1.ProfilertTil
+import no.nav.paw.arbeidssokerregisteret.arena.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.arena.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.v4.Utdanning
-import no.nav.paw.arbeidssokerregisteret.arena.v2.Annet
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import no.nav.paw.arbeidssokerregisteret.arena.v1.Metadata as ArenaMetadata
 
 class SKalSlettesKtTest : FreeSpec({
     "TopicsJoin.skalSlettes" - {
@@ -43,10 +51,13 @@ class SKalSlettesKtTest : FreeSpec({
         "når perioden er avsluttet skal den bare slettes dersom" - {
             "opplysninger ikke ankommer innen tidsfristen" {
                 val topicsJoin = topicsJoinMedPeriode(
-                    periodeAvsluttet= gjeldeneTid - 4.dager
+                    periodeAvsluttet = gjeldeneTid - 4.dager
                 )
                 topicsJoin.skalSlettes(gjeldeneTid = gjeldeneTid, tidsfristVentePaaOpplysninger = 3.dager) shouldBe true
-                topicsJoin.skalSlettes(gjeldeneTid = gjeldeneTid, tidsfristVentePaaOpplysninger = 5.dager) shouldBe false
+                topicsJoin.skalSlettes(
+                    gjeldeneTid = gjeldeneTid,
+                    tidsfristVentePaaOpplysninger = 5.dager
+                ) shouldBe false
             }
             "profilering ikke ankommer innen tidsfristen" {
                 val topicsJoin = topicsJoinMedPeriode(
@@ -78,7 +89,7 @@ class SKalSlettesKtTest : FreeSpec({
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     UUID.randomUUID(),
-                    metadata(gjeldeneTid - 2.dager),
+                    arenaMetadata(gjeldeneTid - 2.dager),
                     ProfilertTil.ANTATT_GODE_MULIGHETER,
                     true,
                     42
@@ -90,7 +101,7 @@ class SKalSlettesKtTest : FreeSpec({
     }
 })
 
-fun metadata(timestamp: Instant): ArenaMetadata {
+fun arenaMetadata(timestamp: Instant): ArenaMetadata {
     return ArenaMetadata(
         timestamp,
         Bruker(
@@ -110,15 +121,15 @@ fun topicsJoinMedPeriode(
     Periode(
         UUID.randomUUID(),
         "",
-        metadata(Instant.now().minus(Duration.ofDays(30))),
-        periodeAvsluttet?.let(::metadata)
+        arenaMetadata(Instant.now().minus(Duration.ofDays(30))),
+        periodeAvsluttet?.let(::arenaMetadata)
     ),
     profileringsSendtInn?.let {
         Profilering(
             UUID.randomUUID(),
             UUID.randomUUID(),
             UUID.randomUUID(),
-            metadata(it),
+            arenaMetadata(it),
             ProfilertTil.ANTATT_GODE_MULIGHETER,
             true,
             42
@@ -128,7 +139,7 @@ fun topicsJoinMedPeriode(
         OpplysningerOmArbeidssoeker(
             UUID.randomUUID(),
             UUID.randomUUID(),
-            metadata(it),
+            arenaMetadata(it),
             Utdanning("9", JaNeiVetIkke.JA, JaNeiVetIkke.JA),
             Helse(JaNeiVetIkke.NEI),
             Jobbsituasjon(emptyList()),
@@ -146,7 +157,7 @@ fun topicsJoinUtenPeriode(
         OpplysningerOmArbeidssoeker(
             UUID.randomUUID(),
             UUID.randomUUID(),
-            metadata(it),
+            arenaMetadata(it),
             Utdanning("9", JaNeiVetIkke.JA, JaNeiVetIkke.JA),
             Helse(JaNeiVetIkke.NEI),
             Jobbsituasjon(emptyList()),

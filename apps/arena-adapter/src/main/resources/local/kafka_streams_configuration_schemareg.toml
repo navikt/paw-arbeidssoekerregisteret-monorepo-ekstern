@@ -1,4 +1,4 @@
 brokers = "localhost:9092"
-applicationIdPrefix = "v3"
+applicationIdPrefix = "v1"
 [schemaRegistry]
 url = "http://localhost:8082"

@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.callid)
+    implementation(libs.ktor.server.call.logging)
 
     // Client
     implementation(libs.ktor.client.cio)
@@ -68,7 +69,7 @@ dependencies {
     implementation(libs.nav.security.token.validation.ktor)
 
     // Test
-    testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.security.mock.oauth2.server)

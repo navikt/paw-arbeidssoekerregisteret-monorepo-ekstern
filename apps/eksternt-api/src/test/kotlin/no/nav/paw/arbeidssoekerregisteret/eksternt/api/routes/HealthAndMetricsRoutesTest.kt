@@ -4,17 +4,18 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.config.MapApplicationConfig
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.health.repository.HealthIndicatorRepository
+import no.nav.paw.health.route.healthRoutes
 
-class HealthRoutesTest : FreeSpec({
+class HealthAndMetricsRoutesTest : FreeSpec({
     "Skal svare mee 200 OK" {
         testApplication {
-            environment { config = MapApplicationConfig() }
             routing {
-                healthRoutes(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
+                healthRoutes(HealthIndicatorRepository())
+                metricsRoutes(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
             }
 
             val isAliveResponse = client.get("/internal/isAlive")

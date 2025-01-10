@@ -1,6 +1,6 @@
 package no.nav.paw.security.authentication.exception
 
-import no.nav.paw.security.common.model.securityErrorType
+import no.nav.paw.error.model.ErrorType
 
 class BearerTokenManglerException(message: String) :
-    AuthenticationException(securityErrorType("bearer-token-mangler"), message)
+    AuthenticationException(ErrorType.domain("security").error("bearer-token-mangler").build(), message)

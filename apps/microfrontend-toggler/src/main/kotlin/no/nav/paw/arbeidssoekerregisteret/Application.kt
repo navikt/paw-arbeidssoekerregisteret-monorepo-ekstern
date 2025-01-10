@@ -19,24 +19,20 @@ fun main() {
     val logger = buildApplicationLogger
     val applicationContext = ApplicationContext.create()
 
-    with(applicationContext) {
-        val appName = serverConfig.runtimeEnvironment.appNameOrDefaultForLocal()
+    with(applicationContext.serverConfig) {
+        val appName = runtimeEnvironment.appNameOrDefaultForLocal()
 
-        logger.info("Starter $appName med port $serverConfig.port")
+        logger.info("Starter $appName med hostname $host og port $port")
 
         embeddedServer(
             factory = Netty,
-            port = serverConfig.port,
-            configure = {
-                callGroupSize = serverConfig.callGroupSize
-                workerGroupSize = serverConfig.workerGroupSize
-                connectionGroupSize = serverConfig.connectionGroupSize
-            }
+            host = host,
+            port = port
         ) {
             module(applicationContext)
         }.apply {
             addShutdownHook {
-                stop(serverConfig.gracePeriodMillis, serverConfig.timeoutMillis)
+                stop(gracePeriodMillis, timeoutMillis)
                 logger.info("Avslutter $appName")
             }
             start(wait = true)

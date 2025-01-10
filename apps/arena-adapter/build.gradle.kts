@@ -36,7 +36,7 @@ dependencies {
     implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Test
-    testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kafka.streams.test)
     testImplementation(libs.bundles.unit.testing.kotest)
 }

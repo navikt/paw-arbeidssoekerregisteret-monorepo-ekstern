@@ -1,8 +1,8 @@
 package no.nav.paw.security.authentication.config
 
-import no.nav.security.token.support.v2.IssuerConfig
-import no.nav.security.token.support.v2.RequiredClaims
-import no.nav.security.token.support.v2.TokenSupportConfig
+import no.nav.security.token.support.v3.IssuerConfig
+import no.nav.security.token.support.v3.RequiredClaims
+import no.nav.security.token.support.v3.TokenSupportConfig
 
 const val SECURITY_CONFIG = "security_config.toml"
 

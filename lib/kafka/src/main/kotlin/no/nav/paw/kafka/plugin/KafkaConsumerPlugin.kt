@@ -6,7 +6,6 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
-import io.ktor.util.KtorDsl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -23,7 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.kafka.consumer")
 private const val PLUGIN_NAME_SUFFIX = "KafkaConsumerPlugin"
 
-@KtorDsl
 class KafkaConsumerPluginConfig<K, V> {
     var consumeFunction: ((ConsumerRecords<K, V>) -> Unit)? = null
     var successFunction: ((ConsumerRecords<K, V>) -> Unit)? = null

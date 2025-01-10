@@ -7,7 +7,6 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
-import io.ktor.util.KtorDsl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -18,7 +17,6 @@ import java.util.*
 
 private val logger = buildApplicationLogger
 
-@KtorDsl
 class ScheduledTaskPluginConfig {
     var task: (() -> Unit)? = null
     var delay: Duration? = null

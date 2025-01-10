@@ -5,13 +5,11 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
-import io.ktor.util.KtorDsl
 import org.apache.kafka.clients.producer.Producer
 import java.time.Duration
 
 const val KAFKA_PRODUCER_PLUGIN_NAME = "KafkaProducerPlugin"
 
-@KtorDsl
 class KafkaProducerPluginConfig {
     var kafkaProducers: List<Producer<*, *>>? = null
     var shutDownTimeout: Duration? = null

@@ -15,6 +15,7 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.PeriodeDeserializer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.generateDatasource
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -22,7 +23,6 @@ import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.LongDeserializer
-import org.jetbrains.exposed.sql.Database
 import javax.sql.DataSource
 
 data class ApplicationContext(
@@ -31,6 +31,7 @@ data class ApplicationContext(
     val securityConfig: SecurityConfig,
     val dataSource: DataSource,
     val meterRegistry: PrometheusMeterRegistry,
+    val healthIndicatorRepository: HealthIndicatorRepository,
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
     val periodeService: PeriodeService,
     val scheduledTaskService: ScheduledTaskService
@@ -43,11 +44,11 @@ data class ApplicationContext(
             val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
-            val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
             val dataSource = generateDatasource(databaseConfig)
-            val database = Database.connect(dataSource)
+            val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+            val healthIndicatorRepository = HealthIndicatorRepository()
 
-            val periodeRepository = PeriodeRepository(database)
+            val periodeRepository = PeriodeRepository()
             val periodeService = PeriodeService(periodeRepository)
             val scheduledTaskService = ScheduledTaskService(meterRegistry, periodeRepository)
             val kafkaFactory = KafkaFactory(kafkaConfig)
@@ -65,6 +66,7 @@ data class ApplicationContext(
                 securityConfig = securityConfig,
                 dataSource = dataSource,
                 meterRegistry = meterRegistry,
+                healthIndicatorRepository = healthIndicatorRepository,
                 scheduledTaskService = scheduledTaskService,
                 periodeService = periodeService,
                 periodeKafkaConsumer = periodeKafkaConsumer

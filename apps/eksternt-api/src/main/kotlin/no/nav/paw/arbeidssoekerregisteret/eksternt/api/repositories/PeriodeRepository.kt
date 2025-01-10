@@ -7,7 +7,6 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.toLocalDateTime
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.security.authentication.model.Identitetsnummer
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -19,12 +18,12 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
-class PeriodeRepository(private val database: Database) {
+class PeriodeRepository {
     private val logger = buildLogger
 
     fun hentPeriode(periodeId: UUID): PeriodeRow? {
         logger.debug("Hent periode")
-        return transaction(database) {
+        return transaction {
             PeriodeTable.selectAll()
                 .where { PeriodeTable.periodeId eq periodeId }
                 .map { it.asPeriodeRow() }
@@ -37,7 +36,7 @@ class PeriodeRepository(private val database: Database) {
         fraStartetDato: LocalDate? = null
     ): List<PeriodeRow> {
         logger.debug("Finner perioder")
-        return transaction(database) {
+        return transaction {
             PeriodeTable.selectAll()
                 .where { PeriodeTable.identitetsnummer eq identitetsnummer.verdi }
                 .filter {
@@ -48,7 +47,7 @@ class PeriodeRepository(private val database: Database) {
     }
 
     fun hentAntallAktivePerioder(): Long =
-        transaction(database) {
+        transaction {
             PeriodeTable.selectAll()
                 .where { PeriodeTable.avsluttet eq null }
                 .count()
@@ -56,7 +55,7 @@ class PeriodeRepository(private val database: Database) {
 
     fun opprettPeriode(periode: PeriodeRow) {
         logger.debug("Oppretter periode")
-        transaction(database) {
+        transaction {
             PeriodeTable.insert {
                 it[periodeId] = periode.periodeId
                 it[identitetsnummer] = periode.identitetsnummer
@@ -68,7 +67,7 @@ class PeriodeRepository(private val database: Database) {
 
     fun oppdaterPeriode(periode: PeriodeRow) {
         logger.debug("Oppdaterer periode")
-        transaction(database) {
+        transaction {
             try {
                 PeriodeTable.update({ PeriodeTable.periodeId eq periode.periodeId }) {
                     it[identitetsnummer] = periode.identitetsnummer
@@ -81,8 +80,8 @@ class PeriodeRepository(private val database: Database) {
         }
     }
 
-    fun lagreAllePerioder(perioder: Iterable<Periode>) {
-        transaction(database) {
+    fun lagrePerioder(perioder: Iterable<Periode>) {
+        transaction {
             maxAttempts = 2
             minRetryDelay = 20
 
@@ -100,7 +99,7 @@ class PeriodeRepository(private val database: Database) {
 
     fun slettMedStartetEldreEnn(maksAlder: Instant): Int {
         logger.info("Sletter perioder som ble avsluttet tidligere enn {}", maksAlder.toString())
-        return transaction(database) {
+        return transaction {
             PeriodeTable.deleteWhere { avsluttet less maksAlder }
         }
     }

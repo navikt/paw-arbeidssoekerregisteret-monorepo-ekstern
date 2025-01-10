@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.auth.authentication
 import io.ktor.server.response.respond
@@ -29,7 +28,7 @@ import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
 import no.nav.paw.security.authorization.policy.AccessPolicy
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.security.token.support.v2.tokenValidationSupport
+import no.nav.security.token.support.v3.tokenValidationSupport
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerContentNegotiation
 

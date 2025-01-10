@@ -8,7 +8,6 @@ import no.nav.arbeidssokerregisteret.arena.adapter.utils.melding
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.metadata
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.opplysninger
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.periode
-import java.time.Duration
 import java.time.Duration.ofDays
 import java.time.Instant.now
 import java.util.concurrent.atomic.AtomicLong
