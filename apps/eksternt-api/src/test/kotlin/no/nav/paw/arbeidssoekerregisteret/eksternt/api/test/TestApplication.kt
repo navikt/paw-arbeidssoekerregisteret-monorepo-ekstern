@@ -1,12 +1,12 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api.test
 
 import io.ktor.server.application.Application
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.SecurityConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.plugins.configureSerialization
+import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 fun Application.configureTestApplication(

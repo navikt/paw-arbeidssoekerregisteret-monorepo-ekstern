@@ -8,18 +8,17 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.SECURITY_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.SERVER_CONFIG
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.SecurityConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.context.ApplicationContext
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.kafka.PeriodeConsumer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ScheduledTaskService
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.security.authentication.config.SECURITY_CONFIG
+import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.jetbrains.exposed.sql.Database
@@ -29,8 +28,6 @@ class ApplicationTestContext private constructor(
     val dataSource: DataSource,
     val periodeRepository: PeriodeRepository
 ) {
-    val kafkaTopic = "perioder"
-
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
     val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
@@ -38,7 +35,6 @@ class ApplicationTestContext private constructor(
     val meterRegistryMock: PrometheusMeterRegistry = mockk(relaxed = true)
     val periodeKafkaConsumerMock: KafkaConsumer<Long, Periode> = mockk(relaxed = true)
     val periodeService = PeriodeService(periodeRepository)
-    val periodeConsumer = PeriodeConsumer(kafkaTopic, periodeKafkaConsumerMock, periodeService)
     val scheduledTaskService = ScheduledTaskService(meterRegistryMock, periodeRepository)
     val applicationContext = ApplicationContext(
         serverConfig = serverConfig,
@@ -47,7 +43,6 @@ class ApplicationTestContext private constructor(
         dataSource = dataSource,
         meterRegistry = meterRegistryMock,
         periodeKafkaConsumer = periodeKafkaConsumerMock,
-        periodeConsumer = periodeConsumer,
         periodeService = periodeService,
         scheduledTaskService = scheduledTaskService
     )

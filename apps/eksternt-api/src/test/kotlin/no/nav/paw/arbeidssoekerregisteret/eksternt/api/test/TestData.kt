@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api.test
 
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.Identitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.PeriodeRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
@@ -8,6 +7,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
+import no.nav.paw.security.authentication.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Duration
