@@ -5,6 +5,8 @@ include(
     "domain:arena-avro-schema",
     "domain:bekreftelsesmelding-avro-schema",
     "lib:hoplite-config",
+    "lib:database",
+    "lib:scheduling",
     "lib:error-handling",
     "lib:security",
     "lib:http-client-utils",

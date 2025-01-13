@@ -6,6 +6,7 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ class KafkaConsumerPluginConfig<K, V> {
     var pollTimeout: Duration? = null
     var closeTimeout: Duration? = null
     var rebalanceListener: ConsumerRebalanceListener? = null
+    val coroutineDispatcher: CoroutineDispatcher? = null
     val shutdownFlag: AtomicBoolean? = null
 }
 
@@ -47,6 +49,7 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
         val pollTimeout = pluginConfig.pollTimeout ?: Duration.ofMillis(100)
         val closeTimeout = pluginConfig.closeTimeout ?: Duration.ofSeconds(1)
         val rebalanceListener = pluginConfig.rebalanceListener ?: NoopConsumerRebalanceListener()
+        val coroutineDispatcher = pluginConfig.coroutineDispatcher ?: Dispatchers.IO
         val shutdownFlag = pluginConfig.shutdownFlag ?: AtomicBoolean(false)
         var consumeJob: Job? = null
 
@@ -54,7 +57,7 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
             logger.info("Klargjør {} Kafka Consumer", pluginInstance)
             kafkaConsumer.subscribe(kafkaTopics, rebalanceListener)
 
-            consumeJob = application.launch(Dispatchers.IO) {
+            consumeJob = application.launch(coroutineDispatcher) {
                 logger.info("Starter {} Kafka Consumer", pluginInstance)
                 while (!shutdownFlag.get()) {
                     try {
