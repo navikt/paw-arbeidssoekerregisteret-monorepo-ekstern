@@ -1,7 +1,6 @@
 package no.nav.paw.security.authentication.model
 
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.auth.Principal
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.principal
 import no.nav.paw.security.authentication.token.AccessToken
@@ -9,7 +8,7 @@ import no.nav.paw.security.authentication.token.resolveTokens
 import no.nav.paw.security.authorization.exception.SecurityContextManglerException
 import no.nav.paw.security.authorization.exception.UgyldigBearerTokenException
 import no.nav.paw.security.authorization.exception.UgyldigBrukerException
-import no.nav.security.token.support.v2.TokenValidationContextPrincipal
+import no.nav.security.token.support.v3.TokenValidationContextPrincipal
 import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authentication")
@@ -17,7 +16,7 @@ private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authent
 data class SecurityContext(
     val bruker: Bruker<*>,
     val accessToken: AccessToken
-) : Principal
+)
 
 @Suppress("LoggingSimilarMessage")
 fun ApplicationCall.resolveSecurityContext(): SecurityContext {

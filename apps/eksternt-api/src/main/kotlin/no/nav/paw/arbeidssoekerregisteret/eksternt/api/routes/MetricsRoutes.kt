@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes
+package no.nav.paw.arbeidssoekerregisteret.eksternt.api.routes
 
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route

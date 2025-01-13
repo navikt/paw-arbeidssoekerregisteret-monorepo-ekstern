@@ -1,6 +1,6 @@
 package no.nav.paw.security.authorization.exception
 
-import no.nav.paw.security.common.model.securityErrorType
+import no.nav.paw.error.model.ErrorType
 
 class UgyldigBrukerException(message: String) :
-    AuthorizationException(securityErrorType("ugyldig-bruker"), message)
+    AuthorizationException(ErrorType.domain("security").error("ugyldig-bruker").build(), message)

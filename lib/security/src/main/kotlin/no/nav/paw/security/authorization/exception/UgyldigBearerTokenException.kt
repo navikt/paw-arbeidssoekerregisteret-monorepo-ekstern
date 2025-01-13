@@ -1,6 +1,6 @@
 package no.nav.paw.security.authorization.exception
 
-import no.nav.paw.security.common.model.securityErrorType
+import no.nav.paw.error.model.ErrorType
 
 class UgyldigBearerTokenException(message: String) :
-    AuthorizationException(securityErrorType("ugyldig-bearer-token"), message)
+    AuthorizationException(ErrorType.domain("security").error("ugyldig-bearer-token").build(), message)

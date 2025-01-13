@@ -13,10 +13,12 @@ fun Application.configureTestApplication(
     applicationContext: ApplicationContext,
     mockOAuth2Server: MockOAuth2Server
 ) {
-    configureSerialization()
-    configureHTTP()
-    configureMockAuthentication(applicationContext.securityConfig, mockOAuth2Server)
-    configureRouting(applicationContext.meterRegistry, applicationContext.periodeService)
+    with(applicationContext) {
+        configureSerialization()
+        configureHTTP()
+        configureMockAuthentication(securityConfig, mockOAuth2Server)
+        configureRouting(healthIndicatorRepository, meterRegistry, periodeService)
+    }
 }
 
 fun Application.configureMockAuthentication(

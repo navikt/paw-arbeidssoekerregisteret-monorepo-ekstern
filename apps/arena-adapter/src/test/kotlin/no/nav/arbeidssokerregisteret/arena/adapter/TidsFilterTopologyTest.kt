@@ -25,7 +25,11 @@ class TidsFilterTopologyTest : FreeSpec({
             periodeTopic.pipeInput(fixedKey, periodeStart)
             val opplysninger = opplysninger(periode = periodeStart.id, timestamp = HOEYVANNSMERKE.minus(8.days))
             opplysningerTopic.pipeInput(fixedKey, opplysninger)
-            profileringsTopic.pipeInput(fixedKey, profilering(periode = periodeStart.id, timestamp = HOEYVANNSMERKE.minus(8.days)), HOEYVANNSMERKE.minus(8.days))
+            profileringsTopic.pipeInput(
+                fixedKey,
+                profilering(periode = periodeStart.id, timestamp = HOEYVANNSMERKE.minus(8.days)),
+                HOEYVANNSMERKE.minus(8.days)
+            )
             periodeTopic.pipeInput(periodeStart.avslutt(HOEYVANNSMERKE.minus(4.days)))
             arenaTopic.isEmpty shouldBe true
             joinStore.get(periodeStart.id).shouldBeNull()
@@ -69,7 +73,7 @@ class TidsFilterTopologyTest : FreeSpec({
             }
             joinStore.get(periodeStart.id).shouldBeNull()
         }
-        "Når periode startes og stoppes etter $HOEYVANNSMERKE skal vi inkludere opplysninger og profilering i stopp meldingen" -  {
+        "Når periode startes og stoppes etter $HOEYVANNSMERKE skal vi inkludere opplysninger og profilering i stopp meldingen" - {
             val periodeStart = periode(
                 identietsnummer = "12345678901",
                 startet = metadata(timestamp = HOEYVANNSMERKE.plus(1.days)),

@@ -8,7 +8,6 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
-import io.ktor.util.KtorDsl
 import org.apache.kafka.streams.KafkaStreams
 import java.time.Duration
 
@@ -17,7 +16,6 @@ val KafkaStreamsStarted: EventDefinition<Application> = EventDefinition()
 val KafkaStreamsStopping: EventDefinition<Application> = EventDefinition()
 val KafkaStreamsStopped: EventDefinition<Application> = EventDefinition()
 
-@KtorDsl
 class KafkaStreamsPluginConfig {
     var kafkaStreams: List<KafkaStreams>? = null
     var shutDownTimeout: Duration? = null
@@ -30,15 +28,15 @@ val KafkaStreamsPlugin: ApplicationPlugin<KafkaStreamsPluginConfig> =
 
         on(MonitoringEvent(ApplicationStarted)) { application ->
             application.log.info("Starter Kafka Streams")
-            application.environment.monitor.raise(KafkaStreamsStarting, application)
+            application.monitor.raise(KafkaStreamsStarting, application)
             kafkaStreams.forEach { stream -> stream.start() }
-            application.environment.monitor.raise(KafkaStreamsStarted, application)
+            application.monitor.raise(KafkaStreamsStarted, application)
         }
 
         on(MonitoringEvent(ApplicationStopping)) { application ->
             application.log.info("Stopper Kafka Streams")
-            application.environment.monitor.raise(KafkaStreamsStopping, application)
+            application.monitor.raise(KafkaStreamsStopping, application)
             kafkaStreams.forEach { stream -> stream.close(shutDownTimeout) }
-            application.environment.monitor.raise(KafkaStreamsStopped, application)
+            application.monitor.raise(KafkaStreamsStopped, application)
         }
     }

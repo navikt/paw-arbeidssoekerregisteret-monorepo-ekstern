@@ -1,8 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.health
 
-import io.ktor.server.application.call
 import io.ktor.server.application.install
-import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.ktor.server.netty.Netty
@@ -19,7 +17,7 @@ fun initKtor(
     kafkaStreamsMetrics: KafkaStreamsMetrics,
     prometheusRegistry: PrometheusMeterRegistry,
     health: Health
-): ApplicationEngine = embeddedServer(Netty, port = 8080) {
+) = embeddedServer(Netty, port = 8080) {
     install(MicrometerMetrics) {
         registry = prometheusRegistry
         meterBinders = listOf(

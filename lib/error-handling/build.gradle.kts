@@ -11,7 +11,7 @@ dependencies {
 
     //Test
     testImplementation(libs.bundles.unit.testing.kotest)
-    testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.server.content.negotiation)
     testImplementation(libs.ktor.server.status.pages)
     testImplementation(libs.ktor.serialization.jackson)
