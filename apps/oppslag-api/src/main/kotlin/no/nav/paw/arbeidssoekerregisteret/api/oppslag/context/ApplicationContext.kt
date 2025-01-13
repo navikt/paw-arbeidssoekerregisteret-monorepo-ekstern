@@ -4,8 +4,6 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.DATABASE_CONFIG
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.DatabaseConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
@@ -24,12 +22,14 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.BekreftelseDeseriali
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringDeserializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.generateDatasource
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.database.config.DATABASE_CONFIG
+import no.nav.paw.database.config.DatabaseConfig
+import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -69,7 +69,7 @@ data class ApplicationContext(
             val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
-            val dataSource = generateDatasource(databaseConfig)
+            val dataSource = createHikariDataSource(databaseConfig)
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
             val healthIndicatorRepository = HealthIndicatorRepository()
 

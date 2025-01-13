@@ -55,7 +55,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     )
     configureAuthentication(applicationContext.securityConfig)
     configureDatabase(applicationContext.dataSource)
-    configureScheduledTask(applicationContext.metricsService::tellAntallAktivePerioder)
+    configureScheduledTask(applicationContext.applicationConfig, applicationContext.metricsService)
     configureKafka(
         applicationContext.applicationConfig,
         applicationContext.periodeKafkaConsumer,
