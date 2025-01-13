@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PGEnum
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.BrukerType
 import org.jetbrains.exposed.dao.id.LongIdTable

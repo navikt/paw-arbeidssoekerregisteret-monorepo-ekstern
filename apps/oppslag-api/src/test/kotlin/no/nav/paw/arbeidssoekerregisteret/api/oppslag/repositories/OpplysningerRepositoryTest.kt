@@ -11,6 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Instant
 import java.util.*
 import javax.sql.DataSource
 
@@ -197,15 +198,27 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Lagre flere opplysninger og hent med identitetsnummer" {
         val periodeId = UUID.randomUUID()
-        val periode =
-            TestData.nyStartetPeriode(periodeId = periodeId, identitetsnummer = TestData.identitetsnummer8.verdi)
+        val tidspunkt = Instant.now()
+        val periode = TestData.nyStartetPeriode(
+            periodeId = periodeId,
+            identitetsnummer = TestData.identitetsnummer8.verdi
+        )
         periodeRepository.lagrePeriode(periode)
-        val opplysninger1 =
-            TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId9)
-        val opplysninger2 =
-            TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId10)
-        val opplysninger3 =
-            TestData.nyOpplysningerRow(periodeId = periodeId, opplysningerId = TestData.opplysningerId11)
+        val opplysninger1 = TestData.nyOpplysningerRow(
+            periodeId = periodeId,
+            opplysningerId = TestData.opplysningerId9,
+            sendtInnAv = TestData.nyMetadataRow(tidspunkt = tidspunkt)
+        )
+        val opplysninger2 = TestData.nyOpplysningerRow(
+            periodeId = periodeId,
+            opplysningerId = TestData.opplysningerId10,
+            sendtInnAv = TestData.nyMetadataRow(tidspunkt = tidspunkt.minusSeconds(60))
+        )
+        val opplysninger3 = TestData.nyOpplysningerRow(
+            periodeId = periodeId,
+            opplysningerId = TestData.opplysningerId11,
+            sendtInnAv = TestData.nyMetadataRow(tidspunkt = tidspunkt.minusSeconds(120))
+        )
         val opplysninger = listOf(
             opplysninger1.toOpplysningerOmArbeidssoeker(),
             opplysninger2.toOpplysningerOmArbeidssoeker(),

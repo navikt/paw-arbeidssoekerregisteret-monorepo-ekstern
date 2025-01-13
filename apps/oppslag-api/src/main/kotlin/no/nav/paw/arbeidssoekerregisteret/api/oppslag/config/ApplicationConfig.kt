@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.config
 
+import java.time.Duration
+
 const val APPLICATION_CONFIG = "application_config.toml"
 
 data class ApplicationConfig(
@@ -10,5 +12,7 @@ data class ApplicationConfig(
     val perioderTopic: String,
     val opplysningerTopic: String,
     val profileringTopic: String,
-    val bekreftelseTopic: String
+    val bekreftelseTopic: String,
+    val perioderMetricsTaskDelay: Duration = Duration.ZERO,
+    val perioderMetricsTaskInterval: Duration = Duration.ofMinutes(10)
 )

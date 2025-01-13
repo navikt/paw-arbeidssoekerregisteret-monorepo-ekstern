@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.test
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.DatabaseConfig
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.generateDatasource
+import no.nav.paw.database.config.DatabaseConfig
+import no.nav.paw.database.factory.createHikariDataSource
 import org.flywaydb.core.Flyway
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
@@ -16,7 +16,7 @@ fun initTestDatabase(): DataSource {
         password = postgres.password,
         name = postgres.databaseName
     )
-    val dataSource = generateDatasource(databaseConfig)
+    val dataSource = createHikariDataSource(databaseConfig)
     Flyway.configure()
         .baselineOnMigrate(true)
         .dataSource(dataSource)

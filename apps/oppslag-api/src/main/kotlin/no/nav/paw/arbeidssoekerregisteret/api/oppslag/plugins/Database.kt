@@ -1,10 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins
 
-
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.custom.DataSourcePlugin
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.custom.FlywayPlugin
+import no.nav.paw.database.plugin.DataSourcePlugin
+import no.nav.paw.database.plugin.FlywayPlugin
 import javax.sql.DataSource
 
 fun Application.configureDatabase(dataSource: DataSource) {

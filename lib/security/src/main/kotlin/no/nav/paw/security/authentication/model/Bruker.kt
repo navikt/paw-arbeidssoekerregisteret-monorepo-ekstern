@@ -12,4 +12,5 @@ data class Sluttbruker(
 ) : Bruker<Identitetsnummer>(ident)
 
 data class NavAnsatt(val oid: UUID, override val ident: String) : Bruker<String>(ident)
+
 data class Anonym(val oid: UUID? = null) : Bruker<String>("N/A")

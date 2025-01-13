@@ -4,17 +4,17 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.DATABASE_CONFIG
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.DatabaseConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ScheduledTaskService
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.PeriodeDeserializer
-import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.generateDatasource
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.database.config.DATABASE_CONFIG
+import no.nav.paw.database.config.DatabaseConfig
+import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -44,7 +44,7 @@ data class ApplicationContext(
             val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
-            val dataSource = generateDatasource(databaseConfig)
+            val dataSource = createHikariDataSource(databaseConfig)
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
             val healthIndicatorRepository = HealthIndicatorRepository()
 

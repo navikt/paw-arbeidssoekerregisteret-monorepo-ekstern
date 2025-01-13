@@ -2,19 +2,19 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.custom.FlywayMigrationCompleted
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.custom.ScheduledTaskPlugin
-import java.time.Duration
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.MetricsService
+import no.nav.paw.database.plugin.FlywayMigrationCompleted
+import no.nav.paw.scheduling.plugin.ScheduledTaskPlugin
 
 fun Application.configureScheduledTask(
-    task: (() -> Unit),
-    delay: Duration = Duration.ofMillis(0),
-    period: Duration = Duration.ofMinutes(10)
+    applicationConfig: ApplicationConfig,
+    metricsService: MetricsService
 ) {
-    install(ScheduledTaskPlugin) {
-        this.task = task
-        this.delay = delay
-        this.period = period
+    install(ScheduledTaskPlugin("PerioderMetrics")) {
+        this.task = metricsService::tellAntallAktivePerioder
+        this.delay = applicationConfig.perioderMetricsTaskDelay
+        this.period = applicationConfig.perioderMetricsTaskInterval
         this.startEvent = FlywayMigrationCompleted
     }
 }

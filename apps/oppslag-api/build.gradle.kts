@@ -13,6 +13,8 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
+    implementation(project(":lib:database"))
+    implementation(project(":lib:scheduling"))
     implementation(project(":lib:kafka"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:pdl-client"))
