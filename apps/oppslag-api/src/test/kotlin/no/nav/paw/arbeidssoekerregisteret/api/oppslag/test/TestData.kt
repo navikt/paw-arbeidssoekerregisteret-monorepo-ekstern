@@ -33,7 +33,7 @@ import no.nav.paw.bekreftelse.melding.v1.vo.Svar
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
 import no.nav.paw.security.authentication.model.Claims
-import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Issuer
 import no.nav.paw.security.authentication.model.Anonym
 import no.nav.paw.security.authentication.model.NavAnsatt
@@ -41,10 +41,6 @@ import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.token.AccessToken
-import no.nav.poao_tilgang.api.dto.response.DecisionDto
-import no.nav.poao_tilgang.api.dto.response.DecisionType
-import no.nav.poao_tilgang.api.dto.response.EvaluatePoliciesResponse
-import no.nav.poao_tilgang.api.dto.response.PolicyEvaluationResultDto
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -497,11 +493,5 @@ object TestData {
 
     fun nyIdentInformasjonList(vararg identer: String): List<IdentInformasjon> {
         return identer.map { IdentInformasjon(it, IdentGruppe.FOLKEREGISTERIDENT) }
-    }
-
-    fun nyEvaluatePoliciesResponse(vararg types: DecisionType): EvaluatePoliciesResponse {
-        return types.map { DecisionDto(it, "whatever", "whatever") }
-            .map { PolicyEvaluationResultDto(UUID.randomUUID(), it) }
-            .let { EvaluatePoliciesResponse(it) }
     }
 }

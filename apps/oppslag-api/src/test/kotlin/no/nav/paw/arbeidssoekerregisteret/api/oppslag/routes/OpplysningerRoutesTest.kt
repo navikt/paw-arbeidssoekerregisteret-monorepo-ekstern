@@ -26,10 +26,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
+import no.nav.paw.error.model.Data
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.poao_tilgang.api.dto.response.DecisionType
+import no.nav.paw.model.Identitetsnummer
 
 class OpplysningerRoutesTest : FreeSpec({
     with(ApplicationTestContext.withRealDataAccess()) {
@@ -42,7 +42,7 @@ class OpplysningerRoutesTest : FreeSpec({
             mockOAuth2Server.shutdown()
             confirmVerified(
                 pdlHttpConsumerMock,
-                poaoTilgangHttpConsumerMock
+                tilgangskontrollClientMock
             )
         }
 
@@ -286,13 +286,13 @@ class OpplysningerRoutesTest : FreeSpec({
             }
         }
 
-        "/veileder/opplysninger-om-arbeidssoeker should return 403 Forbidden uten POAO Tilgang" {
+        "/veileder/opplysninger-om-arbeidssoeker should return 403 Forbidden uten tilgang fra Tilgangskontroll" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr7, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.DENY, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(false)
 
 
             testApplication {
@@ -323,7 +323,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -332,8 +332,8 @@ class OpplysningerRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr8, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -363,7 +363,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -372,8 +372,8 @@ class OpplysningerRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr9, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
 
             testApplication {
@@ -411,7 +411,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 opplysninger[2] shouldBeEqualTo opplysningerResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())}
             }
         }
 
@@ -420,8 +420,8 @@ class OpplysningerRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr10, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
 
             testApplication {
@@ -457,7 +457,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 opplysninger[0] shouldBeEqualTo opplysningerResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -466,8 +466,8 @@ class OpplysningerRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr11, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -503,7 +503,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 opplysninger[2] shouldBeEqualTo opplysningerResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 

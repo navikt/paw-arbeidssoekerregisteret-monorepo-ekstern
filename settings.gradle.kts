@@ -15,7 +15,8 @@ include(
     "lib:kafka-key-generator-client",
     "lib:pdl-client",
     "lib:aareg-client",
-    "lib:poao-tilgang-client",
+    "lib:tilgangskontroll-client",
+    "lib:common-model",
     "test:test-data-factory",
     "apps:microfrontend-toggler",
     "apps:profilering",
@@ -31,13 +32,6 @@ dependencyResolutionManagement {
         mavenCentral()
         maven {
             url = uri("https://packages.confluent.io/maven/")
-        }
-        maven {
-            setUrl("https://maven.pkg.github.com/navikt/poao-tilgang")
-            credentials {
-                username = "x-access-token"
-                password = githubPassword
-            }
         }
         maven {
             setUrl("https://maven.pkg.github.com/navikt/tms-varsel-authority")

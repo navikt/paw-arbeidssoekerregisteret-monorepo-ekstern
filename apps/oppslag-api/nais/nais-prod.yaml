@@ -17,10 +17,6 @@ spec:
       value: "api://prod-fss.pdl.pdl-api/.default"
     - name: PDL_TEMA
       value: "OPP"
-    - name: POAO_TILGANG_URL
-      value: "http://poao-tilgang.poao.svc.cluster.local"
-    - name: POAO_TILGANG_SCOPE
-      value: "api://prod-gcp.poao.poao-tilgang/.default"
     - name: KAFKA_GROUP_ID_PERIODER
       value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
     - name: KAFKA_GROUP_ID_OPPLYSNINGER
@@ -123,9 +119,6 @@ spec:
           namespace: teamfamilie
           cluster: prod-gcp
     outbound:
-      rules:
-        - application: poao-tilgang
-          namespace: poao
       external:
         - host: pdl-api.prod-fss-pub.nais.io
   gcp:

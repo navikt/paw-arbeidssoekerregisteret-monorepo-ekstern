@@ -26,10 +26,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
+import no.nav.paw.error.model.Data
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.poao_tilgang.api.dto.response.DecisionType
+import no.nav.paw.model.Identitetsnummer
 import java.time.Duration
 import java.time.Instant
 
@@ -44,7 +44,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
             mockOAuth2Server.shutdown()
             confirmVerified(
                 pdlHttpConsumerMock,
-                poaoTilgangHttpConsumerMock,
+                tilgangskontrollClientMock,
             )
         }
 
@@ -294,13 +294,13 @@ class SamletInformasjonRoutesTest : FreeSpec({
             }
         }
 
-        "/veileder/samlet-informasjon should return 403 uten POAO Tilgang" {
+        "/veileder/samlet-informasjon should return 403 uten tilgang fra Tilgangskontroll" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.DENY, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(false)
 
             testApplication {
                 application {
@@ -333,7 +333,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -342,8 +342,8 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -417,7 +417,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 bekreftelser[2] shouldBeEqualTo samletInfo.bekreftelser[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -426,8 +426,8 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -493,7 +493,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
     }

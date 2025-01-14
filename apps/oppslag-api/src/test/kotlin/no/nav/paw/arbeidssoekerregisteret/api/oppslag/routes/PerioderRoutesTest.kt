@@ -27,10 +27,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
+import no.nav.paw.error.model.Data
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.poao_tilgang.api.dto.response.DecisionType
+import no.nav.paw.model.Identitetsnummer
 
 class PerioderRoutesTest : FreeSpec({
     with(ApplicationTestContext.withRealDataAccess()) {
@@ -43,7 +43,7 @@ class PerioderRoutesTest : FreeSpec({
             mockOAuth2Server.shutdown()
             confirmVerified(
                 pdlHttpConsumerMock,
-                poaoTilgangHttpConsumerMock
+                tilgangskontrollClientMock
             )
         }
 
@@ -329,13 +329,13 @@ class PerioderRoutesTest : FreeSpec({
             }
         }
 
-        "/veileder/arbeidssoekerperioder should return 403 Forbidden uten POAO Tilgang" {
+        "/veileder/arbeidssoekerperioder should return 403 Forbidden uten tilgang fra Tilgangskontroll" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr3, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.DENY, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(false)
 
             testApplication {
                 application {
@@ -362,7 +362,7 @@ class PerioderRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -371,8 +371,8 @@ class PerioderRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -407,7 +407,7 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[2] shouldBeEqualTo periodeResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -416,8 +416,8 @@ class PerioderRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -450,7 +450,7 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[0] shouldBeEqualTo periodeResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -459,8 +459,8 @@ class PerioderRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr14, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -525,7 +525,7 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -534,8 +534,8 @@ class PerioderRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr15, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -600,7 +600,7 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing bekreftelse"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -610,8 +610,8 @@ class PerioderRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr6, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -646,7 +646,7 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[2] shouldBeEqualTo periodeResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
     }

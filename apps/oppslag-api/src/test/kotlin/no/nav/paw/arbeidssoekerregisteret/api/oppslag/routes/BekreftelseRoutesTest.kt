@@ -21,10 +21,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
+import no.nav.paw.error.model.Data
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.security.authentication.model.Identitetsnummer
-import no.nav.poao_tilgang.api.dto.response.DecisionType
+import no.nav.paw.model.Identitetsnummer
 
 class BekreftelseRoutesTest : FreeSpec({
 
@@ -38,7 +38,7 @@ class BekreftelseRoutesTest : FreeSpec({
             mockOAuth2Server.shutdown()
             confirmVerified(
                 pdlHttpConsumerMock,
-                poaoTilgangHttpConsumerMock
+                tilgangskontrollClientMock
             )
         }
 
@@ -365,8 +365,8 @@ class BekreftelseRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns TestData.nyIdentInformasjonList(TestData.fnr9)
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.DENY, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(false)
 
             testApplication {
                 application {
@@ -391,7 +391,7 @@ class BekreftelseRoutesTest : FreeSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -400,8 +400,8 @@ class BekreftelseRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns TestData.nyIdentInformasjonList(TestData.fnr10)
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
             testApplication {
                 application {
@@ -431,7 +431,7 @@ class BekreftelseRoutesTest : FreeSpec({
                 bekreftelser[2] shouldBeEqualTo bekreftelseResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -440,8 +440,8 @@ class BekreftelseRoutesTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns TestData.nyIdentInformasjonList(TestData.fnr11)
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
 
 
             testApplication {
@@ -470,7 +470,7 @@ class BekreftelseRoutesTest : FreeSpec({
                 bekreftelser[0] shouldBeEqualTo bekreftelseResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
     }

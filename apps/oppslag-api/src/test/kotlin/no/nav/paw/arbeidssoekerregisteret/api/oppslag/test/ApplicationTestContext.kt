@@ -10,7 +10,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PoaoTilgangHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
@@ -22,6 +21,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.configureJackson
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 
@@ -35,12 +35,12 @@ class ApplicationTestContext(
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
     val mockOAuth2Server = MockOAuth2Server()
     val pdlHttpConsumerMock: PdlHttpConsumer = mockk<PdlHttpConsumer>()
-    val poaoTilgangHttpConsumerMock: PoaoTilgangHttpConsumer = mockk<PoaoTilgangHttpConsumer>()
+    val tilgangskontrollClientMock: TilgangsTjenesteForAnsatte = mockk<TilgangsTjenesteForAnsatte>()
     val authorizationService: AuthorizationService = AuthorizationService(
         serverConfig = serverConfig,
         periodeRepository = periodeRepository,
         pdlHttpConsumer = pdlHttpConsumerMock,
-        poaoTilgangHttpConsumer = poaoTilgangHttpConsumerMock
+        tilgangskontrollClient = tilgangskontrollClientMock
     )
     val periodeService = PeriodeService(
         periodeRepository = periodeRepository,

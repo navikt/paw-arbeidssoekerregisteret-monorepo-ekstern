@@ -1,6 +1,7 @@
 package no.nav.paw.security.authentication.model
 
 import java.util.*
+import no.nav.paw.model.Identitetsnummer
 
 sealed class Bruker<ID : Any>(
     open val ident: ID

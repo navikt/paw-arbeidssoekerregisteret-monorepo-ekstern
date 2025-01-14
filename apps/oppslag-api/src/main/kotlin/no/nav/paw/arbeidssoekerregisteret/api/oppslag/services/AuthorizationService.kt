@@ -3,28 +3,38 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.services
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PoaoTilgangHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.exception.PeriodeIkkeFunnetException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.policy.SluttbrukerAccessPolicy
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.policy.VeilederAccessPolicy
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
+import no.nav.paw.error.model.getOrThrow
+import no.nav.paw.error.model.map
+import no.nav.paw.model.NavIdent
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
-import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authorization.model.Action
+import no.nav.paw.security.authorization.model.Deny
+import no.nav.paw.security.authorization.model.Permit
 import no.nav.paw.security.authorization.policy.AccessPolicy
-import no.nav.poao_tilgang.api.dto.response.DecisionType
+import no.nav.paw.tilgangskontroll.client.Tilgang
+import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
 import java.util.*
+
+private fun Action.asTilgang(): Tilgang = when (this) {
+    Action.READ -> Tilgang.LESE
+    Action.WRITE -> Tilgang.SKRIVE
+}
 
 class AuthorizationService(
     private val serverConfig: ServerConfig,
     private val periodeRepository: PeriodeRepository,
     private val pdlHttpConsumer: PdlHttpConsumer,
-    private val poaoTilgangHttpConsumer: PoaoTilgangHttpConsumer
+    private val tilgangskontrollClient: TilgangsTjenesteForAnsatte
 ) {
     private val logger = buildLogger
 
@@ -103,13 +113,23 @@ class AuthorizationService(
         action: Action
     ): Boolean = runBlocking {
         logger.debug("Verifiserer at veileder har {}-tilgang til sluttbruker", action.name)
-        val response = poaoTilgangHttpConsumer.evaluatePolicies(bruker, identiteter, action)
-        val (permit, deny) = response.results.partition { it.decision.type == DecisionType.PERMIT }
-        if (permit.isNotEmpty() && deny.isNotEmpty()) {
-            logger.warn("POAO Tilgang returnerte et hetrogent svar")
+        val tilgangstype = action.asTilgang()
+        val tilganger = identiteter.map { identitetsnummer ->
+            tilgangskontrollClient.harAnsattTilgangTilPerson(
+                navIdent = NavIdent(bruker.ident),
+                identitetsnummer = identitetsnummer,
+                tilgang = tilgangstype
+            ).map { harTilgang ->
+                if (harTilgang) {
+                    Permit("Veileder har $tilgangstype-tilgang til sluttbruker")
+                } else {
+                    Deny("NAV-ansatt har ikke $tilgangstype-tilgang til sluttbruker")
+                }
+            }.getOrThrow()
         }
-        deny.isEmpty()
+        if(tilganger.any { it is Deny} && tilganger.any { it is Permit}) {
+            logger.warn("Tilgangskontroll returnerte et hetrogent svar")
+        }
+        tilganger.all { it is Permit }
     }
-
-
 }

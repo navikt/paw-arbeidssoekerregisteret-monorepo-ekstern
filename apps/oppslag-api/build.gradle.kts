@@ -18,7 +18,7 @@ dependencies {
     implementation(project(":lib:kafka"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:pdl-client"))
-    implementation(project(":lib:poao-tilgang-client"))
+    implementation(project(":lib:tilgangskontroll-client"))
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 

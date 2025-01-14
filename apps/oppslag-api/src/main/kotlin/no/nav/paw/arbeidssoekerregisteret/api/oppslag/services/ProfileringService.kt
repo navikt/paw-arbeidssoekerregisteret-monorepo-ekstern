@@ -5,7 +5,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
-import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 

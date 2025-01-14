@@ -68,7 +68,7 @@ Token med veileder-ident:
   "NAVident": "<veileder-ident>"
 }
 ```
-- Verifiserer veileders leserettigheter med [POAO-tilgang](https://github.com/navikt/poao-tilgang).
+- Verifiserer veileders leserettigheter med [paw-tilgangskontroll](https://github.com/navikt/paw-arbeidssoekerregisteret-monorepo-intern/tree/main/apps/tilgangskontroll).
 
 Machine-to-maching token:
 ```json

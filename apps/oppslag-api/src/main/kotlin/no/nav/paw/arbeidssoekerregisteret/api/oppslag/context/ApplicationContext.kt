@@ -1,5 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.context
 
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.jackson.jackson
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG
@@ -7,7 +10,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PoaoTilgangHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
@@ -35,9 +37,14 @@ import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.pdl.factory.createPdlClient
-import no.nav.paw.poao.tilgang.factory.createPoaoTilgangClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
+import no.nav.paw.client.config.AZURE_M2M_CONFIG
+import no.nav.paw.client.config.AzureAdM2MConfig
+import no.nav.paw.tilgangskontroll.client.TILGANGSKONTROLL_CLIENT_CONFIG
+import no.nav.paw.tilgangskontroll.client.TilgangskontrollClientConfig
+import no.nav.paw.tilgangskontroll.client.tilgangsTjenesteForAnsatte
+import no.nav.paw.client.factory.createAzureAdM2MTokenClient
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.LongDeserializer
 import javax.sql.DataSource
@@ -68,6 +75,10 @@ data class ApplicationContext(
             val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
             val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
+            val azureM2MConfig = loadNaisOrLocalConfiguration<AzureAdM2MConfig>(AZURE_M2M_CONFIG)
+            val tilgangskontrollClientConfig = loadNaisOrLocalConfiguration<TilgangskontrollClientConfig>(
+                TILGANGSKONTROLL_CLIENT_CONFIG
+            )
 
             val dataSource = createHikariDataSource(databaseConfig)
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
@@ -79,13 +90,24 @@ data class ApplicationContext(
             val bekreftelseRepository = BekreftelseRepository()
 
             val pdlClient = createPdlClient()
-            val poaoTilgangClient = createPoaoTilgangClient()
+
+            val azureM2MTokenClient = createAzureAdM2MTokenClient(serverConfig.runtimeEnvironment, azureM2MConfig)
+
+            val tilgangskontrollClient = tilgangsTjenesteForAnsatte(
+                httpClient = HttpClient {
+                    install(ContentNegotiation) {
+                        jackson()
+                    }
+                },
+                config = tilgangskontrollClientConfig,
+                tokenProvider = { azureM2MTokenClient.createMachineToMachineToken(tilgangskontrollClientConfig.scope) }
+            )
 
             val authorizationService = AuthorizationService(
                 serverConfig = serverConfig,
                 periodeRepository = periodeRepository,
                 pdlHttpConsumer = PdlHttpConsumer(pdlClient),
-                poaoTilgangHttpConsumer = PoaoTilgangHttpConsumer(poaoTilgangClient)
+                tilgangskontrollClient = tilgangskontrollClient
             )
 
             val kafkaFactory = KafkaFactory(kafkaConfig)

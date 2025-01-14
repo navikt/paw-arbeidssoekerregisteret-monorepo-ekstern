@@ -11,14 +11,14 @@ import io.mockk.confirmVerified
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.exception.PeriodeIkkeFunnetException
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
+import no.nav.paw.error.model.Data
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.resolveBruker
 import no.nav.paw.security.authorization.exception.IngenTilgangException
 import no.nav.paw.security.authorization.model.Action
-import no.nav.poao_tilgang.api.dto.response.DecisionType
 import java.util.*
 
 class AuthorizationServiceTest : FreeSpec({
@@ -28,7 +28,7 @@ class AuthorizationServiceTest : FreeSpec({
             confirmVerified(
                 periodeRepository,
                 pdlHttpConsumerMock,
-                poaoTilgangHttpConsumerMock
+                tilgangskontrollClientMock
             )
         }
 
@@ -138,8 +138,8 @@ class AuthorizationServiceTest : FreeSpec({
                 pdlHttpConsumerMock.finnIdenter(TestData.identitetsnummer5)
             } returns listOf(IdentInformasjon(TestData.fnr5, IdentGruppe.FOLKEREGISTERIDENT))
             coEvery {
-                poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any())
-            } returns TestData.nyEvaluatePoliciesResponse(DecisionType.PERMIT, DecisionType.PERMIT)
+                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
+            } returns Data(true)
             val sluttbrukerSecurityContext = TestData.nySecurityContext(bruker = TestData.nySluttbruker())
             val navAnsattSecurityContext = TestData.nySecurityContext(bruker = TestData.nyNavAnsatt())
             val m2mTokenSecurityContext = TestData.nySecurityContext(bruker = TestData.nyM2MToken())
@@ -214,7 +214,7 @@ class AuthorizationServiceTest : FreeSpec({
 
             coVerify { periodeRepository.hentPeriodeForId(any<UUID>()) }
             coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-            coVerify { poaoTilgangHttpConsumerMock.evaluatePolicies(any(), any(), any()) }
+            coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
         }
     }
 })
