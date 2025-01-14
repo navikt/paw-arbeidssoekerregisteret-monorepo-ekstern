@@ -7,21 +7,20 @@ nav-security = "5.0.14"
 nav-security-mock-oauth2-server = "2.1.10"
 nav-poao-tilgang = "2025.01.10_06.33-afbc6bc84eed"
 nav-tms-varsel = "1.0.4"
-arrow = "1.2.4"
 hoplite = "2.9.0"
-kafka = "3.7.0"
+kafka = "3.7.2"
 confluent-kafka = "7.6.0"
 avro = "1.12.0"
 avro-plugin = "1.9.1"
 jackson = "2.18.2"
-exposed = "0.57.0"
+exposed = "0.58.0"
 logstash = "8.0"
 logback = "1.5.16"
 kotest = "5.9.1"
 mockk = "1.13.14"
 testcontainers = "1.20.4"
-micrometer = "1.14.2"
-otel-api = "1.45.0"
+micrometer = "1.14.3"
+otel-api = "1.46.0"
 otel-instrumentation = "2.11.0"
 postgres-driver = "42.7.4"
 flyway = "11.1.1"
@@ -64,7 +63,6 @@ ktor-server-metrics-micrometer = { group = "io.ktor", name = "ktor-server-metric
 ktor-server-test-host = { group = "io.ktor", name = "ktor-server-test-host", version.ref = "ktor" }
 ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
-arrow-core = { group = "io.arrow-kt", name = "arrow-core", version.ref = "arrow" }
 opentelemetry-api = { group = "io.opentelemetry", name = "opentelemetry-api", version.ref = "otel-api" }
 opentelemetry-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
 micrometer-registry-prometheus = { group = "io.micrometer", name = "micrometer-registry-prometheus", version.ref = "micrometer" }

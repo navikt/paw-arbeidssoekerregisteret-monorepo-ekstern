@@ -73,8 +73,6 @@ dependencies {
     implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
 
-    implementation(libs.arrow.core)
-
     // Test
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.bundles.unit.testing.kotest)
