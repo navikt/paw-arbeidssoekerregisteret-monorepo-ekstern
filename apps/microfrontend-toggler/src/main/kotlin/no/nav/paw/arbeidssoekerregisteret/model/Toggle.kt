@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonValue
-import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.streams.processor.api.Record
 import java.time.Instant
 
