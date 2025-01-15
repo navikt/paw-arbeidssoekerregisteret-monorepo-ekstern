@@ -7,9 +7,11 @@ import no.nav.paw.database.config.DatabaseConfig
 fun createHikariDataSource(databaseConfig: DatabaseConfig): HikariDataSource =
     HikariDataSource(
         HikariConfig().apply {
-            jdbcUrl = databaseConfig.url
+            jdbcUrl = databaseConfig.buildJdbcUrl()
             maximumPoolSize = databaseConfig.maximumPoolSize
+            isAutoCommit = databaseConfig.autoCommit
             connectionTimeout = databaseConfig.connectionTimeout.toMillis()
+            idleTimeout = databaseConfig.idleTimeout.toMillis()
             maxLifetime = databaseConfig.maxLifetime.toMillis()
         }
     )
