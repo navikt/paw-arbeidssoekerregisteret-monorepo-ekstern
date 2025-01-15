@@ -119,6 +119,10 @@ spec:
           namespace: teamfamilie
           cluster: prod-gcp
     outbound:
+      rules:
+        - application: paw-tilgangskontroll
+          namespace: paw
+          cluster: prod-gcp
       external:
         - host: pdl-api.prod-fss-pub.nais.io
   gcp:

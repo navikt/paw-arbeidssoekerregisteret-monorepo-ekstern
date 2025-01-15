@@ -121,6 +121,10 @@ spec:
           namespace: teamfamilie
           cluster: dev-gcp
     outbound:
+      rules:
+        - application: paw-tilgangskontroll
+          namespace: paw
+          cluster: dev-gcp
       external:
         - host: pdl-api.dev-fss-pub.nais.io
   gcp:
