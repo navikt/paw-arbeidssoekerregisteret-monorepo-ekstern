@@ -2,4 +2,4 @@ host = "localhost"
 port = 5432
 username = "oppslag_api"
 password = "Paw1234"
-name = "arbeidssoekerregisteretapioppslag"
+database = "arbeidssoekerregisteretapioppslag"
