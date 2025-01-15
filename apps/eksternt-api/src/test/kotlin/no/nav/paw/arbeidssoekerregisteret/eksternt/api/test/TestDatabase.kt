@@ -14,7 +14,7 @@ fun initTestDatabase(): DataSource {
         port = postgres.firstMappedPort,
         username = postgres.username,
         password = postgres.password,
-        name = postgres.databaseName
+        database = postgres.databaseName
     )
     val dataSource = createHikariDataSource(databaseConfig)
     Flyway.configure()
