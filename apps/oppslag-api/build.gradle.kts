@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.logstash.logback.encoder)
     implementation(libs.nav.common.log)
     implementation(libs.nav.common.audit.log)
+    implementation(libs.janino)
 
     // Docs
     implementation(libs.ktor.server.openapi)

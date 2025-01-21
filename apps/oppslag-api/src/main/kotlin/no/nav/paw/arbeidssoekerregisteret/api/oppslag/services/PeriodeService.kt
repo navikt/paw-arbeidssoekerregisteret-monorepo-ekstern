@@ -1,5 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.services
 
+import io.micrometer.core.instrument.MeterRegistry
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
@@ -14,12 +17,15 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerR
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.perioderKafkaCounter
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.perioderKafkaTrace
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 
 class PeriodeService(
+    private val meterRegistry: MeterRegistry,
     private val periodeRepository: PeriodeRepository,
     private val opplysningerRepository: OpplysningerRepository,
     private val profileringRepository: ProfileringRepository,
@@ -59,6 +65,14 @@ class PeriodeService(
     fun lagreAllePerioder(perioder: Iterable<Periode>) =
         periodeRepository.lagreAllePerioder(perioder)
 
-    fun handleRecords(records: ConsumerRecords<Long, Periode>) =
-        lagreAllePerioder(records.map { it.value() })
+    @WithSpan("paw.kafka.consumer")
+    fun handleRecords(records: ConsumerRecords<Long, Periode>) {
+        Span.current().perioderKafkaTrace()
+
+        if (!records.isEmpty) {
+            logger.info("Mottok {} perioder fra Kafka", records.count())
+            meterRegistry.perioderKafkaCounter(records.count())
+            lagreAllePerioder(records.map { it.value() })
+        }
+    }
 }

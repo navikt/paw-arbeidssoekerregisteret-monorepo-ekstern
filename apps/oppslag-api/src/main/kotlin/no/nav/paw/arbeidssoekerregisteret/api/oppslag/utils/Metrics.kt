@@ -5,28 +5,64 @@ import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
 import java.util.concurrent.atomic.AtomicLong
 
-private const val METRIC_PREFIX = "paw_arbeidssoekerregisteret_api_oppslag"
-
-fun MeterRegistry.antallAktivePerioderGauge(antallAktivePerioder: AtomicLong) {
+fun MeterRegistry.antallAktivePerioderGauge(antall: AtomicLong) {
     genericGauge(
-        suffix = "antall_aktive_perioder",
-        number = antallAktivePerioder,
+        name = "paw_arbeidssoekerregisteret_api_oppslag_antall_aktive_perioder",
+        number = antall,
+        type = "perioder",
         source = "database",
         target = "metrics",
-        action = "fetched"
+        action = "read"
+    )
+    genericGauge(
+        name = "paw.gauge.database.records",
+        number = antall,
+        type = "perioder.aktive",
+        source = "database",
+        target = "metrics",
+        action = "read"
+    )
+}
+
+fun MeterRegistry.perioderKafkaCounter(antall: Number) {
+    kafkaCounter(antall, "perioder")
+}
+
+fun MeterRegistry.opplysningerKafkaCounter(antall: Number) {
+    kafkaCounter(antall, "opplysninger")
+}
+
+fun MeterRegistry.profileringerKafkaCounter(antall: Number) {
+    kafkaCounter(antall, "profileringer")
+}
+
+fun MeterRegistry.bekreftelserKafkaCounter(antall: Number) {
+    kafkaCounter(antall, "bekreftelser")
+}
+
+fun MeterRegistry.kafkaCounter(antall: Number, type: String) {
+    genericCounter(
+        name = "paw.counter.kafka.consumer.messages",
+        number = antall,
+        type = type,
+        source = "kafka",
+        target = "database",
+        action = "write"
     )
 }
 
 fun MeterRegistry.genericCounter(
-    suffix: String = "counter",
+    name: String,
     number: Number = java.lang.Double.valueOf(1.0),
+    type: String,
     source: String,
     target: String,
     action: String
 ) {
     counter(
-        "${METRIC_PREFIX}_${suffix}",
+        name,
         Tags.of(
+            Tag.of("type", type),
             Tag.of("source", source),
             Tag.of("target", target),
             Tag.of("action", action)
@@ -35,15 +71,17 @@ fun MeterRegistry.genericCounter(
 }
 
 fun MeterRegistry.genericGauge(
-    suffix: String = "gauge",
+    name: String,
     number: Number,
+    type: String,
     source: String,
     target: String,
     action: String
 ) {
     gauge(
-        "${METRIC_PREFIX}_${suffix}",
+        name,
         Tags.of(
+            Tag.of("type", type),
             Tag.of("source", source),
             Tag.of("target", target),
             Tag.of("action", action)

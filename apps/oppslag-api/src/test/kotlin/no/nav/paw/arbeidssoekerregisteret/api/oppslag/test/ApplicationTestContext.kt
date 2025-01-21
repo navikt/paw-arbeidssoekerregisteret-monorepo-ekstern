@@ -4,6 +4,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
@@ -33,6 +35,7 @@ class ApplicationTestContext(
 ) {
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
+    val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val mockOAuth2Server = MockOAuth2Server()
     val pdlHttpConsumerMock: PdlHttpConsumer = mockk<PdlHttpConsumer>()
     val tilgangskontrollClientMock: TilgangsTjenesteForAnsatte = mockk<TilgangsTjenesteForAnsatte>()
@@ -43,14 +46,15 @@ class ApplicationTestContext(
         tilgangskontrollClient = tilgangskontrollClientMock
     )
     val periodeService = PeriodeService(
+        meterRegistry = prometheusMeterRegistry,
         periodeRepository = periodeRepository,
         opplysningerRepository = opplysningerRepository,
         profileringRepository = profileringRepository,
         bekreftelseRepository = bekreftelseRepository
     )
-    val opplysningerService = OpplysningerService(opplysningerRepository)
-    val profileringService = ProfileringService(profileringRepository)
-    val bekreftelseService = BekreftelseService(bekreftelseRepository)
+    val opplysningerService = OpplysningerService(prometheusMeterRegistry, opplysningerRepository)
+    val profileringService = ProfileringService(prometheusMeterRegistry, profileringRepository)
+    val bekreftelseService = BekreftelseService(prometheusMeterRegistry, bekreftelseRepository)
 
     fun ApplicationTestBuilder.configureTestClient(): HttpClient {
         return createClient {
