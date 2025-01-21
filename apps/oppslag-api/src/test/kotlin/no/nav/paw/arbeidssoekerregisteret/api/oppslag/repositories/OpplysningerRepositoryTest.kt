@@ -112,11 +112,16 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut flere opplysninger om arbeidssøker med samme periodeId" {
+        val tidspunkt = Instant.now()
         val opplysninger1 = TestData.nyOpplysningerRow(
-            periodeId = TestData.periodeId4, opplysningerId = TestData.opplysningerId4
+            periodeId = TestData.periodeId4,
+            opplysningerId = TestData.opplysningerId4,
+            sendtInnAv = TestData.nyMetadataRow(tidspunkt = tidspunkt)
         )
         val opplysninger2 = TestData.nyOpplysningerRow(
-            periodeId = TestData.periodeId4, opplysningerId = TestData.opplysningerId5
+            periodeId = TestData.periodeId4,
+            opplysningerId = TestData.opplysningerId5,
+            sendtInnAv = TestData.nyMetadataRow(tidspunkt = tidspunkt.minusSeconds(60))
         )
         opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
         opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
@@ -138,12 +143,18 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 
     "Opprett og hent ut opplysninger om arbeidssøker med forskjellig periodeId" {
+        val tidspunkt = Instant.now()
         val opplysninger1 = TestData
-            .nyOpplysningerRow(periodeId = TestData.periodeId5, opplysningerId = TestData.opplysningerId6)
+            .nyOpplysningerRow(
+                periodeId = TestData.periodeId5,
+                opplysningerId = TestData.opplysningerId6,
+                sendtInnAv = TestData.nyMetadataRow(tidspunkt = tidspunkt)
+            )
         val opplysninger2 =
             TestData.nyOpplysningerRow(
                 periodeId = TestData.periodeId6,
-                opplysningerId = TestData.opplysningerId7
+                opplysningerId = TestData.opplysningerId7,
+                sendtInnAv = TestData.nyMetadataRow(tidspunkt = tidspunkt.minusSeconds(60))
             )
 
         opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
@@ -170,9 +181,15 @@ class OpplysningerRepositoryTest : StringSpec({
 
     "Like opplysninger med samme periodeId skal ikke lagres på nytt" {
         val opplysninger1 = TestData
-            .nyOpplysningerRow(periodeId = TestData.periodeId7, opplysningerId = TestData.opplysningerId8)
+            .nyOpplysningerRow(
+                periodeId = TestData.periodeId7,
+                opplysningerId = TestData.opplysningerId8
+            )
         val opplysninger2 = TestData
-            .nyOpplysningerRow(periodeId = TestData.periodeId7, opplysningerId = TestData.opplysningerId8)
+            .nyOpplysningerRow(
+                periodeId = TestData.periodeId7,
+                opplysningerId = TestData.opplysningerId8
+            )
 
         opplysningerRepository.lagreOpplysninger(opplysninger1.toOpplysningerOmArbeidssoeker())
         opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())

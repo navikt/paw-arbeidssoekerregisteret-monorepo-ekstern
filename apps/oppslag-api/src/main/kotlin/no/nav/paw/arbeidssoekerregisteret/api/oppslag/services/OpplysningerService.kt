@@ -1,15 +1,25 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.services
 
+import io.micrometer.core.instrument.MeterRegistry
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opplysningerKafkaCounter
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opplysningerKafkaTrace
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 
-class OpplysningerService(private val opplysningerRepository: OpplysningerRepository) {
+class OpplysningerService(
+    private val meterRegistry: MeterRegistry,
+    private val opplysningerRepository: OpplysningerRepository
+) {
+    private val logger = buildLogger
 
     fun finnOpplysningerForPeriodeIdList(
         periodeIdList: Collection<UUID>,
@@ -28,6 +38,14 @@ class OpplysningerService(private val opplysningerRepository: OpplysningerReposi
     fun lagreAlleOpplysninger(opplysninger: Iterable<OpplysningerOmArbeidssoeker>) =
         opplysningerRepository.lagreAlleOpplysninger(opplysninger)
 
-    fun handleRecords(records: ConsumerRecords<Long, OpplysningerOmArbeidssoeker>) =
-        lagreAlleOpplysninger(records.map { it.value() })
+    @WithSpan("paw.kafka.consumer")
+    fun handleRecords(records: ConsumerRecords<Long, OpplysningerOmArbeidssoeker>) {
+        Span.current().opplysningerKafkaTrace()
+
+        if (!records.isEmpty) {
+            logger.info("Mottok {} opplysninger fra Kafka", records.count())
+            meterRegistry.opplysningerKafkaCounter(records.count())
+            lagreAlleOpplysninger(records.map { it.value() })
+        }
+    }
 }

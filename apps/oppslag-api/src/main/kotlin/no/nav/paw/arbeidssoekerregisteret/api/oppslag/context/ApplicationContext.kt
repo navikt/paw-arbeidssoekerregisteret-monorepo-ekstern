@@ -28,6 +28,9 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
+import no.nav.paw.client.config.AZURE_M2M_CONFIG
+import no.nav.paw.client.config.AzureAdM2MConfig
+import no.nav.paw.client.factory.createAzureAdM2MTokenClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
@@ -39,12 +42,9 @@ import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.pdl.factory.createPdlClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
-import no.nav.paw.client.config.AZURE_M2M_CONFIG
-import no.nav.paw.client.config.AzureAdM2MConfig
 import no.nav.paw.tilgangskontroll.client.TILGANGSKONTROLL_CLIENT_CONFIG
 import no.nav.paw.tilgangskontroll.client.TilgangskontrollClientConfig
 import no.nav.paw.tilgangskontroll.client.tilgangsTjenesteForAnsatte
-import no.nav.paw.client.factory.createAzureAdM2MTokenClient
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.LongDeserializer
 import javax.sql.DataSource
@@ -116,10 +116,11 @@ data class ApplicationContext(
 
             // Perioder avhengigheter
             val periodeService = PeriodeService(
-                periodeRepository,
-                opplysningerRepository,
-                profileringRepository,
-                bekreftelseRepository
+                meterRegistry = prometheusMeterRegistry,
+                periodeRepository = periodeRepository,
+                opplysningerRepository = opplysningerRepository,
+                profileringRepository = profileringRepository,
+                bekreftelseRepository = bekreftelseRepository
             )
             val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
                 groupId = applicationConfig.perioderGroupId,
@@ -129,7 +130,10 @@ data class ApplicationContext(
             )
 
             // Opplysninger avhengigheter
-            val opplysningerService = OpplysningerService(opplysningerRepository)
+            val opplysningerService = OpplysningerService(
+                meterRegistry = prometheusMeterRegistry,
+                opplysningerRepository = opplysningerRepository
+            )
             val opplysningerKafkaConsumer = kafkaFactory.createConsumer<Long, OpplysningerOmArbeidssoeker>(
                 groupId = applicationConfig.opplysningerGroupId,
                 clientId = "${applicationConfig.opplysningerGroupId}-opplysninger-consumer",
@@ -138,7 +142,10 @@ data class ApplicationContext(
             )
 
             // Profileringer avhengigheter
-            val profileringService = ProfileringService(profileringRepository)
+            val profileringService = ProfileringService(
+                meterRegistry = prometheusMeterRegistry,
+                profileringRepository = profileringRepository
+            )
             val profileringKafkaConsumer = kafkaFactory.createConsumer<Long, Profilering>(
                 groupId = applicationConfig.profileringGroupId,
                 clientId = "${applicationConfig.profileringGroupId}-profileringer-consumer",
@@ -147,7 +154,10 @@ data class ApplicationContext(
             )
 
             // Bekreftelser avhengigheter
-            val bekreftelseService = BekreftelseService(bekreftelseRepository)
+            val bekreftelseService = BekreftelseService(
+                meterRegistry = prometheusMeterRegistry,
+                bekreftelseRepository = bekreftelseRepository
+            )
             val bekreftelseKafkaConsumer = kafkaFactory.createConsumer<Long, Bekreftelse>(
                 groupId = applicationConfig.bekreftelseGroupId,
                 clientId = "${applicationConfig.bekreftelseGroupId}-consumer",
