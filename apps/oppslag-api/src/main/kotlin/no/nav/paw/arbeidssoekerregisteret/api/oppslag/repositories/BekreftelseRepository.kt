@@ -39,17 +39,14 @@ class BekreftelseRepository {
             }
         }
 
-    fun lagreAlleBekreftelser(bekreftelser: Iterable<Bekreftelse>) {
-        if (bekreftelser.iterator().hasNext()) {
-            transaction {
-                bekreftelser.forEach { bekreftelse ->
-                    if (BekreftelseFunctions.getForBekreftelseId(bekreftelse.id) != null) {
-                        logger.warn("Ignorerer mottatt bekreftelse som duplikat")
-                    } else {
-                        logger.info("Lagrer ny bekreftelse")
-                        BekreftelseFunctions.insert(bekreftelse)
-                    }
-                }
+    fun lagreBekreftelse(bekreftelse: Bekreftelse) {
+        transaction {
+            val eksisterendeBekreftelse = BekreftelseFunctions.getForBekreftelseId(bekreftelse.id)
+            if (eksisterendeBekreftelse != null) {
+                logger.warn("Ignorerer mottatt bekreftelse som duplikat")
+            } else {
+                logger.info("Lagrer ny bekreftelse")
+                BekreftelseFunctions.insert(bekreftelse)
             }
         }
     }

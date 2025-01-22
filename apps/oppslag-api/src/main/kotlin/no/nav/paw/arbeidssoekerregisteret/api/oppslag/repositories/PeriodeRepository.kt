@@ -41,37 +41,12 @@ class PeriodeRepository {
     fun lagrePeriode(periode: Periode) {
         transaction {
             val eksisterendePeriode = PeriodeFunctions.getForPeriodeId(periode.id)
-
             if (eksisterendePeriode != null) {
                 logger.info("Endrer eksisterende periode")
                 PeriodeFunctions.update(periode, eksisterendePeriode)
             } else {
                 logger.info("Lagrer ny periode")
                 PeriodeFunctions.insert(periode)
-            }
-        }
-    }
-
-    fun lagreAllePerioder(perioder: Iterable<Periode>) {
-        if (perioder.iterator().hasNext()) {
-            transaction {
-                maxAttempts = 2
-                minRetryDelay = 20
-
-                val periodeIdList = perioder.map { it.id }.toList()
-                val eksisterendePerioder = PeriodeFunctions.finnForPeriodeIdList(periodeIdList)
-                val eksisterendePeriodeIdMap = eksisterendePerioder.associateBy { it.periodeId }
-
-                perioder.forEach { periode ->
-                    val eksisterendePeriode = eksisterendePeriodeIdMap[periode.id]
-                    if (eksisterendePeriode != null) {
-                        logger.info("Endrer eksisterende periode")
-                        PeriodeFunctions.update(periode, eksisterendePeriode)
-                    } else {
-                        logger.info("Lagrer ny periode")
-                        PeriodeFunctions.insert(periode)
-                    }
-                }
             }
         }
     }

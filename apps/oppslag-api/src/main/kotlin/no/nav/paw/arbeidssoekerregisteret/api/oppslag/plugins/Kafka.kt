@@ -28,21 +28,37 @@ fun Application.configureKafka(
     install(KafkaConsumerPlugin<Long, Periode>("Perioder")) {
         kafkaConsumer = periodeKafkaConsumer
         kafkaTopics = listOf(applicationConfig.perioderTopic)
-        consumeFunction = periodeService::handleRecords
+        consumeFunction = { records ->
+            if (!records.isEmpty) {
+                periodeService.handleRecords(records)
+            }
+        }
     }
     install(KafkaConsumerPlugin<Long, OpplysningerOmArbeidssoeker>("Opplysninger")) {
         kafkaConsumer = opplysningerKafkaConsumer
         kafkaTopics = listOf(applicationConfig.opplysningerTopic)
-        consumeFunction = opplysningerService::handleRecords
+        consumeFunction = { records ->
+            if (!records.isEmpty) {
+                opplysningerService.handleRecords(records)
+            }
+        }
     }
     install(KafkaConsumerPlugin<Long, Profilering>("Profileringer")) {
         kafkaConsumer = profileringKafkaConsumer
         kafkaTopics = listOf(applicationConfig.profileringTopic)
-        consumeFunction = profileringService::handleRecords
+        consumeFunction = { records ->
+            if (!records.isEmpty) {
+                profileringService.handleRecords(records)
+            }
+        }
     }
     install(KafkaConsumerPlugin<Long, Bekreftelse>("Bekreftelser")) {
         kafkaConsumer = bekreftelseKafkaConsumer
         kafkaTopics = listOf(applicationConfig.bekreftelseTopic)
-        consumeFunction = bekreftelseService::handleRecords
+        consumeFunction = { records ->
+            if (!records.isEmpty) {
+                bekreftelseService.handleRecords(records)
+            }
+        }
     }
 }

@@ -27,9 +27,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.error.model.Data
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.model.Identitetsnummer
 
 class OpplysningerRoutesTest : FreeSpec({
     with(ApplicationTestContext.withRealDataAccess()) {
@@ -118,8 +118,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                opplysningerService.lagreAlleOpplysninger(opplysninger)
+                periodeService.lagrePeriode(periode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker") {
@@ -154,8 +154,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr2)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                opplysningerService.lagreAlleOpplysninger(opplysninger)
+                periodeService.lagrePeriode(periode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker?siste=true") {
@@ -213,7 +213,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 }
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
-                periodeService.lagreAllePerioder(listOf(periode))
+                periodeService.lagrePeriode(periode)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${periode.id}") {
@@ -242,8 +242,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr5)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                opplysningerService.lagreAlleOpplysninger(opplysninger)
+                periodeService.lagrePeriode(periode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/opplysninger-om-arbeidssoeker/${periode.id}") {
@@ -306,7 +306,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 }
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr7)
-                periodeService.lagreAllePerioder(listOf(periode))
+                periodeService.lagrePeriode(periode)
 
                 val testClient = configureTestClient()
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
@@ -346,7 +346,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 }
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
-                periodeService.lagreAllePerioder(listOf(periode))
+                periodeService.lagrePeriode(periode)
 
                 val testClient = configureTestClient()
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
@@ -388,8 +388,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                opplysningerService.lagreAlleOpplysninger(opplysninger)
+                periodeService.lagrePeriode(periode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
 
                 val testClient = configureTestClient()
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
@@ -411,7 +411,7 @@ class OpplysningerRoutesTest : FreeSpec({
                 opplysninger[2] shouldBeEqualTo opplysningerResponses[2]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())}
+                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
             }
         }
 
@@ -436,8 +436,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                opplysningerService.lagreAlleOpplysninger(opplysninger)
+                periodeService.lagrePeriode(periode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
 
                 val testClient = configureTestClient()
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker?siste=true") {
@@ -481,8 +481,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr11)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                opplysningerService.lagreAlleOpplysninger(opplysninger)
+                periodeService.lagrePeriode(periode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
 
                 val testClient = configureTestClient()
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {
@@ -524,8 +524,8 @@ class OpplysningerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr12)
                 val opplysninger = TestData.nyOpplysningerOmArbeidssoekerList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                opplysningerService.lagreAlleOpplysninger(opplysninger)
+                periodeService.lagrePeriode(periode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
 
                 val testClient = configureTestClient()
                 val response = testClient.post("api/v1/veileder/opplysninger-om-arbeidssoeker") {

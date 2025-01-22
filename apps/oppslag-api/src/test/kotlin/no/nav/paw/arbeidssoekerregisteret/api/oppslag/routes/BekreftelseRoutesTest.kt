@@ -22,9 +22,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.error.model.Data
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.model.Identitetsnummer
 
 class BekreftelseRoutesTest : FreeSpec({
 
@@ -114,8 +114,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                periodeService.lagrePeriode(periode)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/arbeidssoekerbekreftelser") {
@@ -150,8 +150,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr2)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                periodeService.lagrePeriode(periode)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/arbeidssoekerbekreftelser?siste=true") {
@@ -210,8 +210,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr31)
                 val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse))
+                periodeService.lagrePeriode(periode)
+                bekreftelseService.lagreBekreftelse(bekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${periode.id}") {
@@ -241,8 +241,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr5)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                periodeService.lagrePeriode(periode)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${periode.id}") {
@@ -277,8 +277,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr6)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                periodeService.lagrePeriode(periode)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/arbeidssoekerbekreftelser/${periode.id}?siste=true") {
@@ -348,8 +348,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr8)
                 val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse))
+                periodeService.lagrePeriode(periode)
+                bekreftelseService.lagreBekreftelse(bekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/veileder/arbeidssoekerbekreftelser/${periode.id}") {
@@ -380,8 +380,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
                 val bekreftelse = TestData.nyBekreftelse(periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(listOf(bekreftelse))
+                periodeService.lagrePeriode(periode)
+                bekreftelseService.lagreBekreftelse(bekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/veileder/arbeidssoekerbekreftelser/${periode.id}") {
@@ -415,8 +415,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr10)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                periodeService.lagrePeriode(periode)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/veileder/arbeidssoekerbekreftelser/${periode.id}") {
@@ -456,8 +456,8 @@ class BekreftelseRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr11)
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                periodeService.lagrePeriode(periode)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/veileder/arbeidssoekerbekreftelser/${periode.id}?siste=true") {

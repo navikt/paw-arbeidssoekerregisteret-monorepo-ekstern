@@ -44,36 +44,12 @@ class OpplysningerRepository {
 
     fun lagreOpplysninger(opplysninger: OpplysningerOmArbeidssoeker) {
         transaction {
-            val eksisterendeOpplysninger = OpplysningerFunctions.getRow(opplysninger.id)
-
+            val eksisterendeOpplysninger = OpplysningerFunctions.getForOpplysningerId(opplysninger.id)
             if (eksisterendeOpplysninger != null) {
                 logger.warn("Ignorerer mottatte opplysninger som duplikat")
             } else {
                 logger.info("Lagrer nye opplysninger")
                 OpplysningerFunctions.insert(opplysninger)
-            }
-        }
-    }
-
-    fun lagreAlleOpplysninger(opplysninger: Iterable<OpplysningerOmArbeidssoeker>) {
-        if (opplysninger.iterator().hasNext()) {
-            transaction {
-                maxAttempts = 2
-                minRetryDelay = 20
-
-                val opplysningerIdList = opplysninger.map { it.id }.toList()
-                val eksisterendeOpplysningerList = OpplysningerFunctions.finnRows(opplysningerIdList)
-                val eksisterendeOpplysningerMap = eksisterendeOpplysningerList.associateBy { it.opplysningerId }
-
-                opplysninger.forEach { opplysninger ->
-                    val eksisterendeOpplysninger = eksisterendeOpplysningerMap[opplysninger.id]
-                    if (eksisterendeOpplysninger != null) {
-                        logger.warn("Ignorerer mottatte opplysninger som duplikat")
-                    } else {
-                        logger.info("Lagrer nye opplysninger")
-                        OpplysningerFunctions.insert(opplysninger)
-                    }
-                }
             }
         }
     }

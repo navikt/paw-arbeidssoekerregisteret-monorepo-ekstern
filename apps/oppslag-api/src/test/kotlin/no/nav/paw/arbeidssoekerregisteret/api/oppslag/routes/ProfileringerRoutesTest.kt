@@ -27,9 +27,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.error.model.Data
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.model.Identitetsnummer
 
 class ProfileringerRoutesTest : FreeSpec({
     with(ApplicationTestContext.withRealDataAccess()) {
@@ -144,8 +144,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                profileringService.lagreAlleProfileringer(profileringer)
+                periodeService.lagrePeriode(periode)
+                profileringer.forEach(profileringService::lagreProfilering)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/profilering/${periode.id}") {
@@ -180,8 +180,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr2)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                profileringService.lagreAlleProfileringer(profileringer)
+                periodeService.lagrePeriode(periode)
+                profileringer.forEach(profileringService::lagreProfilering)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/profilering") {
@@ -216,8 +216,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr3)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                profileringService.lagreAlleProfileringer(profileringer)
+                periodeService.lagrePeriode(periode)
+                profileringer.forEach(profileringService::lagreProfilering)
 
                 val testClient = configureTestClient()
                 val response = testClient.get("api/v1/profilering?siste=true") {
@@ -317,8 +317,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr6)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                profileringService.lagreAlleProfileringer(profileringer)
+                periodeService.lagrePeriode(periode)
+                profileringer.forEach(profileringService::lagreProfilering)
 
                 val testClient = configureTestClient()
                 val response = testClient.post("api/v1/veileder/profilering") {
@@ -364,8 +364,8 @@ class ProfileringerRoutesTest : FreeSpec({
 
                 val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr7)
                 val profileringer = TestData.nyProfileringList(size = 3, periodeId = periode.id)
-                periodeService.lagreAllePerioder(listOf(periode))
-                profileringService.lagreAlleProfileringer(profileringer)
+                periodeService.lagrePeriode(periode)
+                profileringer.forEach(profileringService::lagreProfilering)
 
                 val testClient = configureTestClient()
                 val response = testClient.post("api/v1/veileder/profilering?siste=true") {
