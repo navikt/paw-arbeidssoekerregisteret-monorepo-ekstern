@@ -25,6 +25,8 @@ spec:
       value: "min-side.aapen-microfrontend-v1"
     - name: KAFKA_KEYS_SCOPE
       value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
+    - name: TOGGLE_SENSITIVITET
+      value: "SUBSTANTIAL"
   resources:
     limits:
       memory: 1024Mi

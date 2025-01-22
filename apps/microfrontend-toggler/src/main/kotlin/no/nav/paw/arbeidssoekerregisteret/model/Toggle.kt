@@ -42,8 +42,11 @@ data class ToggleRequest(
     @JsonProperty("microfrontend_id") val microfrontendId: String
 )
 
-fun ToggleRequest.buildToggle(identitetsnummer: Identitetsnummer): Toggle {
-    val sensitivitet = if (action == ToggleAction.ENABLE) Sensitivitet.HIGH else null
+fun ToggleRequest.buildToggle(
+    identitetsnummer: Identitetsnummer,
+    defaultSensitivitet: Sensitivitet
+): Toggle {
+    val sensitivitet = if (action == ToggleAction.ENABLE) defaultSensitivitet else null
 
     return Toggle(
         action = action,

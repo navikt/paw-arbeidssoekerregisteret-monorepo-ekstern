@@ -19,12 +19,15 @@ fun PeriodeInfo.bleAvsluttetTidligereEnn(tidspunkt: Instant): Boolean =
 
 fun PeriodeInfo.erInnenfor(tidspunkt: Instant): Boolean = startet.isBefore(tidspunkt)
 
-fun PeriodeInfo.buildEnableToggle(microfrontendId: String): Toggle {
+fun PeriodeInfo.buildEnableToggle(
+    microfrontendId: String,
+    sensitivitet: Sensitivitet
+): Toggle {
     return Toggle(
         action = ToggleAction.ENABLE,
         ident = identitetsnummer,
         microfrontendId = microfrontendId,
-        sensitivitet = Sensitivitet.HIGH,
+        sensitivitet = sensitivitet,
         initialedBy = "paw" // TODO Styre dette med konfig/miljøvar?
     )
 }
