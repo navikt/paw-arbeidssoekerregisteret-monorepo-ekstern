@@ -55,4 +55,18 @@ class ProfileringRepository {
             }
         }
     }
+
+    fun lagreProfileringer(profileringer: Iterable<Profilering>) {
+        transaction {
+            profileringer.forEach { profilering ->
+                val eksisterendeProfilering = ProfileringFunctions.getForProfileringId(profilering.id)
+                if (eksisterendeProfilering != null) {
+                    logger.warn("Ignorerer mottatt profilering som duplikat")
+                } else {
+                    logger.info("Lagrer ny profilering")
+                    ProfileringFunctions.insert(profilering)
+                }
+            }
+        }
+    }
 }

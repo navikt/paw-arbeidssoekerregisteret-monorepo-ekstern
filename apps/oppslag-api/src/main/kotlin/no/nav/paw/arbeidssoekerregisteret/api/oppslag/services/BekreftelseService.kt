@@ -40,9 +40,9 @@ class BekreftelseService(
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, Bekreftelse>) {
-        Span.current().bekreftelserKafkaTrace()
+        Span.current().bekreftelserKafkaTrace(records.count())
         logger.info("Mottok {} bekreftelser fra Kafka", records.count())
         meterRegistry.bekreftelserKafkaCounter(records.count())
-        records.map { it.value() }.forEach(bekreftelseRepository::lagreBekreftelse)
+        bekreftelseRepository.lagreBekreftelser(records.map { it.value() })
     }
 }

@@ -6,18 +6,14 @@ import io.micrometer.core.instrument.Tags
 import java.util.concurrent.atomic.AtomicLong
 
 fun MeterRegistry.antallAktivePerioderGauge(antall: AtomicLong) {
-    genericGauge(
-        name = "paw_arbeidssoekerregisteret_api_oppslag_antall_aktive_perioder",
-        number = antall,
-        type = "perioder",
-        source = "database",
-        target = "metrics",
-        action = "read"
-    )
+    databaseGauge(antall = antall, type = "perioder.aktive")
+}
+
+fun MeterRegistry.databaseGauge(antall: AtomicLong, type: String) {
     genericGauge(
         name = "paw.gauge.database.records",
         number = antall,
-        type = "perioder.aktive",
+        type = type,
         source = "database",
         target = "metrics",
         action = "read"
