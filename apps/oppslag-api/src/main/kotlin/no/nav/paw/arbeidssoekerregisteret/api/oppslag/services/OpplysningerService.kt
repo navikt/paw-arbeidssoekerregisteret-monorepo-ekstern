@@ -35,17 +35,14 @@ class OpplysningerService(
         opplysningerRepository.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
             .map { it.toOpplysningerOmArbeidssoekerResponse() }
 
-    fun lagreAlleOpplysninger(opplysninger: Iterable<OpplysningerOmArbeidssoeker>) =
-        opplysningerRepository.lagreAlleOpplysninger(opplysninger)
+    fun lagreOpplysninger(opplysninger: OpplysningerOmArbeidssoeker) =
+        opplysningerRepository.lagreOpplysninger(opplysninger)
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, OpplysningerOmArbeidssoeker>) {
         Span.current().opplysningerKafkaTrace()
-
-        if (!records.isEmpty) {
-            logger.info("Mottok {} opplysninger fra Kafka", records.count())
-            meterRegistry.opplysningerKafkaCounter(records.count())
-            lagreAlleOpplysninger(records.map { it.value() })
-        }
+        logger.info("Mottok {} opplysninger fra Kafka", records.count())
+        meterRegistry.opplysningerKafkaCounter(records.count())
+        records.map { it.value() }.forEach(opplysningerRepository::lagreOpplysninger)
     }
 }

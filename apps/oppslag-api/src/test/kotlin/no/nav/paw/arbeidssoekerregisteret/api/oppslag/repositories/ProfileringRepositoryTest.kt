@@ -20,12 +20,12 @@ import javax.sql.DataSource
 class ProfileringRepositoryTest : StringSpec({
     lateinit var dataSource: DataSource
     lateinit var database: Database
-    lateinit var repository: ProfileringRepository
+    lateinit var profileringRepository: ProfileringRepository
 
     beforeSpec {
         dataSource = initTestDatabase()
         database = Database.connect(dataSource)
-        repository = ProfileringRepository()
+        profileringRepository = ProfileringRepository()
         val opplysningerRepository = OpplysningerRepository()
         val opplysninger1 = TestData.nyOpplysningerRow(
             opplysningerId = TestData.opplysningerId1,
@@ -50,9 +50,10 @@ class ProfileringRepositoryTest : StringSpec({
     "Opprett og hent ut en profilering" {
         val profilering =
             TestData.nyProfileringRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
-        repository.lagreProfilering(profilering.toProfilering())
+        profileringRepository.lagreProfilering(profilering.toProfilering())
 
-        val profileringResponser = repository.finnProfileringerForPeriodeIdList(listOf(profilering.periodeId))
+        val profileringResponser =
+            profileringRepository.finnProfileringerForPeriodeIdList(listOf(profilering.periodeId))
 
         profileringResponser.size shouldBe 1
         val profileringResponse = profileringResponser[0]
@@ -70,10 +71,10 @@ class ProfileringRepositoryTest : StringSpec({
             opplysningerId = TestData.opplysningerId2,
             sendtInAv = TestData.nyMetadataRow(tidspunkt = Instant.now().minus(Duration.ofDays(2)))
         )
-        repository.lagreProfilering(profilering1.toProfilering())
-        repository.lagreProfilering(profilering2.toProfilering())
+        profileringRepository.lagreProfilering(profilering1.toProfilering())
+        profileringRepository.lagreProfilering(profilering2.toProfilering())
 
-        val profileringResponser = repository.finnProfileringerForPeriodeIdList(listOf(TestData.periodeId1))
+        val profileringResponser = profileringRepository.finnProfileringerForPeriodeIdList(listOf(TestData.periodeId1))
 
         profileringResponser.size shouldBe 2
         val profileringResponse1 = profileringResponser[0]
@@ -85,8 +86,8 @@ class ProfileringRepositoryTest : StringSpec({
     "Hent ut profilering med PeriodeId" {
         val profilering =
             TestData.nyProfileringRow(periodeId = TestData.periodeId1, opplysningerId = TestData.opplysningerId1)
-        repository.lagreProfilering(profilering.toProfilering())
-        val profileringResponser = repository.finnProfileringerForPeriodeIdList(listOf(TestData.periodeId1))
+        profileringRepository.lagreProfilering(profilering.toProfilering())
+        val profileringResponser = profileringRepository.finnProfileringerForPeriodeIdList(listOf(TestData.periodeId1))
 
         profileringResponser.size shouldBe 1
         val profileringResponse = profileringResponser[0]
@@ -94,7 +95,7 @@ class ProfileringRepositoryTest : StringSpec({
     }
 
     "Hent ut ikke-eksisterende profilering" {
-        val profileringResponser = repository.finnProfileringerForPeriodeIdList(listOf(UUID.randomUUID()))
+        val profileringResponser = profileringRepository.finnProfileringerForPeriodeIdList(listOf(UUID.randomUUID()))
 
         profileringResponser.size shouldBe 0
     }
@@ -121,9 +122,9 @@ class ProfileringRepositoryTest : StringSpec({
             profilering2.toProfilering(),
             profilering3.toProfilering()
         )
-        repository.lagreAlleProfileringer(profileringer)
+        profileringer.forEach(profileringRepository::lagreProfilering)
 
-        val lagredeProfileringer = repository.finnProfileringerForPeriodeIdList(listOf(periodeId))
+        val lagredeProfileringer = profileringRepository.finnProfileringerForPeriodeIdList(listOf(periodeId))
 
         lagredeProfileringer.size shouldBeExactly 3
         val lagredeProfilering1 = lagredeProfileringer[0]

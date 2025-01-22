@@ -114,7 +114,7 @@ open class TestContext {
             configureAuthentication(applicationContext)
         }
         routing {
-            toggleRoutes(applicationContext)
+            toggleRoutes(applicationConfig, authorizationService, applicationContext.toggleService)
         }
     }
 

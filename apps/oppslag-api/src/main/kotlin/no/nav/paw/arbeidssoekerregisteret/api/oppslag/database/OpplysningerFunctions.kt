@@ -173,7 +173,7 @@ object OpplysningerFunctions {
         }
     }
 
-    fun getRow(opplysningerId: UUID): OpplysningerMarkerRow? {
+    fun getForOpplysningerId(opplysningerId: UUID): OpplysningerMarkerRow? {
         return OpplysningerOmArbeidssoekerTable
             .join(
                 PeriodeOpplysningerTable,
@@ -184,19 +184,6 @@ object OpplysningerFunctions {
             .selectAll()
             .where { OpplysningerOmArbeidssoekerTable.opplysningerOmArbeidssoekerId eq opplysningerId }
             .singleOrNull()?.toOpplysningerMarkerRow()
-    }
-
-    fun finnRows(opplysningerIdList: Collection<UUID>): List<OpplysningerMarkerRow> {
-        return OpplysningerOmArbeidssoekerTable
-            .join(
-                PeriodeOpplysningerTable,
-                JoinType.LEFT,
-                OpplysningerOmArbeidssoekerTable.id,
-                PeriodeOpplysningerTable.opplysningerOmArbeidssoekerTableId
-            )
-            .selectAll()
-            .where { OpplysningerOmArbeidssoekerTable.opplysningerOmArbeidssoekerId inList opplysningerIdList }
-            .map { it.toOpplysningerMarkerRow() }
     }
 
     fun finnRows() =

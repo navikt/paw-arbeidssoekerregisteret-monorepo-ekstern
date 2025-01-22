@@ -44,7 +44,20 @@ object ProfileringFunctions {
             .map { it.toProfileringRow() }
     }
 
-    fun hentForPeriodeIdAndOpplysningId(
+    fun getForProfileringId(
+        profileringId: UUID
+    ): ProfileringRow? {
+        return ProfileringTable
+            .join(MetadataTable, JoinType.LEFT, ProfileringTable.sendtInnAvId, MetadataTable.id)
+            .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
+            .join(TidspunktFraKildeTable, JoinType.LEFT, MetadataTable.tidspunktFraKildeId, TidspunktFraKildeTable.id)
+            .selectAll()
+            .where { ProfileringTable.profileringId eq profileringId }
+            .firstOrNull()
+            ?.toProfileringRow()
+    }
+
+    fun getForPeriodeIdAndOpplysningId(
         periodeId: UUID,
         opplysningId: UUID
     ): ProfileringRow? {
@@ -69,6 +82,5 @@ object ProfileringFunctions {
             it[alder] = profilering.alder
         }
     }
-
 }
 

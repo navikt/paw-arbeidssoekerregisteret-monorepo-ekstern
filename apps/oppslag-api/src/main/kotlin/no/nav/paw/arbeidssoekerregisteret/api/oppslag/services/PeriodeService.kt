@@ -62,17 +62,14 @@ class PeriodeService(
             periode.toArbeidssoekerPeriodeAggregertResponse(opplysningerAggregert, bekreftelser)
         }
 
-    fun lagreAllePerioder(perioder: Iterable<Periode>) =
-        periodeRepository.lagreAllePerioder(perioder)
+    fun lagrePeriode(periode: Periode) =
+        periodeRepository.lagrePeriode(periode)
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, Periode>) {
         Span.current().perioderKafkaTrace()
-
-        if (!records.isEmpty) {
-            logger.info("Mottok {} perioder fra Kafka", records.count())
-            meterRegistry.perioderKafkaCounter(records.count())
-            lagreAllePerioder(records.map { it.value() })
-        }
+        logger.info("Mottok {} perioder fra Kafka", records.count())
+        meterRegistry.perioderKafkaCounter(records.count())
+        records.map { it.value() }.forEach(periodeRepository::lagrePeriode)
     }
 }

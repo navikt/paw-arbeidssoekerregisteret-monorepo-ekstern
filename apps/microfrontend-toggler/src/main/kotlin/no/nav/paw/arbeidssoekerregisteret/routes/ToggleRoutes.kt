@@ -1,16 +1,17 @@
 package no.nav.paw.arbeidssoekerregisteret.routes
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
+import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.model.buildToggle
+import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
+import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
 import no.nav.paw.security.authentication.interceptor.autentisering
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
@@ -19,9 +20,11 @@ import no.nav.paw.security.authorization.exception.IngenTilgangException
 import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
 
-fun Route.toggleRoutes(applicationContext: ApplicationContext) {
-    val authorizationService = applicationContext.authorizationService
-    val toggleService = applicationContext.toggleService
+fun Route.toggleRoutes(
+    applicationConfig: ApplicationConfig,
+    authorizationService: AuthorizationService,
+    toggleService: ToggleService
+) {
 
     route("/api/v1") {
         autentisering(TokenX) {
@@ -34,7 +37,10 @@ fun Route.toggleRoutes(applicationContext: ApplicationContext) {
                     }
 
                     val bruker = call.bruker<Sluttbruker>()
-                    val toggle = toggleRequest.buildToggle(bruker.ident)
+                    val toggle = toggleRequest.buildToggle(
+                        bruker.ident,
+                        applicationConfig.microfrontendToggle.toggleSensitivitet
+                    )
                     toggleService.sendToggle(toggle)
                     call.respond<Toggle>(HttpStatusCode.Accepted, toggle)
                 }

@@ -1,13 +1,12 @@
 package no.nav.paw.arbeidssoekerregisteret.routes
 
-import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
-import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 
-fun Routing.metricsRoutes(applicationContext: ApplicationContext) {
+fun Routing.metricsRoutes(meterRegistry: PrometheusMeterRegistry) {
     get("/internal/metrics") {
-        call.respond(applicationContext.prometheusMeterRegistry.scrape())
+        call.respond(meterRegistry.scrape())
     }
 }

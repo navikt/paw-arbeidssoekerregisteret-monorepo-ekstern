@@ -42,7 +42,7 @@ class OpplysningerRepositoryTest : StringSpec({
         val periode7 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId7, identitetsnummer = TestData.fnr7)
             .toPeriode()
         val perioder = listOf(periode1, periode2, periode3, periode4, periode5, periode6, periode7)
-        periodeRepository.lagreAllePerioder(perioder)
+        perioder.forEach(periodeRepository::lagrePeriode)
     }
 
     afterSpec {
@@ -241,7 +241,7 @@ class OpplysningerRepositoryTest : StringSpec({
             opplysninger2.toOpplysningerOmArbeidssoeker(),
             opplysninger3.toOpplysningerOmArbeidssoeker()
         )
-        opplysningerRepository.lagreAlleOpplysninger(opplysninger)
+        opplysninger.forEach(opplysningerRepository::lagreOpplysninger)
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForIdentiteter(listOf(TestData.identitetsnummer8))

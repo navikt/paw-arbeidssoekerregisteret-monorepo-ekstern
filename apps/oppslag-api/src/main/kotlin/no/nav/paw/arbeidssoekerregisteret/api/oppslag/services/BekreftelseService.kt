@@ -35,17 +35,14 @@ class BekreftelseService(
         bekreftelseRepository.finnBekreftelserForIdentitetsnummerList(identitetsnummerList, paging)
             .map { it.toBekreftelseResponse() }
 
-    fun lagreAlleBekreftelser(bekreftelser: Iterable<Bekreftelse>) =
-        bekreftelseRepository.lagreAlleBekreftelser(bekreftelser)
+    fun lagreBekreftelse(bekreftelse: Bekreftelse) =
+        bekreftelseRepository.lagreBekreftelse(bekreftelse)
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, Bekreftelse>) {
         Span.current().bekreftelserKafkaTrace()
-
-        if (!records.isEmpty) {
-            logger.info("Mottok {} bekreftelser fra Kafka", records.count())
-            meterRegistry.bekreftelserKafkaCounter(records.count())
-            lagreAlleBekreftelser(records.map { it.value() })
-        }
+        logger.info("Mottok {} bekreftelser fra Kafka", records.count())
+        meterRegistry.bekreftelserKafkaCounter(records.count())
+        records.map { it.value() }.forEach(bekreftelseRepository::lagreBekreftelse)
     }
 }

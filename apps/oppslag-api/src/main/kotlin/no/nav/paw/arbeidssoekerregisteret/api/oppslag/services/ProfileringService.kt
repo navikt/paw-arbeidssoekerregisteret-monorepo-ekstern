@@ -35,17 +35,14 @@ class ProfileringService(
         profileringRepository.finnProfileringerForIdentiteter(identitetsnummerList, paging)
             .map { it.toProfileringResponse() }
 
-    fun lagreAlleProfileringer(profileringer: Iterable<Profilering>) =
-        profileringRepository.lagreAlleProfileringer(profileringer)
+    fun lagreProfilering(profilering: Profilering) =
+        profileringRepository.lagreProfilering(profilering)
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, Profilering>) {
         Span.current().profileringerKafkaTrace()
-
-        if (!records.isEmpty) {
-            logger.info("Mottok {} profileringer fra Kafka", records.count())
-            meterRegistry.profileringerKafkaCounter(records.count())
-            lagreAlleProfileringer(records.map { it.value() })
-        }
+        logger.info("Mottok {} profileringer fra Kafka", records.count())
+        meterRegistry.profileringerKafkaCounter(records.count())
+        records.map { it.value() }.forEach(profileringRepository::lagreProfilering)
     }
 }

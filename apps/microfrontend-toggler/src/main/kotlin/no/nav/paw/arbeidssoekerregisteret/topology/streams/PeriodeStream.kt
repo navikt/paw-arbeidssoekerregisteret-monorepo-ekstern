@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.KafkaTopologyConfig
 import no.nav.paw.arbeidssoekerregisteret.config.MicrofrontendToggleConfig
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
+import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
@@ -159,7 +160,8 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
         val enableAiaMinSideToggle = iverksettAktiverToggle(
             periodeInfo,
             microfrontendToggleConfig.aiaMinSide,
-            ToggleSource.ARBEIDSSOEKERPERIODE
+            ToggleSource.ARBEIDSSOEKERPERIODE,
+            microfrontendToggleConfig.toggleSensitivitet
         )
         meterRegistry.tellAntallSendteToggles(
             enableAiaMinSideToggle,
@@ -171,7 +173,8 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
         val enableAiaBehovsvurderingToggle = iverksettAktiverToggle(
             periodeInfo,
             microfrontendToggleConfig.aiaBehovsvurdering,
-            ToggleSource.ARBEIDSSOEKERPERIODE
+            ToggleSource.ARBEIDSSOEKERPERIODE,
+            microfrontendToggleConfig.toggleSensitivitet
         )
         meterRegistry.tellAntallSendteToggles(
             enableAiaBehovsvurderingToggle,
@@ -252,7 +255,8 @@ class TogglePunctuation(
 private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
     periodeInfo: PeriodeInfo,
     microfrontendId: String,
-    toggleSource: ToggleSource
+    toggleSource: ToggleSource,
+    sensitivitet: Sensitivitet
 ): Toggle {
     val currentSpan = Span.current()
     currentSpan.setAttribute("action", ToggleAction.ENABLE.value)
@@ -263,7 +267,7 @@ private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
         periodeInfo.id,
         microfrontendId
     )
-    val enableToggle = periodeInfo.buildEnableToggle(microfrontendId)
+    val enableToggle = periodeInfo.buildEnableToggle(microfrontendId, sensitivitet)
     forward(enableToggle.buildRecord(periodeInfo.arbeidssoekerId))
     return enableToggle
 }

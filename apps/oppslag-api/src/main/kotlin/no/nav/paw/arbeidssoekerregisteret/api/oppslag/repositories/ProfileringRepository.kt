@@ -41,25 +41,17 @@ class ProfileringRepository {
 
     fun hentProfileringForPeriodeIdOgOpplysningerId(periodeId: UUID, opplysningId: UUID): ProfileringRow? =
         transaction {
-            ProfileringFunctions.hentForPeriodeIdAndOpplysningId(periodeId, opplysningId)
+            ProfileringFunctions.getForPeriodeIdAndOpplysningId(periodeId, opplysningId)
         }
 
     fun lagreProfilering(profilering: Profilering) {
         transaction {
-            logger.info("Lagrer ny profilering")
-            ProfileringFunctions.insert(profilering)
-        }
-    }
-
-    fun lagreAlleProfileringer(profileringer: Iterable<Profilering>) {
-        if (profileringer.iterator().hasNext()) {
-            transaction {
-                maxAttempts = 2
-                minRetryDelay = 20
-                profileringer.forEach { profilering ->
-                    logger.info("Lagrer ny profilering")
-                    ProfileringFunctions.insert(profilering)
-                }
+            val eksisterendeProfilering = ProfileringFunctions.getForProfileringId(profilering.id)
+            if (eksisterendeProfilering != null) {
+                logger.warn("Ignorerer mottatt profilering som duplikat")
+            } else {
+                logger.info("Lagrer ny profilering")
+                ProfileringFunctions.insert(profilering)
             }
         }
     }

@@ -9,10 +9,12 @@ import no.nav.paw.arbeidssoekerregisteret.routes.toggleRoutes
 import no.nav.paw.health.route.healthRoutes
 
 fun Application.configureRouting(applicationContext: ApplicationContext) {
-    routing {
-        healthRoutes(applicationContext.healthIndicatorRepository)
-        metricsRoutes(applicationContext)
-        swaggerRoutes()
-        toggleRoutes(applicationContext)
+    with(applicationContext) {
+        routing {
+            healthRoutes(healthIndicatorRepository)
+            metricsRoutes(prometheusMeterRegistry)
+            swaggerRoutes()
+            toggleRoutes(applicationConfig, authorizationService, toggleService)
+        }
     }
 }

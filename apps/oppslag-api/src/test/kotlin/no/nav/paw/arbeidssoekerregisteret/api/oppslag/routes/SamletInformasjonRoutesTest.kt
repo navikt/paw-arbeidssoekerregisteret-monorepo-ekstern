@@ -27,9 +27,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueTokenXToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.error.model.Data
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.model.Identitetsnummer
 import java.time.Duration
 import java.time.Instant
 
@@ -143,7 +143,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 }
 
                 val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr1)
-                val opplysinger = perioder.mapIndexed { index, periode ->
+                val opplysninger = perioder.mapIndexed { index, periode ->
                     val sendtInnAv = TestData
                         .nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
                     TestData.nyOpplysningerOmArbeidssoeker(periodeId = periode.id, sendtInnAv = sendtInnAv)
@@ -161,10 +161,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     )
                     TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
                 }
-                periodeService.lagreAllePerioder(perioder)
-                opplysningerService.lagreAlleOpplysninger(opplysinger)
-                profileringService.lagreAlleProfileringer(profileringer)
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                perioder.forEach(periodeService::lagrePeriode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
+                profileringer.forEach(profileringService::lagreProfilering)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
 
@@ -181,9 +181,9 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 perioder[0] shouldBeEqualTo samletInfo.arbeidssoekerperioder[0]
                 perioder[1] shouldBeEqualTo samletInfo.arbeidssoekerperioder[1]
                 perioder[2] shouldBeEqualTo samletInfo.arbeidssoekerperioder[2]
-                opplysinger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
-                opplysinger[1] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[1]
-                opplysinger[2] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[2]
+                opplysninger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
+                opplysninger[1] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[1]
+                opplysninger[2] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[2]
                 profileringer[0] shouldBeEqualTo samletInfo.profilering[0]
                 profileringer[1] shouldBeEqualTo samletInfo.profilering[1]
                 profileringer[2] shouldBeEqualTo samletInfo.profilering[2]
@@ -217,7 +217,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 }
 
                 val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr2)
-                val opplysinger = perioder.mapIndexed { index, periode ->
+                val opplysninger = perioder.mapIndexed { index, periode ->
                     val sendtInnAv = TestData
                         .nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
                     TestData.nyOpplysningerOmArbeidssoeker(periodeId = periode.id, sendtInnAv = sendtInnAv)
@@ -235,10 +235,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     )
                     TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
                 }
-                periodeService.lagreAllePerioder(perioder)
-                opplysningerService.lagreAlleOpplysninger(opplysinger)
-                profileringService.lagreAlleProfileringer(profileringer)
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                perioder.forEach(periodeService::lagrePeriode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
+                profileringer.forEach(profileringService::lagreProfilering)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
 
@@ -253,7 +253,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 samletInfo.profilering.size shouldBe 1
                 samletInfo.bekreftelser.size shouldBe 1
                 perioder[0] shouldBeEqualTo samletInfo.arbeidssoekerperioder[0]
-                opplysinger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
+                opplysninger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
                 profileringer[0] shouldBeEqualTo samletInfo.profilering[0]
                 bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
 
@@ -362,7 +362,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 }
 
                 val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr4)
-                val opplysinger = perioder.mapIndexed { index, periode ->
+                val opplysninger = perioder.mapIndexed { index, periode ->
                     val sendtInnAv = TestData
                         .nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
                     TestData.nyOpplysningerOmArbeidssoeker(periodeId = periode.id, sendtInnAv = sendtInnAv)
@@ -380,10 +380,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     )
                     TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
                 }
-                periodeService.lagreAllePerioder(perioder)
-                opplysningerService.lagreAlleOpplysninger(opplysinger)
-                profileringService.lagreAlleProfileringer(profileringer)
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                perioder.forEach(periodeService::lagrePeriode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
+                profileringer.forEach(profileringService::lagreProfilering)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
 
@@ -406,9 +406,9 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 perioder[0] shouldBeEqualTo samletInfo.arbeidssoekerperioder[0]
                 perioder[1] shouldBeEqualTo samletInfo.arbeidssoekerperioder[1]
                 perioder[2] shouldBeEqualTo samletInfo.arbeidssoekerperioder[2]
-                opplysinger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
-                opplysinger[1] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[1]
-                opplysinger[2] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[2]
+                opplysninger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
+                opplysninger[1] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[1]
+                opplysninger[2] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[2]
                 profileringer[0] shouldBeEqualTo samletInfo.profilering[0]
                 profileringer[1] shouldBeEqualTo samletInfo.profilering[1]
                 profileringer[2] shouldBeEqualTo samletInfo.profilering[2]
@@ -446,7 +446,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 }
 
                 val perioder = TestData.nyPeriodeList(size = 3, identitetsnummer = TestData.fnr5)
-                val opplysinger = perioder.mapIndexed { index, periode ->
+                val opplysninger = perioder.mapIndexed { index, periode ->
                     val sendtInnAv = TestData
                         .nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(index.toLong())))
                     TestData.nyOpplysningerOmArbeidssoeker(periodeId = periode.id, sendtInnAv = sendtInnAv)
@@ -464,10 +464,10 @@ class SamletInformasjonRoutesTest : FreeSpec({
                     )
                     TestData.nyBekreftelse(periodeId = periode.id, svar = svar)
                 }
-                periodeService.lagreAllePerioder(perioder)
-                opplysningerService.lagreAlleOpplysninger(opplysinger)
-                profileringService.lagreAlleProfileringer(profileringer)
-                bekreftelseService.lagreAlleBekreftelser(bekreftelser)
+                perioder.forEach(periodeService::lagrePeriode)
+                opplysninger.forEach(opplysningerService::lagreOpplysninger)
+                profileringer.forEach(profileringService::lagreProfilering)
+                bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
 
@@ -488,7 +488,7 @@ class SamletInformasjonRoutesTest : FreeSpec({
                 samletInfo.profilering.size shouldBe 1
                 samletInfo.bekreftelser.size shouldBe 1
                 perioder[0] shouldBeEqualTo samletInfo.arbeidssoekerperioder[0]
-                opplysinger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
+                opplysninger[0] shouldBeEqualTo samletInfo.opplysningerOmArbeidssoeker[0]
                 profileringer[0] shouldBeEqualTo samletInfo.profilering[0]
                 bekreftelser[0] shouldBeEqualTo samletInfo.bekreftelser[0]
 

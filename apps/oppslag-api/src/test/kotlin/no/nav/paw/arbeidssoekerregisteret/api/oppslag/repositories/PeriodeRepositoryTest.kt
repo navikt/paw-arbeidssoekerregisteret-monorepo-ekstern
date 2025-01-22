@@ -15,12 +15,12 @@ import javax.sql.DataSource
 
 class PeriodeRepositoryTest : StringSpec({
     lateinit var dataSource: DataSource
-    lateinit var repository: PeriodeRepository
+    lateinit var periodeRepository: PeriodeRepository
 
     beforeSpec {
         dataSource = initTestDatabase()
         Database.connect(dataSource)
-        repository = PeriodeRepository()
+        periodeRepository = PeriodeRepository()
     }
 
     afterSpec {
@@ -29,9 +29,9 @@ class PeriodeRepositoryTest : StringSpec({
 
     "Opprett og hent en periode" {
         val periode = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr1)
-        repository.lagrePeriode(periode.toPeriode())
+        periodeRepository.lagrePeriode(periode.toPeriode())
 
-        val lagretPeriode = repository.hentPeriodeForId(periode.periodeId)
+        val lagretPeriode = periodeRepository.hentPeriodeForId(periode.periodeId)
 
         periode shouldBeEqualTo lagretPeriode
     }
@@ -40,10 +40,10 @@ class PeriodeRepositoryTest : StringSpec({
         val periode1 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr2)
         val periode2 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr2)
         val periode3 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr2)
-        repository.lagrePeriode(periode1.toPeriode())
-        repository.lagrePeriode(periode2.toPeriode())
-        repository.lagrePeriode(periode3.toPeriode())
-        val lagretPerioder = repository.finnPerioderForIdentiteter(listOf(TestData.identitetsnummer2))
+        periodeRepository.lagrePeriode(periode1.toPeriode())
+        periodeRepository.lagrePeriode(periode2.toPeriode())
+        periodeRepository.lagrePeriode(periode3.toPeriode())
+        val lagretPerioder = periodeRepository.finnPerioderForIdentiteter(listOf(TestData.identitetsnummer2))
 
         lagretPerioder.size shouldBeExactly 3
         val lagretPerioderMap = lagretPerioder.associateBy { it.periodeId }
@@ -58,20 +58,20 @@ class PeriodeRepositoryTest : StringSpec({
 
     "Oppdater åpen periode med avsluttet metadata" {
         val periode = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr3)
-        repository.lagrePeriode(periode.toPeriode())
+        periodeRepository.lagrePeriode(periode.toPeriode())
         val updatedPeriode = periode.copy(
             avsluttet = TestData.nyMetadataRow()
         )
-        repository.lagrePeriode(updatedPeriode.toPeriode())
+        periodeRepository.lagrePeriode(updatedPeriode.toPeriode())
 
-        val lagretPeriode = repository.hentPeriodeForId(periode.periodeId)
+        val lagretPeriode = periodeRepository.hentPeriodeForId(periode.periodeId)
 
         updatedPeriode shouldBeEqualTo lagretPeriode
     }
 
     "Oppdater avsluttet periode med ny startet og avsluttet metadata" {
         val periode = TestData.nyAvsluttetPeriodeRow(identitetsnummer = TestData.fnr4)
-        repository.lagrePeriode(periode.toPeriode())
+        periodeRepository.lagrePeriode(periode.toPeriode())
         val updatedPeriode = periode.copy(
             startet = TestData.nyMetadataRow(
                 tidspunkt = Instant.now(),
@@ -87,16 +87,16 @@ class PeriodeRepositoryTest : StringSpec({
                 utfoertAv = TestData.nyBrukerRow(type = BrukerType.SYSTEM, brukerId = "ARENA")
             )
         )
-        repository.lagrePeriode(updatedPeriode.toPeriode())
+        periodeRepository.lagrePeriode(updatedPeriode.toPeriode())
 
-        val lagretPeriode = repository.hentPeriodeForId(periode.periodeId)
+        val lagretPeriode = periodeRepository.hentPeriodeForId(periode.periodeId)
 
         updatedPeriode shouldBeEqualTo lagretPeriode
     }
 
     "Oppdatere avsluttet periode med null avsluttet metadata" {
         val periode = TestData.nyAvsluttetPeriodeRow(identitetsnummer = TestData.fnr5)
-        repository.lagrePeriode(periode.toPeriode())
+        periodeRepository.lagrePeriode(periode.toPeriode())
         val updatedPeriode = periode.copy(
             startet = TestData.nyMetadataRow(
                 tidspunkt = Instant.now().minus(Duration.ofDays(2)),
@@ -110,9 +110,9 @@ class PeriodeRepositoryTest : StringSpec({
             ),
             avsluttet = null
         )
-        repository.lagrePeriode(updatedPeriode.toPeriode())
+        periodeRepository.lagrePeriode(updatedPeriode.toPeriode())
 
-        val lagretPeriode = repository.hentPeriodeForId(periode.periodeId)
+        val lagretPeriode = periodeRepository.hentPeriodeForId(periode.periodeId)
 
         updatedPeriode shouldBeEqualTo lagretPeriode
     }
@@ -120,10 +120,11 @@ class PeriodeRepositoryTest : StringSpec({
     "Lagre startede perioder i batch" {
         val periode1 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr6)
         val periode2 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr7)
-        repository.lagreAllePerioder(listOf(periode1.toPeriode(), periode2.toPeriode()))
+        periodeRepository.lagrePeriode(periode1.toPeriode())
+        periodeRepository.lagrePeriode(periode2.toPeriode())
 
-        val lagretPeriode1 = repository.hentPeriodeForId(periode1.periodeId)
-        val lagretPeriode2 = repository.hentPeriodeForId(periode2.periodeId)
+        val lagretPeriode1 = periodeRepository.hentPeriodeForId(periode1.periodeId)
+        val lagretPeriode2 = periodeRepository.hentPeriodeForId(periode2.periodeId)
 
         periode1 shouldBeEqualTo lagretPeriode1
         periode2 shouldBeEqualTo lagretPeriode2
@@ -173,14 +174,14 @@ class PeriodeRepositoryTest : StringSpec({
         )
         val startedePerioder = listOf(periode1.toPeriode(), periode2.toPeriode(), periode3.toPeriode())
         val avsluttedePerioder = listOf(periode4.toPeriode(), periode5.toPeriode())
-        repository.lagreAllePerioder(startedePerioder)
-        repository.lagreAllePerioder(avsluttedePerioder)
+        startedePerioder.forEach(periodeRepository::lagrePeriode)
+        avsluttedePerioder.forEach(periodeRepository::lagrePeriode)
 
-        val lagretPeriode1 = repository.hentPeriodeForId(periode1.periodeId)
-        val lagretPeriode2 = repository.hentPeriodeForId(periode2.periodeId)
-        val lagretPeriode3 = repository.hentPeriodeForId(periode3.periodeId)
-        val lagretPeriode4 = repository.hentPeriodeForId(periode4.periodeId)
-        val lagretPeriode5 = repository.hentPeriodeForId(periode5.periodeId)
+        val lagretPeriode1 = periodeRepository.hentPeriodeForId(periode1.periodeId)
+        val lagretPeriode2 = periodeRepository.hentPeriodeForId(periode2.periodeId)
+        val lagretPeriode3 = periodeRepository.hentPeriodeForId(periode3.periodeId)
+        val lagretPeriode4 = periodeRepository.hentPeriodeForId(periode4.periodeId)
+        val lagretPeriode5 = periodeRepository.hentPeriodeForId(periode5.periodeId)
 
         periode4 shouldBeEqualTo lagretPeriode1
         periode5 shouldBeEqualTo lagretPeriode2
