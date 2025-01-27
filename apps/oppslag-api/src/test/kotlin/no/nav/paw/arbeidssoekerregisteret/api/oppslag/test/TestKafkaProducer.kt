@@ -68,6 +68,7 @@ fun main() {
         }
     } catch (e: Exception) {
         logger.error("Send periode feilet", e)
+    } finally {
         periodeKafkaProducer.close()
     }
 
@@ -78,6 +79,7 @@ fun main() {
         }
     } catch (e: Exception) {
         logger.error("Send opplysninger feilet", e)
+    } finally {
         opplysningerKafkaProducer.close()
     }
 
@@ -88,6 +90,7 @@ fun main() {
         }
     } catch (e: Exception) {
         logger.error("Send profilering feilet", e)
+    } finally {
         profileringKafkaProducer.close()
     }
 
@@ -98,6 +101,7 @@ fun main() {
         }
     } catch (e: Exception) {
         logger.error("Send bekreftelse feilet", e)
+    } finally {
         bekreftelseKafkaProducer.close()
     }
 }

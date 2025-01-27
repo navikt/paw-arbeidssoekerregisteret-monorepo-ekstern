@@ -58,30 +58,31 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
             kafkaConsumer.subscribe(kafkaTopics, rebalanceListener)
 
             consumeJob = application.launch(coroutineDispatcher) {
-                logger.info("Starter {} Kafka Consumer", pluginInstance)
-                while (!shutdownFlag.get()) {
-                    try {
-                        val records = kafkaConsumer.poll(pollTimeout)
-                        consumeFunction(records)
-                        successFunction(records)
-                    } catch (throwable: Throwable) {
-                        kafkaConsumer.unsubscribe()
-                        kafkaConsumer.close(closeTimeout)
-                        shutdownFlag.set(true)
-                        errorFunction(throwable)
+                try {
+                    logger.info("Starter {} Kafka Consumer", pluginInstance)
+                    while (!shutdownFlag.get()) {
+                        try {
+                            val records = kafkaConsumer.poll(pollTimeout)
+                            consumeFunction(records)
+                            successFunction(records)
+                        } catch (throwable: Throwable) {
+                            logger.info("Stopper {} Kafka Consumer", pluginInstance)
+                            shutdownFlag.set(true)
+                            errorFunction(throwable)
+                        }
                     }
+                } finally {
+                    consumeJob?.cancel()
+                    kafkaConsumer.unsubscribe()
+                    kafkaConsumer.close(closeTimeout)
+                    logger.info("Stoppet {} Kafka Consumer", pluginInstance)
                 }
-                logger.info("Stoppet {} Kafka Consumer", pluginInstance)
-                consumeJob?.cancel()
             }
         }
 
         on(MonitoringEvent(ApplicationStopping)) { _ ->
             logger.info("Stopper {} Kafka Consumer", pluginInstance)
             shutdownFlag.set(true)
-            consumeJob?.cancel()
-            kafkaConsumer.unsubscribe()
-            kafkaConsumer.close(closeTimeout)
         }
     }
 }
