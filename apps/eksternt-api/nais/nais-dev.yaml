@@ -49,7 +49,7 @@ spec:
     pool: nav-dev
   gcp:
     sqlInstances:
-      - type: POSTGRES_14
+      - type: POSTGRES_15
         tier: db-f1-micro
         databases:
           - name: arbeidssoekerregisteretapiekstern
