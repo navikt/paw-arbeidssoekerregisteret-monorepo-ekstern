@@ -37,23 +37,33 @@ class PeriodeRepositoryTest : StringSpec({
     }
 
     "Hent en perioder for et gitt identitetsnummer" {
-        val periode1 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr2)
-        val periode2 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr2)
-        val periode3 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr2)
+        val periode1 = TestData.nyStartetPeriodeRow(
+            identitetsnummer = TestData.fnr2,
+            startetMetadata = TestData.nyMetadataRow(
+                tidspunkt = Instant.now()
+            )
+        )
+        val periode2 = TestData.nyStartetPeriodeRow(
+            identitetsnummer = TestData.fnr2,
+            startetMetadata = TestData.nyMetadataRow(
+                tidspunkt = Instant.now().minus(Duration.ofDays(1))
+            )
+        )
+        val periode3 = TestData.nyStartetPeriodeRow(
+            identitetsnummer = TestData.fnr2,
+            startetMetadata = TestData.nyMetadataRow(
+                tidspunkt = Instant.now().minus(Duration.ofDays(2))
+            )
+        )
         periodeRepository.lagrePeriode(periode1.toPeriode())
         periodeRepository.lagrePeriode(periode2.toPeriode())
         periodeRepository.lagrePeriode(periode3.toPeriode())
         val lagretPerioder = periodeRepository.finnPerioderForIdentiteter(listOf(TestData.identitetsnummer2))
 
         lagretPerioder.size shouldBeExactly 3
-        val lagretPerioderMap = lagretPerioder.associateBy { it.periodeId }
-        val lagretPeriode1 = lagretPerioderMap[periode1.periodeId]
-        val lagretPeriode2 = lagretPerioderMap[periode2.periodeId]
-        val lagretPeriode3 = lagretPerioderMap[periode3.periodeId]
-
-        periode1 shouldBeEqualTo lagretPeriode1
-        periode2 shouldBeEqualTo lagretPeriode2
-        periode3 shouldBeEqualTo lagretPeriode3
+        periode1 shouldBeEqualTo lagretPerioder[0]
+        periode2 shouldBeEqualTo lagretPerioder[1]
+        periode3 shouldBeEqualTo lagretPerioder[2]
     }
 
     "Oppdater åpen periode med avsluttet metadata" {
@@ -120,8 +130,8 @@ class PeriodeRepositoryTest : StringSpec({
     "Lagre startede perioder i batch" {
         val periode1 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr6)
         val periode2 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr7)
-        periodeRepository.lagrePeriode(periode1.toPeriode())
-        periodeRepository.lagrePeriode(periode2.toPeriode())
+        val perioder = listOf(periode1.toPeriode(), periode2.toPeriode())
+        periodeRepository.lagrePerioder(perioder)
 
         val lagretPeriode1 = periodeRepository.hentPeriodeForId(periode1.periodeId)
         val lagretPeriode2 = periodeRepository.hentPeriodeForId(periode2.periodeId)
@@ -172,10 +182,14 @@ class PeriodeRepositoryTest : StringSpec({
                 utfoertAv = TestData.nyBrukerRow(type = BrukerType.SYSTEM, brukerId = "ARENA")
             )
         )
-        val startedePerioder = listOf(periode1.toPeriode(), periode2.toPeriode(), periode3.toPeriode())
-        val avsluttedePerioder = listOf(periode4.toPeriode(), periode5.toPeriode())
-        startedePerioder.forEach(periodeRepository::lagrePeriode)
-        avsluttedePerioder.forEach(periodeRepository::lagrePeriode)
+        val perioder = listOf(
+            periode1.toPeriode(),
+            periode2.toPeriode(),
+            periode3.toPeriode(),
+            periode4.toPeriode(),
+            periode5.toPeriode()
+        )
+        periodeRepository.lagrePerioder(perioder)
 
         val lagretPeriode1 = periodeRepository.hentPeriodeForId(periode1.periodeId)
         val lagretPeriode2 = periodeRepository.hentPeriodeForId(periode2.periodeId)

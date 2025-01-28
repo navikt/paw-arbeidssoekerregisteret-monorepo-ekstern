@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeOpplysningerFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
@@ -18,31 +17,14 @@ import javax.sql.DataSource
 class OpplysningerRepositoryTest : StringSpec({
 
     lateinit var dataSource: DataSource
-    lateinit var database: Database
     lateinit var opplysningerRepository: OpplysningerRepository
     lateinit var periodeRepository: PeriodeRepository
 
     beforeSpec {
         dataSource = initTestDatabase()
-        database = Database.connect(dataSource)
+        Database.connect(dataSource)
         opplysningerRepository = OpplysningerRepository()
         periodeRepository = PeriodeRepository()
-        val periode1 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId1, identitetsnummer = TestData.fnr1)
-            .toPeriode()
-        val periode2 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId2, identitetsnummer = TestData.fnr2)
-            .toPeriode()
-        val periode3 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId3, identitetsnummer = TestData.fnr3)
-            .toPeriode()
-        val periode4 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId4, identitetsnummer = TestData.fnr4)
-            .toPeriode()
-        val periode5 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId5, identitetsnummer = TestData.fnr5)
-            .toPeriode()
-        val periode6 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId6, identitetsnummer = TestData.fnr6)
-            .toPeriode()
-        val periode7 = TestData.nyAvsluttetPeriodeRow(periodeId = TestData.periodeId7, identitetsnummer = TestData.fnr7)
-            .toPeriode()
-        val perioder = listOf(periode1, periode2, periode3, periode4, periode5, periode6, periode7)
-        perioder.forEach(periodeRepository::lagrePeriode)
     }
 
     afterSpec {
@@ -58,7 +40,7 @@ class OpplysningerRepositoryTest : StringSpec({
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForPeriodeIdList(listOf(opplysninger.periodeId))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId1)
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(TestData.periodeId1)
 
         retrievedOpplysninger.size shouldBe 1
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -80,7 +62,7 @@ class OpplysningerRepositoryTest : StringSpec({
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForPeriodeIdList(listOf(opplysninger.periodeId))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId2)
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(TestData.periodeId2)
 
         retrievedOpplysninger.size shouldBe 1
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -101,7 +83,7 @@ class OpplysningerRepositoryTest : StringSpec({
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForPeriodeIdList(listOf(opplysninger.periodeId))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId3)
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(TestData.periodeId3)
 
         retrievedOpplysninger.size shouldBe 1
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -128,7 +110,7 @@ class OpplysningerRepositoryTest : StringSpec({
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForPeriodeIdList(listOf(TestData.periodeId4))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId4)
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(TestData.periodeId4)
 
         retrievedOpplysninger.size shouldBe 2
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -161,8 +143,8 @@ class OpplysningerRepositoryTest : StringSpec({
         opplysningerRepository.lagreOpplysninger(opplysninger2.toOpplysningerOmArbeidssoeker())
 
         val retrievedOpplysninger =
-            finnOpplysninger(database).filter { it.periodeId in listOf(TestData.periodeId5, TestData.periodeId6) }
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database).filter {
+            finnOpplysninger().filter { it.periodeId in listOf(TestData.periodeId5, TestData.periodeId6) }
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger().filter {
             it.periodeId in listOf(
                 TestData.periodeId5,
                 TestData.periodeId6
@@ -196,7 +178,7 @@ class OpplysningerRepositoryTest : StringSpec({
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForPeriodeIdList(listOf(opplysninger1.periodeId))
-        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(database, TestData.periodeId7)
+        val retrievedPeriodeOpplysninger = finnPeriodeOpplysninger(TestData.periodeId7)
 
         retrievedOpplysninger.size shouldBe 1
         val retrievedOpplysninger1 = retrievedOpplysninger[0]
@@ -241,7 +223,7 @@ class OpplysningerRepositoryTest : StringSpec({
             opplysninger2.toOpplysningerOmArbeidssoeker(),
             opplysninger3.toOpplysningerOmArbeidssoeker()
         )
-        opplysninger.forEach(opplysningerRepository::lagreOpplysninger)
+        opplysningerRepository.lagreOpplysninger(opplysninger)
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForIdentiteter(listOf(TestData.identitetsnummer8))
@@ -256,18 +238,15 @@ class OpplysningerRepositoryTest : StringSpec({
     }
 })
 
-private fun finnOpplysninger(database: Database) =
-    transaction(database) {
-        OpplysningerFunctions.finnRows()
-    }
+private fun finnOpplysninger() = transaction {
+    OpplysningerFunctions.finnRows()
+}
 
 
-private fun finnPeriodeOpplysninger(database: Database, periodeId: UUID) =
-    transaction(database) {
-        PeriodeOpplysningerFunctions.findForPeriodeId(periodeId)
-    }
+private fun finnPeriodeOpplysninger(periodeId: UUID) = transaction {
+    PeriodeOpplysningerFunctions.findForPeriodeId(periodeId)
+}
 
-private fun finnPeriodeOpplysninger(database: Database) =
-    transaction(database) {
-        PeriodeOpplysningerFunctions.findAll()
-    }
+private fun finnPeriodeOpplysninger() = transaction {
+    PeriodeOpplysningerFunctions.findAll()
+}

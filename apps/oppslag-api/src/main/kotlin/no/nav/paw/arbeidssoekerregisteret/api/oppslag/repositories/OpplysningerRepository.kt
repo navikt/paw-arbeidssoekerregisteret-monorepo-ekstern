@@ -42,14 +42,28 @@ class OpplysningerRepository {
             }
         }
 
-    fun lagreOpplysninger(opplysninger: OpplysningerOmArbeidssoeker) {
+    fun lagreOpplysninger(opplysning: OpplysningerOmArbeidssoeker) {
         transaction {
-            val eksisterendeOpplysninger = OpplysningerFunctions.getForOpplysningerId(opplysninger.id)
+            val eksisterendeOpplysninger = OpplysningerFunctions.getForOpplysningerId(opplysning.id)
             if (eksisterendeOpplysninger != null) {
                 logger.warn("Ignorerer mottatte opplysninger som duplikat")
             } else {
                 logger.info("Lagrer nye opplysninger")
-                OpplysningerFunctions.insert(opplysninger)
+                OpplysningerFunctions.insert(opplysning)
+            }
+        }
+    }
+
+    fun lagreOpplysninger(opplysninger: Iterable<OpplysningerOmArbeidssoeker>) {
+        transaction {
+            opplysninger.forEach { opplysning ->
+                val eksisterendeOpplysninger = OpplysningerFunctions.getForOpplysningerId(opplysning.id)
+                if (eksisterendeOpplysninger != null) {
+                    logger.warn("Ignorerer mottatte opplysninger som duplikat")
+                } else {
+                    logger.info("Lagrer nye opplysninger")
+                    OpplysningerFunctions.insert(opplysning)
+                }
             }
         }
     }

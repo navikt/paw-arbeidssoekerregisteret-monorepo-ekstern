@@ -40,9 +40,9 @@ class ProfileringService(
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, Profilering>) {
-        Span.current().profileringerKafkaTrace()
+        Span.current().profileringerKafkaTrace(records.count())
         logger.info("Mottok {} profileringer fra Kafka", records.count())
         meterRegistry.profileringerKafkaCounter(records.count())
-        records.map { it.value() }.forEach(profileringRepository::lagreProfilering)
+        profileringRepository.lagreProfileringer(records.map { it.value() })
     }
 }

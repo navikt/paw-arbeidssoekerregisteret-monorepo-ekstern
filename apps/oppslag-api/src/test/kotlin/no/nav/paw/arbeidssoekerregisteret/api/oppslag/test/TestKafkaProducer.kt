@@ -46,7 +46,7 @@ fun main() {
     )
 
     val perioder = mapOf(
-        TestData.kafkaKey2 to TestData.nyStartetPeriode(identitetsnummer = TestData.fnr2)
+        TestData.kafkaKey2 to TestData.nyStartetPeriode(identitetsnummer = TestData.fnr1)
     )
 
     val opplysninger = perioder.mapValues { (_, value) ->

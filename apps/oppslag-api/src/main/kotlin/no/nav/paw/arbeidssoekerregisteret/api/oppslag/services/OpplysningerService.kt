@@ -40,9 +40,9 @@ class OpplysningerService(
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, OpplysningerOmArbeidssoeker>) {
-        Span.current().opplysningerKafkaTrace()
+        Span.current().opplysningerKafkaTrace(records.count())
         logger.info("Mottok {} opplysninger fra Kafka", records.count())
         meterRegistry.opplysningerKafkaCounter(records.count())
-        records.map { it.value() }.forEach(opplysningerRepository::lagreOpplysninger)
+        opplysningerRepository.lagreOpplysninger(records.map { it.value() })
     }
 }

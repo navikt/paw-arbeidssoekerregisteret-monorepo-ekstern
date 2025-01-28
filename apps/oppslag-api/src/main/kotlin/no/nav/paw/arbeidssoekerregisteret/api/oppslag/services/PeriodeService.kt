@@ -67,9 +67,9 @@ class PeriodeService(
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, Periode>) {
-        Span.current().perioderKafkaTrace()
+        Span.current().perioderKafkaTrace(records.count())
         logger.info("Mottok {} perioder fra Kafka", records.count())
         meterRegistry.perioderKafkaCounter(records.count())
-        records.map { it.value() }.forEach(periodeRepository::lagrePeriode)
+        periodeRepository.lagrePerioder(records.map { it.value() })
     }
 }
