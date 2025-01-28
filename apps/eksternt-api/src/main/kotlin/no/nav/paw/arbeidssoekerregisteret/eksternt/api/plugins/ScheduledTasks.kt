@@ -12,13 +12,13 @@ fun Application.configureScheduledTasks(
     scheduledTaskService: ScheduledTaskService
 ) {
     install(ScheduledTaskPlugin("PerioderVedlikehold")) {
-        this.task = scheduledTaskService::perioderVedlikeholdTask
+        this.taskFunction = scheduledTaskService::perioderVedlikeholdTask
         this.delay = applicationConfig.perioderVedlikeholdTaskDelay
         this.period = applicationConfig.perioderVedlikeholdTaskInterval
         this.startEvent = FlywayMigrationCompleted
     }
     install(ScheduledTaskPlugin("PerioderMetrics")) {
-        this.task = scheduledTaskService::perioderMetricsTask
+        this.taskFunction = scheduledTaskService::perioderMetricsTask
         this.delay = applicationConfig.perioderMetricsTaskDelay
         this.period = applicationConfig.perioderMetricsTaskInterval
         this.startEvent = FlywayMigrationCompleted

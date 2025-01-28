@@ -12,6 +12,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import no.nav.paw.scheduling.function.defaultErrorFunction
+import no.nav.paw.scheduling.function.defaultSuccessFunction
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.*
@@ -20,7 +22,9 @@ private val logger = LoggerFactory.getLogger("no.nav.paw.logger.scheduling")
 private const val PLUGIN_NAME_SUFFIX = "ScheduledTaskPlugin"
 
 class ScheduledTaskPluginConfig {
-    var task: (() -> Unit)? = null
+    var taskFunction: (() -> Unit)? = null
+    var successFunction: (() -> Unit)? = null
+    var errorFunction: ((throwable: Throwable) -> Unit)? = null
     var delay: Duration? = null
     var period: Duration? = null
     var startEvent: EventDefinition<Application>? = null
@@ -33,7 +37,9 @@ fun ScheduledTaskPlugin(pluginInstance: Any): ApplicationPlugin<ScheduledTaskPlu
     val pluginName = "${pluginInstance}${PLUGIN_NAME_SUFFIX}"
     return createApplicationPlugin(pluginName, ::ScheduledTaskPluginConfig) {
         application.log.info("Installerer {}", pluginName)
-        val task = requireNotNull(pluginConfig.task) { "Task er null" }
+        val taskFunction = requireNotNull(pluginConfig.taskFunction) { "Task function er null" }
+        val successFunction = pluginConfig.successFunction ?: ::defaultSuccessFunction
+        val errorFunction = pluginConfig.errorFunction ?: ::defaultErrorFunction
         val delay = requireNotNull(pluginConfig.delay) { "Delay er null" }
         val period = requireNotNull(pluginConfig.period) { "Period er null" }
         val startEvent = pluginConfig.startEvent ?: ApplicationStarted
@@ -43,8 +49,13 @@ fun ScheduledTaskPlugin(pluginInstance: Any): ApplicationPlugin<ScheduledTaskPlu
         val timer = Timer()
         val timerTask = object : TimerTask() {
             override fun run() {
-                logger.info("Running scheduled task {}", pluginInstance)
-                task()
+                try {
+                    logger.info("Running scheduled task {}", pluginInstance)
+                    taskFunction()
+                    successFunction()
+                } catch (throwable: Throwable) {
+                    errorFunction(throwable)
+                }
             }
         }
 
@@ -57,6 +68,7 @@ fun ScheduledTaskPlugin(pluginInstance: Any): ApplicationPlugin<ScheduledTaskPlu
 
         on(MonitoringEvent(stopEvent)) { _ ->
             application.log.info("Canceling scheduled task {}", pluginInstance)
+            timer.cancel()
             job?.cancel()
         }
     }
