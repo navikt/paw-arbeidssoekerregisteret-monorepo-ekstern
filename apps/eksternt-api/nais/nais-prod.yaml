@@ -55,7 +55,7 @@ spec:
     pool: nav-prod
   gcp:
     sqlInstances:
-      - type: POSTGRES_15
+      - type: POSTGRES_16
         tier: db-custom-1-3840
         databases:
           - name: arbeidssoekerregisteretapiekstern
