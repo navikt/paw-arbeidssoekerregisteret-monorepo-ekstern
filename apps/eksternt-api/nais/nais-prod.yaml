@@ -59,3 +59,8 @@ spec:
         tier: db-custom-1-3840
         databases:
           - name: arbeidssoekerregisteretapiekstern
+        flags:
+          - name: cloudsql.enable_pgaudit
+            value: "true"
+          - name: pgaudit.log
+            value: "write"
