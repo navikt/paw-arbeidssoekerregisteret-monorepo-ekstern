@@ -1,8 +1,8 @@
 import com.github.davidmc24.gradle.plugin.avro.GenerateAvroProtocolTask
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.avro)
+    kotlin("jvm")
+    id("com.github.davidmc24.gradle.plugin.avro")
 }
 
 val schema by configurations.creating {

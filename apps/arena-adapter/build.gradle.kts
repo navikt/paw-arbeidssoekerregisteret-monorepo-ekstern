@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.google.jib)
+    kotlin("jvm")
+    id("com.google.cloud.tools.jib")
     application
 }
 

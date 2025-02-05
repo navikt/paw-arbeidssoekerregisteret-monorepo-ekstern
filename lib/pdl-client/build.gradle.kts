@@ -1,7 +1,7 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.graphql)
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("com.expediagroup.graphql")
 }
 
 val jvmMajorVersion: String by project

@@ -1,7 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.avro)
-    alias(libs.plugins.google.jib)
+    kotlin("jvm")
+    id("com.google.cloud.tools.jib")
     application
 }
 val jvmVersion = JavaVersion.VERSION_21

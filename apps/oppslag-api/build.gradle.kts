@@ -1,7 +1,7 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.openapi.generator)
-    alias(libs.plugins.google.jib)
+    kotlin("jvm")
+    id("org.openapi.generator")
+    id("com.google.cloud.tools.jib")
     application
 }
 
