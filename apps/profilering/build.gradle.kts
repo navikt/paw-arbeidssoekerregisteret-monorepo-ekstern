@@ -1,10 +1,9 @@
 plugins {
     kotlin("jvm")
-    id("com.google.cloud.tools.jib")
+    id("jib-distroless")
     application
 }
 val jvmVersion = JavaVersion.VERSION_21
-val image: String? by project
 
 dependencies {
     implementation(project(":domain:main-avro-schema"))
@@ -70,16 +69,5 @@ tasks.withType(Jar::class) {
         attributes["Implementation-Version"] = project.version
         attributes["Implementation-Title"] = rootProject.name
         attributes["Main-Class"] = application.mainClass.get()
-    }
-}
-
-jib {
-    from.image = "ghcr.io/navikt/baseimages/temurin:${jvmVersion.majorVersion}"
-    to.image = "${image ?: rootProject.name}:${project.version}"
-    container {
-        environment = mapOf(
-            "PROFILERING_APPLICATION_ID" to rootProject.name,
-            "PROFILERING_APPLICATION_VERSION" to project.version.toString(),
-        )
     }
 }

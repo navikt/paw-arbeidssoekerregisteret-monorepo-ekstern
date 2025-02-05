@@ -1,13 +1,11 @@
 plugins {
     kotlin("jvm")
     id("org.openapi.generator")
-    id("com.google.cloud.tools.jib")
+    id("jib-distroless")
     application
 }
 
 val jvmMajorVersion: String by project
-val baseImage: String by project
-val image: String? by project
 
 dependencies {
     implementation(project(":lib:hoplite-config"))
@@ -151,20 +149,4 @@ openApiGenerate {
     importMappings = mapOf(
         "Instant" to "java.time.Instant"
     )
-}
-
-jib {
-    from.image = "$baseImage:$jvmMajorVersion"
-    to.image = "${image ?: project.name}:${project.version}"
-    container {
-        environment = mapOf(
-            "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}"
-        )
-        jvmFlags = listOf(
-            "-XX:+UseZGC",
-            "-XX:+ZGenerational",
-            "-XX:ActiveProcessorCount=4",
-            "-Dotel.javaagent.logging=application"
-        )
-    }
 }
