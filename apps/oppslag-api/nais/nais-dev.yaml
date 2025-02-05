@@ -139,7 +139,7 @@ spec:
         - host: pdl-api.dev-fss-pub.nais.io
   gcp:
     sqlInstances:
-      - type: POSTGRES_16
+      - type: POSTGRES_17
         tier: db-g1-small
         databases:
           - name: arbeidssoekerregisteretapioppslag
