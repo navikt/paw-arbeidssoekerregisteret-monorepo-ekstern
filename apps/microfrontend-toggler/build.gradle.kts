@@ -1,13 +1,11 @@
 plugins {
     kotlin("jvm")
     id("org.openapi.generator")
-    id("com.google.cloud.tools.jib")
+    id("jib-distroless")
     application
 }
 
 val jvmMajorVersion: String by project
-val baseImage: String by project
-val image: String? by project
 
 dependencies {
     // Project
@@ -93,19 +91,5 @@ tasks.withType(Jar::class) {
         attributes["Implementation-Version"] = project.version
         attributes["Main-Class"] = application.mainClass.get()
         attributes["Implementation-Title"] = rootProject.name
-    }
-}
-
-jib {
-    from.image = "$baseImage:$jvmMajorVersion"
-    to.image = "${image ?: project.name}:${project.version}"
-    container {
-        environment = mapOf(
-            "IMAGE_WITH_VERSION" to "${image ?: project.name}:${project.version}",
-            "OTEL_INSTRUMENTATION_METHODS_INCLUDE" to ("org.apache.kafka.streams.state.KeyValueStore[put,delete]")
-        )
-        jvmFlags = listOf(
-            "-XX:ActiveProcessorCount=4", "-XX:+UseZGC", "-XX:+ZGenerational"
-        )
     }
 }
