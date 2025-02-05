@@ -75,6 +75,7 @@ spec:
       rules:
         - application: arbeidssokerregistrering-for-veileder
         - application: arbeidssoekerregisteret-for-personbruker
+        - application: paw-arbeidssoekerregisteret-api-dolly
         - application: tokenx-token-generator
           namespace: aura
         - application: azure-token-generator
