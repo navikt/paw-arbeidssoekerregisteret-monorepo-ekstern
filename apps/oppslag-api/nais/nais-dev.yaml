@@ -133,6 +133,8 @@ spec:
         - application: familie-ef-sak
           namespace: teamfamilie
           cluster: dev-gcp
+        - application: flex-arbeidssokerregister-oppdatering
+          namespace: flex
     outbound:
       rules:
         - application: paw-tilgangskontroll
