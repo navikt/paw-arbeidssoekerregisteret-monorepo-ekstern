@@ -2,7 +2,6 @@ package no.nav.paw.health.route
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -11,7 +10,7 @@ import no.nav.paw.health.model.getAggregatedStatus
 import no.nav.paw.health.repository.HealthIndicatorRepository
 
 fun Route.healthRoutes(
-    healthIndicatorRepository: HealthIndicatorRepository,
+    healthIndicatorRepository: HealthIndicatorRepository = HealthIndicatorRepository(),
 ) {
 
     get("/internal/isAlive") {

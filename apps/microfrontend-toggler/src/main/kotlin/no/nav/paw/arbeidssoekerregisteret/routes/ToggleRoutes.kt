@@ -12,7 +12,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.model.buildToggle
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
-import no.nav.paw.security.authentication.interceptor.autentisering
+import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.bruker

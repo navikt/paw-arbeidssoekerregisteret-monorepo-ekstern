@@ -9,7 +9,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseServic
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPaging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.periodeIdParam
-import no.nav.paw.security.authentication.interceptor.autentisering
+import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX

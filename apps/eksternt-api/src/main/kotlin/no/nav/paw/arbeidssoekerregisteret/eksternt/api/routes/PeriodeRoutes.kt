@@ -9,7 +9,7 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.getFraStartetDato
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.getIdentitetsnummer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.buildApplicationLogger
-import no.nav.paw.security.authentication.interceptor.autentisering
+import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authentication.model.MaskinPorten
 
 private val logger = buildApplicationLogger

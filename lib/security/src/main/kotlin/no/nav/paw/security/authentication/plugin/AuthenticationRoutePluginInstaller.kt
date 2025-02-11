@@ -1,10 +1,9 @@
-package no.nav.paw.security.authentication.interceptor
+package no.nav.paw.security.authentication.plugin
 
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
 import no.nav.paw.security.authentication.model.Issuer
 import no.nav.paw.security.authentication.model.SecurityContext
-import no.nav.paw.security.authentication.plugin.AuthenticationPlugin
 
 fun Route.autentisering(
     issuer: Issuer,

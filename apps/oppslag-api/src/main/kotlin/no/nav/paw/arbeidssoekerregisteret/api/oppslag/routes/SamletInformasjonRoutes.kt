@@ -15,7 +15,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPaging
-import no.nav.paw.security.authentication.interceptor.autentisering
+import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Sluttbruker
