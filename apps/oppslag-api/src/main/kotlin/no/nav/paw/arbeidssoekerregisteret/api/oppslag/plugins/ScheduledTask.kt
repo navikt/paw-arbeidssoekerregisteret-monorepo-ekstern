@@ -12,7 +12,7 @@ fun Application.configureScheduledTask(
     metricsService: MetricsService
 ) {
     install(ScheduledTaskPlugin("PerioderMetrics")) {
-        this.taskFunction = metricsService::tellAntallAktivePerioder
+        this.task = metricsService::tellAntallAktivePerioder
         this.delay = applicationConfig.perioderMetricsTaskDelay
         this.period = applicationConfig.perioderMetricsTaskInterval
         this.startEvent = FlywayMigrationCompleted

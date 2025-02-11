@@ -11,13 +11,19 @@ plugins {
 }
 
 include(
+    // domain
     "domain:main-avro-schema",
     "domain:arena-avro-schema",
     "domain:bekreftelsesmelding-avro-schema",
+    // libs
+    "lib:logging",
+    "lib:serialization",
     "lib:hoplite-config",
     "lib:database",
     "lib:scheduling",
     "lib:error-handling",
+    "lib:metrics",
+    "lib:api-docs",
     "lib:security",
     "lib:http-client-utils",
     "lib:kafka",
@@ -27,7 +33,9 @@ include(
     "lib:aareg-client",
     "lib:tilgangskontroll-client",
     "lib:common-model",
+    // test
     "test:test-data-factory",
+    // apps
     "apps:microfrontend-toggler",
     "apps:profilering",
     "apps:oppslag-api",
