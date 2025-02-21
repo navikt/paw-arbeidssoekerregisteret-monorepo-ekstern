@@ -19,6 +19,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.perioderKafkaCounter
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.perioderKafkaTrace
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.traceparent
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -70,6 +71,6 @@ class PeriodeService(
         Span.current().perioderKafkaTrace(records.count())
         logger.info("Mottok {} perioder fra Kafka", records.count())
         meterRegistry.perioderKafkaCounter(records.count())
-        periodeRepository.lagrePerioder(records.map { it.value() })
+        periodeRepository.lagrePerioder(records.map { it.traceparent() to it.value() })
     }
 }

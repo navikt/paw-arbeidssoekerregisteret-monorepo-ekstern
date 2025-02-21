@@ -4,7 +4,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeTable
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.TraceParent
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.initSpan
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.model.Identitetsnummer
 import org.jetbrains.exposed.sql.SortOrder
@@ -51,17 +53,22 @@ class PeriodeRepository {
         }
     }
 
-    fun lagrePerioder(perioder: Iterable<Periode>) {
+    fun lagrePerioder(perioder: Iterable<Pair<TraceParent?, Periode>>) {
         transaction {
-            perioder.forEach { periode ->
-                val eksisterendePeriode = PeriodeFunctions.getForPeriodeId(periode.id)
-                if (eksisterendePeriode != null) {
-                    logger.info("Endrer eksisterende periode")
-                    PeriodeFunctions.update(periode, eksisterendePeriode)
-                } else {
-                    logger.info("Lagrer ny periode")
-                    PeriodeFunctions.insert(periode)
-                }
+            perioder.forEach { (traceparent, periode) ->
+                initSpan(traceparent, "paw.kafka.consumer.periode", "periode process")
+                    .linkWithReplacedSpan()
+                    .use {
+                        logger.info("Lagrer periode")
+                        val eksisterendePeriode = PeriodeFunctions.getForPeriodeId(periode.id)
+                        if (eksisterendePeriode != null) {
+                            logger.info("Endrer eksisterende periode")
+                            PeriodeFunctions.update(periode, eksisterendePeriode)
+                        } else {
+                            logger.info("Lagrer ny periode")
+                            PeriodeFunctions.insert(periode)
+                        }
+                    }
             }
         }
     }

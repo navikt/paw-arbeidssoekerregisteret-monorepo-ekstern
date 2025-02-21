@@ -6,6 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.invalidTraceParent
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import org.jetbrains.exposed.sql.Database
@@ -131,7 +132,7 @@ class PeriodeRepositoryTest : StringSpec({
         val periode1 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr6)
         val periode2 = TestData.nyStartetPeriodeRow(identitetsnummer = TestData.fnr7)
         val perioder = listOf(periode1.toPeriode(), periode2.toPeriode())
-        periodeRepository.lagrePerioder(perioder)
+        periodeRepository.lagrePerioder(perioder.map { invalidTraceParent to it })
 
         val lagretPeriode1 = periodeRepository.hentPeriodeForId(periode1.periodeId)
         val lagretPeriode2 = periodeRepository.hentPeriodeForId(periode2.periodeId)
@@ -189,7 +190,7 @@ class PeriodeRepositoryTest : StringSpec({
             periode4.toPeriode(),
             periode5.toPeriode()
         )
-        periodeRepository.lagrePerioder(perioder)
+        periodeRepository.lagrePerioder(perioder.map { invalidTraceParent to it })
 
         val lagretPeriode1 = periodeRepository.hentPeriodeForId(periode1.periodeId)
         val lagretPeriode2 = periodeRepository.hentPeriodeForId(periode2.periodeId)
