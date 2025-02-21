@@ -57,7 +57,6 @@ class PeriodeRepository {
         transaction {
             perioder.forEach { (traceparent, periode) ->
                 initSpan(traceparent, "paw.kafka.consumer.periode", "periode process")
-                    .linkWithReplacedSpan()
                     .use {
                         logger.info("Lagrer periode")
                         val eksisterendePeriode = PeriodeFunctions.getForPeriodeId(periode.id)
