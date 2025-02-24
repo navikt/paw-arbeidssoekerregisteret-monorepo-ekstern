@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.opentelemetry.context.Context
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
@@ -30,7 +31,9 @@ fun Application.configureKafka(
         kafkaTopics = listOf(applicationConfig.perioderTopic)
         consumeFunction = { records ->
             if (!records.isEmpty) {
-                periodeService.handleRecords(records)
+                currentContextUse {
+                    periodeService.handleRecords(records)
+                }
             }
         }
     }
@@ -39,7 +42,9 @@ fun Application.configureKafka(
         kafkaTopics = listOf(applicationConfig.opplysningerTopic)
         consumeFunction = { records ->
             if (!records.isEmpty) {
-                opplysningerService.handleRecords(records)
+                currentContextUse {
+                    opplysningerService.handleRecords(records)
+                }
             }
         }
     }
@@ -48,7 +53,9 @@ fun Application.configureKafka(
         kafkaTopics = listOf(applicationConfig.profileringTopic)
         consumeFunction = { records ->
             if (!records.isEmpty) {
-                profileringService.handleRecords(records)
+                currentContextUse {
+                    profileringService.handleRecords(records)
+                }
             }
         }
     }
@@ -57,8 +64,15 @@ fun Application.configureKafka(
         kafkaTopics = listOf(applicationConfig.bekreftelseTopic)
         consumeFunction = { records ->
             if (!records.isEmpty) {
-                bekreftelseService.handleRecords(records)
+                currentContextUse { bekreftelseService.handleRecords(records) }
             }
         }
+    }
+}
+
+fun currentContextUse(block: () -> Unit) {
+    val context = Context.current()
+    context.makeCurrent().use {
+        block()
     }
 }
