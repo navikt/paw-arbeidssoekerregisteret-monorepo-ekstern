@@ -26,7 +26,7 @@ flyway = "11.3.3"
 hikari = "6.2.1"
 graphql-client = "8.3.0"
 kotlinx-coroutines = "1.10.1"
-ktor = "3.1.0"
+ktor = "3.1.1"
 
 [libraries]
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
