@@ -66,7 +66,7 @@ class PeriodeStreamTest : FreeSpec({
                         action shouldBe ToggleAction.ENABLE
                         ident shouldBe p1StartetPeriode.identitetsnummer
                         microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
-                        sensitivitet shouldBe Sensitivitet.HIGH
+                        sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
                         initialedBy shouldBe "paw"
                     }
 
@@ -145,7 +145,7 @@ class PeriodeStreamTest : FreeSpec({
                         action shouldBe ToggleAction.ENABLE
                         ident shouldBe p2StartetPeriode.identitetsnummer
                         microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
-                        sensitivitet shouldBe Sensitivitet.HIGH
+                        sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
                         initialedBy shouldBe "paw"
                     }
 

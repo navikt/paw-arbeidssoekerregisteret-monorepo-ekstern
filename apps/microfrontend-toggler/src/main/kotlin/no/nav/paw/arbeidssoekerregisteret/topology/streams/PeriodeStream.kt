@@ -161,7 +161,7 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
             periodeInfo,
             microfrontendToggleConfig.aiaMinSide,
             ToggleSource.ARBEIDSSOEKERPERIODE,
-            microfrontendToggleConfig.toggleSensitivitet
+            microfrontendToggleConfig.aiaMinSideSensitivitet
         )
         meterRegistry.tellAntallSendteToggles(
             enableAiaMinSideToggle,
@@ -174,7 +174,7 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
             periodeInfo,
             microfrontendToggleConfig.aiaBehovsvurdering,
             ToggleSource.ARBEIDSSOEKERPERIODE,
-            microfrontendToggleConfig.toggleSensitivitet
+            microfrontendToggleConfig.aiaBehovsvurderingSensitivitet
         )
         meterRegistry.tellAntallSendteToggles(
             enableAiaBehovsvurderingToggle,

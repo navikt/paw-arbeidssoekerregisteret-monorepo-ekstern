@@ -27,5 +27,6 @@ data class MicrofrontendToggleConfig(
     val aiaBehovsvurdering: String,
     val periodeTogglePunctuatorSchedule: Duration,
     val utsattDeaktiveringAvAiaMinSide: Duration,
-    val toggleSensitivitet: Sensitivitet = Sensitivitet.HIGH
+    val aiaMinSideSensitivitet: Sensitivitet,
+    val aiaBehovsvurderingSensitivitet: Sensitivitet
 )

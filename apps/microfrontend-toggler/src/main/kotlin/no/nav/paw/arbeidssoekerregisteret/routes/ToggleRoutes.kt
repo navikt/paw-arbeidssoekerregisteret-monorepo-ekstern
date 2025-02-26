@@ -6,16 +6,17 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
 import no.nav.paw.arbeidssoekerregisteret.model.buildToggle
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
-import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.bruker
+import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authorization.exception.IngenTilgangException
 import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
@@ -39,7 +40,7 @@ fun Route.toggleRoutes(
                     val bruker = call.bruker<Sluttbruker>()
                     val toggle = toggleRequest.buildToggle(
                         bruker.ident,
-                        applicationConfig.microfrontendToggle.toggleSensitivitet
+                        Sensitivitet.HIGH // TODO Ikke i bruk for DISABLE
                     )
                     toggleService.sendToggle(toggle)
                     call.respond<Toggle>(HttpStatusCode.Accepted, toggle)
