@@ -6,7 +6,8 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
-import io.opentelemetry.context.Context
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.extension.kotlin.asContextElement
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -60,19 +61,15 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
             logger.info("Klargjør {} Kafka Consumer", pluginInstance)
             kafkaConsumer.subscribe(kafkaTopics, rebalanceListener)
 
-            consumeJob = application.launch(coroutineDispatcher) {
+            consumeJob = application.launch(coroutineDispatcher + Span.current().asContextElement()) {
                 try {
                     logger.info("Starter {} Kafka Consumer", pluginInstance)
                     while (!shutdownFlag.get()) {
                         try {
                             val records = kafkaConsumer.poll(pollTimeout)
-                            val parentContext = Context.current()
-                            withContext(coroutineDispatcher) {
-                                val scope = parentContext.makeCurrent()
-                                scope.use {
-                                    consumeFunction(records)
-                                    successFunction(records)
-                                }
+                            withContext(Span.current().asContextElement()) {
+                                consumeFunction(records)
+                                successFunction(records)
                             }
                         } catch (throwable: Throwable) {
                             logger.info("Stopper {} Kafka Consumer", pluginInstance)
