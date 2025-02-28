@@ -6,6 +6,8 @@ dependencies {
     compileOnly(libs.ktor.server.core)
     compileOnly(libs.kotlinx.coroutines.core)
     compileOnly(libs.confluent.kafka.avro.serializer)
+    compileOnly(libs.opentelemetry.context)
+    compileOnly(libs.opentelemetry.kotlin.extension)
     implementation(libs.kafka.clients)
 
     // Test

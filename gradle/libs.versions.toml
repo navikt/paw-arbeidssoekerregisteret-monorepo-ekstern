@@ -51,6 +51,8 @@ ktor-server-test-host = { group = "io.ktor", name = "ktor-server-test-host", ver
 ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 opentelemetry-api = { group = "io.opentelemetry", name = "opentelemetry-api", version.ref = "otel-api" }
+opentelemetry-kotlin-extension = { group = "io.opentelemetry", name = "opentelemetry-extension-kotlin", version.ref = "otel-api" }
+opentelemetry-context = { group = "io.opentelemetry", name = "opentelemetry-context", version.ref = "otel-api" }
 opentelemetry-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
 micrometer-registry-prometheus = { group = "io.micrometer", name = "micrometer-registry-prometheus", version.ref = "micrometer" }
 kafka-clients = { group = "org.apache.kafka", name = "kafka-clients", version.ref = "kafka" }
