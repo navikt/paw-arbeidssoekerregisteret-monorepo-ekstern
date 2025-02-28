@@ -12,7 +12,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import no.nav.paw.kafka.consumer.defaultErrorFunction
 import no.nav.paw.kafka.consumer.defaultSuccessFunction
 import no.nav.paw.kafka.listener.NoopConsumerRebalanceListener
@@ -67,10 +66,8 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
                     while (!shutdownFlag.get()) {
                         try {
                             val records = kafkaConsumer.poll(pollTimeout)
-                            withContext(Span.current().asContextElement()) {
-                                consumeFunction(records)
-                                successFunction(records)
-                            }
+                            consumeFunction(records)
+                            successFunction(records)
                         } catch (throwable: Throwable) {
                             logger.info("Stopper {} Kafka Consumer", pluginInstance)
                             shutdownFlag.set(true)
