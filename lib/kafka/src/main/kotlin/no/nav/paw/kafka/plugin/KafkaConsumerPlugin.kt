@@ -6,8 +6,6 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
-import io.opentelemetry.api.trace.Span
-import io.opentelemetry.context.Context
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,8 +19,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
-import io.opentelemetry.extension.kotlin.asContextElement
-import kotlinx.coroutines.withContext
 
 
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.kafka.consumer")
@@ -68,18 +64,12 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
                     while (!shutdownFlag.get()) {
                         try {
                             val records = kafkaConsumer.poll(pollTimeout)
-                            withContext(coroutineDispatcher + Context.current().asContextElement()) {
-                                logger.info("TraceID Before: {}", Span.current().spanContext.traceId)
-                                consumeFunction(records)
-                                logger.info("TraceID After: {}", Span.current().spanContext.traceId)
-                                successFunction(records)
-                            }
+                            consumeFunction(records)
+                            successFunction(records)
                         } catch (throwable: Throwable) {
                             logger.info("Stopper {} Kafka Consumer", pluginInstance)
                             shutdownFlag.set(true)
-                            withContext(coroutineDispatcher + Context.current().asContextElement()) {
-                                errorFunction(throwable)
-                            }
+                            errorFunction(throwable)
                         }
                     }
                 } finally {
