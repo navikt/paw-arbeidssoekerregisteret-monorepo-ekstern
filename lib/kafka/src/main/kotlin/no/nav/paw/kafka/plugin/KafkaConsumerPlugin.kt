@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import no.nav.paw.kafka.consumer.defaultErrorFunction
 import no.nav.paw.kafka.consumer.defaultSuccessFunction
 import no.nav.paw.kafka.listener.NoopConsumerRebalanceListener
@@ -21,7 +22,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
-
 
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.kafka.consumer")
 private const val PLUGIN_NAME_SUFFIX = "KafkaConsumerPlugin"
@@ -60,14 +60,16 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
             logger.info("Klargjør {} Kafka Consumer", pluginInstance)
             kafkaConsumer.subscribe(kafkaTopics, rebalanceListener)
 
-            consumeJob = application.launch(coroutineDispatcher + Span.current().asContextElement()) {
+            consumeJob = application.launch(coroutineDispatcher) {
                 try {
                     logger.info("Starter {} Kafka Consumer", pluginInstance)
                     while (!shutdownFlag.get()) {
                         try {
                             val records = kafkaConsumer.poll(pollTimeout)
-                            consumeFunction(records)
-                            successFunction(records)
+                            withContext(Span.current().asContextElement()) {
+                                consumeFunction(records)
+                                successFunction(records)
+                            }
                         } catch (throwable: Throwable) {
                             logger.info("Stopper {} Kafka Consumer", pluginInstance)
                             shutdownFlag.set(true)
