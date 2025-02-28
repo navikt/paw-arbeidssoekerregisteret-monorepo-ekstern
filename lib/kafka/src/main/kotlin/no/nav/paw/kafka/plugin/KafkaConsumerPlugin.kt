@@ -6,6 +6,8 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
+import io.opentelemetry.context.Context
+import io.opentelemetry.extension.kotlin.asContextElement
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -64,12 +66,18 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
                     while (!shutdownFlag.get()) {
                         try {
                             val records = kafkaConsumer.poll(pollTimeout)
-                            consumeFunction(records)
-                            successFunction(records)
+                            val currentContext = Context.current()
+                            application.launch(coroutineDispatcher + currentContext.asContextElement()) {
+                                consumeFunction(records)
+                                successFunction(records)
+                            }
                         } catch (throwable: Throwable) {
                             logger.info("Stopper {} Kafka Consumer", pluginInstance)
                             shutdownFlag.set(true)
-                            errorFunction(throwable)
+                            val currentContext = Context.current()
+                            application.launch(coroutineDispatcher + currentContext.asContextElement()) {
+                                errorFunction(throwable)
+                            }
                         }
                     }
                 } finally {
