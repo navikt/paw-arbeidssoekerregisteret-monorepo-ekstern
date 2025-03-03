@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeTable
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
@@ -51,6 +52,7 @@ class PeriodeRepository {
         }
     }
 
+    @WithSpan("paw.db.operation")
     fun lagrePerioder(perioder: Iterable<Periode>) {
         transaction {
             perioder.forEach { periode ->

@@ -2,7 +2,6 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.services
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
-import io.opentelemetry.context.Context
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ArbeidssoekerperiodeResponse
@@ -68,7 +67,8 @@ class PeriodeService(
 
     @WithSpan("paw.kafka.consumer")
     fun handleRecords(records: ConsumerRecords<Long, Periode>) {
-        logger.info("Current trace context in handleRecords(): {}", Context.current())
+        val currentSpan = Span.current()
+        logger.info("handleRecords: TraceId: {}, SpanId: {}", currentSpan.spanContext.traceId, currentSpan.spanContext.spanId)
         Span.current().perioderKafkaTrace(records.count())
         logger.info("Mottok {} perioder fra Kafka", records.count())
         meterRegistry.perioderKafkaCounter(records.count())
