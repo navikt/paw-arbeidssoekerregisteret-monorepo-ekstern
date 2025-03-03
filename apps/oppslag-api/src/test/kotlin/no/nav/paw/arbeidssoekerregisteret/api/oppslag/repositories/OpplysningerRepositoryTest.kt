@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArb
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.invalidTraceParent
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
@@ -223,7 +224,7 @@ class OpplysningerRepositoryTest : StringSpec({
             opplysninger2.toOpplysningerOmArbeidssoeker(),
             opplysninger3.toOpplysningerOmArbeidssoeker()
         )
-        opplysningerRepository.lagreOpplysninger(opplysninger)
+        opplysningerRepository.lagreOpplysninger(opplysninger.map { invalidTraceParent to it})
 
         val retrievedOpplysninger = opplysningerRepository
             .finnOpplysningerForIdentiteter(listOf(TestData.identitetsnummer8))

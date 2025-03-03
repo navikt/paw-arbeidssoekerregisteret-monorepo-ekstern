@@ -10,6 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.profileringerKafkaCounter
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.profileringerKafkaTrace
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.traceparent
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -43,6 +44,6 @@ class ProfileringService(
         Span.current().profileringerKafkaTrace(records.count())
         logger.info("Mottok {} profileringer fra Kafka", records.count())
         meterRegistry.profileringerKafkaCounter(records.count())
-        profileringRepository.lagreProfileringer(records.map { it.value() })
+        profileringRepository.lagreProfileringer(records.map { it.traceparent() to it.value() })
     }
 }

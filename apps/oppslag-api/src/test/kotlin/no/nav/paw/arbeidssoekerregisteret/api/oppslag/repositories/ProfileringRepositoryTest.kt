@@ -7,6 +7,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfilering
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.invalidTraceParent
 import org.jetbrains.exposed.sql.Database
 import java.time.Duration
 import java.time.Instant
@@ -104,7 +105,7 @@ class ProfileringRepositoryTest : StringSpec({
             profilering2.toProfilering(),
             profilering3.toProfilering()
         )
-        profileringRepository.lagreProfileringer(profileringer)
+        profileringRepository.lagreProfileringer(profileringer.map { invalidTraceParent to it})
 
         val lagredeProfileringer = profileringRepository.finnProfileringerForPeriodeIdList(listOf(periodeId))
 

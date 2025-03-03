@@ -10,6 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerR
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opplysningerKafkaCounter
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.opplysningerKafkaTrace
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.traceparent
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -43,6 +44,6 @@ class OpplysningerService(
         Span.current().opplysningerKafkaTrace(records.count())
         logger.info("Mottok {} opplysninger fra Kafka", records.count())
         meterRegistry.opplysningerKafkaCounter(records.count())
-        opplysningerRepository.lagreOpplysninger(records.map { it.value() })
+        opplysningerRepository.lagreOpplysninger(records.map { it.traceparent() to it.value() })
     }
 }

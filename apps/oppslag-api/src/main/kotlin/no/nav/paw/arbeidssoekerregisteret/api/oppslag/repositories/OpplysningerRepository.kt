@@ -4,7 +4,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.OpplysningerFunct
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.TraceParent
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.initSpan
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.model.Identitetsnummer
 import org.jetbrains.exposed.sql.SortOrder
@@ -54,16 +56,20 @@ class OpplysningerRepository {
         }
     }
 
-    fun lagreOpplysninger(opplysninger: Iterable<OpplysningerOmArbeidssoeker>) {
+    fun lagreOpplysninger(opplysninger: Iterable<Pair<TraceParent?, OpplysningerOmArbeidssoeker>>) {
         transaction {
-            opplysninger.forEach { opplysning ->
-                val eksisterendeOpplysninger = OpplysningerFunctions.getForOpplysningerId(opplysning.id)
-                if (eksisterendeOpplysninger != null) {
-                    logger.warn("Ignorerer mottatte opplysninger som duplikat")
-                } else {
-                    logger.info("Lagrer nye opplysninger")
-                    OpplysningerFunctions.insert(opplysning)
-                }
+            opplysninger.forEach { (traceparent, opplysning) ->
+                initSpan(traceparent, "paw.kafka.consumer.opplysninger", "opplysninger process")
+                    .use {
+                        logger.info("Lagrer opplysninger")
+                        val eksisterendeOpplysninger = OpplysningerFunctions.getForOpplysningerId(opplysning.id)
+                        if (eksisterendeOpplysninger != null) {
+                            logger.warn("Ignorerer mottatte opplysninger som duplikat")
+                        } else {
+                            logger.info("Lagrer nye opplysninger")
+                            OpplysningerFunctions.insert(opplysning)
+                        }
+                    }
             }
         }
     }

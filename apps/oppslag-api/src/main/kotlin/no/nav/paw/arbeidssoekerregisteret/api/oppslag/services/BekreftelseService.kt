@@ -10,6 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.bekreftelserKafkaCounter
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.bekreftelserKafkaTrace
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.traceparent
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -43,6 +44,6 @@ class BekreftelseService(
         Span.current().bekreftelserKafkaTrace(records.count())
         logger.info("Mottok {} bekreftelser fra Kafka", records.count())
         meterRegistry.bekreftelserKafkaCounter(records.count())
-        bekreftelseRepository.lagreBekreftelser(records.map { it.value() })
+        bekreftelseRepository.lagreBekreftelser(records.map { it.traceparent() to it.value() })
     }
 }

@@ -3,7 +3,9 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.BekreftelseFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.TraceParent
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.initSpan
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.model.Identitetsnummer
 import org.jetbrains.exposed.sql.SortOrder
@@ -51,16 +53,19 @@ class BekreftelseRepository {
         }
     }
 
-    fun lagreBekreftelser(bekreftelser: Iterable<Bekreftelse>) {
+    fun lagreBekreftelser(bekreftelser: Iterable<Pair<TraceParent?, Bekreftelse>>) {
         transaction {
-            bekreftelser.forEach { bekreftelse ->
-                val eksisterendeBekreftelse = BekreftelseFunctions.getForBekreftelseId(bekreftelse.id)
-                if (eksisterendeBekreftelse != null) {
-                    logger.warn("Ignorerer mottatt bekreftelse som duplikat")
-                } else {
-                    logger.info("Lagrer ny bekreftelse")
-                    BekreftelseFunctions.insert(bekreftelse)
-                }
+            bekreftelser.forEach { (traceparent, bekreftelse) ->
+                initSpan(traceparent, "paw.kafka.consumer.bekreftelse", "bekreftelse process")
+                    .use {
+                        val eksisterendeBekreftelse = BekreftelseFunctions.getForBekreftelseId(bekreftelse.id)
+                        if (eksisterendeBekreftelse != null) {
+                            logger.warn("Ignorerer mottatt bekreftelse som duplikat")
+                        } else {
+                            logger.info("Lagrer ny bekreftelse")
+                            BekreftelseFunctions.insert(bekreftelse)
+                        }
+                    }
             }
         }
     }
