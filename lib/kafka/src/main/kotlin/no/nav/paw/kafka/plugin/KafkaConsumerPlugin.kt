@@ -6,14 +6,10 @@ import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
-import io.opentelemetry.api.GlobalOpenTelemetry
-import io.opentelemetry.context.Context
-import io.opentelemetry.extension.kotlin.asContextElement
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import no.nav.paw.kafka.consumer.defaultErrorFunction
 import no.nav.paw.kafka.consumer.defaultSuccessFunction
 import no.nav.paw.kafka.listener.NoopConsumerRebalanceListener
@@ -62,24 +58,13 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
             kafkaConsumer.subscribe(kafkaTopics, rebalanceListener)
 
             consumeJob = application.launch(coroutineDispatcher) {
-                val tracer = GlobalOpenTelemetry.getTracer("kafka-consumer")
                 try {
                     logger.info("Starter {} Kafka Consumer", pluginInstance)
                     while (!shutdownFlag.get()) {
                         try {
-                            val span = tracer.spanBuilder("poll-and-process").startSpan()
-                            try {
-                                withContext(Context.current().with(span).asContextElement()) {
-                                    val records = kafkaConsumer.poll(pollTimeout)
-                                    consumeFunction(records)
-                                    successFunction(records)
-                                }
-                            } finally {
-                                span.end()
-                            }
-                            /*val records = kafkaConsumer.poll(pollTimeout)
+                            val records = kafkaConsumer.poll(pollTimeout)
                             consumeFunction(records)
-                            successFunction(records)*/
+                            successFunction(records)
                         } catch (throwable: Throwable) {
                             logger.info("Stopper {} Kafka Consumer", pluginInstance)
                             shutdownFlag.set(true)
