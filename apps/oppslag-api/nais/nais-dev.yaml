@@ -77,9 +77,9 @@ spec:
         - application: arbeidssoekerregisteret-for-personbruker
         - application: paw-arbeidssoekerregisteret-api-dolly
         - application: tokenx-token-generator
-          namespace: aura
+          namespace: nais
         - application: azure-token-generator
-          namespace: aura
+          namespace: nais
         - application: saas-proxy
           namespace: teamcrm
         - application: salesforce

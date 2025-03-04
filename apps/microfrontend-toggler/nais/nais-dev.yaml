@@ -66,9 +66,9 @@ spec:
       rules:
         - application: aia-backend
         - application: tokenx-token-generator
-          namespace: aura
+          namespace: nais
         - application: azure-token-generator
-          namespace: aura
+          namespace: nais
     outbound:
       rules:
         - application: paw-kafka-key-generator
