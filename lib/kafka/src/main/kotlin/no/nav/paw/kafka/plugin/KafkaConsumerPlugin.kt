@@ -1,6 +1,5 @@
 package no.nav.paw.kafka.plugin
 
-import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationPlugin
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.ApplicationStopping
@@ -35,8 +34,6 @@ class KafkaConsumerPluginConfig<K, V> {
     var rebalanceListener: ConsumerRebalanceListener? = null
     val coroutineDispatcher: CoroutineDispatcher? = null
     val shutdownFlag: AtomicBoolean? = null
-    var shutdownOnError: Boolean = true
-    var shutdownHandler: ((Application) -> Unit)? = null
 }
 
 @Suppress("FunctionName")
@@ -54,8 +51,6 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
         val rebalanceListener = pluginConfig.rebalanceListener ?: NoopConsumerRebalanceListener()
         val coroutineDispatcher = pluginConfig.coroutineDispatcher ?: Dispatchers.IO
         val shutdownFlag = pluginConfig.shutdownFlag ?: AtomicBoolean(false)
-        val shutdownOnError = pluginConfig.shutdownOnError
-        val shutdownHandler = pluginConfig.shutdownHandler
         var consumeJob: Job? = null
 
         on(MonitoringEvent(ApplicationStarted)) { application ->
@@ -74,11 +69,6 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
                             logger.info("Stopper {} Kafka Consumer", pluginInstance)
                             shutdownFlag.set(true)
                             errorFunction(throwable)
-                            if (shutdownOnError) {
-                                logger.error("Avslutter applikasjonen pga feil i {} Kafka Consumer", pluginInstance)
-                                shutdownHandler?.invoke(application)
-                                    ?: application.monitor.raise(ApplicationStopping, application)
-                            }
                         }
                     }
                 } finally {

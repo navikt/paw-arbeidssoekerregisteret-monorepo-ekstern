@@ -1,23 +1,19 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins
 
 import io.ktor.server.application.Application
-import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.install
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.KafkaConsumerHandler
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.kafka.plugin.KafkaConsumerPlugin
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import java.util.*
-import kotlin.concurrent.schedule
-import kotlin.system.exitProcess
 
 fun Application.configureKafka(
     applicationConfig: ApplicationConfig,
@@ -25,23 +21,12 @@ fun Application.configureKafka(
     opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
     profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
     bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
+    kafkaConsumerHandler: KafkaConsumerHandler,
     periodeService: PeriodeService,
     opplysningerService: OpplysningerService,
     profileringService: ProfileringService,
     bekreftelseService: BekreftelseService
 ) {
-    val applicationShutdownHandler: (Application) -> Unit = { app ->
-        val logger = buildApplicationLogger
-        logger.error("Avslutter applikasjonen pga feil i consumer")
-
-        app.monitor.raise(ApplicationStopping, app)
-
-        Timer().schedule(5000) {
-            logger.error("Tvungen avslutning av applikasjonen etter timeout")
-            exitProcess(1)
-        }
-    }
-
     install(KafkaConsumerPlugin<Long, Periode>("Perioder")) {
         kafkaConsumer = periodeKafkaConsumer
         kafkaTopics = listOf(applicationConfig.perioderTopic)
@@ -50,8 +35,7 @@ fun Application.configureKafka(
                 periodeService.handleRecords(records)
             }
         }
-        shutdownOnError = true
-        shutdownHandler = applicationShutdownHandler
+        errorFunction = kafkaConsumerHandler::handleException
     }
     install(KafkaConsumerPlugin<Long, OpplysningerOmArbeidssoeker>("Opplysninger")) {
         kafkaConsumer = opplysningerKafkaConsumer
@@ -61,8 +45,7 @@ fun Application.configureKafka(
                 opplysningerService.handleRecords(records)
             }
         }
-        shutdownOnError = true
-        shutdownHandler = applicationShutdownHandler
+        errorFunction = kafkaConsumerHandler::handleException
     }
     install(KafkaConsumerPlugin<Long, Profilering>("Profileringer")) {
         kafkaConsumer = profileringKafkaConsumer
@@ -72,8 +55,7 @@ fun Application.configureKafka(
                 profileringService.handleRecords(records)
             }
         }
-        shutdownOnError = true
-        shutdownHandler = applicationShutdownHandler
+        errorFunction = kafkaConsumerHandler::handleException
     }
     install(KafkaConsumerPlugin<Long, Bekreftelse>("Bekreftelser")) {
         kafkaConsumer = bekreftelseKafkaConsumer
@@ -83,7 +65,6 @@ fun Application.configureKafka(
                 bekreftelseService.handleRecords(records)
             }
         }
-        shutdownOnError = true
-        shutdownHandler = applicationShutdownHandler
+        errorFunction = kafkaConsumerHandler::handleException
     }
 }

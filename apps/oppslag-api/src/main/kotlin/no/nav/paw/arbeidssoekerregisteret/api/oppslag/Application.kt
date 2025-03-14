@@ -62,6 +62,7 @@ fun Application.module(applicationContext: ApplicationContext) {
         applicationContext.opplysningerKafkaConsumer,
         applicationContext.profileringKafkaConsumer,
         applicationContext.bekreftelseKafkaConsumer,
+        applicationContext.kafkaConsumerHandler,
         applicationContext.periodeService,
         applicationContext.opplysningerService,
         applicationContext.profileringService,
