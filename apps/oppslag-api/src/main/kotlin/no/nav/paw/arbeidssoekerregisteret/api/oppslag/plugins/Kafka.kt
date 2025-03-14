@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.KafkaConsumerHandler
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
@@ -20,6 +21,7 @@ fun Application.configureKafka(
     opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
     profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
     bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
+    kafkaConsumerHandler: KafkaConsumerHandler,
     periodeService: PeriodeService,
     opplysningerService: OpplysningerService,
     profileringService: ProfileringService,
@@ -33,6 +35,7 @@ fun Application.configureKafka(
                 periodeService.handleRecords(records)
             }
         }
+        errorFunction = kafkaConsumerHandler::handleException
     }
     install(KafkaConsumerPlugin<Long, OpplysningerOmArbeidssoeker>("Opplysninger")) {
         kafkaConsumer = opplysningerKafkaConsumer
@@ -42,6 +45,7 @@ fun Application.configureKafka(
                 opplysningerService.handleRecords(records)
             }
         }
+        errorFunction = kafkaConsumerHandler::handleException
     }
     install(KafkaConsumerPlugin<Long, Profilering>("Profileringer")) {
         kafkaConsumer = profileringKafkaConsumer
@@ -51,6 +55,7 @@ fun Application.configureKafka(
                 profileringService.handleRecords(records)
             }
         }
+        errorFunction = kafkaConsumerHandler::handleException
     }
     install(KafkaConsumerPlugin<Long, Bekreftelse>("Bekreftelser")) {
         kafkaConsumer = bekreftelseKafkaConsumer
@@ -60,5 +65,6 @@ fun Application.configureKafka(
                 bekreftelseService.handleRecords(records)
             }
         }
+        errorFunction = kafkaConsumerHandler::handleException
     }
 }

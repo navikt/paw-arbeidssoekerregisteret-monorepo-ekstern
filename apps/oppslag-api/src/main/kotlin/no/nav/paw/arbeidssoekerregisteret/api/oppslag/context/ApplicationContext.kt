@@ -9,6 +9,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.KafkaConsumerHandler
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
@@ -35,6 +36,9 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
+import no.nav.paw.health.model.HealthStatus
+import no.nav.paw.health.model.LivenessHealthIndicator
+import no.nav.paw.health.model.ReadinessHealthIndicator
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -66,7 +70,8 @@ data class ApplicationContext(
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
     val opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
     val profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
-    val bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>
+    val bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
+    val kafkaConsumerHandler: KafkaConsumerHandler
 ) {
     companion object {
         fun build(): ApplicationContext {
@@ -165,6 +170,11 @@ data class ApplicationContext(
                 valueDeserializer = BekreftelseDeserializer::class
             )
 
+            val kafkaConsumerHandler = KafkaConsumerHandler(
+                healthIndicatorRepository.addLivenessIndicator(LivenessHealthIndicator(HealthStatus.HEALTHY)),
+                healthIndicatorRepository.addReadinessIndicator(ReadinessHealthIndicator(HealthStatus.HEALTHY))
+            )
+
             return ApplicationContext(
                 serverConfig = serverConfig,
                 applicationConfig = applicationConfig,
@@ -182,7 +192,8 @@ data class ApplicationContext(
                 periodeKafkaConsumer = periodeKafkaConsumer,
                 opplysningerKafkaConsumer = opplysningerKafkaConsumer,
                 profileringKafkaConsumer = profileringKafkaConsumer,
-                bekreftelseKafkaConsumer = bekreftelseKafkaConsumer
+                bekreftelseKafkaConsumer = bekreftelseKafkaConsumer,
+                kafkaConsumerHandler = kafkaConsumerHandler
             )
         }
     }
