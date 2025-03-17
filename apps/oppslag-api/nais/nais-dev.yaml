@@ -24,7 +24,7 @@ spec:
     - name: KAFKA_TOPIC_PROFILERING
       value: "paw.arbeidssoker-profilering-v1"
     - name: KAFKA_TOPIC_BEKREFTELSE
-      value: "paw.arbeidssoker-bekreftelse-beta-v3"
+      value: "paw.arbeidssoker-bekreftelse-v1"
     - name: KAFKA_GROUP_ID_PERIODER
       value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
     - name: KAFKA_GROUP_ID_OPPLYSNINGER
