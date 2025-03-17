@@ -105,6 +105,10 @@ spec:
           namespace: teamdagpenger
         - application: dp-mine-dagpenger-frontend
           namespace: teamdagpenger
+        - application: dp-rapportering
+          namespace: teamdagpenger
+        - application: dp-rapportering-personregister
+          namespace: teamdagpenger
         - application: veilarbportefolje
           namespace: pto
           cluster: prod-fss
