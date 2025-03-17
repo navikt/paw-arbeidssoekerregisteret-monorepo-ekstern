@@ -17,5 +17,5 @@ object ProfileringTable : LongIdTable("profilering") {
             { PGEnum("ProfilertTil", it) }
         )
     val jobbetSammenhengendeSeksAvTolvSisteManeder = bool("jobbet_sammenhengende_seks_av_tolv_siste_maneder")
-    val alder = integer("alder")
+    val alder = integer("alder").nullable()
 }
