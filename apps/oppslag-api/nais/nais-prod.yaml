@@ -134,6 +134,8 @@ spec:
           cluster: prod-gcp
         - application: flex-arbeidssokerregister-oppdatering
           namespace: flex
+        - application: sykepengesoknad-backend
+          namespace: flex
     outbound:
       rules:
         - application: paw-tilgangskontroll
