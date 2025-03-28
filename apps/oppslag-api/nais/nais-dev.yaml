@@ -137,6 +137,8 @@ spec:
           namespace: flex
         - application: sykepengesoknad-backend
           namespace: flex
+        - application: isfrisktilarbeid
+          namespace: teamsykefravr
     outbound:
       rules:
         - application: paw-tilgangskontroll
