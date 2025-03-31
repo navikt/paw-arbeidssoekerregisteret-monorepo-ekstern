@@ -10,29 +10,26 @@ import no.nav.arbeidssokerregisteret.arena.adapter.utils.melding
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.metadata
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.opplysninger
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.periode
-import no.nav.arbeidssokerregisteret.arena.adapter.utils.profilering
 import java.time.Instant
-import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
-class VerifiserHåndteringAvManglendeProfilering : FreeSpec({
-    "Verifiser håndtering av manglende profilering" - {
+class VerifiserPeriodeAvsluttetFoerProfilering : FreeSpec({
+    "Verifiser håndtering av periode avsluttet før profilering er utført" - {
         with(testScope()) {
             val keySequence = AtomicLong(0)
             val periode = keySequence.incrementAndGet() to periode(
-                identietsnummer = "12345678902",
-                startet = metadata(Instant.parse("2024-01-03T00:00:00Z"))
+                identietsnummer = "12345678901",
+                startet = metadata(Instant.parse("2024-01-02T00:00:00Z"))
             )
-            "Når bare perioden er sendt inn skal vi ikke få ut perioden arena topic" {
+            "Når bare perioden er sendt inn skal vi ikke få noe ut på arena topic" {
                 periodeTopic.pipeInput(periode.key, periode.melding)
                 arenaTopic.isEmpty shouldBe false
-                arenaTopic.readValue() should {
-                    it.periode.shouldNotBeNull()
-                    it.profilering.shouldBeNull()
-                    it.opplysningerOmArbeidssoeker.shouldBeNull()
+                arenaTopic.readValue() should { melding ->
+                    melding.periode.shouldNotBeNull()
+                    melding.profilering.shouldBeNull()
+                    melding.opplysningerOmArbeidssoeker.shouldBeNull()
                 }
             }
-
             "Når perioden avsluttes får vi avsluttet melding" {
                 val avsluttetPeriode = periode.key to periode(
                     id = periode.melding.id,

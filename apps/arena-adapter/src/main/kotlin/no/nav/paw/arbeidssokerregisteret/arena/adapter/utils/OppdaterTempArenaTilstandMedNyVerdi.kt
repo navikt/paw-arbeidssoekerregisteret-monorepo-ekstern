@@ -67,7 +67,7 @@ private fun toArena(opplysningerOmArbeidssoeker: OpplysningerOmArbeidssoeker) =
         opplysningerOmArbeidssoeker.annet?.toArena()
     )
 
-private fun toArena(profilering: Profilering) =
+fun toArena(profilering: Profilering) =
     no.nav.paw.arbeidssokerregisteret.arena.v1.Profilering(
         profilering.id,
         profilering.periodeId,
@@ -78,7 +78,7 @@ private fun toArena(profilering: Profilering) =
         profilering.alder
     )
 
-private fun toArena(periode: Periode) =
+fun toArena(periode: Periode) =
     no.nav.paw.arbeidssokerregisteret.arena.v1.Periode(
         periode.id,
         periode.identitetsnummer,

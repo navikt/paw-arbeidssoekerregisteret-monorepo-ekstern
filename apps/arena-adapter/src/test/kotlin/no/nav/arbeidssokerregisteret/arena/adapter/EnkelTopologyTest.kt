@@ -1,6 +1,7 @@
 package no.nav.arbeidssokerregisteret.arena.adapter
 
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.assertApiOpplysningerMatchesArenaOpplysninger
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.assertApiPeriodeMatchesArenaPeriode
@@ -12,6 +13,7 @@ import no.nav.arbeidssokerregisteret.arena.adapter.utils.opplysninger
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.periode
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.profilering
 import java.time.Instant
+import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
 class EnkelTopologyTest : FreeSpec({
@@ -22,35 +24,23 @@ class EnkelTopologyTest : FreeSpec({
                 identietsnummer = "12345678901",
                 startet = metadata(Instant.parse("2024-01-02T00:00:00Z"))
             )
-            "Når bare perioden er sendt inn skal vi ikke få noe ut på arena topic" {
+            "Når bare perioden er sendt inn skal vi få melding på arena topic med bare periode" {
                 periodeTopic.pipeInput(periode.key, periode.melding)
-                arenaTopic.isEmpty shouldBe true
+                arenaTopic.isEmpty shouldBe false
+                arenaTopic.readKeyValue() should { kv ->
+                    kv.key shouldBe periode.key
+                    kv.value.periode.id shouldBe periode.melding.id
+                    kv.value.periode.startet.tidspunkt shouldBe periode.melding.startet.tidspunkt
+                    kv.value.periode.startet.utfoertAv.id shouldBe periode.melding.startet.utfoertAv.id
+                    kv.value.periode.startet.utfoertAv.type.name shouldBe periode.melding.startet.utfoertAv.type.name
+                }
             }
-            val foerstInnsendteOpplysninger = periode.key to opplysninger(
+            val profileringAvFoertsteOpplysninger = periode.key to profilering(
+                opplysningerId = UUID.randomUUID(),
                 periode = periode.melding.id,
-                timestamp = Instant.parse("2024-01-01T00:00:01Z")
-            )
-            "Når nye opplysningene blir tilgjengelig skal vi ikke få noe ut på arena topic" {
-                opplysningerTopic.pipeInput(
-                    foerstInnsendteOpplysninger.key,
-                    foerstInnsendteOpplysninger.melding
-                )
-                arenaTopic.isEmpty shouldBe true
-            }
-            val oppdaterteOpplysninger = foerstInnsendteOpplysninger.key to opplysninger(
-                periode = foerstInnsendteOpplysninger.melding.periodeId,
-                timestamp = Instant.parse("2024-01-02T00:00:02Z")
-            )
-            "Når opplysningene blir oppdatert skal vi ikke få ut noe på arena topic" {
-                opplysningerTopic.pipeInput(oppdaterteOpplysninger.key, oppdaterteOpplysninger.melding)
-                arenaTopic.isEmpty shouldBe true
-            }
-            val profileringAvFoertsteOpplysninger = foerstInnsendteOpplysninger.key to profilering(
-                opplysningerId = foerstInnsendteOpplysninger.melding.id,
-                periode = foerstInnsendteOpplysninger.melding.periodeId,
                 timestamp = Instant.parse("2024-01-02T00:00:03Z")
             )
-            "Når profileringen ankommer og periode og opplysninger er tilgjengelig skal vi få periode, første opplysninger fra 2024 og profilering ut på arena topic" {
+            "Når profileringen ankommer og periode er tilgjengelig skal vi få periode, første opplysninger fra 2024 og profilering ut på arena topic" {
                 profileringsTopic.pipeInput(
                     profileringAvFoertsteOpplysninger.key,
                     profileringAvFoertsteOpplysninger.melding
@@ -59,20 +49,16 @@ class EnkelTopologyTest : FreeSpec({
                 val (key, arenaTilstand) = arenaTopic.readKeyValue().let { it.key to it.value }
                 key shouldBe periode.key
                 assertApiPeriodeMatchesArenaPeriode(periode.melding, arenaTilstand.periode)
-                assertApiOpplysningerMatchesArenaOpplysninger(
-                    foerstInnsendteOpplysninger.melding,
-                    arenaTilstand.opplysningerOmArbeidssoeker
-                )
                 assertApiProfileringMatchesArenaProfilering(
                     profileringAvFoertsteOpplysninger.melding,
                     arenaTilstand.profilering
                 )
             }
-            val profileringForOppdaterteOpplysninger = foerstInnsendteOpplysninger.key to profilering(
-                opplysningerId = oppdaterteOpplysninger.melding.id,
-                periode = oppdaterteOpplysninger.melding.periodeId
+            val profileringForOppdaterteOpplysninger = periode.key to profilering(
+                opplysningerId = UUID.randomUUID(),
+                periode = periode.melding.id
             )
-            "Når profileringen for oppdaterte opplysninger ankommer og periode og opplysninger er tilgjengelig vil vi ikke få ut noe" {
+            "Når profileringen for oppdaterte opplysninger ankommer og periode er tilgjengelig vil vi ikke få ut noe" {
                 profileringsTopic.pipeInput(
                     profileringForOppdaterteOpplysninger.key,
                     profileringForOppdaterteOpplysninger.melding
@@ -109,22 +95,15 @@ class EnkelTopologyTest : FreeSpec({
                 periodeTopic.pipeInput(periodeFoer2024.key, periodeFoer2024.melding)
                 arenaTopic.isEmpty shouldBe true
             }
-            val InnsendteOpplysningerFoer2024 = periodeFoer2024.key to opplysninger(
-                periode = periodeFoer2024.melding.id,
-                timestamp = Instant.parse("2023-12-01T00:00:00Z")
-            )
-            "Vi ignorer opplysninger sendt inn før 1. januar 2024" {
-                opplysningerTopic.pipeInput(InnsendteOpplysningerFoer2024.key, InnsendteOpplysningerFoer2024.melding)
-                arenaTopic.isEmpty shouldBe true
-            }
+
             "Vi ignorer profileringer for opplysninger sendt inn før 1. januar 2024(skal normalt sett ikke dukke opp)" {
                 profileringsTopic.pipeInput(
-                    InnsendteOpplysningerFoer2024.key,
+                    periodeFoer2024.key,
                     profilering(
-                        opplysningerId = InnsendteOpplysningerFoer2024.melding.id,
-                        periode = InnsendteOpplysningerFoer2024.melding.periodeId
+                        opplysningerId = UUID.randomUUID(),
+                        periode = periodeFoer2024.melding.id
                     ),
-                    InnsendteOpplysningerFoer2024.second.sendtInnAv.tidspunkt.toEpochMilli()
+                    periodeFoer2024.melding.startet.tidspunkt.toEpochMilli()
                 )
                 arenaTopic.isEmpty shouldBe true
             }
@@ -163,21 +142,10 @@ class EnkelTopologyTest : FreeSpec({
                 periodeTopic.pipeInput(avsluttetPeriodeFoer2024.key, avsluttetPeriodeFoer2024.melding)
                 arenaTopic.isEmpty shouldBe true
             }
-            val foerstInnsendteOpplysningerI2024 = periodeFoer2024.key to opplysninger(
-                periode = periodeFoer2024.melding.id,
-                timestamp = Instant.parse("2024-01-02T00:00:01Z")
-            )
-            "Når nye opplysningene blir tilgjengelig i 20204 skal vi ikke få noe ut på arena topic" {
-                opplysningerTopic.pipeInput(
-                    foerstInnsendteOpplysningerI2024.key,
-                    foerstInnsendteOpplysningerI2024.melding
-                )
-                arenaTopic.isEmpty shouldBe true
-            }
 
-            val profileringAvOpplysningerI2024 = InnsendteOpplysningerFoer2024.key to profilering(
-                opplysningerId = InnsendteOpplysningerFoer2024.melding.id,
-                periode = InnsendteOpplysningerFoer2024.melding.periodeId,
+            val profileringAvOpplysningerI2024 = periodeFoer2024.key to profilering(
+                opplysningerId = UUID.randomUUID(),
+                periode = periodeFoer2024.melding.id,
                 timestamp = Instant.parse("2024-01-04T00:00:03Z")
             )
             "Når profileringen ankommer og periode og opplysninger er tilgjengelig skal vi fremdeles ikke få noe ut på arena topicet" {

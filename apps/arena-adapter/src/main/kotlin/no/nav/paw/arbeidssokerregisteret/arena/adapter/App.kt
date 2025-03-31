@@ -60,10 +60,8 @@ fun main() {
         topics = topics,
         stateStoreName = stateStoreName,
         periodeSerde = periodeSerde,
-        opplysningerOmArbeidssoekerSerde = opplysningerOmArbeidssoekerSerde,
         profileringSerde = profileringSerde,
-        arenaArbeidssokerregisterTilstandSerde = arenaArbeidssokerregisterTilstandSerde,
-        registry = registry
+        arenaArbeidssokerregisterTilstandSerde = arenaArbeidssokerregisterTilstandSerde
     )
     val kafkaStreams = KafkaStreams(topology, kafkaStreamsFactory.properties)
 

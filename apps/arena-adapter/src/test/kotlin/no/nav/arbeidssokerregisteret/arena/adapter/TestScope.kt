@@ -70,10 +70,8 @@ fun testScope(): TestScope {
             topics = topics,
             stateStoreName = stateStoreName,
             periodeSerde = periodeSerde,
-            opplysningerOmArbeidssoekerSerde = createAvroSerde(),
             profileringSerde = createAvroSerde(),
-            arenaArbeidssokerregisterTilstandSerde = createAvroSerde(),
-            registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+            arenaArbeidssokerregisterTilstandSerde = createAvroSerde()
         ),
         kafkaStreamsFactory.properties
     )

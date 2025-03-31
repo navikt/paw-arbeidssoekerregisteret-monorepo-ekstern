@@ -12,6 +12,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.HOEYVANNSMERKE
 import java.time.Duration
 import java.time.Instant
+import java.util.*
 
 
 class TidsFilterTopologyTest : FreeSpec({
@@ -24,7 +25,6 @@ class TidsFilterTopologyTest : FreeSpec({
             )
             periodeTopic.pipeInput(fixedKey, periodeStart)
             val opplysninger = opplysninger(periode = periodeStart.id, timestamp = HOEYVANNSMERKE.minus(8.days))
-            opplysningerTopic.pipeInput(fixedKey, opplysninger)
             profileringsTopic.pipeInput(
                 fixedKey,
                 profilering(periode = periodeStart.id, timestamp = HOEYVANNSMERKE.minus(8.days)),
@@ -54,7 +54,6 @@ class TidsFilterTopologyTest : FreeSpec({
                 periode = periodeStart.id,
                 timestamp = HOEYVANNSMERKE.plus(4.days)
             )
-            opplysningerTopic.pipeInput(fixedKey, opplysninger)
             profileringsTopic.pipeInput(
                 fixedKey, profilering(
                     opplysningerId = opplysninger.id,
@@ -82,16 +81,13 @@ class TidsFilterTopologyTest : FreeSpec({
                 arenaTopic.isEmpty shouldBe true
                 joinStore.get(periodeStart.id).shouldBeNull()
             }
-            "Når periode, oppplysninger og profilering er sendt inn skal vi få ut en komplett arena melding" {
+            "Når periode og profilering er sendt inn skal vi få ut en komplett arena melding" {
                 periodeTopic.pipeInput(fixedKey, periodeStart)
-                val opplysninger = opplysninger(
-                    periode = periodeStart.id,
-                    timestamp = HOEYVANNSMERKE.plus(4.days)
-                )
-                opplysningerTopic.pipeInput(fixedKey, opplysninger)
+                arenaTopic.isEmpty shouldBe false
+                arenaTopic.readValue().periode.shouldNotBeNull()
                 profileringsTopic.pipeInput(
                     fixedKey, profilering(
-                        opplysningerId = opplysninger.id,
+                        opplysningerId = UUID.randomUUID(),
                         periode = periodeStart.id,
                         timestamp = HOEYVANNSMERKE.plus(4.days)
                     )
@@ -100,11 +96,11 @@ class TidsFilterTopologyTest : FreeSpec({
                 with(arenaTopic.readValue()) {
                     periode?.startet.shouldNotBeNull()
                     periode?.avsluttet.shouldBeNull()
-                    opplysningerOmArbeidssoeker.shouldNotBeNull()
+                    opplysningerOmArbeidssoeker.shouldBeNull()
                     profilering.shouldNotBeNull()
                 }
             }
-            "Når periode avsluttes skal vi få ut en komplett arena melding" {
+            "Når periode avsluttes skal vi få ut en melding med bare periode" {
                 periodeTopic.pipeInput(fixedKey, periodeStart)
                 periodeTopic.pipeInput(periodeStart.avslutt(HOEYVANNSMERKE.plus(6.days)))
                 arenaTopic.isEmpty shouldBe false
