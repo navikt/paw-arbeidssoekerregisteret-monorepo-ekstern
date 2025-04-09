@@ -13,7 +13,8 @@ import no.nav.paw.arbeidssokerregisteret.profilering.application.applicationTopo
 import no.nav.paw.arbeidssokerregisteret.profilering.health.Health
 import no.nav.paw.arbeidssokerregisteret.profilering.health.initKtor
 import no.nav.paw.arbeidssokerregisteret.profilering.personinfo.PersonInfoTjeneste
-import no.nav.paw.arbeidssokerregisteret.profilering.utils.ApplicationInfo
+import no.nav.paw.config.env.appNameOrDefaultForLocal
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory
 fun main() {
     val avroSchemaInfo = getModuleInfo("avro-schema")
     val logger = LoggerFactory.getLogger("app")
-    logger.info("Starter: {} => {}", ApplicationInfo.id, avroSchemaInfo)
+    logger.info("Starter: {} => {}", currentRuntimeEnvironment.appNameOrDefaultForLocal(), avroSchemaInfo)
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfiguration>(APPLICATION_CONFIG_FILE)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)

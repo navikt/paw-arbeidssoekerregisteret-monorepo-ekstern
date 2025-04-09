@@ -8,7 +8,8 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssokerregisteret.profilering.utils.ApplicationInfo
+import no.nav.paw.config.env.appImageOrDefaultForLocal
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import java.time.Instant
 import java.util.*
 
@@ -27,7 +28,7 @@ fun profileringsResultat(
         Metadata(
             profileringTidspunkt,
             bruker,
-            ApplicationInfo.id,
+            currentRuntimeEnvironment.appImageOrDefaultForLocal(),
             "opplysninger-mottatt",
             TidspunktFraKilde(
                 tidspunktFraKilde,
@@ -42,5 +43,5 @@ fun profileringsResultat(
 
 val bruker = Bruker(
     BrukerType.SYSTEM,
-    ApplicationInfo.id
+    currentRuntimeEnvironment.appImageOrDefaultForLocal()
 )

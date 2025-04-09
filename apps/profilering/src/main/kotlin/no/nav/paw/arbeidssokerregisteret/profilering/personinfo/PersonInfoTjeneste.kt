@@ -5,7 +5,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.aareg.model.Result
 import no.nav.paw.aareg.factory.createAaregClient
-import no.nav.paw.arbeidssokerregisteret.profilering.utils.ApplicationInfo
+import no.nav.paw.config.env.appNameOrDefaultForLocal
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.pdl.factory.createPdlClient
 import no.nav.paw.pdl.client.hentFoedselsdato
 import java.time.LocalDate
@@ -32,7 +33,7 @@ fun interface PersonInfoTjeneste {
                         pdlClient.hentFoedselsdato(
                             ident = identitetsnummer,
                             callId = opplysningsId.toString(),
-                            navConsumerId = ApplicationInfo.name,
+                            navConsumerId = currentRuntimeEnvironment.appNameOrDefaultForLocal(),
                             behandlingsnummer = BEHANDLINGSNUMMER
                         )
                     }
