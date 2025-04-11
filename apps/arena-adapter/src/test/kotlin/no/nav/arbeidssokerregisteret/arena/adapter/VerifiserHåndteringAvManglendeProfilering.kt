@@ -23,17 +23,12 @@ class VerifiserHåndteringAvManglendeProfilering : FreeSpec({
                 identietsnummer = "12345678902",
                 startet = metadata(Instant.parse("2024-01-03T00:00:00Z"))
             )
-            "Når bare perioden er sendt inn skal vi ikke få ut perioden arena topic" {
+            "Når bare perioden er sendt inn skal vi ikke umidelbart få ut perioden på arena topic" {
                 periodeTopic.pipeInput(periode.key, periode.melding)
-                arenaTopic.isEmpty shouldBe false
-                arenaTopic.readValue() should {
-                    it.periode.shouldNotBeNull()
-                    it.profilering.shouldBeNull()
-                    it.opplysningerOmArbeidssoeker.shouldBeNull()
-                }
+                arenaTopic.isEmpty shouldBe true
             }
 
-            "Når perioden avsluttes får vi avsluttet melding" {
+            "Når perioden avsluttes får vi avsluttet melding selv om ikke første melding er sendt ut" {
                 val avsluttetPeriode = periode.key to periode(
                     id = periode.melding.id,
                     identietsnummer = periode.melding.identitetsnummer,
@@ -53,6 +48,7 @@ class VerifiserHåndteringAvManglendeProfilering : FreeSpec({
                     avsluttet.opplysningerOmArbeidssoeker.shouldBeNull()
                     avsluttet.profilering.shouldBeNull()
                 }
+                arenaTopic.isEmpty shouldBe true
             }
         }
     }

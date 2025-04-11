@@ -83,8 +83,7 @@ class TidsFilterTopologyTest : FreeSpec({
             }
             "Når periode og profilering er sendt inn skal vi få ut en komplett arena melding" {
                 periodeTopic.pipeInput(fixedKey, periodeStart)
-                arenaTopic.isEmpty shouldBe false
-                arenaTopic.readValue().periode.shouldNotBeNull()
+                arenaTopic.isEmpty shouldBe true
                 profileringsTopic.pipeInput(
                     fixedKey, profilering(
                         opplysningerId = UUID.randomUUID(),

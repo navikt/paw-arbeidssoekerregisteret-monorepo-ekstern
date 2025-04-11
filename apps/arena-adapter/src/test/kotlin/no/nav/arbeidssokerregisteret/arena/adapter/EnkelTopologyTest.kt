@@ -1,6 +1,7 @@
 package no.nav.arbeidssokerregisteret.arena.adapter
 
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.assertApiOpplysningerMatchesArenaOpplysninger
@@ -12,6 +13,7 @@ import no.nav.arbeidssokerregisteret.arena.adapter.utils.metadata
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.opplysninger
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.periode
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.profilering
+import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
@@ -20,12 +22,43 @@ class EnkelTopologyTest : FreeSpec({
     with(testScope()) {
         val keySequence = AtomicLong(0)
         "Verifiser standard flyt" - {
+            "Når profileringen kommer midre enn 5 sekunder etter perioden får vi en melding med begge deler" {
+                val testPeriode = keySequence.incrementAndGet() to periode(
+                    identietsnummer = "09876543211",
+                    startet = metadata(Instant.parse("2025-03-04T12:00:00Z"))
+                )
+                periodeTopic.pipeInput(testPeriode.key, testPeriode.melding)
+                arenaTopic.isEmpty shouldBe true
+                topologyTestDriver.advanceWallClockTime(Duration.ofSeconds(3))
+                arenaTopic.isEmpty shouldBe true
+                profileringsTopic.pipeInput(testPeriode.key, profilering(
+                    opplysningerId = UUID.randomUUID(),
+                    periode = testPeriode.melding.id,
+                    timestamp = Instant.parse("2025-03-04T12:00:03Z")
+                ))
+                arenaTopic.isEmpty shouldBe false
+                val kv = arenaTopic.readKeyValue()
+                kv.key shouldBe testPeriode.key
+                kv.value should { arenaMelding ->
+                    val periode = arenaMelding.periode.shouldNotBeNull()
+                    val profilering = arenaMelding.profilering.shouldNotBeNull()
+                    periode.id shouldBe testPeriode.melding.id
+                    profilering.periodeId shouldBe testPeriode.melding.id
+                }
+                topologyTestDriver.advanceWallClockTime(Duration.ofSeconds(6))
+                arenaTopic.isEmpty shouldBe true
+            }
+
             val periode = keySequence.incrementAndGet() to periode(
                 identietsnummer = "12345678901",
                 startet = metadata(Instant.parse("2024-01-02T00:00:00Z"))
             )
-            "Når bare perioden er sendt inn skal vi få melding på arena topic med bare periode" {
+            "Når bare perioden er sendt inn skal vi få melding på arena topic med bare periode etter 5 sekunder" {
                 periodeTopic.pipeInput(periode.key, periode.melding)
+                arenaTopic.isEmpty shouldBe true
+                topologyTestDriver.advanceWallClockTime(Duration.ofSeconds(3))
+                arenaTopic.isEmpty shouldBe true
+                topologyTestDriver.advanceWallClockTime(Duration.ofSeconds(2))
                 arenaTopic.isEmpty shouldBe false
                 arenaTopic.readKeyValue() should { kv ->
                     kv.key shouldBe periode.key

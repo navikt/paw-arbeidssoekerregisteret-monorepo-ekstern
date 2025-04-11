@@ -13,6 +13,9 @@ dependencies {
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:arena-avro-schema"))
 
+    // Jackson
+    implementation(libs.jackson.kotlin)
+
     // Server
     implementation(libs.bundles.ktor.server.instrumented)
 

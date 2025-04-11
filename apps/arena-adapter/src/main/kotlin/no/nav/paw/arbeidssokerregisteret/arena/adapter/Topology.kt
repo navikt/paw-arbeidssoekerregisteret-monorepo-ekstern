@@ -26,34 +26,68 @@ fun topology(
     stateStoreName: String,
     periodeSerde: Serde<Periode>,
     profileringSerde: Serde<Profilering>,
-    arenaArbeidssokerregisterTilstandSerde: Serde<ArenaArbeidssokerregisterTilstand>
+    arenaArbeidssokerregisterTilstandSerde: Serde<ArenaArbeidssokerregisterTilstand>,
+    ventendePeriodeStateStoreName: String
 ): Topology {
-    builder.stream(
+    val perioder = builder.stream(
         topics.arbeidssokerperioder,
         Consumed.with(Serdes.Long(), periodeSerde)
     ).filter { _, periode ->
         periode.startet.tidspunkt.isAfter(HOEYVANNSMERKE) ||
                 (periode.avsluttet != null && periode.avsluttet.tidspunkt.isAfter(HOEYVANNSMERKE))
-    }.genericProcess<Long, Periode, Long, TopicsJoin>(
+    }
+
+    val profileringer = builder.stream(
+        topics.profilering,
+        Consumed.with(Serdes.Long(), profileringSerde)
+    ).filter("filterOnRecordTimestamp") { record ->
+        Instant.ofEpochMilli(record.timestamp()).isAfter(HOEYVANNSMERKE)
+    }
+
+
+    perioder.genericProcess<Long, Periode, Long, TopicsJoin>(
         name = "haandter_periode",
         stateStoreName,
-        punctuation = null
+        ventendePeriodeStateStoreName,
+        punctuation = forsinkelsePunctuation(
+            topicsJoinStateStoreName = stateStoreName,
+            ventendePeriodeStateStoreName = ventendePeriodeStateStoreName
+        )
     ) { record ->
         val periode = record.value()
         val store: KeyValueStore<UUID, TopicsJoin> = getStateStore(stateStoreName)
+        val ventendePeriodeStore: KeyValueStore<UUID, ForsinkelseMetadata> =
+            getStateStore(ventendePeriodeStateStoreName)
         if (periode.avsluttet != null) {
             store.delete(periode.id)
+            ventendePeriodeStore.delete(periode.id)
             forward(record.withValue(TopicsJoin(toArena(periode), null, null)))
         } else {
             val topicsJoin = store.get(periode.id)
             if (topicsJoin == null) {
                 store.put(periode.id, TopicsJoin(toArena(periode), null, null))
-                forward(record.withValue(TopicsJoin(toArena(periode), null, null)))
+                ventendePeriodeStore.putIfAbsent(
+                    periode.id, ForsinkelseMetadata(
+                        recordKey = record.key(),
+                        traceparent = record.headers().lastHeader("traceparent")?.let { String(it.value()) },
+                        timestamp = currentSystemTimeMs()
+                    )
+                )
             } else {
                 if (topicsJoin.periode == null) {
                     val oppdatertJoin = TopicsJoin(toArena(periode), topicsJoin.profilering, null)
                     store.put(periode.id, oppdatertJoin)
-                    forward(record.withValue(oppdatertJoin))
+                    if (oppdatertJoin.profilering != null) {
+                        forward(record.withValue(oppdatertJoin))
+                    } else {
+                        ventendePeriodeStore.putIfAbsent(
+                            periode.id, ForsinkelseMetadata(
+                                recordKey = record.key(),
+                                traceparent = record.headers().lastHeader("traceparent")?.let { String(it.value()) },
+                                timestamp = currentSystemTimeMs()
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -68,23 +102,22 @@ fun topology(
         Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde)
     )
 
-    builder.stream(
-        topics.profilering,
-        Consumed.with(Serdes.Long(), profileringSerde)
-    ).filter("filterOnRecordTimestamp") { record ->
-        Instant.ofEpochMilli(record.timestamp()).isAfter(HOEYVANNSMERKE)
-    }.genericProcess<Long, Profilering, Long, TopicsJoin>(
+    profileringer.genericProcess<Long, Profilering, Long, TopicsJoin>(
         name = "haandter_profilering",
         stateStoreName,
+        ventendePeriodeStateStoreName,
         punctuation = null
     ) { record ->
         val profilering = record.value()
         val store: KeyValueStore<UUID, TopicsJoin> = getStateStore(stateStoreName)
+        val ventendePeriodeStore: KeyValueStore<UUID, ForsinkelseMetadata> =
+            getStateStore(ventendePeriodeStateStoreName)
         val existingValue = store.get(profilering.periodeId)
         if (existingValue?.profilering == null) {
             val oppdatertJoin = TopicsJoin(existingValue?.periode, toArena(profilering), null)
             store.put(profilering.periodeId, oppdatertJoin)
             if (oppdatertJoin.periode != null) {
+                ventendePeriodeStore.delete(profilering.periodeId)
                 forward(record.withValue(oppdatertJoin))
             }
         }
@@ -95,8 +128,8 @@ fun topology(
             null
         )
     }.to(
-            topics.arena,
-            Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
-        )
+        topics.arena,
+        Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
+    )
     return builder.build()
 }

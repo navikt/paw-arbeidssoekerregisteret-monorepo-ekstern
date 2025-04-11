@@ -3,12 +3,11 @@ package no.nav.arbeidssokerregisteret.arena.adapter
 import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
-import io.micrometer.prometheusmetrics.PrometheusConfig
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.forsinkelseSerde
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
@@ -49,12 +48,21 @@ fun testScope(): TestScope {
     val periodeSerde = createAvroSerde<Periode>()
     val tempArenaArbeidssokerregisterTilstandSerde = createAvroSerde<TopicsJoin>()
     val stateStoreName = "stateStore"
+    val ventendeStateStoreName = "ventendeStateStore"
     val streamBuilder = StreamsBuilder()
         .addStateStore(
             KeyValueStoreBuilder(
                 InMemoryKeyValueBytesStoreSupplier(stateStoreName),
                 Serdes.UUID(),
                 tempArenaArbeidssokerregisterTilstandSerde,
+                Time.SYSTEM
+            )
+        )
+        .addStateStore(
+            KeyValueStoreBuilder(
+                InMemoryKeyValueBytesStoreSupplier(ventendeStateStoreName),
+                Serdes.UUID(),
+                forsinkelseSerde,
                 Time.SYSTEM
             )
         )
@@ -71,7 +79,8 @@ fun testScope(): TestScope {
             stateStoreName = stateStoreName,
             periodeSerde = periodeSerde,
             profileringSerde = createAvroSerde(),
-            arenaArbeidssokerregisterTilstandSerde = createAvroSerde()
+            arenaArbeidssokerregisterTilstandSerde = createAvroSerde(),
+            ventendePeriodeStateStoreName = ventendeStateStoreName
         ),
         kafkaStreamsFactory.properties
     )

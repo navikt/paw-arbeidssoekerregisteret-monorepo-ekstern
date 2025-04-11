@@ -15,6 +15,7 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaStreamsFactory
+import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.utils.Time
 import org.apache.kafka.streams.KafkaStreams
@@ -45,6 +46,8 @@ fun main() {
         kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
 
     val stateStoreName = "periodeStateStore"
+    val ventendePeriodeStateStore = "ventendePeriodeStateStore"
+
     val builder = StreamsBuilder()
         .addStateStore(
             KeyValueStoreBuilder(
@@ -54,11 +57,20 @@ fun main() {
                 Time.SYSTEM
             )
         )
+        .addStateStore(
+            KeyValueStoreBuilder(
+                RocksDBKeyValueBytesStoreSupplier(ventendePeriodeStateStore, false),
+                Serdes.UUID(),
+                forsinkelseSerde,
+                Time.SYSTEM
+            )
+        )
     val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val topology: Topology = topology(
         builder = builder,
         topics = topics,
         stateStoreName = stateStoreName,
+        ventendePeriodeStateStoreName = ventendePeriodeStateStore,
         periodeSerde = periodeSerde,
         profileringSerde = profileringSerde,
         arenaArbeidssokerregisterTilstandSerde = arenaArbeidssokerregisterTilstandSerde

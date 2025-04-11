@@ -11,6 +11,7 @@ import no.nav.arbeidssokerregisteret.arena.adapter.utils.metadata
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.opplysninger
 import no.nav.arbeidssokerregisteret.arena.adapter.utils.periode
 import java.time.Duration.ofDays
+import java.time.Duration.ofSeconds
 import java.time.Instant.now
 import java.util.concurrent.atomic.AtomicLong
 
@@ -19,8 +20,12 @@ class VerifiserSlettingTopologyTest : FreeSpec({
         val keySequence = AtomicLong(0)
         "Når vi har sendt, periode start og stopp, opplysninger" - {
             val periode = keySequence.incrementAndGet() to periode(identietsnummer = "12345678901")
-            "Når bare perioden er sendt inn skal vi få den ut på arena topic" {
+            "Når bare perioden er sendt inn skal vi få den ut på arena topic etter 5 sekunder" {
                 periodeTopic.pipeInput(periode.key, periode.melding)
+                arenaTopic.isEmpty shouldBe true
+                topologyTestDriver.advanceWallClockTime(ofSeconds(2))
+                arenaTopic.isEmpty shouldBe true
+                topologyTestDriver.advanceWallClockTime(ofSeconds(4))
                 arenaTopic.isEmpty shouldBe false
                 arenaTopic.readKeyValue() should {
                     it.value.profilering.shouldBeNull()
@@ -40,6 +45,7 @@ class VerifiserSlettingTopologyTest : FreeSpec({
                     ubruktePeriode.melding,
                     ubruktePeriode.melding.startet.tidspunkt
                 )
+                topologyTestDriver.advanceWallClockTime(ofSeconds(6))
                 arenaTopic.readValue()
             }
             "Join store skal inneholde periode" {

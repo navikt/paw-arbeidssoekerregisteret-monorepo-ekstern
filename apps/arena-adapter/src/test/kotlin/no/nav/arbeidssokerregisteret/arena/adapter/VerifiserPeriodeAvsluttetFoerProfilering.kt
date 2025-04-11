@@ -21,14 +21,9 @@ class VerifiserPeriodeAvsluttetFoerProfilering : FreeSpec({
                 identietsnummer = "12345678901",
                 startet = metadata(Instant.parse("2024-01-02T00:00:00Z"))
             )
-            "Når bare perioden er sendt inn skal vi ikke få noe ut på arena topic" {
+            "Når bare perioden er sendt inn skal vi ikke umidelbart få noe ut på arena topic" {
                 periodeTopic.pipeInput(periode.key, periode.melding)
-                arenaTopic.isEmpty shouldBe false
-                arenaTopic.readValue() should { melding ->
-                    melding.periode.shouldNotBeNull()
-                    melding.profilering.shouldBeNull()
-                    melding.opplysningerOmArbeidssoeker.shouldBeNull()
-                }
+                arenaTopic.isEmpty shouldBe true
             }
             "Når perioden avsluttes får vi avsluttet melding" {
                 val avsluttetPeriode = periode.key to periode(
