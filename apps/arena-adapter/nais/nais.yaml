@@ -21,8 +21,12 @@ spec:
     enabled: true
     path: /metrics
   observability:
-    tracing:
+    logging:
+      destinations:
+        - id: loki
+    autoInstrumentation:
       enabled: true
+      runtime: java
   kafka:
     pool: {{ kafka }}
     streams: true
