@@ -93,4 +93,4 @@ fun metadata(
 fun bruker(
     type: BrukerType = BrukerType.SYSTEM,
     id: String = "test"
-) = Bruker(type, id)
+) = Bruker(type, id, null)

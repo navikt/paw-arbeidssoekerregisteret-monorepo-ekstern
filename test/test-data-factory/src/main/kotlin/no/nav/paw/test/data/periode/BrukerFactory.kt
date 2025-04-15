@@ -8,7 +8,8 @@ class BrukerFactory private constructor() {
     fun build(
         id: String = "01017012345",
         brukerType: BrukerType = BrukerType.SLUTTBRUKER,
-    ) = Bruker(brukerType, id)
+        sikkerhetsnivaa: String = "tokenx:Level4"
+    ) = Bruker(brukerType, id, sikkerhetsnivaa)
 
     companion object {
         fun create() = BrukerFactory()

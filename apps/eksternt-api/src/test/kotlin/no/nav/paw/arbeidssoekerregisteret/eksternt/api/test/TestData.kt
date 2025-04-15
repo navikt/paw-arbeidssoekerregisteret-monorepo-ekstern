@@ -135,8 +135,9 @@ object TestData {
 
     fun nyBruker(
         type: BrukerType = BrukerType.SLUTTBRUKER,
-        brukerId: String = fnrDefault
-    ) = Bruker(type, brukerId)
+        brukerId: String = fnrDefault,
+        sikkerhetsnovaa: String? = null
+    ) = Bruker(type, brukerId, sikkerhetsnovaa)
 
     fun nyTidspunktFraKilde(
         tidspunkt: Instant = Instant.now(),

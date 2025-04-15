@@ -124,7 +124,7 @@ object ProfileringTestData {
 
     val ansattSisteAar = listOf(arbeidsforhold())
 
-    val bruker = Bruker(BrukerType.SYSTEM, identitetsnummer)
+    val bruker = Bruker(BrukerType.SYSTEM, identitetsnummer, null)
 
     fun metadata(tidspunkt: Instant) = Metadata(
         tidspunkt,

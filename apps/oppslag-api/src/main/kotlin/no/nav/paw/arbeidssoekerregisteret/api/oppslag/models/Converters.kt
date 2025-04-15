@@ -165,7 +165,8 @@ fun MetadataRow.toMetadata() =
 fun BrukerRow.toBruker() =
     Bruker(
         this.type,
-        this.brukerId
+        this.brukerId,
+        null
     )
 
 fun TidspunktFraKildeRow.toTidspunktFraKilde() =
@@ -234,6 +235,7 @@ fun Bekreftelsesloesning.toBekreftelsesloesningResponse() =
     when (this) {
         Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET -> BekreftelsesloesningResponse.ARBEIDSSOEKERREGISTERET
         Bekreftelsesloesning.DAGPENGER -> BekreftelsesloesningResponse.DAGPENGER
+        Bekreftelsesloesning.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> BekreftelsesloesningResponse.FRISKMELDT_TIL_ARBEIDSFORMIDLING
         Bekreftelsesloesning.UKJENT_VERDI -> BekreftelsesloesningResponse.UKJENT_VERDI
     }
 

@@ -902,4 +902,5 @@ components:
       enum:
         - "UKJENT_VERDI"
         - "ARBEIDSSOEKERREGISTERET"
+        - "FRISKMELDT_TIL_ARBEIDSFORMIDLING"
         - "DAGPENGER"

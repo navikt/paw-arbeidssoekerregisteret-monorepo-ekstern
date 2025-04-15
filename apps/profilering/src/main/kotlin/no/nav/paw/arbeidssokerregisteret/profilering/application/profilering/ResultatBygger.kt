@@ -43,5 +43,6 @@ fun profileringsResultat(
 
 val bruker = Bruker(
     BrukerType.SYSTEM,
-    currentRuntimeEnvironment.appImageOrDefaultForLocal()
+    currentRuntimeEnvironment.appImageOrDefaultForLocal(),
+    null
 )

@@ -62,7 +62,8 @@ fun metadata(
         timestamp,
         Bruker(
             BrukerType.SYSTEM,
-            ""
+            "",
+            null
         ),
         kilde,
         "",

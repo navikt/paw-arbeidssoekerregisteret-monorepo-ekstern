@@ -33,7 +33,8 @@ object TestData {
                 Instant.now(),
                 Bruker(
                     BrukerType.UKJENT_VERDI,
-                    "12345678911"
+                    "12345678911",
+                    null
                 ),
                 "test",
                 "test",
@@ -48,7 +49,8 @@ object TestData {
                 Instant.now(),
                 Bruker(
                     BrukerType.UKJENT_VERDI,
-                    "12345678911"
+                    "12345678911",
+                    null
                 ),
                 "test",
                 "test",
@@ -58,7 +60,8 @@ object TestData {
                 Instant.now().plusSeconds(100),
                 Bruker(
                     BrukerType.UKJENT_VERDI,
-                    "12345678911"
+                    "12345678911",
+                    null
                 ),
                 "test",
                 "test",
@@ -75,7 +78,8 @@ object TestData {
                 Instant.now(),
                 Bruker(
                     BrukerType.UKJENT_VERDI,
-                    "12345678911"
+                    "12345678911",
+                    null
                 ),
                 "test",
                 "test",
@@ -122,7 +126,8 @@ object TestData {
                 Instant.now(),
                 Bruker(
                     BrukerType.UKJENT_VERDI,
-                    "12345678911"
+                    "12345678911",
+                    null
                 ),
                 "test",
                 "test",

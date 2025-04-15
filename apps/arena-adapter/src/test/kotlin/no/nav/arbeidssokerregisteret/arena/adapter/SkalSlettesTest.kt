@@ -106,10 +106,12 @@ fun arenaMetadata(timestamp: Instant): ArenaMetadata {
         timestamp,
         Bruker(
             BrukerType.SYSTEM,
-            ""
+            "",
+            null
         ),
         "",
-        ""
+        "",
+        null
     )
 }
 

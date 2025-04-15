@@ -4,6 +4,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.*
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
+import no.nav.paw.arbeidssokerregisteret.arena.v1.AvviksType as ArenaAvviksType
 
 fun ProfilertTil.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.ProfilertTil =
     when (this) {
@@ -73,13 +74,30 @@ fun Metadata.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.Metadata =
         tidspunkt,
         utfoertAv.toArena(),
         kilde,
-        aarsak
+        aarsak,
+        tidspunktFraKilde?.toArena()
     )
+
+fun TidspunktFraKilde.toArena() =
+    no.nav.paw.arbeidssokerregisteret.arena.v1.TidspunktFraKilde(
+        tidspunkt,
+        avviksType.toArena()
+    )
+
+fun AvviksType.toArena() =
+    when (this) {
+        AvviksType.UKJENT_VERDI -> ArenaAvviksType.UKJENT_VERDI
+        AvviksType.FORSINKELSE -> ArenaAvviksType.FORSINKELSE
+        AvviksType.RETTING -> ArenaAvviksType.RETTING
+        AvviksType.SLETTET -> ArenaAvviksType.SLETTET
+        AvviksType.TIDSPUNKT_KORRIGERT -> ArenaAvviksType.TIDSPUNKT_KORRIGERT
+    }
 
 fun Bruker.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.Bruker =
     no.nav.paw.arbeidssokerregisteret.arena.v1.Bruker(
         type.toArena(),
-        id
+        id,
+        sikkerhetsnivaa
     )
 
 fun BrukerType.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.BrukerType =

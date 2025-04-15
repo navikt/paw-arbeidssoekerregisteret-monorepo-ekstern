@@ -441,8 +441,9 @@ object TestData {
 
     fun nyBruker(
         type: BrukerType = BrukerType.SLUTTBRUKER,
-        brukerId: String = fnrDefault
-    ) = Bruker(type, brukerId)
+        brukerId: String = fnrDefault,
+        sikkerhetsnivaa: String? = "tokenx:Level4"
+    ) = Bruker(type, brukerId, sikkerhetsnivaa)
 
     fun nyTidspunktFraKilde(
         tidspunkt: Instant = Instant.now(),
@@ -479,8 +480,9 @@ object TestData {
 
     fun nyBekreftelseBruker(
         type: BekreftelseBrukerType = BekreftelseBrukerType.SLUTTBRUKER,
-        brukerId: String = fnrDefault
-    ) = BekreftelseBruker(type, brukerId)
+        brukerId: String = fnrDefault,
+        sikkerhetsnivaa: String? = "tokenx:Level4",
+    ) = BekreftelseBruker(type, brukerId, sikkerhetsnivaa)
 
     fun nyBekreftelseList(
         size: Int = 1,
