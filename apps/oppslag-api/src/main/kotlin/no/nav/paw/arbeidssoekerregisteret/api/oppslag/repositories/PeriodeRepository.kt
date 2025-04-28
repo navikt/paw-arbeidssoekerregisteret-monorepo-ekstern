@@ -103,7 +103,7 @@ class PeriodeRepository(
             }
         }?.also { (min, max) ->
             forsinkelse.set(System.currentTimeMillis() - min.toEpochMilli())
-            sistLesteTimestamp.set(min.toEpochMilli())
+            sistLesteTimestamp.set(max.toEpochMilli())
         }
     }
 }
