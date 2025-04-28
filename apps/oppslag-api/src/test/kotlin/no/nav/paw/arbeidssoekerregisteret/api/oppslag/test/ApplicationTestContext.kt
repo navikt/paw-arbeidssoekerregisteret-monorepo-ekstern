@@ -83,7 +83,7 @@ class ApplicationTestContext(
         fun withRealDataAccess(): ApplicationTestContext {
             val dataSource = initTestDatabase()
             Database.connect(dataSource)
-            val periodeRepository = PeriodeRepository()
+            val periodeRepository = PeriodeRepository(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
             val opplysningerRepository = OpplysningerRepository()
             val profileringRepository = ProfileringRepository()
             val bekreftelseRepository = BekreftelseRepository()

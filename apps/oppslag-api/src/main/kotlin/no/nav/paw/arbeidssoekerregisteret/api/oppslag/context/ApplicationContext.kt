@@ -89,7 +89,7 @@ data class ApplicationContext(
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
             val healthIndicatorRepository = HealthIndicatorRepository()
 
-            val periodeRepository = PeriodeRepository()
+            val periodeRepository = PeriodeRepository(prometheusMeterRegistry)
             val opplysningerRepository = OpplysningerRepository()
             val profileringRepository = ProfileringRepository()
             val bekreftelseRepository = BekreftelseRepository()

@@ -2,6 +2,8 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeExactly
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
@@ -21,7 +23,7 @@ class PeriodeRepositoryTest : StringSpec({
     beforeSpec {
         dataSource = initTestDatabase()
         Database.connect(dataSource)
-        periodeRepository = PeriodeRepository()
+        periodeRepository = PeriodeRepository(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
     }
 
     afterSpec {

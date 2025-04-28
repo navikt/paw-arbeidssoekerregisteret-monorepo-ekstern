@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories
 
+import io.micrometer.core.instrument.Tags
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeFunctions
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.database.PeriodeTable
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
@@ -12,9 +14,16 @@ import no.nav.paw.model.Identitetsnummer
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Instant
 import java.util.*
 
-class PeriodeRepository {
+private const val forsinkelseGauge = "paw_oppslagsapi_consumer_forsinkelse_ms"
+private const val sistLesteGauge = "paw-oppslagsapi_consumer_sist_leste_timestamp"
+private const val typeLabel = "type"
+
+class PeriodeRepository(
+    private val prometheusMeterRegistry: PrometheusMeterRegistry
+) {
     private val logger = buildLogger
 
     fun hentPeriodeForId(periodeId: UUID): PeriodeRow? =
@@ -54,8 +63,9 @@ class PeriodeRepository {
     }
 
     fun lagrePerioder(perioder: Iterable<Pair<TraceParent?, Periode>>) {
+        val initiell: Pair<Instant, Instant>? = null
         transaction {
-            perioder.forEach { (traceparent, periode) ->
+            perioder.map { (traceparent, periode) ->
                 initSpan(traceparent, "paw.kafka.consumer.periode", "periode process")
                     .use {
                         logger.info("Lagrer periode")
@@ -68,7 +78,21 @@ class PeriodeRepository {
                             PeriodeFunctions.insert(periode)
                         }
                     }
+                periode.avsluttet?.tidspunkt ?: periode.startet.tidspunkt
+            }.fold(initiell) { acc, instant ->
+                if (acc == null) {
+                    instant to instant
+                } else {
+                    minOf(acc.first, instant) to maxOf(acc.second, instant)
+                }
             }
+        }?.also { (min, max) ->
+            prometheusMeterRegistry.gauge(forsinkelseGauge, Tags.of(typeLabel, "periode"), {
+                (System.currentTimeMillis() - min.toEpochMilli()).toDouble()
+            })
+            prometheusMeterRegistry.gauge(sistLesteGauge, Tags.of(typeLabel, "periode"), {
+                max.toEpochMilli().toDouble()
+            })
         }
     }
 }
