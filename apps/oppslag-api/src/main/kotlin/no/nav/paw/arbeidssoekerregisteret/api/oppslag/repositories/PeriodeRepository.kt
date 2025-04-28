@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.atomic.AtomicLong
 
 private const val forsinkelseGauge = "paw_oppslagsapi_consumer_forsinkelse_ms"
 private const val sistLesteGauge = "paw-oppslagsapi_consumer_sist_leste_timestamp"
@@ -25,6 +26,20 @@ class PeriodeRepository(
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
     private val logger = buildLogger
+    private val forsinkelse = AtomicLong(0L)
+    private val sistLesteTimestamp = AtomicLong(0L)
+    init {
+        prometheusMeterRegistry.gauge(
+            forsinkelseGauge,
+            Tags.of(typeLabel, "periode"),
+            forsinkelse
+        ) { obj -> obj.get().toDouble() }
+        prometheusMeterRegistry.gauge(
+            sistLesteGauge,
+            Tags.of(typeLabel, "periode"),
+            sistLesteTimestamp
+        ) { obj -> obj.get().toDouble() }
+    }
 
     fun hentPeriodeForId(periodeId: UUID): PeriodeRow? =
         transaction {
@@ -87,8 +102,8 @@ class PeriodeRepository(
                 }
             }
         }?.also { (min, max) ->
-            prometheusMeterRegistry.gauge(forsinkelseGauge, Tags.of(typeLabel, "periode"), System.currentTimeMillis() - min.toEpochMilli())
-            prometheusMeterRegistry.gauge(sistLesteGauge, Tags.of(typeLabel, "periode"), max.toEpochMilli())
+            forsinkelse.set(System.currentTimeMillis() - min.toEpochMilli())
+            sistLesteTimestamp.set(min.toEpochMilli())
         }
     }
 }
