@@ -87,12 +87,8 @@ class PeriodeRepository(
                 }
             }
         }?.also { (min, max) ->
-            prometheusMeterRegistry.gauge(forsinkelseGauge, Tags.of(typeLabel, "periode"), {
-                (System.currentTimeMillis() - min.toEpochMilli()).toDouble()
-            })
-            prometheusMeterRegistry.gauge(sistLesteGauge, Tags.of(typeLabel, "periode"), {
-                max.toEpochMilli().toDouble()
-            })
+            prometheusMeterRegistry.gauge(forsinkelseGauge, Tags.of(typeLabel, "periode"), System.currentTimeMillis() - min.toEpochMilli())
+            prometheusMeterRegistry.gauge(sistLesteGauge, Tags.of(typeLabel, "periode"), max.toEpochMilli())
         }
     }
 }
