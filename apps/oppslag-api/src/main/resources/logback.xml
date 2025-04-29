@@ -17,6 +17,8 @@
             </root>
             <logger name="no.nav.paw.pdl" level="WARN"/>
             <logger name="io.opentelemetry.sdk.metrics.internal.state.AsynchronousMetricStorage" level="ERROR"/>
+            <logger name="no.nav.paw.logger.security" level="INFO"/>
+            <logger name="no.nav" level="INFO"/>
             <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>

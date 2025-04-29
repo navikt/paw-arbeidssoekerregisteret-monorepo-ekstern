@@ -38,7 +38,7 @@ fun Route.profileringRoutes(
 
                     val response = profileringService
                         .finnProfileringerForIdentiteter(sluttbruker.alleIdenter, paging)
-                    logger.info("Bruker hentet profilering")
+                    logger.trace("Bruker hentet profilering")
                     call.respond(response)
                 }
             }
@@ -50,7 +50,7 @@ fun Route.profileringRoutes(
 
                 autorisering(Action.READ, accessPolicies) {
                     val response = profileringService.finnProfileringerForPeriodeIdList(listOf(periodeId), paging)
-                    logger.info("Bruker hentet profilering")
+                    logger.trace("Bruker hentet profilering")
                     call.respond(response)
                 }
             }
@@ -71,7 +71,7 @@ fun Route.profileringRoutes(
                     } else {
                         profileringService.finnProfileringerForIdentiteter(identitetsnummerList, paging)
                     }
-                    logger.info("Veileder hentet profilering for bruker")
+                    logger.trace("Veileder hentet profilering for bruker")
                     call.respond(response)
                 }
             }

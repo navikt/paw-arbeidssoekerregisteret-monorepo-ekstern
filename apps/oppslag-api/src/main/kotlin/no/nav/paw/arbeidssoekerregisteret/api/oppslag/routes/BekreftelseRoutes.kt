@@ -34,7 +34,7 @@ fun Route.bekreftelseRoutes(
 
                     val response = bekreftelseService
                         .finnBekreftelserForIdentitetsnummerList(sluttbruker.alleIdenter, paging)
-                    logger.info("Bruker hentet bekreftelser")
+                    logger.trace("Bruker hentet bekreftelser")
                     call.respond(response)
                 }
             }
@@ -46,7 +46,7 @@ fun Route.bekreftelseRoutes(
 
                 autorisering(Action.READ, accessPolicies) {
                     val response = bekreftelseService.finnBekreftelserForPeriodeIdList(listOf(periodeId), paging)
-                    logger.info("Bruker hentet bekreftelser for periode")
+                    logger.trace("Bruker hentet bekreftelser for periode")
                     call.respond(response)
                 }
             }
@@ -62,7 +62,7 @@ fun Route.bekreftelseRoutes(
 
                 autorisering(Action.READ, accessPolicies) {
                     val response = bekreftelseService.finnBekreftelserForPeriodeIdList(listOf(periodeId), paging)
-                    logger.info("Veileder hentet bekreftelser for bruker")
+                    logger.trace("Veileder hentet bekreftelser for bruker")
                     call.respond(response)
                 }
             }

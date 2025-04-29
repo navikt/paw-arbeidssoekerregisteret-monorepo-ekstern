@@ -36,7 +36,7 @@ fun Route.perioderRoutes(
                     val sluttbruker = call.bruker<Sluttbruker>()
 
                     val response = periodeService.finnPerioderForIdentiteter(sluttbruker.alleIdenter, paging)
-                    logger.info("Bruker hentet arbeidssøkerperioder")
+                    logger.trace("Bruker hentet arbeidssøkerperioder")
                     call.respond(response)
                 }
             }
@@ -54,7 +54,7 @@ fun Route.perioderRoutes(
 
                     val response = periodeService
                         .finnAggregertePerioderForIdenter(sluttbruker.alleIdenter, paging)
-                    logger.info("Bruker hentet aggregert arbeidssøkerperioder")
+                    logger.trace("Bruker hentet aggregert arbeidssøkerperioder")
                     call.respond(response)
                 }
             }
@@ -71,7 +71,7 @@ fun Route.perioderRoutes(
 
                 autorisering(Action.READ, accessPolicies) {
                     val response = periodeService.finnPerioderForIdentiteter(identitetsnummerList, paging)
-                    logger.info("Veileder hentet arbeidssøkerperioder for bruker")
+                    logger.trace("Veileder hentet arbeidssøkerperioder for bruker")
                     call.respond(response)
                 }
             }
@@ -88,7 +88,7 @@ fun Route.perioderRoutes(
 
                 autorisering(Action.READ, accessPolicies) {
                     val response = periodeService.finnAggregertePerioderForIdenter(identitetsnummerList, paging)
-                    logger.info("Veileder hentet aggregert arbeidssøkerperioder for bruker")
+                    logger.trace("Veileder hentet aggregert arbeidssøkerperioder for bruker")
                     call.respond(response)
                 }
             }

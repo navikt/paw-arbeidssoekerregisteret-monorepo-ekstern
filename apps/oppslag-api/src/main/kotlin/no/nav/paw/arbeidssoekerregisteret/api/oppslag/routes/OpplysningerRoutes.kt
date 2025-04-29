@@ -38,7 +38,7 @@ fun Route.opplysningerRoutes(
 
                     val response = opplysningerOmArbeidssoekerService
                         .finnOpplysningerForIdentiteter(sluttbruker.alleIdenter, paging)
-                    logger.info("Bruker hentet opplysninger")
+                    logger.trace("Bruker hentet opplysninger")
                     call.respond(response)
                 }
             }
@@ -51,7 +51,7 @@ fun Route.opplysningerRoutes(
                 autorisering(Action.READ, accessPolicies) {
                     val response = opplysningerOmArbeidssoekerService
                         .finnOpplysningerForPeriodeIdList(listOf(periodeId), paging)
-                    logger.info("Bruker hentet opplysninger")
+                    logger.trace("Bruker hentet opplysninger")
                     call.respond(response)
                 }
             }
@@ -72,7 +72,7 @@ fun Route.opplysningerRoutes(
                     } else {
                         opplysningerOmArbeidssoekerService.finnOpplysningerForIdentiteter(identitetsnummerList, paging)
                     }
-                    logger.info("Veileder hentet opplysninger for bruker")
+                    logger.trace("Veileder hentet opplysninger for bruker")
                     call.respond(response)
                 }
             }

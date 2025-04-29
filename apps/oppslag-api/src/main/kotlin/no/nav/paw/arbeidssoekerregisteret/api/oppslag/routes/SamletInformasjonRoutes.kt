@@ -55,7 +55,7 @@ fun Route.samletInformasjonRoutes(
                         bekreftelser = bekreftelser
                     )
 
-                    logger.info("Bruker hentet samlet informasjon")
+                    logger.trace("Bruker hentet samlet informasjon")
 
                     call.respond(response)
                 }
