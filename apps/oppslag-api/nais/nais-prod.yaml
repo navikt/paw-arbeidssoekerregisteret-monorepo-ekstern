@@ -59,10 +59,10 @@ spec:
     max: 2
   resources:
     limits:
-      memory: 2Gi
+      memory: 3Gi
     requests:
-      cpu: 125m
-      memory: 1Gi
+      cpu: 200m
+      memory: 153Mi
   liveness:
     path: /internal/isAlive
     initialDelay: 10
