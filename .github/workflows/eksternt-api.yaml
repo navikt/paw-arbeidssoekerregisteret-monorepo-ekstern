@@ -18,7 +18,7 @@ on:
 
 env:
   MODULE: eksternt-api
-  IMAGE: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/paw/paw-arbeidssoekerregisteret-api-eksternt
+  IMAGE: europe-north1-docker.pkg.dev/nais-management-233d/paw/paw-arbeidssoekerregisteret-api-eksternt
 jobs:
   build:
     name: Build
@@ -44,8 +44,6 @@ jobs:
         uses: nais/login@v0
         with:
           team: paw
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Build and push Docker image
         id: docker-build-push
         working-directory: ./
