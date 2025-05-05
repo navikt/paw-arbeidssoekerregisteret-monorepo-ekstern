@@ -62,7 +62,7 @@ spec:
       memory: 3Gi
     requests:
       cpu: 200m
-      memory: 153Mi
+      memory: 1Gi
   liveness:
     path: /internal/isAlive
     initialDelay: 10
