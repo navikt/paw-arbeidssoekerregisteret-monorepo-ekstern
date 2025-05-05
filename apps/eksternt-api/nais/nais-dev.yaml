@@ -10,6 +10,12 @@ spec:
   ingresses:
     - https://arbeidssoekerperioder.ekstern.dev.nav.no
   port: 8080
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 20m
+      memory: 512Mi
   env:
     - name: DATABASE_JDBC_URL
 #      value: "$(NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_EKSTERNT_API_ARBEIDSSOEKERREGISTERETAPIEKSTERN_JDBC_URL)"
