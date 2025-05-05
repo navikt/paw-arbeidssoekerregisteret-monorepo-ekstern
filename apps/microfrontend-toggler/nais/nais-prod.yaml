@@ -31,10 +31,10 @@ spec:
       value: "HIGH"
   resources:
     limits:
-      memory: 3072Mi
-    requests:
-      cpu: 250m
       memory: 2048Mi
+    requests:
+      cpu: 40m
+      memory: 1024Mi
   replicas:
     min: 1
     max: 1
