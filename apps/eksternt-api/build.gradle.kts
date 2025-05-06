@@ -54,7 +54,6 @@ dependencies {
     implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Database
-    implementation(libs.exposed.crypt)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.dao)
     implementation(libs.exposed.java.time)
