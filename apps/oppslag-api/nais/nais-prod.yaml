@@ -101,8 +101,6 @@ spec:
           namespace: teamdagpenger
         - application: dp-soknadsdialog
           namespace: teamdagpenger
-        - application: dp-saksbehandling-frontend
-          namespace: teamdagpenger
         - application: dp-mine-dagpenger-frontend
           namespace: teamdagpenger
         - application: dp-rapportering
@@ -112,9 +110,6 @@ spec:
         - application: veilarbportefolje
           namespace: pto
           cluster: prod-fss
-        - application: veilarbpersonflate
-          namespace: poao
-          cluster: prod-gcp
         - application: arbeidssokerregistrering
           namespace: paw
           cluster: prod-gcp
