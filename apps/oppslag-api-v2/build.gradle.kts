@@ -83,7 +83,7 @@ java {
 }
 
 application {
-    mainClass.set("no.nav.paw.arbeidssoekerregisteret.api.oppslag.ApplicationKt")
+    mainClass.set("no.nav.paw.oppslagapi.ApplicationKt")
 }
 
 sourceSets {
