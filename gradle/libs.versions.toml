@@ -91,6 +91,7 @@ nav-tms-varsel-kotlin-builder = { group = "no.nav.tms.varsel", name = "kotlin-bu
 nav-paw-schema-main = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "main-avro-schema", version.ref = "nav-paw-schema-main" }
 nav-paw-schema-arena = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "arena-avro-schema", version.ref = "nav-paw-schema-arena" }
 nav-paw-schema-bekreftelsesmelding = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelsesmelding-schema", version.ref = "nav-paw-schema-bekreftelse" }
+nav-paw-schema-bekreftelsepaavegneav = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelse-paavegneav-schema", version.ref = "nav-paw-schema-bekreftelse" }
 
 [bundles]
 ktor-server-instrumented = ["ktor-server-netty", "ktor-server-metrics-micrometer"]

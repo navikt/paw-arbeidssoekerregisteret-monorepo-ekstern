@@ -15,6 +15,7 @@ include(
     "domain:main-avro-schema",
     "domain:arena-avro-schema",
     "domain:bekreftelsesmelding-avro-schema",
+    "domain:bekreftelse-paavegneav-avro-schema",
     // libs
     "lib:logging",
     "lib:serialization",
@@ -33,6 +34,7 @@ include(
     "lib:aareg-client",
     "lib:tilgangskontroll-client",
     "lib:common-model",
+    "lib:topics",
     // test
     "test:test-data-factory",
     // apps
@@ -41,6 +43,7 @@ include(
     "apps:oppslag-api",
     "apps:eksternt-api",
     "apps:arena-adapter",
+    "apps:oppslag-api-v2",
 )
 
 dependencyResolutionManagement {
