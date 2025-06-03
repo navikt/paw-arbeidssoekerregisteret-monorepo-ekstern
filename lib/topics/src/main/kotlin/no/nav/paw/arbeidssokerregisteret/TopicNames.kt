@@ -10,4 +10,4 @@ data class TopicNames(
     val paavnegneavTopic: String
 )
 
-val standardTopicNames: TopicNames get() = loadNaisOrLocalConfiguration("topic.toml")
+val standardTopicNames: TopicNames get() = loadNaisOrLocalConfiguration("topic_names.toml")
