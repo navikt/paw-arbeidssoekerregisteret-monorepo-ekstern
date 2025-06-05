@@ -135,12 +135,14 @@ class DataConsumer(
                                         this[DataTable.periodeId] = row.periodeId
                                         this[DataTable.timestamp] = row.timestamp
                                         this[DataTable.data] = row.data
+                                    }.forEach { resultRow ->
+                                        appLogger.info("Inserted row: $resultRow")
                                     } }
                             }
                             _sisteProessering.set(Instant.now())
                         }
                 }
-            } catch (e: InterruptedException) {
+            } catch (_: InterruptedException) {
                 appLogger.info("Consumer interrupted, shutting down gracefully")
             }
             runCatching { consumer.close(pollTimeout) }
