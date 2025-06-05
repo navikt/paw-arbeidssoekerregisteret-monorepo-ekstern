@@ -52,7 +52,7 @@ fun AvroTidspunktFraKilde.toOpenApi(): OpenApiTidspunktFraKilde =
 
 fun AvroOpplysningerOmArbeidssoeker.toOpenApi(): OpenApiOpplysningerOmArbeidssoeker =
     OpenApiOpplysningerOmArbeidssoeker(
-        sendtInnAv = this.sendtInnAv?.toOpenApi(),
+        sendtInnAv = this.sendtInnAv.toOpenApi(),
         utdanning = this.utdanning?.toOpenApi(),
         helse = this.helse?.toOpenApi(),
         jobbsituasjon = this.jobbsituasjon?.toOpenApi(),
@@ -62,8 +62,8 @@ fun AvroOpplysningerOmArbeidssoeker.toOpenApi(): OpenApiOpplysningerOmArbeidssoe
 fun AvroUtdanning.toOpenApi(): OpenApiUtdanning =
     OpenApiUtdanning(
         nus = this.nus,
-        bestaatt = this.bestaatt.toOpenApi(),
-        godkjent = this.godkjent.toOpenApi()
+        bestaatt = this.bestaatt?.toOpenApi(),
+        godkjent = this.godkjent?.toOpenApi()
     )
 
 fun JaNeiVetIkke.toOpenApi(): no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke =
