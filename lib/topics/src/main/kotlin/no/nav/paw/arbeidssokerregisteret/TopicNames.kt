@@ -1,5 +1,10 @@
 package no.nav.paw.arbeidssokerregisteret
 
+import no.nav.paw.config.env.DevGcp
+import no.nav.paw.config.env.Local
+import no.nav.paw.config.env.ProdGcp
+import no.nav.paw.config.env.RuntimeEnvironment
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 
 data class TopicNames(
@@ -18,4 +23,9 @@ fun TopicNames.asList(): List<String> = listOf(
     paavnegneavTopic
 )
 
-val standardTopicNames: TopicNames get() = loadNaisOrLocalConfiguration("topic_names.toml")
+fun standardTopicNames(naisEnv: RuntimeEnvironment = currentRuntimeEnvironment): TopicNames =
+    when(naisEnv) {
+        is DevGcp -> "prod_topic_names.toml"
+        is ProdGcp -> "dev_topic_names.toml"
+        Local -> "topic_names.toml"
+    }.let(::loadNaisOrLocalConfiguration)

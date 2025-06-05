@@ -11,6 +11,7 @@ import no.nav.paw.arbeidssokerregisteret.asList
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.factory.createHikariDataSource
@@ -49,7 +50,7 @@ fun main() {
     appLogger.info("Starter oppslag-api-v2")
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val dataSource = createHikariDataSource(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
-    val topicNames = standardTopicNames
+    val topicNames = standardTopicNames(currentRuntimeEnvironment)
     Database.connect(dataSource)
     Flyway.configure()
         .dataSource(dataSource)

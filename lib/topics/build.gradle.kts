@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation(project(":lib:hoplite-config"))
+    api(project(":lib:hoplite-config"))
 }
 
 
