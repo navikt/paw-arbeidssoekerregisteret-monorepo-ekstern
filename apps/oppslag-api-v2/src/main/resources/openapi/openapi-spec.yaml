@@ -65,10 +65,10 @@ components:
           type: string
           description: Inneholder informasjon om hvem perioden tilhører (fødselsnummer eller d-nummer)
         startet:
-          $ref: '#/components/schemas/Metadata'
+          $ref: './vo/metadata.yaml#/Metadata'
           description: Inneholder informasjon om når perioden startet og hvem som startet den
         avsluttet:
-          $ref: '#/components/schemas/Metadata'
+          $ref: './vo/metadata.yaml#/Metadata'
           nullable: true
           description: |
             Dersom det er en pågående periode, vil denne være 'null'. Er den ikke 'null', er perioden avsluttet.
@@ -77,82 +77,6 @@ components:
         - id
         - identitetsnummer
         - startet
-
-    Metadata:
-      type: object
-      description: Inneholder metadata om en endring i arbeidssøkerregisteret.
-      properties:
-        tidspunkt:
-          type: string
-          format: date-time
-          description: Tidspunkt for endringen.
-        utfoertAv:
-          $ref: '#/components/schemas/Bruker'
-        kilde:
-          type: string
-          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen.
-        aarsak:
-          type: string
-          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende.
-        tidspunktFraKilde:
-          $ref: '#/components/schemas/TidspunktFraKilde'
-          nullable: true
-          description: Avvik i tid mellom kilde og register.
-      required:
-        - tidspunkt
-        - utfoertAv
-        - kilde
-        - aarsak
-
-    AvviksType:
-      type: string
-      description: |
-        Ukjent verdi settes aldri direkte, men brukes som standardverdi og
-        for å indikere at en verdi er ukjent for mottaker av melding, dvs at
-        at den er satt til en verdi som ikke er definert i Avro-skjemaet til mottaker.
-      enum:
-        - UKJENT_VERDI
-        - FORSINKELSE
-        - RETTING
-        - SLETTET
-        - TIDSPUNKT_KORRIGERT
-      default: UKJENT_VERDI
-
-    TidspunktFraKilde:
-      type: object
-      properties:
-        tidspunkt:
-          type: string
-          format: date-time
-          description: |
-            Betydningen av tidspunktet er avhengig av avviksType.
-            FORSINKELSE: Tidspunktet er tidspunktet da endringen skulle vært utført.
-
-            SLETTET: Tidspunktet er tidspunktet da endringen ble utført(samme som selve recorden).
-
-            TIDSPUNKT_KORRIGERT: Tidspunktet som egentlig er korrekt, feks tidspunktet da en periode skulle vært stoppet
-                               eller startet
-        avviksType:
-          $ref: '#/components/schemas/AvviksType'
-          description: Årsaken til til avvik i tid mellom kilde og register.
-      required:
-        - tidspunkt
-        - avviksType
-
-    Bruker:
-      type: object
-      description: Informasjon om brukeren som utførte en handling
-      properties:
-        type:
-          type: string
-          enum: [ VEILEDER, SYSTEM, SLUTTBRUKER ]
-          description: Type bruker som utførte handlingen
-        id:
-          type: string
-          description: Identifikator for brukeren, format avhenger av brukertype
-      required:
-        - type
-        - id
 
     Profilering:
       type: object
@@ -176,7 +100,7 @@ components:
           format: uuid
           description: Unik id for OpplysningerOmArbeidssøker som profileringen tilhører
         sendtInnAv:
-          $ref: '#/components/schemas/Metadata'
+          $ref: './vo/metadata.yaml#/Metadata'
           description: |
             Inneholder informasjon om når profileringen ble opprettet.
             Profileringen er en automatisk prosess så 'sendtInnAv.utfoertAv' vil alltid peke på en
@@ -231,7 +155,7 @@ components:
           format: uuid
           description: ID of the period to which this job seeker information belongs
         sendtInnAv:
-          $ref: '#/components/schemas/Metadata'
+          $ref: './vo/metadata.yaml#/Metadata'
           description: Information about who submitted the job seeker information and when
         utdanning:
           $ref: '#/components/schemas/Utdanning'
@@ -332,7 +256,7 @@ components:
                                                 - PERMITTERT
                                                 - KONKURS
                                                 Kan også brukes for andre beskriverlser som er knyttet til en stilling, feks "DELTIDSJOBB_VIL_MER"
-            prosent                     -       prosentandel jobbstituasjonen gjelder for (feks kombinert med 'ER_PERMITERT' eller 'DELTIDSJOBB_VIL_MER'), eksempel "50".
+            prosent                     -       prosentandel jobbstituasjonen gjelder for (feks kombinert med 'ER_PERMITTERT' eller 'DELTIDSJOBB_VIL_MER'), eksempel "50".
             siste_dag_med_loenn_iso8601 -       Siste dag det betales lønn for (feks ved oppsigelse)(eksempel 2019-01-27).
                                                 Enkelte kilder, inkludert migrering har brukt 'siste_dag_med_loen_iso8601' (en 'n'), enbefaler
                                                 derfor å normalisere til 'siste_dag_med_loenn_iso8601' (to 'n') ved lesing for å fange begge verianter.
@@ -404,7 +328,7 @@ components:
       type: object
       properties:
         sendtInnAv:
-          $ref: '#/components/schemas/Metadata'
+          $ref: './vo/metadata.yaml#/Metadata'
         gjelderFra:
           type: string
           format: date-time
@@ -502,4 +426,3 @@ components:
             Angir om grunnen til stopp meldingen er at brukeren har brutt fristen i det eksterne systemet.
             Dersom denne er satt til true og fristene som ble meldt inn i start meldingen er like eller lenger enn
             registerets egne frister vil arbeidssøkerperioden bli stoppet umidelbart.
-            
