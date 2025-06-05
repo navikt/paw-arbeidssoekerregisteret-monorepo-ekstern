@@ -54,7 +54,9 @@ fun main() {
         .dataSource(dataSource)
         .baselineOnMigrate(true)
         .locations("db/migration")
+        .cleanDisabled(false)
         .load()
+        .also { it.clean() }
         .migrate()
     transaction {
         topicNames.asList().forEach { topic ->
