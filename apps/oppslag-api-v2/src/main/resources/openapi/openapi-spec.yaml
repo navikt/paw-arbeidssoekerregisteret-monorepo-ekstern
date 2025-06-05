@@ -31,8 +31,8 @@ paths:
                 - "perioder"
         required: true
       responses:
-        "204":
-          description: "No Content"
+        "200":
+          description: "OK"
           headers:
             x-trace-id:
               description: "Trace id"
@@ -60,3 +60,21 @@ components:
 
     PaaVegneAv:
       $ref: './meldinger/paa-vegne-av.yaml#/PaaVegneAv'
+
+    #Responses
+    BekreftelserResponse:
+        type: object
+        description: "Response for bekreftelser"
+        properties:
+            bekreftelser:
+              type: array
+              items:
+                type: object
+                properties:
+                  gyldig:
+                    type: boolean
+                    description: "Angir om dette er en gyldig bekreftelse"
+                  bekreftelse:
+                    $ref: './meldinger/bekreftelse.yaml#/Bekreftelse'
+        required:
+            - bekreftelser
