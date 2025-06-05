@@ -121,26 +121,27 @@ class DataConsumer(
                                 records
                                     .asSequence()
                                     .filter { record ->
-                                    updateHwm(
-                                        consumerVersion = consumer_version,
-                                        topic = record.topic(),
-                                        partition = record.partition(),
-                                        offset = record.offset()
-                                    )
-                                }.map { record -> record.toRow(deserializer) }
-                                    .let { rows -> DataTable.batchInsert(
-                                        data = rows,
-                                        ignore = false,
-                                        shouldReturnGeneratedValues = false
-                                    ){ row ->
-                                        this[DataTable.type] = row.type
-                                        this[DataTable.identitetsnummer] = row.identitetsnummer
-                                        this[DataTable.periodeId] = row.periodeId
-                                        this[DataTable.timestamp] = row.timestamp
-                                        this[DataTable.data] = row.data
-                                    }.forEach { resultRow ->
-                                        appLogger.info("Inserted row: $resultRow")
-                                    } }
+                                        updateHwm(
+                                            consumerVersion = consumer_version,
+                                            topic = record.topic(),
+                                            partition = record.partition(),
+                                            offset = record.offset()
+                                        )
+                                    }.map { record -> record.toRow(deserializer) }
+                                    .let { rows ->
+                                        val rader = DataTable.batchInsert(
+                                            data = rows,
+                                            ignore = false,
+                                            shouldReturnGeneratedValues = false
+                                        ) { row ->
+                                            this[DataTable.type] = row.type
+                                            this[DataTable.identitetsnummer] = row.identitetsnummer
+                                            this[DataTable.periodeId] = row.periodeId
+                                            this[DataTable.timestamp] = row.timestamp
+                                            this[DataTable.data] = row.data
+                                        }.count()
+                                        appLogger.debug("Skrev $rader rader til databasen")
+                                    }
                             }
                             _sisteProessering.set(Instant.now())
                         }
@@ -169,6 +170,7 @@ fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRec
                 type = type
             )
         }
+
         is OpplysningerOmArbeidssoeker -> {
             return Row(
                 identitetsnummer = null,
@@ -178,6 +180,7 @@ fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRec
                 type = opplysninger_om_arbeidssoeker_v4
             )
         }
+
         is Profilering -> {
             return Row(
                 identitetsnummer = null,
@@ -187,6 +190,7 @@ fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRec
                 type = profilering_v1
             )
         }
+
         is Bekreftelse -> {
             return Row(
                 identitetsnummer = null,
@@ -196,6 +200,7 @@ fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRec
                 type = bekreftelsemelding_v1
             )
         }
+
         is PaaVegneAv -> {
             return Row(
                 identitetsnummer = null,
@@ -205,6 +210,7 @@ fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRec
                 type = pa_vegne_av_v1
             )
         }
+
         else -> throw IllegalArgumentException("Unsupported SpecificRecord type: ${this.javaClass}")
     }
 }
