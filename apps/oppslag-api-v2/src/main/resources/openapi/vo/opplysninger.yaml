@@ -1,0 +1,136 @@
+Utdanning:
+  type: object
+  description: Information about the job seeker's education background
+  properties:
+    nus:
+      type: string
+      description: |
+        NUS kode for utdanning, oversikt over NUS koder er tilgjengelig fra SSB.
+    bestaatt:
+      $ref: '#/JaNeiVetIkke'
+      nullable: true
+      description: |
+        Bare inkludert dersom informasjonen er innhetet, feks for
+        nus kode 0,1,2 og 9 gir det ikke mening å hente inn info for
+        dette feltet.
+    godkjent:
+      $ref: '#/JaNeiVetIkke'
+      nullable: true
+      description: |
+        Bare inkludert dersom informasjonen er innhetet, feks for
+        nus kode 0,1,2 og 9 gir det ikke mening å hente inn info for
+        dette feltet.
+  required:
+    - nus
+
+Helse:
+  type: object
+  description: Har personen helseutfordringer som hindrer dem i å jobbe?
+  properties:
+    helsetilstandHindrerArbeid:
+      $ref: '#/JaNeiVetIkke'
+      nullable: true
+
+Jobbsituasjon:
+  type: object
+  description: |
+    Inneholder et sett med beskrivelser av jobbsituasjonen. Det er mulig å ha flere beskrivelser av jobbsituasjonen,
+    feks kan personen være permittert og samtidig ha en deltidsjobb.
+  properties:
+    beskrivelser:
+      type: array
+      items:
+        $ref: '#/BeskrivelseMedDetaljer'
+  required:
+    - beskrivelser
+
+Annet:
+  type: object
+  description: Har personen andre forhold som hindrer dem i å jobbe?
+  properties:
+    andreForholdHindrerArbeid:
+      $ref: '#/JaNeiVetIkke'
+      nullable: true
+
+BeskrivelseMedDetaljer:
+  type: object
+  description: Beskrivelse av et enkelt forhold som inngår i jobbsituasjonen, feks permitering eller oppsigelse
+  properties:
+    beskrivelse:
+      $ref: '#/Beskrivelse'
+    detaljer:
+      type: object
+      additionalProperties:
+        type: string
+      description: |
+        Feltene taes bare med dersom de er er tilgjengelige, i praksis må klienter støtte å motta en tom map.
+        Andre felter enn de som er definert her kan også forekomme.
+        Detaljer om jobbsituasjonen. Følgende nøkler er definert:
+                Nøkkel                      -           Verdi
+        gjelder_fra_dato_iso8601    -       datoen jobbsituasjonen gjelder fra (eksempel 2019-01-27)
+        gjelder_til_dato_iso8601    -       datoen jobbsituasjonen gjelder til (eksempel 2019-01-27)
+        stilling_styrk08            -       stillingens kode i STYRK08 (eksempel "2359"), se SSB for mer informasjon om STYRK08.
+                                            Forventet for:
+                                            - HAR_SAGT_OPP
+                                            - HAR_BLITT_SAGT_OPP
+                                            - PERMITTERT
+                                            - KONKURS
+                                            Kan også brukes for andre beskriverlser som er knyttet til en stilling, feks "DELTIDSJOBB_VIL_MER"
+        prosent                     -       prosentandel jobbstituasjonen gjelder for (feks kombinert med 'ER_PERMITTERT' eller 'DELTIDSJOBB_VIL_MER'), eksempel "50".
+        siste_dag_med_loenn_iso8601 -       Siste dag det betales lønn for (feks ved oppsigelse)(eksempel 2019-01-27).
+                                            Enkelte kilder, inkludert migrering har brukt 'siste_dag_med_loen_iso8601' (en 'n'), enbefaler
+                                            derfor å normalisere til 'siste_dag_med_loenn_iso8601' (to 'n') ved lesing for å fange begge verianter.
+        siste_arbeidsdag_iso8601    -       Siste arbeidssdag. Ikke nødvendigvis siste dag det betales lønn for, feks ved konkurs(eksempel 2019-01-27).
+  required:
+    - beskrivelse
+    - detaljer
+
+Beskrivelse:
+  type: string
+  description: |
+    Beskrivelse av jobbsituasjonen. Følgende beskrivelser er definert:
+    UKJENT_VERDI                    -       Verdien er satt, men den er ikke definert i versjonen av APIet som klienten bruker.
+    UDEFINERT                       -       Verdien er ikke satt.
+    HAR_SAGT_OPP                    -       Personen har sagt opp sin stilling.
+    HAR_BLITT_SAGT_OPP              -       Personen har blitt sagt opp fra sin stilling.
+    ER_PERMITTERT                   -       Personen er permittert.
+    ALDRI_HATT_JOBB                 -       Personen har aldri hatt en jobb.
+    IKKE_VAERT_I_JOBB_SISTE_2_AAR   -       Personen har ikke vært i jobb de siste 2 årene.
+    AKKURAT_FULLFORT_UTDANNING      -       Personen har akkurat fullført sin utdanning.
+    USIKKER_JOBBSITUASJON           -       Personen er usikker på sin jobbsituasjon.
+    MIDLERTIDIG_JOBB                -       Personen har en midlertidig jobb.
+    DELTIDSJOBB_VIL_MER             -       Personen har en/flere deltidsjobber, men ønsker å jobbe mer.
+    NY_JOBB                         -       Personen har fått seg ny jobb.
+    KONKURS                         -       Personen har mistet jobben på grunn av konkurs.
+    ANNET                           -       Personen har en annen jobbsituasjon.
+  enum:
+    - UKJENT_VERDI
+    - UDEFINERT
+    - HAR_SAGT_OPP
+    - HAR_BLITT_SAGT_OPP
+    - ER_PERMITTERT
+    - ALDRI_HATT_JOBB
+    - IKKE_VAERT_I_JOBB_SISTE_2_AAR
+    - AKKURAT_FULLFORT_UTDANNING
+    - VIL_BYTTE_JOBB
+    - USIKKER_JOBBSITUASJON
+    - MIDLERTIDIG_JOBB
+    - DELTIDSJOBB_VIL_MER
+    - NY_JOBB
+    - KONKURS
+    - ANNET
+  default: UKJENT_VERDI
+
+JaNeiVetIkke:
+  type: string
+  description: |
+    UKJENT_VERDI - Verdien er satt, men den er ikke definert i versjonen av APIet som klienten bruker.
+    JA - Ja.
+    NEI - Nei.
+    VET_IKKE - Vet ikke.
+  enum:
+    - UKJENT_VERDI
+    - JA
+    - NEI
+    - VET_IKKE
+  default: UKJENT_VERDI
