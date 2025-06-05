@@ -1,6 +1,7 @@
 package no.nav.paw.oppslagapi
 
 import com.google.common.util.concurrent.UncaughtExceptionHandlers.systemExit
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -74,6 +75,7 @@ fun main() {
     val rebalanceListener = HwmRebalanceListener(consumer_version, consumer)
     consumer.subscribe(topicNames.asList(), rebalanceListener)
     val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
+    val consumerMetrics = KafkaClientMetrics(consumer)
     val dataConsumerTask = DataConsumer(
         deserializer = deserializer,
         consumer = consumer,
@@ -88,6 +90,7 @@ fun main() {
         }
     }
     initKtor(
+        meterBinders = listOf(consumerMetrics),
         dataConsumerTask = dataConsumerTask,
         prometheusRegistry = prometheusRegistry
     ).start(wait = true)
