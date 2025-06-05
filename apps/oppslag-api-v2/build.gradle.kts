@@ -17,6 +17,8 @@ dependencies {
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:tilgangskontroll-client"))
     implementation(project(":domain:bekreftelse-paavegneav-avro-schema"))
+    implementation(project(":domain:main-avro-schema"))
+    implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)

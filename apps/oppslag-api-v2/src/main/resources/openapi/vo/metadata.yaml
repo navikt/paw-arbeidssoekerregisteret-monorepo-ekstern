@@ -30,11 +30,14 @@ Bruker:
   properties:
     type:
       type: string
-      enum: [ VEILEDER, SYSTEM, SLUTTBRUKER ]
+      enum: [ UKJENT_VERDI, UDEFINERT, VEILEDER, SYSTEM, SLUTTBRUKER ]
       description: Type bruker som utførte handlingen
     id:
       type: string
       description: Identifikator for brukeren, format avhenger av brukertype
+    sikkerhetsnivaa:
+      type: string
+      description: Sikkerhetsnivået bruker var innlogget med ved utførelse av handlingen
   required:
     - type
     - id
