@@ -10,4 +10,12 @@ data class TopicNames(
     val paavnegneavTopic: String
 )
 
+fun TopicNames.asList(): List<String> = listOf(
+    periodeTopic,
+    opplysningerTopic,
+    profileringTopic,
+    bekreftelseTopic,
+    paavnegneavTopic
+)
+
 val standardTopicNames: TopicNames get() = loadNaisOrLocalConfiguration("topic_names.toml")

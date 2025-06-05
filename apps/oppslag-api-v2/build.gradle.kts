@@ -98,13 +98,13 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 
-//tasks.named("compileTestKotlin") {
-//    dependsOn("openApiValidate", "openApiGenerate")
-//}
-//
-//tasks.named("compileKotlin") {
-//    dependsOn("openApiValidate", "openApiGenerate")
-//}
+tasks.named("compileTestKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
 
 tasks.withType(Jar::class) {
     manifest {
@@ -114,32 +114,32 @@ tasks.withType(Jar::class) {
     }
 }
 
-val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
+val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/openapi-spec.yaml"
 
-//openApiValidate {
-//    inputSpec = openApiDocFile
-//}
+openApiValidate {
+    inputSpec = openApiDocFile
+}
 
-//openApiGenerate {
-//    generatorName.set("kotlin-server")
-//    library = "ktor"
-//    inputSpec = openApiDocFile
-//    outputDir = "${layout.buildDirectory.get()}/generated/"
-//    packageName = "no.nav.paw.arbeidssoekerregisteret.api.oppslag"
-//    configOptions.set(
-//        mapOf(
-//            "serializationLibrary" to "jackson",
-//            "enumPropertyNaming" to "original",
-//        ),
-//    )
-//    typeMappings = mapOf(
-//        "DateTime" to "Instant"
-//    )
-//    globalProperties = mapOf(
-//        "apis" to "none",
-//        "models" to ""
-//    )
-//    importMappings = mapOf(
-//        "Instant" to "java.time.Instant"
-//    )
-//}
+openApiGenerate {
+    generatorName.set("kotlin-server")
+    library = "ktor"
+    inputSpec = openApiDocFile
+    outputDir = "${layout.buildDirectory.get()}/generated/"
+    packageName = "no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag"
+    configOptions.set(
+        mapOf(
+            "serializationLibrary" to "jackson",
+            "enumPropertyNaming" to "original",
+        ),
+    )
+    typeMappings = mapOf(
+        "DateTime" to "Instant"
+    )
+    globalProperties = mapOf(
+        "apis" to "none",
+        "models" to ""
+    )
+    importMappings = mapOf(
+        "Instant" to "java.time.Instant"
+    )
+}

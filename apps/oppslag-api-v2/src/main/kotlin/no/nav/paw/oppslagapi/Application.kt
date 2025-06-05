@@ -1,48 +1,116 @@
 package no.nav.paw.oppslagapi
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.route
-import io.ktor.server.routing.routing
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import kotlinx.datetime.Instant
+import no.nav.paw.arbeidssokerregisteret.asList
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.database.config.DATABASE_CONFIG
+import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
+import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.oppslagapi.kafka.HwmRebalanceListener
+import no.nav.paw.oppslagapi.kafka.hwm.initHwm
+import no.nav.paw.oppslagapi.kafka.hwm.updateHwm
+import org.apache.avro.specific.SpecificRecord
+import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
+import org.apache.kafka.common.serialization.Deserializer
+import org.apache.kafka.common.serialization.LongDeserializer
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
+import java.time.Duration
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletableFuture.runAsync
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
+
+const val consumer_version = 1
+const val consumer_group = "oppslag-api-v2-consumer-v1"
+const val partition_count = 6
+
+val appLogger = LoggerFactory.getLogger("app")
 
 fun main() {
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-    val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
+    val dataSource = createHikariDataSource(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val topicNames = standardTopicNames
-
-    embeddedServer(Netty, port = 8080) {
-        routing {
-            route("internal") {
-                route("isAlive") {
-                    get {
-                        call.respondText("OK", status = HttpStatusCode.OK)
-                    }
-                }
-                route("isReady") {
-                    get {
-                        call.respondText("OK", status = HttpStatusCode.OK)
-                    }
-                }
-                route("isStarted") {
-                    get {
-                        call.respondText("OK", status = HttpStatusCode.OK)
-                    }
-                }
-                route("metrics") {
-                    get {
-                        call.respondText(prometheusRegistry.scrape())
-                    }
-                }
-            }
+    Database.connect(dataSource)
+    transaction {
+        topicNames.asList().forEach { topic ->
+            initHwm(topic, consumer_version, partition_count)
         }
-    }.start(wait = true)
+    }
+    val kafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG))
+    val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
+        groupId = consumer_group,
+        clientId = "oppslag-api-v2-${UUID.randomUUID()}",
+        keyDeserializer = LongDeserializer::class,
+        valueDeserializer = ByteArrayDeserializer::class,
+        autoCommit = false,
+        autoOffsetReset = "earliest"
+    )
+    val rebalanceListener = HwmRebalanceListener(consumer_version, consumer)
+    consumer.subscribe(topicNames.asList(), rebalanceListener)
+    val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
+
+    initKtor(
+        prometheusRegistry = prometheusRegistry
+    ).start(wait = true)
 }
+
+class DataConsumer(
+    private val deserializer: Deserializer<SpecificRecord>,
+    private val consumer: Consumer<Long, ByteArray>,
+    private val pollTimeout: Duration = Duration.ofMillis(1000L)
+) {
+    private val sisteProessering = AtomicReference<Instant?>(null)
+    private val erStartet = AtomicBoolean(false)
+
+    fun run(): CompletableFuture<Void> {
+        if (!erStartet.compareAndSet(false, true)) {
+            throw IllegalStateException("DataConsumer kan kun startes en gang")
+        }
+        return runAsync {
+            try {
+                while (true) {
+                    consumer.poll(pollTimeout)
+                        .takeIf { !it.isEmpty }
+                        ?.let { records ->
+                            transaction {
+                                records.filter { record ->
+                                    updateHwm(
+                                        consumerVersion = consumer_version,
+                                        topic = record.topic(),
+                                        partition = record.partition(),
+                                        offset = record.offset()
+                                    )
+                                }
+                                    .map { record ->
+                                        val message: SpecificRecord =
+                                            deserializer.deserialize(record.topic(), record.value())
+                                        TODO()
+                                    }
+                            }
+                        }
+
+                }
+            } catch (e: InterruptedException) {
+                appLogger.info("Consumer interrupted, shutting down gracefully")
+            }
+            runCatching { consumer.close(pollTimeout) }
+        }
+    }
+}
+
+
+data class Row(
+    val identitetsnummer: String?,
+    val periodeId: UUID,
+    val timestamp: Instant,
+    val data: String
+)

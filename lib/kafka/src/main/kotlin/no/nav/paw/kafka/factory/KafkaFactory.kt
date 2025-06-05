@@ -1,6 +1,7 @@
 package no.nav.paw.kafka.factory
 
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import no.nav.paw.kafka.config.KafkaAuthenticationConfig
@@ -88,6 +89,15 @@ class KafkaFactory(private val config: KafkaConfig) {
                 SchemaRegistryClientConfig.USER_INFO_CONFIG to "${config.username}:${config.password}"
             }
         }
+
+        @Suppress("UNCHECKED_CAST")
+        fun <T> kafkaAvroDeSerializer(): Deserializer<T> {
+            val map: Map<String, Any> = baseProperties.toMap().mapKeys { it.key.toString() }
+            val deserializer = KafkaAvroDeserializer().apply {
+                configure(map, false)
+            }
+            return deserializer as Deserializer<T>
+    }
 }
 
 operator fun Properties.plus(other: Map<String, Any>): Properties =
