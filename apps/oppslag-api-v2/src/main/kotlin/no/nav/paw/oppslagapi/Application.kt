@@ -45,6 +45,7 @@ const val partition_count = 6
 val appLogger = LoggerFactory.getLogger("app")
 
 fun main() {
+    appLogger.info("Starter oppslag-api-v2")
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val dataSource = createHikariDataSource(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val topicNames = standardTopicNames
@@ -77,7 +78,8 @@ fun main() {
         deserializer = deserializer,
         consumer = consumer,
         pollTimeout = Duration.ofMillis(1000L)
-    ).run().handle { _, throwable ->
+    )
+    dataConsumerTask.run().handle { _, throwable ->
         if (throwable != null) {
             appLogger.error("DataConsumer task failed", throwable)
             systemExit()
@@ -86,6 +88,7 @@ fun main() {
         }
     }
     initKtor(
+        dataConsumerTask = dataConsumerTask,
         prometheusRegistry = prometheusRegistry
     ).start(wait = true)
 }
@@ -95,7 +98,9 @@ class DataConsumer(
     private val consumer: Consumer<Long, ByteArray>,
     private val pollTimeout: Duration = Duration.ofMillis(1000L)
 ) {
-    private val sisteProessering = AtomicReference<Instant?>(null)
+    private val _sisteProessering = AtomicReference<Instant?>(null)
+    val sisteProessering: Instant? get() = _sisteProessering.get()
+
     private val erStartet = AtomicBoolean(false)
 
     fun run(): CompletableFuture<Void> {
@@ -103,6 +108,7 @@ class DataConsumer(
             throw IllegalStateException("DataConsumer kan kun startes en gang")
         }
         return runAsync {
+            appLogger.info("Startet DataConsumer for consumer_version=$consumer_version")
             try {
                 while (true) {
                     consumer.poll(pollTimeout)
@@ -131,7 +137,7 @@ class DataConsumer(
                                         this[DataTable.data] = row.data
                                     } }
                             }
-                            sisteProessering.set(Instant.now())
+                            _sisteProessering.set(Instant.now())
                         }
                 }
             } catch (e: InterruptedException) {

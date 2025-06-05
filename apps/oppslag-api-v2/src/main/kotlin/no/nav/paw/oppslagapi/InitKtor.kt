@@ -11,7 +11,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 
-fun initKtor(prometheusRegistry: PrometheusMeterRegistry): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> =
+fun initKtor(prometheusRegistry: PrometheusMeterRegistry, dataConsumerTask: DataConsumer): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> =
     embeddedServer(Netty, port = 8080) {
         routing {
             route("internal") {
@@ -33,6 +33,11 @@ fun initKtor(prometheusRegistry: PrometheusMeterRegistry): EmbeddedServer<NettyA
                 route("metrics") {
                     get {
                         call.respondText(prometheusRegistry.scrape())
+                    }
+                }
+                route("lastPoll") {
+                    get {
+                        call.respondText(dataConsumerTask.sisteProessering.toString(), status = HttpStatusCode.Companion.OK)
                     }
                 }
             }
