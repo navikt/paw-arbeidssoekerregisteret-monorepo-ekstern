@@ -49,17 +49,18 @@ fun main() {
     val dataSource = createHikariDataSource(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val topicNames = standardTopicNames
     Database.connect(dataSource)
-    transaction {
-        topicNames.asList().forEach { topic ->
-            initHwm(topic, consumer_version, partition_count)
-        }
-    }
     Flyway.configure()
         .dataSource(dataSource)
         .baselineOnMigrate(true)
         .locations("db/migration")
         .load()
         .migrate()
+    transaction {
+        topicNames.asList().forEach { topic ->
+            initHwm(topic, consumer_version, partition_count)
+        }
+    }
+
     val kafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG))
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
         groupId = consumer_group,
