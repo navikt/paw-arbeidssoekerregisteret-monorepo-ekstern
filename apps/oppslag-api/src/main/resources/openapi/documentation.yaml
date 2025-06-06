@@ -764,12 +764,43 @@ components:
           items:
             $ref: "#/components/schemas/BeskrivelseMedDetaljerResponse"
         profilering:
-          $ref: "#/components/schemas/ProfileringResponse"
+          $ref: "#/components/schemas/ProfileringAggregertResponse"
       required:
         - "opplysningerOmArbeidssoekerId"
         - "periodeId"
         - "sendtInnAv"
         - "jobbsituasjon"
+    ProfileringAggregertResponse:
+      type: "object"
+      properties:
+        profileringId:
+          type: "string"
+          format: "uuid"
+        periodeId:
+          type: "string"
+          format: "uuid"
+        opplysningerOmArbeidssoekerId:
+          type: "string"
+          format: "uuid"
+        sendtInnAv:
+          $ref: "#/components/schemas/MetadataResponse"
+        profilertTil:
+          $ref: '#/components/schemas/ProfileringsResultat'
+        jobbetSammenhengendeSeksAvTolvSisteManeder:
+          type: "boolean"
+        alder:
+          type: "integer"
+          format: "int32"
+        egenvurdering:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/EgenvurderingResponse"
+      required:
+        - "profileringId"
+        - "periodeId"
+        - "opplysningerOmArbeidssoekerId"
+        - "sendtInnAv"
+        - "profilertTil"
     ProfileringResponse:
       type: "object"
       properties:
