@@ -15,6 +15,7 @@ import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.EgenvurderingResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
@@ -194,6 +195,34 @@ class ProfileringerRoutesTest : FreeSpec({
                 profileringer[0] shouldBeEqualTo profileringResponses[0]
                 profileringer[1] shouldBeEqualTo profileringResponses[1]
                 profileringer[2] shouldBeEqualTo profileringResponses[2]
+
+                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
+            }
+        }
+
+        "/profilering/egenvurdering should return OK" {
+            coEvery {
+                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
+            } returns listOf(IdentInformasjon(TestData.fnr2, IdentGruppe.FOLKEREGISTERIDENT))
+            testApplication {
+                application {
+                    configureAuthentication(mockOAuth2Server)
+                    configureSerialization()
+                    configureHTTP()
+                    routing {
+                        profileringRoutes(authorizationService, profileringService)
+                    }
+                }
+
+                val testClient = configureTestClient()
+                val response = testClient.get("/api/v1/profilering/egenvurdering") {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr2))
+                }
+
+                val expectedResponse = egenvurderingMockResponse()
+
+                response.status shouldBe HttpStatusCode.OK
+                response.body<List<EgenvurderingResponse>>() shouldBe expectedResponse
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
