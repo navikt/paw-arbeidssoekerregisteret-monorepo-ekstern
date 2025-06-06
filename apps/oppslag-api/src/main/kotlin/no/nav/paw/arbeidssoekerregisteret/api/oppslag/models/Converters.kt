@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.models
 
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.egenvurderingMockResponse
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
@@ -133,6 +134,18 @@ fun ProfileringRow.toProfileringResponse(): ProfileringResponse =
         alder = alder
     )
 
+fun ProfileringRow.toProfileringAggregertResponse(): ProfileringAggregertResponse =
+    ProfileringAggregertResponse(
+        profileringId = profileringId,
+        periodeId = periodeId,
+        opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
+        sendtInnAv = sendtInnAv.toMetadataResponse(),
+        profilertTil = profilertTil.toProfileringsResultat(),
+        jobbetSammenhengendeSeksAvTolvSisteManeder = jobbetSammenhengendeSeksAvTolvSisteManeder,
+        alder = alder,
+        egenvurdering = egenvurderingMockResponse()
+    )
+
 fun ProfileringRow.toProfilering(): Profilering =
     Profilering(
         profileringId,
@@ -239,7 +252,7 @@ fun Bekreftelsesloesning.toBekreftelsesloesningResponse() =
         Bekreftelsesloesning.UKJENT_VERDI -> BekreftelsesloesningResponse.UKJENT_VERDI
     }
 
-fun OpplysningerRow.toOpplysningerOmArbeidssoekerAggregertResponse(profilering: ProfileringResponse?): OpplysningerOmArbeidssoekerAggregertResponse =
+fun OpplysningerRow.toOpplysningerOmArbeidssoekerAggregertResponse(profilering: ProfileringAggregertResponse?): OpplysningerOmArbeidssoekerAggregertResponse =
     OpplysningerOmArbeidssoekerAggregertResponse(
         opplysningerOmArbeidssoekerId = opplysningerId,
         periodeId = periodeId,

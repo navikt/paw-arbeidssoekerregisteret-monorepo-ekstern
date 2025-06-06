@@ -8,6 +8,8 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringAggregertResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningRow
@@ -413,6 +415,16 @@ object TestData {
         profilertTil,
         jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder
+    )
+
+    fun ProfileringAggregertResponse.toProfileringResponse(): ProfileringResponse = ProfileringResponse(
+        profileringId = this.profileringId,
+        periodeId = this.periodeId,
+        opplysningerOmArbeidssoekerId = this.opplysningerOmArbeidssoekerId,
+        sendtInnAv = this.sendtInnAv,
+        profilertTil = this.profilertTil,
+        jobbetSammenhengendeSeksAvTolvSisteManeder = this.jobbetSammenhengendeSeksAvTolvSisteManeder,
+        alder = this.alder,
     )
 
     fun nyProfileringList(

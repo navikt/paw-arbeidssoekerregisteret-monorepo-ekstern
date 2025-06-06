@@ -22,6 +22,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.ApplicationTestContext
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData.toProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureM2MToken
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.issueAzureToken
@@ -225,14 +226,16 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[0] shouldBeEqualTo periodeResponses[0]
                 opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)
                     ?: error("Missing opplysninger"))
-                profileringer[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering
+                profileringer[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
-                profileringer[1] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering
+                profileringer[1] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
-                profileringer[2] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering
+                profileringer[2] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
                 bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
                     ?: error("Missing bekreftelse"))
+                egenvurderingMockResponse() shouldBe (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.egenvurdering
+                    ?: error("Missing egenvurdering"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -287,10 +290,12 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[0] shouldBeEqualTo periodeResponses[0]
                 opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)
                     ?: error("Missing opplysninger"))
-                profileringer[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering
+                profileringer[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
                 bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
                     ?: error("Missing bekreftelse"))
+                egenvurderingMockResponse() shouldBe (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.egenvurdering
+                    ?: error("Missing egenvurdering"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -506,14 +511,16 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[0] shouldBeEqualTo periodeResponses[0]
                 opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)
                     ?: error("Missing opplysninger"))
-                profileringer[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering
+                profileringer[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
-                profileringer[1] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering
+                profileringer[1] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
-                profileringer[2] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering
+                profileringer[2] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
                 bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
                     ?: error("Missing bekreftelse"))
+                egenvurderingMockResponse() shouldBe (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.egenvurdering
+                    ?: error("Missing egenvurdering"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
@@ -578,14 +585,16 @@ class PerioderRoutesTest : FreeSpec({
                 perioder[0] shouldBeEqualTo periodeResponses[0]
                 opplysninger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)
                     ?: error("Missing opplysninger"))
-                profileringer[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering
+                profileringer[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
-                profileringer[1] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering
+                profileringer[1] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(1)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
-                profileringer[2] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering
+                profileringer[2] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering?.toProfileringResponse()
                     ?: error("Missing profilering"))
                 bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
                     ?: error("Missing bekreftelse"))
+                egenvurderingMockResponse() shouldBe (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.egenvurdering
+                    ?: error("Missing egenvurdering"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }

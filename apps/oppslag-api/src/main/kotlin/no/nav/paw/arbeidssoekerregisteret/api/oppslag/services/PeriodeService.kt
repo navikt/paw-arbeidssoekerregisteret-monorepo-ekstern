@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerperi
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toBekreftelseResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoekerAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
@@ -54,7 +54,7 @@ class PeriodeService(
                         periode.periodeId,
                         opplysning.opplysningerId
                     )
-                    opplysning.toOpplysningerOmArbeidssoekerAggregertResponse(profilering?.toProfileringResponse())
+                    opplysning.toOpplysningerOmArbeidssoekerAggregertResponse(profilering?.toProfileringAggregertResponse())
                 }
 
             val bekreftelser = bekreftelseRepository.finnBekreftelserForPeriodeIdList(listOf(periode.periodeId))
