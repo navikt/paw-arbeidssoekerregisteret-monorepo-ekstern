@@ -25,7 +25,7 @@ fun TopicNames.asList(): List<String> = listOf(
 
 fun standardTopicNames(naisEnv: RuntimeEnvironment = currentRuntimeEnvironment): TopicNames =
     when(naisEnv) {
-        is DevGcp -> "prod_topic_names.toml"
-        is ProdGcp -> "dev_topic_names.toml"
+        is DevGcp -> "dev_topic_names.toml"
+        is ProdGcp -> "prod_topic_names.toml"
         Local -> "topic_names.toml"
     }.let(::loadNaisOrLocalConfiguration)
