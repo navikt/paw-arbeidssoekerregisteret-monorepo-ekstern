@@ -1,6 +1,6 @@
 package no.nav.paw.oppslagapi
 
-import no.nav.paw.oppslagapi.kafka.hwm.HwmTable.registerColumn
+import no.nav.paw.oppslagapi.DataTable.registerColumn
 import org.jetbrains.exposed.sql.IColumnType
 import org.postgresql.util.PGobject
 import kotlin.apply
