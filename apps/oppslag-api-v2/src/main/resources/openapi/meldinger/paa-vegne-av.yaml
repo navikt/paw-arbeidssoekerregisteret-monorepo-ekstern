@@ -1,4 +1,4 @@
-PaaVegneAv:
+PaaVegneAvStart:
   type: object
   properties:
     periodeId:
@@ -8,22 +8,6 @@ PaaVegneAv:
     bekreftelsesloesning:
       $ref: '../vo/bekreftelsesloesning.yaml#/Bekreftelsesloesning'
       description: 'Hvilket løsning/system som sender meldingen.'
-    handling:
-      description: >
-        Handling som skal utføres:
-        Start: Løsningen starter innsending av bekreftelse på vegne av arbeidssøker for den aktuelle perioden.
-        Stopp: Løsningen stopper innsending av bekreftelse på vegne av arbeidssøker for den aktuelle perioden.
-      oneOf:
-        - $ref: '#/Start'
-        - $ref: '#/Stopp'
-  required:
-    - periodeId
-    - bekreftelsesloesning
-    - handling
-
-Start:
-  type: object
-  properties:
     intervalMS:
       type: integer
       format: int64
@@ -41,12 +25,22 @@ Start:
         og dagpengeløsningen stopper bekreftelse på vegne av arbeidssøker.
         Dette brukes av registeret for å å kunne oppdage 'døde' klienter, men har ingen funksjonell betydning.
   required:
+    - periodeId
+    - bekreftelsesloesning
+    - handling
     - intervalMS
     - graceMS
 
-Stopp:
+PaaVegneAvStopp:
   type: object
   properties:
+    periodeId:
+      type: string
+      format: uuid
+      description: 'UUID for perioden som meldingen gjelder, hentes fra Periode topic eller oppslags api.'
+    bekreftelsesloesning:
+      $ref: '../vo/bekreftelsesloesning.yaml#/Bekreftelsesloesning'
+      description: 'Hvilket løsning/system som sender meldingen.'
     fristBrutt:
       type: boolean
       default: false
@@ -54,3 +48,7 @@ Stopp:
         Angir om grunnen til stopp meldingen er at brukeren har brutt fristen i det eksterne systemet.
         Dersom denne er satt til true og fristene som ble meldt inn i start meldingen er like eller lenger enn
         registerets egne frister vil arbeidssøkerperioden bli stoppet umidelbart.
+
+  required:
+    - periodeId
+    - bekreftelsesloesning

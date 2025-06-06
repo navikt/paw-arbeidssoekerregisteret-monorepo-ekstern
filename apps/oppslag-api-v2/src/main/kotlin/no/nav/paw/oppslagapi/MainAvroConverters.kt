@@ -56,7 +56,9 @@ fun AvroOpplysningerOmArbeidssoeker.toOpenApi(): OpenApiOpplysningerOmArbeidssoe
         utdanning = this.utdanning?.toOpenApi(),
         helse = this.helse?.toOpenApi(),
         jobbsituasjon = this.jobbsituasjon?.toOpenApi(),
-        annet = this.annet?.toOpenApi()
+        annet = this.annet?.toOpenApi(),
+        id = this.id,
+        periodeId = this.periodeId
     )
 
 fun AvroUtdanning.toOpenApi(): OpenApiUtdanning =

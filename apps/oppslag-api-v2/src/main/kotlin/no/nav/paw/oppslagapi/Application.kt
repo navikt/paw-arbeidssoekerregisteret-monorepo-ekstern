@@ -11,6 +11,8 @@ import no.nav.paw.arbeidssokerregisteret.asList
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
+import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
+import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
@@ -203,15 +205,19 @@ fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRec
         }
 
         is PaaVegneAv -> {
+            val (type, openApiObject) = when (val handling = melding.handling) {
+                is Start -> pa_vegne_av_start_v1 to handling.toOpenApi(melding)
+                is Stopp -> pa_vegne_av_stopp_v1 to handling.toOpenApi(melding)
+                else -> throw IllegalArgumentException("PaaVegnaAv handling: ${handling.javaClass}")
+            }
             return Row(
                 identitetsnummer = null,
                 periodeId = melding.periodeId,
                 timestamp = Instant.ofEpochMilli(timestamp()),
-                data = objectMapper.writeValueAsString(melding.toOpenApi()),
-                type = pa_vegne_av_v1
+                data = objectMapper.writeValueAsString(openApiObject),
+                type = type
             )
         }
-
         else -> throw IllegalArgumentException("Unsupported SpecificRecord type: ${this.javaClass}")
     }
 }
@@ -221,7 +227,8 @@ const val periode_avsluttet_v1 = "periode_avsluttet-v1"
 const val opplysninger_om_arbeidssoeker_v4 = "opplysninger-v4"
 const val profilering_v1 = "profilering-v1"
 const val bekreftelsemelding_v1 = "bekreftelse-v1"
-const val pa_vegne_av_v1 = "pa_vegne_av-v1"
+const val pa_vegne_av_start_v1 = "pa_vegne_av_start-v1"
+const val pa_vegne_av_stopp_v1 = "pa_vegne_av_stopp-v1"
 
 data class Row(
     val type: String,

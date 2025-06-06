@@ -58,8 +58,11 @@ components:
     Bekreftelse:
       $ref: './meldinger/bekreftelse.yaml#/Bekreftelse'
 
-    PaaVegneAv:
-      $ref: './meldinger/paa-vegne-av.yaml#/PaaVegneAv'
+    PaaVegneAvStart:
+      $ref: './meldinger/paa-vegne-av.yaml#/PaaVegneAvStart'
+
+    PaaVegneAvStopp:
+      $ref: './meldinger/paa-vegne-av.yaml#/PaaVegneAvStopp'
 
     #Responses
     BekreftelserResponse:

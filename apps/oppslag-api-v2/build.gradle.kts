@@ -78,6 +78,7 @@ dependencies {
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.nav.security.mock.oauth2.server)
     testImplementation(libs.testcontainers.postgresql)
+    testImplementation(project(":test:test-data-factory"))
 }
 
 java {

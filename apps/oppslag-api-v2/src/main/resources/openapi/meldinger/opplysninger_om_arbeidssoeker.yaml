@@ -1,5 +1,13 @@
 OpplysningerOmArbeidssoeker:
   properties:
+    id:
+      type: string
+      format: uuid
+      description: Unik identifikator for opplysningene.
+    periodeId:
+      type: string
+      format: uuid
+      description: Id for perioden opplysningene tilhører.
     sendtInnAv:
       $ref: '../vo/metadata.yaml#/Metadata'
     utdanning:
@@ -12,3 +20,5 @@ OpplysningerOmArbeidssoeker:
       $ref: '../vo/opplysninger.yaml#/Annet'
   required:
     - sendtInnAv
+    - id
+    - periodeId
