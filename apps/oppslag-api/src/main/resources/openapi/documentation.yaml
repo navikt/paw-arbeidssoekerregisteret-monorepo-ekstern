@@ -181,6 +181,39 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ProfileringResponse"
+  /api/v1/profilering/egenvurdering:
+    get:
+      description: Henter brukers egenvurdering av profilering.
+      security:
+        - TokenXAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/EgenvurderingResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "403":
+          description: "Forbidden"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+
   /api/v1/arbeidssoekerbekreftelser:
     get:
       description: ""
@@ -764,6 +797,24 @@ components:
         - "opplysningerOmArbeidssoekerId"
         - "sendtInnAv"
         - "profilertTil"
+    EgenvurderingResponse:
+      type: "object"
+      properties:
+        profileringId:
+          type: "string"
+          format: "uuid"
+        periodeId:
+          type: "string"
+          format: "uuid"
+        egenvurdering:
+          $ref: "#/components/schemas/Egenvurdering"
+        sendtInnAv:
+          $ref: "#/components/schemas/MetadataResponse"
+      required:
+        - "profileringId"
+        - "periodeId"
+        - "egenvurdering"
+        - "sendtInnAv"
     SamletInformasjonResponse:
       type: "object"
       properties:
@@ -897,6 +948,11 @@ components:
         - "ANTATT_GODE_MULIGHETER"
         - "ANTATT_BEHOV_FOR_VEILEDNING"
         - "OPPGITT_HINDRINGER"
+    Egenvurdering:
+      type: "string"
+      enum:
+        - "ANTATT_GODE_MULIGHETER"
+        - "ANTATT_BEHOV_FOR_VEILEDNING"
     Bekreftelsesloesning:
       type: "string"
       enum:
