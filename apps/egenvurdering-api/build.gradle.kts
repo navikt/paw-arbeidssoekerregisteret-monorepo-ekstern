@@ -93,3 +93,41 @@ tasks.withType(Jar::class) {
         attributes["Implementation-Title"] = rootProject.name
     }
 }
+
+tasks.named("compileKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
+
+tasks.named("compileTestKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
+
+val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
+
+openApiValidate {
+    inputSpec = openApiDocFile
+}
+
+openApiGenerate {
+    generatorName.set("kotlin-server")
+    library = "ktor"
+    inputSpec = openApiDocFile
+    outputDir = "${layout.buildDirectory.get()}/generated/"
+    packageName = "no.nav.paw.arbeidssoekerregisteret.egenvurdering.api"
+    configOptions.set(
+        mapOf(
+            "serializationLibrary" to "jackson",
+            "enumPropertyNaming" to "original",
+        ),
+    )
+    typeMappings = mapOf(
+        "DateTime" to "LocalDateTime",
+    )
+    globalProperties = mapOf(
+        "apis" to "none",
+        "models" to ""
+    )
+    importMappings = mapOf(
+        "LocalDateTime" to "java.time.LocalDateTime"
+    )
+}

@@ -4,6 +4,17 @@ info:
   description: "paw_arbeidssoekerregisteret_egenvurdering_api"
   version: "1.0.0"
 paths:
+  /api/v1/arbeidssoker/profilering/egenvurdering/grunnlag:
+    get:
+      description: "Henter grunnlaget for en egenvurdering hvis det finnes"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EgenvurderingGrunnlag"
+
   /internal/isAlive:
     get:
       description: "Service is alive probe"
@@ -48,6 +59,31 @@ paths:
                 type: "string"
 components:
   schemas:
+    EgenvurderingGrunnlag:
+      type: object
+      properties:
+        grunnlag:
+            $ref: "#/components/schemas/Profilering"
+
+    Profilering:
+        type: object
+        properties:
+          profileringId:
+            type: "string"
+            format: "uuid"
+            description: "ID for profileringen"
+          profilertTil:
+            $ref: "#/components/schemas/ProfilertTil"
+        required:
+            - profileringId
+            - profilertTil
+
+    ProfilertTil:
+      type: "string"
+      enum:
+        - "ANTATT_GODE_MULIGHETER"
+        - "ANTATT_BEHOV_FOR_VEILEDNING"
+
     ProblemDetails:
       type: object
       properties:
