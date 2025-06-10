@@ -1,0 +1,3 @@
+[kafkaTopology]
+periodeTopic = "${KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC}"
+beriket14aVedtakTopic = "${KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC}"

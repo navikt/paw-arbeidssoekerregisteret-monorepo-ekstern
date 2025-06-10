@@ -39,6 +39,7 @@ include(
     "test:test-data-factory",
     // apps
     "apps:microfrontend-toggler",
+    "apps:egenvurdering-api",
     "apps:profilering",
     "apps:oppslag-api",
     "apps:eksternt-api",

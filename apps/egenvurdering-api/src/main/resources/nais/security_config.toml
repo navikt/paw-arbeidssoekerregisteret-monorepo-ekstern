@@ -1,0 +1,4 @@
+[[authProviders]]
+name = "tokenx"
+audiences = ["${TOKEN_X_CLIENT_ID}"]
+discoveryUrl = "${TOKEN_X_WELL_KNOWN_URL}"

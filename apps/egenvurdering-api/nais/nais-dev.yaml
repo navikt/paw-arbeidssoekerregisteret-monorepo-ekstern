@@ -1,0 +1,59 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: paw-arbeidssoekerregisteret-egenvurdering-api
+  namespace: paw
+  labels:
+    team: paw
+spec:
+  image: {{ image }}
+  port: 8080
+  env:
+    - name: KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC
+      value: "paw.arbeidssokerperioder-v1"
+    - name: KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC
+      value: "paw.beriket-14a-vedtak-v1"
+    - name: KAFKA_KEYS_SCOPE
+      value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  replicas:
+    min: 1
+    max: 1
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /internal/isReady
+    initialDelay: 10
+  prometheus:
+    enabled: true
+    path: /internal/metrics
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
+  kafka:
+    pool: nav-dev
+    streams: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: aia-backend
+        - application: tokenx-token-generator
+          namespace: nais
+        - application: azure-token-generator
+          namespace: nais
+    outbound:
+      rules:
+        - application: paw-kafka-key-generator
+          namespace: paw

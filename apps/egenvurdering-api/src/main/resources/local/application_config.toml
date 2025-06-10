@@ -1,0 +1,3 @@
+[kafkaTopology]
+periodeTopic = "paw.arbeidssokerperioder-v1"
+beriket14aVedtakTopic = "paw.beriket-14a-vedtak-v1"

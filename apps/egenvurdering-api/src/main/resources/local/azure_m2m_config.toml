@@ -1,0 +1,2 @@
+clientId = "paw-egenvurdering-api"
+tokenEndpointUrl = "http://localhost:8081/default/token"

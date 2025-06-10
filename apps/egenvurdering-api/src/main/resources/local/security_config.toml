@@ -1,0 +1,4 @@
+[[authProviders]]
+name = "tokenx"
+audiences = ["paw-egenvurdering-api"]
+discoveryUrl = "http://localhost:8081/tokenx/.well-known/openid-configuration"
