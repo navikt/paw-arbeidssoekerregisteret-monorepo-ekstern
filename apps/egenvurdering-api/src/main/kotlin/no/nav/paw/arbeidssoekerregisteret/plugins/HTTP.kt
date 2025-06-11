@@ -9,4 +9,5 @@ import no.nav.paw.error.plugin.ErrorHandlingPlugin
 fun Application.configureHTTP() {
     install(IgnoreTrailingSlash)
     install(ErrorHandlingPlugin)
+    installTracingPlugin()
 }

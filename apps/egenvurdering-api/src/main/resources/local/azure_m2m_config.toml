@@ -1,2 +1,2 @@
-clientId = "paw-egenvurdering-api"
+clientId = "paw-arbeidssoekerregisteret-egenvurdering-api"
 tokenEndpointUrl = "http://localhost:8081/default/token"

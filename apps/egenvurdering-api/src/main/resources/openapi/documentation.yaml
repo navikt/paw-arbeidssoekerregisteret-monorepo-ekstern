@@ -4,16 +4,65 @@ info:
   description: "paw_arbeidssoekerregisteret_egenvurdering_api"
   version: "1.0.0"
 paths:
-  /api/v1/arbeidssoker/profilering/egenvurdering/grunnlag:
+  /api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag:
     get:
       description: "Henter grunnlaget for en egenvurdering hvis det finnes"
       responses:
         "200":
           description: "OK"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/EgenvurderingGrunnlag"
+        "400":
+          description: "Bad Request"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "403":
+          description: "Forbidden"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: "Not Found"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: "Internal Server Error"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
 
   /internal/isAlive:
     get:

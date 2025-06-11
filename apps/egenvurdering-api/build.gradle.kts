@@ -102,6 +102,14 @@ tasks.named("compileTestKotlin") {
     dependsOn("openApiValidate", "openApiGenerate")
 }
 
+sourceSets {
+    main {
+        kotlin {
+            srcDir("${layout.buildDirectory.get()}/generated/src/main/kotlin")
+        }
+    }
+}
+
 val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
 
 openApiValidate {
