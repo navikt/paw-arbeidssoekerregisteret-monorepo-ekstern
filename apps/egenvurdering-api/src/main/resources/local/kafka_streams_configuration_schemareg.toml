@@ -1,5 +1,5 @@
 brokers = "localhost:9092"
-applicationIdPrefix = "paw.paw-egenvurdering-api"
+applicationIdPrefix = "paw.paw-arbeidssoekerregisteret-egenvurdering-api"
 
 [schemaRegistry]
 url = "http://localhost:8082"

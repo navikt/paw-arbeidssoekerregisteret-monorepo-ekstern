@@ -49,3 +49,12 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureAuthentication(applicationContext)
     configureRouting(applicationContext)
 }
+
+/*
+EGENVURDERING STATE/SCHEMA:
+
+key: profileringId
+periodeId: UUID
+profilering: Profilering?, //avro profilering
+egenvurdering: Egenvurdering?, // avro egenvurdering
+ */

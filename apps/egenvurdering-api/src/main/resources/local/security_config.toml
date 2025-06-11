@@ -1,6 +1,6 @@
 [[authProviders]]
 name = "tokenx"
-audiences = ["paw-egenvurdering-api"]
+audiences = ["paw-arbeidssoekerregisteret-egenvurdering-api"]
 discoveryUrl = "http://localhost:8081/tokenx/.well-known/openid-configuration"
 [authProviders.requiredClaims]
 claims = [

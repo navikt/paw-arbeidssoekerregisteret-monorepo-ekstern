@@ -8,6 +8,7 @@ data class ApplicationConfig(
 
 data class KafkaTopologyConfig(
     val periodeTopic: String,
-    val beriket14aVedtakTopic: String,
+    val profileringTopic: String,
+    val egenvurderingTopic: String,
 )
 
