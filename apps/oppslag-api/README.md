@@ -13,17 +13,19 @@ flowchart RL;
     A(Frontend/backend løsninger);
     subgraph paw-arbeidssoekerregisteret-api-oppslag
         B[TOKENX/AZURE];
-        id1[REST API <br/> <br/> GET <br/> /arbeidssoekerperioder <br/> /arbeidssoekerperioder-aggregert <br/> /opplysninger-om-arbeidssoeker <br/> /profilering <br/> /samlet-innformasjon <br/> <br/> POST <br/> /veileder/arbeidssoekerperioder <br/> /veileder/arbeidssoekerperioder-aggregert <br/> /veileder/opplysninger-om-arbeidssoeker <br/> /veileder/profilering <br/> /veileder/samlet-innformasjon];
+        id1[REST API <br/> <br/> GET <br/> /arbeidssoekerperioder <br/> /arbeidssoekerperioder-aggregert <br/> /opplysninger-om-arbeidssoeker <br/> /profilering <br/> /profilering/egenvurdering <br/> /samlet-innformasjon <br/> /arbeidersoekerbekreftelser<br/> <br/> POST <br/> /veileder/arbeidssoekerperioder <br/> /veileder/arbeidssoekerperioder-aggregert <br/> /veileder/opplysninger-om-arbeidssoeker <br/> /veileder/profilering <br/> /veileder/samlet-innformasjon <br/> /veileder/arbeidssoekerbekreftelser];
         id2[Helse endepunkter <br/> Opentelemetry tracing <br/> Logging];
         C[Services];
         D[(Postgres database)];
         E[Consumer: arbeidssøkerperiode];
         F[Consumer: opplysninger-om-arbeidssøker];
         G[Consumer: profilering];
+        H[Consumer: bekreftelser];
     end;
-    H[Kafka topic: arbeidssoekerperiode];
-    I[Kafka topic: opplysninger-om-arbeidssoeker];
-    J[Kafka topic: arbeidssoeker-profilering];
+    I[Kafka topic: arbeidssoekerperioder-v1];
+    J[Kafka topic: opplysninger-om-arbeidssoeker-v1];
+    K[Kafka topic: arbeidssoeker-profilering-v1];
+    L[Kafka topic: arbeidssoeker-bekreftelser-v1];
     A-->B;
     B-->id1;
     id2~~~id1
@@ -32,9 +34,11 @@ flowchart RL;
     E-->D
     F-->D;
     G-->D;
-    J-->G;
-    I-->F;
-    H-->E;
+    H-->D;
+    K-->G;
+    J-->F;
+    I-->E;
+    L-->H;
 ```
 
 ## Autentisering
@@ -48,7 +52,9 @@ For oppslag som gjøres av arbeidssoker selv:
 - `/arbeidssoekerperioder-aggregert`
 - `/opplysninger-om-arbeidssoeker/{periodeId}`
 - `/profilering/{periodeId}`
+- `/profilering/egenvurdering`
 - `/samlet-innformasjon`
+- `/arbeidssoekerbekreftelser`
 ```json
 { "acr": "Level4", "pid": "<fnr>" }
 ```
@@ -60,6 +66,7 @@ For oppslag som gjøres av veileder eller system:
 - `/veileder/opplysninger-om-arbeidssoeker/{periodeId}`
 - `/veileder/profilering/{periodeId}`
 - `/veileder/samlet-innformasjon`
+- `/veileder/arbeidssoekerbekreftelser`
 
 Token med veileder-ident:
 ```json

@@ -12,6 +12,8 @@ paths:
   /api/v1/arbeidssoekerperioder:
     get:
       description: ""
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: []
       parameters:
@@ -45,6 +47,8 @@ paths:
   /api/v1/arbeidssoekerperioder-aggregert:
     get:
       description: "Returnerer aggregerte arbeidssøkerperioder med opplysninger, profilering og bekreftelser."
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: [ ]
       parameters:
@@ -78,6 +82,8 @@ paths:
   /api/v1/opplysninger-om-arbeidssoeker:
     get:
       description: ""
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: []
       parameters:
@@ -105,6 +111,8 @@ paths:
   /api/v1/opplysninger-om-arbeidssoeker/{periodeId}:
     get:
       description: ""
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: []
       parameters:
@@ -131,6 +139,8 @@ paths:
   /api/v1/profilering:
     get:
       description: ""
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: []
       parameters:
@@ -158,6 +168,8 @@ paths:
   /api/v1/profilering/{periodeId}:
     get:
       description: ""
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: []
       parameters:
@@ -183,7 +195,9 @@ paths:
                   $ref: "#/components/schemas/ProfileringResponse"
   /api/v1/profilering/egenvurdering:
     get:
-      description: Henter brukers egenvurdering av profilering.
+      description: "WIP: Henter brukers egenvurdering av profilering."
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: []
       responses:
@@ -217,6 +231,8 @@ paths:
   /api/v1/arbeidssoekerbekreftelser:
     get:
       description: ""
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: [ ]
       parameters:
@@ -244,6 +260,8 @@ paths:
   /api/v1/arbeidssoekerbekreftelser/{periodeId}:
     get:
       description: ""
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: []
       parameters:
@@ -288,6 +306,8 @@ paths:
   /api/v1/samlet-informasjon:
     get:
       description: "Henter samlet informasjon om arbeidssøkerperioder, opplysninger og profilering."
+      tags:
+        - "Endepunkter for personbruker"
       security:
         - TokenXAuth: []
       parameters:
@@ -319,6 +339,8 @@ paths:
   /api/v1/veileder/arbeidssoekerperioder:
     post:
       description: ""
+      tags:
+        - "Endepunkter for veileder/system"
       security:
         - AzureAuth: []
       parameters:
@@ -358,6 +380,8 @@ paths:
   /api/v1/veileder/arbeidssoekerperioder-aggregert:
     post:
       description: "Returnerer aggregerte arbeidssøkerperioder med opplysninger, profilering og bekreftelser."
+      tags:
+        - "Endepunkter for veileder/system"
       security:
         - AzureAuth: []
       parameters:
@@ -397,6 +421,8 @@ paths:
   /api/v1/veileder/opplysninger-om-arbeidssoeker:
     post:
       description: ""
+      tags:
+        - "Endepunkter for veileder/system"
       security:
         - AzureAuth: []
       parameters:
@@ -436,6 +462,8 @@ paths:
   /api/v1/veileder/profilering:
     post:
       description: ""
+      tags:
+        - "Endepunkter for veileder/system"
       security:
         - AzureAuth: []
       parameters:
@@ -475,6 +503,8 @@ paths:
   /api/v1/veileder/arbeidssoekerbekreftelser/{periodeId}:
     get:
       description: ""
+      tags:
+        - "Endepunkter for veileder/system"
       security:
         - AzureAuth: []
       parameters:
@@ -519,6 +549,8 @@ paths:
   /api/v1/veileder/samlet-informasjon:
     post:
       description: "Veileder henter samlet informasjon om arbeidssøkerperioder, opplysninger og profilering."
+      tags:
+        - "Endepunkter for veileder/system"
       security:
         - AzureAuth: []
       parameters:
