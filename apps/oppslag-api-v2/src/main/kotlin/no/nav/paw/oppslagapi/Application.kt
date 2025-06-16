@@ -4,6 +4,8 @@ import com.google.common.util.concurrent.UncaughtExceptionHandlers.systemExit
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanContext
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
@@ -37,7 +39,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletableFuture.runAsync
 import java.util.concurrent.atomic.AtomicBoolean
@@ -132,7 +134,7 @@ class DataConsumer(
                                             partition = record.partition(),
                                             offset = record.offset()
                                         )
-                                    }.map { record -> record.toRow(deserializer) }
+                                    }.map { record -> record.toRow(deserializer) to Span.current().spanContext }
                                     .let(::writeBatchToDb)
                             }
                             _sisteProessering.set(Instant.now())
@@ -147,9 +149,9 @@ class DataConsumer(
 }
 
 @WithSpan
-fun writeBatchToDb(rows: Sequence<Row>) {
+fun writeBatchToDb(rows: Sequence<Pair<Row, SpanContext>>) {
     val rowCount = DataTable.batchInsert(
-        data = rows,
+        data = rows.onEach { Span.current().addLink(it.second) }.map { it.first },
         ignore = false,
         shouldReturnGeneratedValues = false
     ) { row ->
