@@ -134,7 +134,7 @@ class DataConsumer(
                                             partition = record.partition(),
                                             offset = record.offset()
                                         )
-                                    }.map { record -> record.toRow(deserializer) to Span.current().spanContext }
+                                    }.map { record -> record.toRow(deserializer) to Span.current() }
                                     .let(::writeBatchToDb)
                             }
                             _sisteProessering.set(Instant.now())
@@ -149,9 +149,9 @@ class DataConsumer(
 }
 
 @WithSpan
-fun writeBatchToDb(rows: Sequence<Pair<Row, SpanContext>>) {
+fun writeBatchToDb(rows: Sequence<Pair<Row, Span>>) {
     val rowCount = DataTable.batchInsert(
-        data = rows.onEach { Span.current().addLink(it.second) }.map { it.first },
+        data = rows.onEach { it.second.addLink(Span.current().spanContext) }.map { it.first },
         ignore = false,
         shouldReturnGeneratedValues = false
     ) { row ->
