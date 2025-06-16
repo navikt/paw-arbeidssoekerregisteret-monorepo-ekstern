@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.kafka.hwm
+package no.nav.paw.oppslagapi.dataconsumer.kafka.hwm
 
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert

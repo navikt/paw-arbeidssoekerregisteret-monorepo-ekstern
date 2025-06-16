@@ -1,5 +1,6 @@
-package no.nav.paw.oppslagapi
+package no.nav.paw.oppslagapi.dataconsumer.converters
 
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse as OpenApiBekreftelse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning as OpenApiBekreftelsesloesning
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker as OpenApiBruker
@@ -11,7 +12,7 @@ import no.nav.paw.bekreftelse.melding.v1.vo.BrukerType as AvroBrukerType
 import no.nav.paw.bekreftelse.melding.v1.vo.Metadata as AvroMetadata
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar as AvroSvar
 
-fun no.nav.paw.bekreftelse.melding.v1.Bekreftelse.toOpenApi(): OpenApiBekreftelse =
+fun Bekreftelse.toOpenApi(): OpenApiBekreftelse =
     OpenApiBekreftelse(
         periodeId = this.periodeId,
         bekreftelsesloesning = this.bekreftelsesloesning?.let { toOpenApiBekreftelsesloesning(it) }

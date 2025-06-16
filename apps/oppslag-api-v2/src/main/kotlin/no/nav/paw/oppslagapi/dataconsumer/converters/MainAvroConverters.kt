@@ -1,9 +1,14 @@
-package no.nav.paw.oppslagapi
+package no.nav.paw.oppslagapi.dataconsumer.converters
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
+import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
+import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
+import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
+import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode as AvroPeriode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as MainAvroMetadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde as AvroTidspunktFraKilde
@@ -37,7 +42,7 @@ fun MainAvroMetadata.toOpenApi(): OpenApiMetadata =
         tidspunktFraKilde = this.tidspunktFraKilde?.toOpenApi()
     )
 
-fun no.nav.paw.arbeidssokerregisteret.api.v1.Bruker.toOpenApi(): OpenApiBruker =
+fun Bruker.toOpenApi(): OpenApiBruker =
     OpenApiBruker(
         type = OpenApiBruker.Type.valueOf(this.type.name),
         id = this.id,
@@ -75,17 +80,17 @@ fun JaNeiVetIkke.toOpenApi(): no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.
         JaNeiVetIkke.VET_IKKE -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.VET_IKKE
     }
 
-fun no.nav.paw.arbeidssokerregisteret.api.v1.Helse.toOpenApi(): OpenApiHelse =
+fun Helse.toOpenApi(): OpenApiHelse =
     OpenApiHelse(
         helsetilstandHindrerArbeid = this.helsetilstandHindrerArbeid.toOpenApi()
     )
 
-fun no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon.toOpenApi(): OpenApiJobbsituasjon =
+fun Jobbsituasjon.toOpenApi(): OpenApiJobbsituasjon =
     OpenApiJobbsituasjon(
         beskrivelser = this.beskrivelser.map { it.toOpenApi() }
     )
 
-fun no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer.toOpenApi(): no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BeskrivelseMedDetaljer =
+fun BeskrivelseMedDetaljer.toOpenApi(): no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BeskrivelseMedDetaljer =
     no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BeskrivelseMedDetaljer(
         beskrivelse = this.beskrivelse.toOpenApi(),
         detaljer = this.detaljer
@@ -113,7 +118,7 @@ fun Beskrivelse.toOpenApi(): no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.m
 
 
 
-fun no.nav.paw.arbeidssokerregisteret.api.v2.Annet.toOpenApi(): OpenApiAnnet =
+fun Annet.toOpenApi(): OpenApiAnnet =
     OpenApiAnnet(
         andreForholdHindrerArbeid = this.andreForholdHindrerArbeid.toOpenApi()
     )

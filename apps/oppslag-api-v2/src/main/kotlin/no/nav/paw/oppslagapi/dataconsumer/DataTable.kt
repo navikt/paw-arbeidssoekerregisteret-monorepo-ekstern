@@ -1,5 +1,6 @@
-package no.nav.paw.oppslagapi
+package no.nav.paw.oppslagapi.dataconsumer
 
+import no.nav.paw.oppslagapi.jsonb
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.timestamp
 

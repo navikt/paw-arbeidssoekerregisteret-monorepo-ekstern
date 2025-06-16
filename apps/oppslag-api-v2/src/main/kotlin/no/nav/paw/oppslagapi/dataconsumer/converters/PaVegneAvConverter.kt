@@ -1,6 +1,5 @@
-package no.nav.paw.oppslagapi
+package no.nav.paw.oppslagapi.dataconsumer.converters
 
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv as AvroPaaVegneAv
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Bekreftelsesloesning as AvroBekreftelsesloesning
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start as AvroStart

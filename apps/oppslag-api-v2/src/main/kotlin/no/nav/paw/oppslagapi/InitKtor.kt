@@ -12,8 +12,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
-import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.oppslagapi.dataconsumer.DataConsumer
 
 fun initKtor(
     prometheusRegistry: PrometheusMeterRegistry,

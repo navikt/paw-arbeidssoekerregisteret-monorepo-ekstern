@@ -1,6 +1,6 @@
-package no.nav.paw.oppslagapi.kafka
+package no.nav.paw.oppslagapi.dataconsumer.kafka
 
-import no.nav.paw.oppslagapi.kafka.hwm.getHwm
+import no.nav.paw.oppslagapi.dataconsumer.kafka.hwm.getHwm
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.common.TopicPartition
