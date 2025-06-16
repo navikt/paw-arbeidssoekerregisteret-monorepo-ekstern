@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.UncaughtExceptionHandlers.systemExit
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
@@ -132,20 +133,7 @@ class DataConsumer(
                                             offset = record.offset()
                                         )
                                     }.map { record -> record.toRow(deserializer) }
-                                    .let { rows ->
-                                        val rader = DataTable.batchInsert(
-                                            data = rows,
-                                            ignore = false,
-                                            shouldReturnGeneratedValues = false
-                                        ) { row ->
-                                            this[DataTable.type] = row.type
-                                            this[DataTable.identitetsnummer] = row.identitetsnummer
-                                            this[DataTable.periodeId] = row.periodeId
-                                            this[DataTable.timestamp] = row.timestamp
-                                            this[DataTable.data] = row.data
-                                        }.count()
-                                        appLogger.debug("Skrev $rader rader til databasen")
-                                    }
+                                    .let(::writeBatchToDb)
                             }
                             _sisteProessering.set(Instant.now())
                         }
@@ -156,6 +144,22 @@ class DataConsumer(
             runCatching { consumer.close(pollTimeout) }
         }
     }
+}
+
+@WithSpan
+fun writeBatchToDb(rows: Sequence<Row>) {
+    val rowCount = DataTable.batchInsert(
+        data = rows,
+        ignore = false,
+        shouldReturnGeneratedValues = false
+    ) { row ->
+        this[DataTable.type] = row.type
+        this[DataTable.identitetsnummer] = row.identitetsnummer
+        this[DataTable.periodeId] = row.periodeId
+        this[DataTable.timestamp] = row.timestamp
+        this[DataTable.data] = row.data
+    }.count()
+    appLogger.debug("Skrev $rowCount rader til databasen")
 }
 
 fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRecord>): Row {
