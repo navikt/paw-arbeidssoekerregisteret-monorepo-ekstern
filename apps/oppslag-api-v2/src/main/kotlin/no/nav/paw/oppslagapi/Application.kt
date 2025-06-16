@@ -142,8 +142,9 @@ class DataConsumer(
                 }
             } catch (_: InterruptedException) {
                 appLogger.info("Consumer interrupted, shutting down gracefully")
+            } finally {
+                runCatching { consumer.close(pollTimeout) }
             }
-            runCatching { consumer.close(pollTimeout) }
         }
     }
 }
