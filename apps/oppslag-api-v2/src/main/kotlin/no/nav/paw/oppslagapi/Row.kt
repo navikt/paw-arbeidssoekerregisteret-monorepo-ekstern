@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.dataconsumer
+package no.nav.paw.oppslagapi
 
 import java.time.Instant
 import java.util.UUID

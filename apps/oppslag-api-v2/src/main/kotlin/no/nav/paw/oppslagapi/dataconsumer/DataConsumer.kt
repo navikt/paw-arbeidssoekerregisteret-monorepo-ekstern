@@ -45,7 +45,9 @@ class DataConsumer(
                                             partition = record.partition(),
                                             offset = record.offset()
                                         )
-                                    }.map { record -> record.toRow(deserializer) to Span.current() }
+                                    }
+                                    .onEach { Span.current().addEvent("added_to_batch") }
+                                    .map { record -> record.toRow(deserializer) to Span.current() }
                                     .let(::writeBatchToDb)
                             }
                             _sisteProessering.set(Instant.now())

@@ -7,6 +7,7 @@ import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
+import no.nav.paw.oppslagapi.Row
 import no.nav.paw.oppslagapi.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.dataconsumer.converters.toOpenApi
 import no.nav.paw.oppslagapi.objectMapper
