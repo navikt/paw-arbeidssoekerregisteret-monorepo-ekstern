@@ -1,6 +1,7 @@
 package no.nav.paw.oppslagapi.health
 
 import io.ktor.http.HttpStatusCode
+import no.nav.paw.oppslagapi.appLogger
 
 fun interface IsAlive {
     operator fun invoke(): Status
@@ -34,4 +35,8 @@ fun Status.httpResponse(): Pair<HttpStatusCode, String> =
         Status.OK -> HttpStatusCode.OK to "OK"
         is Status.ERROR -> HttpStatusCode.InternalServerError to message
         is Status.PENDING -> HttpStatusCode.ServiceUnavailable to message
+    }.also { (code, message) ->
+        if (code != HttpStatusCode.OK) {
+            appLogger.warn("Status: '$code', Message: '$message'")
+        }
     }
