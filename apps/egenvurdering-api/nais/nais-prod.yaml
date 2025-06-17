@@ -50,7 +50,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: aia-backend
+        - application: arbeidssoekerregisteret-for-personbruker
     outbound:
       rules:
         - application: paw-kafka-key-generator

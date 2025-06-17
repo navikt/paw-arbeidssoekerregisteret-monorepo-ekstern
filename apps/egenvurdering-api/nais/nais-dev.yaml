@@ -50,7 +50,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: aia-backend
+        - application: arbeidssoekerregisteret-for-personbruker
         - application: tokenx-token-generator
           namespace: nais
         - application: azure-token-generator
