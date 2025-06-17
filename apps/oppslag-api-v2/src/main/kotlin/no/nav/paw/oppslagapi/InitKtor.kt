@@ -1,6 +1,5 @@
 package no.nav.paw.oppslagapi
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.install
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
@@ -13,12 +12,13 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.oppslagapi.dataconsumer.DataConsumer
+import no.nav.paw.oppslagapi.health.HealthIndicator
+import no.nav.paw.oppslagapi.health.httpResponse
 
 fun initKtor(
     prometheusRegistry: PrometheusMeterRegistry,
-    dataConsumerTask: DataConsumer,
-    meterBinders: List<MeterBinder>
+    meterBinders: List<MeterBinder>,
+    healthIndicator: HealthIndicator
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> =
     embeddedServer(Netty, port = 8080) {
         install(MicrometerMetrics) {
@@ -29,30 +29,25 @@ fun initKtor(
             route("internal") {
                 route("isAlive") {
                     get {
-                        call.respondText("OK", status = HttpStatusCode.Companion.OK)
+                        val (code, message) = healthIndicator.isAlive.httpResponse()
+                        call.respondText(text = message, status = code)
                     }
                 }
                 route("isReady") {
                     get {
-                        call.respondText("OK", status = HttpStatusCode.Companion.OK)
+                        val (code, message) = healthIndicator.isReady.httpResponse()
+                        call.respondText(text = message, status = code)
                     }
                 }
-                route("isStarted") {
+                route("hasStarted") {
                     get {
-                        call.respondText("OK", status = HttpStatusCode.Companion.OK)
+                        val (code, message) = healthIndicator.hasStarted.httpResponse()
+                        call.respondText(text = message, status = code)
                     }
                 }
                 route("metrics") {
                     get {
                         call.respondText(prometheusRegistry.scrape())
-                    }
-                }
-                route("lastPoll") {
-                    get {
-                        call.respondText(
-                            dataConsumerTask.sisteProessering.toString(),
-                            status = HttpStatusCode.Companion.OK
-                        )
                     }
                 }
             }

@@ -16,6 +16,10 @@ import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.oppslagapi.dataconsumer.DataConsumer
 import no.nav.paw.oppslagapi.dataconsumer.kafka.HwmRebalanceListener
 import no.nav.paw.oppslagapi.dataconsumer.kafka.hwm.initHwm
+import no.nav.paw.oppslagapi.health.ExposedHasStarted
+import no.nav.paw.oppslagapi.health.ExposedIsAlive
+import no.nav.paw.oppslagapi.health.ExposedIsReady
+import no.nav.paw.oppslagapi.health.healthIndicator
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -23,6 +27,7 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -71,17 +76,23 @@ fun main() {
         consumer = consumer,
         pollTimeout = Duration.ofMillis(1000L)
     )
-    dataConsumerTask.run().handle { _, throwable ->
-        if (throwable != null) {
-            appLogger.error("DataConsumer task failed", throwable)
-            systemExit()
-        } else {
-            appLogger.info("DataConsumer task completed successfully")
-        }
-    }
+    dataConsumerTask.run()
+    val healthIndicator = healthIndicator(
+        isAlive = listOf(
+            dataConsumerTask.isAliveFunction(),
+            ExposedIsAlive
+        ),
+        isReady = listOf(
+            ExposedIsReady
+        ),
+        hasStarted = listOf(
+            dataConsumerTask.hasStartedFunction(),
+            ExposedHasStarted
+        )
+    )
     initKtor(
         meterBinders = listOf(consumerMetrics),
-        dataConsumerTask = dataConsumerTask,
-        prometheusRegistry = prometheusRegistry
+        prometheusRegistry = prometheusRegistry,
+        healthIndicator = healthIndicator
     ).start(wait = true)
 }

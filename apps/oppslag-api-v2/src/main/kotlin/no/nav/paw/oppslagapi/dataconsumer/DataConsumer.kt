@@ -4,11 +4,15 @@ import io.opentelemetry.api.trace.Span
 import no.nav.paw.oppslagapi.appLogger
 import no.nav.paw.oppslagapi.consumer_version
 import no.nav.paw.oppslagapi.dataconsumer.kafka.hwm.updateHwm
+import no.nav.paw.oppslagapi.health.HasStarted
+import no.nav.paw.oppslagapi.health.IsAlive
+import no.nav.paw.oppslagapi.health.Status
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.Deserializer
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Duration
+import java.time.Duration.between
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
@@ -19,10 +23,29 @@ class DataConsumer(
     private val consumer: Consumer<Long, ByteArray>,
     private val pollTimeout: Duration = Duration.ofMillis(1000L)
 ) {
-    private val _sisteProessering = AtomicReference<Instant?>(null)
-    val sisteProessering: Instant? get() = _sisteProessering.get()
+    private val _sisteProessering = AtomicReference<Instant>(Instant.EPOCH)
+    val sisteProessering: Instant get() = _sisteProessering.get()
 
     private val erStartet = AtomicBoolean(false)
+
+    fun hasStartedFunction(): HasStarted = HasStarted {
+        if (sisteProessering > Instant.EPOCH) {
+            Status.OK
+        } else {
+            Status.PENDING("DataConsumer has not started yet")
+        }
+    }
+
+    fun isAliveFunction(): IsAlive = IsAlive {
+        between(sisteProessering, Instant.now())
+            .let { timeSinceLastCompletedPoll ->
+                if (timeSinceLastCompletedPoll < Duration.ofSeconds(10)) {
+                    Status.OK
+                } else {
+                    Status.PENDING("DataConsumer has not processed data in the last ${timeSinceLastCompletedPoll.toMillis()} ms")
+                }
+            }
+    }
 
     fun run(): CompletableFuture<Void> {
         if (!erStartet.compareAndSet(false, true)) {
