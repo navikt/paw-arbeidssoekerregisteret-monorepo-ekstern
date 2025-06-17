@@ -76,7 +76,11 @@ fun main() {
         consumer = consumer,
         pollTimeout = Duration.ofMillis(1000L)
     )
-    dataConsumerTask.run()
+    dataConsumerTask.run().handleAsync { _, throwable ->
+        if (throwable != null) {
+            appLogger.error("Error running kafka consumer ${throwable.message}", throwable)
+        }
+    }
     val healthIndicator = healthIndicator(
         isAlive = listOf(
             dataConsumerTask.isAliveFunction(),
