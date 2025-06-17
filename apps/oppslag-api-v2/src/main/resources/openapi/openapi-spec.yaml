@@ -64,6 +64,19 @@ components:
     PaaVegneAvStopp:
       $ref: './meldinger/paa-vegne-av.yaml#/PaaVegneAvStopp'
 
+    BekreftelseMedMetadata:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "Angir om dette er en gyldig bekreftelse"
+          enum:
+            - "GYLDIG"
+            - "UVENTET_KILDE"
+            - "UTENFOR_PERIODE"
+        bekreftelse:
+          $ref: './meldinger/bekreftelse.yaml#/Bekreftelse'
+
     #Responses
     BekreftelserResponse:
         type: object
@@ -72,12 +85,7 @@ components:
             bekreftelser:
               type: array
               items:
-                type: object
-                properties:
-                  gyldig:
-                    type: boolean
-                    description: "Angir om dette er en gyldig bekreftelse"
-                  bekreftelse:
-                    $ref: './meldinger/bekreftelse.yaml#/Bekreftelse'
+                $ref: '#/components/schemas/BekreftelseMedMetadata'
+
         required:
             - bekreftelser
