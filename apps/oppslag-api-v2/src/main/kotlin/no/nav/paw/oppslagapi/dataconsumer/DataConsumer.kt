@@ -23,7 +23,7 @@ class DataConsumer(
     private val consumer: Consumer<Long, ByteArray>,
     private val pollTimeout: Duration = Duration.ofMillis(1000L)
 ) {
-    private val _sisteProessering = AtomicReference<Instant>(Instant.EPOCH)
+    private val _sisteProessering = AtomicReference(Instant.EPOCH)
     val sisteProessering: Instant get() = _sisteProessering.get()
 
     private val erStartet = AtomicBoolean(false)
@@ -32,7 +32,7 @@ class DataConsumer(
         if (sisteProessering > Instant.EPOCH) {
             Status.OK
         } else {
-            Status.PENDING("DataConsumer has not started yet")
+            Status.PENDING("DataConsumer has not started yet, last processing time is $sisteProessering")
         }
     }
 
@@ -73,8 +73,8 @@ class DataConsumer(
                                     .map { record -> record.toRow(deserializer) to Span.current() }
                                     .let(::writeBatchToDb)
                             }
-                            _sisteProessering.set(Instant.now())
                         }
+                    _sisteProessering.set(Instant.now())
                 }
             } catch (_: InterruptedException) {
                 appLogger.info("Consumer interrupted, shutting down gracefully")
