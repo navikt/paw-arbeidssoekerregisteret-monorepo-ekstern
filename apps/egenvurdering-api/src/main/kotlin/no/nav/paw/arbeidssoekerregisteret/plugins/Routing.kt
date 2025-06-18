@@ -13,6 +13,7 @@ import io.ktor.server.routing.routing
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
+import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.swaggerRoutes
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
@@ -38,22 +39,3 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
         }
     }
 }
-
-val logger = buildApplicationLogger
-
-fun Route.egenvurderingRoutes() =
-    route("/api/v1/arbeidssoeker/profilering/egenvurdering") {
-        autentisering(TokenX) {
-            post<EgenvurderingRequest> { egenvurderingRequest ->
-                logger.info("Mottok egenvurderingrequest")
-                call.respond(HttpStatusCode.Accepted)
-            }
-            get("/grunnlag") {
-                val bruker = call.bruker<Sluttbruker>()
-                logger.info("Mottok grunnlagrequest")
-                call.respond(HttpStatusCode.OK, EgenvurderingGrunnlag(grunnlag = null))
-            }
-        }
-    }
-
-

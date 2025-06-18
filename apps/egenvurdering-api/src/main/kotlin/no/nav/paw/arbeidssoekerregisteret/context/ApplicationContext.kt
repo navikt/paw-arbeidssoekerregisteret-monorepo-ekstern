@@ -7,13 +7,22 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
+import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
+import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
+import no.nav.paw.arbeidssoekerregisteret.utils.buildKafkaStreams
+import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
+import no.nav.paw.kafka.factory.KafkaStreamsFactory
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
+import org.apache.kafka.common.serialization.Serde
 
 data class ApplicationContext(
     val serverConfig: ServerConfig,
@@ -22,6 +31,11 @@ data class ApplicationContext(
     val prometheusMeterRegistry: PrometheusMeterRegistry,
     val healthIndicatorRepository: HealthIndicatorRepository,
     val authorizationService: AuthorizationService,
+    val kafkaKeysClient: KafkaKeysClient,
+    val egenvurderingService: EgenvurderingService,
+    val periodeSerde: Serde<Periode>,
+    val profileringSerde: Serde<Profilering>,
+    val egenvurderingSerde: Serde<Egenvurdering>,
     //val siste14aVedtakKafkaStreams: KafkaStreams
 ) {
     companion object {
@@ -37,6 +51,23 @@ data class ApplicationContext(
             val kafkaKeysClient = createKafkaKeyGeneratorClient()
 
             val authorizationService = AuthorizationService()
+
+            val kafkaStreamsFactory = KafkaStreamsFactory(
+                applicationConfig.kafkaTopology.applicationId,
+                kafkaConfig
+            )
+
+            val periodeSerde = kafkaStreamsFactory.createSpecificAvroSerde<Periode>()
+            val profileringSerde = kafkaStreamsFactory.createSpecificAvroSerde<Profilering>()
+            val egenvurderingSerde = kafkaStreamsFactory.createSpecificAvroSerde<Egenvurdering>()
+
+            /*val profileringKafkaStream = buildKafkaStreams(
+                applicationConfig.kafkaTopology.profileringStreamIdSuffix,
+                kafkaConfig,
+                healthIndicatorRepository,
+                buildProfilering
+            )*/
+            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient)
 
             /*
             val siste14aVedtakTopology = buildSiste14aVedtakTopology(
@@ -57,6 +88,11 @@ data class ApplicationContext(
                 prometheusMeterRegistry,
                 healthIndicatorRepository,
                 authorizationService,
+                kafkaKeysClient,
+                egenvurderingService,
+                periodeSerde,
+                profileringSerde,
+                egenvurderingSerde
                 //siste14aVedtakKafkaStreams
             )
         }
