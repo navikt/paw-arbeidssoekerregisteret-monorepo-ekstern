@@ -1,25 +1,23 @@
 package no.nav.paw.oppslagapi.health
 
-fun healthIndicator(
-    isAlive: List<IsAlive> = emptyList(),
-    isReady: List<IsReady> = emptyList(),
-    hasStarted: List<HasStarted> = emptyList()
-): HealthIndicator {
-    return CompoudHealthIndicator(isAlive, isReady, hasStarted)
-}
+class CompoudHealthIndicator(
+    vararg indicators: HealthIndicator
+): IsAlive, IsReady, HasStarted {
+    private val isAliveIndicators = indicators.filterIsInstance<IsAlive>()
+    private val isReadyIndicators = indicators.filterIsInstance<IsReady>()
+    private val hasStartedIndicators = indicators.filterIsInstance<HasStarted>()
 
-private class CompoudHealthIndicator(
-    private val _isAlive: List<IsAlive>,
-    private val _isReady: List<IsReady>,
-    private val _hasStarted: List<HasStarted>
-): HealthIndicator {
+    override val name: String = "CompoundHealthIndicator(${indicators.joinToString { it.name }})"
 
-    override val isAlive: Status
-        get() = _isAlive.map(IsAlive::invoke).reduceToStatus()
+    override fun isAlive(): Status = isAliveIndicators
+        .map(IsAlive::isAlive)
+        .reduceToStatus()
 
-    override val isReady: Status
-        get() = _isReady.map(IsReady::invoke).reduceToStatus()
+    override fun isReady(): Status = isReadyIndicators
+        .map(IsReady::isReady)
+        .reduceToStatus()
 
-    override val hasStarted: Status
-        get() = _hasStarted.map(HasStarted::invoke).reduceToStatus()
+    override fun hasStarted(): Status = hasStartedIndicators
+        .map(HasStarted::hasStarted)
+        .reduceToStatus()
 }

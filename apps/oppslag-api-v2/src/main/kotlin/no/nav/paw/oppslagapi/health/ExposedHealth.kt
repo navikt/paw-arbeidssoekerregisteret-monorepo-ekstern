@@ -2,24 +2,32 @@ package no.nav.paw.oppslagapi.health
 
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object ExposedIsAlive : IsAlive {
-    override fun invoke(): Status =
-        transaction {
-            exec("select 1") { rs ->
-                if (rs.next()) {
-                    rs.getInt(1)
-                    Status.OK
-                } else {
-                    Status.ERROR("Exposed database connection failed")
+object ExposedHealthIndicator : IsAlive, IsReady, HasStarted {
+    override val name: String = "ExposedHealthIndicator"
+
+    private fun checkDatabaseConnection(): Status =
+        runCatching {
+            transaction {
+                exec("select 1") { rs ->
+                    if (rs.next()) {
+                        rs.getInt(1)
+                        Status.OK
+                    } else {
+                        Status.ERROR("Exposed database connection failed")
+                    }
                 }
-            }
-        } ?: Status.ERROR("Exposed database connection failed")
-}
+            } ?: Status.ERROR("Exposed database connection failed")
+        }.recover { throwable ->
+            Status.ERROR(
+                message = "Exposed database connection failed: ${throwable.message ?: "Unknown error"}",
+                cause = throwable
+            )
+        }.getOrThrow()
 
-object ExposedHasStarted : HasStarted {
-    override fun invoke(): Status = ExposedIsAlive()
-}
+    override fun isAlive(): Status = checkDatabaseConnection()
 
-object ExposedIsReady : IsReady {
-    override fun invoke(): Status = ExposedIsAlive()
+    override fun isReady(): Status = checkDatabaseConnection()
+
+    override fun hasStarted(): Status = checkDatabaseConnection()
+
 }

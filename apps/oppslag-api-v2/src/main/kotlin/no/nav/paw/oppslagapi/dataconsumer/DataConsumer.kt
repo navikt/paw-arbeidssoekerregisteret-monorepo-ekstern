@@ -22,29 +22,42 @@ class DataConsumer(
     private val deserializer: Deserializer<SpecificRecord>,
     private val consumer: Consumer<Long, ByteArray>,
     private val pollTimeout: Duration = Duration.ofMillis(1000L)
-) {
-    private val _sisteProessering = AtomicReference(Instant.EPOCH)
-    val sisteProessering: Instant get() = _sisteProessering.get()
+): IsAlive, HasStarted {
+    override val name = "DataConsumer(consumer_version=$consumer_version, pollTimeout=$pollTimeout)"
 
+    private val sisteProessering = AtomicReference(Instant.EPOCH)
     private val erStartet = AtomicBoolean(false)
+    private val exitError = AtomicReference<Throwable?>(null)
 
-    fun hasStartedFunction(): HasStarted = HasStarted {
-        if (sisteProessering > Instant.EPOCH) {
-            Status.OK
-        } else {
-            Status.PENDING("DataConsumer has not started yet, last processing time is $sisteProessering")
+    override fun hasStarted(): Status {
+        val currentExitError = exitError.get()
+        return when {
+            currentExitError != null -> {
+                Status.ERROR("Fatal error", currentExitError)
+            }
+            sisteProessering.get() > Instant.EPOCH -> {
+                Status.OK
+            }
+            else -> {
+                Status.PENDING("DataConsumer has not started yet, last processing time is $sisteProessering")
+            }
         }
     }
 
-    fun isAliveFunction(): IsAlive = IsAlive {
-        between(sisteProessering, Instant.now())
-            .let { timeSinceLastCompletedPoll ->
-                if (timeSinceLastCompletedPoll < Duration.ofSeconds(10)) {
-                    Status.OK
-                } else {
-                    Status.PENDING("DataConsumer has not processed data in the last ${timeSinceLastCompletedPoll.toMillis()} ms")
+    override fun isAlive(): Status {
+        val currentExitError = exitError.get()
+        return if (currentExitError != null) {
+            Status.ERROR("Fatal error", currentExitError)
+        } else {
+            between(sisteProessering.get(), Instant.now())
+                .let { timeSinceLastCompletedPoll ->
+                    if (timeSinceLastCompletedPoll < Duration.ofSeconds(10)) {
+                        Status.OK
+                    } else {
+                        Status.PENDING("DataConsumer has not processed data in the last ${timeSinceLastCompletedPoll.toMillis()} ms")
+                    }
                 }
-            }
+        }
     }
 
     fun run(): CompletableFuture<Void> {
@@ -53,7 +66,7 @@ class DataConsumer(
         }
         return CompletableFuture.runAsync {
             appLogger.info("Startet DataConsumer for consumer_version=${consumer_version}")
-            try {
+            runCatching {
                 while (true) {
                     consumer.poll(pollTimeout)
                         .takeIf { !it.isEmpty }
@@ -74,13 +87,9 @@ class DataConsumer(
                                     .let(::writeBatchToDb)
                             }
                         }
-                    _sisteProessering.set(Instant.now())
+                    sisteProessering.set(Instant.now())
                 }
-            } catch (_: InterruptedException) {
-                appLogger.info("Consumer interrupted, shutting down gracefully")
-            } finally {
-                runCatching { consumer.close(pollTimeout) }
-            }
+            }.onFailure { throwable -> exitError.set(throwable) }
         }
     }
 }

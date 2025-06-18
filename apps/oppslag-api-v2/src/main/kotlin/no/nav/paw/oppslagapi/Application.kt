@@ -1,6 +1,5 @@
 package no.nav.paw.oppslagapi
 
-import com.google.common.util.concurrent.UncaughtExceptionHandlers.systemExit
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -16,10 +15,8 @@ import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.oppslagapi.dataconsumer.DataConsumer
 import no.nav.paw.oppslagapi.dataconsumer.kafka.HwmRebalanceListener
 import no.nav.paw.oppslagapi.dataconsumer.kafka.hwm.initHwm
-import no.nav.paw.oppslagapi.health.ExposedHasStarted
-import no.nav.paw.oppslagapi.health.ExposedIsAlive
-import no.nav.paw.oppslagapi.health.ExposedIsReady
-import no.nav.paw.oppslagapi.health.healthIndicator
+import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
+import no.nav.paw.oppslagapi.health.ExposedHealthIndicator
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -27,7 +24,6 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -76,24 +72,8 @@ fun main() {
         consumer = consumer,
         pollTimeout = Duration.ofMillis(1000L)
     )
-    dataConsumerTask.run().handleAsync { _, throwable ->
-        if (throwable != null) {
-            appLogger.error("Error running kafka consumer ${throwable.message}", throwable)
-        }
-    }
-    val healthIndicator = healthIndicator(
-        isAlive = listOf(
-            dataConsumerTask.isAliveFunction(),
-            ExposedIsAlive
-        ),
-        isReady = listOf(
-            ExposedIsReady
-        ),
-        hasStarted = listOf(
-            dataConsumerTask.hasStartedFunction(),
-            ExposedHasStarted
-        )
-    )
+    dataConsumerTask.run()
+    val healthIndicator = CompoudHealthIndicator(ExposedHealthIndicator, dataConsumerTask)
     initKtor(
         meterBinders = listOf(consumerMetrics),
         prometheusRegistry = prometheusRegistry,

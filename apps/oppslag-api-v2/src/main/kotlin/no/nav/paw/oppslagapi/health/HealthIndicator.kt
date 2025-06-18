@@ -3,22 +3,20 @@ package no.nav.paw.oppslagapi.health
 import io.ktor.http.HttpStatusCode
 import no.nav.paw.oppslagapi.appLogger
 
-fun interface IsAlive {
-    operator fun invoke(): Status
+sealed interface HealthIndicator {
+    val name: String
 }
 
-fun interface IsReady {
-    operator fun invoke(): Status
+interface IsAlive: HealthIndicator {
+    fun isAlive(): Status
 }
 
-fun interface HasStarted {
-    operator fun invoke(): Status
+interface IsReady: HealthIndicator {
+    fun isReady(): Status
 }
 
-interface HealthIndicator {
-    val isAlive: Status
-    val isReady: Status
-    val hasStarted: Status
+interface HasStarted: HealthIndicator {
+    fun hasStarted(): Status
 }
 
 sealed interface NotOk {
@@ -26,7 +24,7 @@ sealed interface NotOk {
 }
 sealed interface Status {
     data object OK: Status
-    data class ERROR(override val message: String): Status, NotOk
+    data class ERROR(override val message: String, val cause: Throwable? = null): Status, NotOk
     data class PENDING(override val message: String): Status, NotOk
 }
 
