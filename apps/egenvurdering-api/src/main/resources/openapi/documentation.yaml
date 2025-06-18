@@ -173,25 +173,31 @@ components:
     EgenvurderingRequest:
       type: "object"
       properties:
-        profileringId:
-          type: "string"
-          description: "Unik identifikator for profilering"
-          format: uuid
         periodeId:
           type: "string"
-          description: "Unik identifikator for arbeidssøkerens periode"
+          description: "Arbeidssøkerperiode id"
+          format: uuid
+        opplysningerOmArbeidssoekerId:
+          type: "string"
+          description: "OpplysningerOmArbeidssøker id"
+          format: uuid
+        profileringId:
+          type: "string"
+          description: "Profilering id"
           format: uuid
         egenvurdering:
           $ref: "#/components/schemas/Egenvurdering"
       required:
-        - "profileringId"
         - "periodeId"
+        - "opplysningerOmArbeidssoekerId"
+        - "profileringId"
         - "egenvurdering"
     Egenvurdering:
       type: "string"
       enum:
         - "ANTATT_BEHOV_FOR_VEILEDNING"
         - "ANTATT_GODE_MULIGHETER"
+        - "OPPGITT_HINDRINGER"
     EgenvurderingGrunnlag:
       type: object
       properties:

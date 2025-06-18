@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.service
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering as ApiEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.utils.EgenvurderingSerializer
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
@@ -19,7 +20,7 @@ import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.LongSerializer
-import org.apache.kafka.streams.state.KeyValueStore
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
 import java.time.Instant
 import java.util.*
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering as ApiProfilering
@@ -29,7 +30,7 @@ class EgenvurderingService(
     private val applicationConfig: ApplicationConfig,
     private val kafkaConfig: KafkaConfig,
     private val kafkaKeysClient: KafkaKeysClient,
-    private val profileringState: KeyValueStore<Long, Profilering>
+    private val profileringState: ReadOnlyKeyValueStore<Long, Profilering>
 ) {
     private val logger = buildApplicationLogger
     private var producer: Producer<Long, Egenvurdering>
@@ -53,8 +54,8 @@ class EgenvurderingService(
 
     suspend fun postEgenvurdering(identitetsnummer: Identitetsnummer, request: EgenvurderingRequest) {
         val (arbeidssoekerId, key) = kafkaKeysClient.getIdAndKey(identitetsnummer.verdi)
-        logger.info("Sender egenvurdering for arbeidssoekerId: $arbeidssoekerId")
-        val metadata: RecordMetadata = RecordMetadata(
+        logger.info("Sender egenvurdering for key $key")
+        val metadata = RecordMetadata(
             Instant.now(),
             Bruker(
                 BrukerType.SLUTTBRUKER,
@@ -64,14 +65,14 @@ class EgenvurderingService(
             "todo",
             "todo",
             null
-        )
+        ) // TODO: fiks verdier for metadata
         val record = ProducerRecord(
             applicationConfig.kafkaTopology.egenvurderingTopic,
             key,
             Egenvurdering(
                 UUID.randomUUID(),
                 request.periodeId,
-                UUID.randomUUID(), //TODO: Replace with actual opplysningerOmArbeidssokerId
+                request.opplysningerOmArbeidssoekerId,
                 request.profileringId,
                 metadata,
                 request.egenvurdering.toProfilertTil()
@@ -83,23 +84,24 @@ class EgenvurderingService(
     }
 }
 
+fun ApiEgenvurdering.toProfilertTil(): ProfilertTil =
+    when (this) {
+        ApiEgenvurdering.ANTATT_GODE_MULIGHETER -> ProfilertTil.ANTATT_GODE_MULIGHETER
+        ApiEgenvurdering.ANTATT_BEHOV_FOR_VEILEDNING -> ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+        ApiEgenvurdering.OPPGITT_HINDRINGER -> ProfilertTil.OPPGITT_HINDRINGER
+    }
+
 fun Profilering.toApiProfilering(): ApiProfilering =
     ApiProfilering(
         profileringId = id,
         profilertTil = profilertTil.toApiProfilertTil() ?: throw IllegalArgumentException("Ugyldig profilertTil: $profilertTil"),
     )
 
-fun ProfilertTil.toApiProfilertTil(): ApiProfilertTil? = when (this) {
-    ProfilertTil.ANTATT_GODE_MULIGHETER -> ApiProfilertTil.ANTATT_GODE_MULIGHETER
-    ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING -> ApiProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
-    ProfilertTil.OPPGITT_HINDRINGER -> ApiProfilertTil.OPPGITT_HINDRINGER
-    else -> null
+fun ProfilertTil.toApiProfilertTil(): ApiProfilertTil? {
+    return when (this) {
+        ProfilertTil.ANTATT_GODE_MULIGHETER -> ApiProfilertTil.ANTATT_GODE_MULIGHETER
+        ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING -> ApiProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+        ProfilertTil.OPPGITT_HINDRINGER -> ApiProfilertTil.OPPGITT_HINDRINGER
+        else -> null
+    }
 }
-
-fun ApiProfilertTil.toProfilertTil(): ProfilertTil? = when (this) {
-    ApiProfilertTil.ANTATT_GODE_MULIGHETER -> ProfilertTil.ANTATT_GODE_MULIGHETER
-    ApiProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING -> ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
-    ApiProfilertTil.OPPGITT_HINDRINGER -> ProfilertTil.OPPGITT_HINDRINGER
-    else -> null
-}
-
