@@ -25,7 +25,7 @@ fun buildProfileringTopology(
     applicationConfig: ApplicationConfig,
     profileringSerde: Serde<Profilering>,
     meterRegistry: MeterRegistry,
-    kafkaKeysFunction: suspend (ident: String) -> KafkaKeysResponse
+    kafkaKeysFunction: (ident: String) -> KafkaKeysResponse
 ): Topology = StreamsBuilder().apply {
     addProfileringStateStore(applicationConfig, profileringSerde)
     buildProfileringStream(applicationConfig, profileringSerde)

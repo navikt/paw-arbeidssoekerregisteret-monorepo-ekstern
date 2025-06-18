@@ -53,13 +53,14 @@ fun Application.module(applicationContext: ApplicationContext) {
 /*
 EGENVURDERING STATE:
 
-key: profileringId
-periodeId: UUID,
-arbeidssokerId: Long,
-egenvurdering: Egenvurdering?, // avro egenvurdering
-
-PROFILERING STATE:
-
-key: arbeidssokerId
-Value: Profilering // avro profilering
+key = arbeidssokerId: UUID
+value =
+{
+  arbeidssokerId: UUID,
+  periodeId: UUID,
+  opplysningerOmArbeidssoekerId: UUID?,
+  profileringId: UUID?,
+  profilertTil: ProfilertTil?, // avro profilert til
+  egenvurdering: Egenvurdering? // avro egenvurdering
+}
  */

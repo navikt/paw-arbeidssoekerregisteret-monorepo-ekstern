@@ -19,28 +19,6 @@ fun Application.configureSerialization() {
     install(ContentNegotiation) {
         jackson {
             configureJackson()
-            registerModule(buildExtraModule())
         }
-    }
-}
-
-private fun buildExtraModule(): Module {
-    return SimpleModule("ExtraModule")
-        .addSerializer(HttpStatusCode::class.java, HttpStatusCodeSerializer())
-        .addDeserializer(HttpStatusCode::class.java, HttpStatusCodeDeserializer())
-}
-
-class HttpStatusCodeSerializer : JsonSerializer<HttpStatusCode>() {
-    override fun serialize(value: HttpStatusCode?, generator: JsonGenerator, serializers: SerializerProvider) {
-        if (value != null) {
-            generator.writeNumber(value.value)
-        }
-    }
-}
-
-class HttpStatusCodeDeserializer : JsonDeserializer<HttpStatusCode>() {
-    override fun deserialize(parser: JsonParser, context: DeserializationContext): HttpStatusCode {
-        val status = parser.valueAsInt
-        return HttpStatusCode.fromValue(status)
     }
 }
