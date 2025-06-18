@@ -16,15 +16,15 @@ fun StreamsBuilder.buildProfileringStream(
     applicationConfig: ApplicationConfig,
     profileringSerde: Serde<Profilering>,
 ) {
-    logger.info("Oppretter KStream for periode")
+    logger.info("Oppretter KStream for profilering")
     val kafkaTopology = applicationConfig.kafkaTopology
     this.stream(
         kafkaTopology.profileringTopic, Consumed.with(Serdes.Long(), profileringSerde)
     ).peek { key, _ ->
         logger.debug("Mottok event på ${kafkaTopology.profileringTopic} med key $key")
     }.genericProcess<Long, Profilering, Long, Profilering>(
-        name = "handtereToggleForPeriode",
-        stateStoreNames = arrayOf(kafkaTopology.stateStoreName)
+        name = "handtereProfilering",
+        stateStoreNames = arrayOf(kafkaTopology.profileringStateStoreName)
     ) { record ->
         processProfilering(applicationConfig, record)
     }

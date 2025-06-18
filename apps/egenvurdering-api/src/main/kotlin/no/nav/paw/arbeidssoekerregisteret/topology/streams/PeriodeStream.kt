@@ -24,7 +24,7 @@ fun StreamsBuilder.buildPeriodeStream(
         logger.debug("Mottok event på ${kafkaTopology.periodeTopic} med key $key")
     }.genericProcess<Long, Periode, Long, Periode>(
         name = "handtereToggleForPeriode",
-        stateStoreNames = arrayOf(kafkaTopology.stateStoreName)
+        stateStoreNames = arrayOf(kafkaTopology.egenvurderingStateStoreName)
     ) { record ->
         processProfilering(applicationConfig, record)
     }

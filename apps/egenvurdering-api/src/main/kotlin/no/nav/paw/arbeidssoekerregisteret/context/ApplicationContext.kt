@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
+import no.nav.paw.arbeidssoekerregisteret.topology.buildProfileringTopology
 import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildKafkaStreams
 import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
@@ -23,6 +24,9 @@ import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.kafka.common.serialization.Serde
+import org.apache.kafka.streams.StoreQueryParameters
+import org.apache.kafka.streams.state.QueryableStoreTypes
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
 
 data class ApplicationContext(
     val serverConfig: ServerConfig,
@@ -36,7 +40,6 @@ data class ApplicationContext(
     val periodeSerde: Serde<Periode>,
     val profileringSerde: Serde<Profilering>,
     val egenvurderingSerde: Serde<Egenvurdering>,
-    //val siste14aVedtakKafkaStreams: KafkaStreams
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -61,25 +64,23 @@ data class ApplicationContext(
             val profileringSerde = kafkaStreamsFactory.createSpecificAvroSerde<Profilering>()
             val egenvurderingSerde = kafkaStreamsFactory.createSpecificAvroSerde<Egenvurdering>()
 
-            /*val profileringKafkaStream = buildKafkaStreams(
-                applicationConfig.kafkaTopology.profileringStreamIdSuffix,
+            val profileringTopology = buildProfileringTopology(applicationConfig, profileringSerde, prometheusMeterRegistry, kafkaKeysClient::getIdAndKey)
+            val profileringKafkaStreams = buildKafkaStreams(
+                applicationConfig.kafkaTopology.periodeStreamIdSuffix,
                 kafkaConfig,
                 healthIndicatorRepository,
-                buildProfilering
-            )*/
-            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient)
-
-            /*
-            val siste14aVedtakTopology = buildSiste14aVedtakTopology(
-                // TODO Vil denne returnere null ved normal operasjon?
-                applicationConfig, prometheusMeterRegistry, kafkaKeysClient::getIdAndKeyOrNullBlocking
+                profileringTopology
             )
-            val siste14aVedtakKafkaStreams = buildKafkaStreams(
-                applicationConfig.kafkaTopology.siste14aVedtakStreamIdSuffix,
-                kafkaConfig,
-                healthIndicatorRepository,
-                siste14aVedtakTopology
-            )*/
+            val storeSupplier = StoreQueryParameters.fromNameAndType(
+                applicationConfig.kafkaTopology.profileringStateStoreName,
+                QueryableStoreTypes.keyValueStore<Long, Profilering>()
+            )
+
+            val profileringStateStore: ReadOnlyKeyValueStore<Long, Profilering> =
+                profileringKafkaStreams.store(storeSupplier)
+
+            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient, profileringStateStore)
+
 
             return ApplicationContext(
                 serverConfig,
@@ -93,7 +94,6 @@ data class ApplicationContext(
                 periodeSerde,
                 profileringSerde,
                 egenvurderingSerde
-                //siste14aVedtakKafkaStreams
             )
         }
     }

@@ -10,6 +10,7 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.state.Stores
 
+/*
 private fun StreamsBuilder.addPeriodeStateStore(applicationConfig: ApplicationConfig) {
     this.addStateStore(
         Stores.keyValueStoreBuilder(
@@ -28,4 +29,4 @@ fun buildPeriodeTopology(
     addPeriodeStateStore(applicationConfig)
     buildPeriodeStream(applicationConfig, meterRegistry, kafkaKeysFunction)
     buildBeriket14aVedtakStream(applicationConfig, meterRegistry)
-}.build()
+}.build()*/

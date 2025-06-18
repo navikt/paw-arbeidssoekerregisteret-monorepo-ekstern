@@ -15,7 +15,6 @@ data class KafkaTopologyConfig(
     val periodeTopic: String,
     val profileringTopic: String,
     val egenvurderingTopic: String,
-    val stateStoreName: String,
+    val egenvurderingStateStoreName: String,
     val profileringStateStoreName: String,
 )
-
