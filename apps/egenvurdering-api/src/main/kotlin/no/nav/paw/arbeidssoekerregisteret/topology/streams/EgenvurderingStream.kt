@@ -16,24 +16,24 @@ fun StreamsBuilder.buildEgenvurderingStream(
     applicationConfig: ApplicationConfig,
     kafkaStreamsFactory: KafkaStreamsFactory,
 ) {
-    logger.info("Oppretter KStream for periode")
+    logger.info("Oppretter KStream for egenvurdering")
     val kafkaTopology = applicationConfig.kafkaTopology
     this.stream(
         kafkaTopology.egenvurderingTopic, Consumed.with(Serdes.Long(), kafkaStreamsFactory.createSpecificAvroSerde<Egenvurdering>())
     ).peek { key, _ ->
-        logger.debug("Mottok event på ${kafkaTopology.periodeTopic} med key $key")
+        logger.debug("Mottok event på ${kafkaTopology.egenvurderingTopic} med key $key")
     }.genericProcess<Long, Egenvurdering, Long, Egenvurdering>(
-        name = "handtereToggleForPeriode",
+        name = "handtereEgenvurdering",
         stateStoreNames = arrayOf(kafkaTopology.egenvurderingStateStoreName)
     ) { record ->
-        processProfilering(applicationConfig, record)
+        processEgenvurdering(applicationConfig, record)
     }
 }
 
-fun processProfilering(
+fun processEgenvurdering(
     applicationConfig: ApplicationConfig,
     record: Record<Long, Egenvurdering>
 ): Record<Long, Egenvurdering> {
-    logger.info("Behandler periode med key ${record.key()} og value ${record.value()}")
+    logger.info("Behandler egenvurdering med key ${record.key()}")
     return record
 }
