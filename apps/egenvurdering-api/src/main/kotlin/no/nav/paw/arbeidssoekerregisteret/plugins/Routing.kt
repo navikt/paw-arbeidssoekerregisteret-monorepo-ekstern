@@ -27,6 +27,7 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {
         routing {
             get("/internal/isAlive") {
+                // TODO: health lib
                 call.respondText(ContentType.Text.Plain, HttpStatusCode.OK) { HealthStatus.HEALTHY.value }
             }
 

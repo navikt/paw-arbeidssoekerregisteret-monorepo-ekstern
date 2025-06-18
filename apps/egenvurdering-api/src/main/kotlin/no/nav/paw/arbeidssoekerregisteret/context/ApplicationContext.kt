@@ -11,6 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.topology.buildProfileringTopology
 import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildKafkaStreams
+import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
@@ -64,11 +65,11 @@ data class ApplicationContext(
             val profileringSerde = kafkaStreamsFactory.createSpecificAvroSerde<Profilering>()
             val egenvurderingSerde = kafkaStreamsFactory.createSpecificAvroSerde<Egenvurdering>()
 
-            val profileringTopology = buildProfileringTopology(applicationConfig, profileringSerde, prometheusMeterRegistry, kafkaKeysClient::getIdAndKey)
+            val profileringTopology = buildProfileringTopology(applicationConfig, profileringSerde, prometheusMeterRegistry, kafkaKeysClient::getIdAndKeyBlocking)
             val profileringKafkaStreams = buildKafkaStreams(
                 applicationConfig.kafkaTopology.periodeStreamIdSuffix,
                 kafkaConfig,
-                healthIndicatorRepository,
+                healthIndicatorRepository, // TODO: bytt ut med nye health lib
                 profileringTopology
             )
             val storeSupplier = StoreQueryParameters.fromNameAndType(
