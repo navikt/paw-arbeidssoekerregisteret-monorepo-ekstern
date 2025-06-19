@@ -103,8 +103,9 @@ fun Route.profileringRoutes(
 
 fun egenvurderingMockResponse(): List<EgenvurderingResponse> {
     return listOf(EgenvurderingResponse(
-        profileringId = UUID.fromString("00000000-0000-0000-0000-000000000000"),
         periodeId = UUID.fromString("00000000-0000-0000-0000-000000000000"),
+        opplysningerOmArbeidssoekerId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+        profileringId = UUID.fromString("00000000-0000-0000-0000-000000000002"),
         egenvurdering = Egenvurdering.ANTATT_GODE_MULIGHETER,
         sendtInnAv = MetadataResponse(
             tidspunkt = Instant.MIN,
@@ -112,8 +113,8 @@ fun egenvurderingMockResponse(): List<EgenvurderingResponse> {
                 type = BrukerType.SLUTTBRUKER,
                 id = "12345678911",
             ),
-            kilde = "test-kilde",
-            aarsak = "test-aarsak",
+            kilde = "mock-kilde",
+            aarsak = "mock-aarsak",
         )
     ))
 }
