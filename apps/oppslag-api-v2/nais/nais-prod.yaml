@@ -14,6 +14,12 @@ spec:
     requests:
       cpu: 200m
       memory: 512Mi
+  idporten:
+    enabled: true
+    sidecar:
+      enabled: true
+  tokenx:
+    enabled: true
   azure:
     application:
       enabled: true
@@ -21,8 +27,6 @@ spec:
       claims:
         extra:
           - NAVident
-  tokenx:
-    enabled: true
   kafka:
     pool: nav-prod
   replicas:
