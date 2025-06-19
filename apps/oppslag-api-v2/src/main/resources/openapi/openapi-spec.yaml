@@ -41,7 +41,7 @@ paths:
           content:
             application/json:
               schema:
-                type: "object"
+                $ref: "#/components/schemas/BekreftelserResponse"
 
 
 components:

@@ -12,11 +12,14 @@ import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.oppslagapi.dataconsumer.DataConsumer
 import no.nav.paw.oppslagapi.dataconsumer.kafka.HwmRebalanceListener
 import no.nav.paw.oppslagapi.dataconsumer.kafka.hwm.initHwm
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.oppslagapi.health.ExposedHealthIndicator
+import no.nav.paw.security.authentication.config.SECURITY_CONFIG
+import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -40,6 +43,7 @@ fun main() {
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val dataSource = createHikariDataSource(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val topicNames = standardTopicNames(currentRuntimeEnvironment)
+    val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
     Database.connect(dataSource)
     Flyway.configure()
         .dataSource(dataSource)
@@ -75,8 +79,10 @@ fun main() {
     dataConsumerTask.run()
     val healthIndicator = CompoudHealthIndicator(ExposedHealthIndicator, dataConsumerTask)
     initKtor(
-        meterBinders = listOf(consumerMetrics),
         prometheusRegistry = prometheusRegistry,
-        healthIndicator = healthIndicator
+        meterBinders = listOf(consumerMetrics),
+        healthIndicator = healthIndicator,
+        authProviders = securityConfig.authProviders,
+        kafkaKeysClient = createKafkaKeyGeneratorClient()
     ).start(wait = true)
 }

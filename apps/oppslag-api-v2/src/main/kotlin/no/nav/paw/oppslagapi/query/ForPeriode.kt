@@ -11,30 +11,22 @@ import java.util.*
 
 fun Transaction.hentForPeriode(
     periodeId: UUID
-): List<Row<String>> {
+): List<Row<Any>> {
     val result = DataTable.selectAll()
         .where { DataTable.periodeId eq periodeId }
-        .map { resultRow ->
-            Row(
-                type = resultRow[DataTable.type],
-                identitetsnummer = resultRow[DataTable.identitetsnummer],
-                periodeId = resultRow[DataTable.periodeId],
-                timestamp = resultRow[DataTable.timestamp],
-                data = resultRow[DataTable.data]
-            )
-        }
+        .map(::asObject)
     return result
 }
 
-fun ResultRow.asObject(): Row<Any> {
-    val type = get(DataTable.type)
+fun asObject(row: ResultRow): Row<Any> {
+    val type = row[DataTable.type]
     val clazz = typeTilKlasse[type]?.java
         ?: throw IllegalArgumentException("Ukjent type: $type")
     return Row(
         type = type,
-        identitetsnummer = get(DataTable.identitetsnummer),
-        periodeId = get(DataTable.periodeId),
-        timestamp = get(DataTable.timestamp),
-        data = objectMapper.readValue(get(DataTable.data), clazz)
+        identitetsnummer = row[DataTable.identitetsnummer],
+        periodeId = row[DataTable.periodeId],
+        timestamp = row[DataTable.timestamp],
+        data = objectMapper.readValue(row[DataTable.data], clazz)
     )
 }
