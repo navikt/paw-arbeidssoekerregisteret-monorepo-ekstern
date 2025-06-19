@@ -10,6 +10,9 @@ spec:
   ingresses:
     - https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no
   port: 8080
+  env:
+    - name: KAFKA_KEYS_SCOPE
+      value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
   resources:
     limits:
       memory: 1024Mi
