@@ -1,9 +1,0 @@
-Bekreftelsesloesning:
-  type: string
-  enum:
-    - UKJENT_VERDI
-    - ARBEIDSSOEKERREGISTERET
-    - DAGPENGER
-    - FRISKMELDT_TIL_ARBEIDSFORMIDLING
-  default: UKJENT_VERDI
-
