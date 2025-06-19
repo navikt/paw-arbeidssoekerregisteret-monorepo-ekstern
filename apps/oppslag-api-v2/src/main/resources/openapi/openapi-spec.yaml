@@ -3,7 +3,9 @@ info:
   title: Periode API
   description: API for handling arbeidssøkerperioder (job seeker periods)
   version: 1.0.0
-
+servers:
+  - url: "https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no"
+    description: Development server
 paths:
   /api/v2/bekreftelser:
     post:
