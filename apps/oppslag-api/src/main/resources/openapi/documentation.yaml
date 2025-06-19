@@ -863,21 +863,25 @@ components:
     EgenvurderingResponse:
       type: "object"
       properties:
-        profileringId:
-          type: "string"
-          format: "uuid"
         periodeId:
           type: "string"
           format: "uuid"
-        egenvurdering:
-          $ref: "#/components/schemas/Egenvurdering"
+        opplysningerOmArbeidssoekerId:
+          type: "string"
+          format: "uuid"
+        profileringId:
+          type: "string"
+          format: "uuid"
         sendtInnAv:
           $ref: "#/components/schemas/MetadataResponse"
+        egenvurdering:
+          $ref: "#/components/schemas/Egenvurdering"
       required:
-        - "profileringId"
         - "periodeId"
-        - "egenvurdering"
+        - "opplysningerOmArbeidssoekerId"
+        - "profileringId"
         - "sendtInnAv"
+        - "egenvurdering"
     SamletInformasjonResponse:
       type: "object"
       properties:
@@ -1014,8 +1018,10 @@ components:
     Egenvurdering:
       type: "string"
       enum:
+        - "UKJENT_VERDI"
         - "ANTATT_GODE_MULIGHETER"
         - "ANTATT_BEHOV_FOR_VEILEDNING"
+        - "OPPGITT_HINDRINGER"
     Bekreftelsesloesning:
       type: "string"
       enum:
