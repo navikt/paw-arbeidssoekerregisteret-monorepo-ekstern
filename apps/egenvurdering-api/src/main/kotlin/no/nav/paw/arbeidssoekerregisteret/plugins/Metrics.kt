@@ -5,7 +5,6 @@ import io.ktor.server.application.install
 import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
-import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
@@ -18,13 +17,7 @@ fun Application.configureMetrics(applicationContext: ApplicationContext) {
             JvmGcMetrics(),
             ProcessorMetrics()
         )
-        //TODO val kafkaClientMetrics = listOf(toggleService.getKafkaMetricsBinder())
-        val kafkaStreamsMetrics = listOf<KafkaStreamsMetrics>(
-            //KafkaStreamsMetrics(periodeKafkaStreams),
-            //KafkaStreamsMetrics(siste14aVedtakKafkaStreams)
-        )
-        //metricsMeterBinders.addAll(kafkaClientMetrics)
-        metricsMeterBinders.addAll(kafkaStreamsMetrics)
+        //TODO kafkaproducermetrics
         install(MicrometerMetrics) {
             registry = prometheusMeterRegistry
             meterBinders = metricsMeterBinders

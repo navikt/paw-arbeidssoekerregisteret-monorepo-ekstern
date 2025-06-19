@@ -1,8 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret
 
-import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
-import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
-import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
@@ -21,26 +18,16 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingRoutes
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
-import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
-import no.nav.paw.arbeidssoekerregisteret.utils.buildSiste14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
-import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.apache.avro.specific.SpecificRecord
-import org.apache.kafka.common.serialization.Serde
-import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.StreamsConfig
-import org.apache.kafka.streams.state.KeyValueStore
-import java.util.Properties
-import kotlin.collections.iterator
-import kotlin.collections.set
+import org.apache.kafka.clients.producer.Producer
+import org.apache.kafka.common.serialization.Serializer
 
 open class TestContext {
 
@@ -52,42 +39,9 @@ open class TestContext {
     val mockOAuth2Server = MockOAuth2Server()
     val meterRegistry = SimpleMeterRegistry()
     val kafkaKeysClientMock = mockk<KafkaKeysClient>()
-    val periodeSerde = buildAvroSerde<Periode>()
-    val siste14aVedtakSerde = buildSiste14aVedtakSerde()
-    val beriket14aVedtakSerde = buildBeriket14aVedtakSerde()
     val prometheusMeterRegistryMock = mockk<PrometheusMeterRegistry>()
     val healthIndicatorRepository = HealthIndicatorRepository()
     val authorizationService = AuthorizationService()
-
-    val kafkaStreamProperties = Properties().apply {
-        this[StreamsConfig.APPLICATION_ID_CONFIG] = "test-kafka-streams"
-        this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
-        this[StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG] = Serdes.Long().javaClass
-        this[StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG] = SpecificAvroSerde<SpecificRecord>().javaClass
-        this[KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS] = "true"
-        this[KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG] = "mock://$SCHEMA_REGISTRY_SCOPE"
-    }
-
-    fun <T : SpecificRecord> buildAvroSerde(): Serde<T> {
-        val schemaRegistryClient = MockSchemaRegistry.getClientForScope(SCHEMA_REGISTRY_SCOPE)
-        val serde: Serde<T> = SpecificAvroSerde(schemaRegistryClient)
-        serde.configure(
-            mapOf(
-                KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS to "true",
-                KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG to "mock://$SCHEMA_REGISTRY_SCOPE"
-            ),
-            false
-        )
-        return serde
-    }
-
-    fun <K, V> KeyValueStore<K, V>.size(): Int {
-        var count = 0
-        for (keyValue in all()) {
-            count++
-        }
-        return count
-    }
 
     fun ApplicationTestBuilder.configureTestApplication() {
         val applicationContext = ApplicationContext(
@@ -104,10 +58,8 @@ open class TestContext {
             authorizationService,
             kafkaKeysClientMock,
             mockk<EgenvurderingService>(relaxed = true),
-            mockk<Serde<Periode>>(relaxed = true),
-            mockk<Serde<Profilering>>(relaxed = true),
-            mockk<Serde<Egenvurdering>>(relaxed = true),
-
+            mockk<Serializer<Egenvurdering>>(relaxed = true),
+            mockk<Producer<Long, Egenvurdering>>(relaxed = true),
         )
         application {
             configureSerialization()

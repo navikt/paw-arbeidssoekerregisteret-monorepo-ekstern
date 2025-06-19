@@ -3,6 +3,7 @@ package no.nav.paw.kafka.factory
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
+import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import no.nav.paw.kafka.config.KafkaAuthenticationConfig
 import no.nav.paw.kafka.config.KafkaConfig
@@ -97,7 +98,16 @@ class KafkaFactory(private val config: KafkaConfig) {
                 configure(map, false)
             }
             return deserializer as Deserializer<T>
-    }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        fun <T> kafkaAvroSerializer(): Serializer<T> {
+            val map: Map<String, Any> = baseProperties.toMap().mapKeys { it.key.toString() }
+            val serializer = KafkaAvroSerializer().apply {
+                configure(map, false)
+            }
+            return serializer as Serializer<T>
+        }
 }
 
 operator fun Properties.plus(other: Map<String, Any>): Properties =

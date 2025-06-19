@@ -33,6 +33,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                         val egenvurderingJson = """
                             {
                               "periodeId": "${UUID.randomUUID()}",
+                              "opplysningerOmArbeidssoekerId": "${UUID.randomUUID()}",
                               "profileringId": "${UUID.randomUUID()}",
                               "egenvurdering": "ANTATT_GODE_MULIGHETER"
                             }
