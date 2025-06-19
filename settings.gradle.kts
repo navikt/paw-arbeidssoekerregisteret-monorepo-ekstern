@@ -35,6 +35,7 @@ include(
     "lib:tilgangskontroll-client",
     "lib:common-model",
     "lib:topics",
+    "lib:api-oppslag-client",
     // test
     "test:test-data-factory",
     // apps

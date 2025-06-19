@@ -5,6 +5,8 @@ metadata:
   namespace: paw
   labels:
     team: paw
+  annotations:
+    texas.nais.io/enabled: "true"
 spec:
   image: {{ image }}
   ingresses:
@@ -27,6 +29,8 @@ spec:
       value: "paw.arbeidssoeker-egenvurdering-beta-v1"
     - name: KAFKA_KEYS_SCOPE
       value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
+    - name: OPPSLAG_API_SCOPE
+      value: "api://prod-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag/.default"
   resources:
     limits:
       memory: 2048Mi
@@ -64,4 +68,6 @@ spec:
     outbound:
       rules:
         - application: paw-kafka-key-generator
+          namespace: paw
+        - application: paw-arbeidssokerregisteret-api-oppslag
           namespace: paw

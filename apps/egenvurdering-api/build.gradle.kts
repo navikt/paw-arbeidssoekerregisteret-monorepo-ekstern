@@ -15,6 +15,8 @@ dependencies {
     implementation(project(":lib:kafka-key-generator-client"))
     implementation(project(":lib:kafka"))
     implementation(project(":lib:common-model"))
+    implementation(project(":lib:http-client-utils"))
+    implementation(project(":lib:api-oppslag-client"))
     implementation(project(":domain:main-avro-schema"))
     testImplementation(project(":test:test-data-factory"))
 

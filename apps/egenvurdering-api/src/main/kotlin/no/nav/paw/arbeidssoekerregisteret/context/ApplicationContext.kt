@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.context
 import io.ktor.client.HttpClient
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.arbeidssoekerregisteret.clients.TexasOnBehalfOfClient
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
@@ -10,6 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
+import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
@@ -46,7 +48,11 @@ data class ApplicationContext(
             val healthIndicatorRepository = HealthIndicatorRepository()
 
             val kafkaKeysClient = createKafkaKeyGeneratorClient()
-            val oppslagsClient = HttpClient()
+            val texasOnBehalfOfClient = TexasOnBehalfOfClient(
+                applicationConfig.texasClientConfig
+            )
+
+            val oppslagsClient = ApiOppslagClient(applicationConfig.oppslagApiConfig.url)
 
             val authorizationService = AuthorizationService()
 
@@ -60,7 +66,7 @@ data class ApplicationContext(
                 valueSerializer = egenvurderingAvroSerializer::class,
             )
 
-            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient, egenvurderingProducer, oppslagsClient)
+            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient, egenvurderingProducer, texasOnBehalfOfClient, oppslagsClient)
 
 
             return ApplicationContext(
