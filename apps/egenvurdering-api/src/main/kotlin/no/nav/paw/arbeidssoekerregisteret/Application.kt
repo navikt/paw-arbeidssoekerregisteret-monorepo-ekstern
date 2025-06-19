@@ -51,9 +51,9 @@ fun Application.module(applicationContext: ApplicationContext) {
 }
 
 /*
-EGENVURDERING STATE:
+EGENVURDERING RECORD:
 
-key = arbeidssokerId: UUID
+key = kafkaclientkey Long
 value =
 {
   arbeidssokerId: UUID,
@@ -63,4 +63,4 @@ value =
   profilertTil: ProfilertTil?, // avro profilert til
   egenvurdering: Egenvurdering? // avro egenvurdering
 }
- */
+*/

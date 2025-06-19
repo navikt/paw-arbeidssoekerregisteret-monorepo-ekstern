@@ -21,6 +21,7 @@ fun Route.egenvurderingRoutes() =
         autentisering(TokenX) {
             post<EgenvurderingRequest> { egenvurderingRequest ->
                 logger.info("Mottok egenvurderingrequest")
+                // TODO: Ta en runde på nødvendig innhold i EgenvurderingRequest
                 call.respond(HttpStatusCode.Accepted)
             }
             get("/grunnlag") {

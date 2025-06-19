@@ -1,11 +1,4 @@
 [kafkaTopology]
 producerVersion = "paw-egenvurdering-producer-v1"
 applicationId = "paw-arbeidssoekerregisteret-egenvurdering-api"
-periodeStreamIdSuffix = "v1"
-profileringStreamIdSuffix = "v1"
-egenvurderingStreamIdSuffix = "v1"
-periodeTopic = "paw.arbeidssokerperioder-v1"
-profileringTopic = "paw.arbeidssoker-profilering-v1"
-egenvurderingTopic = "paw.arbeidssoker-profilering-egenvurdering-v1"
-egenvurderingStateStoreName = "egenvurderingStateStore"
-profileringStateStoreName = "profileringStateStore"
+egenvurderingTopic = "arbeidssoker-egenvurdering-v1"

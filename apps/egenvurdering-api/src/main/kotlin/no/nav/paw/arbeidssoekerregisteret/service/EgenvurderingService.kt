@@ -1,10 +1,10 @@
 package no.nav.paw.arbeidssoekerregisteret.service
 
+import io.ktor.client.HttpClient
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering as ApiEgenvurdering
-import no.nav.paw.arbeidssoekerregisteret.utils.EgenvurderingSerializer
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
@@ -13,14 +13,12 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.kafka.config.KafkaConfig
-import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.kafka.producer.sendDeferred
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.LongSerializer
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
+
 import java.time.Instant
 import java.util.*
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering as ApiProfilering
@@ -30,23 +28,14 @@ class EgenvurderingService(
     private val applicationConfig: ApplicationConfig,
     private val kafkaConfig: KafkaConfig,
     private val kafkaKeysClient: KafkaKeysClient,
-    private val profileringState: ReadOnlyKeyValueStore<Long, Profilering>
+    private val producer: Producer<Long, Egenvurdering>,
+    private val oppslagsClient: HttpClient
 ) {
     private val logger = buildApplicationLogger
-    private var producer: Producer<Long, Egenvurdering>
-
-    init {
-        val kafkaFactory = KafkaFactory(kafkaConfig)
-        producer = kafkaFactory.createProducer(
-            clientId = "${kafkaConfig.applicationIdPrefix}_${applicationConfig.kafkaTopology.producerVersion}",
-            keySerializer = LongSerializer::class,
-            valueSerializer = EgenvurderingSerializer::class
-        )
-    }
 
     suspend fun getEgenvurderingGrunnlag(identitetsnummer: Identitetsnummer): EgenvurderingGrunnlag? {
         val (arbeidssoekerId, _) = kafkaKeysClient.getIdAndKey(identitetsnummer.verdi)
-        val grunnlag = profileringState.get(arbeidssoekerId)
+        val grunnlag = TODO()
         return EgenvurderingGrunnlag(
             grunnlag = grunnlag.toApiProfilering(),
         )

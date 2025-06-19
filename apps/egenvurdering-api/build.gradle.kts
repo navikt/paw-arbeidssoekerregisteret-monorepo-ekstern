@@ -12,8 +12,8 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
-    implementation(project(":lib:kafka-streams"))
     implementation(project(":lib:kafka-key-generator-client"))
+    implementation(project(":lib:kafka"))
     implementation(project(":lib:common-model"))
     implementation(project(":domain:main-avro-schema"))
     testImplementation(project(":test:test-data-factory"))
@@ -52,8 +52,7 @@ dependencies {
     implementation(libs.opentelemetry.annotations)
 
     // Kafka
-    implementation(libs.kafka.streams)
-    implementation(libs.confluent.kafka.streams.avro.serde)
+    implementation(libs.kafka.clients)
 
     // NAV Common
     implementation(libs.nav.common.types)
@@ -69,7 +68,6 @@ dependencies {
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.security.mock.oauth2.server)
-    testImplementation(libs.kafka.streams.test)
 }
 
 java {

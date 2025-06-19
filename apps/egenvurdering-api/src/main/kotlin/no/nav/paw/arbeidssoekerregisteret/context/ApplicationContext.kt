@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.context
 
+import io.ktor.client.HttpClient
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
@@ -8,26 +9,19 @@ import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
-import no.nav.paw.arbeidssoekerregisteret.topology.buildProfileringTopology
-import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
-import no.nav.paw.arbeidssoekerregisteret.utils.buildKafkaStreams
-import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
-import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
-import no.nav.paw.kafka.factory.KafkaStreamsFactory
+import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
-import org.apache.kafka.common.serialization.Serde
-import org.apache.kafka.streams.StoreQueryParameters
-import org.apache.kafka.streams.state.QueryableStoreTypes
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore
+import org.apache.kafka.clients.producer.Producer
+import org.apache.kafka.common.serialization.LongSerializer
+import org.apache.kafka.common.serialization.Serializer
 
 data class ApplicationContext(
     val serverConfig: ServerConfig,
@@ -38,9 +32,8 @@ data class ApplicationContext(
     val authorizationService: AuthorizationService,
     val kafkaKeysClient: KafkaKeysClient,
     val egenvurderingService: EgenvurderingService,
-    val periodeSerde: Serde<Periode>,
-    val profileringSerde: Serde<Profilering>,
-    val egenvurderingSerde: Serde<Egenvurdering>,
+    val egenvurderingAvroSerializer: Serializer<Egenvurdering>,
+    val producer: Producer<Long, Egenvurdering>
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -53,34 +46,21 @@ data class ApplicationContext(
             val healthIndicatorRepository = HealthIndicatorRepository()
 
             val kafkaKeysClient = createKafkaKeyGeneratorClient()
+            val oppslagsClient = HttpClient()
 
             val authorizationService = AuthorizationService()
 
-            val kafkaStreamsFactory = KafkaStreamsFactory(
-                applicationConfig.kafkaTopology.applicationId,
+            val kafkaFactory = KafkaFactory(
                 kafkaConfig
             )
-
-            val periodeSerde = kafkaStreamsFactory.createSpecificAvroSerde<Periode>()
-            val profileringSerde = kafkaStreamsFactory.createSpecificAvroSerde<Profilering>()
-            val egenvurderingSerde = kafkaStreamsFactory.createSpecificAvroSerde<Egenvurdering>()
-
-            val profileringTopology = buildProfileringTopology(applicationConfig, profileringSerde, prometheusMeterRegistry, kafkaKeysClient::getIdAndKeyBlocking)
-            val profileringKafkaStreams = buildKafkaStreams(
-                applicationConfig.kafkaTopology.periodeStreamIdSuffix,
-                kafkaConfig,
-                healthIndicatorRepository, // TODO: bytt ut med nye health lib
-                profileringTopology
-            )
-            val storeSupplier = StoreQueryParameters.fromNameAndType(
-                applicationConfig.kafkaTopology.profileringStateStoreName,
-                QueryableStoreTypes.keyValueStore<Long, Profilering>()
+            val egenvurderingAvroSerializer = kafkaFactory.kafkaAvroSerializer<Egenvurdering>()
+            val egenvurderingProducer = kafkaFactory.createProducer<Long, Egenvurdering>(
+                clientId = "${applicationConfig.kafkaTopology.applicationId}_${applicationConfig.kafkaTopology.producerVersion}",
+                keySerializer = LongSerializer::class,
+                valueSerializer = egenvurderingAvroSerializer::class,
             )
 
-            val profileringStateStore: ReadOnlyKeyValueStore<Long, Profilering> =
-                profileringKafkaStreams.store(storeSupplier)
-
-            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient, profileringStateStore)
+            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient, egenvurderingProducer, oppslagsClient)
 
 
             return ApplicationContext(
@@ -92,9 +72,8 @@ data class ApplicationContext(
                 authorizationService,
                 kafkaKeysClient,
                 egenvurderingService,
-                periodeSerde,
-                profileringSerde,
-                egenvurderingSerde
+                egenvurderingAvroSerializer,
+                egenvurderingProducer
             )
         }
     }
