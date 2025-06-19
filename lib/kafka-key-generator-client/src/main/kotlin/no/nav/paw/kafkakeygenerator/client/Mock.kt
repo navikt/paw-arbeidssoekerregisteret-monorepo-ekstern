@@ -16,5 +16,9 @@ fun inMemoryKafkaKeysMock(): KafkaKeysClient {
             val id = map.computeIfAbsent(identitetsnummer) { sekvens.incrementAndGet() }
             return KafkaKeysResponse(id, id % 2)
         }
+
+        override suspend fun getInfo(identitetsnummer: String): KafkaKeysInfoResponse? {
+            TODO("Implementeres ved behov")
+        }
     }
 }
