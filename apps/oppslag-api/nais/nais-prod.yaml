@@ -135,6 +135,8 @@ spec:
           namespace: teamsykefravr
         - application: veilarbdirigent
           namespace: dab
+        - application: paw-arbeidssoekerregisteret-egenvurdering-api
+          namespace: paw
     outbound:
       rules:
         - application: paw-tilgangskontroll

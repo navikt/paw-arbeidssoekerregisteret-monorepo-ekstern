@@ -2,3 +2,12 @@
 producerVersion = "${KAFKA_PAW_EGENVURDERING_PRODUCER_VERSION}"
 applicationId = "paw-arbeidssoekerregisteret-egenvurdering-api"
 egenvurderingTopic = "paw-arbeidssoker-egenvurdering-beta-v1"
+
+[oppslagApiConfig]
+url = "http://paw-arbeidssoekerregisteret-api-oppslag"
+scope = "${OPPSLAG_API_SCOPE}"
+
+
+[TexasClientConfig]
+endpoint = "${NAIS_TOKEN_EXCHANGE_ENDPOINT}"
+target = "http://paw-arbeidssoekerregisteret-api-oppslag"

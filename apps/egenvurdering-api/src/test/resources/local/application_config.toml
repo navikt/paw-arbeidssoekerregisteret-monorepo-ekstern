@@ -1,5 +1,12 @@
 [kafkaTopology]
 producerVersion = "paw-egenvurdering-producer-v1"
 applicationId = "paw-arbeidssoekerregisteret-egenvurdering-api"
-egenvurderingTopic = "paw-arbeidssoker-egenvurdering-v1"
+egenvurderingTopic = "arbeidssoker-egenvurdering-v1"
 
+[oppslagApiConfig]
+url = "MOCK"
+scope = "api://<cluster>.<namespace>.<outbound-app-name>/.default"
+
+[texasClientConfig]
+endpoint = "http://localhost:8080/texas-dummy"
+target = "http://paw-arbeidssoekerregisteret-api-oppslag"
