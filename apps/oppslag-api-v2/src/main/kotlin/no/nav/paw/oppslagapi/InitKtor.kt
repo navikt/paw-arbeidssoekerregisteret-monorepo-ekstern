@@ -75,8 +75,7 @@ fun <A> initKtor(
             internalRoutes(healthIndicator, prometheusRegistry)
             swaggerUI(path = "documentation/openapi-spec", swaggerFile = openApiSpecFile)
             route("/api/v2/bekreftelser") {
-                post<ApiV2BekreftelserPostRequest> {
-                    val request = call.receive<ApiV2BekreftelserPostRequest>()
+                post<ApiV2BekreftelserPostRequest> { request ->
                     if (request.perioder.isEmpty()) {
                         call.respond(HttpStatusCode.OK, BekreftelserResponse(emptyList()))
                         return@post
