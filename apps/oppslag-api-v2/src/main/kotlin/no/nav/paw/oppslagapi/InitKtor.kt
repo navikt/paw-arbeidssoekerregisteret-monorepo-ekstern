@@ -78,8 +78,8 @@ fun <A> initKtor(
         routing {
             internalRoutes(healthIndicator, prometheusRegistry)
             swaggerUI(path = "documentation/openapi-spec", swaggerFile = openApiSpecFile)
-            autentisering(TokenX, AzureAd) {
-                route("/api/v2/bekreftelser") {
+            route("/api/v2/bekreftelser") {
+                autentisering(TokenX, AzureAd) {
                     post<ApiV2BekreftelserPostRequest> { request ->
                         appQueryLogic.hentBekreftelser(
                             bruker = call.securityContext().bruker,
