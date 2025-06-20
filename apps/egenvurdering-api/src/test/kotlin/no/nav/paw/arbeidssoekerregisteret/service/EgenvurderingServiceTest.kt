@@ -2,15 +2,15 @@ package no.nav.paw.arbeidssoekerregisteret.service
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.paw.arbeidssoekerregisteret.clients.OnBehalfOfResponse
-import no.nav.paw.arbeidssoekerregisteret.clients.TexasClient
+import no.nav.paw.arbeidssoekerregisteret.texas.OnBehalfOfResponse
+import no.nav.paw.arbeidssoekerregisteret.texas.TexasClient
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.model.Identitetsnummer
 
 class EgenvurderingServiceTest : FreeSpec({
-    val identitetsnummer = Identitetsnummer(verdi = "12345123451")
     val userToken = "userToken"
     val texasClientMock = mockk<TexasClient>().also { texasClient ->
         coEvery { texasClient.getOnBehalfOfToken(userToken) } returns OnBehalfOfResponse(accessToken = "vekslet_token")
@@ -30,7 +30,11 @@ class EgenvurderingServiceTest : FreeSpec({
 
     "Henting av egenvurderingsgrunnlag" - {
         "Tomt grunnlag - Egenvurdering og profilering eksisterer ikke for bruker" - {
-            val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(identitetsnummer, userToken)
+            val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
+                identitetsnummer = Identitetsnummer(verdi = "12345123451"),
+                userToken = userToken
+            )
+            egenvurderingGrunnlag shouldNotBe null
             egenvurderingGrunnlag!!.grunnlag shouldBe null
         }
     }

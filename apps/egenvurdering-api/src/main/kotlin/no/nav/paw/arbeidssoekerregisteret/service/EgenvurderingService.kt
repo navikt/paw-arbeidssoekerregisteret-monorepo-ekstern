@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.service
 
-import no.nav.paw.arbeidssoekerregisteret.clients.TexasClient
+import no.nav.paw.arbeidssoekerregisteret.texas.TexasClient
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
@@ -36,8 +36,11 @@ class EgenvurderingService(
 ) {
     private val logger = buildApplicationLogger
 
-    suspend fun getEgenvurderingGrunnlag(identitetsnummer: Identitetsnummer, userToken: String): EgenvurderingGrunnlag? {
+    @Suppress("KotlinUnreachableCode", "Midlertidig død kode i metoden")
+    suspend fun getEgenvurderingGrunnlag(identitetsnummer: Identitetsnummer, userToken: String): EgenvurderingGrunnlag {
         val exchangedToken = texasClient.getOnBehalfOfToken(userToken).accessToken
+        return EgenvurderingGrunnlag(grunnlag = null)
+
         // TODO: find siste åpne periode og bruk periodeId i videre kall
         val egenvurdering = oppslagsClient.findEgenvurdering { exchangedToken }
         if (egenvurdering.isEmpty()) {

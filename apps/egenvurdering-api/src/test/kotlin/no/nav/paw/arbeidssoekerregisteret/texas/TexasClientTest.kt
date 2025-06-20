@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.clients
+package no.nav.paw.arbeidssoekerregisteret.texas
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.should
@@ -15,7 +15,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.runBlocking
-import no.nav.paw.arbeidssoekerregisteret.config.TexasClientConfig
 import no.nav.paw.client.factory.configureJackson
 
 class TexasClientTest : FreeSpec({

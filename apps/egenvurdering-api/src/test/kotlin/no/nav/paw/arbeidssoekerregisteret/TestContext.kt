@@ -6,12 +6,15 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
@@ -42,6 +45,9 @@ open class TestContext {
     val prometheusMeterRegistryMock = mockk<PrometheusMeterRegistry>()
     val healthIndicatorRepository = HealthIndicatorRepository()
     val authorizationService = AuthorizationService()
+    val egenvurderingService = mockk<EgenvurderingService>().also {
+        coEvery { it.getEgenvurderingGrunnlag(any(), any()) } returns EgenvurderingGrunnlag(grunnlag = null)
+    }
 
     fun ApplicationTestBuilder.configureTestApplication() {
         val applicationContext = ApplicationContext(
@@ -57,7 +63,7 @@ open class TestContext {
             healthIndicatorRepository,
             authorizationService,
             kafkaKeysClientMock,
-            mockk<EgenvurderingService>(relaxed = true),
+            egenvurderingService,
             mockk<Serializer<Egenvurdering>>(relaxed = true),
             mockk<Producer<Long, Egenvurdering>>(relaxed = true),
         )
@@ -67,7 +73,7 @@ open class TestContext {
             configureAuthentication(applicationContext)
         }
         routing {
-            egenvurderingRoutes()
+            egenvurderingRoutes(egenvurderingService)
         }
     }
 
