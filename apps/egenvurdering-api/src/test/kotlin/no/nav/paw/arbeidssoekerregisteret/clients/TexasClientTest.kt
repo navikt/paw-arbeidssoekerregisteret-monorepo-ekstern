@@ -27,7 +27,7 @@ class TexasClientTest : FreeSpec({
             request.url.toString() shouldBe texasTestEndpoint
 
             respond(
-                content = """{ "access_token": "token" }""",
+                content = """{ "access_token": "vekslet_token" }""",
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             )
@@ -43,9 +43,9 @@ class TexasClientTest : FreeSpec({
         )
 
         runBlocking {
-            val response = texasClient.getOnBehalfOfToken("user-token")
+            val response = texasClient.getOnBehalfOfToken(userToken = "user-token")
             response should beInstanceOf<OnBehalfOfResponse>()
-            response.accessToken shouldBe "token"
+            response.accessToken shouldBe "vekslet_token"
         }
     }
 
