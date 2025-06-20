@@ -32,6 +32,8 @@ dependencies {
     // Client
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.mock)
+
 
     // Serialization
     implementation(libs.ktor.serialization.jackson)
