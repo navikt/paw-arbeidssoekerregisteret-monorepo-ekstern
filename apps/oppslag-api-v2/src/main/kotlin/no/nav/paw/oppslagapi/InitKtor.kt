@@ -1,6 +1,7 @@
 package no.nav.paw.oppslagapi
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
@@ -55,6 +56,7 @@ fun <A> initKtor(
         install(ContentNegotiation) {
             jackson {
                 registerKotlinModule()
+                registerModule(JavaTimeModule())
             }
         }
         install(CallLogging) {
