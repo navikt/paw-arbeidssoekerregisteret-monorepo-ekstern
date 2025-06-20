@@ -9,7 +9,7 @@ import no.nav.paw.kafka.plugin.KafkaProducerPlugin
 fun Application.configureKafka(applicationContext: ApplicationContext) {
     with(applicationContext) {
         install(KafkaProducerPlugin) {
-            listOf(applicationContext.producer)
+            kafkaProducers = listOf(producer)
         }
     }
 }
