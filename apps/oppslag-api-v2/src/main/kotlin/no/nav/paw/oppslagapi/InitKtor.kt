@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.metrics.micrometer.MicrometerMetrics
@@ -39,7 +40,10 @@ import no.nav.paw.oppslagapi.health.IsAlive
 import no.nav.paw.oppslagapi.health.IsReady
 import no.nav.paw.oppslagapi.health.internalRoutes
 import no.nav.paw.security.authentication.config.AuthProvider
+import no.nav.paw.security.authentication.model.AzureAd
+import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
+import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.slf4j.event.Level
@@ -74,12 +78,14 @@ fun <A> initKtor(
         routing {
             internalRoutes(healthIndicator, prometheusRegistry)
             swaggerUI(path = "documentation/openapi-spec", swaggerFile = openApiSpecFile)
-            route("/api/v2/bekreftelser") {
-                post<ApiV2BekreftelserPostRequest> { request ->
-                    appQueryLogic.hentBekreftelser(
-                        bruker = call.securityContext().bruker,
-                        request = request
-                    )
+            autentisering(TokenX, AzureAd) {
+                route("/api/v2/bekreftelser") {
+                    post<ApiV2BekreftelserPostRequest> { request ->
+                        appQueryLogic.hentBekreftelser(
+                            bruker = call.securityContext().bruker,
+                            request = request
+                        )
+                    }
                 }
             }
         }
