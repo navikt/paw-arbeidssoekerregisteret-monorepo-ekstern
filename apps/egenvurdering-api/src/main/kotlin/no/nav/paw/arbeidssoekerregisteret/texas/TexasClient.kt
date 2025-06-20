@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.clients
+package no.nav.paw.arbeidssoekerregisteret.texas
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.client.HttpClient
@@ -8,7 +8,6 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import no.nav.paw.arbeidssoekerregisteret.config.TexasClientConfig
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.client.factory.createHttpClient
 

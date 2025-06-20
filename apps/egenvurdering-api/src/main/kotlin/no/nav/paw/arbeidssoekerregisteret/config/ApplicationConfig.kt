@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
+import no.nav.paw.arbeidssoekerregisteret.texas.TexasClientConfig
+
 const val APPLICATION_CONFIG = "application_config.toml"
 
 data class ApplicationConfig(
@@ -19,8 +21,3 @@ data class OppslagApiConfig(
     val scope: String,
 )
 
-data class TexasClientConfig(
-    val endpoint: String,
-    val target: String,
-    val identityProvider: String = "tokenx",
-)

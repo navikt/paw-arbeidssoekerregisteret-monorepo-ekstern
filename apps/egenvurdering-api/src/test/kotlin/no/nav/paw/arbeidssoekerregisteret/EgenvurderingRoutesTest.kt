@@ -14,6 +14,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
+import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingGrunnlagPath
+import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingPath
 import java.util.UUID
 
 class EgenvurderingRoutesTest : FreeSpec({
@@ -39,7 +41,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                             }
                         """.trimIndent()
 
-                        val response = client.post("/api/v1/arbeidssoeker/profilering/egenvurdering") {
+                        val response = client.post(egenvurderingPath) {
                             contentType(Application.Json)
                             setBody(egenvurderingJson)
                             bearerAuth(mockOAuth2Server.issueTokenXToken())
@@ -53,7 +55,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                         configureTestApplication()
                         val client = configureTestClient()
 
-                        val response = client.post("/api/v1/arbeidssoeker/profilering/egenvurdering") {
+                        val response = client.post(egenvurderingPath) {
                             contentType(Application.Json)
                             setBody("""{ugyldigJson}""")
                             bearerAuth(mockOAuth2Server.issueTokenXToken())
@@ -70,7 +72,7 @@ class EgenvurderingRoutesTest : FreeSpec({
 
                     val client = configureTestClient()
 
-                    val response = client.get("/api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag") {
+                    val response = client.get(egenvurderingGrunnlagPath) {
                         bearerAuth(mockOAuth2Server.issueTokenXToken())
                     }
                     response.status shouldBe HttpStatusCode.OK
@@ -85,7 +87,7 @@ class EgenvurderingRoutesTest : FreeSpec({
 
                     val client = configureTestClient()
 
-                    val response = client.get("/api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag")
+                    val response = client.get(egenvurderingGrunnlagPath)
                     response.status shouldBe HttpStatusCode.Forbidden
                     response.headers["x-trace-id"] shouldNotBe null
                 }

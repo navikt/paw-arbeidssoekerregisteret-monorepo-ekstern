@@ -36,7 +36,7 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
             }
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
-            egenvurderingRoutes()
+            egenvurderingRoutes(applicationContext.egenvurderingService)
         }
     }
 }

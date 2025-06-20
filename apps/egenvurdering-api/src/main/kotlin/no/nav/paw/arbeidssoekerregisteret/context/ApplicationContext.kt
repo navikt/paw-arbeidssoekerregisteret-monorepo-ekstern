@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.context
 
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.clients.TexasClient
+import no.nav.paw.arbeidssoekerregisteret.texas.TexasClient
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
