@@ -1,15 +1,20 @@
 package no.nav.paw.arbeidssoekerregisteret.clients
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.paw.arbeidssoekerregisteret.config.TexasClientConfig
+import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.client.factory.createHttpClient
 
-class TexasOnBehalfOfClient(
+val logger = buildApplicationLogger
+
+class TexasClient(
     private val config: TexasClientConfig,
     private val httpClient: HttpClient = createHttpClient(),
 ) {
@@ -18,26 +23,34 @@ class TexasOnBehalfOfClient(
             contentType(ContentType.Application.Json)
             setBody(
                 OnBehalfOfRequest(
-                    user_token = userToken,
-                    identity_provider = config.identityProvider,
+                    userToken = userToken,
+                    identityProvider = config.identityProvider,
                     target = config.target
                 )
             )
         }
         return response.body<OnBehalfOfResponse>().also {
-            if (response.status.value != 200) {
-                throw RuntimeException("Failed to get on behalf of token: ${response.status.value} - $it")
+            when {
+                response.status == HttpStatusCode.OK -> logger.debug("Token veksling vellykket for bruker.")
+                response.status.value != 200 -> {
+                    throw TokenExchangeException("Klarte ikke å veksle token. Statuskode: ${response.status.value}")
+                }
             }
         }
     }
 }
 
+class TokenExchangeException(message: String) : RuntimeException(message)
+
 data class OnBehalfOfRequest(
-    val user_token: String,
-    val identity_provider: String,
+    @JsonProperty("user_token")
+    val userToken: String,
+    @JsonProperty("user_token")
+    val identityProvider: String,
     val target: String,
 )
 
 data class OnBehalfOfResponse(
-    val access_token: String,
+    @JsonProperty("access_token")
+    val accessToken: String,
 )
