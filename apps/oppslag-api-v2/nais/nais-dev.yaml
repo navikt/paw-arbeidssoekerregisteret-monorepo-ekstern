@@ -57,9 +57,17 @@ spec:
       enabled: true
       runtime: "java"
   accessPolicy:
+    inbound:
+      rules:
+        - application: arbeidssokerregistrering-for-veileder
+          namespace: paw
+          cluster: dev-gcp
     outbound:
       rules:
         - application: paw-tilgangskontroll
+          namespace: paw
+          cluster: dev-gcp
+        - application: paw-kafka-key-generator
           namespace: paw
           cluster: dev-gcp
   gcp:
