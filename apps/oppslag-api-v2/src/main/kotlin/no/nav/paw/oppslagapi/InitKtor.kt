@@ -38,6 +38,7 @@ import no.nav.paw.oppslagapi.health.IsReady
 import no.nav.paw.oppslagapi.health.internalRoutes
 import no.nav.paw.security.authentication.config.AuthProvider
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
+import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.slf4j.event.Level
 import java.time.Duration
 import java.time.Instant
@@ -54,12 +55,7 @@ fun <A> initKtor(
         A : IsAlive, A : IsReady, A : HasStarted {
 
     return embeddedServer(Netty, port = 8080) {
-        install(ContentNegotiation) {
-            jackson {
-                registerKotlinModule()
-                registerModule(JavaTimeModule())
-            }
-        }
+        installContentNegotiationPlugin()
         install(CallLogging) {
             level = Level.INFO
             filter { call ->
