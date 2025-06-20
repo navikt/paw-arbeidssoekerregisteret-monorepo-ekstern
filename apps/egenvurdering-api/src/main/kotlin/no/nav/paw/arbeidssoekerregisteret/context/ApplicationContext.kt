@@ -13,7 +13,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.repository.HealthIndicatorRepository
-import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
+import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
@@ -41,7 +41,7 @@ data class ApplicationContext(
             val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
             val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
             val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
-            val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
+            val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
             val healthIndicatorRepository = HealthIndicatorRepository()
@@ -58,7 +58,7 @@ data class ApplicationContext(
             val kafkaFactory = KafkaFactory(
                 kafkaConfig
             )
-            val egenvurderingAvroSerializer = kafkaFactory.kafkaAvroSerializer<Egenvurdering>()
+            val egenvurderingAvroSerializer: Serializer<Egenvurdering> = kafkaFactory.kafkaAvroSerializer()
             val egenvurderingProducer = kafkaFactory.createProducer<Long, Egenvurdering>(
                 clientId = "${applicationConfig.kafkaTopology.applicationId}_${applicationConfig.kafkaTopology.producerVersion}",
                 keySerializer = LongSerializer::class,
