@@ -25,10 +25,17 @@ class AutorisasjonsTjeneste(
     private val kafkaKeysClient: KafkaKeysClient
 ) {
 
-    suspend fun autoriser(
-        bruker: Bruker<Any>,
-        oenskerTilgangTil: List<Identitetsnummer>
-    ): Response<Unit> {
+    /**
+     * Autoriserer en bruker for tilgang til en eller flere identitetsnumre.
+     * @param bruker Brukeren som ønsker tilgang.
+     * @param oenskerTilgangTil Listen over identitetsnumre brukeren ønsker tilgang til.
+     * @return Response<Unit> som indikerer om autoriseringen var vellykket eller ikke.
+     */
+    suspend fun <A> autoriser(
+        bruker: Bruker<out Any>,
+        oenskerTilgangTil: List<Identitetsnummer>,
+        function: () -> A
+    ): Response<A> {
         return when (bruker) {
             is Anonym -> ikkeTilgangProblemDetails()
             is NavAnsatt -> autoriserAnsatt(
@@ -36,7 +43,7 @@ class AutorisasjonsTjeneste(
                 identitetsnummer = oenskerTilgangTil
             )
             is Sluttbruker -> autoriserSluttbruker(bruker, oenskerTilgangTil)
-        }
+        }.map { function() }
     }
 
     suspend fun autoriserSluttbruker(

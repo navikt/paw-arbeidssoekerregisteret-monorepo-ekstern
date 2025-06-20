@@ -16,6 +16,7 @@ import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.oppslagapi.data.consumer.DataConsumer
 import no.nav.paw.oppslagapi.data.consumer.kafka.HwmRebalanceListener
+import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.oppslagapi.health.ExposedHealthIndicator
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
@@ -46,6 +47,12 @@ fun main() {
             jackson { registerKotlinModule() }
         }
     })
+    val applicationQueryLogic = ApplicationQueryLogic(
+        autorisasjonsTjeneste = AutorisasjonsTjeneste(
+            tilgangsTjenesteForAnsatte = webClients.tilgangsTjenesteForAnsatte,
+            kafkaKeysClient = webClients.kafkaKeysClient
+        )
+    )
     val kafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG))
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
         groupId = consumer_group,
@@ -71,6 +78,6 @@ fun main() {
         meterBinders = listOf(consumerMetrics),
         healthIndicator = healthIndicator,
         authProviders = securityConfig.authProviders,
-        webClients = webClients
+        appQueryLogic = applicationQueryLogic
     ).start(wait = true)
 }

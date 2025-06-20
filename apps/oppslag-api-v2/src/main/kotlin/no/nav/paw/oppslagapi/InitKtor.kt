@@ -32,11 +32,14 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloes
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Svar
+import no.nav.paw.error.plugin.ErrorHandlingPlugin
+import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.health.HasStarted
 import no.nav.paw.oppslagapi.health.IsAlive
 import no.nav.paw.oppslagapi.health.IsReady
 import no.nav.paw.oppslagapi.health.internalRoutes
 import no.nav.paw.security.authentication.config.AuthProvider
+import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.slf4j.event.Level
@@ -50,7 +53,7 @@ fun <A> initKtor(
     healthIndicator: A,
     authProviders: List<AuthProvider>,
     openApiSpecFile: String = "openapi/openapi-spec.yaml",
-    webClients: ExternalWebClients
+    appQueryLogic: ApplicationQueryLogic,
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> where
         A : IsAlive, A : IsReady, A : HasStarted {
 
@@ -62,12 +65,7 @@ fun <A> initKtor(
                 !call.request.path().contains("internal")
             }
         }
-        install(StatusPages) {
-            exception<Throwable> { call, cause ->
-                appLogger.error("Call failed with exception", cause)
-                call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
-            }
-        }
+        install(ErrorHandlingPlugin)
         install(MicrometerMetrics) {
             registry = prometheusRegistry
             this.meterBinders = meterBinders
@@ -78,103 +76,10 @@ fun <A> initKtor(
             swaggerUI(path = "documentation/openapi-spec", swaggerFile = openApiSpecFile)
             route("/api/v2/bekreftelser") {
                 post<ApiV2BekreftelserPostRequest> { request ->
-                    if (request.perioder.isEmpty()) {
-                        call.respond(HttpStatusCode.OK, BekreftelserResponse(emptyList()))
-                        return@post
-                    }
-                    call.respond(
-                        status = HttpStatusCode.OK,
-                        message = BekreftelserResponse(
-                            listOf(
-                                BekreftelseMedMetadata(
-                                    status = BekreftelseMedMetadata.Status.UTENFOR_PERIODE,
-                                    bekreftelse = Bekreftelse(
-                                        periodeId = request.perioder.first(),
-                                        bekreftelsesloesning = Bekreftelsesloesning.DAGPENGER,
-                                        id = UUID.randomUUID(),
-                                        svar = Svar(
-                                            sendtInnAv = Metadata(
-                                                tidspunkt = Instant.now() - Duration.ofDays(1),
-                                                utfoertAv = Bruker(
-                                                    type = Bruker.Type.SLUTTBRUKER,
-                                                    id = "12345678901",
-                                                    sikkerhetsnivaa = "idporten-loa-high"
-                                                ),
-                                                kilde = "dp",
-                                                aarsak = "levert",
-                                                tidspunktFraKilde = null
-                                            ),
-                                            gjelderFra = Instant.now() - Duration.ofDays(10),
-                                            gjelderTil = Instant.now() - Duration.ofDays(5),
-                                            harJobbetIDennePerioden = true,
-                                            vilFortsetteSomArbeidssoeker = true
-                                        )
-                                    )
-                                ),
-                                BekreftelseMedMetadata(
-                                    status = BekreftelseMedMetadata.Status.GYLDIG,
-                                    bekreftelse = Bekreftelse(
-                                        periodeId = request.perioder.first(),
-                                        bekreftelsesloesning = Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET,
-                                        id = UUID.randomUUID(),
-                                        svar = Svar(
-                                            sendtInnAv = Metadata(
-                                                tidspunkt = Instant.now() - Duration.ofDays(1),
-                                                utfoertAv = Bruker(
-                                                    type = Bruker.Type.SLUTTBRUKER,
-                                                    id = "12345678901",
-                                                    sikkerhetsnivaa = "idporten-loa-high"
-                                                ),
-                                                kilde = "bekreftelse",
-                                                aarsak = "levert",
-                                                tidspunktFraKilde = null
-                                            ),
-                                            gjelderFra = Instant.now() - Duration.ofDays(10),
-                                            gjelderTil = Instant.now() - Duration.ofDays(5),
-                                            harJobbetIDennePerioden = true,
-                                            vilFortsetteSomArbeidssoeker = true
-                                        )
-                                    )
-                                ),
-                                BekreftelseMedMetadata(
-                                    status = BekreftelseMedMetadata.Status.UVENTET_KILDE,
-                                    bekreftelse = Bekreftelse(
-                                        periodeId = request.perioder.first(),
-                                        bekreftelsesloesning = Bekreftelsesloesning.FRISKMELDT_TIL_ARBEIDSFORMIDLING,
-                                        id = UUID.randomUUID(),
-                                        svar = Svar(
-                                            sendtInnAv = Metadata(
-                                                tidspunkt = Instant.now() - Duration.ofDays(1),
-                                                utfoertAv = Bruker(
-                                                    type = Bruker.Type.VEILEDER,
-                                                    id = "12345678901",
-                                                    sikkerhetsnivaa = "idporten-loa-high"
-                                                ),
-                                                kilde = "dp",
-                                                aarsak = "levert",
-                                                tidspunktFraKilde = null
-                                            ),
-                                            gjelderFra = Instant.now() - Duration.ofDays(10),
-                                            gjelderTil = Instant.now() - Duration.ofDays(5),
-                                            harJobbetIDennePerioden = true,
-                                            vilFortsetteSomArbeidssoeker = true
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                    appQueryLogic.hentBekreftelser(
+                        bruker = call.securityContext().bruker,
+                        request = request
                     )
-//                    val tidslinjer = request.perioder.mapNotNull { periodeId ->
-//                        val rader = transaction {
-//                            hentForPeriode(periodeId)
-//                        }
-//                        genererTidslinje(periodeId, rader)
-//                    }
-//                    val identitetsnummer = tidslinjer.map { it.identitetsnummer }.toSet()
-//                    (call.securityContext().bruker as Sluttbruker).alleIdenter
-//                    BekreftelserResponse(
-//                        bekreftelser = tidslinjer.flatMap { it.bekreftelser }
-//                    )
                 }
             }
         }
