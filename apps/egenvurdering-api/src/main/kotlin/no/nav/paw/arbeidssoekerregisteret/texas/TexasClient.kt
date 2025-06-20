@@ -44,7 +44,7 @@ class TokenExchangeException(message: String) : RuntimeException(message)
 data class OnBehalfOfRequest(
     @JsonProperty("user_token")
     val userToken: String,
-    @JsonProperty("user_token")
+    @JsonProperty("identity_provider")
     val identityProvider: String,
     val target: String,
 )
