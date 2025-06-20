@@ -12,7 +12,7 @@ data class ApplicationConfig(
 
 data class KafkaTopologyConfig(
     val producerVersion: String,
-    val applicationId: String,
+    val applicationIdPrefix: String,
     val egenvurderingTopic: String,
 )
 

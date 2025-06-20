@@ -1,6 +1,6 @@
 [kafkaTopology]
 producerVersion = "paw-egenvurdering-producer-v1"
-applicationId = "paw-arbeidssoekerregisteret-egenvurdering-api"
+applicationIdPrefix = "paw-arbeidssoekerregisteret-egenvurdering-api"
 egenvurderingTopic = "arbeidssoker-egenvurdering-v1"
 
 [oppslagApiConfig]

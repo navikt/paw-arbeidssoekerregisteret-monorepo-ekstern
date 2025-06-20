@@ -60,7 +60,7 @@ data class ApplicationContext(
             )
             val egenvurderingAvroSerializer: Serializer<Egenvurdering> = kafkaFactory.kafkaAvroSerializer()
             val egenvurderingProducer = kafkaFactory.createProducer<Long, Egenvurdering>(
-                clientId = "${applicationConfig.kafkaTopology.applicationId}_${applicationConfig.kafkaTopology.producerVersion}",
+                clientId = "${applicationConfig.kafkaTopology.applicationIdPrefix}_${applicationConfig.kafkaTopology.producerVersion}",
                 keySerializer = LongSerializer::class,
                 valueSerializer = egenvurderingAvroSerializer::class,
             )
