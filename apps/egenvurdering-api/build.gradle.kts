@@ -57,6 +57,7 @@ dependencies {
 
     // Kafka
     implementation(libs.kafka.clients)
+    implementation(libs.confluent.kafka.avro.serializer)
 
     // NAV Common
     implementation(libs.nav.common.types)
