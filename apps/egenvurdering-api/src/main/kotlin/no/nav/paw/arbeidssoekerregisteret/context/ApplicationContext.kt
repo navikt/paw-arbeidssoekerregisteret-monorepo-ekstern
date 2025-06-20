@@ -1,9 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.context
 
-import io.ktor.client.HttpClient
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.clients.TexasOnBehalfOfClient
+import no.nav.paw.arbeidssoekerregisteret.clients.TexasClient
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
@@ -48,7 +47,7 @@ data class ApplicationContext(
             val healthIndicatorRepository = HealthIndicatorRepository()
 
             val kafkaKeysClient = createKafkaKeyGeneratorClient()
-            val texasOnBehalfOfClient = TexasOnBehalfOfClient(
+            val texasClient = TexasClient(
                 applicationConfig.texasClientConfig
             )
 
@@ -66,7 +65,7 @@ data class ApplicationContext(
                 valueSerializer = egenvurderingAvroSerializer::class,
             )
 
-            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient, egenvurderingProducer, texasOnBehalfOfClient, oppslagsClient)
+            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient, egenvurderingProducer, texasClient, oppslagsClient)
 
 
             return ApplicationContext(

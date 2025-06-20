@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.service
 
-import no.nav.paw.arbeidssoekerregisteret.clients.TexasOnBehalfOfClient
+import no.nav.paw.arbeidssoekerregisteret.clients.TexasClient
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
@@ -31,13 +31,13 @@ class EgenvurderingService(
     private val kafkaConfig: KafkaConfig,
     private val kafkaKeysClient: KafkaKeysClient,
     private val producer: Producer<Long, Egenvurdering>,
-    private val texasOnBehalfOfClient: TexasOnBehalfOfClient,
+    private val texasClient: TexasClient,
     private val oppslagsClient: ApiOppslagClient,
 ) {
     private val logger = buildApplicationLogger
 
     suspend fun getEgenvurderingGrunnlag(identitetsnummer: Identitetsnummer, userToken: String): EgenvurderingGrunnlag? {
-        val exchangedToken = texasOnBehalfOfClient.getOnBehalfOfToken(userToken).access_token
+        val exchangedToken = texasClient.getOnBehalfOfToken(userToken).accessToken
         // TODO: find siste åpne periode og bruk periodeId i videre kall
         val egenvurdering = oppslagsClient.findEgenvurdering { exchangedToken }
         if (egenvurdering.isEmpty()) {
