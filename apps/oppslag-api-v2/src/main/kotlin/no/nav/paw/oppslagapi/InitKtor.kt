@@ -15,6 +15,7 @@ import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.request.path
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -61,6 +62,9 @@ fun <A> initKtor(
         }
         install(CallLogging) {
             level = Level.INFO
+            filter { call ->
+                !call.request.path().contains("internal")
+            }
         }
         install(StatusPages) {
             exception<Throwable> { call, cause ->
