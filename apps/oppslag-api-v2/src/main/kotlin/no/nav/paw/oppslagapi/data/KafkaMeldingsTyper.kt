@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi
+package no.nav.paw.oppslagapi.data
 
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata

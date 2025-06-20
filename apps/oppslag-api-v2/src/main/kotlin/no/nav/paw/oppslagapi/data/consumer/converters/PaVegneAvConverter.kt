@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.dataconsumer.converters
+package no.nav.paw.oppslagapi.data.consumer.converters
 
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv as AvroPaaVegneAv
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Bekreftelsesloesning as AvroBekreftelsesloesning

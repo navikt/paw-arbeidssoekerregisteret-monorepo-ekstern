@@ -17,23 +17,34 @@ fun createKafkaKeyGeneratorClient(
     )
 ): KafkaKeysClient {
     val kafkaKeyConfig = loadNaisOrLocalConfiguration<KafkaKeyConfig>(KAFKA_KEY_GENERATOR_CLIENT_CONFIG)
-    return kafkaKeysClient(kafkaKeyConfig) {
+    return kafkaKeysClient(konfigurasjon = kafkaKeyConfig) {
         azureAdM2MTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope)
     }
 }
 
-fun kafkaKeysClient(konfigurasjon: KafkaKeyConfig, m2mTokenFactory: () -> String): KafkaKeysClient =
-    when (konfigurasjon.url) {
-        "MOCK" -> inMemoryKafkaKeysMock()
-        else -> kafkaKeysMedHttpClient(konfigurasjon, m2mTokenFactory)
-    }
-
-private fun kafkaKeysMedHttpClient(config: KafkaKeyConfig, m2mTokenFactory: () -> String): KafkaKeysClient {
-    val httpClient = HttpClient {
+fun kafkaKeysClient(
+    httpClient: HttpClient = HttpClient {
         install(ContentNegotiation) {
             jackson()
         }
+    },
+    konfigurasjon: KafkaKeyConfig,
+    m2mTokenFactory: () -> String
+): KafkaKeysClient =
+    when (konfigurasjon.url) {
+        "MOCK" -> inMemoryKafkaKeysMock()
+        else -> kafkaKeysMedHttpClient(
+            httpClient = httpClient,
+            config = konfigurasjon,
+            m2mTokenFactory = m2mTokenFactory
+        )
     }
+
+fun kafkaKeysMedHttpClient(
+    httpClient: HttpClient,
+    config: KafkaKeyConfig,
+    m2mTokenFactory: () -> String
+): KafkaKeysClient {
     return StandardKafkaKeysClient(
         httpClient = httpClient,
         kafkaKeysUrl = config.url,

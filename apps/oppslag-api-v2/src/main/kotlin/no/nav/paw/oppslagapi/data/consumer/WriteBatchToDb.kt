@@ -1,10 +1,10 @@
-package no.nav.paw.oppslagapi.dataconsumer
+package no.nav.paw.oppslagapi.data.consumer
 
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
-import no.nav.paw.oppslagapi.DataTable
-import no.nav.paw.oppslagapi.Row
+import no.nav.paw.oppslagapi.data.DataTable
+import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.appLogger
 import org.jetbrains.exposed.sql.batchInsert
 

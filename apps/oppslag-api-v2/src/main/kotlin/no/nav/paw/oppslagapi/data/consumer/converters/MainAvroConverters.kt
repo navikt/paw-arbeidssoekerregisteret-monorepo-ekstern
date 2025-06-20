@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.dataconsumer.converters
+package no.nav.paw.oppslagapi.data.consumer.converters
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer

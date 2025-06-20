@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.dataconsumer.converters
+package no.nav.paw.oppslagapi.data.consumer.converters
 
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse as OpenApiBekreftelse

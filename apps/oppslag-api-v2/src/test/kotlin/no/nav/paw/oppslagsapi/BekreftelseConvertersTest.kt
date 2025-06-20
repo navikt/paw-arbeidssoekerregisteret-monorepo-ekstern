@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
-import no.nav.paw.oppslagapi.dataconsumer.converters.toOpenApi
+import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.test.data.bekreftelse.startPaaVegneAv
 import no.nav.paw.test.data.bekreftelse.stoppPaaVegneAv

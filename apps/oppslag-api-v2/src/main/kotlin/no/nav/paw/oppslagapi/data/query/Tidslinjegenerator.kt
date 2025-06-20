@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.query
+package no.nav.paw.oppslagapi.data.query
 
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata
@@ -6,9 +6,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloes
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp
-import no.nav.paw.oppslagapi.Row
-import no.nav.paw.oppslagapi.periode_avsluttet_v1
-import no.nav.paw.oppslagapi.periode_startet_v1
+import no.nav.paw.oppslagapi.data.Row
+import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
+import no.nav.paw.oppslagapi.data.periode_startet_v1
 import java.time.Instant
 import java.util.*
 

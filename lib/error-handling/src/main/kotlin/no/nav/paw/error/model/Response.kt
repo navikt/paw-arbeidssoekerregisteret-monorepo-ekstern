@@ -26,5 +26,3 @@ fun <T1, T2> Response<T1>.flatMap(transform: (T1) -> Response<T2>): Response<T2>
         is ProblemDetails -> this
     }
 }
-
-

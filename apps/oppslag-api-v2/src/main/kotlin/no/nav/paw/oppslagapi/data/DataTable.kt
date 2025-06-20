@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi
+package no.nav.paw.oppslagapi.data
 
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.timestamp

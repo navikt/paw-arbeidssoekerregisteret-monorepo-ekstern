@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.dataconsumer
+package no.nav.paw.oppslagapi.data.consumer
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
@@ -7,16 +7,16 @@ import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
-import no.nav.paw.oppslagapi.Row
-import no.nav.paw.oppslagapi.bekreftelsemelding_v1
-import no.nav.paw.oppslagapi.dataconsumer.converters.toOpenApi
-import no.nav.paw.oppslagapi.objectMapper
-import no.nav.paw.oppslagapi.opplysninger_om_arbeidssoeker_v4
-import no.nav.paw.oppslagapi.pa_vegne_av_start_v1
-import no.nav.paw.oppslagapi.pa_vegne_av_stopp_v1
-import no.nav.paw.oppslagapi.periode_avsluttet_v1
-import no.nav.paw.oppslagapi.periode_startet_v1
-import no.nav.paw.oppslagapi.profilering_v1
+import no.nav.paw.oppslagapi.data.Row
+import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
+import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
+import no.nav.paw.oppslagapi.data.objectMapper
+import no.nav.paw.oppslagapi.data.opplysninger_om_arbeidssoeker_v4
+import no.nav.paw.oppslagapi.data.pa_vegne_av_start_v1
+import no.nav.paw.oppslagapi.data.pa_vegne_av_stopp_v1
+import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
+import no.nav.paw.oppslagapi.data.periode_startet_v1
+import no.nav.paw.oppslagapi.data.profilering_v1
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.Deserializer

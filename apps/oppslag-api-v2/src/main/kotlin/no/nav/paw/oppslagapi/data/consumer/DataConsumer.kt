@@ -1,9 +1,9 @@
-package no.nav.paw.oppslagapi.dataconsumer
+package no.nav.paw.oppslagapi.data.consumer
 
 import io.opentelemetry.api.trace.Span
 import no.nav.paw.oppslagapi.appLogger
 import no.nav.paw.oppslagapi.consumer_version
-import no.nav.paw.oppslagapi.dataconsumer.kafka.hwm.updateHwm
+import no.nav.paw.oppslagapi.data.consumer.kafka.hwm.updateHwm
 import no.nav.paw.oppslagapi.health.HasStarted
 import no.nav.paw.oppslagapi.health.IsAlive
 import no.nav.paw.oppslagapi.health.Status

@@ -5,7 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
-import no.nav.paw.oppslagapi.dataconsumer.converters.toOpenApi
+import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.paw.test.data.periode.createAnnet

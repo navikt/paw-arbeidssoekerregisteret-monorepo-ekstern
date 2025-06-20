@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi
+package no.nav.paw.oppslagapi.data
 
 import java.time.Instant
 import java.util.UUID
