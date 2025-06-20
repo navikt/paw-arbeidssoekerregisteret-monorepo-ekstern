@@ -10,16 +10,22 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.serialization.jackson.JacksonConverter
+import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.config.TexasClientConfig
+import no.nav.paw.client.factory.configureJackson
 
 class TexasClientTest : FreeSpec({
+    val texasTestEndpoint = "https://texas/token"
 
     "Kan veksle token" - {
         val mockEngine = MockEngine { request ->
+            request.method shouldBe HttpMethod.Post
+            request.url.toString() shouldBe texasTestEndpoint
+
             respond(
                 content = """{ "access_token": "token" }""",
                 status = HttpStatusCode.OK,
@@ -27,19 +33,13 @@ class TexasClientTest : FreeSpec({
             )
         }
 
-        val testClient = HttpClient(mockEngine) {
-            install(ContentNegotiation) {
-                register(ContentType.Application.Json, JacksonConverter())
-            }
-        }
-
         val texasClient = TexasClient(
             config = TexasClientConfig(
-                endpoint = "https://fake-texas/token",
+                endpoint = texasTestEndpoint,
                 identityProvider = "tokenx",
                 target = "target-app"
             ),
-            httpClient = testClient
+            httpClient = testClient(mockEngine)
         )
 
         runBlocking {
@@ -50,4 +50,12 @@ class TexasClientTest : FreeSpec({
     }
 
 })
+
+private fun testClient(mockEngine: MockEngine): HttpClient = HttpClient(mockEngine) {
+    install(ContentNegotiation) {
+        jackson {
+            configureJackson()
+        }
+    }
+}
 
