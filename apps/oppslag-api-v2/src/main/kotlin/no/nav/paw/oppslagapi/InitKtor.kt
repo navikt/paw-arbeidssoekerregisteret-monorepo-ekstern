@@ -1,6 +1,9 @@
 package no.nav.paw.oppslagapi
 
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.install
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
@@ -8,6 +11,7 @@ import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.calllogging.CallLogging
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.receive
@@ -26,7 +30,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloes
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Svar
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.oppslagapi.health.HasStarted
 import no.nav.paw.oppslagapi.health.IsAlive
 import no.nav.paw.oppslagapi.health.IsReady
@@ -49,6 +52,11 @@ fun <A> initKtor(
         A : IsAlive, A : IsReady, A : HasStarted {
 
     return embeddedServer(Netty, port = 8080) {
+        install(ContentNegotiation) {
+            jackson {
+                registerKotlinModule()
+            }
+        }
         install(CallLogging) {
             level = Level.INFO
         }
