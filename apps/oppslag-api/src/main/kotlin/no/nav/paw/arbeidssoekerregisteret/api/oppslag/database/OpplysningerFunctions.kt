@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
-import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.model.Identitetsnummer
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId

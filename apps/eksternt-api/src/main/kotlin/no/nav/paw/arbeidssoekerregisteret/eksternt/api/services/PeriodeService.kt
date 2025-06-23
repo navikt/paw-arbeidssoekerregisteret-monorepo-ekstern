@@ -5,7 +5,7 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.asArbeidssoekerper
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.buildLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.security.authentication.model.Identitetsnummer
+import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.time.LocalDate
 
