@@ -32,6 +32,10 @@ fun MeterRegistry.profileringerKafkaCounter(antall: Number) {
     kafkaCounter(antall, "profileringer")
 }
 
+fun MeterRegistry.egenvurderingerKafkaCounter(antall: Number) {
+    kafkaCounter(antall, "egenvurderinger")
+}
+
 fun MeterRegistry.bekreftelserKafkaCounter(antall: Number) {
     kafkaCounter(antall, "bekreftelser")
 }

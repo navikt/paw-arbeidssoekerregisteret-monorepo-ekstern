@@ -8,10 +8,12 @@ data class ApplicationConfig(
     val perioderGroupId: String,
     val opplysningerGroupId: String,
     val profileringGroupId: String,
+    val egenvurderingGroupId: String,
     val bekreftelseGroupId: String,
     val perioderTopic: String,
     val opplysningerTopic: String,
     val profileringTopic: String,
+    val egenvurderingTopic: String,
     val bekreftelseTopic: String,
     val perioderMetricsTaskDelay: Duration = Duration.ZERO,
     val perioderMetricsTaskInterval: Duration = Duration.ofMinutes(10)

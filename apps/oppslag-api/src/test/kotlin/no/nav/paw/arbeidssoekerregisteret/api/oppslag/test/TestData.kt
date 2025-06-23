@@ -18,6 +18,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
@@ -415,6 +416,22 @@ object TestData {
         profilertTil,
         jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder
+    )
+
+    fun nyEgenvurdering(
+        egenvurderingId: UUID = UUID.randomUUID(),
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID(),
+        profileringId: UUID = UUID.randomUUID(),
+        sendtInnAv: Metadata = nyMetadata(utfoertAv = nyBruker(brukerId = fnr4)),
+        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+    ) = Egenvurdering(
+        egenvurderingId,
+        periodeId,
+        opplysningerId,
+        profileringId,
+        sendtInnAv,
+        egenvurdering
     )
 
     fun ProfileringAggregertResponse.toProfileringResponse(): ProfileringResponse = ProfileringResponse(

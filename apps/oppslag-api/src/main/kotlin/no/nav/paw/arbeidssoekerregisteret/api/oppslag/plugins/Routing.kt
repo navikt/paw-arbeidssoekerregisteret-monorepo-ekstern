@@ -28,7 +28,8 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
         )
         profileringRoutes(
             applicationContext.authorizationService,
-            applicationContext.profileringService
+            applicationContext.profileringService,
+            applicationContext.egenvurderingService
         )
         samletInformasjonRoutes(
             applicationContext.authorizationService,

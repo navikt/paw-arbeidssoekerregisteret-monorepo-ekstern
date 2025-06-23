@@ -5,6 +5,7 @@ import io.opentelemetry.api.trace.Span
 fun Span.perioderKafkaTrace(records: Number) = kafkaTrace("perioder", records)
 fun Span.opplysningerKafkaTrace(records: Number) = kafkaTrace("opplysninger", records)
 fun Span.profileringerKafkaTrace(records: Number) = kafkaTrace("profileringer", records)
+fun Span.egenvurderingKafkaTrace(records: Number) = kafkaTrace("egenvurderinger", records)
 fun Span.bekreftelserKafkaTrace(records: Number) = kafkaTrace("bekreftelser", records)
 
 fun Span.kafkaTrace(type: String, records: Number) =

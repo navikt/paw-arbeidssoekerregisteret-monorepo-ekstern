@@ -824,9 +824,7 @@ components:
           type: "integer"
           format: "int32"
         egenvurdering:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/EgenvurderingResponse"
+          $ref: "#/components/schemas/EgenvurderingResponse"
       required:
         - "profileringId"
         - "periodeId"
@@ -863,6 +861,9 @@ components:
     EgenvurderingResponse:
       type: "object"
       properties:
+        egenvurderingId:
+          type: "string"
+          format: "uuid"
         periodeId:
           type: "string"
           format: "uuid"
@@ -875,8 +876,9 @@ components:
         sendtInnAv:
           $ref: "#/components/schemas/MetadataResponse"
         egenvurdering:
-          $ref: "#/components/schemas/Egenvurdering"
+          $ref: "#/components/schemas/ProfileringsResultat"
       required:
+        - "egenvurderingId"
         - "periodeId"
         - "opplysningerOmArbeidssoekerId"
         - "profileringId"
@@ -1012,13 +1014,6 @@ components:
       enum:
         - "UKJENT_VERDI"
         - "UDEFINERT"
-        - "ANTATT_GODE_MULIGHETER"
-        - "ANTATT_BEHOV_FOR_VEILEDNING"
-        - "OPPGITT_HINDRINGER"
-    Egenvurdering:
-      type: "string"
-      enum:
-        - "UKJENT_VERDI"
         - "ANTATT_GODE_MULIGHETER"
         - "ANTATT_BEHOV_FOR_VEILEDNING"
         - "OPPGITT_HINDRINGER"

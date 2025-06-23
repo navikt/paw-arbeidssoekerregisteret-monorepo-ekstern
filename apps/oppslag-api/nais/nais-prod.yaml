@@ -23,6 +23,8 @@ spec:
       value: "paw.opplysninger-om-arbeidssoeker-v1"
     - name: KAFKA_TOPIC_PROFILERING
       value: "paw.arbeidssoker-profilering-v1"
+    - name: KAFKA_TOPIC_EGENVURDERING
+      value: "paw.arbeidssoker-egenvurdering-beta-v1"
     - name: KAFKA_TOPIC_BEKREFTELSE
       value: "paw.arbeidssoker-bekreftelse-v1"
     - name: KAFKA_GROUP_ID_PERIODER
@@ -33,6 +35,8 @@ spec:
       value: "paw.arbeidssoekerregisteret-api-oppslag-v9"
     - name: KAFKA_GROUP_ID_BEKREFTELSE
       value: "paw.arbeidssoekerregisteret-api-oppslag-bekreftelse-v1"
+    - name: KAFKA_GROUP_ID_EGENVURDERING
+      value: "paw.arbeidssoekerregisteret-api-oppslag-egenvurdering-v1"
     - name: DATABASE_HOST
       value: "$(NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_API_OPPSLAG_ARBEIDSSOEKERREGISTERETAPIOPPSLAG_HOST)"
     - name: DATABASE_PORT

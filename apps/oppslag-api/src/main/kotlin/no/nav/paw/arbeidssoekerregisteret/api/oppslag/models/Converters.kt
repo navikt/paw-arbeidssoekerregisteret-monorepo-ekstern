@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.models
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.egenvurderingMockResponse
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
@@ -134,7 +133,7 @@ fun ProfileringRow.toProfileringResponse(): ProfileringResponse =
         alder = alder
     )
 
-fun ProfileringRow.toProfileringAggregertResponse(): ProfileringAggregertResponse =
+fun ProfileringRow.toProfileringAggregertResponse(egenvurdering: EgenvurderingResponse?): ProfileringAggregertResponse =
     ProfileringAggregertResponse(
         profileringId = profileringId,
         periodeId = periodeId,
@@ -143,7 +142,17 @@ fun ProfileringRow.toProfileringAggregertResponse(): ProfileringAggregertRespons
         profilertTil = profilertTil.toProfileringsResultat(),
         jobbetSammenhengendeSeksAvTolvSisteManeder = jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder = alder,
-        egenvurdering = egenvurderingMockResponse()
+        egenvurdering = egenvurdering
+    )
+
+fun EgenvurderingRow.toEgenvurderingResponse(): EgenvurderingResponse =
+    EgenvurderingResponse(
+        egenvurderingId = egenvurderingId,
+        periodeId = periodeId,
+        opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
+        profileringId = profileringId,
+        sendtInnAv = sendtInnAv.toMetadataResponse(),
+        egenvurdering = egenvurdering.toProfileringsResultat(),
     )
 
 fun ProfileringRow.toProfilering(): Profilering =
