@@ -52,12 +52,18 @@ data class Tidslinje(
             is PaaVegneAvStart -> this.copy(
                 tidspunkt = row.timestamp,
                 ansvarStart = this.ansvarStart + data,
-                ansvarlig = this.ansvarlig + data.bekreftelsesloesning
+                ansvarlig = (this.ansvarlig + data.bekreftelsesloesning)
+                    .let { it.filterNot { loesning -> loesning == Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET } }
+                    .toSet()
             )
             is PaaVegneAvStopp -> this.copy(
                 tidspunkt = row.timestamp,
                 ansvarStopp = this.ansvarStopp + data,
-                ansvarlig = this.ansvarlig - data.bekreftelsesloesning
+                ansvarlig = (this.ansvarlig - data.bekreftelsesloesning).let {
+                    it.ifEmpty {
+                        setOf(Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET)
+                    }
+                }
             )
             is Bekreftelse -> this.copy(
                 tidspunkt = row.timestamp,
@@ -65,7 +71,7 @@ data class Tidslinje(
                     bekreftelse = data,
                     status = when {
                         periodeStopp != null -> BekreftelseMedMetadata.Status.UTENFOR_PERIODE
-                        periodeStart < row.timestamp -> BekreftelseMedMetadata.Status.UTENFOR_PERIODE
+                        periodeStart > row.timestamp -> BekreftelseMedMetadata.Status.UTENFOR_PERIODE
                         data.bekreftelsesloesning !in this.ansvarlig -> BekreftelseMedMetadata.Status.UVENTET_KILDE
                         else -> BekreftelseMedMetadata.Status.GYLDIG
                     }
@@ -96,7 +102,7 @@ fun tidslinje(
     tidspunkt = Instant.now(),
     ansvarStart = emptyList(),
     ansvarStopp = emptyList(),
-    ansvarlig = emptySet(),
+    ansvarlig = setOf(Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET),
     bekreftelser = emptyList()
 )
 
