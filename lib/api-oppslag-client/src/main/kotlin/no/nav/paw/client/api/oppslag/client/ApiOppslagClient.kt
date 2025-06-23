@@ -9,9 +9,11 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import no.nav.paw.client.api.oppslag.exception.ArbeidssoekerperioderAggregertOppslagResponseException
 import no.nav.paw.client.api.oppslag.exception.EgenvurderingOppslagResponseException
 import no.nav.paw.client.api.oppslag.exception.PerioderOppslagResponseException
 import no.nav.paw.client.api.oppslag.exception.ProfileringOppslagResponseException
+import no.nav.paw.client.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.client.api.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.client.api.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.client.api.oppslag.models.EgenvurderingResponse
@@ -42,6 +44,26 @@ class ApiOppslagClient(
             }
         }
     }
+
+    suspend fun findSisteArbeidssoekerperioderAggregert(tokenProvider: () -> String): List<ArbeidssoekerperiodeAggregertResponse> {
+        logger.debug("Henter arbeidssoekerperioderAggregert fra API Oppslag")
+        val response = httpClient.get("$baseUrl/api/v1/arbeidssoekerperioder-aggregert?siste=true") {
+            bearerAuth(tokenProvider.invoke())
+        }
+        return response.let {
+            when (it.status) {
+                HttpStatusCode.OK -> it.body<List<ArbeidssoekerperiodeAggregertResponse>>()
+                else -> {
+                    val body = it.body<String>()
+                    throw ArbeidssoekerperioderAggregertOppslagResponseException(
+                        it.status,
+                        "Henting av arbeidssoekerperioderAggregert feilet. body=$body"
+                    )
+                }
+            }
+        }
+    }
+
     suspend fun findProfilering(tokenProvider: () -> String): List<ProfileringResponse> {
         logger.debug("Henter profilering fra API Oppslag")
         val response = httpClient.get("$baseUrl/api/v1/profilering/") {

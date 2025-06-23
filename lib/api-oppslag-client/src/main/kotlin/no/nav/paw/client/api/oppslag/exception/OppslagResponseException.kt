@@ -13,6 +13,15 @@ class PerioderOppslagResponseException(
     message = message,
 )
 
+class ArbeidssoekerperioderAggregertOppslagResponseException(
+    override val status: HttpStatusCode,
+    override val message: String
+) : ClientResponseException(
+    status = status,
+    type = ErrorType.domain("arbeidssøkerperioder-aggregert").error("error-response").build(),
+    message = message,
+)
+
 class ProfileringOppslagResponseException(
     override val status: HttpStatusCode,
     override val message: String

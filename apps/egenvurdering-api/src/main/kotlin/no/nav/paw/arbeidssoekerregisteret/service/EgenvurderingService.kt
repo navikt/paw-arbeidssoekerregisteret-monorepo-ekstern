@@ -12,6 +12,8 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
+import no.nav.paw.client.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
+import no.nav.paw.client.api.oppslag.models.ProfileringAggregertResponse
 import no.nav.paw.client.api.oppslag.models.ProfileringResponse
 import no.nav.paw.client.api.oppslag.models.ProfileringsResultat
 import no.nav.paw.kafka.config.KafkaConfig
@@ -28,7 +30,6 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil 
 
 class EgenvurderingService(
     private val applicationConfig: ApplicationConfig,
-    private val kafkaConfig: KafkaConfig,
     private val kafkaKeysClient: KafkaKeysClient,
     private val producer: Producer<Long, Egenvurdering>,
     private val texasClient: TexasClient,
@@ -37,21 +38,20 @@ class EgenvurderingService(
     private val logger = buildApplicationLogger
 
     @Suppress("KotlinUnreachableCode", "Midlertidig død kode i metoden")
-    suspend fun getEgenvurderingGrunnlag(identitetsnummer: Identitetsnummer, userToken: String): EgenvurderingGrunnlag {
+    suspend fun getEgenvurderingGrunnlag(userToken: String): EgenvurderingGrunnlag {
         val exchangedToken = texasClient.getOnBehalfOfToken(userToken).accessToken
         return EgenvurderingGrunnlag(grunnlag = null)
 
-        // TODO: find siste åpne periode og bruk periodeId i videre kall
-        val egenvurdering = oppslagsClient.findEgenvurdering { exchangedToken }
-        if (egenvurdering.isEmpty()) {
-            return EgenvurderingGrunnlag(
-                grunnlag = null,
+        val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
+        val profilering = arbeidssoekerperioderAggregert.findSisteProfilering()
+        val egenvurdering = profilering?.egenvurdering
+        return if (profilering == null || egenvurdering != null || arbeidssoekerperioderAggregert.isPeriodeAvsluttet()) {
+            EgenvurderingGrunnlag(grunnlag = null)
+        } else {
+            EgenvurderingGrunnlag(
+                grunnlag = profilering.toApiProfilering(),
             )
         }
-        val profilering = oppslagsClient.findProfilering { exchangedToken }
-        return EgenvurderingGrunnlag(
-            grunnlag = profilering.maxByOrNull { it.sendtInnAv.tidspunkt }?.toApiProfilering(),
-        )
     }
 
     suspend fun postEgenvurdering(identitetsnummer: Identitetsnummer, request: EgenvurderingRequest) {
@@ -86,6 +86,12 @@ class EgenvurderingService(
     }
 }
 
+fun List<ArbeidssoekerperiodeAggregertResponse>.findSisteProfilering(): ProfileringAggregertResponse? =
+    this.firstOrNull()?.opplysningerOmArbeidssoeker?.maxByOrNull { it.sendtInnAv.tidspunkt }?.profilering
+
+fun List<ArbeidssoekerperiodeAggregertResponse>.isPeriodeAvsluttet(): Boolean =
+    this.isNotEmpty() && this[0].avsluttet != null
+
 fun ApiEgenvurdering.toProfilertTil(): ProfilertTil =
     when (this) {
         ApiEgenvurdering.ANTATT_GODE_MULIGHETER -> ProfilertTil.ANTATT_GODE_MULIGHETER
@@ -93,7 +99,7 @@ fun ApiEgenvurdering.toProfilertTil(): ProfilertTil =
         ApiEgenvurdering.OPPGITT_HINDRINGER -> ProfilertTil.OPPGITT_HINDRINGER
     }
 
-fun ProfileringResponse.toApiProfilering(): ApiProfilering =
+fun ProfileringAggregertResponse.toApiProfilering(): ApiProfilering =
     ApiProfilering(
         profileringId = profileringId,
         profilertTil = profilertTil.toApiProfilertTil() ?: throw IllegalArgumentException("Ugyldig profilertTil: $profilertTil"),

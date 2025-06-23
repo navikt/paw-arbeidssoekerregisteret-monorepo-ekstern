@@ -65,7 +65,7 @@ data class ApplicationContext(
                 valueSerializer = egenvurderingAvroSerializer::class,
             )
 
-            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaConfig, kafkaKeysClient, egenvurderingProducer, texasClient, oppslagsClient)
+            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaKeysClient, egenvurderingProducer, texasClient, oppslagsClient)
 
 
             return ApplicationContext(

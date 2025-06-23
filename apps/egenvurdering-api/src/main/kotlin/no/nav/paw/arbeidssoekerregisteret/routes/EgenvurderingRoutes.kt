@@ -33,11 +33,9 @@ fun Route.egenvurderingRoutes(egenvurderingService: EgenvurderingService): Route
                 call.respond(HttpStatusCode.Accepted)
             }
             get(grunnlagPath) {
-                val bruker = call.bruker<Sluttbruker>()
                 logger.info("Mottok grunnlagrequest")
                 val userToken = call.request.jwt()
                 val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
-                    identitetsnummer = bruker.ident,
                     userToken = userToken
                 )
                 call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)

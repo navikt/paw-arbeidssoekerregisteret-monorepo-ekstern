@@ -16,12 +16,10 @@ class EgenvurderingServiceTest : FreeSpec({
         coEvery { texasClient.getOnBehalfOfToken(userToken) } returns OnBehalfOfResponse(accessToken = "vekslet_token")
     }
     val oppslagsClientMock = mockk<ApiOppslagClient>().also { oppslagClient ->
-        coEvery { oppslagClient.findEgenvurdering(any()) } returns emptyList()
-        coEvery { oppslagClient.findProfilering(any()) } returns emptyList()
+        coEvery { oppslagClient.findSisteArbeidssoekerperioderAggregert(any()) } returns emptyList()
     }
     val egenvurderingService = EgenvurderingService(
         applicationConfig = mockk(),
-        kafkaConfig = mockk(),
         kafkaKeysClient = mockk(),
         producer = mockk(),
         texasClient = texasClientMock,
@@ -31,11 +29,10 @@ class EgenvurderingServiceTest : FreeSpec({
     "Henting av egenvurderingsgrunnlag" - {
         "Tomt grunnlag - Egenvurdering og profilering eksisterer ikke for bruker" - {
             val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
-                identitetsnummer = Identitetsnummer(verdi = "12345123451"),
                 userToken = userToken
             )
             egenvurderingGrunnlag shouldNotBe null
-            egenvurderingGrunnlag!!.grunnlag shouldBe null
+            egenvurderingGrunnlag.grunnlag shouldBe null
         }
     }
 

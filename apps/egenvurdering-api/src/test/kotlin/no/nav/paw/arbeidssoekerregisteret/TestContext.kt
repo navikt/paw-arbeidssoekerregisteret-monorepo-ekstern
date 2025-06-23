@@ -46,7 +46,7 @@ open class TestContext {
     val healthIndicatorRepository = HealthIndicatorRepository()
     val authorizationService = AuthorizationService()
     val egenvurderingService = mockk<EgenvurderingService>().also {
-        coEvery { it.getEgenvurderingGrunnlag(any(), any()) } returns EgenvurderingGrunnlag(grunnlag = null)
+        coEvery { it.getEgenvurderingGrunnlag(any()) } returns EgenvurderingGrunnlag(grunnlag = null)
     }
 
     fun ApplicationTestBuilder.configureTestApplication() {
