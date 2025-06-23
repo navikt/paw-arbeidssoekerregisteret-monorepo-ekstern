@@ -18,6 +18,7 @@ import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.oppslagapi.data.consumer.DataConsumer
 import no.nav.paw.oppslagapi.data.consumer.kafka.HwmRebalanceListener
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
+import no.nav.paw.oppslagapi.data.query.exposedDatabaseQuerySupport
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.oppslagapi.health.ExposedHealthIndicator
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
@@ -63,7 +64,8 @@ fun main() {
         autorisasjonsTjeneste = AutorisasjonsTjeneste(
             tilgangsTjenesteForAnsatte = webClients.tilgangsTjenesteForAnsatte,
             kafkaKeysClient = webClients.kafkaKeysClient
-        )
+        ),
+        databaseQuerySupport = exposedDatabaseQuerySupport
     )
     val kafkaFactory = KafkaFactory(configurations.kafkaConfig)
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(

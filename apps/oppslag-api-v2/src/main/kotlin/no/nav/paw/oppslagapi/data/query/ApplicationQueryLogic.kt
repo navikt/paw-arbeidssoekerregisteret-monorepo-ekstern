@@ -6,10 +6,10 @@ import no.nav.paw.error.model.getOrThrow
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.security.authentication.model.Bruker
-import org.jetbrains.exposed.sql.transactions.transaction
 
 class ApplicationQueryLogic(
-    private val autorisasjonsTjeneste: AutorisasjonsTjeneste
+    private val autorisasjonsTjeneste: AutorisasjonsTjeneste,
+    private val databaseQuerySupport: DatabaseQeurySupport
 ) {
 
     suspend fun hentBekreftelser(
@@ -20,9 +20,7 @@ class ApplicationQueryLogic(
             return BekreftelserResponse(emptyList())
         }
         val tidslinjer = request.perioder.mapNotNull { periodeId ->
-            val rader = transaction {
-                hentForPeriode(periodeId)
-            }
+            val rader = databaseQuerySupport.hentRaderForPeriode(periodeId)
             genererTidslinje(periodeId, rader)
         }
         val identerOensketInfoOm = tidslinjer.map { it.identitetsnummer }.toSet()
