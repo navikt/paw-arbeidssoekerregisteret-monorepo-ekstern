@@ -7,8 +7,6 @@ metadata:
     team: paw
 spec:
   image: {{ image }}
-  ingresses:
-    - https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no
   port: 8080
   env:
     - name: KAFKA_KEYS_SCOPE
@@ -19,10 +17,6 @@ spec:
     requests:
       cpu: 200m
       memory: 512Mi
-  idporten:
-    enabled: true
-    sidecar:
-      enabled: true
   tokenx:
     enabled: true
   azure:
@@ -62,6 +56,9 @@ spec:
         - application: arbeidssokerregistrering-for-veileder
           namespace: paw
           cluster: dev-gcp
+        - application: arbeidssoekerregisteret-for-personbruker
+          namespace: paw
+          cluster: dev-gcp
     outbound:
       rules:
         - application: paw-tilgangskontroll
@@ -70,6 +67,7 @@ spec:
         - application: paw-kafka-key-generator
           namespace: paw
           cluster: dev-gcp
+
   gcp:
     sqlInstances:
       - type: POSTGRES_17
