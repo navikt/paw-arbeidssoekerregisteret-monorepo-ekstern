@@ -21,7 +21,7 @@ object EgenvurderingDbFunctions {
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
             .join(TidspunktFraKildeTable, JoinType.LEFT, MetadataTable.tidspunktFraKildeId, TidspunktFraKildeTable.id)
             .selectAll()
-            .where { ProfileringTable.periodeId inList periodeIdList }
+            .where { EgenvurderingTable.periodeId inList periodeIdList }
             //.orderBy(MetadataTable.tidspunkt, paging.ordering)
             //.limit(paging.size).offset(paging.offset)
             .map { it.toEgenvurderingRow() }

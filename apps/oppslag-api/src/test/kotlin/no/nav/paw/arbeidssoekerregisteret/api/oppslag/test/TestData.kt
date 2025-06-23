@@ -4,6 +4,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.EgenvurderingRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
@@ -270,6 +271,24 @@ object TestData {
         profilertTil = profilertTil,
         jobbetSammenhengendeSeksAvTolvSisteManeder = jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder = alder
+    )
+
+    fun nyEgenvurderingRow(
+        id: Long = 1L,
+        egenvurderingId: UUID = UUID.randomUUID(),
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerOmArbeidssoekerId: UUID = UUID.randomUUID(),
+        profileringId: UUID = UUID.randomUUID(),
+        sendtInnAv: MetadataRow = nyMetadataRow(),
+        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+    ) = EgenvurderingRow(
+        id = id,
+        egenvurderingId = egenvurderingId,
+        periodeId = periodeId,
+        opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
+        profileringId = profileringId,
+        sendtInnAv = sendtInnAv,
+        egenvurdering = egenvurdering
     )
 
     fun nyMetadataRow(

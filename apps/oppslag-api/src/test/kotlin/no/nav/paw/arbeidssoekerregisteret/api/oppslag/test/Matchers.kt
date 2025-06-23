@@ -288,6 +288,17 @@ infix fun ProfileringRow.shouldBeEqualTo(other: ProfileringRow?): ProfileringRow
     return this
 }
 
+infix fun EgenvurderingRow.shouldBeEqualTo(other: EgenvurderingRow?): EgenvurderingRow {
+    other shouldNotBe null
+    egenvurderingId shouldBe other?.egenvurderingId
+    periodeId shouldBe other?.periodeId
+    opplysningerOmArbeidssoekerId shouldBe other?.opplysningerOmArbeidssoekerId
+    profileringId shouldBe other?.profileringId
+    sendtInnAv shouldBeEqualTo other?.sendtInnAv
+    egenvurdering shouldBe other?.egenvurdering
+    return this
+}
+
 infix fun MetadataRow.shouldBeEqualTo(other: MetadataRow?): MetadataRow {
     other shouldNotBe null
     tidspunkt shouldBeEqualTo other?.tidspunkt
