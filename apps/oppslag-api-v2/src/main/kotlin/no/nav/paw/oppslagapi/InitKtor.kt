@@ -81,10 +81,11 @@ fun <A> initKtor(
             route("/api/v2/bekreftelser") {
                 autentisering(TokenX, AzureAd) {
                     post<ApiV2BekreftelserPostRequest> { request ->
-                        appQueryLogic.hentBekreftelser(
+                        val response = appQueryLogic.hentBekreftelser(
                             bruker = call.securityContext().bruker,
                             request = request
                         )
+                        call.respond(HttpStatusCode.OK, response)
                     }
                 }
             }
