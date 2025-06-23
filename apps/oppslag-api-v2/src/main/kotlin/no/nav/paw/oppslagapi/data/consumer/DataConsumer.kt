@@ -89,7 +89,14 @@ class DataConsumer(
                         }
                     sisteProessering.set(Instant.now())
                 }
-            }.onFailure { throwable -> exitError.set(throwable) }
+            }.onFailure { throwable ->
+                runCatching { consumer.close(Duration.ofSeconds(1)) }
+                appLogger.error("DataConsumer avsluttet med feil", throwable)
+                exitError.set(throwable)
+            }.onSuccess {
+                runCatching { consumer.close(Duration.ofSeconds(1)) }
+                appLogger.info("DataConsumer avsluttet uten feil")
+            }
         }
     }
 }
