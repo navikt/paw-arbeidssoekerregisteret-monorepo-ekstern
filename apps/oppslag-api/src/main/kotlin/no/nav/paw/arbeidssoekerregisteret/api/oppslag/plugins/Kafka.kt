@@ -5,9 +5,11 @@ import io.ktor.server.application.install
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.KafkaConsumerHandler
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
+import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
@@ -20,11 +22,13 @@ fun Application.configureKafka(
     periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
     opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
     profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
+    egenvurderingKafkaConsumer: KafkaConsumer<Long, Egenvurdering>,
     bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
     kafkaConsumerHandler: KafkaConsumerHandler,
     periodeService: PeriodeService,
     opplysningerService: OpplysningerService,
     profileringService: ProfileringService,
+    egenvurderingService: EgenvurderingService,
     bekreftelseService: BekreftelseService
 ) {
     install(KafkaConsumerPlugin<Long, Periode>("Perioder")) {
@@ -53,6 +57,16 @@ fun Application.configureKafka(
         consumeFunction = { records ->
             if (!records.isEmpty) {
                 profileringService.handleRecords(records)
+            }
+        }
+        errorFunction = kafkaConsumerHandler::handleException
+    }
+    install(KafkaConsumerPlugin<Long, Egenvurdering>("Egenvurderinger")) {
+        kafkaConsumer = egenvurderingKafkaConsumer
+        kafkaTopics = listOf(applicationConfig.egenvurderingTopic)
+        consumeFunction = { records ->
+            if (!records.isEmpty) {
+                egenvurderingService.handleRecords(records)
             }
         }
         errorFunction = kafkaConsumerHandler::handleException

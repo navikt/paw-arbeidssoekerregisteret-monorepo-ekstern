@@ -49,18 +49,3 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureAuthentication(applicationContext)
     configureRouting(applicationContext)
 }
-
-/*
-EGENVURDERING RECORD:
-
-key = kafkaclientkey Long
-value =
-{
-  arbeidssokerId: UUID,
-  periodeId: UUID,
-  opplysningerOmArbeidssoekerId: UUID?,
-  profileringId: UUID?,
-  profilertTil: ProfilertTil?, // avro profilert til
-  egenvurdering: Egenvurdering? // avro egenvurdering
-}
-*/
