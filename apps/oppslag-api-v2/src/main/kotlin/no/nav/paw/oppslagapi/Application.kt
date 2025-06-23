@@ -41,7 +41,6 @@ fun main() {
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val topicNames = standardTopicNames(currentRuntimeEnvironment)
     initDatabase(topicNames)
-    val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
     val webClients = initWebClients(httpClient = HttpClient {
         install(ContentNegotiation) {
             jackson { registerKotlinModule() }
@@ -77,7 +76,7 @@ fun main() {
         prometheusRegistry = prometheusRegistry,
         meterBinders = listOf(consumerMetrics),
         healthIndicator = healthIndicator,
-        authProviders = securityConfig.authProviders,
+        authProviders = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG).authProviders,
         appQueryLogic = applicationQueryLogic
     ).start(wait = true)
 }
