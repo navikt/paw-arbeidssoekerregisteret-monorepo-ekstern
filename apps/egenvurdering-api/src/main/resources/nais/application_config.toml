@@ -10,5 +10,5 @@ scope = "${OPPSLAG_API_SCOPE}"
 
 [TexasClientConfig]
 endpoint = "${NAIS_TOKEN_EXCHANGE_ENDPOINT}"
-target = "http://paw-arbeidssoekerregisteret-api-oppslag"
+target = "${OPPSLAG_API_TARGET}"
 identityProvider = "tokenx"
