@@ -14,9 +14,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.client.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.client.api.oppslag.models.ProfileringAggregertResponse
-import no.nav.paw.client.api.oppslag.models.ProfileringResponse
 import no.nav.paw.client.api.oppslag.models.ProfileringsResultat
-import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.producer.sendDeferred
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
@@ -56,7 +54,7 @@ class EgenvurderingService(
 
     suspend fun postEgenvurdering(identitetsnummer: Identitetsnummer, request: EgenvurderingRequest) {
         val (arbeidssoekerId, key) = kafkaKeysClient.getIdAndKey(identitetsnummer.verdi)
-        logger.info("Sender egenvurdering for key $key")
+        logger.debug("Sender egenvurdering for key $key")
         val metadata = RecordMetadata(
             Instant.now(),
             Bruker(
@@ -68,7 +66,7 @@ class EgenvurderingService(
             "todo",
             null
         ) // TODO: fiks verdier for metadata
-        val record = ProducerRecord(
+        val egenvurderingRecord = ProducerRecord(
             applicationConfig.kafkaTopology.egenvurderingTopic,
             key,
             Egenvurdering(
@@ -80,7 +78,7 @@ class EgenvurderingService(
                 request.egenvurdering.toProfilertTil()
             )
         )
-        producer.sendDeferred(record).await().also {
+        producer.sendDeferred(egenvurderingRecord).await().also {
             logger.info("Egenvurdering sendt til Kafka")
         }
     }

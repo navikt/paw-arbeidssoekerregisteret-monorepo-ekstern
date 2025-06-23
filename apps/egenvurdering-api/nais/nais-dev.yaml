@@ -22,7 +22,7 @@ spec:
     - name: OPPSLAG_API_SCOPE
       value: "api://dev-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag/.default"
     - name: OPPSLAG_API_TARGET
-      value: "dev-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag"
+      value: "dev-gcp:paw:paw-arbeidssoekerregisteret-api-oppslag"
   resources:
     limits:
       memory: 1024Mi
