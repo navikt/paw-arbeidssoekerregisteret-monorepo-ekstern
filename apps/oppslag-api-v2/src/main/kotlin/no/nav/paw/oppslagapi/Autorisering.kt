@@ -1,6 +1,7 @@
 package no.nav.paw.oppslagapi
 
 import io.ktor.http.HttpStatusCode
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
@@ -46,6 +47,7 @@ class AutorisasjonsTjeneste(
         }.map { function() }
     }
 
+    @WithSpan
     suspend fun autoriserSluttbruker(
         bruker: Sluttbruker,
         identitetsnummer: List<Identitetsnummer>,
@@ -60,6 +62,7 @@ class AutorisasjonsTjeneste(
             }
     }
 
+    @WithSpan
     suspend fun autoriserAnsatt(
         navIdent: NavIdent,
         identitetsnummer: List<Identitetsnummer>

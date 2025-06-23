@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.serialization.jackson)
     implementation(libs.nav.security.token.client.core)
+    implementation(libs.opentelemetry.api)
     api(libs.nav.common.token.client)
 }
 

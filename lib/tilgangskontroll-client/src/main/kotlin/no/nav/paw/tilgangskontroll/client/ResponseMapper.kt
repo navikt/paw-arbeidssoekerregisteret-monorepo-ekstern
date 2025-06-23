@@ -1,6 +1,7 @@
 package no.nav.paw.tilgangskontroll.client
 
 import io.ktor.http.HttpStatusCode
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
@@ -11,8 +12,12 @@ val RESPONSE_DATA_UNIT = Data(Unit)
 
 fun Response<Boolean>.feilVedIkkeTilgang(): Response<Unit> {
     return flatMap { harTilgang ->
-        if (harTilgang) RESPONSE_DATA_UNIT
+        if (harTilgang) {
+            Span.current().addEvent("har_tilgang")
+            RESPONSE_DATA_UNIT
+        }
         else {
+            Span.current().addEvent("har_ikke_tilgang")
             ProblemDetails(
                 type = ErrorType
                     .domain("tilgangskontroll")

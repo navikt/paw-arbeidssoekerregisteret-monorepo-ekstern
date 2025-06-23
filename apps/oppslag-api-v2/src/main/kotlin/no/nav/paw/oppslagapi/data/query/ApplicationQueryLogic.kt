@@ -5,7 +5,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResp
 import no.nav.paw.error.model.getOrThrow
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
-import no.nav.paw.oppslagapi.appLogger
 import no.nav.paw.security.authentication.model.Bruker
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -17,7 +16,6 @@ class ApplicationQueryLogic(
         bruker: Bruker<out Any>,
         request: ApiV2BekreftelserPostRequest
     ): BekreftelserResponse {
-        appLogger.debug("Henter bekreftelser...")
         if (request.perioder.isEmpty()) {
             return BekreftelserResponse(emptyList())
         }
