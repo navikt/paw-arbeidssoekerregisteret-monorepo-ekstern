@@ -85,7 +85,7 @@ fun main() {
     )
     val healthIndicator = CompoudHealthIndicator(ExposedHealthIndicator, dataConsumerTask)
     dataConsumerTask.run()
-    initKtor(
+    initEmbeddedKtorServer(
         prometheusRegistry = prometheusRegistry,
         meterBinders = listOf(consumerMetrics),
         healthIndicator = healthIndicator,
