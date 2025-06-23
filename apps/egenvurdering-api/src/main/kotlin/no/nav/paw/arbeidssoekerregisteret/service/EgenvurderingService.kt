@@ -52,8 +52,18 @@ class EgenvurderingService(
         }
     }
 
-    suspend fun postEgenvurdering(identitetsnummer: Identitetsnummer, request: EgenvurderingRequest) {
-        val (arbeidssoekerId, key) = kafkaKeysClient.getIdAndKey(identitetsnummer.verdi)
+    suspend fun postEgenvurdering(identitetsnummer: Identitetsnummer, userToken: String, request: EgenvurderingRequest) {
+        val exchangedToken = texasClient.getOnBehalfOfToken(userToken).accessToken
+        val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
+
+        val periode = arbeidssoekerperioderAggregert.firstOrNull()
+        val opplysningerOmArbeidssoeker = periode?.opplysningerOmArbeidssoeker?.maxByOrNull { it.sendtInnAv.tidspunkt }
+        val profilering = opplysningerOmArbeidssoeker?.profilering
+        if (profilering?.profileringId != request.profileringId) {
+            throw IllegalArgumentException("ProfileringId i request (${request.profileringId}) samsvarer ikke med profileringId i siste aggregerte-periode (${profilering?.profileringId})")
+        }
+
+        val (_, key) = kafkaKeysClient.getIdAndKey(identitetsnummer.verdi)
         logger.debug("Sender egenvurdering for key $key")
         val metadata = RecordMetadata(
             Instant.now(),
@@ -62,18 +72,18 @@ class EgenvurderingService(
                 identitetsnummer.verdi,
                 "tokenx:Level4"
             ),
-            "todo",
-            "todo",
+            "paw-arbeidssoekerregisteret-egenvurdering-api",
+            "bruker sendte inn egenvurdering",
             null
-        ) // TODO: fiks verdier for metadata
+        )
         val egenvurderingRecord = ProducerRecord(
             applicationConfig.kafkaTopology.egenvurderingTopic,
             key,
             Egenvurdering(
                 UUID.randomUUID(),
-                request.periodeId,
-                request.opplysningerOmArbeidssoekerId,
-                request.profileringId,
+                periode.periodeId,
+                opplysningerOmArbeidssoeker.opplysningerOmArbeidssoekerId,
+                profilering.profileringId,
                 metadata,
                 request.egenvurdering.toProfilertTil()
             )
