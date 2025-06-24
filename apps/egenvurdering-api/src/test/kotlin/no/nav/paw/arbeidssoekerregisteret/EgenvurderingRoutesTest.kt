@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret
 
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -13,7 +14,12 @@ import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.just
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingGrunnlagPath
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingPath
 import java.util.*
@@ -39,6 +45,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                             }
                         """.trimIndent()
 
+                    coEvery { egenvurderingService.postEgenvurdering(any(), any(), any()) } just Runs
                     val response = client.post(egenvurderingPath) {
                         contentType(Application.Json)
                         setBody(egenvurderingJson)
@@ -65,7 +72,7 @@ class EgenvurderingRoutesTest : FreeSpec({
         }
 
         "/api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag" - {
-            "200 OK" - {
+            "200 OK - Finner ikke grunnlag (profilering) for egenvurdering" - {
                 testApplication {
                     configureTestApplication()
 
@@ -80,6 +87,38 @@ class EgenvurderingRoutesTest : FreeSpec({
                     response.headers["x-trace-id"] shouldNotBe null
                 }
             }
+
+            "200 OK - Grunnlag (profilering) for egenvurdering" - {
+                testApplication {
+                    configureTestApplication()
+                    val profileringId = UUID.randomUUID()
+                    val egenvurderingGrunnlag = EgenvurderingGrunnlag(
+                        grunnlag = Profilering(
+                            profileringId = profileringId,
+                            profilertTil = ANTATT_GODE_MULIGHETER,
+                        )
+                    )
+                    coEvery { egenvurderingService.getEgenvurderingGrunnlag(any()) } returns egenvurderingGrunnlag
+                    val client = configureTestClient()
+
+                    val response = client.get(egenvurderingGrunnlagPath) {
+                        bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    }
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<EgenvurderingGrunnlag>() shouldBe egenvurderingGrunnlag
+
+                    val expectedJson =
+                        """{
+                          "grunnlag": {
+                            "profileringId": "$profileringId",
+                            "profilertTil": "ANTATT_GODE_MULIGHETER"
+                          }
+                        }""".trimIndent()
+                    response.bodyAsText() shouldEqualJson expectedJson
+                    response.headers["x-trace-id"] shouldNotBe null
+                }
+            }
+
             "403 Forbidden" - {
                 testApplication {
                     configureTestApplication()

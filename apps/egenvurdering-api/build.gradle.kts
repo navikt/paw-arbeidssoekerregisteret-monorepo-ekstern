@@ -71,7 +71,6 @@ dependencies {
     // Test
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.bundles.unit.testing.kotest)
-    testImplementation(libs.mockk)
     testImplementation(libs.nav.security.mock.oauth2.server)
 }
 
