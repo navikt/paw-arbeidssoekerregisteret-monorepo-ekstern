@@ -1,11 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.models
 
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.egenvurderingMockResponse
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
@@ -134,7 +134,7 @@ fun ProfileringRow.toProfileringResponse(): ProfileringResponse =
         alder = alder
     )
 
-fun ProfileringRow.toProfileringAggregertResponse(): ProfileringAggregertResponse =
+fun ProfileringRow.toProfileringAggregertResponse(egenvurdering: EgenvurderingResponse?): ProfileringAggregertResponse =
     ProfileringAggregertResponse(
         profileringId = profileringId,
         periodeId = periodeId,
@@ -143,7 +143,27 @@ fun ProfileringRow.toProfileringAggregertResponse(): ProfileringAggregertRespons
         profilertTil = profilertTil.toProfileringsResultat(),
         jobbetSammenhengendeSeksAvTolvSisteManeder = jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder = alder,
-        egenvurdering = egenvurderingMockResponse()
+        egenvurdering = egenvurdering
+    )
+
+fun EgenvurderingRow.toEgenvurderingResponse(): EgenvurderingResponse =
+    EgenvurderingResponse(
+        egenvurderingId = egenvurderingId,
+        periodeId = periodeId,
+        opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
+        profileringId = profileringId,
+        sendtInnAv = sendtInnAv.toMetadataResponse(),
+        egenvurdering = egenvurdering.toProfileringsResultat(),
+    )
+
+fun EgenvurderingRow.toEgenvurdering(): Egenvurdering =
+    Egenvurdering(
+        egenvurderingId,
+        periodeId,
+        opplysningerOmArbeidssoekerId,
+        profileringId,
+        sendtInnAv.toMetadata(),
+        egenvurdering
     )
 
 fun ProfileringRow.toProfilering(): Profilering =

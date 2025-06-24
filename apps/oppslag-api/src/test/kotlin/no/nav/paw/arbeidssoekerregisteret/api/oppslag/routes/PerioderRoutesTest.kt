@@ -208,10 +208,19 @@ class PerioderRoutesTest : FreeSpec({
                         opplysningerId = opplysninger[2].id
                     )
                 )
+                val egenvurdering = listOf(
+                    TestData.nyEgenvurdering(
+                        periodeId = perioder[0].id,
+                        opplysningerId = opplysninger[2].id,
+                        profileringId = profileringer[2].id
+                    )
+                )
+
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
                 perioder.forEach(periodeService::lagrePeriode)
                 opplysninger.forEach(opplysningerService::lagreOpplysninger)
                 profileringer.forEach(profileringService::lagreProfilering)
+                egenvurdering.forEach(egenvurderingService::lagreEgenvurdering)
                 bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
@@ -234,7 +243,7 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing profilering"))
                 bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
                     ?: error("Missing bekreftelse"))
-                egenvurderingMockResponse() shouldBe (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.egenvurdering
+                egenvurdering[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering?.egenvurdering
                     ?: error("Missing egenvurdering"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
@@ -272,10 +281,18 @@ class PerioderRoutesTest : FreeSpec({
                         opplysningerId = opplysninger[2].id
                     )
                 )
+                val egenvurderinger = listOf(
+                    TestData.nyEgenvurdering(
+                        periodeId = perioder[0].id,
+                        opplysningerId = opplysninger[2].id,
+                        profileringId = profileringer[2].id
+                    )
+                )
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
                 perioder.forEach(periodeService::lagrePeriode)
                 opplysninger.forEach(opplysningerService::lagreOpplysninger)
                 profileringer.forEach(profileringService::lagreProfilering)
+                egenvurderinger.forEach(egenvurderingService::lagreEgenvurdering)
                 bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
@@ -294,7 +311,7 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing profilering"))
                 bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
                     ?: error("Missing bekreftelse"))
-                egenvurderingMockResponse() shouldBe (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.egenvurdering
+                egenvurderinger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering?.egenvurdering
                     ?: error("Missing egenvurdering"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
@@ -487,10 +504,18 @@ class PerioderRoutesTest : FreeSpec({
                         opplysningerId = opplysninger[2].id
                     )
                 )
+                val egenvurderinger = listOf(
+                    TestData.nyEgenvurdering(
+                        periodeId = perioder[0].id,
+                        opplysningerId = opplysninger[2].id,
+                        profileringId = profileringer[2].id
+                    )
+                )
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
                 perioder.forEach(periodeService::lagrePeriode)
                 opplysninger.forEach(opplysningerService::lagreOpplysninger)
                 profileringer.forEach(profileringService::lagreProfilering)
+                egenvurderinger.forEach(egenvurderingService::lagreEgenvurdering)
                 bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
@@ -519,7 +544,7 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing profilering"))
                 bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
                     ?: error("Missing bekreftelse"))
-                egenvurderingMockResponse() shouldBe (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.egenvurdering
+                egenvurderinger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering?.egenvurdering
                     ?: error("Missing egenvurdering"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
@@ -561,10 +586,18 @@ class PerioderRoutesTest : FreeSpec({
                         opplysningerId = opplysninger[2].id
                     )
                 )
+                val egenvurderinger = listOf(
+                    TestData.nyEgenvurdering(
+                        periodeId = perioder[0].id,
+                        opplysningerId = opplysninger[2].id,
+                        profileringId = profileringer[2].id
+                    )
+                )
                 val bekreftelser = TestData.nyBekreftelseList(size = 3, periodeId = perioder[0].id)
                 perioder.forEach(periodeService::lagrePeriode)
                 opplysninger.forEach(opplysningerService::lagreOpplysninger)
                 profileringer.forEach(profileringService::lagreProfilering)
+                egenvurderinger.forEach(egenvurderingService::lagreEgenvurdering)
                 bekreftelser.forEach(bekreftelseService::lagreBekreftelse)
 
                 val testClient = configureTestClient()
@@ -593,7 +626,7 @@ class PerioderRoutesTest : FreeSpec({
                     ?: error("Missing profilering"))
                 bekreftelser[0] shouldBeEqualTo (periodeResponses[0].bekreftelser?.get(0)
                     ?: error("Missing bekreftelse"))
-                egenvurderingMockResponse() shouldBe (periodeResponses[0].opplysningerOmArbeidssoeker?.get(0)?.profilering?.egenvurdering
+                egenvurderinger[0] shouldBeEqualTo (periodeResponses[0].opplysningerOmArbeidssoeker?.get(2)?.profilering?.egenvurdering
                     ?: error("Missing egenvurdering"))
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }

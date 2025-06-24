@@ -51,6 +51,7 @@ fun Application.module(applicationContext: ApplicationContext) {
         applicationContext.periodeKafkaConsumer,
         applicationContext.opplysningerKafkaConsumer,
         applicationContext.profileringKafkaConsumer,
+        applicationContext.egenvurderingKafkaConsumer,
         applicationContext.bekreftelseKafkaConsumer
     )
     configureAuthentication(applicationContext.securityConfig)
@@ -61,11 +62,13 @@ fun Application.module(applicationContext: ApplicationContext) {
         applicationContext.periodeKafkaConsumer,
         applicationContext.opplysningerKafkaConsumer,
         applicationContext.profileringKafkaConsumer,
+        applicationContext.egenvurderingKafkaConsumer,
         applicationContext.bekreftelseKafkaConsumer,
         applicationContext.kafkaConsumerHandler,
         applicationContext.periodeService,
         applicationContext.opplysningerService,
         applicationContext.profileringService,
+        applicationContext.egenvurderingService,
         applicationContext.bekreftelseService
     )
     configureRouting(applicationContext)

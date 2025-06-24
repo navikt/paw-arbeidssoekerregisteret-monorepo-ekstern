@@ -4,6 +4,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.*
 import no.nav.paw.arbeidssokerregisteret.api.v1.*
+import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
@@ -115,6 +116,17 @@ infix fun Profilering.shouldBeEqualTo(other: ProfileringResponse?): Profilering 
     profilertTil shouldBeEqualTo other?.profilertTil
     jobbetSammenhengendeSeksAvTolvSisteMnd shouldBe other?.jobbetSammenhengendeSeksAvTolvSisteManeder
     alder shouldBe other?.alder
+    return this
+}
+
+infix fun Egenvurdering.shouldBeEqualTo(other: EgenvurderingResponse?): Egenvurdering {
+    other shouldNotBe null
+    id shouldBe other?.egenvurderingId
+    periodeId shouldBe other?.periodeId
+    opplysningerOmArbeidssokerId shouldBe other?.opplysningerOmArbeidssoekerId
+    profileringId shouldBe other?.profileringId
+    sendtInnAv shouldBeEqualTo other?.sendtInnAv
+    egenvurdering shouldBeEqualTo other?.egenvurdering
     return this
 }
 
@@ -273,6 +285,17 @@ infix fun ProfileringRow.shouldBeEqualTo(other: ProfileringRow?): ProfileringRow
     profilertTil shouldBe other?.profilertTil
     jobbetSammenhengendeSeksAvTolvSisteManeder shouldBe other?.jobbetSammenhengendeSeksAvTolvSisteManeder
     alder shouldBe other?.alder
+    return this
+}
+
+infix fun EgenvurderingRow.shouldBeEqualTo(other: EgenvurderingRow?): EgenvurderingRow {
+    other shouldNotBe null
+    egenvurderingId shouldBe other?.egenvurderingId
+    periodeId shouldBe other?.periodeId
+    opplysningerOmArbeidssoekerId shouldBe other?.opplysningerOmArbeidssoekerId
+    profileringId shouldBe other?.profileringId
+    sendtInnAv shouldBeEqualTo other?.sendtInnAv
+    egenvurdering shouldBe other?.egenvurdering
     return this
 }
 

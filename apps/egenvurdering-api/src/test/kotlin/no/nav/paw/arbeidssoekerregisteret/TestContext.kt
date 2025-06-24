@@ -7,7 +7,6 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
@@ -73,7 +72,7 @@ open class TestContext {
             configureAuthentication(applicationContext)
         }
         routing {
-            egenvurderingRoutes(egenvurderingService)
+            egenvurderingRoutes(authorizationService, egenvurderingService)
         }
     }
 

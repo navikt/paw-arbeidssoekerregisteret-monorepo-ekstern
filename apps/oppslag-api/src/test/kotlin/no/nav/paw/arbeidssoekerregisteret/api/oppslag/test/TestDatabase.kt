@@ -28,7 +28,7 @@ fun initTestDatabase(): DataSource {
 private fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
     val postgres =
         PostgreSQLContainer(
-            "postgres:14"
+            "postgres:17"
         ).apply {
             addEnv("POSTGRES_PASSWORD", "admin")
             addEnv("POSTGRES_USER", "admin")

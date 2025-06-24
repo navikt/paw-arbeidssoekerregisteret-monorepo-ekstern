@@ -4,6 +4,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.EgenvurderingRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
@@ -18,6 +19,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
@@ -271,6 +273,24 @@ object TestData {
         alder = alder
     )
 
+    fun nyEgenvurderingRow(
+        id: Long = 1L,
+        egenvurderingId: UUID = UUID.randomUUID(),
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerOmArbeidssoekerId: UUID = UUID.randomUUID(),
+        profileringId: UUID = UUID.randomUUID(),
+        sendtInnAv: MetadataRow = nyMetadataRow(),
+        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+    ) = EgenvurderingRow(
+        id = id,
+        egenvurderingId = egenvurderingId,
+        periodeId = periodeId,
+        opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
+        profileringId = profileringId,
+        sendtInnAv = sendtInnAv,
+        egenvurdering = egenvurdering
+    )
+
     fun nyMetadataRow(
         id: Long = 1L,
         tidspunkt: Instant = Instant.now(),
@@ -415,6 +435,22 @@ object TestData {
         profilertTil,
         jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder
+    )
+
+    fun nyEgenvurdering(
+        egenvurderingId: UUID = UUID.randomUUID(),
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID(),
+        profileringId: UUID = UUID.randomUUID(),
+        sendtInnAv: Metadata = nyMetadata(utfoertAv = nyBruker(brukerId = fnr4)),
+        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+    ) = Egenvurdering(
+        egenvurderingId,
+        periodeId,
+        opplysningerId,
+        profileringId,
+        sendtInnAv,
+        egenvurdering
     )
 
     fun ProfileringAggregertResponse.toProfileringResponse(): ProfileringResponse = ProfileringResponse(

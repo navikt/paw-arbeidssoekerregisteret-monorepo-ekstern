@@ -13,11 +13,13 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
@@ -31,6 +33,7 @@ class ApplicationTestContext(
     val periodeRepository: PeriodeRepository,
     val opplysningerRepository: OpplysningerRepository,
     val profileringRepository: ProfileringRepository,
+    val egenvurderingRepository: EgenvurderingRepository,
     val bekreftelseRepository: BekreftelseRepository
 ) {
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
@@ -50,10 +53,12 @@ class ApplicationTestContext(
         periodeRepository = periodeRepository,
         opplysningerRepository = opplysningerRepository,
         profileringRepository = profileringRepository,
+        egenvurderingRepository = egenvurderingRepository,
         bekreftelseRepository = bekreftelseRepository
     )
     val opplysningerService = OpplysningerService(prometheusMeterRegistry, opplysningerRepository)
     val profileringService = ProfileringService(prometheusMeterRegistry, profileringRepository)
+    val egenvurderingService = EgenvurderingService(prometheusMeterRegistry, egenvurderingRepository)
     val bekreftelseService = BekreftelseService(prometheusMeterRegistry, bekreftelseRepository)
 
     fun ApplicationTestBuilder.configureTestClient(): HttpClient {
@@ -71,11 +76,13 @@ class ApplicationTestContext(
             val periodeRepositoryMock = mockk<PeriodeRepository>()
             val opplysningerRepositoryMock = mockk<OpplysningerRepository>()
             val profileringRepositoryMock = mockk<ProfileringRepository>()
+            val egenvurderingRepositoryMock = mockk<EgenvurderingRepository>()
             val bekreftelseRepositoryMock = mockk<BekreftelseRepository>()
             return ApplicationTestContext(
                 periodeRepositoryMock,
                 opplysningerRepositoryMock,
                 profileringRepositoryMock,
+                egenvurderingRepositoryMock,
                 bekreftelseRepositoryMock
             )
         }
@@ -86,11 +93,13 @@ class ApplicationTestContext(
             val periodeRepository = PeriodeRepository(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
             val opplysningerRepository = OpplysningerRepository()
             val profileringRepository = ProfileringRepository()
+            val egenvurderingRepository = EgenvurderingRepository()
             val bekreftelseRepository = BekreftelseRepository()
             return ApplicationTestContext(
                 periodeRepository,
                 opplysningerRepository,
                 profileringRepository,
+                egenvurderingRepository,
                 bekreftelseRepository
             )
         }

@@ -54,7 +54,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -71,7 +71,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -90,7 +90,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -113,7 +113,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -139,7 +139,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -175,7 +175,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -203,26 +203,48 @@ class ProfileringerRoutesTest : FreeSpec({
         "/profilering/egenvurdering should return OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr2, IdentGruppe.FOLKEREGISTERIDENT))
+            } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
             testApplication {
                 application {
                     configureAuthentication(mockOAuth2Server)
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
+                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr4)
+                val opplysninger = TestData.nyOpplysningerOmArbeidssoeker(
+                    periodeId = periode.id,
+                    opplysningerId = TestData.opplysningerId1
+                )
+                val profilering = TestData.nyProfilering(
+                    periodeId = periode.id,
+                    opplysningerId = opplysninger.id,
+                    profileringId = TestData.profileringId1
+                )
+
+                val egenvurdering = TestData.nyEgenvurdering(
+                    periodeId = periode.id,
+                    opplysningerId = opplysninger.id,
+                    profileringId = profilering.id,
+                )
+
+                periodeService.lagrePeriode(periode)
+                opplysningerService.lagreOpplysninger(opplysninger)
+                profileringService.lagreProfilering(profilering)
+                egenvurderingService.lagreEgenvurdering(egenvurdering)
+
                 val testClient = configureTestClient()
                 val response = testClient.get("/api/v1/profilering/egenvurdering") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr2))
+                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr4))
                 }
 
-                val expectedResponse = egenvurderingMockResponse()
-
                 response.status shouldBe HttpStatusCode.OK
-                response.body<List<EgenvurderingResponse>>() shouldBe expectedResponse
+                val egenvurderingResponse = response.body<List<EgenvurderingResponse>>()
+                egenvurderingResponse.size shouldBe 1
+                egenvurdering shouldBeEqualTo egenvurderingResponse[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
             }
@@ -239,7 +261,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -269,7 +291,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -303,7 +325,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -340,7 +362,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 
@@ -387,7 +409,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService)
+                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
                     }
                 }
 

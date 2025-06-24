@@ -100,6 +100,16 @@ data class ProfileringRow(
     val alder: Int? = null
 )
 
+data class EgenvurderingRow(
+    val id: Long,
+    val egenvurderingId: UUID,
+    val periodeId: UUID,
+    val opplysningerOmArbeidssoekerId: UUID,
+    val profileringId: UUID,
+    val sendtInnAv: MetadataRow,
+    val egenvurdering: ProfilertTil,
+)
+
 data class BekreftelseRow(
     val id: Long,
     val bekreftelseId: UUID,

@@ -6,6 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BekreftelseSvarRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.EgenvurderingRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerMarkerRow
@@ -129,6 +130,18 @@ fun ResultRow.toProfileringRow(): ProfileringRow {
         profilertTil = get(ProfileringTable.profilertTil),
         jobbetSammenhengendeSeksAvTolvSisteManeder = get(ProfileringTable.jobbetSammenhengendeSeksAvTolvSisteManeder),
         alder = get(ProfileringTable.alder)
+    )
+}
+
+fun ResultRow.toEgenvurderingRow(): EgenvurderingRow {
+    return EgenvurderingRow(
+        id = get(EgenvurderingTable.id).value,
+        egenvurderingId = get(EgenvurderingTable.egenvurderingId),
+        periodeId = get(EgenvurderingTable.periodeId),
+        opplysningerOmArbeidssoekerId = get(EgenvurderingTable.opplysningerOmArbeidssoekerId),
+        profileringId = get(EgenvurderingTable.profileringId),
+        sendtInnAv = toMetadataRow(),
+        egenvurdering = get(EgenvurderingTable.egenvurdering)
     )
 }
 
