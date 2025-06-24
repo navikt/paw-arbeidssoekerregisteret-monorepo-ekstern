@@ -6,6 +6,7 @@ import no.nav.paw.oppslagapi.data.objectMapper
 import no.nav.paw.oppslagapi.data.typeTilKlasse
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 interface DatabaseQeurySupport {
@@ -17,12 +18,12 @@ interface DatabaseQeurySupport {
 private object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
     override fun hentRaderForPeriode(
         periodeId: UUID
-    ): List<Row<Any>> {
-        val result = DataTable.selectAll()
-            .where { DataTable.periodeId eq periodeId }
-            .map(::asObject)
-        return result
-    }
+    ): List<Row<Any>> =
+        transaction {
+            DataTable.selectAll()
+                .where { DataTable.periodeId eq periodeId }
+                .map(::asObject)
+        }
 }
 
 val exposedDatabaseQuerySupport: DatabaseQeurySupport get() = ExposedDatabaseQuerySupport
