@@ -16,6 +16,8 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
+import no.nav.paw.config.env.appNameOrDefaultForLocal
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.kafka.producer.sendDeferred
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
@@ -39,13 +41,13 @@ class EgenvurderingService(
         return EgenvurderingGrunnlag(grunnlag = null) // TODO: Fjern denne linjen for å aktivere grunnlagshenting
 
         val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
-        val profilering = arbeidssoekerperioderAggregert.findSisteProfilering()
-        val egenvurdering = profilering?.egenvurdering
-        return if (profilering == null || egenvurdering != null || arbeidssoekerperioderAggregert.isPeriodeAvsluttet()) {
+        val sisteProfilering = arbeidssoekerperioderAggregert.findSisteProfilering()
+        val innsendtEgenvurdering = sisteProfilering?.egenvurdering
+        return if (sisteProfilering == null || innsendtEgenvurdering != null || arbeidssoekerperioderAggregert.isPeriodeAvsluttet()) {
             EgenvurderingGrunnlag(grunnlag = null)
         } else {
             EgenvurderingGrunnlag(
-                grunnlag = profilering.toApiProfilering(),
+                grunnlag = sisteProfilering.toApiProfilering(),
             )
         }
     }
@@ -70,8 +72,8 @@ class EgenvurderingService(
                 identitetsnummer.verdi,
                 "tokenx:Level4"
             ),
-            "paw-arbeidssoekerregisteret-egenvurdering-api",
-            "bruker sendte inn egenvurdering",
+            currentRuntimeEnvironment.appNameOrDefaultForLocal(),
+            "Bruker har gjort en vurdering av profileringsresultatet",
             null
         )
         val egenvurderingRecord = ProducerRecord(

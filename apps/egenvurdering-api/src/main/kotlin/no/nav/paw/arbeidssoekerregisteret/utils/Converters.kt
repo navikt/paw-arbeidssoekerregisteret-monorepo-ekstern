@@ -1,8 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.utils
 
-import io.ktor.http.auth.HttpAuthHeader
-import io.ktor.server.auth.parseAuthorizationHeader
-import io.ktor.server.request.ApplicationRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering as ApiEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering as ApiProfilering
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil as ApiProfilertTil
@@ -11,12 +8,6 @@ import no.nav.paw.client.api.oppslag.models.ArbeidssoekerperiodeAggregertRespons
 import no.nav.paw.client.api.oppslag.models.OpplysningerOmArbeidssoekerAggregertResponse
 import no.nav.paw.client.api.oppslag.models.ProfileringAggregertResponse
 import no.nav.paw.client.api.oppslag.models.ProfileringsResultat
-
-internal fun ApplicationRequest.jwt(): String =
-    when (val authHeader = parseAuthorizationHeader()) {
-        is HttpAuthHeader.Single -> authHeader.blob
-        else -> throw IllegalArgumentException("Fant ikke JWT i authorization header")
-    }
 
 fun List<ArbeidssoekerperiodeAggregertResponse>.findSisteProfilering(): ProfileringAggregertResponse? =
     this.firstOrNull()?.opplysningerOmArbeidssoeker?.maxByOrNull { it.sendtInnAv.tidspunkt }?.profilering

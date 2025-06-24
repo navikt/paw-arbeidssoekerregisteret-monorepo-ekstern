@@ -10,10 +10,10 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
-import no.nav.paw.arbeidssoekerregisteret.utils.jwt
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.bruker
+import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authorization.interceptor.autorisering
 import no.nav.paw.security.authorization.model.Action
@@ -29,19 +29,19 @@ fun Route.egenvurderingRoutes(authorizationService: AuthorizationService, egenvu
         autentisering(TokenX) {
             post<EgenvurderingRequest> { egenvurderingRequest ->
                 logger.info("Mottok egenvurderingrequest")
-                val userToken = call.request.jwt()
                 val accessPolicies = authorizationService.accessPolicies()
-                autorisering(Action.READ, accessPolicies) {
+                autorisering(Action.WRITE, accessPolicies) {
                     val sluttbruker = call.bruker<Sluttbruker>()
+                    val userToken = call.securityContext().accessToken.jwt
                     // TODO: bruk egenvurderingService
                     call.respond(HttpStatusCode.Accepted)
                 }
             }
             get(grunnlagPath) {
                 logger.info("Mottok grunnlagrequest")
-                val userToken = call.request.jwt()
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.READ, accessPolicies) {
+                    val userToken = call.securityContext().accessToken.jwt
                     val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
                         userToken = userToken
                     )
