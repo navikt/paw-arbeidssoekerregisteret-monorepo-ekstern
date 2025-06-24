@@ -12,6 +12,7 @@ import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.path
 import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
@@ -19,6 +20,9 @@ import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
+import no.nav.paw.error.model.Data
+import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.plugin.ErrorHandlingPlugin
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.health.HasStarted
@@ -81,7 +85,7 @@ fun Application.configureKtorServer(
     installAuthenticationPlugin(authProviders)
 }
 
-fun <A> Routing.configureRoutes(
+fun <A> Route.configureRoutes(
     healthIndicator: A,
     prometheusRegistry: PrometheusMeterRegistry,
     openApiSpecFile: String,
@@ -92,13 +96,20 @@ fun <A> Routing.configureRoutes(
     route("/api/v2/bekreftelser") {
         autentisering(TokenX, AzureAd) {
             post<ApiV2BekreftelserPostRequest> { request ->
+                val securityContext = call.securityContext()
                 val response = appQueryLogic.hentBekreftelser(
-                    bruker = call.securityContext().bruker,
+                    bruker = securityContext.bruker,
                     request = request
                 )
-                call.respond(HttpStatusCode.OK, response)
+                when (response) {
+                    is Data<BekreftelserResponse> -> {
+                        call.respond(HttpStatusCode.OK, response.data)
+                    }
+                    is ProblemDetails -> {
+                        call.respond(response.status, response)
+                    }
+                }
             }
         }
     }
 }
-

@@ -1,12 +1,13 @@
 package no.nav.paw.oppslagapi.health
 
 import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 
-fun <A> Routing.internalRoutes(
+fun <A> Route.internalRoutes(
     healthIndicator: A,
     prometheusRegistry: PrometheusMeterRegistry
 ) where A : IsAlive, A : IsReady, A : HasStarted {

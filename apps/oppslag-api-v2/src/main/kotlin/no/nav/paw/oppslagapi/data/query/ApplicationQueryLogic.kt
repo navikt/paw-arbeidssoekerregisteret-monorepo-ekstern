@@ -2,6 +2,8 @@ package no.nav.paw.oppslagapi.data.query
 
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
+import no.nav.paw.error.model.Data
+import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.getOrThrow
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
@@ -15,9 +17,9 @@ class ApplicationQueryLogic(
     suspend fun hentBekreftelser(
         bruker: Bruker<out Any>,
         request: ApiV2BekreftelserPostRequest
-    ): BekreftelserResponse {
+    ): Response<BekreftelserResponse> {
         if (request.perioder.isEmpty()) {
-            return BekreftelserResponse(emptyList())
+            return Data(BekreftelserResponse(emptyList()))
         }
         val tidslinjer = request.perioder.mapNotNull { periodeId ->
             val rader = databaseQuerySupport.hentRaderForPeriode(periodeId)
@@ -31,6 +33,6 @@ class ApplicationQueryLogic(
             BekreftelserResponse(
                 bekreftelser = tidslinjer.flatMap { it.bekreftelser }
             )
-        }.getOrThrow()
+        }
     }
 }

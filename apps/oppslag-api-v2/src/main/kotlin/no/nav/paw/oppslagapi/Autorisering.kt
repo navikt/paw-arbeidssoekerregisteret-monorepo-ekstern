@@ -5,6 +5,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
+import no.nav.paw.error.model.flatMap
 import no.nav.paw.error.model.map
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
@@ -53,7 +54,7 @@ class AutorisasjonsTjeneste(
         identitetsnummer: List<Identitetsnummer>,
     ): Response<Unit> {
         return kafkaKeysClient.finnAlleIdenterForPerson(bruker.ident)
-            .map { allIdenterForBruker ->
+            .flatMap { allIdenterForBruker ->
                 if (identitetsnummer.any { it !in allIdenterForBruker }) {
                     ikkeTilgangProblemDetails()
                 } else {

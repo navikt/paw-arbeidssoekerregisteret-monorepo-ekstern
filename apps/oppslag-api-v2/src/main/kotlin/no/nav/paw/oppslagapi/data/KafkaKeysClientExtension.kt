@@ -12,8 +12,8 @@ import java.util.UUID
 
 suspend fun KafkaKeysClient.finnAlleIdenterForPerson(identitetsnummer: Identitetsnummer): Response<List<Identitetsnummer>> {
     return runCatching { getInfo(identitetsnummer.verdi) }
-        .map {
-            it?.info?.pdlData?.id
+        .map { response ->
+            response?.info?.pdlData?.id
                 ?.filter { it.gruppe.equals("FOLKEREGISTERIDENT", ignoreCase = true) }
                 ?: emptyList()
         }.map { folkeregisterIdenter -> folkeregisterIdenter.map { Identitetsnummer(it.id) } }
