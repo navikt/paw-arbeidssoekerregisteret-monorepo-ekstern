@@ -4,7 +4,7 @@ info:
   description: "paw_arbeidssoekerregisteret_egenvurdering_api"
   version: "1.0.0"
 paths:
-  /api/v1/arbeidssoker/profilering/egenvurdering:
+  /api/v1/arbeidssoeker/profilering/egenvurdering:
     post:
       description: "Tar imot brukerens egenvurdering av profilering"
       parameters:
