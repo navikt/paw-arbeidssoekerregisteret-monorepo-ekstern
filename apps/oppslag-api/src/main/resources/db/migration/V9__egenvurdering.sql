@@ -12,3 +12,4 @@ CREATE TABLE egenvurdering
 
 CREATE INDEX idx_egenvurdering_periode_id ON egenvurdering(periode_id);
 CREATE INDEX idx_egenvurdering_id ON egenvurdering(egenvurdering_id);
+CREATE INDEX idx_egenvurdering_profilering_id ON egenvurdering(profilering_id);
