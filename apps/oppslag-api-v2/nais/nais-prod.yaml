@@ -8,16 +8,15 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
+  env:
+    - name: KAFKA_KEYS_SCOPE
+      value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
   resources:
     limits:
       memory: 1024Mi
     requests:
       cpu: 200m
       memory: 512Mi
-  idporten:
-    enabled: true
-    sidecar:
-      enabled: true
   tokenx:
     enabled: true
   azure:
@@ -52,11 +51,23 @@ spec:
       enabled: true
       runtime: "java"
   accessPolicy:
+    inbound:
+      rules:
+        - application: arbeidssokerregistrering-for-veileder
+          namespace: paw
+          cluster: prod-gcp
+        - application: arbeidssoekerregisteret-for-personbruker
+          namespace: paw
+          cluster: prod-gcp
     outbound:
       rules:
         - application: paw-tilgangskontroll
           namespace: paw
           cluster: prod-gcp
+        - application: paw-kafka-key-generator
+          namespace: paw
+          cluster: prod-gcp
+
   gcp:
     sqlInstances:
       - type: POSTGRES_17
