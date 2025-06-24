@@ -113,6 +113,40 @@ class TidslinjegeneratorTest: FreeSpec({
                 }
             }
         }
+        "Verifiser innsendt utenfor periode" {
+            val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
+            val periode = periode(identitetsnummer = person1.first(), startet = startTid)
+            val rader = listOf(
+                row(periode),
+                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),
+                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid - 3.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
+                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 9.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
+                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 5.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
+                row(periode(
+                    identitetsnummer = Identitetsnummer(periode.identitetsnummer),
+                    periodeId = periode.id,
+                    startet = periode.startet.tidspunkt,
+                    avsluttet = startTid + 6.dager
+                ))
+            )
+            val tidslinje = genererTidslinje(periodeId = periode.id, rader = rader)
+            tidslinje.shouldNotBeNull()
+            tidslinje.identitetsnummer shouldBe periode.identitetsnummer
+            tidslinje.periodeStart shouldBe startTid
+            tidslinje.periodeStopp shouldBe startTid + 6.dager
+            tidslinje.bekreftelser should { bekreftelser ->
+                bekreftelser.size shouldBe 4
+                bekreftelser.filter { it.status == Status.GYLDIG } should { gyldige ->
+                    gyldige.size shouldBe 1
+                    gyldige.first().bekreftelse?.svar?.sendtInnAv?.tidspunkt shouldBe startTid + 1.dager
+                }
+                bekreftelser.filter { it.status == Status.UTENFOR_PERIODE } should { uventetKilde ->
+                    uventetKilde.size shouldBe 2
+                    uventetKilde.filter { it.bekreftelse?.svar?.sendtInnAv?.tidspunkt == startTid - 3.dager }.size shouldBe 1
+                    uventetKilde.filter { it.bekreftelse?.svar?.sendtInnAv?.tidspunkt == startTid - 3.dager }.size shouldBe 1
+                }
+            }
+        }
     }
 })
 
