@@ -12,7 +12,7 @@ import no.nav.paw.oppslagapi.data.periode_startet_v1
 import java.time.Instant
 import java.util.*
 
-fun genererTidslinje(periodeId: UUID, rader: List<Row<Any>>): Tidslinje? {
+fun genererTidslinje(periodeId: UUID, rader: List<Row<out Any>>): Tidslinje? {
     val (start, meldinger) = rader
         .filter { it.periodeId == periodeId }
         .sortedBy { it.timestamp }
@@ -47,7 +47,7 @@ data class Tidslinje(
     val ansvarlig: Set<Bekreftelsesloesning>,
     val bekreftelser: List<BekreftelseMedMetadata>
 ) {
-    operator fun plus(row: Row<Any>): Tidslinje =
+    operator fun plus(row: Row<out Any>): Tidslinje =
         when (val data = row.data) {
             is PaaVegneAvStart -> this.copy(
                 tidspunkt = row.timestamp,

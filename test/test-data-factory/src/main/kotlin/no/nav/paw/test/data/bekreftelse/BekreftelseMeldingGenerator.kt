@@ -16,7 +16,8 @@ fun bekreftelseMelding(
     gjelderFra: Instant = Instant.now(),
     gjelderTil: Instant = Instant.now(),
     harJobbetIDennePerioden: Boolean = true,
-    vilFortsetteSomArbeidssoeker: Boolean = true
+    vilFortsetteSomArbeidssoeker: Boolean = true,
+    tidspunkt: Instant = Instant.now(),
 ) =
     Bekreftelse
         .newBuilder()
@@ -29,7 +30,7 @@ fun bekreftelseMelding(
             .setSendtInnAv(
                 Metadata
                     .newBuilder()
-                    .setTidspunkt(Instant.now())
+                    .setTidspunkt(tidspunkt)
                     .setUtfoertAv(
                         Bruker
                             .newBuilder()
