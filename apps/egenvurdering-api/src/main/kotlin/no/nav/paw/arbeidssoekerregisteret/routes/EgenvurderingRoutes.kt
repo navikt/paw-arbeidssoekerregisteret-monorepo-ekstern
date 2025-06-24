@@ -33,7 +33,7 @@ fun Route.egenvurderingRoutes(authorizationService: AuthorizationService, egenvu
                 autorisering(Action.WRITE, accessPolicies) {
                     val sluttbruker = call.bruker<Sluttbruker>()
                     val userToken = call.securityContext().accessToken.jwt
-                    // TODO: bruk egenvurderingService
+                    egenvurderingService.postEgenvurdering(sluttbruker.ident, userToken, egenvurderingRequest)
                     call.respond(HttpStatusCode.Accepted)
                 }
             }
