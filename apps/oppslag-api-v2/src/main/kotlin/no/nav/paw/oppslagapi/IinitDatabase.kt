@@ -17,12 +17,8 @@ fun initDatabase(topicNames: TopicNames) {
         .dataSource(dataSource)
         .baselineOnMigrate(true)
         .locations("db/migration")
-        .cleanDisabled(false)
         .load()
-        .also {
-            it.clean()
-            it.migrate()
-        }
+        .migrate()
     transaction {
         topicNames.asList().forEach { topic ->
             initHwm(topic, consumer_version, partition_count)
