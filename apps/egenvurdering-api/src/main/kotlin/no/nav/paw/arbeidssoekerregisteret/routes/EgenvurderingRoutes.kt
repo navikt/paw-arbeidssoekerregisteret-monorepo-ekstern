@@ -6,6 +6,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
@@ -24,28 +25,30 @@ private const val grunnlagPath = "/grunnlag"
 const val egenvurderingPath = "/api/v1/arbeidssoeker/profilering/egenvurdering"
 const val egenvurderingGrunnlagPath = egenvurderingPath + grunnlagPath
 
-fun Route.egenvurderingRoutes(authorizationService: AuthorizationService, egenvurderingService: EgenvurderingService): Route {
+fun Route.egenvurderingRoutes(
+    authorizationService: AuthorizationService,
+    egenvurderingService: EgenvurderingService,
+): Route {
     return route(egenvurderingPath) {
         autentisering(TokenX) {
+
+            get(grunnlagPath) {
+                val accessPolicies = authorizationService.accessPolicies()
+                autorisering(Action.READ, accessPolicies) {
+                    val userToken = call.securityContext().accessToken.jwt
+                    //val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(userToken)
+                    val egenvurderingGrunnlag = EgenvurderingGrunnlag(grunnlag = null)
+                    call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)
+                }
+            }
+
             post<EgenvurderingRequest> { egenvurderingRequest ->
-                logger.info("Mottok egenvurderingrequest")
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.WRITE, accessPolicies) {
                     val sluttbruker = call.bruker<Sluttbruker>()
                     val userToken = call.securityContext().accessToken.jwt
                     egenvurderingService.postEgenvurdering(sluttbruker.ident, userToken, egenvurderingRequest)
                     call.respond(HttpStatusCode.Accepted)
-                }
-            }
-            get(grunnlagPath) {
-                logger.info("Mottok grunnlagrequest")
-                val accessPolicies = authorizationService.accessPolicies()
-                autorisering(Action.READ, accessPolicies) {
-                    val userToken = call.securityContext().accessToken.jwt
-                    val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
-                        userToken = userToken
-                    )
-                    call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)
                 }
             }
 

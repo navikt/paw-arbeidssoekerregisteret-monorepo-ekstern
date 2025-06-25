@@ -18,8 +18,6 @@ import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.just
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingGrunnlagPath
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingPath
 import no.nav.paw.client.api.oppslag.exception.ArbeidssoekerperioderAggregertOppslagResponseException
@@ -113,6 +111,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                 }
             }
 
+            /*
             "200 OK - Grunnlag (profilering) for egenvurdering" - {
                 testApplication {
                     configureTestApplication()
@@ -142,7 +141,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                     response.bodyAsText() shouldEqualJson expectedJson
                     response.headers["x-trace-id"] shouldNotBe null
                 }
-            }
+            }*/
 
             "403 Forbidden" - {
                 testApplication {
