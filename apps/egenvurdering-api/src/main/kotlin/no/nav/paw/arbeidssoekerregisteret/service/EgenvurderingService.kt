@@ -35,11 +35,8 @@ class EgenvurderingService(
 ) {
     private val logger = buildApplicationLogger
 
-    @Suppress("KotlinUnreachableCode", "Midlertidig død kode i metoden")
     suspend fun getEgenvurderingGrunnlag(userToken: String): EgenvurderingGrunnlag {
         val exchangedToken = texasClient.getOnBehalfOfToken(userToken).accessToken
-        return EgenvurderingGrunnlag(grunnlag = null) // TODO: Fjern denne linjen for å aktivere grunnlagshenting
-
         val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
         val sisteProfilering = arbeidssoekerperioderAggregert.findSisteProfilering()
         val innsendtEgenvurdering = sisteProfilering?.egenvurdering
@@ -59,6 +56,7 @@ class EgenvurderingService(
         val periode = arbeidssoekerperioderAggregert.firstOrNull()
         val opplysningerOmArbeidssoeker = periode?.findSisteOpplysningerOmArbeidssoeker()
         val profilering = opplysningerOmArbeidssoeker?.profilering
+        // TODO: trenger vi sjekke om egenvurdering allerede er sendt?
         if (profilering?.profileringId != request.profileringId) {
             throw BadRequestException("ProfileringId i request (${request.profileringId}) samsvarer ikke med profileringId i siste aggregerte-periode (${profilering?.profileringId})")
         }

@@ -4,9 +4,11 @@ info:
   description: "paw_arbeidssoekerregisteret_egenvurdering_api"
   version: "1.0.0"
 paths:
-  /api/v1/arbeidssoker/profilering/egenvurdering:
+  /api/v1/arbeidssoeker/profilering/egenvurdering:
     post:
       description: "Tar imot brukerens egenvurdering av profilering"
+      security:
+        - TokenXAuth: []
       parameters:
         - name: "traceparent"
           in: "header"
@@ -66,9 +68,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+        "502":
+          description: "Bad Gateway"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag:
     get:
       description: "Henter grunnlaget for en egenvurdering hvis det finnes"
+      security:
+        - TokenXAuth: []
       responses:
         "200":
           description: "OK"
@@ -125,6 +140,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+        "502":
+          description: "Bad Gateway"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
 
   /internal/isAlive:
     get:
@@ -169,6 +195,19 @@ paths:
               schema:
                 type: "string"
 components:
+  securitySchemes:
+    TokenXAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Oppslag som gjøres av arbeidssøker selv. Bruk et Bearer token fra TokenX.
+
+        Eksempel: `Authorization: Bearer <token>`
+
+        ```json
+        { "acr": "Level4", "pid": "<fnr>" }
+        ```
   schemas:
     EgenvurderingRequest:
       type: "object"

@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret
 
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -13,10 +14,16 @@ import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.just
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingGrunnlagPath
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingPath
-import java.util.UUID
+import no.nav.paw.client.api.oppslag.exception.ArbeidssoekerperioderAggregertOppslagResponseException
+import java.util.*
 
 class EgenvurderingRoutesTest : FreeSpec({
     with(TestContext()) {
@@ -27,46 +34,70 @@ class EgenvurderingRoutesTest : FreeSpec({
         afterSpec {
             mockOAuth2Server.shutdown()
         }
+
+        val egenvurderingRequestJson =
+            """
+                {
+                  "profileringId": "${UUID.randomUUID()}",
+                  "egenvurdering": "ANTATT_GODE_MULIGHETER"
+                }
+            """.trimIndent()
+
         "/api/v1/arbeidssoeker/profilering/egenvurdering" - {
-                "202 Accepted" {
-                    testApplication {
-                        configureTestApplication()
-                        val client = configureTestClient()
-                        val egenvurderingJson = """
-                            {
-                              "periodeId": "${UUID.randomUUID()}",
-                              "opplysningerOmArbeidssoekerId": "${UUID.randomUUID()}",
-                              "profileringId": "${UUID.randomUUID()}",
-                              "egenvurdering": "ANTATT_GODE_MULIGHETER"
-                            }
-                        """.trimIndent()
+            "202 Accepted" - {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
 
-                        val response = client.post(egenvurderingPath) {
-                            contentType(Application.Json)
-                            setBody(egenvurderingJson)
-                            bearerAuth(mockOAuth2Server.issueTokenXToken())
-                        }
-                        response.status shouldBe HttpStatusCode.Accepted
-                        response.headers["x-trace-id"] shouldNotBe null
+                    coEvery { egenvurderingService.postEgenvurdering(any(), any(), any()) } just Runs
+                    val response = client.post(egenvurderingPath) {
+                        contentType(Application.Json)
+                        setBody(egenvurderingRequestJson)
+                        bearerAuth(mockOAuth2Server.issueTokenXToken())
                     }
+                    response.status shouldBe HttpStatusCode.Accepted
+                    response.headers["x-trace-id"] shouldNotBe null
                 }
-                "400 BadRequest" {
-                    testApplication {
-                        configureTestApplication()
-                        val client = configureTestClient()
+            }
+            "400 BadRequest" - {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
 
-                        val response = client.post(egenvurderingPath) {
-                            contentType(Application.Json)
-                            setBody("""{ugyldigJson}""")
-                            bearerAuth(mockOAuth2Server.issueTokenXToken())
-                        }
-                        response.status shouldBe HttpStatusCode.BadRequest
-                        response.headers["x-trace-id"] shouldNotBe null
+                    val response = client.post(egenvurderingPath) {
+                        contentType(Application.Json)
+                        setBody("""{ugyldigJson}""")
+                        bearerAuth(mockOAuth2Server.issueTokenXToken())
                     }
+                    response.status shouldBe HttpStatusCode.BadRequest
+                    response.headers["x-trace-id"] shouldNotBe null
                 }
+            }
+
+            "502 Bad gateway når vi ikke når Oppslag API" - {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
+                    coEvery {
+                        egenvurderingService.postEgenvurdering(any(), any(), any())
+                    } throws ArbeidssoekerperioderAggregertOppslagResponseException(
+                        status = HttpStatusCode.BadGateway,
+                        "hugga bugga"
+                    )
+
+                    val response = client.post(egenvurderingPath) {
+                        contentType(Application.Json)
+                        setBody(egenvurderingRequestJson)
+                        bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    }
+                    response.status shouldBe HttpStatusCode.BadGateway
+                    response.headers["x-trace-id"] shouldNotBe null
+                }
+            }
         }
+
         "/api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag" - {
-            "200 OK" {
+            "200 OK - Finner ikke grunnlag (profilering) for egenvurdering" - {
                 testApplication {
                     configureTestApplication()
 
@@ -81,7 +112,39 @@ class EgenvurderingRoutesTest : FreeSpec({
                     response.headers["x-trace-id"] shouldNotBe null
                 }
             }
-            "403 Forbidden" {
+
+            "200 OK - Grunnlag (profilering) for egenvurdering" - {
+                testApplication {
+                    configureTestApplication()
+                    val profileringId = UUID.randomUUID()
+                    val egenvurderingGrunnlag = EgenvurderingGrunnlag(
+                        grunnlag = Profilering(
+                            profileringId = profileringId,
+                            profilertTil = ANTATT_GODE_MULIGHETER,
+                        )
+                    )
+                    coEvery { egenvurderingService.getEgenvurderingGrunnlag(any()) } returns egenvurderingGrunnlag
+                    val client = configureTestClient()
+
+                    val response = client.get(egenvurderingGrunnlagPath) {
+                        bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    }
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<EgenvurderingGrunnlag>() shouldBe egenvurderingGrunnlag
+
+                    val expectedJson =
+                        """{
+                          "grunnlag": {
+                            "profileringId": "$profileringId",
+                            "profilertTil": "ANTATT_GODE_MULIGHETER"
+                          }
+                        }""".trimIndent()
+                    response.bodyAsText() shouldEqualJson expectedJson
+                    response.headers["x-trace-id"] shouldNotBe null
+                }
+            }
+
+            "403 Forbidden" - {
                 testApplication {
                     configureTestApplication()
 
