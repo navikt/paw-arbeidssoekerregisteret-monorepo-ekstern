@@ -1,2 +1,3 @@
 url = "http://localhost:8090/api/v2/hentEllerOpprett"
+infoUrl = "MOCK"
 scope = "api://test.test.kafka-keys/.default"
