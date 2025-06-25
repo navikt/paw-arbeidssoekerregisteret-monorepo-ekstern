@@ -33,13 +33,13 @@ class DataConsumer(
         val currentExitError = exitError.get()
         return when {
             currentExitError != null -> {
-                Status.ERROR("Fatal error", currentExitError)
+                Status.ERROR("Stoppet grunnet feil", currentExitError)
             }
             sisteProessering.get() > Instant.EPOCH -> {
                 Status.OK
             }
             else -> {
-                Status.PENDING("DataConsumer has not started yet, last processing time is $sisteProessering")
+                Status.PENDING("Ikke startet")
             }
         }
     }
@@ -47,14 +47,14 @@ class DataConsumer(
     override fun isAlive(): Status {
         val currentExitError = exitError.get()
         return if (currentExitError != null) {
-            Status.ERROR("Fatal error", currentExitError)
+            Status.ERROR("Stoppet grunnet feil", currentExitError)
         } else {
             between(sisteProessering.get(), Instant.now())
                 .let { timeSinceLastCompletedPoll ->
                     if (timeSinceLastCompletedPoll < Duration.ofSeconds(10)) {
                         Status.OK
                     } else {
-                        Status.PENDING("DataConsumer has not processed data in the last ${timeSinceLastCompletedPoll.toMillis()} ms")
+                        Status.PENDING("${timeSinceLastCompletedPoll.toMillis()} ms siden siste batch ble prosessert")
                     }
                 }
         }
