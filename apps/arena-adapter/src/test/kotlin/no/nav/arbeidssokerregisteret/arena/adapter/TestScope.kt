@@ -6,12 +6,15 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ArenaAdapterTopics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.forsinkelseSerde
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -41,11 +44,8 @@ data class TestScope(
 
 fun testScope(): TestScope {
     val topics = Topics(
-        opplysningerOmArbeidssoeker = "opplysninger",
-        arbeidssokerperioder = "perioder",
-        profilering = "profilering",
-        arena = "arena",
-        bekreftelse = "bekreftelse"
+        arenaTopics = ArenaAdapterTopics("arena"),
+        standardTopics = standardTopicNames(currentRuntimeEnvironment)
     )
     val periodeSerde = createAvroSerde<Periode>()
     val tempArenaArbeidssokerregisterTilstandSerde = createAvroSerde<TopicsJoin>()

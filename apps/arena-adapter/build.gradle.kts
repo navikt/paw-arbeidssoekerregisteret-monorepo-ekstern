@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:arena-avro-schema"))
     implementation(project(":domain:bekreftelsesmelding-avro-schema"))
+    implementation(project(":lib:topics"))
 
     // Jackson
     implementation(libs.jackson.kotlin)

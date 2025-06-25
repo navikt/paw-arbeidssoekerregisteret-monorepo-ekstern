@@ -1,6 +1,9 @@
 package no.nav.arbeidssokerregisteret.arena.adapter
 
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ApplicationConfig
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
+import no.nav.paw.arbeidssokerregisteret.standardTopicNames
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -14,7 +17,11 @@ fun main() {
     val kafkaStreamsConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>("application.toml")
 
-    val (_, topics) = applicationConfig
+    val (_, arenaTopics) = applicationConfig
+    val topics = Topics(
+        arenaTopics = arenaTopics,
+        standardTopics = standardTopicNames(currentRuntimeEnvironment)
+    )
 
     val localTestProducer = LocalTestProducer(kafkaStreamsConfig)
 
