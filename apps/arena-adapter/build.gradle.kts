@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":lib:kafka-streams"))
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:arena-avro-schema"))
+    implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 
     // Jackson
     implementation(libs.jackson.kotlin)

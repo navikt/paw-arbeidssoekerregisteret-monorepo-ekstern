@@ -4,9 +4,11 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.filter
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.genericProcess
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.toArena
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.kafka.processor.genericProcess
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
@@ -19,6 +21,7 @@ import java.time.Instant
 import java.util.*
 
 val HOEYVANNSMERKE = Instant.parse("2024-01-01T00:00:00Z")
+val bekreftelseHoeyvannsmerke = Instant.parse("2025-06-25T10:00:00Z")
 
 fun topology(
     builder: StreamsBuilder,
@@ -26,8 +29,10 @@ fun topology(
     stateStoreName: String,
     periodeSerde: Serde<Periode>,
     profileringSerde: Serde<Profilering>,
+    bekreftelseSerde: Serde<Bekreftelse>,
     arenaArbeidssokerregisterTilstandSerde: Serde<ArenaArbeidssokerregisterTilstand>,
-    ventendePeriodeStateStoreName: String
+    ventendePeriodeStateStoreName: String,
+    bekreftelseStateStoreName: String,
 ): Topology {
     val perioder = builder.stream(
         topics.arbeidssokerperioder,
@@ -43,6 +48,21 @@ fun topology(
     ).filter("filterOnRecordTimestamp") { record ->
         Instant.ofEpochMilli(record.timestamp()).isAfter(HOEYVANNSMERKE)
     }
+
+    builder.stream(
+        topics.bekreftelse,
+        Consumed.with(Serdes.Long(), bekreftelseSerde)
+    )
+        .filter { _, bekreftelse -> bekreftelse.svar.sendtInnAv.tidspunkt > bekreftelseHoeyvannsmerke }
+        .filter { _, bekreftelse -> !bekreftelse.svar.vilFortsetteSomArbeidssoeker }
+        .genericProcess<Long, Bekreftelse, Unit, Unit>(
+            name = "lagre_bekreftelse",
+            bekreftelseStateStoreName,
+            punctuation = bekreftelsePunctuation(bekreftelseStateStoreName)
+        ) { record ->
+            val store: KeyValueStore<UUID, Bekreftelse> = getStateStore(bekreftelseStateStoreName)
+            store.put(record.value().periodeId, record.value())
+        }
 
 
     perioder.genericProcess<Long, Periode, Long, TopicsJoin>(

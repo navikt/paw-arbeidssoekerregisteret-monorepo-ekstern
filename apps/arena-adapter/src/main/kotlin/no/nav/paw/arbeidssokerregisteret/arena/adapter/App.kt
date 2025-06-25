@@ -11,6 +11,7 @@ import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.Health
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.initKtor
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.meterIdMap
 import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -44,9 +45,12 @@ fun main() {
         kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
     val tempArenaArbeidssokerregisterTilstandSerde =
         kafkaStreamsFactory.createSpecificAvroSerde<ArenaArbeidssokerregisterTilstand>()
+    val bekreftelseSerde =
+        kafkaStreamsFactory.createSpecificAvroSerde<Bekreftelse>()
 
     val stateStoreName = "periodeStateStore"
     val ventendePeriodeStateStore = "ventendePeriodeStateStore"
+    val bekreftelseStateStore = "bekreftelseStateStore"
 
     val builder = StreamsBuilder()
         .addStateStore(
@@ -65,6 +69,14 @@ fun main() {
                 Time.SYSTEM
             )
         )
+        .addStateStore(
+            KeyValueStoreBuilder(
+                RocksDBKeyValueBytesStoreSupplier(bekreftelseStateStore, false),
+                Serdes.UUID(),
+                bekreftelseSerde,
+                Time.SYSTEM
+            )
+        )
     val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val topology: Topology = topology(
         builder = builder,
@@ -73,7 +85,9 @@ fun main() {
         ventendePeriodeStateStoreName = ventendePeriodeStateStore,
         periodeSerde = periodeSerde,
         profileringSerde = profileringSerde,
-        arenaArbeidssokerregisterTilstandSerde = arenaArbeidssokerregisterTilstandSerde
+        arenaArbeidssokerregisterTilstandSerde = arenaArbeidssokerregisterTilstandSerde,
+        bekreftelseSerde = bekreftelseSerde,
+        bekreftelseStateStoreName = bekreftelseStateStore
     )
     val kafkaStreams = KafkaStreams(topology, kafkaStreamsFactory.properties)
 

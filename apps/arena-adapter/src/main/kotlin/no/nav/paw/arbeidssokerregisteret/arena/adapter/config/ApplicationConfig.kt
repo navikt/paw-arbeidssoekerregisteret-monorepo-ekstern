@@ -9,5 +9,6 @@ data class Topics(
     val opplysningerOmArbeidssoeker: String,
     val arbeidssokerperioder: String,
     val profilering: String,
-    val arena: String
+    val arena: String,
+    val bekreftelse: String,
 )

@@ -11,6 +11,7 @@ import no.nav.paw.arbeidssokerregisteret.arena.adapter.forsinkelseSerde
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -43,12 +44,15 @@ fun testScope(): TestScope {
         opplysningerOmArbeidssoeker = "opplysninger",
         arbeidssokerperioder = "perioder",
         profilering = "profilering",
-        arena = "arena"
+        arena = "arena",
+        bekreftelse = "bekreftelse"
     )
     val periodeSerde = createAvroSerde<Periode>()
     val tempArenaArbeidssokerregisterTilstandSerde = createAvroSerde<TopicsJoin>()
+    val bekreftelseSerde = createAvroSerde<Bekreftelse>()
     val stateStoreName = "stateStore"
     val ventendeStateStoreName = "ventendeStateStore"
+    val bekreftelseStoreName = "bekreftelse"
     val streamBuilder = StreamsBuilder()
         .addStateStore(
             KeyValueStoreBuilder(
@@ -66,6 +70,14 @@ fun testScope(): TestScope {
                 Time.SYSTEM
             )
         )
+        .addStateStore(
+            KeyValueStoreBuilder(
+                InMemoryKeyValueBytesStoreSupplier(bekreftelseStoreName),
+                Serdes.UUID(),
+                bekreftelseSerde,
+                Time.SYSTEM
+            )
+        )
 
     val kafkaConfig: KafkaConfig = loadNaisOrLocalConfiguration(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
     val kafkaStreamsFactory = KafkaStreamsFactory("test", kafkaConfig)
@@ -80,7 +92,9 @@ fun testScope(): TestScope {
             periodeSerde = periodeSerde,
             profileringSerde = createAvroSerde(),
             arenaArbeidssokerregisterTilstandSerde = createAvroSerde(),
-            ventendePeriodeStateStoreName = ventendeStateStoreName
+            ventendePeriodeStateStoreName = ventendeStateStoreName,
+            bekreftelseStateStoreName = bekreftelseStoreName,
+            bekreftelseSerde = bekreftelseSerde
         ),
         kafkaStreamsFactory.properties
     )
