@@ -15,6 +15,7 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>
 
@@ -23,6 +24,7 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>
 

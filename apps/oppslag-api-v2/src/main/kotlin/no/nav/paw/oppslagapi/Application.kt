@@ -15,6 +15,7 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.oppslagapi.data.consumer.DataConsumer
 import no.nav.paw.oppslagapi.data.consumer.kafka.HwmRebalanceListener
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
@@ -63,7 +64,8 @@ fun main() {
     val applicationQueryLogic = ApplicationQueryLogic(
         autorisasjonsTjeneste = AutorisasjonsTjeneste(
             tilgangsTjenesteForAnsatte = webClients.tilgangsTjenesteForAnsatte,
-            kafkaKeysClient = webClients.kafkaKeysClient
+            kafkaKeysClient = webClients.kafkaKeysClient,
+            auditLogger = AuditLogger.getLogger()
         ),
         databaseQuerySupport = exposedDatabaseQuerySupport
     )

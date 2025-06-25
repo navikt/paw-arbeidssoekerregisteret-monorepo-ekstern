@@ -17,6 +17,7 @@ import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.oppslagapi.configureKtorServer
 import no.nav.paw.oppslagapi.configureRoutes
@@ -42,7 +43,8 @@ class BrukerFaarHentetEgneBekreftelserTest : FreeSpec({
     val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
     val autorisasjonsTjeneste = AutorisasjonsTjeneste(
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
-        kafkaKeysClient = kafkaKeysClientMock
+        kafkaKeysClient = kafkaKeysClientMock,
+        auditLogger = AuditLogger.getLogger()
     )
     val appLogic = ApplicationQueryLogic(
         autorisasjonsTjeneste = autorisasjonsTjeneste,

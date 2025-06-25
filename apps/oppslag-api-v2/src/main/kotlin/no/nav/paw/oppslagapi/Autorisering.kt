@@ -2,12 +2,15 @@ package no.nav.paw.oppslagapi
 
 import io.ktor.http.HttpStatusCode
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.common.audit_log.cef.CefMessageEvent
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.flatMap
 import no.nav.paw.error.model.map
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.model.NavIdent
 import no.nav.paw.oppslagapi.data.finnAlleIdenterForPerson
@@ -24,7 +27,8 @@ import java.util.*
 
 class AutorisasjonsTjeneste(
     private val tilgangsTjenesteForAnsatte: TilgangsTjenesteForAnsatte,
-    private val kafkaKeysClient: KafkaKeysClient
+    private val kafkaKeysClient: KafkaKeysClient,
+    private val auditLogger: AuditLogger
 ) {
 
     /**
@@ -34,6 +38,7 @@ class AutorisasjonsTjeneste(
      * @return Response<Unit> som indikerer om autoriseringen var vellykket eller ikke.
      */
     suspend fun <A> autoriser(
+        handling: String,
         bruker: Bruker<out Any>,
         oenskerTilgangTil: List<Identitetsnummer>,
         function: () -> A
@@ -45,7 +50,23 @@ class AutorisasjonsTjeneste(
                 identitetsnummer = oenskerTilgangTil
             )
             is Sluttbruker -> autoriserSluttbruker(bruker, oenskerTilgangTil)
-        }.map { function() }
+        }.map {
+            val brukerIdent = when (bruker) {
+                is NavAnsatt -> bruker.ident
+                is Sluttbruker -> bruker.ident.verdi
+                else -> "Anonym"
+            }
+            oenskerTilgangTil.forEach { sluttbruker ->
+                auditLogger.audit(
+                    melding = handling,
+                    aktorIdent = brukerIdent,
+                    sluttbrukerIdent = sluttbruker.verdi,
+                    event = CefMessageEvent.ACCESS,
+                    runtimeEnvironment = currentRuntimeEnvironment
+                )
+            }
+            function()
+        }
     }
 
     @WithSpan

@@ -14,6 +14,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.oppslagapi.configureKtorServer
 import no.nav.paw.oppslagapi.configureRoutes
@@ -39,7 +40,8 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
     val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
     val autorisasjonsTjeneste = AutorisasjonsTjeneste(
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
-        kafkaKeysClient = kafkaKeysClientMock
+        kafkaKeysClient = kafkaKeysClientMock,
+        auditLogger = AuditLogger.getLogger()
     )
     val appLogic = ApplicationQueryLogic(
         autorisasjonsTjeneste = autorisasjonsTjeneste,

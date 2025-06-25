@@ -21,6 +21,7 @@ dependencies {
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:bekreftelsesmelding-avro-schema"))
     implementation(project(":lib:serialization"))
+    implementation(project(":lib:logging"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)

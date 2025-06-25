@@ -27,8 +27,9 @@ class ApplicationQueryLogic(
         }
         val identerOensketInfoOm = tidslinjer.map { it.identitetsnummer }.toSet()
         return autorisasjonsTjeneste.autoriser(
+            handling = "Hent bekreftelser for arbeidssøkerperiode",
             bruker = bruker,
-            oenskerTilgangTil = identerOensketInfoOm.map(::Identitetsnummer)
+            oenskerTilgangTil = identerOensketInfoOm.map(::Identitetsnummer),
         ) {
             BekreftelserResponse(
                 bekreftelser = tidslinjer.flatMap { it.bekreftelser }
