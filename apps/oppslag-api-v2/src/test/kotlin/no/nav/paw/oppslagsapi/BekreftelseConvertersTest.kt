@@ -74,7 +74,7 @@ class BekreftelseConvertersTest : FreeSpec({
 
             }
         }
-        "Avro PaaVegneAv start melding konverteres riktig til Open API PaaVegneAvStart" - {
+        "Avro PaaVegneAv stopp melding konverteres riktig til Open API PaaVegneAvStart" - {
             listOf(
                 stoppPaaVegneAv(),
                 stoppPaaVegneAv(
