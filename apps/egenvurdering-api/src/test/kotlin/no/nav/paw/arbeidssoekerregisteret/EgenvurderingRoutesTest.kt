@@ -22,6 +22,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingGrunnlagPath
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingPath
+import no.nav.paw.client.api.oppslag.exception.ArbeidssoekerperioderAggregertOppslagResponseException
 import java.util.*
 
 class EgenvurderingRoutesTest : FreeSpec({
@@ -33,22 +34,25 @@ class EgenvurderingRoutesTest : FreeSpec({
         afterSpec {
             mockOAuth2Server.shutdown()
         }
+
+        val egenvurderingRequestJson =
+            """
+                {
+                  "profileringId": "${UUID.randomUUID()}",
+                  "egenvurdering": "ANTATT_GODE_MULIGHETER"
+                }
+            """.trimIndent()
+
         "/api/v1/arbeidssoeker/profilering/egenvurdering" - {
             "202 Accepted" - {
                 testApplication {
                     configureTestApplication()
                     val client = configureTestClient()
-                    val egenvurderingJson = """
-                            {
-                              "profileringId": "${UUID.randomUUID()}",
-                              "egenvurdering": "ANTATT_GODE_MULIGHETER"
-                            }
-                        """.trimIndent()
 
                     coEvery { egenvurderingService.postEgenvurdering(any(), any(), any()) } just Runs
                     val response = client.post(egenvurderingPath) {
                         contentType(Application.Json)
-                        setBody(egenvurderingJson)
+                        setBody(egenvurderingRequestJson)
                         bearerAuth(mockOAuth2Server.issueTokenXToken())
                     }
                     response.status shouldBe HttpStatusCode.Accepted
@@ -66,6 +70,27 @@ class EgenvurderingRoutesTest : FreeSpec({
                         bearerAuth(mockOAuth2Server.issueTokenXToken())
                     }
                     response.status shouldBe HttpStatusCode.BadRequest
+                    response.headers["x-trace-id"] shouldNotBe null
+                }
+            }
+
+            "502 Bad gateway når vi ikke når Oppslag API" - {
+                testApplication {
+                    configureTestApplication()
+                    val client = configureTestClient()
+                    coEvery {
+                        egenvurderingService.postEgenvurdering(any(), any(), any())
+                    } throws ArbeidssoekerperioderAggregertOppslagResponseException(
+                        status = HttpStatusCode.BadGateway,
+                        "hugga bugga"
+                    )
+
+                    val response = client.post(egenvurderingPath) {
+                        contentType(Application.Json)
+                        setBody(egenvurderingRequestJson)
+                        bearerAuth(mockOAuth2Server.issueTokenXToken())
+                    }
+                    response.status shouldBe HttpStatusCode.BadGateway
                     response.headers["x-trace-id"] shouldNotBe null
                 }
             }

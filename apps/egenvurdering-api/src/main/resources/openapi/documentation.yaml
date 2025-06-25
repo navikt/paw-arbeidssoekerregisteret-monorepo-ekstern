@@ -68,6 +68,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+        "502":
+          description: "Bad Gateway"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag:
     get:
       description: "Henter grunnlaget for en egenvurdering hvis det finnes"
@@ -120,6 +131,17 @@ paths:
                 $ref: "#/components/schemas/ProblemDetails"
         "500":
           description: "Internal Server Error"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "502":
+          description: "Bad Gateway"
           headers:
             x-trace-id:
               description: "Trace id"
