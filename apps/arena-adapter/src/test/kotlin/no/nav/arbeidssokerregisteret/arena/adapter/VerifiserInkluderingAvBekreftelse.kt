@@ -41,27 +41,28 @@ class VerifiserInkluderingAvBekreftelse : FreeSpec({
             bekreftelseStore.get(bekreftelse.periodeId) shouldBe null
         }
         "Verifiser standard flyt" - {
-            val periodeStart = periode("12345678901", startet = metadata(timestamp = bekreftelseHoeyvannsmerke))
-            val profilering = profilering(periode = periodeStart.id, timestamp = bekreftelseHoeyvannsmerke + tiSekunder)
-            val bekreftelseTidspunkt = bekreftelseHoeyvannsmerke + 1.dager
-            val periodeStopp = periodeStart.avslutt(bekreftelseTidspunkt + ettSekund)
+            val key = 1L
             "Når periode avsluttes etter svar 'nei' skal bekreftelsen inkluderes i arena-tilstanden" {
+                val periodeStart = periode("12345678901", startet = metadata(timestamp = bekreftelseHoeyvannsmerke))
+                val profilering = profilering(periode = periodeStart.id, timestamp = bekreftelseHoeyvannsmerke + tiSekunder)
+                val bekreftelseTidspunkt = bekreftelseHoeyvannsmerke + 1.dager
+                val periodeStopp = periodeStart.avslutt(bekreftelseTidspunkt + ettSekund)
                 val bekreftelse = bekreftelseMelding(
                     periodeId = periodeStart.id,
                     tidspunkt = bekreftelseTidspunkt,
                     vilFortsetteSomArbeidssoeker = false
                 )
                 bekreftelseStore.get(bekreftelse.periodeId) shouldBe null
-                periodeTopic.pipeInput(1L, periodeStart)
+                periodeTopic.pipeInput(key, periodeStart)
                 this@with.topologyTestDriver.advanceWallClockTime(ettSekund)
                 arenaTopic.isEmpty shouldBe true
-                profileringsTopic.pipeInput(1L, profilering)
+                profileringsTopic.pipeInput(key, profilering)
                 arenaTopic.isEmpty shouldBe false
                 arenaTopic.readValue()
                 this@with.topologyTestDriver.advanceWallClockTime(1.dager)
-                bekreftelseTopic.pipeInput(1L, bekreftelse)
+                bekreftelseTopic.pipeInput(key, bekreftelse)
                 arenaTopic.isEmpty shouldBe true
-                periodeTopic.pipeInput(1L, periodeStopp)
+                periodeTopic.pipeInput(key, periodeStopp)
                 arenaTopic.isEmpty shouldBe false
                 arenaTopic.readValue() should { tilstand ->
                     tilstand.bekreftelse.shouldNotBeNull()
@@ -73,22 +74,27 @@ class VerifiserInkluderingAvBekreftelse : FreeSpec({
                 }
             }
             "Når periode avsluttes etter svar 'ja' skal bekreftelsen ikke inkluderes i arena-tilstanden" {
+                val key = 2L
+                val periodeStart = periode("12345678902", startet = metadata(timestamp = bekreftelseHoeyvannsmerke))
+                val profilering = profilering(periode = periodeStart.id, timestamp = bekreftelseHoeyvannsmerke + tiSekunder)
+                val bekreftelseTidspunkt = bekreftelseHoeyvannsmerke + 1.dager
+                val periodeStopp = periodeStart.avslutt(bekreftelseTidspunkt + ettSekund)
                 val bekreftelse = bekreftelseMelding(
                     periodeId = periodeStart.id,
                     tidspunkt = bekreftelseTidspunkt + ettSekund,
                     vilFortsetteSomArbeidssoeker = true
                 )
                 bekreftelseStore.get(bekreftelse.periodeId) shouldBe null
-                periodeTopic.pipeInput(1L, periodeStart)
+                periodeTopic.pipeInput(key, periodeStart)
                 this@with.topologyTestDriver.advanceWallClockTime(ettSekund)
                 arenaTopic.isEmpty shouldBe true
-                profileringsTopic.pipeInput(1L, profilering)
+                profileringsTopic.pipeInput(key, profilering)
                 arenaTopic.isEmpty shouldBe false
                 arenaTopic.readValue()
                 this@with.topologyTestDriver.advanceWallClockTime(1.dager)
-                bekreftelseTopic.pipeInput(1L, bekreftelse)
+                bekreftelseTopic.pipeInput(key, bekreftelse)
                 arenaTopic.isEmpty shouldBe true
-                periodeTopic.pipeInput(1L, periodeStopp)
+                periodeTopic.pipeInput(key, periodeStopp)
                 arenaTopic.isEmpty shouldBe false
                 arenaTopic.readValue() should { tilstand ->
                     tilstand.bekreftelse.shouldBeNull()
