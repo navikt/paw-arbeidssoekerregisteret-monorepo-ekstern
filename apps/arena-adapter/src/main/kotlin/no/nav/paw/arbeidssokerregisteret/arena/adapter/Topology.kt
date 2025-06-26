@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
@@ -132,6 +134,11 @@ fun topology(
                 logger.warn("Bekreftelse med svar 'nei' funnet, men periode avsluttet med aarsak='${avsluttet.aarsak}'")
             }
             bekreftelse?.periodeId?.also { id -> bekreftelseStore.delete(id) }
+            Span.current().addEvent("periode_avsluttet", Attributes.builder()
+                .put("bekreftelse_lagt_ved", bekreftelse != null)
+                .put("aarsag_avsluttet", avsluttet.aarsak)
+                .build()
+            )
             bekreftelse
         } else {
             null
