@@ -60,6 +60,10 @@ class EgenvurderingService(
             throw BadRequestException("ProfileringId i request (${request.profileringId}) samsvarer ikke med profileringId i siste aggregerte-periode (${profilering?.profileringId})")
         }
 
+        if (profilering.egenvurdering != null) {
+            throw BadRequestException("Egenvurdering er allerede sendt for denne profileringen (${profilering.profileringId})")
+        }
+
         val (_, key) = kafkaKeysClient.getIdAndKey(identitetsnummer.verdi)
         logger.debug("Sender egenvurdering for key $key")
         val metadata = RecordMetadata(
