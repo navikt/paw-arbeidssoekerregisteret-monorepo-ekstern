@@ -139,7 +139,7 @@ spec:
           namespace: teamsykefravr
         - application: veilarbdirigent
           namespace: dab
-        - application: paw-arbeidssoekerregisteret-egenvurdering-api
+        - application: paw-arbeidssoekerregisteret-api-egenvurdering
           namespace: paw
     outbound:
       rules:

@@ -18,7 +18,7 @@ on:
 
 env:
   MODULE: egenvurdering-api
-  IMAGE: europe-north1-docker.pkg.dev/nais-management-233d/paw/paw-egenvurdering-api
+  IMAGE: europe-north1-docker.pkg.dev/nais-management-233d/paw/paw-arbeidssoekerregisteret-api-egenvurdering
 jobs:
   build:
     name: Build

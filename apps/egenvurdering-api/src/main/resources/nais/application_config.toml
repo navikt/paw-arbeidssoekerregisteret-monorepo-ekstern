@@ -1,6 +1,6 @@
 [kafkaTopology]
 producerVersion = "${KAFKA_PAW_EGENVURDERING_PRODUCER_VERSION}"
-applicationIdPrefix = "paw-arbeidssoekerregisteret-egenvurdering-api"
+applicationIdPrefix = "paw-arbeidssoekerregisteret-api-egenvurdering"
 egenvurderingTopic = "${KAFKA_PAW_EGENVURDERING_TOPIC}"
 
 [oppslagApiConfig]
