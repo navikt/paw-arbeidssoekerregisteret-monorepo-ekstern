@@ -4,7 +4,28 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.*
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
+import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.arbeidssokerregisteret.arena.v1.AvviksType as ArenaAvviksType
+
+fun Bekreftelse.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v8.Bekreftelse =
+    no.nav.paw.arbeidssokerregisteret.arena.v8.Bekreftelse(
+        periodeId,
+        bekreftelsesloesning.toArena(),
+        id,
+        svar.gjelderFra,
+        svar.gjelderTil,
+        svar.harJobbetIDennePerioden,
+        svar.vilFortsetteSomArbeidssoeker
+    )
+
+private fun Bekreftelsesloesning.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v8.vo.Bekreftelsesloesning =
+    when (this) {
+        Bekreftelsesloesning.UKJENT_VERDI -> no.nav.paw.arbeidssokerregisteret.arena.v8.vo.Bekreftelsesloesning.UKJENT_VERDI
+        Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET -> no.nav.paw.arbeidssokerregisteret.arena.v8.vo.Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET
+        Bekreftelsesloesning.DAGPENGER -> no.nav.paw.arbeidssokerregisteret.arena.v8.vo.Bekreftelsesloesning.DAGPENGER
+        Bekreftelsesloesning.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> no.nav.paw.arbeidssokerregisteret.arena.v8.vo.Bekreftelsesloesning.FRISKMELDT_TIL_ARBEIDSFORMIDLING
+    }
 
 fun ProfilertTil.toArena(): no.nav.paw.arbeidssokerregisteret.arena.v1.ProfilertTil =
     when (this) {

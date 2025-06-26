@@ -42,6 +42,7 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kafka.streams.test)
     testImplementation(libs.bundles.unit.testing.kotest)
+    testImplementation(project(":test:test-data-factory"))
 }
 
 java {

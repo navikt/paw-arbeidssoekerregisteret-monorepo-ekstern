@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore
 
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.v8.ArenaArbeidssokerregisterTilstand
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Named

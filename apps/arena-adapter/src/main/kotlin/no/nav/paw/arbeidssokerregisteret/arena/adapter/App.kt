@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.Health
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.initKtor
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.meterIdMap
-import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.v8.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.config.env.currentRuntimeEnvironment

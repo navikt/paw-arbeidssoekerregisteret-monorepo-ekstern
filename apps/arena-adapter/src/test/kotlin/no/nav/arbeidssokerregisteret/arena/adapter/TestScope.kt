@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.forsinkelseSerde
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
-import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.v8.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -30,6 +30,7 @@ import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.state.internals.InMemoryKeyValueBytesStoreSupplier
 import org.apache.kafka.streams.state.internals.KeyValueStoreBuilder
+import java.time.Instant
 import java.util.*
 
 
@@ -37,12 +38,14 @@ data class TestScope(
     val periodeTopic: TestInputTopic<Long, Periode>,
     val opplysningerTopic: TestInputTopic<Long, OpplysningerOmArbeidssoeker>,
     val profileringsTopic: TestInputTopic<Long, Profilering>,
+    val bekreftelseTopic: TestInputTopic<Long, Bekreftelse>,
     val arenaTopic: TestOutputTopic<Long, ArenaArbeidssokerregisterTilstand>,
     val joinStore: KeyValueStore<UUID, TopicsJoin>,
-    val topologyTestDriver: TopologyTestDriver
+    val topologyTestDriver: TopologyTestDriver,
+    val bekreftelseStore: KeyValueStore<UUID, Bekreftelse>,
 )
 
-fun testScope(): TestScope {
+fun testScope(initialWallClockTime: Instant = Instant.now()): TestScope {
     val topics = Topics(
         arenaTopics = ArenaAdapterTopics("arena"),
         standardTopics = standardTopicNames(currentRuntimeEnvironment)
@@ -96,7 +99,8 @@ fun testScope(): TestScope {
             bekreftelseStateStoreName = bekreftelseStoreName,
             bekreftelseSerde = bekreftelseSerde
         ),
-        kafkaStreamsFactory.properties
+        kafkaStreamsFactory.properties,
+        initialWallClockTime
     )
     val periodeTopic = testDriver.createInputTopic(
         topics.arbeidssokerperioder,
@@ -118,13 +122,20 @@ fun testScope(): TestScope {
         Serdes.Long().deserializer(),
         createAvroSerde<ArenaArbeidssokerregisterTilstand>().deserializer()
     )
+    val bekreftelseTopic = testDriver.createInputTopic(
+        topics.bekreftelse,
+        Serdes.Long().serializer(),
+        bekreftelseSerde.serializer()
+    )
     return TestScope(
         periodeTopic = periodeTopic,
         opplysningerTopic = opplysningerTopic,
         profileringsTopic = profileringsTopic,
         arenaTopic = arenaTopic,
         joinStore = testDriver.getKeyValueStore(stateStoreName),
-        topologyTestDriver = testDriver
+        topologyTestDriver = testDriver,
+        bekreftelseTopic = bekreftelseTopic,
+        bekreftelseStore = testDriver.getKeyValueStore(bekreftelseStoreName)
     )
 }
 

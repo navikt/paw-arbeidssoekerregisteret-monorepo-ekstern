@@ -71,8 +71,8 @@ fun forsinkelsePunctuation(
     logger.info("Punctuation with $counter elements took ${tidBrukt.toMillis()} ms")
 }
 
-private val bekreftelseRyddigIntervall = Duration.ofSeconds(120)
-private val bekreftelseForsinkelseFoerRydding = Duration.ofHours(24)
+val bekreftelseRyddigIntervall = Duration.ofSeconds(120)
+val bekreftelseForsinkelseFoerRydding = Duration.ofHours(24)
 
 
 fun bekreftelsePunctuation(
@@ -87,7 +87,14 @@ fun bekreftelsePunctuation(
     val antallSlettet = bekreftelser.all().use { iterator ->
         iterator.asSequence()
             .onEach { totalt++ }
-            .filter { between(it.value.svar.sendtInnAv.tidspunkt, wallclock) >= bekreftelseForsinkelseFoerRydding }
+            .filter {
+                logger.trace(
+                    "Sjekker bekreftelse sendtInn={} mot wallclock={}",
+                    it.value.svar.sendtInnAv.tidspunkt,
+                    wallclock
+                )
+                between(it.value.svar.sendtInnAv.tidspunkt, wallclock) >= bekreftelseForsinkelseFoerRydding
+            }
             .onEach {
                 bekreftelser.delete(it.key)
             }.count()

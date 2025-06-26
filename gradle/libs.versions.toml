@@ -1,6 +1,6 @@
 [versions]
 nav-paw-schema-main = "1.25.06.17.4-1"
-nav-paw-schema-arena = "1.25.06.17.4-1"
+nav-paw-schema-arena = "1.25.06.25.11-1"
 nav-paw-schema-bekreftelse = "1.25.03.26.32-1"
 nav-common = "3.2025.04.01_09.46-936a3ae3d5d9"
 nav-security = "5.0.29"

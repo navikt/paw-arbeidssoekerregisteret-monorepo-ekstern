@@ -4,12 +4,12 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.filter
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.genericProcess
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.utils.toArena
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
-import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
+import no.nav.paw.arbeidssokerregisteret.arena.v8.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.kafka.processor.genericProcess
+import no.nav.paw.kafka.processor.mapWithContext
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
@@ -61,7 +61,16 @@ fun topology(
             punctuation = bekreftelsePunctuation(bekreftelseStateStoreName)
         ) { record ->
             val store: KeyValueStore<UUID, Bekreftelse> = getStateStore(bekreftelseStateStoreName)
-            store.put(record.value().periodeId, record.value())
+            val lagret: Bekreftelse? = store.get(record.value().periodeId)
+            if (lagret == null) {
+                store.put(record.value().periodeId, record.value())
+            } else {
+                val erNyere = lagret.svar.sendtInnAv.tidspunkt.isAfter(record.value().svar.sendtInnAv.tidspunkt)
+                logger.warn("Eksisterende bekreftelse med 'nei' funnet, lagret=${lagret.svar.sendtInnAv.tidspunkt}, mottatt=${record.value().svar.sendtInnAv.tidspunkt}, erNyere=$erNyere")
+                if (erNyere) {
+                    store.put(record.value().periodeId, record.value())
+                }
+            }
         }
 
 
@@ -111,11 +120,27 @@ fun topology(
                 }
             }
         }
-    }.mapValues { _, value ->
+    }.mapWithContext(
+        "berik_med_bekreftelse",
+        bekreftelseStateStoreName
+    ) { value ->
+        val avsluttet = value.periode.avsluttet
+        val bekreftelse = if ( avsluttet != null) {
+            val bekreftelseStore: KeyValueStore<UUID, Bekreftelse> = getStateStore(bekreftelseStateStoreName)
+            val bekreftelse = bekreftelseStore.get(value.periode.id)
+            if (bekreftelse != null && !avsluttet.aarsak.contains("Ønsket ikke lenger å være arbeidssøker")) {
+                logger.warn("Bekreftelse med svar 'nei' funnet, men periode avsluttet med aarsak='${avsluttet.aarsak}'")
+            }
+            bekreftelse?.periodeId?.also { id -> bekreftelseStore.delete(id) }
+            bekreftelse
+        } else {
+            null
+        }
         ArenaArbeidssokerregisterTilstand(
             value.periode,
             value.profilering,
-            null
+            null,
+            bekreftelse?.toArena()
         )
     }.to(
         topics.arena,
@@ -145,6 +170,7 @@ fun topology(
         ArenaArbeidssokerregisterTilstand(
             value.periode,
             value.profilering,
+            null,
             null
         )
     }.to(
