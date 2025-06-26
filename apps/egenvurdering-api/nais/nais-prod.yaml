@@ -9,8 +9,6 @@ metadata:
     texas.nais.io/enabled: "true"
 spec:
   image: {{ image }}
-  ingresses:
-    - https://egenvurdering-arbeidssoekerregisteret.intern.nav.no
   port: 8080
   env:
     - name: KAFKA_PAW_EGENVURDERING_PRODUCER_VERSION
