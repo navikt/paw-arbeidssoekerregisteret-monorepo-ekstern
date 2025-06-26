@@ -56,7 +56,6 @@ class EgenvurderingService(
         val periode = arbeidssoekerperioderAggregert.firstOrNull()
         val opplysningerOmArbeidssoeker = periode?.findSisteOpplysningerOmArbeidssoeker()
         val profilering = opplysningerOmArbeidssoeker?.profilering
-        // TODO: trenger vi sjekke om egenvurdering allerede er sendt?
         if (profilering?.profileringId != request.profileringId) {
             throw BadRequestException("ProfileringId i request (${request.profileringId}) samsvarer ikke med profileringId i siste aggregerte-periode (${profilering?.profileringId})")
         }
