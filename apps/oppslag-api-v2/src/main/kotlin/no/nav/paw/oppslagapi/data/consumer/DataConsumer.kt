@@ -83,7 +83,7 @@ class DataConsumer(
                                         )
                                     }
                                     .onEach { Span.current().addEvent("added_to_batch") }
-                                    .map { record -> record.toRow(deserializer) to Span.current() }
+                                    .mapNotNull { record -> record.toRow(deserializer)?.let{ it to Span.current() } }
                                     .let(::writeBatchToDb)
                             }
                         }

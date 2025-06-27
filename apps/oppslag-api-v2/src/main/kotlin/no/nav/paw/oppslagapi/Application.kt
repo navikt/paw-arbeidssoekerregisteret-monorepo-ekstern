@@ -72,13 +72,6 @@ fun main() {
         databaseQuerySupport = exposedDatabaseQuerySupport
     )
     val kafkaFactory = KafkaFactory(configurations.kafkaConfig)
-    //Read file from resources as byte array
-    val bytes = AutorisasjonsTjeneste::class.java.classLoader.getResourceAsStream("test-arena-arbeidssokerregister-tilstand.bin").use {
-            stream -> stream?.readAllBytes()
-    }
-    val deserialzier = kafkaFactory.kafkaAvroDeSerializer<ArenaArbeidssokerregisterTilstand>()
-    appLogger.info("Test data: '$bytes'")
-    appLogger.info(deserialzier.deserialize("paw.arbeidssoker-arena-v1", bytes).toString())
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
         groupId = consumer_group,
         clientId = "oppslag-api-v2-${UUID.randomUUID()}",
@@ -88,7 +81,7 @@ fun main() {
         autoOffsetReset = "earliest"
     )
     val rebalanceListener = HwmRebalanceListener(consumer_version, consumer)
-    consumer.subscribe(configurations.topicNames.asList(), rebalanceListener)
+    consumer.subscribe(configurations.topicNames.asList() + "paw.arbeidssoker-arena-v1", rebalanceListener)
     val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
     val consumerMetrics = KafkaClientMetrics(consumer)
     val dataConsumerTask = DataConsumer(
