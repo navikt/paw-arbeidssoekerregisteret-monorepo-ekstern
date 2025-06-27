@@ -575,6 +575,7 @@ components:
         description: "En hendelse i tidslinjen for en periode"
         properties:
           hendelseType:
+            description: "Angir hvilken hendelse dette er, som angir hvilken type data som er inkludert"
             $ref: '#/components/schemas/HendelseType'
           tidspunkt:
             type: string
