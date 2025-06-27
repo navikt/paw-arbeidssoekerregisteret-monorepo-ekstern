@@ -1,6 +1,7 @@
 package no.nav.paw.oppslagapi.data
 
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
@@ -24,3 +25,14 @@ val typeTilKlasse = mapOf(
     pa_vegne_av_start_v1 to PaaVegneAvStart::class,
     pa_vegne_av_stopp_v1 to PaaVegneAvStopp::class
 )
+
+val String.hendelseType: HendelseType get() = when (this) {
+    periode_startet_v1 -> HendelseType.periode_startetMinusV1
+    periode_avsluttet_v1 -> HendelseType.periode_avsluttetMinusV1
+    opplysninger_om_arbeidssoeker_v4 -> HendelseType.opplysningerMinusV4
+    profilering_v1 -> HendelseType.profileringMinusV1
+    bekreftelsemelding_v1 -> HendelseType.bekreftelseMinusV1
+    pa_vegne_av_start_v1 -> HendelseType.pa_vegne_av_startMinusV1
+    pa_vegne_av_stopp_v1 -> HendelseType.pa_vegne_av_stoppMinusV1
+    else -> throw IllegalArgumentException("Ukjent hendelsestype: $this")
+}

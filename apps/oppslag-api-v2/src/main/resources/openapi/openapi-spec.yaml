@@ -45,6 +45,44 @@ paths:
               schema:
                 $ref: "#/components/schemas/BekreftelserResponse"
 
+  /api/v2/tidslinje:
+    post:
+      description: "Hent alle bekreftelser for oppgitte perioder"
+      parameters:
+        - name: "traceparent"
+          in: "header"
+          required: false
+          description: "https://www.w3.org/TR/trace-context/#traceparent-header-field-values"
+          schema:
+            type: "string"
+            format: "traceparent"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                perioder:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+              required:
+                - "perioder"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TidslinjeResponse"
+
 components:
   schemas:
     # --- Periode and dependencies ---
@@ -521,3 +559,83 @@ components:
             $ref: '#/components/schemas/BekreftelseMedMetadata'
       required:
         - bekreftelser
+    #---Tidslinje---
+    HendelseType:
+      type: string
+      enum:
+        - "periode_startet-v1"
+        - "periode_avsluttet-v1"
+        - "opplysninger-v4"
+        - "profilering-v1"
+        - "bekreftelse-v1"
+        - "pa_vegne_av_start-v1"
+        - "pa_vegne_av_stopp-v1"
+    Hendelse:
+        type: object
+        description: "En hendelse i tidslinjen for en periode"
+        properties:
+          hendelseType:
+            $ref: '#/components/schemas/HendelseType'
+          tidspunkt:
+            type: string
+            format: date-time
+            description: "Tidspunktet for hendelsen"
+          periode_startet_v1:
+            $ref: '#/components/schemas/Metadata'
+          periode_avsluttet_v1:
+            $ref: '#/components/schemas/Metadata'
+          opplysninger_v4:
+            $ref: '#/components/schemas/OpplysningerOmArbeidssoeker'
+          profilering_v1:
+            $ref: '#/components/schemas/Profilering'
+          bekreftelse_v1:
+            $ref: '#/components/schemas/BekreftelseMedMetadata'
+          pa_vegne_av_start_v1:
+            $ref: '#/components/schemas/PaaVegneAvStart'
+          pa_vegne_av_stopp_v1:
+            $ref: '#/components/schemas/PaaVegneAvStopp'
+        required:
+            - hendelseType
+            - tidspunkt
+    Tidslinje:
+      description: "Tidslinje for en Arbeidssøkerperiode"
+      type: object
+      properties:
+        periodeId:
+          type: string
+          format: uuid
+          description: "UUID for perioden som tidslinjen gjelder"
+        identitetsnummer:
+          type: string
+          description: "Identitetsnummer for arbeidssøker, fødselsnummer eller d-nummer"
+        startet:
+          type: string
+          format: date-time
+          description: "Starttidspunkt for perioden"
+        avsluttet:
+          type: string
+          format: date-time
+          description: "Avslutningstidspunkt for perioden, ikke satt dersom perioden er pågående"
+        hendelser:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hendelse'
+      required:
+        - periodeId
+        - identitetsnummer
+        - startet
+        - hendelser
+
+    TidslinjeResponse:
+        type: object
+        description: "Response for tidslinjekall"
+        properties:
+            tidslinjer:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tidslinje'
+        required:
+            - tidslinje
+
+
+
