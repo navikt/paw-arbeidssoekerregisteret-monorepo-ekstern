@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":lib:kafka-key-generator-client"))
     implementation(project(":domain:bekreftelse-paavegneav-avro-schema"))
     implementation(project(":domain:main-avro-schema"))
+    implementation(project(":domain:gammelt-arena-avro-schema"))
     implementation(project(":domain:bekreftelsesmelding-avro-schema"))
     implementation(project(":lib:serialization"))
     implementation(project(":lib:logging"))

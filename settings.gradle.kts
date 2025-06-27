@@ -14,6 +14,7 @@ include(
     // domain
     "domain:main-avro-schema",
     "domain:arena-avro-schema",
+    "domain:gammelt-arena-avro-schema",
     "domain:bekreftelsesmelding-avro-schema",
     "domain:bekreftelse-paavegneav-avro-schema",
     // libs

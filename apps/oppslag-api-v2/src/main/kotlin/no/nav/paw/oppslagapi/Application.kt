@@ -8,6 +8,7 @@ import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.TopicNames
+import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.arbeidssokerregisteret.asList
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -56,6 +57,7 @@ fun main() {
     val configurations = configurations()
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     initDatabase(configurations.topicNames)
+
     val webClients = initWebClients(httpClient = HttpClient {
         install(ContentNegotiation) {
             jackson { registerKotlinModule() }
@@ -70,6 +72,13 @@ fun main() {
         databaseQuerySupport = exposedDatabaseQuerySupport
     )
     val kafkaFactory = KafkaFactory(configurations.kafkaConfig)
+    //Read file from resources as byte array
+    val bytes = AutorisasjonsTjeneste::class.java.classLoader.getResourceAsStream("/test-arena-arbeidssokerregister-tilstand.bin").use {
+            stream -> stream?.readAllBytes()
+    }
+    val deserialzier = kafkaFactory.kafkaAvroDeSerializer<ArenaArbeidssokerregisterTilstand>()
+    appLogger.info("Test data: '$bytes'")
+    appLogger.info(deserialzier.deserialize("test-topic", bytes).toString())
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
         groupId = consumer_group,
         clientId = "oppslag-api-v2-${UUID.randomUUID()}",
