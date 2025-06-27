@@ -21,6 +21,7 @@ import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.plugin.ErrorHandlingPlugin
@@ -112,4 +113,23 @@ fun <A> Route.configureRoutes(
             }
         }
     }
+//    route("/api/v2/tidslinjer") {
+//        autentisering(TokenX, AzureAd) {
+//            post<ApiV2BekreftelserPostRequest> { request ->
+//                val securityContext = call.securityContext()
+//                val response = appQueryLogic.lagTidslinjer(
+//                    bruker = securityContext.bruker,
+//                    request = request
+//                )
+//                when (response) {
+//                    is Data<TidslinjeResponse> -> {
+//                        call.respond(HttpStatusCode.OK, response.data)
+//                    }
+//                    is ProblemDetails -> {
+//                        call.respond(response.status, response)
+//                    }
+//                }
+//            }
+//        }
+//    }
 }

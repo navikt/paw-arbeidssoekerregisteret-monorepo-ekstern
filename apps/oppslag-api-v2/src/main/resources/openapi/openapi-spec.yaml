@@ -45,7 +45,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BekreftelserResponse"
 
-  /api/v2/tidslinje:
+  /api/v2/tidslinjer:
     post:
       description: "Hent alle bekreftelser for oppgitte perioder"
       parameters:
