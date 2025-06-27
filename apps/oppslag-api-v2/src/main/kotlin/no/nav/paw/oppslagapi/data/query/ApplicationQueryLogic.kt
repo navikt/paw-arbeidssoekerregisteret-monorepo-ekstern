@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Periode
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
@@ -92,7 +93,7 @@ class ApplicationQueryLogic(
         }.associate { (periodeId, bekreftelserMedMetadata) ->
             periodeId to bekreftelserMedMetadata.map { bekreftelse ->
                 Hendelse(
-                    hendelseType = HendelseType.bekreftelseMinusV1,
+                    hendelseType = HendelseType.bekreftelse_v1,
                     tidspunkt = bekreftelse.bekreftelse!!.svar.sendtInnAv.tidspunkt,
                     bekreftelseV1 = bekreftelse
                 )
@@ -128,37 +129,37 @@ class ApplicationQueryLogic(
  */
 private fun mapIkkeBekreftelseRaderTilHendelser(rad: Row<Any>): Hendelse = when (rad.type) {
     periode_startet_v1 -> Hendelse(
-        hendelseType = HendelseType.periode_startetMinusV1,
+        hendelseType = HendelseType.periode_startet_v1,
         tidspunkt = rad.timestamp,
-        periodeStartetV1 = rad.data as Metadata
+        periodeStartetV1 = (rad.data as Periode).startet
     )
 
     periode_avsluttet_v1 -> Hendelse(
-        hendelseType = HendelseType.periode_avsluttetMinusV1,
+        hendelseType = HendelseType.periode_avsluttet_v1,
         tidspunkt = rad.timestamp,
-        periodeAvsluttetV1 = rad.data as Metadata
+        periodeAvsluttetV1 = (rad.data as Periode).avsluttet
     )
 
     pa_vegne_av_start_v1 -> Hendelse(
-        hendelseType = HendelseType.pa_vegne_av_startMinusV1,
+        hendelseType = HendelseType.pa_vegne_av_start_v1,
         tidspunkt = rad.timestamp,
         paVegneAvStartV1 = rad.data as PaaVegneAvStart
     )
 
     pa_vegne_av_stopp_v1 -> Hendelse(
-        hendelseType = HendelseType.pa_vegne_av_stoppMinusV1,
+        hendelseType = HendelseType.pa_vegne_av_stopp_v1,
         tidspunkt = rad.timestamp,
         paVegneAvStoppV1 = rad.data as PaaVegneAvStopp
     )
 
     opplysninger_om_arbeidssoeker_v4 -> Hendelse(
-        hendelseType = HendelseType.opplysningerMinusV4,
+        hendelseType = HendelseType.opplysninger_v4,
         tidspunkt = rad.timestamp,
         opplysningerV4 = rad.data as OpplysningerOmArbeidssoeker
     )
 
     profilering_v1 -> Hendelse(
-        hendelseType = HendelseType.profileringMinusV1,
+        hendelseType = HendelseType.profilering_v1,
         tidspunkt = rad.timestamp,
         profileringV1 = rad.data as Profilering
     )

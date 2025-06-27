@@ -563,13 +563,13 @@ components:
     HendelseType:
       type: string
       enum:
-        - "periode_startet-v1"
-        - "periode_avsluttet-v1"
-        - "opplysninger-v4"
-        - "profilering-v1"
-        - "bekreftelse-v1"
-        - "pa_vegne_av_start-v1"
-        - "pa_vegne_av_stopp-v1"
+        - "periode_startet_v1"
+        - "periode_avsluttet_v1"
+        - "opplysninger_v4"
+        - "profilering_v1"
+        - "bekreftelse_v1"
+        - "pa_vegne_av_start_v1"
+        - "pa_vegne_av_stopp_v1"
     Hendelse:
         type: object
         description: "En hendelse i tidslinjen for en periode"

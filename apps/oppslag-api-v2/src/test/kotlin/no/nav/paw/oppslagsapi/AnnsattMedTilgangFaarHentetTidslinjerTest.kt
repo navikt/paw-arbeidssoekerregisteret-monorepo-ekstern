@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
@@ -13,14 +14,20 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.oppslagapi.configureKtorServer
 import no.nav.paw.oppslagapi.configureRoutes
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
+import no.nav.paw.oppslagapi.data.objectMapper
+import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.DatabaseQeurySupport
@@ -34,7 +41,7 @@ import java.time.Instant
 import java.util.*
 
 
-class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
+class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
     val kafkaKeysClientMock: KafkaKeysClient = mockk()
     val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
@@ -49,9 +56,12 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
     )
     val startTime = Instant.now() - Duration.ofDays(30)
     val periode1 = periode(identitetsnummer = person1.first(), startet = startTime)
-    val periode2 = periode(identitetsnummer = person2.first(), startet = startTime)
-    val bekreftelseMelding_p1 = bekreftelseMelding(periodeId = periode1.id)
-    val bekreftelseMelding_p2 = bekreftelseMelding(periodeId = periode2.id)
+    val periode1Avsluttet = periode(
+        identitetsnummer = Identitetsnummer(periode1.identitetsnummer),
+        startet = periode1.startet.tidspunkt,
+        avsluttet = periode1.startet.tidspunkt + Duration.ofDays(10)
+    )
+    val bekreftelseMelding = bekreftelseMelding(periodeId = periode1.id)
 
     every { databaseQuerySupportMock.hentRaderForPeriode(periode1.id) } returns listOf(
         Row(
@@ -65,24 +75,15 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
             periodeId = periode1.id,
             identitetsnummer = null,
             timestamp = startTime + Duration.ofDays(1),
-            data = bekreftelseMelding_p1.toOpenApi(),
+            data = bekreftelseMelding.toOpenApi(),
             type = bekreftelsemelding_v1
-        )
-    )
-    every { databaseQuerySupportMock.hentRaderForPeriode(periode2.id) } returns listOf(
-        Row(
-            periodeId = periode2.id,
-            identitetsnummer = periode2.identitetsnummer,
-            timestamp = periode2.startet.tidspunkt,
-            data = periode2.toOpenApi(),
-            type = periode_startet_v1
         ),
         Row(
-            periodeId = periode2.id,
-            identitetsnummer = null,
-            timestamp = startTime + Duration.ofDays(1),
-            data = bekreftelseMelding_p2.toOpenApi(),
-            type = bekreftelsemelding_v1
+            periodeId = periode1.id,
+            identitetsnummer = periode1.identitetsnummer,
+            timestamp = periode1Avsluttet.avsluttet.tidspunkt,
+            data = periode1Avsluttet.toOpenApi(),
+            type = periode_avsluttet_v1
         )
     )
     tilgangsTjenesteForAnsatteMock.configureMock()
@@ -123,11 +124,15 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
                     val token = oauthServer.ansattToken(
                         NavAnsatt(
                             oid = UUID.randomUUID(),
-                            ident = ansatt2.verdi
+                            ident = ansatt1.verdi
                         )
                     )
-                    val response = client.hentBekreftelser(token, listOf(periode1.id))
-                    response.status shouldBe HttpStatusCode.Forbidden
+                    //Ansatt med tilgang får hentet bekreftelser
+                    val response = client.hentTidslinjer(token, listOf(periode1.id))
+                    response.status shouldBe HttpStatusCode.OK
+                    val body: TidslinjeResponse = response.body()
+                    testLogger.info(objectMapper.writeValueAsString(body))
+                    testLogger.info("Hentet tidslinjer: $body")
                 }
             }
         }

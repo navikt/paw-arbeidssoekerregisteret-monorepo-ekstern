@@ -34,7 +34,7 @@ import java.time.Instant
 import java.util.*
 
 
-class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
+class AnnsattUtenTilgangTil1Av2FaarIkkeHentetTidslinjerTest : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
     val kafkaKeysClientMock: KafkaKeysClient = mockk()
     val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
@@ -126,7 +126,7 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
                             ident = ansatt2.verdi
                         )
                     )
-                    val response = client.hentBekreftelser(token, listOf(periode1.id))
+                    val response = client.hentTidslinjer(token, listOf(periode1.id))
                     response.status shouldBe HttpStatusCode.Forbidden
                 }
             }

@@ -54,6 +54,24 @@ suspend fun HttpClient.hentBekreftelser(
     return response
 }
 
+suspend fun HttpClient.hentTidslinjer(
+    token: Pair<Map<String, Any>, SignedJWT>,
+    perioder: List<UUID>
+): HttpResponse {
+    val response = post("/api/v2/tidslinjer") {
+        bearerAuth(token.second.serialize())
+        headers {
+            append(HttpHeaders.ContentType, ContentType.Application.Json)
+        }
+        setBody(
+            ApiV2BekreftelserPostRequest(
+                perioder = perioder
+            )
+        )
+    }
+    return response
+}
+
 fun periode(
     periodeId: UUID = UUID.randomUUID(),
     identitetsnummer: Identitetsnummer,

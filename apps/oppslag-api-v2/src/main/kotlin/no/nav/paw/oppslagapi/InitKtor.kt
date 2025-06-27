@@ -113,23 +113,23 @@ fun <A> Route.configureRoutes(
             }
         }
     }
-//    route("/api/v2/tidslinjer") {
-//        autentisering(TokenX, AzureAd) {
-//            post<ApiV2BekreftelserPostRequest> { request ->
-//                val securityContext = call.securityContext()
-//                val response = appQueryLogic.lagTidslinjer(
-//                    bruker = securityContext.bruker,
-//                    request = request
-//                )
-//                when (response) {
-//                    is Data<TidslinjeResponse> -> {
-//                        call.respond(HttpStatusCode.OK, response.data)
-//                    }
-//                    is ProblemDetails -> {
-//                        call.respond(response.status, response)
-//                    }
-//                }
-//            }
-//        }
-//    }
+    route("/api/v2/tidslinjer") {
+        autentisering(TokenX, AzureAd) {
+            post<ApiV2BekreftelserPostRequest> { request ->
+                val securityContext = call.securityContext()
+                val response = appQueryLogic.lagTidslinjer(
+                    bruker = securityContext.bruker,
+                    request = request
+                )
+                when (response) {
+                    is Data<TidslinjeResponse> -> {
+                        call.respond(HttpStatusCode.OK, response.data)
+                    }
+                    is ProblemDetails -> {
+                        call.respond(response.status, response)
+                    }
+                }
+            }
+        }
+    }
 }

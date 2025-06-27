@@ -79,8 +79,7 @@ class AnnsattUtenTilgangFaarIkkeHentetBekreftelserTest : FreeSpec({
         oauthServer.shutdown()
     }
     "Verifiser at endepunkter fungerer" - {
-        "/api/v2/bekreftelser" - {
-            "verifiser veileder kall" {
+        "/api/v2/bekreftelser" {
                 testApplication {
                     application {
                         configureKtorServer(
@@ -117,7 +116,6 @@ class AnnsattUtenTilgangFaarIkkeHentetBekreftelserTest : FreeSpec({
                 }
             }
         }
-    }
 })
 
 

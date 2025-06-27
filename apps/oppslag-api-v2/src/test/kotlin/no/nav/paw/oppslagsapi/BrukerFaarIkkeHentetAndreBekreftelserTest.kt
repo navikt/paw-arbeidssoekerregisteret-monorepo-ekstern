@@ -98,38 +98,36 @@ class BrukerFaarIkkeHentetAndreBekreftelserTest : FreeSpec({
         oauthServer.shutdown()
     }
     "Verifiser at endepunkter fungerer" - {
-        "/api/v2/bekreftelser" - {
-            "verifiser veileder kall" {
-                testApplication {
-                    application {
-                        configureKtorServer(
-                            prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                            meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
-                        )
-                    }
-                    routing {
-                        configureRoutes(
-                            healthIndicator = CompoudHealthIndicator(),
-                            prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                            openApiSpecFile = "openapi/openapi-spec.yaml",
-                            appQueryLogic = appLogic
-                        )
-                    }
-                    val client = createClient {
-                        install(ContentNegotiation) {
-                            jackson {
-                                registerKotlinModule()
-                                registerModule(JavaTimeModule())
-                                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                            }
+        "/api/v2/bekreftelser" {
+            testApplication {
+                application {
+                    configureKtorServer(
+                        prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+                        meterBinders = emptyList(),
+                        authProviders = oauthServer.createAuthProviders()
+                    )
+                }
+                routing {
+                    configureRoutes(
+                        healthIndicator = CompoudHealthIndicator(),
+                        prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+                        openApiSpecFile = "openapi/openapi-spec.yaml",
+                        appQueryLogic = appLogic
+                    )
+                }
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        jackson {
+                            registerKotlinModule()
+                            registerModule(JavaTimeModule())
+                            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                         }
                     }
-                    val token = oauthServer.personToken(id = person1.first())
-                    val response = client.hentBekreftelser(token, listOf(periode1.id, periode2.id))
-                    response.status shouldBe HttpStatusCode.Forbidden
-                    response.body<ProblemDetails>().status shouldBe HttpStatusCode.Forbidden
                 }
+                val token = oauthServer.personToken(id = person1.first())
+                val response = client.hentBekreftelser(token, listOf(periode1.id, periode2.id))
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.body<ProblemDetails>().status shouldBe HttpStatusCode.Forbidden
             }
         }
     }
