@@ -78,7 +78,7 @@ fun main() {
     }
     val deserialzier = kafkaFactory.kafkaAvroDeSerializer<ArenaArbeidssokerregisterTilstand>()
     appLogger.info("Test data: '$bytes'")
-    appLogger.info(deserialzier.deserialize("test-topic", bytes).toString())
+    appLogger.info(deserialzier.deserialize("paw.arbeidssoker-arena-v1", bytes).toString())
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
         groupId = consumer_group,
         clientId = "oppslag-api-v2-${UUID.randomUUID()}",
