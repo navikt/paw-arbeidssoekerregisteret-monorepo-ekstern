@@ -73,7 +73,7 @@ fun main() {
     )
     val kafkaFactory = KafkaFactory(configurations.kafkaConfig)
     //Read file from resources as byte array
-    val bytes = AutorisasjonsTjeneste::class.java.classLoader.getResourceAsStream("/test-arena-arbeidssokerregister-tilstand.bin").use {
+    val bytes = AutorisasjonsTjeneste::class.java.classLoader.getResourceAsStream("test-arena-arbeidssokerregister-tilstand.bin").use {
             stream -> stream?.readAllBytes()
     }
     val deserialzier = kafkaFactory.kafkaAvroDeSerializer<ArenaArbeidssokerregisterTilstand>()
