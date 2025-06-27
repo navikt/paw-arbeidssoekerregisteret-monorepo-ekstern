@@ -3,12 +3,10 @@ package no.nav.paw.oppslagapi.data.consumer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
-import no.nav.paw.oppslagapi.appLogger
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
@@ -24,7 +22,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.Deserializer
 import java.time.Instant
 
-fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRecord>): Row<String>? {
+fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRecord>): Row<String> {
     when (val melding = deserializer.deserialize(topic(), this.value())) {
         is Periode -> {
             val (type, metadata) = if (melding.avsluttet == null) {
@@ -84,11 +82,6 @@ fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRec
                 data = objectMapper.writeValueAsString(openApiObject),
                 type = type
             )
-        }
-
-        is ArenaArbeidssokerregisterTilstand -> {
-            appLogger.info("Leste arena melding")
-            return null
         }
         else -> throw IllegalArgumentException("Unsupported SpecificRecord type: ${this.javaClass}")
     }

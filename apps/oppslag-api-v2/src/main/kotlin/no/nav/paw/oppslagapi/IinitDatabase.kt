@@ -21,7 +21,7 @@ fun initDatabase(topicNames: TopicNames) {
         .load()
         .migrate()
     transaction {
-        (topicNames.asList() + "paw.arbeidssoker-arena-v1").forEach { topic ->
+        topicNames.asList().forEach { topic ->
             initHwm(topic, consumer_version, partition_count)
         }
     }

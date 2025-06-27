@@ -8,7 +8,6 @@ import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.TopicNames
-import no.nav.paw.arbeidssokerregisteret.arena.v5.ArenaArbeidssokerregisterTilstand
 import no.nav.paw.arbeidssokerregisteret.asList
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -57,7 +56,6 @@ fun main() {
     val configurations = configurations()
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     initDatabase(configurations.topicNames)
-
     val webClients = initWebClients(httpClient = HttpClient {
         install(ContentNegotiation) {
             jackson { registerKotlinModule() }
@@ -81,7 +79,7 @@ fun main() {
         autoOffsetReset = "earliest"
     )
     val rebalanceListener = HwmRebalanceListener(consumer_version, consumer)
-    consumer.subscribe(configurations.topicNames.asList() + "paw.arbeidssoker-arena-v1", rebalanceListener)
+    consumer.subscribe(configurations.topicNames.asList(), rebalanceListener)
     val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
     val consumerMetrics = KafkaClientMetrics(consumer)
     val dataConsumerTask = DataConsumer(
