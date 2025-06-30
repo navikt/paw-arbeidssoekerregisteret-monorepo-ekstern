@@ -9,6 +9,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import no.nav.paw.client.api.oppslag.exception.ArbeidssoekerperioderAggregertOppslagResponseException
 import no.nav.paw.client.api.oppslag.exception.EgenvurderingOppslagResponseException
 import no.nav.paw.client.api.oppslag.exception.PerioderOppslagResponseException
@@ -35,8 +36,8 @@ class ApiOppslagClient(
             setBody(ArbeidssoekerperiodeRequest(identitet))
         }
         return response.let {
-            when (it.status) {
-                HttpStatusCode.OK -> it.body<List<ArbeidssoekerperiodeResponse>>()
+            when (it.status.isSuccess()) {
+                true -> it.body<List<ArbeidssoekerperiodeResponse>>()
                 else -> {
                     val body = it.body<String>()
                     throw PerioderOppslagResponseException(it.status, "Henting av perioder feilet. body=$body")
@@ -51,8 +52,8 @@ class ApiOppslagClient(
             bearerAuth(tokenProvider.invoke())
         }
         return response.let {
-            when (it.status) {
-                HttpStatusCode.OK -> it.body<List<ArbeidssoekerperiodeAggregertResponse>>()
+            when (it.status.isSuccess()) {
+                true -> it.body<List<ArbeidssoekerperiodeAggregertResponse>>()
                 else -> {
                     val body = it.body<String>()
                     throw ArbeidssoekerperioderAggregertOppslagResponseException(
@@ -70,8 +71,8 @@ class ApiOppslagClient(
             bearerAuth(tokenProvider.invoke())
         }
         return response.let {
-            when (it.status) {
-                HttpStatusCode.OK -> it.body<List< ProfileringResponse>>()
+            when (it.status.isSuccess()) {
+                true -> it.body<List< ProfileringResponse>>()
                 else -> {
                     val body = it.body<String>()
                     throw ProfileringOppslagResponseException(
@@ -89,8 +90,8 @@ class ApiOppslagClient(
             bearerAuth(tokenProvider.invoke())
         }
         return response.let {
-            when (it.status) {
-                HttpStatusCode.OK -> it.body<List<EgenvurderingResponse>>()
+            when (it.status.isSuccess()) {
+                true -> it.body<List<EgenvurderingResponse>>()
                 else -> {
                     val body = it.body<String>()
                     throw EgenvurderingOppslagResponseException(
