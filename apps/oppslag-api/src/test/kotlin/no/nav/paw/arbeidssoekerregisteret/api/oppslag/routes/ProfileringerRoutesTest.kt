@@ -200,7 +200,7 @@ class ProfileringerRoutesTest : FreeSpec({
             }
         }
 
-        "/profilering/egenvurdering should return OK" {
+        "/profilering/egenvurderinger should return OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
             } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
@@ -237,7 +237,7 @@ class ProfileringerRoutesTest : FreeSpec({
                 egenvurderingService.lagreEgenvurdering(egenvurdering)
 
                 val testClient = configureTestClient()
-                val response = testClient.get("/api/v1/profilering/egenvurdering") {
+                val response = testClient.get("/api/v1/profilering/egenvurderinger") {
                     bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr4))
                 }
 

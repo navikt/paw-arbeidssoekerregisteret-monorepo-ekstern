@@ -41,7 +41,7 @@ class EgenvurderingRepository {
             }
         }
 
-    fun hentEgenvurderingForPeriodeIdOgProfileringId(periodeId: UUID, profileringId: UUID): EgenvurderingRow? =
+    fun hentEgenvurderingForPeriodeIdOgProfileringId(periodeId: UUID, profileringId: UUID): List<EgenvurderingRow> =
         transaction {
             EgenvurderingDbFunctions.getForPeriodeIdAndProfileringId(periodeId, profileringId)
         }

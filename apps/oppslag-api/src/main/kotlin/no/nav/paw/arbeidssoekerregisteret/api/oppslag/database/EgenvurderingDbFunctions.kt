@@ -73,15 +73,16 @@ object EgenvurderingDbFunctions {
     fun getForPeriodeIdAndProfileringId(
         periodeId: UUID,
         profileringId: UUID
-    ): EgenvurderingRow? {
+    ): List<EgenvurderingRow> {
         return EgenvurderingTable
             .join(MetadataTable, JoinType.LEFT, EgenvurderingTable.sendtInnAvId, MetadataTable.id)
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
             .join(TidspunktFraKildeTable, JoinType.LEFT, MetadataTable.tidspunktFraKildeId, TidspunktFraKildeTable.id)
             .selectAll()
             .where { EgenvurderingTable.periodeId eq periodeId and (EgenvurderingTable.profileringId eq profileringId) }
-            .firstOrNull()
-            ?.toEgenvurderingRow()
+            .map {
+                it.toEgenvurderingRow()
+            }
     }
 
     fun insert(egenvurdering: Egenvurdering) {

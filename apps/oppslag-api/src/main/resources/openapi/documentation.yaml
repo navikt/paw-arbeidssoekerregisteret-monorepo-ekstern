@@ -193,9 +193,9 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ProfileringResponse"
-  /api/v1/profilering/egenvurdering:
+  /api/v1/profilering/egenvurderinger:
     get:
-      description: "WIP: Henter brukers egenvurdering av profilering."
+      description: "Henter brukers egenvurdering av profilering."
       tags:
         - "Endepunkter for personbruker"
       security:
@@ -823,8 +823,10 @@ components:
         alder:
           type: "integer"
           format: "int32"
-        egenvurdering:
-          $ref: "#/components/schemas/EgenvurderingResponse"
+        egenvurderinger:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/EgenvurderingResponse"
       required:
         - "profileringId"
         - "periodeId"

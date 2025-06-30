@@ -80,7 +80,7 @@ fun Route.profileringRoutes(
         }
     }
 
-    route("/api/v1/profilering/egenvurdering") {
+    route("/api/v1/profilering/egenvurderinger") {
         autentisering(TokenX, authorizationService::utvidPrincipal) {
             get("/") {
                 val accessPolicies = authorizationService.sluttbrukerAccessPolicies()
