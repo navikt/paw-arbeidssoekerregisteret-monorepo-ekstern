@@ -11,21 +11,21 @@ import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authentication")
 
-data object AuthenticationPluginInstanceName : PluginInstanceName("AuthenticationPlugin")
+private data object PluginName : PluginInstanceName("AuthenticationPlugin")
 
-class AuthenticationPluginConfig {
+class AuthenticationRoutePluginConfig {
     var modifyPrincipal: (suspend (SecurityContext) -> SecurityContext)? = null
 }
 
-val AuthenticationPlugin
-    get(): RouteScopedPlugin<AuthenticationPluginConfig> = createRouteScopedPlugin(
-        AuthenticationPluginInstanceName.pluginInstanceName,
-        ::AuthenticationPluginConfig
+val AuthenticationRoutePlugin
+    get(): RouteScopedPlugin<AuthenticationRoutePluginConfig> = createRouteScopedPlugin(
+        PluginName.pluginInstanceName,
+        ::AuthenticationRoutePluginConfig
     ) {
         application.log.info(
             "Installerer {}{}",
-            AuthenticationPluginInstanceName.pluginName,
-            AuthenticationPluginInstanceName.pluginInstance
+            PluginName.pluginName,
+            PluginName.pluginInstance
         )
         val modifyPrincipal = pluginConfig.modifyPrincipal ?: { it }
 

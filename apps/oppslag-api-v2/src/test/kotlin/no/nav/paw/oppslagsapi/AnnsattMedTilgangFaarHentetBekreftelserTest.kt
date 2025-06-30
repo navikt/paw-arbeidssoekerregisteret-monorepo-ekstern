@@ -108,7 +108,8 @@ class AnsattMedTilgangFaarHentetBekreftelserTest : FreeSpec({
                     val token = oauthServer.ansattToken(
                         NavAnsatt(
                             oid = UUID.randomUUID(),
-                            ident = ansatt1.verdi
+                            ident = ansatt1.verdi,
+                            sikkerhetsnivaa = "tokenx:Level4"
                         )
                     )
                     //Ansatt med tilgang får hentet bekreftelser

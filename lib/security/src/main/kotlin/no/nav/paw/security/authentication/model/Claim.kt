@@ -1,8 +1,8 @@
 package no.nav.paw.security.authentication.model
 
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authorization.exception.UgyldigBearerTokenException
 import java.util.*
-import no.nav.paw.model.Identitetsnummer
 
 abstract class Claim<A : Any>(
     open val name: String,
@@ -19,6 +19,7 @@ sealed class ListClaim<A : Any>(
     override val resolve: (Any) -> List<A>
 ) : Claim<List<A>>(name, resolve)
 
+data object ACR : SingleClaim<String>("acr", { it.toString() })
 data object PID : SingleClaim<Identitetsnummer>("pid", { Identitetsnummer(it.toString()) })
 data object OID : SingleClaim<UUID>("oid", { UUID.fromString(it.toString()) })
 data object Name : SingleClaim<String>("name", { it.toString() })

@@ -78,7 +78,7 @@ class AuthorizationService(
             is Sluttbruker -> {
                 val alleIdenter = finnIdentiteter(bruker.ident).toHashSet()
                 SecurityContext(
-                    bruker = Sluttbruker(bruker.ident, alleIdenter), accessToken = securityContext.accessToken
+                    bruker = Sluttbruker(bruker.ident, alleIdenter, sikkerhetsnivaa = "tokenx:Level4"), accessToken = securityContext.accessToken
                 )
             }
 

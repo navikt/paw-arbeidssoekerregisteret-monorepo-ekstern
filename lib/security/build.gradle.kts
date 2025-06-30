@@ -4,12 +4,13 @@ plugins {
 
 dependencies {
     implementation(project(":lib:error-handling"))
-    api(project(":lib:common-model"))
+    implementation(project(":lib:common-model"))
     implementation(libs.ktor.server.auth)
     implementation(libs.logback.classic)
     implementation(libs.nav.security.token.validation.ktor)
 
     //Test
+    testImplementation(project(":lib:pdl-client"))
     testImplementation(libs.nav.security.mock.oauth2.server)
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.ktor.server.test.host)

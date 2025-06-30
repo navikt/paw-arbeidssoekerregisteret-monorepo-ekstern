@@ -11,6 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
+import no.nav.paw.security.authentication.model.ACR
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.bruker
@@ -46,8 +47,8 @@ fun Route.egenvurderingRoutes(
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.WRITE, accessPolicies) {
                     val sluttbruker = call.bruker<Sluttbruker>()
-                    val userToken = call.securityContext().accessToken.jwt
-                    egenvurderingService.postEgenvurdering(sluttbruker.ident, userToken, egenvurderingRequest)
+                    val accessToken = call.securityContext().accessToken
+                    egenvurderingService.postEgenvurdering(sluttbruker.ident, egenvurderingRequest, accessToken)
                     call.respond(HttpStatusCode.Accepted)
                 }
             }

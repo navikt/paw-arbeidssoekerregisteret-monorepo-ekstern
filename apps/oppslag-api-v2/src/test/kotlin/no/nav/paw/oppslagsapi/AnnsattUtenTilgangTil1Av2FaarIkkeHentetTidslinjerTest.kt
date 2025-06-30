@@ -123,7 +123,8 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetTidslinjerTest : FreeSpec({
                     val token = oauthServer.ansattToken(
                         NavAnsatt(
                             oid = UUID.randomUUID(),
-                            ident = ansatt2.verdi
+                            ident = ansatt2.verdi,
+                            sikkerhetsnivaa = "tokenx:Level4"
                         )
                     )
                     val response = client.hentTidslinjer(token, listOf(periode1.id))

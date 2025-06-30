@@ -10,7 +10,7 @@ import no.nav.paw.security.authorization.policy.AccessPolicy
 
 class SluttbrukerAccessPolicy : AccessPolicy {
 
-    override fun hasAccess(action: Action, securityContext: SecurityContext): AccessDecision {
+    override suspend fun hasAccess(action: Action, securityContext: SecurityContext): AccessDecision {
         val (bruker, _) = securityContext
 
         return when (bruker) {

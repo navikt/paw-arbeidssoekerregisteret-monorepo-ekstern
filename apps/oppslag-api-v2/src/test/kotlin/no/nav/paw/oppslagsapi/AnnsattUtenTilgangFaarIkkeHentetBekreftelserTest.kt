@@ -108,7 +108,8 @@ class AnnsattUtenTilgangFaarIkkeHentetBekreftelserTest : FreeSpec({
                     val token = oauthServer.ansattToken(
                         NavAnsatt(
                             oid = UUID.randomUUID(),
-                            ident = ansatt2.verdi
+                            ident = ansatt2.verdi,
+                            sikkerhetsnivaa = "tokenx:Level4"
                         )
                     )
                     val response = client.hentBekreftelser(token, listOf(periode1.id))

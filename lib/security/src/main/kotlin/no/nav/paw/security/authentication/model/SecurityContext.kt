@@ -18,7 +18,8 @@ data class SecurityContext(
     val accessToken: AccessToken
 )
 
-@Suppress("LoggingSimilarMessage")
+fun AccessToken.sikkerhetsnivaa(): String = "${issuer.name}:${claims.getOrNull(ACR) ?: "undefined"}"
+
 fun ApplicationCall.resolveSecurityContext(): SecurityContext {
     val principal = principal<TokenValidationContextPrincipal>()
     val tokenContext = principal?.context
@@ -29,41 +30,39 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
 
     val bruker = when (accessToken.issuer) {
         is TokenX -> {
-            logger.info("Autentiserer {} token -> {}", TokenX::class.simpleName, Sluttbruker::class.simpleName)
-            Sluttbruker(accessToken.claims.getOrThrow(PID))
+            logger.debug("TokenX token -> Sluttbruker")
+            Sluttbruker(
+                ident = accessToken.claims.getOrThrow(PID),
+                sikkerhetsnivaa = accessToken.sikkerhetsnivaa(),
+            )
         }
 
         is AzureAd -> {
             if (accessToken.isM2MToken()) {
                 val navIdentHeader = request.headers[NavIdentHeader.name]
                 if (navIdentHeader.isNullOrBlank()) {
-                    logger.info(
-                        "Autentiserer {} M2M token -> {}",
-                        AzureAd::class.simpleName,
-                        Anonym::class.simpleName
-                    )
+                    logger.debug("AzureAd M2M token -> Anonym")
                     Anonym(accessToken.claims.getOrThrow(OID))
                 } else {
-                    logger.info(
-                        "Autentiserer {} M2M token -> {}",
-                        AzureAd::class.simpleName,
-                        NavAnsatt::class.simpleName
-                    )
-                    NavAnsatt(accessToken.claims.getOrThrow(OID), navIdentHeader)
+                    logger.debug("AzureAd M2M token -> NavAnsatt")
+                    NavAnsatt(accessToken.claims.getOrThrow(OID), ident = navIdentHeader, sikkerhetsnivaa = accessToken.sikkerhetsnivaa())
                 }
             } else {
-                logger.info("Autentiserer {} token -> {}", AzureAd::class.simpleName, NavAnsatt::class.simpleName)
-                NavAnsatt(accessToken.claims.getOrThrow(OID), accessToken.claims.getOrThrow(NavIdent))
+                logger.debug("AzureAd token -> NavAnsatt")
+                NavAnsatt(accessToken.claims.getOrThrow(OID), accessToken.claims.getOrThrow(NavIdent), accessToken.sikkerhetsnivaa())
             }
         }
 
         is IdPorten -> {
-            logger.info("Autentiserer {} token -> {}", IdPorten::class.simpleName, Sluttbruker::class.simpleName)
-            Sluttbruker(accessToken.claims.getOrThrow(PID))
+            logger.debug("IdPorten token -> Sluttbruker")
+            Sluttbruker(
+                ident = accessToken.claims.getOrThrow(PID),
+                sikkerhetsnivaa = accessToken.sikkerhetsnivaa()
+            )
         }
 
         is MaskinPorten -> {
-            logger.info("Autentiserer {} token -> {}", MaskinPorten::class.simpleName, Anonym::class.simpleName)
+            logger.debug("MaskinPorten token -> Anonym")
             Anonym()
         }
     }

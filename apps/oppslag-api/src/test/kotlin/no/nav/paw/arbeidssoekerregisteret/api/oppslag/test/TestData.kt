@@ -107,12 +107,12 @@ object TestData {
 
     fun nySluttbruker(
         identitetsnummer: Identitetsnummer = identitetsnummer1
-    ) = Sluttbruker(identitetsnummer)
+    ) = Sluttbruker(identitetsnummer, sikkerhetsnivaa = "tokenx:Level4")
 
     fun nyNavAnsatt(
         oid: UUID = UUID.randomUUID(),
         navIdent: String = navIdent1
-    ) = NavAnsatt(oid = oid, ident = navIdent)
+    ) = NavAnsatt(oid = oid, ident = navIdent, sikkerhetsnivaa = "tokenx:Level4")
 
     fun nyM2MToken(
         oid: UUID = UUID.randomUUID()

@@ -81,7 +81,7 @@ fun MockOAuth2Server.getAuthProviders(): List<AuthProvider> {
             name = it.first,
             audiences = listOf("default"),
             discoveryUrl = wellKnownUrl(it.first).toString(),
-            requiredClaims = AuthProviderRequiredClaims(claims = it.second)
+            requiredClaims = AuthProviderRequiredClaims(it.second)
         )
     }
 }

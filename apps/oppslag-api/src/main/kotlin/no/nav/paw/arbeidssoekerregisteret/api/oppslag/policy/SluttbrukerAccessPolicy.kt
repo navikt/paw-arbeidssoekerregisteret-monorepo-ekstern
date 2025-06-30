@@ -17,7 +17,7 @@ class SluttbrukerAccessPolicy(
 ) : AccessPolicy {
     private val logger = LoggerFactory.getLogger("no.nav.paw.logger.security.authorization")
 
-    override fun hasAccess(action: Action, securityContext: SecurityContext): AccessDecision {
+    override suspend fun hasAccess(action: Action, securityContext: SecurityContext): AccessDecision {
         val (bruker, _) = securityContext
 
         logger.info("Autoriserer brukertype {}", bruker::class.simpleName)

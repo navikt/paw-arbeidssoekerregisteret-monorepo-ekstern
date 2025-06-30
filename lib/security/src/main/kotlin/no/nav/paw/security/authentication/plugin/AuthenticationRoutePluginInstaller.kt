@@ -18,7 +18,7 @@ fun Route.autentisering(
     modifyPrincipal: (suspend (SecurityContext) -> SecurityContext)? = null,
     build: Route.() -> Unit
 ): Route {
-    install(AuthenticationPlugin) {
+    install(AuthenticationRoutePlugin) {
         this.modifyPrincipal = modifyPrincipal
     }
     val configurations: Array<String> = issuers.map { issuer -> issuer.name }.toTypedArray()

@@ -21,6 +21,8 @@ import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.kafka.producer.sendDeferred
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.security.authentication.model.ACR
+import no.nav.paw.security.authentication.token.AccessToken
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
@@ -49,16 +51,20 @@ class EgenvurderingService(
         }
     }
 
-    suspend fun postEgenvurdering(identitetsnummer: Identitetsnummer, userToken: String, request: EgenvurderingRequest) {
-        val exchangedToken = texasClient.getOnBehalfOfToken(userToken).accessToken
+    suspend fun postEgenvurdering(identitetsnummer: Identitetsnummer, request: EgenvurderingRequest, accessToken: AccessToken) {
+        val exchangedToken = texasClient.getOnBehalfOfToken(accessToken.jwt).accessToken
         val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
 
         val periode = arbeidssoekerperioderAggregert.firstOrNull()
         val opplysningerOmArbeidssoeker = periode?.findSisteOpplysningerOmArbeidssoeker()
         val profilering = opplysningerOmArbeidssoeker?.profilering
-        // TODO: trenger vi sjekke om egenvurdering allerede er sendt?
+
         if (profilering?.profileringId != request.profileringId) {
             throw BadRequestException("ProfileringId i request (${request.profileringId}) samsvarer ikke med profileringId i siste aggregerte-periode (${profilering?.profileringId})")
+        }
+
+        if (profilering.egenvurdering != null) {
+            throw BadRequestException("Egenvurdering er allerede sendt for denne profileringen (${profilering.profileringId})")
         }
 
         val (_, key) = kafkaKeysClient.getIdAndKey(identitetsnummer.verdi)
@@ -68,7 +74,7 @@ class EgenvurderingService(
             Bruker(
                 BrukerType.SLUTTBRUKER,
                 identitetsnummer.verdi,
-                "tokenx:Level4"
+                accessToken.claims.getOrThrow(ACR)
             ),
             currentRuntimeEnvironment.appNameOrDefaultForLocal(),
             "Bruker har gjort en vurdering av profileringsresultatet",
