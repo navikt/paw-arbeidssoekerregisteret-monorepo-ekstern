@@ -14,8 +14,6 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
@@ -68,7 +66,7 @@ class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
             periodeId = periode1.id,
             identitetsnummer = periode1.identitetsnummer,
             timestamp = periode1.startet.tidspunkt,
-            data = periode1.toOpenApi(),
+            data = periode1.startet.toOpenApi(),
             type = periode_startet_v1
         ),
         Row(
@@ -82,7 +80,7 @@ class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
             periodeId = periode1.id,
             identitetsnummer = periode1.identitetsnummer,
             timestamp = periode1Avsluttet.avsluttet.tidspunkt,
-            data = periode1Avsluttet.toOpenApi(),
+            data = periode1Avsluttet.avsluttet.toOpenApi(),
             type = periode_avsluttet_v1
         )
     )

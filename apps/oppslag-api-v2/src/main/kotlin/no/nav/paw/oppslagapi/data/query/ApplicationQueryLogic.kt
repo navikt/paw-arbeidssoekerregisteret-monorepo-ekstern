@@ -8,13 +8,11 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Periode
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
-import no.nav.paw.error.model.getOrThrow
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.oppslagapi.data.Row
@@ -131,13 +129,13 @@ private fun mapIkkeBekreftelseRaderTilHendelser(rad: Row<Any>): Hendelse = when 
     periode_startet_v1 -> Hendelse(
         hendelseType = HendelseType.periode_startet_v1,
         tidspunkt = rad.timestamp,
-        periodeStartetV1 = (rad.data as Periode).startet
+        periodeStartetV1 = rad.data as Metadata
     )
 
     periode_avsluttet_v1 -> Hendelse(
         hendelseType = HendelseType.periode_avsluttet_v1,
         tidspunkt = rad.timestamp,
-        periodeAvsluttetV1 = (rad.data as Periode).avsluttet
+        periodeAvsluttetV1 = rad.data as Metadata
     )
 
     pa_vegne_av_start_v1 -> Hendelse(
