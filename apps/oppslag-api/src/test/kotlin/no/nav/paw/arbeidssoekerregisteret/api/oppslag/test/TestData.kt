@@ -442,14 +442,14 @@ object TestData {
         periodeId: UUID = UUID.randomUUID(),
         opplysningerId: UUID = UUID.randomUUID(),
         profileringId: UUID = UUID.randomUUID(),
-        sendtInnAv: Metadata = nyMetadata(utfoertAv = nyBruker(brukerId = fnr4)),
+        identitetsnummer: String = fnrDefault,
         egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
     ) = Egenvurdering(
         egenvurderingId,
         periodeId,
         opplysningerId,
         profileringId,
-        sendtInnAv,
+        nyMetadata(utfoertAv = nyBruker(brukerId = identitetsnummer)),
         egenvurdering
     )
 
@@ -462,6 +462,22 @@ object TestData {
         jobbetSammenhengendeSeksAvTolvSisteManeder = this.jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder = this.alder,
     )
+
+    fun nyEgenvurderingList(
+        size: Int = 1,
+        identitetsnummer: String = fnrDefault,
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID(),
+        profileringId: UUID = UUID.randomUUID()
+    ) =
+        IntRange(1, size).map { i ->
+            nyEgenvurdering(
+                periodeId = periodeId,
+                opplysningerId = opplysningerId,
+                profileringId = profileringId,
+                identitetsnummer = identitetsnummer,
+            )
+        }
 
     fun nyProfileringList(
         size: Int = 1,

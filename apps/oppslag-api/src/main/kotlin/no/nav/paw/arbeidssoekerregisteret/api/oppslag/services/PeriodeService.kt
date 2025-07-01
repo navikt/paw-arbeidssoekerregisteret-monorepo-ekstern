@@ -10,6 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerPeri
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toBekreftelseResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toEgenvurderingResponse
+import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toEgenvurderingResponseList
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoekerAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringAggregertResponse
@@ -57,9 +58,9 @@ class PeriodeService(
                         periode.periodeId,
                         opplysning.opplysningerId
                     )
-                    val egenvurdering = profilering?.profileringId?.let { profileringId -> egenvurderingRepository.hentEgenvurderingForPeriodeIdOgProfileringId(periode.periodeId, profileringId)}
+                    val egenvurderinger = profilering?.profileringId?.let { profileringId -> egenvurderingRepository.hentEgenvurderingForPeriodeIdOgProfileringId(periode.periodeId, profileringId)}
 
-                    opplysning.toOpplysningerOmArbeidssoekerAggregertResponse(profilering?.toProfileringAggregertResponse(egenvurdering?.toEgenvurderingResponse()))
+                    opplysning.toOpplysningerOmArbeidssoekerAggregertResponse(profilering?.toProfileringAggregertResponse(egenvurderinger?.toEgenvurderingResponseList() ?: emptyList()))
                 }
 
             val bekreftelser = bekreftelseRepository.finnBekreftelserForPeriodeIdList(listOf(periode.periodeId))

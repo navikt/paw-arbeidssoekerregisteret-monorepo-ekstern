@@ -134,7 +134,7 @@ fun ProfileringRow.toProfileringResponse(): ProfileringResponse =
         alder = alder
     )
 
-fun ProfileringRow.toProfileringAggregertResponse(egenvurdering: EgenvurderingResponse?): ProfileringAggregertResponse =
+fun ProfileringRow.toProfileringAggregertResponse(egenvurderinger: List<EgenvurderingResponse>): ProfileringAggregertResponse =
     ProfileringAggregertResponse(
         profileringId = profileringId,
         periodeId = periodeId,
@@ -143,8 +143,11 @@ fun ProfileringRow.toProfileringAggregertResponse(egenvurdering: EgenvurderingRe
         profilertTil = profilertTil.toProfileringsResultat(),
         jobbetSammenhengendeSeksAvTolvSisteManeder = jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder = alder,
-        egenvurdering = egenvurdering
+        egenvurderinger = egenvurderinger
     )
+
+fun List<EgenvurderingRow>.toEgenvurderingResponseList(): List<EgenvurderingResponse> =
+    this.map { it.toEgenvurderingResponse() }
 
 fun EgenvurderingRow.toEgenvurderingResponse(): EgenvurderingResponse =
     EgenvurderingResponse(
