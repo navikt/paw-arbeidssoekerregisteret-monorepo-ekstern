@@ -5,7 +5,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
-import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
@@ -156,6 +156,7 @@ fun EgenvurderingRow.toEgenvurderingResponse(): EgenvurderingResponse =
         opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
         profileringId = profileringId,
         sendtInnAv = sendtInnAv.toMetadataResponse(),
+        profilertTil = profilertTil.toProfileringsResultat(),
         egenvurdering = egenvurdering.toProfileringsResultat(),
     )
 
@@ -166,6 +167,7 @@ fun EgenvurderingRow.toEgenvurdering(): Egenvurdering =
         opplysningerOmArbeidssoekerId,
         profileringId,
         sendtInnAv.toMetadata(),
+        profilertTil,
         egenvurdering
     )
 

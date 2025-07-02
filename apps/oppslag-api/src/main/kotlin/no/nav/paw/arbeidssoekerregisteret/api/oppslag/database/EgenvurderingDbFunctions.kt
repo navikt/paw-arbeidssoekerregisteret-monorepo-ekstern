@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.EgenvurderingRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
-import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.model.Identitetsnummer
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.and
@@ -92,6 +92,7 @@ object EgenvurderingDbFunctions {
             it[opplysningerOmArbeidssoekerId] = egenvurdering.opplysningerOmArbeidssokerId
             it[profileringId] = egenvurdering.profileringId
             it[sendtInnAvId] = MetadataFunctions.insert(egenvurdering.sendtInnAv)
+            it[profilertTil] = egenvurdering.profilertTil
             it[EgenvurderingTable.egenvurdering] = egenvurdering.egenvurdering
         }
     }

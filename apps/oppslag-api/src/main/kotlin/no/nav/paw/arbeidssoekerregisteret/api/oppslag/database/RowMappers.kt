@@ -141,6 +141,7 @@ fun ResultRow.toEgenvurderingRow(): EgenvurderingRow {
         opplysningerOmArbeidssoekerId = get(EgenvurderingTable.opplysningerOmArbeidssoekerId),
         profileringId = get(EgenvurderingTable.profileringId),
         sendtInnAv = toMetadataRow(),
+        profilertTil = get(EgenvurderingTable.profilertTil),
         egenvurdering = get(EgenvurderingTable.egenvurdering)
     )
 }

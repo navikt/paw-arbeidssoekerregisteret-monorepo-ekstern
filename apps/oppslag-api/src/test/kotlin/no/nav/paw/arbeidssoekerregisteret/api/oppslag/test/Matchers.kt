@@ -4,7 +4,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.*
 import no.nav.paw.arbeidssokerregisteret.api.v1.*
-import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
@@ -126,6 +126,7 @@ infix fun Egenvurdering.shouldBeEqualTo(other: EgenvurderingResponse?): Egenvurd
     opplysningerOmArbeidssokerId shouldBe other?.opplysningerOmArbeidssoekerId
     profileringId shouldBe other?.profileringId
     sendtInnAv shouldBeEqualTo other?.sendtInnAv
+    profilertTil shouldBeEqualTo other?.profilertTil
     egenvurdering shouldBeEqualTo other?.egenvurdering
     return this
 }

@@ -13,7 +13,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.toApiProfilering
 import no.nav.paw.arbeidssoekerregisteret.utils.toProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
-import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.config.env.appNameOrDefaultForLocal
@@ -41,8 +41,8 @@ class EgenvurderingService(
         val exchangedToken = texasClient.getOnBehalfOfToken(userToken).accessToken
         val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
         val sisteProfilering = arbeidssoekerperioderAggregert.findSisteProfilering()
-        val innsendtEgenvurdering = sisteProfilering?.egenvurdering
-        return if (sisteProfilering == null || innsendtEgenvurdering != null || arbeidssoekerperioderAggregert.isPeriodeAvsluttet()) {
+        val innsendtEgenvurderinger = sisteProfilering?.egenvurderinger ?: emptyList()
+        return if (sisteProfilering == null || innsendtEgenvurderinger.isNotEmpty() || arbeidssoekerperioderAggregert.isPeriodeAvsluttet()) {
             EgenvurderingGrunnlag(grunnlag = null)
         } else {
             EgenvurderingGrunnlag(
@@ -58,12 +58,13 @@ class EgenvurderingService(
         val periode = arbeidssoekerperioderAggregert.firstOrNull()
         val opplysningerOmArbeidssoeker = periode?.findSisteOpplysningerOmArbeidssoeker()
         val profilering = opplysningerOmArbeidssoeker?.profilering
+        val egenvurderinger = profilering?.egenvurderinger ?: emptyList()
 
         if (profilering?.profileringId != request.profileringId) {
             throw BadRequestException("ProfileringId i request (${request.profileringId}) samsvarer ikke med profileringId i siste aggregerte-periode (${profilering?.profileringId})")
         }
 
-        if (profilering.egenvurdering != null) {
+        if (egenvurderinger.isNotEmpty()) {
             throw BadRequestException("Egenvurdering er allerede sendt for denne profileringen (${profilering.profileringId})")
         }
 
@@ -77,7 +78,7 @@ class EgenvurderingService(
                 accessToken.claims.getOrThrow(ACR)
             ),
             currentRuntimeEnvironment.appNameOrDefaultForLocal(),
-            "Bruker har gjort en vurdering av profileringsresultatet",
+            "Bruker har gjort en egenvurdering av profileringsresultatet",
             null
         )
         val egenvurderingRecord = ProducerRecord(
@@ -89,6 +90,7 @@ class EgenvurderingService(
                 opplysningerOmArbeidssoeker.opplysningerOmArbeidssoekerId,
                 profilering.profileringId,
                 metadata,
+                profilering.profilertTil.toProfilertTil(),
                 request.egenvurdering.toProfilertTil()
             )
         )

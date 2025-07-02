@@ -10,6 +10,13 @@ object EgenvurderingTable : LongIdTable("egenvurdering") {
     val opplysningerOmArbeidssoekerId = uuid("opplysninger_om_arbeidssoeker_id")
     val profileringId = uuid("profilering_id")
     val sendtInnAvId = long("sendt_inn_av_id").references(MetadataTable.id)
+    val profilertTil =
+        customEnumeration(
+            "profilert_til",
+            "ProfilertTil",
+            { value -> ProfilertTil.valueOf(value as String) },
+            { PGEnum("ProfilertTil", it) }
+        )
     val egenvurdering =
         customEnumeration(
             "egenvurdering",
