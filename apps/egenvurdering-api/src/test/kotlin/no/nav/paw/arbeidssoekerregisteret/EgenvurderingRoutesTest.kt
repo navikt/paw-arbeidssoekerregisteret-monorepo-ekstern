@@ -113,7 +113,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                 }
             }
             // TODO: kommenter ut denne før prodsetting
-            "200 OK - Grunnlag (profilering) for egenvurdering" - {
+            /*"200 OK - Grunnlag (profilering) for egenvurdering" - {
                 testApplication {
                     configureTestApplication()
                     val profileringId = UUID.randomUUID()
@@ -142,7 +142,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                     response.bodyAsText() shouldEqualJson expectedJson
                     response.headers["x-trace-id"] shouldNotBe null
                 }
-            }
+            }*/
 
             "403 Forbidden" - {
                 testApplication {

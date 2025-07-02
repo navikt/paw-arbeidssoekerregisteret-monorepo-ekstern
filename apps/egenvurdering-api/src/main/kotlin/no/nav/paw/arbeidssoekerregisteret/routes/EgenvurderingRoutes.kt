@@ -37,8 +37,8 @@ fun Route.egenvurderingRoutes(
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.READ, accessPolicies) {
                     val userToken = call.securityContext().accessToken.jwt
-                    val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(userToken)
-                    //val egenvurderingGrunnlag = EgenvurderingGrunnlag(grunnlag = null)
+                    //val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(userToken)
+                    val egenvurderingGrunnlag = EgenvurderingGrunnlag(grunnlag = null)
                     call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)
                 }
             }
