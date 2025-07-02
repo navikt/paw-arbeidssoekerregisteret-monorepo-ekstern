@@ -18,6 +18,15 @@ fun ArbeidssoekerperiodeAggregertResponse.findSisteOpplysningerOmArbeidssoeker()
 fun List<ArbeidssoekerperiodeAggregertResponse>.isPeriodeAvsluttet(): Boolean =
     this.isNotEmpty() && this[0].avsluttet != null
 
+fun ProfileringsResultat.toProfilertTil(): ProfilertTil {
+    return when (this) {
+        ProfileringsResultat.ANTATT_GODE_MULIGHETER -> ProfilertTil.ANTATT_GODE_MULIGHETER
+        ProfileringsResultat.ANTATT_BEHOV_FOR_VEILEDNING -> ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+        ProfileringsResultat.OPPGITT_HINDRINGER -> ProfilertTil.OPPGITT_HINDRINGER
+        else -> throw IllegalArgumentException("Ugyldig profilertTil: $this")
+    }
+}
+
 fun ApiEgenvurdering.toProfilertTil(): ProfilertTil =
     when (this) {
         ApiEgenvurdering.ANTATT_GODE_MULIGHETER -> ProfilertTil.ANTATT_GODE_MULIGHETER

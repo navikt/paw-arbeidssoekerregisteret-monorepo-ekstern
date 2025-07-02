@@ -65,7 +65,7 @@ class EgenvurderingServiceTest : FreeSpec({
                 TestData.nyArbeidssoekerperiodeAggregertResponse(
                     opplysningerOmArbeidssoeker = TestData.nyOpplysningerOmArbeidssoekerAggregertResponse(
                         profilering = TestData.nyProfileringAggregertResponse(
-                            egenvurdering = TestData.nyEgenvurderingResponse()
+                            egenvurderinger = listOf(TestData.nyEgenvurderingResponse())
                         )
                     ),
                 )
@@ -82,7 +82,7 @@ class EgenvurderingServiceTest : FreeSpec({
                     avsluttet = TestData.nyMetadataResponse(),
                     opplysningerOmArbeidssoeker = TestData.nyOpplysningerOmArbeidssoekerAggregertResponse(
                         profilering = TestData.nyProfileringAggregertResponse(
-                            egenvurdering = null
+                            egenvurderinger = emptyList()
                         )
                     ),
                 )
@@ -98,7 +98,7 @@ class EgenvurderingServiceTest : FreeSpec({
                 TestData.nyArbeidssoekerperiodeAggregertResponse(
                     opplysningerOmArbeidssoeker = TestData.nyOpplysningerOmArbeidssoekerAggregertResponse(
                         profilering = TestData.nyProfileringAggregertResponse(
-                            egenvurdering = null
+                            egenvurderinger = emptyList()
                         )
                     ),
                 )
@@ -200,7 +200,7 @@ object TestData {
         profilertTil: ProfileringsResultat = ProfileringsResultat.ANTATT_GODE_MULIGHETER,
         jobbetSammenhengendeSeksAvTolvSisteManeder: Boolean = false,
         alder: Int = 30,
-        egenvurdering: EgenvurderingResponse? = nyEgenvurderingResponse()
+        egenvurderinger: List<EgenvurderingResponse> = listOf(nyEgenvurderingResponse())
     ): ProfileringAggregertResponse =
         ProfileringAggregertResponse(
             profileringId = profileringId,
@@ -210,7 +210,7 @@ object TestData {
             profilertTil = profilertTil,
             jobbetSammenhengendeSeksAvTolvSisteManeder = jobbetSammenhengendeSeksAvTolvSisteManeder,
             alder = alder,
-            egenvurdering = egenvurdering
+            egenvurderinger = egenvurderinger
         )
 
     fun nyEgenvurderingResponse(
@@ -219,6 +219,7 @@ object TestData {
         opplysningerOmArbeidssoekerId: UUID = TestData.opplysningerOmArbeidssoekerId,
         profileringId: UUID = TestData.profileringId,
         sendtInnAv: MetadataResponse = nyMetadataResponse(),
+        profilertTil: ProfileringsResultat = ProfileringsResultat.ANTATT_GODE_MULIGHETER,
         egenvurdering: ProfileringsResultat = ProfileringsResultat.ANTATT_GODE_MULIGHETER,
     ): EgenvurderingResponse =
         EgenvurderingResponse(
@@ -227,6 +228,7 @@ object TestData {
             opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
             profileringId = profileringId,
             sendtInnAv = sendtInnAv,
+            profilertTil = profilertTil,
             egenvurdering = egenvurdering
         )
 
