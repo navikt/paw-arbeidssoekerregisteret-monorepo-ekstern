@@ -107,6 +107,7 @@ data class EgenvurderingRow(
     val opplysningerOmArbeidssoekerId: UUID,
     val profileringId: UUID,
     val sendtInnAv: MetadataRow,
+    val profilertTil: ProfilertTil,
     val egenvurdering: ProfilertTil,
 )
 

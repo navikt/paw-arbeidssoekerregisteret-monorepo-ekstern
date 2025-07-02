@@ -24,7 +24,7 @@ spec:
     - name: KAFKA_TOPIC_PROFILERING
       value: "paw.arbeidssoker-profilering-v1"
     - name: KAFKA_TOPIC_EGENVURDERING
-      value: "paw.arbeidssoker-egenvurdering-beta-v1"
+      value: "paw.arbeidssoker-egenvurdering-beta-v2"
     - name: KAFKA_TOPIC_BEKREFTELSE
       value: "paw.arbeidssoker-bekreftelse-v1"
     - name: KAFKA_GROUP_ID_PERIODER

@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.egenvurderingKafkaTrace
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.egenvurderingerKafkaCounter
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.traceparent
-import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*

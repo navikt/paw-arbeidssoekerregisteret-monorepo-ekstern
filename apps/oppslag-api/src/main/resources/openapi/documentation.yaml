@@ -918,6 +918,8 @@ components:
           format: "uuid"
         sendtInnAv:
           $ref: "#/components/schemas/MetadataResponse"
+        profilertTil:
+          $ref: '#/components/schemas/ProfileringsResultat'
         egenvurdering:
           $ref: "#/components/schemas/ProfileringsResultat"
       required:
@@ -926,6 +928,7 @@ components:
         - "opplysningerOmArbeidssoekerId"
         - "profileringId"
         - "sendtInnAv"
+        - "profilertTil"
         - "egenvurdering"
     SamletInformasjonResponse:
       type: "object"

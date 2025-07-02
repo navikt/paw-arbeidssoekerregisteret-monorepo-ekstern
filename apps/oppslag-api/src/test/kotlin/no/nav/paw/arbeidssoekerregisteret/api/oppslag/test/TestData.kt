@@ -19,7 +19,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
-import no.nav.paw.arbeidssokerregisteret.api.v1.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
@@ -280,6 +280,7 @@ object TestData {
         opplysningerOmArbeidssoekerId: UUID = UUID.randomUUID(),
         profileringId: UUID = UUID.randomUUID(),
         sendtInnAv: MetadataRow = nyMetadataRow(),
+        profilertTil: ProfilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING,
         egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
     ) = EgenvurderingRow(
         id = id,
@@ -288,6 +289,7 @@ object TestData {
         opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
         profileringId = profileringId,
         sendtInnAv = sendtInnAv,
+        profilertTil = profilertTil,
         egenvurdering = egenvurdering
     )
 
@@ -443,6 +445,7 @@ object TestData {
         opplysningerId: UUID = UUID.randomUUID(),
         profileringId: UUID = UUID.randomUUID(),
         identitetsnummer: String = fnrDefault,
+        profilertTil: ProfilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING,
         egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
     ) = Egenvurdering(
         egenvurderingId,
@@ -450,6 +453,7 @@ object TestData {
         opplysningerId,
         profileringId,
         nyMetadata(utfoertAv = nyBruker(brukerId = identitetsnummer)),
+        profilertTil,
         egenvurdering
     )
 
