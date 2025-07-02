@@ -1,0 +1,51 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: paw-arbeidssoekerregisteret-egenvurdering-dialog-tjeneste
+  namespace: paw
+  labels:
+    team: paw
+spec:
+  image: {{ image }}
+  port: 8080
+  env:
+    - name: KAFKA_PAW_EGENVURDERING_CONSUMER_VERSION
+      value: "egenvurdering-consumer-v1"
+    - name: KAFKA_PAW_EGENVURDERING_TOPIC
+      value: "paw.arbeidssoker-egenvurdering-beta-v2"
+    - name: DIALOG_TJENESTE_URL
+      value: "todo"
+    - name: DIALOG_TJENESTE_SCOPE
+      value: "todo"
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  replicas:
+    min: 2
+    max: 2
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /internal/isReady
+    initialDelay: 10
+  prometheus:
+    enabled: true
+    path: /internal/metrics
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+  azure:
+    application:
+      enabled: true
+  kafka:
+    pool: nav-dev
+  accessPolicy:
+    outbound:
+      rules:
+        - application: veilarbdialog
+          namespace: dab

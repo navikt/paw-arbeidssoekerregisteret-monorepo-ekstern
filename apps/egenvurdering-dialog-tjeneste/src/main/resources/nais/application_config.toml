@@ -1,0 +1,8 @@
+[kafkaTopology]
+consumerVersion = "${KAFKA_PAW_EGENVURDERING_CONSUMER_VERSION}"
+applicationIdPrefix = "paw-arbeidssoekerregisteret-egenvurdering-dialog-tjeneste"
+egenvurderingTopic = "${KAFKA_PAW_EGENVURDERING_TOPIC}"
+
+[dialogClientConfig]
+url = "${DIALOG_TJENESTE_URL}"
+scope = "${DIALOG_TJENESTE_SCOPE}"

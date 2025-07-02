@@ -41,6 +41,7 @@ include(
     // apps
     "apps:microfrontend-toggler",
     "apps:egenvurdering-api",
+    "apps:egenvurdering-dialog-tjeneste",
     "apps:profilering",
     "apps:oppslag-api",
     "apps:eksternt-api",
