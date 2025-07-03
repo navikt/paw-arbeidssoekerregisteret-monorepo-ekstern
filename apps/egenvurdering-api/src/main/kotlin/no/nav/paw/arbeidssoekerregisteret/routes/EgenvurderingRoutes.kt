@@ -11,7 +11,8 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
-import no.nav.paw.security.authentication.model.ACR
+import no.nav.paw.config.env.NAIS_PROD_CLUSER_NAME
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.bruker
@@ -37,8 +38,12 @@ fun Route.egenvurderingRoutes(
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.READ, accessPolicies) {
                     val userToken = call.securityContext().accessToken.jwt
-                    //val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(userToken)
-                    val egenvurderingGrunnlag = EgenvurderingGrunnlag(grunnlag = null)
+
+                    val egenvurderingGrunnlag = if (currentRuntimeEnvironment.equals(NAIS_PROD_CLUSER_NAME)) {
+                        EgenvurderingGrunnlag(grunnlag = null)
+                    } else {
+                        egenvurderingService.getEgenvurderingGrunnlag(userToken)
+                    }
                     call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)
                 }
             }
