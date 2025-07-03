@@ -11,7 +11,9 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
+import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
+import org.apache.kafka.clients.consumer.ConsumerRecords
 
 fun main() {
     val logger = buildApplicationLogger
@@ -43,6 +45,10 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
-    configureKafka(applicationContext)
+    configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
+        if (!records.isEmpty) {
+            applicationContext.dialogService.handleRecords(records)
+        }
+    }
     configureRouting(applicationContext)
 }

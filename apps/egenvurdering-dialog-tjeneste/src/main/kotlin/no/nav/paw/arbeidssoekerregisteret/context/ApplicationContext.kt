@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.context
 
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.arbeidssoekerregisteret.DialogService
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
@@ -16,13 +17,15 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
 
+
 data class ApplicationContext(
     val serverConfig: ServerConfig,
     val applicationConfig: ApplicationConfig,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
     val healthIndicatorRepository: HealthIndicatorRepository,
     val egenvurderingAvroDeserializer: Deserializer<Egenvurdering>,
-    val consumer: KafkaConsumer<Long, Egenvurdering>
+    val consumer: KafkaConsumer<Long, Egenvurdering>,
+    val dialogService: DialogService,
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -44,13 +47,16 @@ data class ApplicationContext(
                 valueDeserializer = egenvurderingAvroDeserializer::class,
             )
 
+            val dialogService = DialogService()
+
             return ApplicationContext(
                 serverConfig,
                 applicationConfig,
                 prometheusMeterRegistry,
                 healthIndicatorRepository,
                 egenvurderingAvroDeserializer,
-                egenvurderingConsumer
+                egenvurderingConsumer,
+                dialogService,
             )
         }
     }
