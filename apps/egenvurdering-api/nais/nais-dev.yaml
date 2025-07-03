@@ -5,8 +5,6 @@ metadata:
   namespace: paw
   labels:
     team: paw
-  annotations:
-    texas.nais.io/enabled: "true"
 spec:
   image: {{ image }}
   ingresses:
@@ -52,7 +50,6 @@ spec:
       enabled: true
   kafka:
     pool: nav-dev
-    streams: true
   accessPolicy:
     inbound:
       rules:
