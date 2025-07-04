@@ -4,7 +4,7 @@ const val APPLICATION_CONFIG = "application_config.toml"
 
 data class ApplicationConfig(
     val kafkaTopology: KafkaTopologyConfig,
-    val dialogClientConfig: DialogClientConfig,
+    val veilarbdialogClientConfig: VeilarbdialogClientConfig,
 )
 
 data class KafkaTopologyConfig(
@@ -13,7 +13,7 @@ data class KafkaTopologyConfig(
     val egenvurderingTopic: String,
 )
 
-data class DialogClientConfig(
+data class VeilarbdialogClientConfig(
     val url: String,
     val scope: String,
 )

@@ -14,9 +14,9 @@ spec:
     - name: KAFKA_PAW_EGENVURDERING_TOPIC
       value: "paw.arbeidssoker-egenvurdering-beta-v2"
     - name: DIALOG_TJENESTE_URL
-      value: "todo"
+      value: "http://veilarbdialog.dab/veilarbdialog/"
     - name: DIALOG_TJENESTE_SCOPE
-      value: "todo"
+      value: "api://prod-gcp.dab.veilarbdialog/.default"
   resources:
     limits:
       memory: 2048Mi
