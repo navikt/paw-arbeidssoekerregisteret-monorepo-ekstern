@@ -3,6 +3,6 @@ consumerVersion = "paw-egenvurdering-dialog-tjeneste-consumer-v1"
 applicationIdPrefix = "paw-arbeidssoekerregisteret-egenvurdering-dialog-tjeneste"
 egenvurderingTopic = "arbeidssoker-egenvurdering-v1"
 
-[dialogClientConfig]
+[veilarbdialogClientConfig]
 url = "MOCK"
 scope = "api://<cluster>.<namespace>.<outbound-app-name>/.default"
