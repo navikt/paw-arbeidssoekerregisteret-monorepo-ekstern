@@ -18,7 +18,6 @@ import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.Instant
 import java.util.*
-import kotlin.collections.plus
 
 fun MockOAuth2Server.personToken(
     id: Identitetsnummer,
@@ -35,6 +34,11 @@ fun MockOAuth2Server.ansattToken(navAnsatt: NavAnsatt): Pair<Map<String, Any>, S
         "NAVident" to navAnsatt.ident
     ).let { it.plus("issuer" to "azure") to issueToken(claims = it) }
 
+fun MockOAuth2Server.anonymToken(): Pair<Map<String, Any>, SignedJWT> =
+    mapOf(
+        "oid" to UUID.randomUUID().toString(),
+        "roles" to listOf("access_as_application")
+    ).let { it.plus("issuer" to "azure") to issueToken(claims = it) }
 
 suspend fun HttpClient.hentBekreftelser(
     token: Pair<Map<String, Any>, SignedJWT>,

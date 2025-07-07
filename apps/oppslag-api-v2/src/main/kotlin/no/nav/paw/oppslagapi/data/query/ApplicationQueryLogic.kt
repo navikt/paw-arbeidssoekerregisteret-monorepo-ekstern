@@ -23,8 +23,8 @@ import no.nav.paw.oppslagapi.data.pa_vegne_av_stopp_v1
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.profilering_v1
-import no.nav.paw.security.authentication.model.Bruker
-import java.util.UUID
+import no.nav.paw.security.authentication.model.SecurityContext
+import java.util.*
 
 class ApplicationQueryLogic(
     private val autorisasjonsTjeneste: AutorisasjonsTjeneste,
@@ -32,7 +32,7 @@ class ApplicationQueryLogic(
 ) {
 
     suspend fun hentBekreftelser(
-        bruker: Bruker<out Any>,
+        securityContext: SecurityContext,
         request: ApiV2BekreftelserPostRequest
     ): Response<BekreftelserResponse> {
         if (request.perioder.isEmpty()) {
@@ -45,7 +45,7 @@ class ApplicationQueryLogic(
         val identerOensketInfoOm = tidslinjer.map { it.identitetsnummer }.toSet()
         return autorisasjonsTjeneste.autoriser(
             handling = "Hent bekreftelser for arbeidssøkerperiode",
-            bruker = bruker,
+            securityContext = securityContext,
             oenskerTilgangTil = identerOensketInfoOm.map(::Identitetsnummer),
         ) {
             BekreftelserResponse(
@@ -55,7 +55,7 @@ class ApplicationQueryLogic(
     }
 
     suspend fun lagTidslinjer(
-        bruker: Bruker<out Any>,
+        securityContext: SecurityContext,
         request: ApiV2BekreftelserPostRequest
     ): Response<TidslinjeResponse> {
         if (request.perioder.isEmpty()) {
@@ -66,9 +66,9 @@ class ApplicationQueryLogic(
         }
         return autorisasjonsTjeneste.autoriser(
             handling = "Lag tidslinjer for arbeidssøkerperioder",
-            bruker = bruker,
+            securityContext = securityContext,
             oenskerTilgangTil = rader
-                .flatMap { (_, rader) -> rader.mapNotNull { rad -> rad.identitetsnummer }}
+                .flatMap { (_, rader) -> rader.mapNotNull { rad -> rad.identitetsnummer } }
                 .distinct()
                 .map { identitetsnummer -> Identitetsnummer(identitetsnummer) }
         ) {

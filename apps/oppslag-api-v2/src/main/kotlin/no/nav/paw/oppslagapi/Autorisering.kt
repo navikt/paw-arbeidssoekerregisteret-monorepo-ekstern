@@ -15,8 +15,8 @@ import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.model.NavIdent
 import no.nav.paw.oppslagapi.data.finnAlleIdenterForPerson
 import no.nav.paw.security.authentication.model.Anonym
-import no.nav.paw.security.authentication.model.Bruker
 import no.nav.paw.security.authentication.model.NavAnsatt
+import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.tilgangskontroll.client.RESPONSE_DATA_UNIT
 import no.nav.paw.tilgangskontroll.client.Tilgang
@@ -39,17 +39,25 @@ class AutorisasjonsTjeneste(
      */
     suspend fun <A> autoriser(
         handling: String,
-        bruker: Bruker<out Any>,
+        securityContext: SecurityContext,
         oenskerTilgangTil: List<Identitetsnummer>,
         function: () -> A
     ): Response<A> {
+        val bruker = securityContext.bruker
         return when (bruker) {
-            is Anonym -> ikkeTilgangProblemDetails()
+            is Anonym -> autoriserAnonym(
+                securityContext = securityContext
+            )
+
             is NavAnsatt -> autoriserAnsatt(
                 navIdent = NavIdent(bruker.ident),
                 identitetsnummer = oenskerTilgangTil
             )
-            is Sluttbruker -> autoriserSluttbruker(bruker, oenskerTilgangTil)
+
+            is Sluttbruker -> autoriserSluttbruker(
+                bruker = bruker,
+                identitetsnummer = oenskerTilgangTil
+            )
         }.map {
             val brukerIdent = when (bruker) {
                 is NavAnsatt -> bruker.ident
@@ -94,6 +102,15 @@ class AutorisasjonsTjeneste(
         }.map(Response<Boolean>::feilVedIkkeTilgang)
             .filterIsInstance<ProblemDetails>()
             .firstOrNull() ?: return RESPONSE_DATA_UNIT
+    }
+
+    fun autoriserAnonym(securityContext: SecurityContext): Response<Unit> {
+        val accessToken = securityContext.accessToken
+        return if (accessToken.isM2MToken()) {
+            RESPONSE_DATA_UNIT
+        } else {
+            ikkeTilgangProblemDetails()
+        }
     }
 
     private fun ikkeTilgangProblemDetails(): ProblemDetails = ProblemDetails(

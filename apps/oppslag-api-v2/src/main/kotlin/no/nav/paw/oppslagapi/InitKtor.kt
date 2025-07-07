@@ -13,7 +13,6 @@ import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.path
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.Routing
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
@@ -99,13 +98,14 @@ fun <A> Route.configureRoutes(
             post<ApiV2BekreftelserPostRequest> { request ->
                 val securityContext = call.securityContext()
                 val response = appQueryLogic.hentBekreftelser(
-                    bruker = securityContext.bruker,
+                    securityContext = securityContext,
                     request = request
                 )
                 when (response) {
                     is Data<BekreftelserResponse> -> {
                         call.respond(HttpStatusCode.OK, response.data)
                     }
+
                     is ProblemDetails -> {
                         call.respond(response.status, response)
                     }
@@ -118,13 +118,14 @@ fun <A> Route.configureRoutes(
             post<ApiV2BekreftelserPostRequest> { request ->
                 val securityContext = call.securityContext()
                 val response = appQueryLogic.lagTidslinjer(
-                    bruker = securityContext.bruker,
+                    securityContext = securityContext,
                     request = request
                 )
                 when (response) {
                     is Data<TidslinjeResponse> -> {
                         call.respond(HttpStatusCode.OK, response.data)
                     }
+
                     is ProblemDetails -> {
                         call.respond(response.status, response)
                     }
