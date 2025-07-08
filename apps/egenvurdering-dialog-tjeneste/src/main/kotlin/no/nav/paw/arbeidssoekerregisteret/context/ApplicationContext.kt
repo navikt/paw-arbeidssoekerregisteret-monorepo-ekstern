@@ -3,10 +3,12 @@ package no.nav.paw.arbeidssoekerregisteret.context
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.DialogService
+import no.nav.paw.arbeidssoekerregisteret.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
+import no.nav.paw.arbeidssoekerregisteret.config.VeilarbdialogClientConfig
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.repository.HealthIndicatorRepository
@@ -47,7 +49,10 @@ data class ApplicationContext(
                 valueDeserializer = egenvurderingAvroDeserializer::class,
             )
 
-            val dialogService = DialogService()
+            val veilarbdialogClient = VeilarbdialogClient(
+                config = VeilarbdialogClientConfig("", ""),
+            )
+            val dialogService = DialogService(veilarbdialogClient = veilarbdialogClient)
 
             return ApplicationContext(
                 serverConfig,
