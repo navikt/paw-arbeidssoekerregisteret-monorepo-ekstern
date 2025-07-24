@@ -11,9 +11,11 @@ dependencies {
     // Project
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
-    implementation(project(":lib:kafka"))
+    implementation(project(":lib:kafka-v2"))
     implementation(project(":lib:common-model"))
     implementation(project(":lib:http-client-utils"))
+    implementation(project(":lib:database"))
+    implementation(project(":lib:health"))
     implementation(project(":domain:main-avro-schema"))
     testImplementation(project(":test:test-data-factory"))
 
@@ -31,6 +33,12 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.mock)
 
+    // Database
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.java.time)
+    implementation(libs.hikari.connection.pool)
+    implementation(libs.postgres.driver)
+    implementation(libs.flyway.postgres)
 
     // Serialization
     implementation(libs.ktor.serialization.jackson)
@@ -59,6 +67,7 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.nav.security.mock.oauth2.server)
+    testImplementation(libs.testcontainers.postgresql)
 }
 
 java {
@@ -68,7 +77,7 @@ java {
 }
 
 application {
-    mainClass.set("no.nav.paw.arbeidssoekerregisteret.ApplicationKt")
+    mainClass.set("no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.ApplicationKt")
 }
 
 tasks.withType<Test>().configureEach {

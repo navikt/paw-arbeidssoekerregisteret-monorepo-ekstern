@@ -17,6 +17,16 @@ spec:
       value: "http://veilarbdialog.dab/veilarbdialog/"
     - name: DIALOG_TJENESTE_SCOPE
       value: "api://dev-gcp.dab.veilarbdialog/.default"
+    - name: DATABASE_HOST
+      value: "$(NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_EGENVURDERING_DIALOG_TJENESTE_EGENVURDERINGDIALOGTJENESTEDB_HOST)"
+    - name: DATABASE_PORT
+      value: "$(NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_EGENVURDERING_DIALOG_TJENESTE_EGENVURDERINGDIALOGTJENESTEDB_PORT)"
+    - name: DATABASE_USERNAME
+      value: "$(NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_EGENVURDERING_DIALOG_TJENESTE_EGENVURDERINGDIALOGTJENESTEDB_USERNAME)"
+    - name: DATABASE_PASSWORD
+      value: "$(NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_EGENVURDERING_DIALOG_TJENESTE_EGENVURDERINGDIALOGTJENESTEDB_PASSWORD)"
+    - name: DATABASE_DATABASE
+      value: "$(NAIS_DATABASE_PAW_ARBEIDSSOEKERREGISTERET_EGENVURDERING_DIALOG_TJENESTE_EGENVURDERINGDIALOGTJENESTEDB_DATABASE)"
   resources:
     limits:
       memory: 1024Mi
@@ -44,6 +54,12 @@ spec:
       enabled: true
   kafka:
     pool: nav-dev
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_17
+        tier: db-g1-small
+        databases:
+          - name: egenvurderingdialogtjenestedb
   accessPolicy:
     outbound:
       rules:

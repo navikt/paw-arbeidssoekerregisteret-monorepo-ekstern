@@ -28,6 +28,8 @@ include(
     "lib:security",
     "lib:http-client-utils",
     "lib:kafka",
+    "lib:kafka-v2",
+    "lib:async",
     "lib:kafka-streams",
     "lib:kafka-key-generator-client",
     "lib:pdl-client",
@@ -36,6 +38,7 @@ include(
     "lib:common-model",
     "lib:topics",
     "lib:api-oppslag-client",
+    "lib:health",
     // test
     "test:test-data-factory",
     // apps
