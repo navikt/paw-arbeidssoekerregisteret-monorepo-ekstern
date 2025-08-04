@@ -111,6 +111,8 @@ spec:
           namespace: teamdagpenger
         - application: dp-rapportering-personregister
           namespace: teamdagpenger
+        - application: dp-meldekortregister
+          namespace: teamdagpenger
         - application: veilarbportefolje
           namespace: pto
           cluster: prod-fss
