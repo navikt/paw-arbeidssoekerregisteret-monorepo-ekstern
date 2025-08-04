@@ -17,6 +17,7 @@ include(
     "domain:bekreftelsesmelding-avro-schema",
     "domain:bekreftelse-paavegneav-avro-schema",
     // libs
+    "lib:health",
     "lib:logging",
     "lib:serialization",
     "lib:hoplite-config",
