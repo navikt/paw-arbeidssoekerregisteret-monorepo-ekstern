@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:kafka"))
     implementation(project(":lib:kafka-streams"))
+    implementation(project(":lib:health"))
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:arena-avro-schema"))
     implementation(project(":domain:bekreftelsesmelding-avro-schema"))
