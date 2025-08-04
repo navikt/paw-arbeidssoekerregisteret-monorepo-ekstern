@@ -11,18 +11,14 @@ import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.swaggerRoutes
 import no.nav.paw.health.model.HealthStatus
+import no.nav.paw.health.liveness.livenessRoute
+import no.nav.paw.health.readiness.readinessRoute
 
 fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {
         routing {
-            get("/internal/isAlive") {
-                // TODO: health lib
-                call.respondText(ContentType.Text.Plain, HttpStatusCode.OK) { HealthStatus.HEALTHY.value }
-            }
-
-            get("/internal/isReady") {
-                call.respondText(ContentType.Text.Plain, HttpStatusCode.OK) { HealthStatus.HEALTHY.value }
-            }
+            livenessRoute()
+            readinessRoute()
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
             egenvurderingRoutes(applicationContext.authorizationService, applicationContext.egenvurderingService)

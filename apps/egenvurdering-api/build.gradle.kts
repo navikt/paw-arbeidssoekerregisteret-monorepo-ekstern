@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":lib:common-model"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:api-oppslag-client"))
+    implementation(project(":lib:health"))
     implementation(project(":domain:main-avro-schema"))
     testImplementation(project(":test:test-data-factory"))
 
