@@ -5,10 +5,8 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
-import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ApplicationConfig
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
-import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.Health
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.health.initKtor
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.statestore.meterIdMap
 import no.nav.paw.arbeidssokerregisteret.arena.v8.ArenaArbeidssokerregisterTilstand
@@ -19,7 +17,6 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaStreamsFactory
-import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.utils.Time
 import org.apache.kafka.streams.KafkaStreams
@@ -117,11 +114,10 @@ fun main() {
 
     kafkaStreams.start()
     kafkaStreams.use {
-        val health = Health(kafkaStreams)
         initKtor(
             kafkaStreamsMetrics = KafkaStreamsMetrics(kafkaStreams),
             prometheusRegistry = registry,
-            health = health
+            kafkaStreams = kafkaStreams,
         ).start(wait = true)
     }
 }

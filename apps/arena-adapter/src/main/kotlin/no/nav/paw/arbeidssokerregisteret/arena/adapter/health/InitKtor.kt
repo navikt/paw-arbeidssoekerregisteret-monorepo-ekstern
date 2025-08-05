@@ -13,12 +13,15 @@ import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.health.liveness.livenessRoute
+import no.nav.paw.health.probes.isAlive
+import no.nav.paw.health.probes.isReady
 import no.nav.paw.health.readiness.readinessRoute
+import org.apache.kafka.streams.KafkaStreams
 
 fun initKtor(
     kafkaStreamsMetrics: KafkaStreamsMetrics,
     prometheusRegistry: PrometheusMeterRegistry,
-    health: Health
+    kafkaStreams: KafkaStreams,
 ) = embeddedServer(Netty, port = 8080) {
     install(MicrometerMetrics) {
         registry = prometheusRegistry
@@ -30,8 +33,8 @@ fun initKtor(
         )
     }
     routing {
-        livenessRoute({ health.alive() })
-        readinessRoute({ health.ready() })
+        livenessRoute({ kafkaStreams.isAlive() })
+        readinessRoute({ kafkaStreams.isReady() })
         get("/internal/metrics") {
             call.respond(prometheusRegistry.scrape())
         }
