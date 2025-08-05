@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:kafka"))
+    implementation(project(":lib:health"))
     implementation(project(":lib:common-model"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":domain:main-avro-schema"))
