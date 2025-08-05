@@ -33,8 +33,8 @@ fun initKtor(
         )
     }
     routing {
-        livenessRoute(kafkaStreams::isAlive)
-        readinessRoute(kafkaStreams::isReady)
+        livenessRoute({ kafkaStreams.isAlive() })
+        readinessRoute({ kafkaStreams.isReady() })
         get("/metrics") {
             call.respond(prometheusRegistry.scrape())
         }
