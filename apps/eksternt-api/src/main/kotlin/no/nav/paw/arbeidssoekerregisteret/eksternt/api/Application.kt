@@ -62,7 +62,6 @@ fun Application.module(applicationContext: ApplicationContext) {
         applicationContext.scheduledTaskService
     )
     configureRouting(
-        applicationContext.healthIndicatorRepository,
         applicationContext.meterRegistry,
         applicationContext.periodeService
     )

@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":lib:database"))
     implementation(project(":lib:scheduling"))
     implementation(project(":lib:kafka"))
+    implementation(project(":lib:health"))
     implementation(project(":lib:common-model"))
     implementation(project(":domain:main-avro-schema"))
 

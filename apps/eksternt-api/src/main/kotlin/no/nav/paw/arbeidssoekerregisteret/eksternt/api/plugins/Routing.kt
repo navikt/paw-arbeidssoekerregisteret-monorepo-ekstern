@@ -7,16 +7,16 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.routes.periodeRoutes
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.routes.swaggerRoutes
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.PeriodeService
-import no.nav.paw.health.repository.HealthIndicatorRepository
-import no.nav.paw.health.route.healthRoutes
+import no.nav.paw.health.liveness.livenessRoute
+import no.nav.paw.health.readiness.readinessRoute
 
 fun Application.configureRouting(
-    healthIndicatorRepository: HealthIndicatorRepository,
     meterRegistry: PrometheusMeterRegistry,
-    periodeService: PeriodeService
+    periodeService: PeriodeService,
 ) {
     routing {
-        healthRoutes(healthIndicatorRepository)
+        livenessRoute()
+        readinessRoute()
         metricsRoutes(meterRegistry)
         swaggerRoutes()
         periodeRoutes(periodeService)

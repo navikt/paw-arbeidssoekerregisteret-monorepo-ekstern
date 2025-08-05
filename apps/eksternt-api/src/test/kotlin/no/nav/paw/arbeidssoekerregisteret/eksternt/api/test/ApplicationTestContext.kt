@@ -34,7 +34,6 @@ class ApplicationTestContext private constructor(
     val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
     val mockOAuth2Server = MockOAuth2Server()
     val meterRegistryMock: PrometheusMeterRegistry = mockk(relaxed = true)
-    val healthIndicatorRepository = HealthIndicatorRepository()
     val periodeKafkaConsumerMock: KafkaConsumer<Long, Periode> = mockk(relaxed = true)
     val periodeService = PeriodeService(periodeRepository)
     val scheduledTaskService = ScheduledTaskService(meterRegistryMock, periodeRepository)
@@ -44,7 +43,6 @@ class ApplicationTestContext private constructor(
         securityConfig = securityConfig,
         dataSource = dataSource,
         meterRegistry = meterRegistryMock,
-        healthIndicatorRepository = healthIndicatorRepository,
         periodeKafkaConsumer = periodeKafkaConsumerMock,
         periodeService = periodeService,
         scheduledTaskService = scheduledTaskService

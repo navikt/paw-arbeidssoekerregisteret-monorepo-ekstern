@@ -17,7 +17,7 @@ fun Application.configureTestApplication(
         configureSerialization()
         configureHTTP()
         configureMockAuthentication(securityConfig, mockOAuth2Server)
-        configureRouting(healthIndicatorRepository, meterRegistry, periodeService)
+        configureRouting(meterRegistry, periodeService)
     }
 }
 

@@ -15,7 +15,6 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -31,10 +30,9 @@ data class ApplicationContext(
     val securityConfig: SecurityConfig,
     val dataSource: DataSource,
     val meterRegistry: PrometheusMeterRegistry,
-    val healthIndicatorRepository: HealthIndicatorRepository,
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
     val periodeService: PeriodeService,
-    val scheduledTaskService: ScheduledTaskService
+    val scheduledTaskService: ScheduledTaskService,
 ) {
     companion object {
         fun build(): ApplicationContext {
@@ -46,7 +44,6 @@ data class ApplicationContext(
 
             val dataSource = createHikariDataSource(databaseConfig)
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-            val healthIndicatorRepository = HealthIndicatorRepository()
 
             val periodeRepository = PeriodeRepository()
             val periodeService = PeriodeService(periodeRepository)
@@ -66,7 +63,6 @@ data class ApplicationContext(
                 securityConfig = securityConfig,
                 dataSource = dataSource,
                 meterRegistry = meterRegistry,
-                healthIndicatorRepository = healthIndicatorRepository,
                 scheduledTaskService = scheduledTaskService,
                 periodeService = periodeService,
                 periodeKafkaConsumer = periodeKafkaConsumer
