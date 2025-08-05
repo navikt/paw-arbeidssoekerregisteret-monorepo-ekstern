@@ -1,16 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.plugins
 
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.swaggerRoutes
-import no.nav.paw.health.model.HealthStatus
 import no.nav.paw.health.liveness.livenessRoute
 import no.nav.paw.health.readiness.readinessRoute
 
