@@ -6,12 +6,22 @@ import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.swaggerRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.toggleRoutes
-import no.nav.paw.health.route.healthRoutes
+import no.nav.paw.health.liveness.livenessRoute
+import no.nav.paw.health.probes.isAlive
+import no.nav.paw.health.probes.isReady
+import no.nav.paw.health.readiness.readinessRoute
 
 fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {
         routing {
-            healthRoutes(healthIndicatorRepository)
+            livenessRoute(
+                { periodeKafkaStreams.isAlive() },
+                { siste14aVedtakKafkaStreams.isAlive() }
+            )
+            readinessRoute(
+                { periodeKafkaStreams.isReady() },
+                { siste14aVedtakKafkaStreams.isReady() },
+            )
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
             toggleRoutes(applicationConfig, authorizationService, toggleService)

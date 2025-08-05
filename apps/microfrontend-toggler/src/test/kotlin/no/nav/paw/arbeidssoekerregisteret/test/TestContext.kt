@@ -28,7 +28,6 @@ import no.nav.paw.arbeidssoekerregisteret.utils.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
@@ -57,7 +56,6 @@ open class TestContext {
     val beriket14aVedtakSerde = buildBeriket14aVedtakSerde()
     val toggleSerde = buildToggleSerde()
     val prometheusMeterRegistryMock = mockk<PrometheusMeterRegistry>()
-    val healthIndicatorRepository = HealthIndicatorRepository()
     val authorizationService = AuthorizationService()
     val toggleServiceMock = mockk<ToggleService>()
 
@@ -102,7 +100,6 @@ open class TestContext {
                 )
             }),
             prometheusMeterRegistryMock,
-            healthIndicatorRepository,
             authorizationService,
             toggleServiceMock,
             mockk<KafkaStreams>(),

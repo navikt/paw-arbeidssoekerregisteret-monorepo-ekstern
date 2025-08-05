@@ -14,7 +14,6 @@ import no.nav.paw.arbeidssoekerregisteret.utils.buildKafkaStreams
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyOrNullBlocking
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
@@ -27,7 +26,6 @@ data class ApplicationContext(
     val applicationConfig: ApplicationConfig,
     val securityConfig: SecurityConfig,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
-    val healthIndicatorRepository: HealthIndicatorRepository,
     val authorizationService: AuthorizationService,
     val toggleService: ToggleService,
     val periodeKafkaStreams: KafkaStreams,
@@ -41,7 +39,6 @@ data class ApplicationContext(
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG)
 
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-            val healthIndicatorRepository = HealthIndicatorRepository()
 
             val kafkaKeysClient = createKafkaKeyGeneratorClient()
 
@@ -54,7 +51,6 @@ data class ApplicationContext(
             val periodeKafkaStreams = buildKafkaStreams(
                 applicationConfig.kafkaTopology.periodeStreamIdSuffix,
                 kafkaConfig,
-                healthIndicatorRepository,
                 periodeTopology
             )
             val siste14aVedtakTopology = buildSiste14aVedtakTopology(
@@ -64,7 +60,6 @@ data class ApplicationContext(
             val siste14aVedtakKafkaStreams = buildKafkaStreams(
                 applicationConfig.kafkaTopology.siste14aVedtakStreamIdSuffix,
                 kafkaConfig,
-                healthIndicatorRepository,
                 siste14aVedtakTopology
             )
 
@@ -73,7 +68,6 @@ data class ApplicationContext(
                 applicationConfig,
                 securityConfig,
                 prometheusMeterRegistry,
-                healthIndicatorRepository,
                 authorizationService,
                 toggleService,
                 periodeKafkaStreams,
