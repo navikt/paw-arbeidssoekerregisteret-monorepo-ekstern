@@ -43,11 +43,11 @@ spec:
         - host: pdl-api.prod-fss-pub.nais.io
         - host: aareg-services.prod-fss-pub.nais.io
   liveness:
-    path: /isAlive
+    path: /internal/isAlive
     initialDelay: 10
   readiness:
-    path: /isReady
+    path: /internal/isReady
     initialDelay: 10
   prometheus:
     enabled: true
-    path: /metrics
+    path: /internal/metrics
