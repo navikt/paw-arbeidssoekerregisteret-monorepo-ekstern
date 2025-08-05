@@ -10,8 +10,6 @@ import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.profilering.application.APPLICATION_CONFIG_FILE
 import no.nav.paw.arbeidssokerregisteret.profilering.application.ApplicationConfiguration
 import no.nav.paw.arbeidssokerregisteret.profilering.application.applicationTopology
-import no.nav.paw.arbeidssokerregisteret.profilering.health.Health
-import no.nav.paw.arbeidssokerregisteret.profilering.health.initKtor
 import no.nav.paw.arbeidssokerregisteret.profilering.personinfo.PersonInfoTjeneste
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -65,13 +63,11 @@ fun main() {
 
     kafkaStreams.start()
 
-    val health = Health(kafkaStreams)
-
     logger.info("Applikasjon startet")
     initKtor(
         kafkaStreamsMetrics = KafkaStreamsMetrics(kafkaStreams),
         prometheusRegistry = prometheusMeterRegistry,
-        health = health
+        kafkaStreams = kafkaStreams,
     ).start(true)
     logger.info("Applikasjon stoppet")
 }

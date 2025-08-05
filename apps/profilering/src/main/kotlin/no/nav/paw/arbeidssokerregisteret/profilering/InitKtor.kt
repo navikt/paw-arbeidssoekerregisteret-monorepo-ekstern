@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssokerregisteret.profilering.health
+package no.nav.paw.arbeidssokerregisteret.profilering
 
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
@@ -12,11 +12,16 @@ import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.health.liveness.livenessRoute
+import no.nav.paw.health.probes.isAlive
+import no.nav.paw.health.probes.isReady
+import no.nav.paw.health.readiness.readinessRoute
+import org.apache.kafka.streams.KafkaStreams
 
 fun initKtor(
     kafkaStreamsMetrics: KafkaStreamsMetrics,
     prometheusRegistry: PrometheusMeterRegistry,
-    health: Health
+    kafkaStreams: KafkaStreams,
 ) = embeddedServer(Netty, port = 8080) {
     install(MicrometerMetrics) {
         registry = prometheusRegistry
@@ -28,14 +33,8 @@ fun initKtor(
         )
     }
     routing {
-        get("/isReady") {
-            val status = health.ready()
-            call.respond(status.code, status.message)
-        }
-        get("/isAlive") {
-            val alive = health.alive()
-            call.respond(alive.code, alive.message)
-        }
+        livenessRoute(kafkaStreams::isAlive)
+        readinessRoute(kafkaStreams::isReady)
         get("/metrics") {
             call.respond(prometheusRegistry.scrape())
         }
