@@ -73,8 +73,8 @@ dependencies {
     implementation(libs.nav.common.token.client)
     implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
-    implementation("io.ktor:ktor-server-core:3.1.3")
-    implementation("io.ktor:ktor-server-core:3.1.3")
+    implementation("io.ktor:ktor-server-core:3.2.3")
+    implementation("io.ktor:ktor-server-core:3.2.3")
 
     // Test
     testImplementation(libs.ktor.server.test.host)
