@@ -60,6 +60,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureKafka(
         applicationContext.applicationConfig,
         applicationContext.periodeKafkaConsumer,
+        applicationContext.periodeConsumerLivenessProbe,
         applicationContext.opplysningerKafkaConsumer,
         applicationContext.profileringKafkaConsumer,
         applicationContext.egenvurderingKafkaConsumer,
