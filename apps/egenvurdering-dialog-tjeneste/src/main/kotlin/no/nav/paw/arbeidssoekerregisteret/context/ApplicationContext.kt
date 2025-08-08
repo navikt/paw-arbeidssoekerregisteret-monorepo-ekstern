@@ -11,7 +11,6 @@ import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.config.VeilarbdialogClientConfig
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -24,7 +23,6 @@ data class ApplicationContext(
     val serverConfig: ServerConfig,
     val applicationConfig: ApplicationConfig,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
-    val healthIndicatorRepository: HealthIndicatorRepository,
     val egenvurderingAvroDeserializer: Deserializer<Egenvurdering>,
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
@@ -36,11 +34,8 @@ data class ApplicationContext(
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-            val healthIndicatorRepository = HealthIndicatorRepository()
 
-            val kafkaFactory = KafkaFactory(
-                kafkaConfig
-            )
+            val kafkaFactory = KafkaFactory(kafkaConfig)
             val egenvurderingAvroDeserializer: Deserializer<Egenvurdering> = kafkaFactory.kafkaAvroDeSerializer()
             val egenvurderingConsumer = kafkaFactory.createConsumer<Long, Egenvurdering>(
                 groupId = "${applicationConfig.kafkaTopology.applicationIdPrefix}_${applicationConfig.kafkaTopology.consumerVersion}",
@@ -58,7 +53,6 @@ data class ApplicationContext(
                 serverConfig,
                 applicationConfig,
                 prometheusMeterRegistry,
-                healthIndicatorRepository,
                 egenvurderingAvroDeserializer,
                 egenvurderingConsumer,
                 dialogService,

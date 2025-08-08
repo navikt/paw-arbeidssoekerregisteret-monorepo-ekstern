@@ -17,7 +17,6 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.ScheduledTaskSer
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
