@@ -46,6 +46,6 @@ data class DialogRequest(
 )
 
 data class DialogResponse(
-    @JsonProperty("id")
+    @field:JsonProperty("id")
     val dialogId: String
 )

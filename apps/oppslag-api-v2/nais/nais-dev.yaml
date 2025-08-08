@@ -55,15 +55,16 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        - application: tokenx-token-generator
+          namespace: nais
+        - application: azure-token-generator
+          namespace: nais
         - application: paw-brukerstotte
           namespace: paw
-          cluster: dev-gcp
         - application: arbeidssokerregistrering-for-veileder
           namespace: paw
-          cluster: dev-gcp
         - application: arbeidssoekerregisteret-for-personbruker
           namespace: paw
-          cluster: dev-gcp
     outbound:
       rules:
         - application: paw-tilgangskontroll
