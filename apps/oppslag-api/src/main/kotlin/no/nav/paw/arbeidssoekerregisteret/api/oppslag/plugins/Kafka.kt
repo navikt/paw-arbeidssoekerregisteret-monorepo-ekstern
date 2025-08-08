@@ -46,9 +46,9 @@ fun Application.configureKafka(
             }
         }
         successFunction = { periodeConsumerLivenessProbe.markAlive() }
-        errorFunction = {
+        errorFunction = { throwable: Throwable ->
             periodeConsumerLivenessProbe.markUnhealthy()
-            kafkaConsumerHandler::handleException
+            kafkaConsumerHandler.handleException(throwable)
         }
     }
     install(KafkaConsumerPlugin<Long, OpplysningerOmArbeidssoeker>("Opplysninger")) {
@@ -59,7 +59,12 @@ fun Application.configureKafka(
                 opplysningerService.handleRecords(records)
             }
         }
-        errorFunction = kafkaConsumerHandler::handleException
+        successFunction = { opplysningerKafkaConsumerLivenessProbe.markAlive()}
+        errorFunction = { throwable: Throwable ->
+            opplysningerKafkaConsumerLivenessProbe.markUnhealthy()
+            kafkaConsumerHandler.handleException(throwable)
+        }
+
     }
     install(KafkaConsumerPlugin<Long, Profilering>("Profileringer")) {
         kafkaConsumer = profileringKafkaConsumer
@@ -69,7 +74,13 @@ fun Application.configureKafka(
                 profileringService.handleRecords(records)
             }
         }
-        errorFunction = kafkaConsumerHandler::handleException
+        successFunction = {
+            profileringKafkaConsumerLivenessProbe.markAlive()
+        }
+        errorFunction = { throwable: Throwable ->
+            profileringKafkaConsumerLivenessProbe.markUnhealthy()
+            kafkaConsumerHandler.handleException(throwable)
+        }
     }
     install(KafkaConsumerPlugin<Long, Egenvurdering>("Egenvurderinger")) {
         kafkaConsumer = egenvurderingKafkaConsumer
@@ -79,7 +90,11 @@ fun Application.configureKafka(
                 egenvurderingService.handleRecords(records)
             }
         }
-        errorFunction = kafkaConsumerHandler::handleException
+        successFunction = { egenvurderingKafkaConsumerLivenessProbe.markAlive()}
+        errorFunction = { throwable: Throwable ->
+            egenvurderingKafkaConsumerLivenessProbe.markUnhealthy()
+            kafkaConsumerHandler.handleException(throwable)
+        }
     }
     install(KafkaConsumerPlugin<Long, Bekreftelse>("Bekreftelser")) {
         kafkaConsumer = bekreftelseKafkaConsumer
@@ -89,6 +104,10 @@ fun Application.configureKafka(
                 bekreftelseService.handleRecords(records)
             }
         }
-        errorFunction = kafkaConsumerHandler::handleException
+        successFunction = { bekreftelseKafkaConsumerLivenessProbe.markAlive()}
+        errorFunction = { throwable: Throwable ->
+            bekreftelseKafkaConsumerLivenessProbe.markUnhealthy()
+            kafkaConsumerHandler.handleException(throwable)
+        }
     }
 }

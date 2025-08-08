@@ -28,9 +28,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.EgenvurderingDeseria
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringDeserializer
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.client.config.AZURE_M2M_CONFIG
@@ -40,11 +40,7 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
-import no.nav.paw.health.model.HealthStatus
-import no.nav.paw.health.model.LivenessHealthIndicator
-import no.nav.paw.health.model.ReadinessHealthIndicator
 import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -65,7 +61,6 @@ data class ApplicationContext(
     val kafkaConfig: KafkaConfig,
     val dataSource: DataSource,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
-    val healthIndicatorRepository: HealthIndicatorRepository,
     val metricsService: MetricsService,
     val authorizationService: AuthorizationService,
     val periodeService: PeriodeService,
@@ -99,7 +94,6 @@ data class ApplicationContext(
 
             val dataSource = createHikariDataSource(databaseConfig)
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-            val healthIndicatorRepository = HealthIndicatorRepository()
 
             val periodeRepository = PeriodeRepository(prometheusMeterRegistry)
             val opplysningerRepository = OpplysningerRepository()
@@ -202,10 +196,7 @@ data class ApplicationContext(
             )
             val egenvurderingKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
-            val kafkaConsumerHandler = KafkaConsumerHandler(
-                healthIndicatorRepository.addLivenessIndicator(LivenessHealthIndicator(HealthStatus.HEALTHY)),
-                healthIndicatorRepository.addReadinessIndicator(ReadinessHealthIndicator(HealthStatus.HEALTHY))
-            )
+            val kafkaConsumerHandler = KafkaConsumerHandler()
 
 
             return ApplicationContext(
@@ -215,7 +206,6 @@ data class ApplicationContext(
                 kafkaConfig = kafkaConfig,
                 dataSource = dataSource,
                 prometheusMeterRegistry = prometheusMeterRegistry,
-                healthIndicatorRepository = healthIndicatorRepository,
                 metricsService = metricsService,
                 authorizationService = authorizationService,
                 periodeService = periodeService,
