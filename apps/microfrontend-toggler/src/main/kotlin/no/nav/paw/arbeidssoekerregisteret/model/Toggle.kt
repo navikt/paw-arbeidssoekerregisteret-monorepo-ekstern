@@ -22,11 +22,11 @@ enum class Sensitivitet(@get:JsonValue val value: String) {
 }
 
 data class Toggle(
-    @JsonProperty("@action") val action: ToggleAction,
+    @field:JsonProperty("@action") val action: ToggleAction,
     val ident: String,
-    @JsonProperty("microfrontend_id") val microfrontendId: String,
+    @field:JsonProperty("microfrontend_id") val microfrontendId: String,
     val sensitivitet: Sensitivitet? = null,
-    @JsonProperty("@initiated_by") val initialedBy: String
+    @field:JsonProperty("@initiated_by") val initialedBy: String
 )
 
 fun Toggle.buildRecord(arbeidssoekerId: Long): Record<Long, Toggle> {
@@ -38,8 +38,8 @@ fun Toggle.buildRecord(arbeidssoekerId: Long): Record<Long, Toggle> {
 }
 
 data class ToggleRequest(
-    @JsonProperty("@action") val action: ToggleAction,
-    @JsonProperty("microfrontend_id") val microfrontendId: String
+    @field:JsonProperty("@action") val action: ToggleAction,
+    @field:JsonProperty("microfrontend_id") val microfrontendId: String
 )
 
 fun ToggleRequest.buildToggle(

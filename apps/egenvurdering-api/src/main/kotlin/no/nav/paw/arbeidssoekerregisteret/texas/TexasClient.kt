@@ -42,14 +42,14 @@ class TexasClient(
 class TokenExchangeException(message: String) : RuntimeException(message)
 
 data class OnBehalfOfRequest(
-    @JsonProperty("user_token")
+    @field:JsonProperty("user_token")
     val userToken: String,
-    @JsonProperty("identity_provider")
+    @field:JsonProperty("identity_provider")
     val identityProvider: String,
     val target: String,
 )
 
 data class OnBehalfOfResponse(
-    @JsonProperty("access_token")
+    @field:JsonProperty("access_token")
     val accessToken: String,
 )
