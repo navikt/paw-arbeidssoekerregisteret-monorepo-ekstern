@@ -12,7 +12,6 @@ import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -29,7 +28,6 @@ data class ApplicationContext(
     val applicationConfig: ApplicationConfig,
     val securityConfig: SecurityConfig,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
-    val healthIndicatorRepository: HealthIndicatorRepository,
     val authorizationService: AuthorizationService,
     val kafkaKeysClient: KafkaKeysClient,
     val egenvurderingService: EgenvurderingService,
@@ -44,7 +42,6 @@ data class ApplicationContext(
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-            val healthIndicatorRepository = HealthIndicatorRepository()
 
             val kafkaKeysClient = createKafkaKeyGeneratorClient()
             val texasClient = TexasClient(
@@ -73,7 +70,6 @@ data class ApplicationContext(
                 applicationConfig,
                 securityConfig,
                 prometheusMeterRegistry,
-                healthIndicatorRepository,
                 authorizationService,
                 kafkaKeysClient,
                 egenvurderingService,

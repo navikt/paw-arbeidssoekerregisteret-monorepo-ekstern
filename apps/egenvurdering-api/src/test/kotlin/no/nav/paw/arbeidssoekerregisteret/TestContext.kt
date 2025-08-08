@@ -23,7 +23,6 @@ import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
@@ -42,7 +41,6 @@ open class TestContext {
     val meterRegistry = SimpleMeterRegistry()
     val kafkaKeysClientMock = mockk<KafkaKeysClient>()
     val prometheusMeterRegistryMock = mockk<PrometheusMeterRegistry>()
-    val healthIndicatorRepository = HealthIndicatorRepository()
     val authorizationService = AuthorizationService()
     val egenvurderingService = mockk<EgenvurderingService>().also {
         coEvery { it.getEgenvurderingGrunnlag(any()) } returns EgenvurderingGrunnlag(grunnlag = null)
@@ -59,7 +57,6 @@ open class TestContext {
                 )
             }),
             prometheusMeterRegistryMock,
-            healthIndicatorRepository,
             authorizationService,
             kafkaKeysClientMock,
             egenvurderingService,
