@@ -17,16 +17,19 @@ import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
 import no.nav.paw.kafka.plugin.KafkaConsumerPlugin
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import java.util.concurrent.atomic.AtomicBoolean
 
 fun Application.configureKafka(
     applicationConfig: ApplicationConfig,
     periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
     periodeConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
+    opplysningerKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
+    profileringKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     egenvurderingKafkaConsumer: KafkaConsumer<Long, Egenvurdering>,
+    egenvurderingKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
+    bekreftelseKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     kafkaConsumerHandler: KafkaConsumerHandler,
     periodeService: PeriodeService,
     opplysningerService: OpplysningerService,

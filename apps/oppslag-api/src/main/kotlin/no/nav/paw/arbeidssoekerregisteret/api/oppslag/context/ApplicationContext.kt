@@ -74,11 +74,15 @@ data class ApplicationContext(
     val bekreftelseService: BekreftelseService,
     val egenvurderingService: EgenvurderingService,
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
-    val periodeConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val periodeKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
+    val opplysningerKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
+    val profileringKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
+    val bekreftelseKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val egenvurderingKafkaConsumer: KafkaConsumer<Long, Egenvurdering>,
+    val egenvurderingKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val kafkaConsumerHandler: KafkaConsumerHandler,
 ) {
     companion object {
@@ -143,7 +147,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class
             )
-            val periodeConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+            val periodeKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
             // Opplysninger avhengigheter
             val opplysningerService = OpplysningerService(
@@ -156,6 +160,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
             )
+            val opplysningsKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
             // Profileringer avhengigheter
             val profileringService = ProfileringService(
@@ -168,6 +173,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = ProfileringDeserializer::class
             )
+            val profileringKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
             // Bekreftelser avhengigheter
             val bekreftelseService = BekreftelseService(
@@ -180,6 +186,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = BekreftelseDeserializer::class
             )
+            val bekreftelseKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
             // Egenvurderinger avhengigheter
             val egenvurderingService = EgenvurderingService(
@@ -193,6 +200,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = EgenvurderingDeserializer::class
             )
+            val egenvurderingKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
             val kafkaConsumerHandler = KafkaConsumerHandler(
                 healthIndicatorRepository.addLivenessIndicator(LivenessHealthIndicator(HealthStatus.HEALTHY)),
@@ -216,11 +224,15 @@ data class ApplicationContext(
                 bekreftelseService = bekreftelseService,
                 egenvurderingService = egenvurderingService,
                 periodeKafkaConsumer = periodeKafkaConsumer,
-                periodeConsumerLivenessProbe = periodeConsumerLivenessProbe,
+                periodeKafkaConsumerLivenessProbe = periodeKafkaConsumerLivenessProbe,
                 opplysningerKafkaConsumer = opplysningerKafkaConsumer,
+                opplysningerKafkaConsumerLivenessProbe = opplysningsKafkaConsumerLivenessProbe,
                 profileringKafkaConsumer = profileringKafkaConsumer,
+                profileringKafkaConsumerLivenessProbe = profileringKafkaConsumerLivenessProbe,
                 bekreftelseKafkaConsumer = bekreftelseKafkaConsumer,
+                bekreftelseKafkaConsumerLivenessProbe = bekreftelseKafkaConsumerLivenessProbe,
                 egenvurderingKafkaConsumer = egenvurderingKafkaConsumer,
+                egenvurderingKafkaConsumerLivenessProbe = egenvurderingKafkaConsumerLivenessProbe,
                 kafkaConsumerHandler = kafkaConsumerHandler
             )
         }
