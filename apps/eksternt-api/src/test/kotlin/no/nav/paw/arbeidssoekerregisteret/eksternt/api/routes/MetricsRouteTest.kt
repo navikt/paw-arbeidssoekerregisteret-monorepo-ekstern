@@ -7,8 +7,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.health.repository.HealthIndicatorRepository
-import no.nav.paw.health.route.healthRoutes
 
 class MetricsRouteTest : FreeSpec({
     "Skal svare med 200 OK" {
