@@ -11,36 +11,42 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.perioderRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.profileringRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.samletInformasjonRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.swaggerRoutes
+import no.nav.paw.health.liveness.livenessRoute
 import no.nav.paw.health.route.healthRoutes
 
 fun Application.configureRouting(applicationContext: ApplicationContext) {
-    routing {
-        healthRoutes(applicationContext.healthIndicatorRepository)
-        metricsRoutes(applicationContext.prometheusMeterRegistry)
-        swaggerRoutes()
-        perioderRoutes(
-            applicationContext.authorizationService,
-            applicationContext.periodeService
-        )
-        opplysningerRoutes(
-            applicationContext.authorizationService,
-            applicationContext.opplysningerService
-        )
-        profileringRoutes(
-            applicationContext.authorizationService,
-            applicationContext.profileringService,
-            applicationContext.egenvurderingService
-        )
-        samletInformasjonRoutes(
-            applicationContext.authorizationService,
-            applicationContext.periodeService,
-            applicationContext.opplysningerService,
-            applicationContext.profileringService,
-            applicationContext.bekreftelseService
-        )
-        bekreftelseRoutes(
-            applicationContext.authorizationService,
-            applicationContext.bekreftelseService
-        )
+    with(applicationContext) {
+        routing {
+            livenessRoute(
+                { periodeConsumerLivenessProbe.isRunning() },
+            )
+            healthRoutes(healthIndicatorRepository)
+            metricsRoutes(prometheusMeterRegistry)
+            swaggerRoutes()
+            perioderRoutes(
+                authorizationService,
+                periodeService
+            )
+            opplysningerRoutes(
+                authorizationService,
+                opplysningerService
+            )
+            profileringRoutes(
+                authorizationService,
+                profileringService,
+                egenvurderingService
+            )
+            samletInformasjonRoutes(
+                authorizationService,
+                periodeService,
+                opplysningerService,
+                profileringService,
+                bekreftelseService
+            )
+            bekreftelseRoutes(
+                authorizationService,
+                bekreftelseService
+            )
+        }
     }
 }

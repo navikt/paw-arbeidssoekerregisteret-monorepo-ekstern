@@ -43,6 +43,7 @@ import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.health.model.HealthStatus
 import no.nav.paw.health.model.LivenessHealthIndicator
 import no.nav.paw.health.model.ReadinessHealthIndicator
+import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
 import no.nav.paw.health.repository.HealthIndicatorRepository
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -73,11 +74,12 @@ data class ApplicationContext(
     val bekreftelseService: BekreftelseService,
     val egenvurderingService: EgenvurderingService,
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
+    val periodeConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
     val profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
     val bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
     val egenvurderingKafkaConsumer: KafkaConsumer<Long, Egenvurdering>,
-    val kafkaConsumerHandler: KafkaConsumerHandler
+    val kafkaConsumerHandler: KafkaConsumerHandler,
 ) {
     companion object {
         fun build(): ApplicationContext {
@@ -141,6 +143,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class
             )
+            val periodeConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
             // Opplysninger avhengigheter
             val opplysningerService = OpplysningerService(
@@ -196,6 +199,7 @@ data class ApplicationContext(
                 healthIndicatorRepository.addReadinessIndicator(ReadinessHealthIndicator(HealthStatus.HEALTHY))
             )
 
+
             return ApplicationContext(
                 serverConfig = serverConfig,
                 applicationConfig = applicationConfig,
@@ -212,6 +216,7 @@ data class ApplicationContext(
                 bekreftelseService = bekreftelseService,
                 egenvurderingService = egenvurderingService,
                 periodeKafkaConsumer = periodeKafkaConsumer,
+                periodeConsumerLivenessProbe = periodeConsumerLivenessProbe,
                 opplysningerKafkaConsumer = opplysningerKafkaConsumer,
                 profileringKafkaConsumer = profileringKafkaConsumer,
                 bekreftelseKafkaConsumer = bekreftelseKafkaConsumer,

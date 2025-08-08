@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:pdl-client"))
     implementation(project(":lib:tilgangskontroll-client"))
+    implementation(project(":lib:health"))
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 

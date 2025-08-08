@@ -14,12 +14,15 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
+import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
 import no.nav.paw.kafka.plugin.KafkaConsumerPlugin
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import java.util.concurrent.atomic.AtomicBoolean
 
 fun Application.configureKafka(
     applicationConfig: ApplicationConfig,
     periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
+    periodeConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
     profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
     egenvurderingKafkaConsumer: KafkaConsumer<Long, Egenvurdering>,
@@ -29,7 +32,7 @@ fun Application.configureKafka(
     opplysningerService: OpplysningerService,
     profileringService: ProfileringService,
     egenvurderingService: EgenvurderingService,
-    bekreftelseService: BekreftelseService
+    bekreftelseService: BekreftelseService,
 ) {
     install(KafkaConsumerPlugin<Long, Periode>("Perioder")) {
         kafkaConsumer = periodeKafkaConsumer
@@ -39,7 +42,11 @@ fun Application.configureKafka(
                 periodeService.handleRecords(records)
             }
         }
-        errorFunction = kafkaConsumerHandler::handleException
+        successFunction = { periodeConsumerLivenessProbe.markAlive() }
+        errorFunction = {
+            periodeConsumerLivenessProbe.markUnhealthy()
+            kafkaConsumerHandler::handleException
+        }
     }
     install(KafkaConsumerPlugin<Long, OpplysningerOmArbeidssoeker>("Opplysninger")) {
         kafkaConsumer = opplysningerKafkaConsumer
