@@ -18,7 +18,7 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {
         routing {
             livenessRoute(
-                { periodeConsumerLivenessProbe.isRunning() },
+                { periodeKafkaConsumerLivenessProbe.isRunning() },
             )
             healthRoutes(healthIndicatorRepository)
             metricsRoutes(prometheusMeterRegistry)

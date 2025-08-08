@@ -43,34 +43,40 @@ fun main() {
 }
 
 fun Application.module(applicationContext: ApplicationContext) {
-    configureHTTP()
-    configureLogging()
-    configureSerialization()
-    configureMetrics(
-        applicationContext.prometheusMeterRegistry,
-        applicationContext.periodeKafkaConsumer,
-        applicationContext.opplysningerKafkaConsumer,
-        applicationContext.profileringKafkaConsumer,
-        applicationContext.egenvurderingKafkaConsumer,
-        applicationContext.bekreftelseKafkaConsumer
-    )
-    configureAuthentication(applicationContext.securityConfig)
-    configureDatabase(applicationContext.dataSource)
-    configureScheduledTask(applicationContext.applicationConfig, applicationContext.metricsService)
-    configureKafka(
-        applicationContext.applicationConfig,
-        applicationContext.periodeKafkaConsumer,
-        applicationContext.periodeConsumerLivenessProbe,
-        applicationContext.opplysningerKafkaConsumer,
-        applicationContext.profileringKafkaConsumer,
-        applicationContext.egenvurderingKafkaConsumer,
-        applicationContext.bekreftelseKafkaConsumer,
-        applicationContext.kafkaConsumerHandler,
-        applicationContext.periodeService,
-        applicationContext.opplysningerService,
-        applicationContext.profileringService,
-        applicationContext.egenvurderingService,
-        applicationContext.bekreftelseService
-    )
-    configureRouting(applicationContext)
+    with(applicationContext) {
+        configureHTTP()
+        configureLogging()
+        configureSerialization()
+        configureMetrics(
+            prometheusMeterRegistry,
+            periodeKafkaConsumer,
+            opplysningerKafkaConsumer,
+            profileringKafkaConsumer,
+            egenvurderingKafkaConsumer,
+            bekreftelseKafkaConsumer
+        )
+        configureAuthentication(securityConfig)
+        configureDatabase(dataSource)
+        configureScheduledTask(applicationConfig, metricsService)
+        configureKafka(
+            applicationConfig = applicationConfig,
+            periodeKafkaConsumer = periodeKafkaConsumer,
+            periodeConsumerLivenessProbe = periodeKafkaConsumerLivenessProbe,
+            opplysningerKafkaConsumer = opplysningerKafkaConsumer,
+            opplysningerKafkaConsumerLivenessProbe = opplysningerKafkaConsumerLivenessProbe,
+            profileringKafkaConsumer = profileringKafkaConsumer,
+            profileringKafkaConsumerLivenessProbe = profileringKafkaConsumerLivenessProbe,
+            egenvurderingKafkaConsumer = egenvurderingKafkaConsumer,
+            egenvurderingKafkaConsumerLivenessProbe = egenvurderingKafkaConsumerLivenessProbe,
+            bekreftelseKafkaConsumer = bekreftelseKafkaConsumer,
+            bekreftelseKafkaConsumerLivenessProbe = bekreftelseKafkaConsumerLivenessProbe,
+            kafkaConsumerHandler = kafkaConsumerHandler,
+            periodeService = periodeService,
+            opplysningerService = opplysningerService,
+            profileringService = profileringService,
+            egenvurderingService = egenvurderingService,
+            bekreftelseService = bekreftelseService
+        )
+        configureRouting(applicationContext)
+    }
 }
