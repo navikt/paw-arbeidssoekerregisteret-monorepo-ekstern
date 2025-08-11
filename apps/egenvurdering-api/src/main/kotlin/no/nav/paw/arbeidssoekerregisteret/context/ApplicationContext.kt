@@ -2,7 +2,6 @@ package no.nav.paw.arbeidssoekerregisteret.context
 
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.texas.TexasClient
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
@@ -11,6 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
+import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -19,6 +19,7 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
+import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.Serializer
@@ -45,7 +46,8 @@ data class ApplicationContext(
 
             val kafkaKeysClient = createKafkaKeyGeneratorClient()
             val texasClient = TexasClient(
-                applicationConfig.texasClientConfig
+                applicationConfig.texasClientConfig,
+                httpClient = createHttpClient(),
             )
 
             val oppslagsClient = ApiOppslagClient(applicationConfig.oppslagApiConfig.url)

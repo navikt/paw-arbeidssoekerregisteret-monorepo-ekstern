@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
-import no.nav.paw.arbeidssoekerregisteret.texas.TexasClientConfig
+import no.nav.paw.security.texas.TexasClientConfig
 
 const val APPLICATION_CONFIG = "application_config.toml"
 

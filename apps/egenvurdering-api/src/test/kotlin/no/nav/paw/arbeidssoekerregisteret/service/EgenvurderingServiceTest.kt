@@ -5,8 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.paw.arbeidssoekerregisteret.texas.OnBehalfOfResponse
-import no.nav.paw.arbeidssoekerregisteret.texas.TexasClient
+
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.client.api.oppslag.models.AnnetResponse
 import no.nav.paw.client.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
@@ -25,6 +24,8 @@ import no.nav.paw.client.api.oppslag.models.ProfileringsResultat
 import no.nav.paw.client.api.oppslag.models.TidspunktFraKildeResponse
 import no.nav.paw.client.api.oppslag.models.UtdanningResponse
 import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.security.texas.OnBehalfOfResponse
+import no.nav.paw.security.texas.TexasClient
 import java.time.Instant
 import java.util.UUID
 

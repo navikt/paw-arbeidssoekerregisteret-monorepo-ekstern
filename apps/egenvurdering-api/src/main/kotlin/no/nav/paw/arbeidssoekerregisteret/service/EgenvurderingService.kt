@@ -1,7 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.service
 
 import io.ktor.server.plugins.BadRequestException
-import no.nav.paw.arbeidssoekerregisteret.texas.TexasClient
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
@@ -14,7 +13,6 @@ import no.nav.paw.arbeidssoekerregisteret.utils.toProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
-import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -23,10 +21,12 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.ACR
 import no.nav.paw.security.authentication.token.AccessToken
+import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
 import java.util.*
+import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 
 class EgenvurderingService(
     private val applicationConfig: ApplicationConfig,
@@ -51,7 +51,11 @@ class EgenvurderingService(
         }
     }
 
-    suspend fun postEgenvurdering(identitetsnummer: Identitetsnummer, request: EgenvurderingRequest, accessToken: AccessToken) {
+    suspend fun postEgenvurdering(
+        identitetsnummer: Identitetsnummer,
+        request: EgenvurderingRequest,
+        accessToken: AccessToken,
+    ) {
         val exchangedToken = texasClient.getOnBehalfOfToken(accessToken.jwt).accessToken
         val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
 
