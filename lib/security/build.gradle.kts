@@ -19,7 +19,6 @@ dependencies {
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.client.content.negotiation)
-    testImplementation(libs.ktor.serialization.jackson)
     testImplementation(libs.jackson.datatype.jsr310)
 }
 
