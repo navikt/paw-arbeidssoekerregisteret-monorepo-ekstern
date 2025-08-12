@@ -36,12 +36,12 @@ class KafkaFactory(private val config: KafkaConfig) {
     ): Producer<K, V> =
         KafkaProducer(
             baseProperties +
-                    mapOf(
-                        ProducerConfig.ACKS_CONFIG to acks,
-                        ProducerConfig.CLIENT_ID_CONFIG to clientId,
-                        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to keySerializer.java,
-                        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to valueSerializer.java
-                    )
+                mapOf(
+                    ProducerConfig.ACKS_CONFIG to acks,
+                    ProducerConfig.CLIENT_ID_CONFIG to clientId,
+                    ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to keySerializer.java,
+                    ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to valueSerializer.java
+                )
         )
 
     fun <K : Any, V : Any> createConsumer(
@@ -50,20 +50,18 @@ class KafkaFactory(private val config: KafkaConfig) {
         keyDeserializer: KClass<out Deserializer<K>>,
         valueDeserializer: KClass<out Deserializer<V>>,
         autoCommit: Boolean = false,
-        autoOffsetReset: String = "earliest",
-        maxPollrecords: Int = ConsumerConfig.DEFAULT_MAX_POLL_RECORDS
+        autoOffsetReset: String = "earliest"
     ): KafkaConsumer<K, V> =
         KafkaConsumer(
             baseProperties +
-                    mapOf(
-                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to autoCommit,
-                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to autoOffsetReset,
-                        ConsumerConfig.GROUP_ID_CONFIG to groupId,
-                        ConsumerConfig.CLIENT_ID_CONFIG to clientId,
-                        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to keyDeserializer.java,
-                        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to valueDeserializer.java,
-                        ConsumerConfig.MAX_POLL_RECORDS_CONFIG to maxPollrecords
-                    )
+                mapOf(
+                    ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to autoCommit,
+                    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to autoOffsetReset,
+                    ConsumerConfig.GROUP_ID_CONFIG to groupId,
+                    ConsumerConfig.CLIENT_ID_CONFIG to clientId,
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to keyDeserializer.java,
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to valueDeserializer.java
+                )
         )
 
     private fun authenticationConfig(config: KafkaAuthenticationConfig): Map<String, Any> =
@@ -93,23 +91,23 @@ class KafkaFactory(private val config: KafkaConfig) {
             }
         }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T> kafkaAvroDeSerializer(): Deserializer<T> {
-        val map: Map<String, Any> = baseProperties.toMap().mapKeys { it.key.toString() }
-        val deserializer = KafkaAvroDeserializer().apply {
-            configure(map, false)
+        @Suppress("UNCHECKED_CAST")
+        fun <T> kafkaAvroDeSerializer(): Deserializer<T> {
+            val map: Map<String, Any> = baseProperties.toMap().mapKeys { it.key.toString() }
+            val deserializer = KafkaAvroDeserializer().apply {
+                configure(map, false)
+            }
+            return deserializer as Deserializer<T>
         }
-        return deserializer as Deserializer<T>
-    }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T> kafkaAvroSerializer(): Serializer<T> {
-        val map: Map<String, Any> = baseProperties.toMap().mapKeys { it.key.toString() }
-        val serializer = KafkaAvroSerializer().apply {
-            configure(map, false)
+        @Suppress("UNCHECKED_CAST")
+        fun <T> kafkaAvroSerializer(): Serializer<T> {
+            val map: Map<String, Any> = baseProperties.toMap().mapKeys { it.key.toString() }
+            val serializer = KafkaAvroSerializer().apply {
+                configure(map, false)
+            }
+            return serializer as Serializer<T>
         }
-        return serializer as Serializer<T>
-    }
 }
 
 operator fun Properties.plus(other: Map<String, Any>): Properties =
