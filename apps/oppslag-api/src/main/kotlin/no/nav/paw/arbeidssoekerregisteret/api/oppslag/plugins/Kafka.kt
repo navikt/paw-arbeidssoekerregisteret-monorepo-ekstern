@@ -45,7 +45,10 @@ fun Application.configureKafka(
                 periodeService.handleRecords(records)
             }
         }
-        successFunction = { periodeConsumerLivenessProbe.markAlive() }
+        successFunction = {
+            periodeKafkaConsumer.commitSync()
+            periodeConsumerLivenessProbe.markAlive()
+        }
         errorFunction = { throwable: Throwable ->
             periodeConsumerLivenessProbe.markUnhealthy()
             kafkaConsumerHandler.handleException(throwable)
