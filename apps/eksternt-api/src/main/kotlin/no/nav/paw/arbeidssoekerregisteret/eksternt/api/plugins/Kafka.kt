@@ -17,6 +17,5 @@ fun Application.configureKafka(
         kafkaConsumer = periodeKafkaConsumer
         kafkaTopics = listOf(applicationConfig.periodeTopic)
         consumeFunction = periodeService::handleRecords
-        successFunction = { periodeKafkaConsumer.commitSync() }
     }
 }
