@@ -140,7 +140,7 @@ data class ApplicationContext(
                 clientId = "${applicationConfig.perioderGroupId}-perioder-consumer",
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class,
-                maxPollrecords = 10
+                maxPollrecords = 1
             )
             val periodeKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
