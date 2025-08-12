@@ -15,6 +15,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
+import no.nav.paw.kafka.consumer.defaultSuccessFunction
 import no.nav.paw.kafka.plugin.KafkaConsumerPlugin
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
@@ -46,7 +47,7 @@ fun Application.configureKafka(
             }
         }
         successFunction = {
-            periodeKafkaConsumer.commitSync()
+            if (!it.isEmpty) periodeKafkaConsumer.commitSync()
             periodeConsumerLivenessProbe.markAlive()
         }
         errorFunction = { throwable: Throwable ->
@@ -63,7 +64,7 @@ fun Application.configureKafka(
             }
         }
         successFunction = {
-            periodeKafkaConsumer.commitSync()
+            if (!it.isEmpty) opplysningerKafkaConsumer.commitSync()
             opplysningerKafkaConsumerLivenessProbe.markAlive()
         }
         errorFunction = { throwable: Throwable ->
@@ -81,7 +82,7 @@ fun Application.configureKafka(
             }
         }
         successFunction = {
-            periodeKafkaConsumer.commitSync()
+            if (!it.isEmpty) profileringKafkaConsumer.commitSync()
             profileringKafkaConsumerLivenessProbe.markAlive()
         }
         errorFunction = { throwable: Throwable ->
@@ -98,7 +99,7 @@ fun Application.configureKafka(
             }
         }
         successFunction = {
-            periodeKafkaConsumer.commitSync()
+            if (!it.isEmpty) egenvurderingKafkaConsumer.commitSync()
             egenvurderingKafkaConsumerLivenessProbe.markAlive()
         }
         errorFunction = { throwable: Throwable ->
@@ -115,7 +116,7 @@ fun Application.configureKafka(
             }
         }
         successFunction = {
-            periodeKafkaConsumer.commitSync()
+            if (!it.isEmpty) bekreftelseKafkaConsumer.commitSync()
             bekreftelseKafkaConsumerLivenessProbe.markAlive()
         }
         errorFunction = { throwable: Throwable ->
