@@ -62,7 +62,10 @@ fun Application.configureKafka(
                 opplysningerService.handleRecords(records)
             }
         }
-        successFunction = { opplysningerKafkaConsumerLivenessProbe.markAlive()}
+        successFunction = {
+            periodeKafkaConsumer.commitSync()
+            opplysningerKafkaConsumerLivenessProbe.markAlive()
+        }
         errorFunction = { throwable: Throwable ->
             opplysningerKafkaConsumerLivenessProbe.markUnhealthy()
             kafkaConsumerHandler.handleException(throwable)
@@ -78,6 +81,7 @@ fun Application.configureKafka(
             }
         }
         successFunction = {
+            periodeKafkaConsumer.commitSync()
             profileringKafkaConsumerLivenessProbe.markAlive()
         }
         errorFunction = { throwable: Throwable ->
@@ -93,7 +97,10 @@ fun Application.configureKafka(
                 egenvurderingService.handleRecords(records)
             }
         }
-        successFunction = { egenvurderingKafkaConsumerLivenessProbe.markAlive()}
+        successFunction = {
+            periodeKafkaConsumer.commitSync()
+            egenvurderingKafkaConsumerLivenessProbe.markAlive()
+        }
         errorFunction = { throwable: Throwable ->
             egenvurderingKafkaConsumerLivenessProbe.markUnhealthy()
             kafkaConsumerHandler.handleException(throwable)
@@ -107,7 +114,10 @@ fun Application.configureKafka(
                 bekreftelseService.handleRecords(records)
             }
         }
-        successFunction = { bekreftelseKafkaConsumerLivenessProbe.markAlive()}
+        successFunction = {
+            periodeKafkaConsumer.commitSync()
+            bekreftelseKafkaConsumerLivenessProbe.markAlive()
+        }
         errorFunction = { throwable: Throwable ->
             bekreftelseKafkaConsumerLivenessProbe.markUnhealthy()
             kafkaConsumerHandler.handleException(throwable)
