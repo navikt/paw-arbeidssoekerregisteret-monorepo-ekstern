@@ -152,7 +152,8 @@ data class ApplicationContext(
                 groupId = applicationConfig.opplysningerGroupId,
                 clientId = "${applicationConfig.opplysningerGroupId}-opplysninger-consumer",
                 keyDeserializer = LongDeserializer::class,
-                valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class
+                valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class,
+                maxPollrecords = 100
             )
             val opplysningsKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
