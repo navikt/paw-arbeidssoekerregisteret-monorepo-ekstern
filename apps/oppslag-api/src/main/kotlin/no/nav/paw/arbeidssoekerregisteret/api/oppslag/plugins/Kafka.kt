@@ -54,7 +54,6 @@ fun Application.configureKafka(
             kafkaConsumerHandler.handleException(throwable)
         }
     }
-    /*
     install(KafkaConsumerPlugin<Long, OpplysningerOmArbeidssoeker>("Opplysninger")) {
         kafkaConsumer = opplysningerKafkaConsumer
         kafkaTopics = listOf(applicationConfig.opplysningerTopic)
@@ -113,5 +112,5 @@ fun Application.configureKafka(
             bekreftelseKafkaConsumerLivenessProbe.markUnhealthy()
             kafkaConsumerHandler.handleException(throwable)
         }
-    }*/
+    }
 }

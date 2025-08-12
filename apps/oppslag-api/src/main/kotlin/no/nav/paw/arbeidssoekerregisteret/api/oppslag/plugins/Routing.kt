@@ -19,17 +19,17 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
         routing {
             livenessRoute(
                 { periodeKafkaConsumerLivenessProbe.isRunning() },
-                //{ opplysningerKafkaConsumerLivenessProbe.isRunning() },
-                //{ profileringKafkaConsumerLivenessProbe.isRunning() },
-                //{ bekreftelseKafkaConsumerLivenessProbe.isRunning() },
-                //{ egenvurderingKafkaConsumerLivenessProbe.isRunning() },
+                { opplysningerKafkaConsumerLivenessProbe.isRunning() },
+                { profileringKafkaConsumerLivenessProbe.isRunning() },
+                { bekreftelseKafkaConsumerLivenessProbe.isRunning() },
+                { egenvurderingKafkaConsumerLivenessProbe.isRunning() },
             )
             readinessRoute(
                 { periodeKafkaConsumerLivenessProbe.isRunning() },
-                //{ opplysningerKafkaConsumerLivenessProbe.isRunning() },
-                //{ profileringKafkaConsumerLivenessProbe.isRunning() },
-                //{ bekreftelseKafkaConsumerLivenessProbe.isRunning() },
-                //{ egenvurderingKafkaConsumerLivenessProbe.isRunning() },
+                { opplysningerKafkaConsumerLivenessProbe.isRunning() },
+                { profileringKafkaConsumerLivenessProbe.isRunning() },
+                { bekreftelseKafkaConsumerLivenessProbe.isRunning() },
+                { egenvurderingKafkaConsumerLivenessProbe.isRunning() },
             )
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
