@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.mockk
-
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.client.api.oppslag.models.AnnetResponse
 import no.nav.paw.client.api.oppslag.models.ArbeidssoekerperiodeAggregertResponse
@@ -24,23 +23,30 @@ import no.nav.paw.client.api.oppslag.models.ProfileringsResultat
 import no.nav.paw.client.api.oppslag.models.TidspunktFraKildeResponse
 import no.nav.paw.client.api.oppslag.models.UtdanningResponse
 import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.security.authentication.model.Claims
+import no.nav.paw.security.authentication.model.TokenX
+import no.nav.paw.security.authentication.token.AccessToken
 import no.nav.paw.security.texas.OnBehalfOfResponse
 import no.nav.paw.security.texas.TexasClient
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 class EgenvurderingServiceTest : FreeSpec({
-    val userToken = "userToken"
-    val texasClientMock = mockk<TexasClient>().also { texasClient ->
-        coEvery { texasClient.getOnBehalfOfToken(userToken) } returns OnBehalfOfResponse(accessToken = "vekslet_token")
+    val accessToken = AccessToken(
+        jwt = "dummy-jwt",
+        issuer = TokenX,
+        claims = Claims(emptyMap()),
+    )
+    val texasClientMock = mockk<TexasClient>(relaxed = true).also { texasClient ->
+        coEvery { texasClient.exchangeOnBehalfOfBrukerToken(any()) } returns OnBehalfOfResponse("vekslet-token")
     }
     val oppslagsClientMock = mockk<ApiOppslagClient>().also { oppslagClient ->
         coEvery { oppslagClient.findSisteArbeidssoekerperioderAggregert(any()) } returns emptyList()
     }
     val egenvurderingService = EgenvurderingService(
-        applicationConfig = mockk(),
-        kafkaKeysClient = mockk(),
-        producer = mockk(),
+        applicationConfig = mockk(relaxed = true),
+        kafkaKeysClient = mockk(relaxed = true),
+        producer = mockk(relaxed = true),
         texasClient = texasClientMock,
         oppslagsClient = oppslagsClientMock
     )
@@ -54,9 +60,7 @@ class EgenvurderingServiceTest : FreeSpec({
                     ),
                 )
             )
-            val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
-                userToken = userToken
-            )
+            val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(accessToken)
             egenvurderingGrunnlag shouldNotBe null
             egenvurderingGrunnlag.grunnlag shouldBe null
         }
@@ -72,7 +76,7 @@ class EgenvurderingServiceTest : FreeSpec({
                 )
             )
             val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
-                userToken = userToken
+                accessToken = accessToken
             )
             egenvurderingGrunnlag shouldNotBe null
             egenvurderingGrunnlag.grunnlag shouldBe null
@@ -89,7 +93,7 @@ class EgenvurderingServiceTest : FreeSpec({
                 )
             )
             val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
-                userToken = userToken
+                accessToken = accessToken
             )
             egenvurderingGrunnlag shouldNotBe null
             egenvurderingGrunnlag.grunnlag shouldBe null
@@ -105,7 +109,7 @@ class EgenvurderingServiceTest : FreeSpec({
                 )
             )
             val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(
-                userToken = userToken
+                accessToken = accessToken
             )
             egenvurderingGrunnlag shouldNotBe null
             egenvurderingGrunnlag.grunnlag shouldNotBe null
@@ -131,7 +135,7 @@ object TestData {
         startet: MetadataResponse = nyMetadataResponse(),
         avsluttet: MetadataResponse? = null,
         opplysningerOmArbeidssoeker: List<OpplysningerOmArbeidssoekerAggregertResponse> = nyOpplysningerOmArbeidssoekerAggregertResponse(),
-        bekreftelser: List<BekreftelseResponse> = emptyList()
+        bekreftelser: List<BekreftelseResponse> = emptyList(),
     ): ArbeidssoekerperiodeAggregertResponse =
         ArbeidssoekerperiodeAggregertResponse(
             periodeId = periodeId,
@@ -149,7 +153,7 @@ object TestData {
         utdanning: UtdanningResponse = nyUtdanningResponse(),
         helse: HelseResponse = nyHelseResponse(),
         annet: AnnetResponse = nyAnnetResponse(),
-        profilering: ProfileringAggregertResponse? = nyProfileringAggregertResponse()
+        profilering: ProfileringAggregertResponse? = nyProfileringAggregertResponse(),
     ): List<OpplysningerOmArbeidssoekerAggregertResponse> =
         listOf(
             OpplysningerOmArbeidssoekerAggregertResponse(
@@ -164,8 +168,7 @@ object TestData {
             )
         )
 
-    fun nyJobbsituasjonResponse(): List<BeskrivelseMedDetaljerResponse>
-    =
+    fun nyJobbsituasjonResponse(): List<BeskrivelseMedDetaljerResponse> =
         listOf(
             BeskrivelseMedDetaljerResponse(
                 beskrivelse = JobbSituasjonBeskrivelse.HAR_BLITT_SAGT_OPP,
@@ -201,7 +204,7 @@ object TestData {
         profilertTil: ProfileringsResultat = ProfileringsResultat.ANTATT_GODE_MULIGHETER,
         jobbetSammenhengendeSeksAvTolvSisteManeder: Boolean = false,
         alder: Int = 30,
-        egenvurderinger: List<EgenvurderingResponse> = listOf(nyEgenvurderingResponse())
+        egenvurderinger: List<EgenvurderingResponse> = listOf(nyEgenvurderingResponse()),
     ): ProfileringAggregertResponse =
         ProfileringAggregertResponse(
             profileringId = profileringId,
@@ -238,7 +241,7 @@ object TestData {
         utfoertAv: BrukerResponse = nyBrukerResponse(),
         kilde: String = "test-kilde",
         aarsak: String = "test-aarsak",
-        tidspunktFraKilde: TidspunktFraKildeResponse? = null
+        tidspunktFraKilde: TidspunktFraKildeResponse? = null,
     ): MetadataResponse =
         MetadataResponse(
             tidspunkt = tidspunkt,
@@ -250,7 +253,7 @@ object TestData {
 
     fun nyBrukerResponse(
         type: BrukerType = BrukerType.SLUTTBRUKER,
-        id: String = defaultIdent.verdi
+        id: String = defaultIdent.verdi,
     ): BrukerResponse =
         BrukerResponse(
             type = type,

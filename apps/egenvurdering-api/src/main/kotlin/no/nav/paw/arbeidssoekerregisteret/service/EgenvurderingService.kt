@@ -21,11 +21,12 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.ACR
 import no.nav.paw.security.authentication.token.AccessToken
+import no.nav.paw.security.texas.OnBehalfOfBrukerRequest
 import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 
 class EgenvurderingService(
@@ -37,8 +38,11 @@ class EgenvurderingService(
 ) {
     private val logger = buildApplicationLogger
 
-    suspend fun getEgenvurderingGrunnlag(userToken: String): EgenvurderingGrunnlag {
-        val exchangedToken = texasClient.getOnBehalfOfToken(userToken).accessToken
+    suspend fun getEgenvurderingGrunnlag(accessToken: AccessToken): EgenvurderingGrunnlag {
+        val target = applicationConfig.texasClientConfig.target
+        val exchangedToken = texasClient.exchangeOnBehalfOfBrukerToken(
+            OnBehalfOfBrukerRequest(accessToken.jwt, target)
+        ).accessToken
         val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
         val sisteProfilering = arbeidssoekerperioderAggregert.findSisteProfilering()
         val innsendtEgenvurderinger = sisteProfilering?.egenvurderinger ?: emptyList()
@@ -56,7 +60,10 @@ class EgenvurderingService(
         request: EgenvurderingRequest,
         accessToken: AccessToken,
     ) {
-        val exchangedToken = texasClient.getOnBehalfOfToken(accessToken.jwt).accessToken
+        val target = applicationConfig.texasClientConfig.target
+        val exchangedToken = texasClient.exchangeOnBehalfOfBrukerToken(
+            request = OnBehalfOfBrukerRequest(accessToken.jwt, target),
+        ).accessToken
         val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
 
         val periode = arbeidssoekerperioderAggregert.firstOrNull()

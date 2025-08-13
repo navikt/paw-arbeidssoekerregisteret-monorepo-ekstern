@@ -11,4 +11,3 @@ scope = "${OPPSLAG_API_SCOPE}"
 [TexasClientConfig]
 endpoint = "${NAIS_TOKEN_EXCHANGE_ENDPOINT}"
 target = "${OPPSLAG_API_TARGET}"
-identityProvider = "tokenx"

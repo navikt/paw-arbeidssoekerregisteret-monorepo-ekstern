@@ -37,12 +37,11 @@ fun Route.egenvurderingRoutes(
             get(grunnlagPath) {
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.READ, accessPolicies) {
-                    val userToken = call.securityContext().accessToken.jwt
-
+                    val accessToken = call.securityContext().accessToken
                     val egenvurderingGrunnlag = if (currentRuntimeEnvironment.equals(NAIS_PROD_CLUSER_NAME)) {
                         EgenvurderingGrunnlag(grunnlag = null)
                     } else {
-                        egenvurderingService.getEgenvurderingGrunnlag(userToken)
+                        egenvurderingService.getEgenvurderingGrunnlag(accessToken)
                     }
                     call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)
                 }
