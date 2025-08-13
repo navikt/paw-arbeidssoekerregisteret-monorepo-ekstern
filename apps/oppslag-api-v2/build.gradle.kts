@@ -1,3 +1,6 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+import org.openapitools.generator.gradle.plugin.tasks.ValidateTask
+
 plugins {
     kotlin("jvm")
     id("org.openapi.generator")
@@ -100,52 +103,88 @@ sourceSets {
     }
 }
 
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
-
-tasks.named("compileTestKotlin") {
-    dependsOn("openApiValidate", "openApiGenerate")
-}
-
-tasks.named("compileKotlin") {
-    dependsOn("openApiValidate", "openApiGenerate")
-}
-
-tasks.withType(Jar::class) {
-    manifest {
-        attributes["Implementation-Version"] = project.version
-        attributes["Main-Class"] = application.mainClass.get()
-        attributes["Implementation-Title"] = rootProject.name
-    }
-}
 
 val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/openapi-spec.yaml"
+val legacyApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/legacy-spec.yaml"
 
-openApiValidate {
-    inputSpec = openApiDocFile
-}
+tasks {
+    val legacyApi = "legacyApi"
+    val v2Api = "api"
+    val apis = listOf(legacyApi, v2Api)
 
-openApiGenerate {
-    generatorName.set("kotlin-server")
-    library = "ktor"
-    inputSpec = openApiDocFile
-    outputDir = "${layout.buildDirectory.get()}/generated/"
-    packageName = "no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag"
-    configOptions.set(
-        mapOf(
-            "serializationLibrary" to "jackson",
-            "enumPropertyNaming" to "original",
-        ),
-    )
-    typeMappings = mapOf(
-        "DateTime" to "Instant"
-    )
-    globalProperties = mapOf(
-        "apis" to "none",
-        "models" to ""
-    )
-    importMappings = mapOf(
-        "Instant" to "java.time.Instant"
-    )
+    withType<Test>().configureEach {
+        useJUnitPlatform()
+    }
+
+    named("compileTestKotlin") {
+        dependsOn(apis.map { it + "Validator" } + apis.map { it + "Generator" })
+    }
+
+    named("compileKotlin") {
+        dependsOn(apis.map { it + "Validator" } + apis.map { it + "Generator" })
+    }
+
+    withType(Jar::class) {
+        manifest {
+            attributes["Implementation-Version"] = project.version
+            attributes["Main-Class"] = application.mainClass.get()
+            attributes["Implementation-Title"] = rootProject.name
+        }
+    }
+
+    register<ValidateTask>("${v2Api}Validator") {
+        inputSpec = openApiDocFile
+    }
+
+    register<ValidateTask>("${legacyApi}Validator") {
+        inputSpec = legacyApiDocFile
+    }
+
+    register<GenerateTask>("${legacyApi}Generator") {
+        generatorName.set("kotlin-server")
+        library = "ktor"
+        inputSpec = legacyApiDocFile
+        outputDir = "${layout.buildDirectory.get()}/generated/"
+        packageName = "no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag"
+        configOptions.set(
+            mapOf(
+                "serializationLibrary" to "jackson",
+                "enumPropertyNaming" to "original",
+            ),
+        )
+        typeMappings = mapOf(
+            "DateTime" to "Instant"
+        )
+        globalProperties = mapOf(
+            "apis" to "none",
+            "models" to ""
+        )
+        importMappings = mapOf(
+            "Instant" to "java.time.Instant"
+        )
+    }
+
+    register<GenerateTask>("apiGenerator") {
+        generatorName.set("kotlin-server")
+        library = "ktor"
+        inputSpec = openApiDocFile
+        outputDir = "${layout.buildDirectory.get()}/generated/"
+        packageName = "no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag"
+        configOptions.set(
+            mapOf(
+                "serializationLibrary" to "jackson",
+                "enumPropertyNaming" to "original",
+            ),
+        )
+        typeMappings = mapOf(
+            "DateTime" to "Instant"
+        )
+        globalProperties = mapOf(
+            "apis" to "none",
+            "models" to ""
+        )
+        importMappings = mapOf(
+            "Instant" to "java.time.Instant"
+        )
+    }
 }
