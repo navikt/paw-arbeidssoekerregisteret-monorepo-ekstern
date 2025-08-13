@@ -13,18 +13,15 @@ class TexasClient(
     private val config: TexasClientConfig,
     private val httpClient: HttpClient,
 ) {
-    suspend fun getOnBehalfOfToken(userToken: String): OnBehalfOfResponse {
+    suspend fun exchangeOnBehalfOfBrukerToken(request: OnBehalfOfBrukerRequest) = exchangeToken(request)
+
+    suspend fun exchangeOnBehalfOfAnsattToken(request: OnBehalfOfAnsattRequest) = exchangeToken(request)
+
+    private suspend fun exchangeToken(onBehalfOfRequest: OnBehalfOfRequest): OnBehalfOfResponse {
         val response = httpClient.post(config.endpoint) {
             contentType(ContentType.Application.Json)
-            setBody(
-                OnBehalfOfRequest(
-                    userToken = userToken,
-                    identityProvider = config.identityProvider,
-                    target = config.target
-                )
-            )
+            setBody(onBehalfOfRequest)
         }
-
         if (response.status != HttpStatusCode.OK) {
             throw TokenExchangeException("Klarte ikke å veksle token. Statuskode: ${response.status.value}")
         }
@@ -33,14 +30,6 @@ class TexasClient(
 }
 
 class TokenExchangeException(message: String) : RuntimeException(message)
-
-data class OnBehalfOfRequest(
-    @field:JsonProperty("user_token")
-    val userToken: String,
-    @field:JsonProperty("identity_provider")
-    val identityProvider: String,
-    val target: String,
-)
 
 data class OnBehalfOfResponse(
     @field:JsonProperty("access_token")
