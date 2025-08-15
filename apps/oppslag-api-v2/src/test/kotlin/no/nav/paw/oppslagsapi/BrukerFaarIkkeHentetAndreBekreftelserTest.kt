@@ -49,7 +49,8 @@ class BrukerFaarIkkeHentetAndreBekreftelserTest : FreeSpec({
     )
     val appLogic = ApplicationQueryLogic(
         autorisasjonsTjeneste = autorisasjonsTjeneste,
-        databaseQuerySupport = databaseQuerySupportMock
+        databaseQuerySupport = databaseQuerySupportMock,
+        kafkaKeysClient = kafkaKeysClientMock
     )
     val startTime = Instant.now() - Duration.ofDays(30)
     val periode1 = periode(identitetsnummer = person1.first(), startet = startTime)

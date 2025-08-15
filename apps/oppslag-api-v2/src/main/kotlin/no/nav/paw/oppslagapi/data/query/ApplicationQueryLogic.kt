@@ -1,5 +1,6 @@
 package no.nav.paw.oppslagapi.data.query
 
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse
@@ -13,6 +14,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.oppslagapi.data.Row
@@ -23,13 +25,54 @@ import no.nav.paw.oppslagapi.data.pa_vegne_av_stopp_v1
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.profilering_v1
+import no.nav.paw.oppslagapi.v2TilV1.v1Metadata
 import no.nav.paw.security.authentication.model.SecurityContext
 import java.util.*
 
 class ApplicationQueryLogic(
     private val autorisasjonsTjeneste: AutorisasjonsTjeneste,
-    private val databaseQuerySupport: DatabaseQeurySupport
+    private val databaseQuerySupport: DatabaseQeurySupport,
+    private val kafkaKeysClient: KafkaKeysClient
 ) {
+
+    suspend fun hentPerioder(
+        securityContext: SecurityContext,
+        identitetsnummer: Identitetsnummer
+    ): Response<List<ArbeidssoekerperiodeResponse>> {
+        val identieteter = kafkaKeysClient.getInfo(identitetsnummer.verdi)
+            ?.info
+            ?.pdlData
+            ?.id
+            ?.filter { it.gruppe.equals("FOLKEREGISTERIDENT", ignoreCase = true)  }
+            ?.map{ it.id }
+            ?.map(::Identitetsnummer)
+            ?: listOf(identitetsnummer)
+
+        val perioder = identieteter
+            .map { id -> databaseQuerySupport.hentPerioder(id ) }
+            .flatten()
+            .groupBy { row -> row.periodeId }
+            .toList()
+        return autorisasjonsTjeneste.autoriser(
+            handling = "Hent arbeidssoekerperioder",
+            securityContext = securityContext,
+            oenskerTilgangTil = perioder
+                .flatMap { it.second.mapNotNull { rad -> rad.identitetsnummer } }
+                .distinct()
+                .map(::Identitetsnummer)
+        ) {
+            val tidslinjer = (genererResponse(perioder).tidslinjer) ?: emptyList()
+            tidslinjer.map { tidslinje ->
+                val startet = tidslinje.hendelser.mapNotNull { it.periodeStartetV1 }.first()
+                val avsluttet = tidslinje.hendelser.mapNotNull { it.periodeAvsluttetV1 }.firstOrNull()
+                ArbeidssoekerperiodeResponse(
+                    periodeId = tidslinje.periodeId,
+                    startet = startet.v1Metadata(),
+                    avsluttet = avsluttet?.v1Metadata(),
+                )
+            }
+        }
+    }
 
     suspend fun hentBekreftelser(
         securityContext: SecurityContext,
@@ -77,7 +120,7 @@ class ApplicationQueryLogic(
 
     }
 
-    private fun genererResponse(rader: List<Pair<UUID, List<Row<Any>>>>): TidslinjeResponse {
+    private fun genererResponse(rader: List<Pair<UUID, List<Row<out Any>>>>): TidslinjeResponse {
         val startMap = rader.associate { (periodeId, rader) ->
             periodeId to (rader.firstOrNull { it.type == periode_startet_v1 }
                 ?: throw IllegalStateException("Periode uten start hendelse: $periodeId")
@@ -119,13 +162,14 @@ class ApplicationQueryLogic(
         }
         return TidslinjeResponse(apiTidslinjer)
     }
+
 }
 
 /**
  * Mapper alt untatt bekreftelsemelding_v1 til Hendelse.
  * Bekreftelsemelding_v1 håndteres separat i lagTidslinjer.
  */
-private fun mapIkkeBekreftelseRaderTilHendelser(rad: Row<Any>): Hendelse = when (rad.type) {
+private fun mapIkkeBekreftelseRaderTilHendelser(rad: Row<out Any>): Hendelse = when (rad.type) {
     periode_startet_v1 -> Hendelse(
         hendelseType = HendelseType.periode_startet_v1,
         tidspunkt = rad.timestamp,

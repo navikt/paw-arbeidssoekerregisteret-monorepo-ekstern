@@ -16,6 +16,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.kafkakeygenerator.client.kafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
@@ -48,7 +49,8 @@ class AnonymM2MFaarHentetTidslinjerTest : FreeSpec({
     )
     val appLogic = ApplicationQueryLogic(
         autorisasjonsTjeneste = autorisasjonsTjeneste,
-        databaseQuerySupport = databaseQuerySupportMock
+        databaseQuerySupport = databaseQuerySupportMock,
+        kafkaKeysClient = kafkaKeysClientMock
     )
     val startTime = Instant.now() - Duration.ofDays(30)
     val periode1 = periode(identitetsnummer = person1.first(), startet = startTime)

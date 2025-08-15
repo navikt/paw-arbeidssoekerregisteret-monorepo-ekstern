@@ -1,5 +1,7 @@
 package no.nav.paw.oppslagapi.data.query
 
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.DataTable
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.objectMapper
@@ -8,14 +10,19 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
+import kotlin.reflect.full.isSubclassOf
 
 interface DatabaseQeurySupport {
     fun hentRaderForPeriode(
         periodeId: UUID
     ): List<Row<Any>>
+
+    fun hentPerioder(
+        identitetsnummer: Identitetsnummer
+    ): List<Row<Metadata>>
 }
 
-private object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
+object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
     override fun hentRaderForPeriode(
         periodeId: UUID
     ): List<Row<Any>> =
@@ -23,6 +30,15 @@ private object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
             DataTable.selectAll()
                 .where { DataTable.periodeId eq periodeId }
                 .map(::asObject)
+        }
+
+    override fun hentPerioder(
+        identitetsnummer: Identitetsnummer
+    ): List<Row<Metadata>> =
+        transaction {
+            DataTable.selectAll()
+                .where { DataTable.identitetsnummer eq identitetsnummer.verdi }
+                .mapNotNull(::asTypedObjectOrNull)
         }
 }
 
@@ -39,4 +55,16 @@ fun asObject(row: ResultRow): Row<Any> {
         timestamp = row[DataTable.timestamp],
         data = objectMapper.readValue(row[DataTable.data], clazz)
     )
+}
+
+inline fun <reified A> asTypedObjectOrNull(row: ResultRow): Row<A>? {
+    val type = row[DataTable.type]
+    if (typeTilKlasse[type]?.isSubclassOf(A::class) != true) return null
+    val obj = asObject(row)
+    return if (obj.data is A) {
+        @Suppress("UNCHECKED_CAST")
+        obj as Row<A>
+    } else {
+        null
+    }
 }

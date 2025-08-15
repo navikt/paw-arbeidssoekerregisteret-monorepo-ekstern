@@ -67,7 +67,8 @@ fun main() {
             kafkaKeysClient = webClients.kafkaKeysClient,
             auditLogger = AuditLogger.getLogger()
         ),
-        databaseQuerySupport = exposedDatabaseQuerySupport
+        databaseQuerySupport = exposedDatabaseQuerySupport,
+        kafkaKeysClient = webClients.kafkaKeysClient
     )
     val kafkaFactory = KafkaFactory(configurations.kafkaConfig)
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
