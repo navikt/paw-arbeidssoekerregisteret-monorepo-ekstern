@@ -12,6 +12,7 @@ import no.nav.paw.arbeidssokerregisteret.asList
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -55,7 +56,7 @@ fun main() {
     appLogger.info("Starter oppslag-api-v2")
     val configurations = configurations()
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-    initDatabase(configurations.topicNames)
+    initDatabase(configurations.topicNames, loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val webClients = initWebClients(httpClient = HttpClient {
         install(ContentNegotiation) {
             jackson { registerKotlinModule() }
