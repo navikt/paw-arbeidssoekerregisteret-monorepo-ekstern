@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2Bekreftelse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ProblemDetails
+import no.nav.paw.error.model.map
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.TokenX
@@ -21,7 +22,7 @@ fun Route.v2Tidslinjer(appQueryLogic: ApplicationQueryLogic) {
             val response = appQueryLogic.lagTidslinjer(
                 securityContext = securityContext,
                 request = request
-            )
+            ).map(::TidslinjeResponse)
             when (response) {
                 is Data<TidslinjeResponse> -> {
                     call.respond(HttpStatusCode.Companion.OK, response.data)

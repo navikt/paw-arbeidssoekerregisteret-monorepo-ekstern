@@ -3,6 +3,7 @@ package no.nav.paw.oppslagsapi
 import com.nimbusds.jwt.SignedJWT
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -10,6 +11,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.append
+import io.ktor.http.headers
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.NavAnsatt
@@ -39,6 +41,34 @@ fun MockOAuth2Server.anonymToken(): Pair<Map<String, Any>, SignedJWT> =
         "oid" to UUID.randomUUID().toString(),
         "roles" to listOf("access_as_application")
     ).let { it.plus("issuer" to "azure") to issueToken(claims = it) }
+
+suspend fun HttpClient.hentViaGet(
+    url: String,
+    token: Pair<Map<String, Any>, SignedJWT>
+): HttpResponse {
+    val response = get(url) {
+        bearerAuth(token.second.serialize())
+        headers {
+            append(HttpHeaders.ContentType, ContentType.Application.Json)
+        }
+    }
+    return response
+}
+
+suspend fun HttpClient.hentViaPost(
+    url: String,
+    token: Pair<Map<String, Any>, SignedJWT>,
+    request: Any
+): HttpResponse {
+    val response = post(url) {
+        bearerAuth(token.second.serialize())
+        headers {
+            append(HttpHeaders.ContentType, ContentType.Application.Json)
+        }
+        setBody(request)
+    }
+    return response
+}
 
 suspend fun HttpClient.hentBekreftelser(
     token: Pair<Map<String, Any>, SignedJWT>,

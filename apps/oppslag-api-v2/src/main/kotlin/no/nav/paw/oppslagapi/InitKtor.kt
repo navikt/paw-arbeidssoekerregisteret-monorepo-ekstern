@@ -33,7 +33,6 @@ fun <A> initEmbeddedKtorServer(
     meterBinders: List<MeterBinder>,
     healthIndicator: A,
     authProviders: List<AuthProvider>,
-    openApiSpecFile: String = "openapi/openapi-spec.yaml",
     appQueryLogic: ApplicationQueryLogic,
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> where
         A : IsAlive, A : IsReady, A : HasStarted {
@@ -48,7 +47,6 @@ fun <A> initEmbeddedKtorServer(
             configureRoutes(
                 healthIndicator = healthIndicator,
                 prometheusRegistry = prometheusRegistry,
-                openApiSpecFile = openApiSpecFile,
                 appQueryLogic = appQueryLogic
             )
         }
@@ -78,12 +76,11 @@ fun Application.configureKtorServer(
 fun <A> Route.configureRoutes(
     healthIndicator: A,
     prometheusRegistry: PrometheusMeterRegistry,
-    openApiSpecFile: String,
     appQueryLogic: ApplicationQueryLogic
 ) where A : IsAlive, A : IsReady, A : HasStarted {
     internalRoutes(healthIndicator, prometheusRegistry)
-    swaggerUI(path = "documentation/openapi-spec", swaggerFile = openApiSpecFile)
-    swaggerUI(path = "documentation/legacy-spec", swaggerFile = openApiSpecFile)
+    swaggerUI(path = "documentation/openapi-spec", swaggerFile = "openapi/openapi-spec.yaml")
+    swaggerUI(path = "documentation/legacy-spec", swaggerFile = "openapi/legacy-spec.yaml")
     route("/api/v2/bekreftelser") {
         v2Bekreftelse(appQueryLogic)
     }

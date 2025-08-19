@@ -7,6 +7,7 @@ import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.objectMapper
 import no.nav.paw.oppslagapi.data.typeTilKlasse
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
@@ -19,7 +20,7 @@ interface DatabaseQeurySupport {
 
     fun hentPerioder(
         identitetsnummer: Identitetsnummer
-    ): List<Row<Metadata>>
+    ): List<UUID>
 }
 
 object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
@@ -34,11 +35,12 @@ object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
 
     override fun hentPerioder(
         identitetsnummer: Identitetsnummer
-    ): List<Row<Metadata>> =
+    ): List<UUID> =
         transaction {
             DataTable.selectAll()
-                .where { DataTable.identitetsnummer eq identitetsnummer.verdi }
-                .mapNotNull(::asTypedObjectOrNull)
+                .withDistinctOn(DataTable.periodeId)
+                .where(DataTable.identitetsnummer eq identitetsnummer.verdi)
+                .map { it[DataTable.periodeId] }
         }
 }
 

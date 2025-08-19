@@ -1,10 +1,11 @@
-package no.nav.paw.oppslagsapi
+package no.nav.paw.v1Api
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
@@ -13,18 +14,30 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.kafkakeygenerator.client.inMemoryKafkaKeysMock
 import no.nav.paw.logging.logger.AuditLogger
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.oppslagapi.configureKtorServer
-import no.nav.paw.oppslagapi.configureRoutes
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.DatabaseQeurySupport
-import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
+import no.nav.paw.oppslagapi.routes.V1_API_BASE_PATH
+import no.nav.paw.oppslagapi.routes.V1_API_VEILEDER_ARBEIDSSOEKERPERIODER
+import no.nav.paw.oppslagapi.routes.v1Routes
+import no.nav.paw.oppslagsapi.ansatt1
+import no.nav.paw.oppslagsapi.ansattToken
+import no.nav.paw.oppslagsapi.configureMock
+import no.nav.paw.oppslagsapi.createAuthProviders
+import no.nav.paw.oppslagsapi.hentViaPost
+import no.nav.paw.oppslagsapi.periode
+import no.nav.paw.oppslagsapi.person1
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
@@ -34,9 +47,9 @@ import java.time.Instant
 import java.util.*
 
 
-class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
+class AnsattMedTilgangFaarHentetPerioder : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
-    val kafkaKeysClientMock: KafkaKeysClient = mockk()
+    val kafkaKeysClientMock: KafkaKeysClient = inMemoryKafkaKeysMock()
     val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
     val autorisasjonsTjeneste = AutorisasjonsTjeneste(
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
@@ -50,39 +63,21 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
     )
     val startTime = Instant.now() - Duration.ofDays(30)
     val periode1 = periode(identitetsnummer = person1.first(), startet = startTime)
-    val periode2 = periode(identitetsnummer = person2.first(), startet = startTime)
-    val bekreftelseMelding_p1 = bekreftelseMelding(periodeId = periode1.id)
-    val bekreftelseMelding_p2 = bekreftelseMelding(periodeId = periode2.id)
-
+    val bekreftelseMelding = bekreftelseMelding(periodeId = periode1.id)
+    every { databaseQuerySupportMock.hentPerioder(Identitetsnummer(periode1.identitetsnummer)) } returns listOf(periode1.id)
     every { databaseQuerySupportMock.hentRaderForPeriode(periode1.id) } returns listOf(
         Row(
             periodeId = periode1.id,
             identitetsnummer = periode1.identitetsnummer,
             timestamp = periode1.startet.tidspunkt,
-            data = periode1.toOpenApi(),
+            data = periode1.startet.toOpenApi(),
             type = periode_startet_v1
         ),
         Row(
             periodeId = periode1.id,
             identitetsnummer = null,
             timestamp = startTime + Duration.ofDays(1),
-            data = bekreftelseMelding_p1.toOpenApi(),
-            type = bekreftelsemelding_v1
-        )
-    )
-    every { databaseQuerySupportMock.hentRaderForPeriode(periode2.id) } returns listOf(
-        Row(
-            periodeId = periode2.id,
-            identitetsnummer = periode2.identitetsnummer,
-            timestamp = periode2.startet.tidspunkt,
-            data = periode2.toOpenApi(),
-            type = periode_startet_v1
-        ),
-        Row(
-            periodeId = periode2.id,
-            identitetsnummer = null,
-            timestamp = startTime + Duration.ofDays(1),
-            data = bekreftelseMelding_p2.toOpenApi(),
+            data = bekreftelseMelding.toOpenApi(),
             type = bekreftelsemelding_v1
         )
     )
@@ -95,7 +90,7 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
         oauthServer.shutdown()
     }
     "Verifiser at endepunkter fungerer" - {
-        "/api/v2/bekreftelser" {
+        "/api/v1/veileder/arbeidssoekerperioder\"" {
                 testApplication {
                     application {
                         configureKtorServer(
@@ -105,9 +100,7 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
                         )
                     }
                     routing {
-                        configureRoutes(
-                            healthIndicator = CompoudHealthIndicator(),
-                            prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+                        v1Routes(
                             appQueryLogic = appLogic
                         )
                     }
@@ -123,12 +116,27 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
                     val token = oauthServer.ansattToken(
                         NavAnsatt(
                             oid = UUID.randomUUID(),
-                            ident = ansatt2.verdi,
+                            ident = ansatt1.verdi,
                             sikkerhetsnivaa = "tokenx:Level4"
                         )
                     )
-                    val response = client.hentBekreftelser(token, listOf(periode1.id))
-                    response.status shouldBe HttpStatusCode.Forbidden
+                    val response = client.hentViaPost(
+                        url = "${V1_API_BASE_PATH}/${V1_API_VEILEDER_ARBEIDSSOEKERPERIODER}",
+                        token = token,
+                        request = ArbeidssoekerperiodeRequest(periode1.identitetsnummer)
+                    )
+                    response.status shouldBe HttpStatusCode.OK
+                    val body: List<ArbeidssoekerperiodeResponse> = response.body()
+                    body.size shouldBe 1
+                    val periode = body.first()
+
+                    periode.periodeId shouldBe periode1.id
+                    periode.startet.tidspunkt shouldBe periode1.startet.tidspunkt
+                    periode.startet.utfoertAv.id shouldBe periode1.startet.utfoertAv.id
+                    periode.startet.utfoertAv.type.name shouldBe periode1.startet.utfoertAv.type.name
+                    periode.avsluttet?.tidspunkt shouldBe periode1.avsluttet?.tidspunkt
+                    periode.avsluttet?.utfoertAv?.id shouldBe periode1.avsluttet?.utfoertAv?.id
+                    periode.avsluttet?.utfoertAv?.type?.name shouldBe periode1.avsluttet?.utfoertAv?.type?.name
                 }
             }
         }

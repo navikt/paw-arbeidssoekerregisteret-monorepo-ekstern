@@ -18,7 +18,20 @@ fun inMemoryKafkaKeysMock(): KafkaKeysClient {
         }
 
         override suspend fun getInfo(identitetsnummer: String): KafkaKeysInfoResponse? {
-            TODO("Implementeres ved behov")
+            val idAndKey = getIdAndKeyOrNull(identitetsnummer)
+            return KafkaKeysInfoResponse(
+                info = Info(
+                    identitetsnummer = identitetsnummer,
+                    lagretData = LokalIdData(
+                        arbeidsoekerId = idAndKey.id,
+                        recordKey = idAndKey.key,
+                    ),
+                    pdlData = PdlData(
+                        error = null,
+                        id = listOf(PdlId(gruppe = "FOLKEREGISTERIDENT", id = identitetsnummer, gjeldende = true))
+                    )
+                )
+            )
         }
     }
 }

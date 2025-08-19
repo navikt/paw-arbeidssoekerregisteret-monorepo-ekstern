@@ -107,7 +107,6 @@ class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
                         configureRoutes(
                             healthIndicator = CompoudHealthIndicator(),
                             prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                            openApiSpecFile = "openapi/openapi-spec.yaml",
                             appQueryLogic = appLogic
                         )
                     }
