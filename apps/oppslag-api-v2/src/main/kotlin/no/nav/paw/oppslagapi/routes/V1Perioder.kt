@@ -16,6 +16,7 @@ import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
 import no.nav.paw.oppslagapi.v2TilV1.v1Metadata
+import no.nav.paw.oppslagapi.v2TilV1.v1Periode
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -74,16 +75,7 @@ private suspend fun RoutingContext.prosesserHentPeriodeV1Kall(
         } else {
             tidslinjer
         }
-    }.map { tidslinjer ->
-            tidslinjer.map {
-                ArbeidssoekerperiodeResponse(
-                    periodeId = it.periodeId,
-                    startet = it.hendelser.firstNotNullOf { hendelse -> hendelse.periodeStartetV1 }.v1Metadata(),
-                    avsluttet = it.hendelser.firstNotNullOfOrNull { hendelse -> hendelse.periodeAvsluttetV1 }
-                        ?.v1Metadata()
-                )
-            }
-        }
+    }.map { tidslinjer -> tidslinjer.map { it.v1Periode() } }
 
     when (response) {
         is Data<List<ArbeidssoekerperiodeResponse>> -> {
