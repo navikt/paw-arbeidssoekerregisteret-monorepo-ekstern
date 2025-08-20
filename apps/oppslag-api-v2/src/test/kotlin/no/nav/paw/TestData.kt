@@ -7,6 +7,9 @@ import io.opentelemetry.api.trace.Span
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.consumer.toRow
 import no.nav.paw.oppslagsapi.periode
+import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
+import no.nav.paw.test.data.bekreftelse.startPaaVegneAv
+import no.nav.paw.test.data.bekreftelse.stoppPaaVegneAv
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.createOpplysninger
 import no.nav.paw.test.data.periode.createProfilering
@@ -23,6 +26,9 @@ object TestData {
         periodeId = periode_a_startet.id,
         sendtInnAv = metdataFactory.build(tidspunkt = Instant.now())
     )
+    val periode_a_paa_vegne_av_startet = startPaaVegneAv(periodeId = periode_a_startet.id)
+    val periode_a_paa_vegne_av_stoppet = stoppPaaVegneAv(periodeId = periode_a_startet.id)
+    val periode_a_bekreftelse = bekreftelseMelding(periodeId = periode_a_startet.id)
     val periode_a_avsluttet = periode(
         periodeId = periode_a_startet.id,
         identitetsnummer = Identitetsnummer(periode_a_startet.identitetsnummer),
@@ -60,6 +66,9 @@ object TestData {
     val data = listOf(
         periode_a_startet,
         periode_a_opplysninger,
+        periode_a_paa_vegne_av_startet,
+        periode_a_paa_vegne_av_stoppet,
+        periode_a_bekreftelse,
         periode_a_avsluttet,
         periode_b_startet,
         periode_b_opplysninger,
