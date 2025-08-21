@@ -742,7 +742,7 @@ components:
         opplysningerOmArbeidssoeker:
           type: "array"
           items:
-            $ref: "#/components/schemas/OpplysningerOmArbeidssoekerAggregertResponse"
+            $ref: "#/components/schemas/OpplysningerOmArbeidssoekerResponse"
         bekreftelser:
           type: "array"
           items:
@@ -808,34 +808,6 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/BeskrivelseMedDetaljerResponse"
-      required:
-        - "opplysningerOmArbeidssoekerId"
-        - "periodeId"
-        - "sendtInnAv"
-        - "jobbsituasjon"
-    OpplysningerOmArbeidssoekerAggregertResponse:
-      type: "object"
-      properties:
-        opplysningerOmArbeidssoekerId:
-          type: "string"
-          format: "uuid"
-        periodeId:
-          type: "string"
-          format: "uuid"
-        sendtInnAv:
-          $ref: "#/components/schemas/MetadataResponse"
-        utdanning:
-          $ref: "#/components/schemas/UtdanningResponse"
-        helse:
-          $ref: "#/components/schemas/HelseResponse"
-        annet:
-          $ref: "#/components/schemas/AnnetResponse"
-        jobbsituasjon:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/BeskrivelseMedDetaljerResponse"
-        profilering:
-          $ref: "#/components/schemas/ProfileringAggregertResponse"
       required:
         - "opplysningerOmArbeidssoekerId"
         - "periodeId"
