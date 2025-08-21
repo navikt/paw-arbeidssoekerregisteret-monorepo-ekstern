@@ -11,13 +11,16 @@ import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.config.VeilarbdialogClientConfig
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.database.config.DATABASE_CONFIG
+import no.nav.paw.database.config.DatabaseConfig
+import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
-
+import javax.sql.DataSource
 
 data class ApplicationContext(
     val serverConfig: ServerConfig,
@@ -26,7 +29,9 @@ data class ApplicationContext(
     val egenvurderingAvroDeserializer: Deserializer<Egenvurdering>,
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
+    val dataSource: DataSource,
 ) {
+
     companion object {
         fun create(): ApplicationContext {
             val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
@@ -49,13 +54,17 @@ data class ApplicationContext(
             )
             val dialogService = DialogService(veilarbdialogClient = veilarbdialogClient)
 
+            val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
+            val dataSource = createHikariDataSource(databaseConfig)
+
             return ApplicationContext(
-                serverConfig,
-                applicationConfig,
-                prometheusMeterRegistry,
-                egenvurderingAvroDeserializer,
-                egenvurderingConsumer,
-                dialogService,
+                serverConfig = serverConfig,
+                applicationConfig = applicationConfig,
+                prometheusMeterRegistry = prometheusMeterRegistry,
+                egenvurderingAvroDeserializer = egenvurderingAvroDeserializer,
+                consumer = egenvurderingConsumer,
+                dialogService = dialogService,
+                dataSource = dataSource
             )
         }
     }

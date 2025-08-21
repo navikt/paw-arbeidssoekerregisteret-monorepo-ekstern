@@ -4,6 +4,7 @@ import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureDatabase
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
@@ -45,6 +46,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
+    configureDatabase(applicationContext.dataSource)
     configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
         if (!records.isEmpty) {
             applicationContext.dialogService.handleRecords(records)
