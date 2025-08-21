@@ -9,6 +9,7 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.security.authentication.model.SecurityContext
+import java.util.UUID
 
 class ApplicationQueryLogic(
     private val autorisasjonsTjeneste: AutorisasjonsTjeneste,
@@ -65,12 +66,12 @@ class ApplicationQueryLogic(
 
     suspend fun lagTidslinjer(
         securityContext: SecurityContext,
-        request: ApiV2BekreftelserPostRequest
+        perioder: List<UUID>
     ): Response<List<Tidslinje>> {
-        if (request.perioder.isEmpty()) {
+        if (perioder.isEmpty()) {
             return Data(emptyList())
         }
-        val rader = request.perioder.map { periodeId ->
+        val rader = perioder.map { periodeId ->
             periodeId to databaseQuerySupport.hentRaderForPeriode(periodeId)
         }
         return autorisasjonsTjeneste.autoriser(

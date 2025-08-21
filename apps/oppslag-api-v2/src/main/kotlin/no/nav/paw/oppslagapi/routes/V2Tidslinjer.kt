@@ -21,11 +21,11 @@ fun Route.v2Tidslinjer(appQueryLogic: ApplicationQueryLogic) {
             val securityContext = call.securityContext()
             val response = appQueryLogic.lagTidslinjer(
                 securityContext = securityContext,
-                request = request
+                perioder = request.perioder
             ).map(::TidslinjeResponse)
             when (response) {
                 is Data<TidslinjeResponse> -> {
-                    call.respond(HttpStatusCode.Companion.OK, response.data)
+                    call.respond(HttpStatusCode.OK, response.data)
                 }
 
                 is ProblemDetails -> {
