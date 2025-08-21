@@ -29,7 +29,7 @@ data class ApplicationContext(
     val egenvurderingAvroDeserializer: Deserializer<Egenvurdering>,
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
-    val dataSource: DataSource,
+    //val dataSource: DataSource,
 ) {
 
     companion object {
@@ -54,8 +54,8 @@ data class ApplicationContext(
             )
             val dialogService = DialogService(veilarbdialogClient = veilarbdialogClient)
 
-            val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
-            val dataSource = createHikariDataSource(databaseConfig)
+            //val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
+            //val dataSource = createHikariDataSource(databaseConfig)
 
             return ApplicationContext(
                 serverConfig = serverConfig,
@@ -64,7 +64,7 @@ data class ApplicationContext(
                 egenvurderingAvroDeserializer = egenvurderingAvroDeserializer,
                 consumer = egenvurderingConsumer,
                 dialogService = dialogService,
-                dataSource = dataSource
+                //dataSource = dataSource
             )
         }
     }
