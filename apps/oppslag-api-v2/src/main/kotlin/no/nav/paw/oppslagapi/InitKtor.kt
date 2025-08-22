@@ -27,6 +27,7 @@ import no.nav.paw.oppslagapi.health.HasStarted
 import no.nav.paw.oppslagapi.health.IsAlive
 import no.nav.paw.oppslagapi.health.IsReady
 import no.nav.paw.oppslagapi.health.internalRoutes
+import no.nav.paw.oppslagapi.routes.v1Routes
 import no.nav.paw.oppslagapi.routes.v2Bekreftelse
 import no.nav.paw.oppslagapi.routes.v2Tidslinjer
 import no.nav.paw.security.authentication.config.AuthProvider
@@ -93,6 +94,7 @@ fun <A> Route.configureRoutes(
     route("/api/v2/tidslinjer") {
         v2Tidslinjer(appQueryLogic)
     }
+    v1Routes(appQueryLogic)
 }
 
 suspend inline fun <reified T: Any> RoutingCall.respondWith(response: Response<T>) {
