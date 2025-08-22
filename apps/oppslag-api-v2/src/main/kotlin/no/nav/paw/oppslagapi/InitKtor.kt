@@ -1,5 +1,6 @@
 package no.nav.paw.oppslagapi
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.engine.EmbeddedServer
@@ -10,11 +11,16 @@ import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.path
+import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.error.model.Data
+import no.nav.paw.error.model.ProblemDetails
+import no.nav.paw.error.model.Response
 import no.nav.paw.error.plugin.ErrorHandlingPlugin
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.health.HasStarted
@@ -86,6 +92,17 @@ fun <A> Route.configureRoutes(
     }
     route("/api/v2/tidslinjer") {
         v2Tidslinjer(appQueryLogic)
+    }
+}
+
+suspend inline fun <reified T: Any> RoutingCall.respondWith(response: Response<T>) {
+    when (response) {
+        is Data<T> -> {
+            respond(status = HttpStatusCode.OK, message = response.data)
+        }
+        is ProblemDetails -> {
+            respond(status = response.status, message = response)
+        }
     }
 }
 

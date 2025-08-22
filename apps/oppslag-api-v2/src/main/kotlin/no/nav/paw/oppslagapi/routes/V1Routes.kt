@@ -18,5 +18,15 @@ fun Route.v1Routes(
     route(V1_API_BASE_PATH) {
         v1Perioder(appQueryLogic)
         v1VeilederPerioder(appQueryLogic)
+
+        v1PerioderAggregert(appQueryLogic)
+        v1VeilederPerioderAggregert(appQueryLogic)
+        v1SamletInformasjon(appQueryLogic)
+        v1VeilederSamletInformasjon(appQueryLogic)
+
+        v1Opplysninger(appQueryLogic)
+        v1VeilederOpplysninger(appQueryLogic)
+        v1Profilering(appQueryLogic)
+        v1VeilederProfilering(appQueryLogic)
     }
 }

@@ -5,12 +5,12 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.SamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ProblemDetails
+import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.map
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
@@ -24,6 +24,7 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
+import org.jetbrains.exposed.sql.FilterCondition
 
 const val V1_API_SAMLET_INFORMASJON = "samlet-informasjon"
 const val V1_API_VEILEDER_SAMLET_INFORMASJON = "veileder/samlet-informasjon"
@@ -37,13 +38,13 @@ fun Route.v1SamletInformasjon(
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")
             val bareReturnerSiste = call.bareReturnerSiste()
-            val response = appQueryLogic.hentTidslinjer(
+            val response: Response<SamletInformasjonResponse> = appQueryLogic.hentTidslinjer(
                 securityContext = securityContext,
                 identitetsnummer = bruker.ident
             ).map {
                 if (bareReturnerSiste) listOfNotNull(it.gjeldeneEllerSisteTidslinje())
                 else it
-            }.map(::tilSamletInformasjon)
+            }.map { tilSamletInformasjon(it, bareReturnerSiste) }
             when (response) {
                 is Data<SamletInformasjonResponse> -> {
                     call.respond(HttpStatusCode.OK, response.data)
@@ -72,7 +73,7 @@ fun Route.v1VeilederSamletInformasjon(
             ).map {
                 if (bareReturnerSiste) listOfNotNull(it.gjeldeneEllerSisteTidslinje())
                 else it
-            }.map(::tilSamletInformasjon)
+            }.map { tilSamletInformasjon(it, bareReturnerSiste) }
             when (response) {
                 is Data<SamletInformasjonResponse> -> {
                     call.respond(HttpStatusCode.OK, response.data)
@@ -87,7 +88,10 @@ fun Route.v1VeilederSamletInformasjon(
 
 }
 
-private fun tilSamletInformasjon(tidslinjer: List<Tidslinje>): SamletInformasjonResponse = tidslinjer.fold(
+private fun tilSamletInformasjon(
+    tidslinjer: List<Tidslinje>,
+    bareSiste: Boolean
+): SamletInformasjonResponse = tidslinjer.fold(
     SamletInformasjonResponse(
         arbeidssoekerperioder = emptyList(),
         opplysningerOmArbeidssoeker = emptyList(),
@@ -95,10 +99,21 @@ private fun tilSamletInformasjon(tidslinjer: List<Tidslinje>): SamletInformasjon
         bekreftelser = emptyList()
     )
 ) { samletInfo, tidslinje ->
+    val antall = if (bareSiste) 1 else Int.MAX_VALUE
     val periode = tidslinje.v1Periode()
-    val opplysningerOmArbeidssoeker = tidslinje.v1Opplysninger()
-    val bekreftelser = tidslinje.v1Bekreftelser()
-    val profileringer = tidslinje.v1Profileringer()
+    val opplysningerOmArbeidssoeker = tidslinje
+        .v1Opplysninger()
+        .sortedByDescending { it.sendtInnAv.tidspunkt }
+        .takeLast(antall)
+    val bekreftelser = tidslinje
+        .v1Bekreftelser()
+        .sortedByDescending { it.svar.gjelderTil }
+        .takeLast(antall)
+    val profileringer = tidslinje
+        .v1Profileringer()
+        .sortedByDescending { it.sendtInnAv.tidspunkt}
+        .takeLast(antall)
+
     SamletInformasjonResponse(
         arbeidssoekerperioder = samletInfo.arbeidssoekerperioder + periode,
         opplysningerOmArbeidssoeker = samletInfo.opplysningerOmArbeidssoeker + opplysningerOmArbeidssoeker,
@@ -106,3 +121,6 @@ private fun tilSamletInformasjon(tidslinjer: List<Tidslinje>): SamletInformasjon
         bekreftelser = samletInfo.bekreftelser + bekreftelser
     )
 }
+
+
+

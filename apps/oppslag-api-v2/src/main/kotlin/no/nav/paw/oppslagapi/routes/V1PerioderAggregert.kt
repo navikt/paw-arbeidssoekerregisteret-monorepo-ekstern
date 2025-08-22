@@ -10,6 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.Arbeidssoekerper
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ProblemDetails
+import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.map
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
@@ -35,7 +36,7 @@ fun Route.v1PerioderAggregert(
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")
             val bareReturnerSiste = call.bareReturnerSiste()
-            val response = appQueryLogic.hentTidslinjer(
+            val response: Response<List<ArbeidssoekerperiodeAggregertResponse>> = appQueryLogic.hentTidslinjer(
                 securityContext = securityContext,
                 identitetsnummer = bruker.ident
             ).map {
