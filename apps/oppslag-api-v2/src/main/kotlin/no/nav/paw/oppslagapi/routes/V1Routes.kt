@@ -28,5 +28,7 @@ fun Route.v1Routes(
         v1VeilederOpplysninger(appQueryLogic)
         v1Profilering(appQueryLogic)
         v1VeilederProfilering(appQueryLogic)
+        v1Bekrefelser(appQueryLogic)
+        v1VeilederBekreftelser(appQueryLogic)
     }
 }
