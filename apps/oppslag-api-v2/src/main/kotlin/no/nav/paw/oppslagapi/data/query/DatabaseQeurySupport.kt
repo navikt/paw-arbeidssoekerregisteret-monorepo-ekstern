@@ -37,7 +37,7 @@ object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
         identitetsnummer: Identitetsnummer
     ): List<UUID> =
         transaction {
-            DataTable.selectAll()
+            DataTable.select(DataTable.periodeId)
                 .withDistinctOn(DataTable.periodeId)
                 .where(DataTable.identitetsnummer eq identitetsnummer.verdi)
                 .map { it[DataTable.periodeId] }
