@@ -46,7 +46,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
-    //configureDatabase(applicationContext.dataSource)
+    configureDatabase(applicationContext.dataSource)
     configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
         if (!records.isEmpty) {
             applicationContext.dialogService.handleRecords(records)
