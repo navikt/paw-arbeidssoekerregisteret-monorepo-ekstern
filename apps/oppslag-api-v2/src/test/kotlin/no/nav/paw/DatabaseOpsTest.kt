@@ -6,9 +6,14 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
+import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
+import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
 import no.nav.paw.config.env.Local
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.model.Identitetsnummer
@@ -72,17 +77,38 @@ class DatabaseOpsTest : FreeSpec({
                     paaVegneAvStart.shouldNotBeNull()
                     paaVegneAvStart.periodeId shouldBe TestData.periode_a_paa_vegne_av_startet.periodeId
                     paaVegneAvStart.identitetsnummer shouldBe null
+                    paaVegneAvStart.data should { data ->
+                        data.shouldBeInstanceOf<PaaVegneAvStart>()
+                        data.graceMS shouldBe (TestData.periode_a_paa_vegne_av_startet.handling as? Start)?.graceMS
+                        data.intervalMS shouldBe (TestData.periode_a_paa_vegne_av_startet.handling as? Start)?.intervalMS
+                    }
                 }
                 rader.firstOrNull { it.type == pa_vegne_av_stopp_v1 } should { paaVegneAvStopp ->
                     paaVegneAvStopp.shouldNotBeNull()
                     paaVegneAvStopp.periodeId shouldBe TestData.periode_a_paa_vegne_av_stoppet.periodeId
                     paaVegneAvStopp.identitetsnummer shouldBe null
+                    paaVegneAvStopp.data should { data ->
+                        data.shouldBeInstanceOf<PaaVegneAvStopp>()
+                        data.periodeId shouldBe TestData.periode_a_paa_vegne_av_stoppet.periodeId
+                        data.bekreftelsesloesning.name shouldBe TestData.periode_a_paa_vegne_av_stoppet.bekreftelsesloesning.name
+                        data.fristBrutt shouldBe (TestData.periode_a_paa_vegne_av_stoppet.handling as? Stopp)?.fristBrutt
+                    }
                 }
                 rader.firstOrNull { it.type == bekreftelsemelding_v1 } should { bekreftelse ->
                     bekreftelse.shouldNotBeNull()
                     bekreftelse.periodeId shouldBe TestData.periode_a_bekreftelse.periodeId
                     bekreftelse.timestamp shouldBe TestData.periode_a_bekreftelse.svar.sendtInnAv.tidspunkt
                     bekreftelse.identitetsnummer shouldBe null
+                    bekreftelse.data should { data ->
+                        data.shouldBeInstanceOf<Bekreftelse>()
+                        data.periodeId shouldBe TestData.periode_a_bekreftelse.periodeId
+                        data.bekreftelsesloesning.name shouldBe TestData.periode_a_bekreftelse.bekreftelsesloesning.name
+                        data.svar.gjelderTil shouldBe TestData.periode_a_bekreftelse.svar.gjelderTil
+                        data.svar.gjelderFra shouldBe TestData.periode_a_bekreftelse.svar.gjelderFra
+                        data.svar.harJobbetIDennePerioden shouldBe TestData.periode_a_bekreftelse.svar.harJobbetIDennePerioden
+                        data.svar.vilFortsetteSomArbeidssoeker shouldBe data.svar.vilFortsetteSomArbeidssoeker
+                        data.svar.sendtInnAv shouldMatch TestData.periode_a_bekreftelse.svar.sendtInnAv
+                    }
                 }
                 rader.firstOrNull { it.type == periode_startet_v1 } should { periodeStart ->
                     periodeStart.shouldNotBeNull()
@@ -161,4 +187,12 @@ infix fun Any.shouldMatch(metadata: no.nav.paw.arbeidssokerregisteret.api.v1.Met
     kilde shouldBe metadata.kilde
     tidspunktFraKilde?.tidspunkt shouldBe metadata.tidspunktFraKilde?.tidspunkt
     tidspunktFraKilde?.avviksType?.name shouldBe metadata.tidspunktFraKilde?.avviksType?.name
+}
+
+infix fun Any.shouldMatch(metadata: no.nav.paw.bekreftelse.melding.v1.vo.Metadata) {
+    this.shouldBeInstanceOf<Metadata>()
+    tidspunkt shouldBe metadata.tidspunkt
+    utfoertAv.id shouldBe metadata.utfoertAv.id
+    utfoertAv.type.name shouldBe metadata.utfoertAv.type.name
+    kilde shouldBe metadata.kilde
 }
