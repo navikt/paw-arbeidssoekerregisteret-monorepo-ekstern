@@ -1,6 +1,5 @@
 package no.nav.paw.oppslagapi.data.query
 
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.DataTable
 import no.nav.paw.oppslagapi.data.Row

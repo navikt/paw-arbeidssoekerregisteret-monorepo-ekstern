@@ -1,20 +1,17 @@
 package no.nav.paw.oppslagapi.routes
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.SamletInformasjonResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
-import no.nav.paw.error.model.Data
-import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.map
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
+import no.nav.paw.oppslagapi.respondWith
 import no.nav.paw.oppslagapi.v2TilV1.v1Bekreftelser
 import no.nav.paw.oppslagapi.v2TilV1.v1Opplysninger
 import no.nav.paw.oppslagapi.v2TilV1.v1Periode
@@ -24,7 +21,6 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
-import org.jetbrains.exposed.sql.FilterCondition
 
 const val V1_API_SAMLET_INFORMASJON = "samlet-informasjon"
 const val V1_API_VEILEDER_SAMLET_INFORMASJON = "veileder/samlet-informasjon"
@@ -45,15 +41,7 @@ fun Route.v1SamletInformasjon(
                 if (bareReturnerSiste) listOfNotNull(it.gjeldeneEllerSisteTidslinje())
                 else it
             }.map { tilSamletInformasjon(it, bareReturnerSiste) }
-            when (response) {
-                is Data<SamletInformasjonResponse> -> {
-                    call.respond(HttpStatusCode.OK, response.data)
-                }
-
-                is ProblemDetails -> {
-                    call.respond(response.status, message = response)
-                }
-            }
+            call.respondWith(response)
         }
     }
 
@@ -74,15 +62,7 @@ fun Route.v1VeilederSamletInformasjon(
                 if (bareReturnerSiste) listOfNotNull(it.gjeldeneEllerSisteTidslinje())
                 else it
             }.map { tilSamletInformasjon(it, bareReturnerSiste) }
-            when (response) {
-                is Data<SamletInformasjonResponse> -> {
-                    call.respond(HttpStatusCode.OK, response.data)
-                }
-
-                is ProblemDetails -> {
-                    call.respond(response.status, message = response)
-                }
-            }
+            call.respondWith(response)
         }
     }
 
