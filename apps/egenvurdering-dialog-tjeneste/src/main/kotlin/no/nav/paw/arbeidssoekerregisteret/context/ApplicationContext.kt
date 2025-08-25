@@ -9,6 +9,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.config.VeilarbdialogClientConfig
+import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
@@ -22,6 +23,8 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
 import javax.sql.DataSource
 
+private val logger = buildApplicationLogger
+
 data class ApplicationContext(
     val serverConfig: ServerConfig,
     val applicationConfig: ApplicationConfig,
@@ -29,7 +32,7 @@ data class ApplicationContext(
     val egenvurderingAvroDeserializer: Deserializer<Egenvurdering>,
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
-    //val dataSource: DataSource,
+    val dataSource: DataSource?,
 ) {
 
     companion object {
@@ -54,8 +57,8 @@ data class ApplicationContext(
             )
             val dialogService = DialogService(veilarbdialogClient = veilarbdialogClient)
 
-            //val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
-            //val dataSource = createHikariDataSource(databaseConfig)
+            val dataSource = createDataSource()!!
+            logger.info("Datasource er opprettet uten feil")
 
             return ApplicationContext(
                 serverConfig = serverConfig,
@@ -64,8 +67,18 @@ data class ApplicationContext(
                 egenvurderingAvroDeserializer = egenvurderingAvroDeserializer,
                 consumer = egenvurderingConsumer,
                 dialogService = dialogService,
-                //dataSource = dataSource
+                dataSource = dataSource
             )
+        }
+
+        private fun createDataSource(): DataSource? {
+            try {
+                val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
+                return createHikariDataSource(databaseConfig)
+            } catch (e: Exception) {
+                logger.error("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
+                return null
+            }
         }
     }
 }
