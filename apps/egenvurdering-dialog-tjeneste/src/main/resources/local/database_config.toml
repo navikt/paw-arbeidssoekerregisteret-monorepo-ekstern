@@ -1,1 +1,1 @@
-url = "postgresql://egenvurdering_dialog_tjeneste:Paw1234@localhost:5432/arbeidssoekerregisteretegenvurderingdialogtjeneste"
+jdbcUrl = "jdbc:postgresql://myapp-pooler.pg-mynamespace:5432/app?user=egenvurdering_dialog_tjeneste&password=Paw1234"

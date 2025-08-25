@@ -57,7 +57,7 @@ data class ApplicationContext(
             )
             val dialogService = DialogService(veilarbdialogClient = veilarbdialogClient)
 
-            val dataSource = createDataSource()!!
+            val dataSource: DataSource? = createDataSource()
             logger.info("Datasource er opprettet uten feil")
 
             return ApplicationContext(
