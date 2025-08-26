@@ -143,6 +143,8 @@ spec:
           namespace: dab
         - application: paw-arbeidssoekerregisteret-api-egenvurdering
           namespace: paw
+        - application: ao-oppfolgingskontor
+          namespace: dab
     outbound:
       rules:
         - application: paw-tilgangskontroll
