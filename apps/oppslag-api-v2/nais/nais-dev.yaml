@@ -65,6 +65,8 @@ spec:
           namespace: paw
         - application: arbeidssoekerregisteret-for-personbruker
           namespace: paw
+        - application: ao-oppfolgingskontor
+          namespace: dab
     outbound:
       rules:
         - application: paw-tilgangskontroll
@@ -72,9 +74,6 @@ spec:
           cluster: dev-gcp
         - application: paw-kafka-key-generator
           namespace: paw
-          cluster: dev-gcp
-        - application: ao-oppfolgingskontor
-          namespace: dab
           cluster: dev-gcp
 
   gcp:
