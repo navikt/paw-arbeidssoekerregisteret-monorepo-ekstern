@@ -1,5 +1,6 @@
 package no.nav.paw.kafkakeygenerator.client
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
@@ -25,7 +26,9 @@ fun createKafkaKeyGeneratorClient(
 fun kafkaKeysClient(
     httpClient: HttpClient = HttpClient {
         install(ContentNegotiation) {
-            jackson()
+            jackson {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            }
         }
     },
     konfigurasjon: KafkaKeyConfig,
