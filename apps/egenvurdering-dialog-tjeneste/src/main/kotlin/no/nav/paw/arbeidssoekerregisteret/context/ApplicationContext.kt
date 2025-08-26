@@ -32,7 +32,7 @@ data class ApplicationContext(
     val egenvurderingAvroDeserializer: Deserializer<Egenvurdering>,
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
-    val dataSource: DataSource,
+    //val dataSource: DataSource,
 ) {
 
     companion object {
@@ -57,8 +57,8 @@ data class ApplicationContext(
             )
             val dialogService = DialogService(veilarbdialogClient = veilarbdialogClient)
 
-            val dataSource = createDataSource()
-            logger.info("Datasource er opprettet")
+            //val dataSource = createDataSource()
+            //logger.info("Datasource er opprettet")
 
             return ApplicationContext(
                 serverConfig = serverConfig,
@@ -67,7 +67,7 @@ data class ApplicationContext(
                 egenvurderingAvroDeserializer = egenvurderingAvroDeserializer,
                 consumer = egenvurderingConsumer,
                 dialogService = dialogService,
-                dataSource = dataSource
+                //dataSource = dataSource
             )
         }
 
@@ -76,6 +76,7 @@ data class ApplicationContext(
                 val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
                 return createHikariDataSource(databaseConfig)
             } catch (e: Exception) {
+                logger.error("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
                 throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
             }
         }
