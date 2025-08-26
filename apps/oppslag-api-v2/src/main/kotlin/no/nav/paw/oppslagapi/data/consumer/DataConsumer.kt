@@ -22,42 +22,31 @@ class DataConsumer(
     private val deserializer: Deserializer<SpecificRecord>,
     private val consumer: Consumer<Long, ByteArray>,
     private val pollTimeout: Duration = Duration.ofMillis(1000L)
-): IsAlive, HasStarted {
+) : IsAlive, HasStarted {
     override val name = "DataConsumer(consumer_version=$consumer_version, pollTimeout=$pollTimeout)"
 
     private val sisteProessering = AtomicReference(Instant.EPOCH)
     private val erStartet = AtomicBoolean(false)
-    private val exitError = AtomicReference<Throwable?>(null)
+    private val exitStatus = AtomicReference<Status.ERROR?>(null)
 
     override fun hasStarted(): Status {
-        val currentExitError = exitError.get()
+        val currentExitError = exitStatus.get()
         return when {
-            currentExitError != null -> {
-                Status.ERROR("Stoppet grunnet feil", currentExitError)
-            }
-            sisteProessering.get() > Instant.EPOCH -> {
-                Status.OK
-            }
-            else -> {
-                Status.PENDING("Ikke startet")
-            }
+            currentExitError != null -> currentExitError
+            sisteProessering.get() > Instant.EPOCH -> Status.OK
+            else -> Status.PENDING("Ikke startet")
         }
     }
 
     override fun isAlive(): Status {
-        val currentExitError = exitError.get()
-        return if (currentExitError != null) {
-            Status.ERROR("Stoppet grunnet feil", currentExitError)
-        } else {
-            between(sisteProessering.get(), Instant.now())
-                .let { timeSinceLastCompletedPoll ->
-                    if (timeSinceLastCompletedPoll < Duration.ofSeconds(10)) {
-                        Status.OK
-                    } else {
-                        Status.PENDING("${timeSinceLastCompletedPoll.toMillis()} ms siden siste batch ble prosessert")
-                    }
+        return exitStatus.get() ?: between(sisteProessering.get(), Instant.now())
+            .let { timeSinceLastCompletedPoll ->
+                if (timeSinceLastCompletedPoll < Duration.ofSeconds(10)) {
+                    Status.OK
+                } else {
+                    Status.PENDING("${timeSinceLastCompletedPoll.toMillis()} ms siden siste batch ble prosessert")
                 }
-        }
+            }
     }
 
     fun run(): CompletableFuture<Void> {
@@ -92,7 +81,7 @@ class DataConsumer(
             }.onFailure { throwable ->
                 runCatching { consumer.close(Duration.ofSeconds(1)) }
                 appLogger.error("DataConsumer avsluttet med feil", throwable)
-                exitError.set(throwable)
+                exitStatus.set(Status.ERROR(message = "Stoppet grunnet feil", cause = throwable))
             }.onSuccess {
                 runCatching { consumer.close(Duration.ofSeconds(1)) }
                 appLogger.info("DataConsumer avsluttet uten feil")

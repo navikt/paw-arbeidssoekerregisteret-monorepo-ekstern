@@ -3,9 +3,10 @@ package no.nav.paw.oppslagapi.data.consumer
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.api.trace.StatusCode
+import no.nav.paw.oppslagapi.appLogger
 import no.nav.paw.oppslagapi.data.DataTable
 import no.nav.paw.oppslagapi.data.Row
-import no.nav.paw.oppslagapi.appLogger
 import org.jetbrains.exposed.sql.batchInsert
 
 fun writeBatchToDb(rows: Sequence<Pair<Row<String>, Span>>) {
@@ -14,7 +15,7 @@ fun writeBatchToDb(rows: Sequence<Pair<Row<String>, Span>>) {
     val batchSpan = tracer.spanBuilder("write_batch_to_db")
         .setSpanKind(SpanKind.SERVER)
         .startSpan()
-    try {
+    runCatching {
         val linkedRows = rows
             .map { (row, span) ->
                 val span = span.addLink(batchSpan.spanContext)
@@ -36,7 +37,13 @@ fun writeBatchToDb(rows: Sequence<Pair<Row<String>, Span>>) {
             this[DataTable.data] = row.data
         }.count()
         appLogger.debug("Skrev $rowCount rader til databasen")
-    } finally {
-        batchSpan.end()
+        batchSpan.setAttribute("db.rows_inserted", rowCount.toLong())
     }
+        .onSuccess { batchSpan.end() }
+        .onFailure { t ->
+            batchSpan.recordException(t)
+            batchSpan.setAttribute("error.type", t::class.java.canonicalName)
+            batchSpan.setStatus(StatusCode.ERROR, t.message ?: "Feil ved skriving til database")
+            batchSpan.end()
+        }.getOrThrow()
 }
