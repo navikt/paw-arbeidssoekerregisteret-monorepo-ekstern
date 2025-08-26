@@ -73,6 +73,9 @@ spec:
         - application: paw-kafka-key-generator
           namespace: paw
           cluster: dev-gcp
+        - application: ao-oppfolgingskontor
+          namespace: dab
+          cluster: dev-gcp
 
   gcp:
     sqlInstances:
