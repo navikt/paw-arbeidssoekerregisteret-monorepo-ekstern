@@ -62,6 +62,12 @@ spec:
         - application: arbeidssoekerregisteret-for-personbruker
           namespace: paw
           cluster: prod-gcp
+        - application: aia-backend
+          namespace: paw
+          cluster: prod-gcp
+        - application: arbeidssokerregistrering
+          namespace: paw
+          cluster: prod-gcp
         - application: ao-oppfolgingskontor
           namespace: dab
           cluster: prod-gcp

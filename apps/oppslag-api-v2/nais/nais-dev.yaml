@@ -65,6 +65,10 @@ spec:
           namespace: paw
         - application: arbeidssoekerregisteret-for-personbruker
           namespace: paw
+        - application: aia-backend
+          namespace: paw
+        - application: arbeidssokerregistrering
+          namespace: paw
         - application: ao-oppfolgingskontor
           namespace: dab
     outbound:
