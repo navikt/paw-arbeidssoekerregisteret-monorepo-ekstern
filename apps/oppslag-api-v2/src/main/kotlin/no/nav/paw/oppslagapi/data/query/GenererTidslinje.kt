@@ -45,9 +45,9 @@ fun genererTidslinje(rader: List<Pair<UUID, List<Row<out Any>>>>): List<Tidslinj
             periodeId = periodeId,
             identitetsnummer = start.identitetsnummer!!,
             startet = start.timestamp,
-            hendelser = (hendelser + (bekreftelser[periodeId] ?: emptyList())).sortedBy { it.tidspunkt },
+            hendelser = (hendelser + (bekreftelser[periodeId] ?: emptyList())).sortedByDescending { it.tidspunkt },
             avsluttet = avsluttet?.timestamp
         )
-    }.sortedBy { it.startet }
+    }.sortedByDescending { it.startet }
     return apiTidslinjer
 }
