@@ -119,6 +119,7 @@ class DatabaseOpsTest : FreeSpec({
                 }
                 rader.firstOrNull { it.type == opplysninger_om_arbeidssoeker_v4 } should { opplysninger ->
                     opplysninger.shouldNotBeNull()
+                    opplysninger.timestamp shouldBe TestData.periode_a_opplysninger.sendtInnAv.tidspunkt
                     opplysninger.periodeId shouldBe TestData.periode_a_opplysninger.periodeId
                     opplysninger.timestamp shouldBe TestData.periode_a_opplysninger.sendtInnAv.tidspunkt
                     opplysninger.identitetsnummer shouldBe null
