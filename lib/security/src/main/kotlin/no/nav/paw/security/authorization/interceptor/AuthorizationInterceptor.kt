@@ -13,7 +13,7 @@ suspend fun RoutingContext.autorisering(
     accessPolicies: List<AccessPolicy> = emptyList(),
     body: suspend RoutingContext.() -> Unit
 ): RoutingContext {
-    logger.debug("Kjører autorisasjon")
+    logger.trace("Kjører autorisasjon")
     val securityContext = call.securityContext()
     accessPolicies.forEach { it.checkAccess(action, securityContext) }
     body()

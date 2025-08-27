@@ -30,7 +30,7 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
 
     val bruker = when (accessToken.issuer) {
         is TokenX -> {
-            logger.debug("TokenX token -> Sluttbruker")
+            logger.trace("TokenX token -> Sluttbruker")
             Sluttbruker(
                 ident = accessToken.claims.getOrThrow(PID),
                 sikkerhetsnivaa = accessToken.sikkerhetsnivaa(),
@@ -41,20 +41,20 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
             if (accessToken.isM2MToken()) {
                 val navIdentHeader = request.headers[NavIdentHeader.name]
                 if (navIdentHeader.isNullOrBlank()) {
-                    logger.debug("AzureAd M2M token -> Anonym")
+                    logger.trace("AzureAd M2M token -> Anonym")
                     Anonym(accessToken.claims.getOrThrow(OID))
                 } else {
-                    logger.debug("AzureAd M2M token -> NavAnsatt")
+                    logger.trace("AzureAd M2M token -> NavAnsatt")
                     NavAnsatt(accessToken.claims.getOrThrow(OID), ident = navIdentHeader, sikkerhetsnivaa = accessToken.sikkerhetsnivaa())
                 }
             } else {
-                logger.debug("AzureAd token -> NavAnsatt")
+                logger.trace("AzureAd token -> NavAnsatt")
                 NavAnsatt(accessToken.claims.getOrThrow(OID), accessToken.claims.getOrThrow(NavIdent), accessToken.sikkerhetsnivaa())
             }
         }
 
         is IdPorten -> {
-            logger.debug("IdPorten token -> Sluttbruker")
+            logger.trace("IdPorten token -> Sluttbruker")
             Sluttbruker(
                 ident = accessToken.claims.getOrThrow(PID),
                 sikkerhetsnivaa = accessToken.sikkerhetsnivaa()
@@ -62,7 +62,7 @@ fun ApplicationCall.resolveSecurityContext(): SecurityContext {
         }
 
         is MaskinPorten -> {
-            logger.debug("MaskinPorten token -> Anonym")
+            logger.trace("MaskinPorten token -> Anonym")
             Anonym()
         }
     }
