@@ -1,15 +1,12 @@
 package no.nav.paw.oppslagapi.routes
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
-import no.nav.paw.error.model.Data
-import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.map
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
+import no.nav.paw.oppslagapi.respondWith
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
@@ -23,15 +20,7 @@ fun Route.v2Tidslinjer(appQueryLogic: ApplicationQueryLogic) {
                 securityContext = securityContext,
                 perioder = request.perioder
             ).map(::TidslinjeResponse)
-            when (response) {
-                is Data<TidslinjeResponse> -> {
-                    call.respond(HttpStatusCode.OK, response.data)
-                }
-
-                is ProblemDetails -> {
-                    call.respond(response.status, response)
-                }
-            }
+            call.respondWith(response)
         }
     }
 }
