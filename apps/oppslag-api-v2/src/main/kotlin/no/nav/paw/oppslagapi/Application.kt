@@ -8,8 +8,11 @@ import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.asList
+import no.nav.paw.arbeidssokerregisteret.standardTopicNames
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
+import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.oppslagapi.data.consumer.DataConsumer
@@ -18,6 +21,8 @@ import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.exposedDatabaseQuerySupport
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.oppslagapi.health.ExposedHealthIndicator
+import no.nav.paw.security.authentication.config.SECURITY_CONFIG
+import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -37,9 +42,10 @@ val appLogger = LoggerFactory.getLogger("app")!!
 
 fun main() {
     appLogger.info("Starter oppslag-api-v2")
-    val configurations = configurations()
+    val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG)
+    val topicNames = standardTopicNames(currentRuntimeEnvironment)
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-    initDatabase(configurations.topicNames, loadNaisOrLocalConfiguration(DATABASE_CONFIG))
+    initDatabase(topicNames, loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val webClients = initWebClients(httpClient = HttpClient {
         install(ContentNegotiation) {
             jackson { registerKotlinModule() }
@@ -54,7 +60,7 @@ fun main() {
         databaseQuerySupport = exposedDatabaseQuerySupport,
         kafkaKeysClient = webClients.kafkaKeysClient
     )
-    val kafkaFactory = KafkaFactory(configurations.kafkaConfig)
+    val kafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG))
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
         groupId = consumer_group,
         clientId = "oppslag-api-v2-${UUID.randomUUID()}",
@@ -64,7 +70,7 @@ fun main() {
         autoOffsetReset = "earliest"
     )
     val rebalanceListener = HwmRebalanceListener(consumer_version, consumer)
-    consumer.subscribe(configurations.topicNames.asList(), rebalanceListener)
+    consumer.subscribe(topicNames.asList(), rebalanceListener)
     val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
     val consumerMetrics = KafkaClientMetrics(consumer)
     val dataConsumerTask = DataConsumer(
@@ -78,7 +84,7 @@ fun main() {
         prometheusRegistry = prometheusRegistry,
         meterBinders = listOf(consumerMetrics),
         healthIndicator = healthIndicator,
-        authProviders = configurations.securityConfig.authProviders,
+        authProviders = securityConfig.authProviders,
         appQueryLogic = applicationQueryLogic
     ).start(wait = true)
 }
