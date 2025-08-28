@@ -19,6 +19,7 @@ import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.logging.logger.AuditLogger
+import no.nav.paw.oppslagapi.data.consumer.ConsumerHealthMetric
 import no.nav.paw.oppslagapi.data.consumer.DataConsumer
 import no.nav.paw.oppslagapi.data.consumer.kafka.HwmRebalanceListener
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
@@ -76,14 +77,16 @@ fun main() {
         autoCommit = false,
         autoOffsetReset = "earliest"
     )
-    val rebalanceListener = HwmRebalanceListener(consumer_version, consumer)
+    val consumerHealthMetric = ConsumerHealthMetric(prometheusRegistry)
+    val rebalanceListener = HwmRebalanceListener(consumer_version, consumer, consumerHealthMetric)
     consumer.subscribe(topicNames.asList(), rebalanceListener)
     val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
     val consumerMetrics = KafkaClientMetrics(consumer)
     val dataConsumerTask = DataConsumer(
         deserializer = deserializer,
         consumer = consumer,
-        pollTimeout = consumer_poll_timeout
+        pollTimeout = consumer_poll_timeout,
+        consumerHealthMetric = consumerHealthMetric
     )
     val healthIndicator = CompoudHealthIndicator(ExposedHealthIndicator, dataConsumerTask)
     dataConsumerTask.run()

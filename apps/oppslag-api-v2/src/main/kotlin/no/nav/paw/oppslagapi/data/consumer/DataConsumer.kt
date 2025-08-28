@@ -17,11 +17,13 @@ import java.time.Instant
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.math.max
 
 class DataConsumer(
     private val deserializer: Deserializer<SpecificRecord>,
     private val consumer: Consumer<Long, ByteArray>,
-    private val pollTimeout: Duration = Duration.ofMillis(1000L)
+    private val pollTimeout: Duration = Duration.ofMillis(1000L),
+    private val consumerHealthMetric: ConsumerHealthMetric
 ) : IsAlive, HasStarted {
     override val name = "DataConsumer(consumer_version=$consumer_version, pollTimeout=$pollTimeout)"
 
@@ -60,6 +62,7 @@ class DataConsumer(
                     consumer.poll(pollTimeout)
                         .takeIf { !it.isEmpty }
                         ?.let { records ->
+                            val timestamps = mutableMapOf<Pair<String, Int>, Long>()
                             transaction {
                                 records
                                     .asSequence()
@@ -71,12 +74,26 @@ class DataConsumer(
                                             offset = record.offset()
                                         )
                                     }
-                                    .onEach { Span.current().addEvent("added_to_batch") }
+                                    .onEach { record ->
+                                        Span.current().addEvent("added_to_batch")
+                                        timestamps.compute(record.topic() to record.partition()) { _, current ->
+                                            current?.let { max(it, record.timestamp()) } ?: record.timestamp()
+                                        }
+                                    }
                                     .map { record -> record.toRow(deserializer) to Span.current() }
                                     .let(::writeBatchToDb)
                             }
+                            timestamps.forEach { (key, value) ->
+                                consumerHealthMetric.recordProcessed(
+                                    topic = key.first,
+                                    partisjon = key.second,
+                                    recordTimestampMs = value
+                                )
+                            }
                         }
-                    sisteProessering.set(Instant.now())
+                    val now = Instant.now()
+                    sisteProessering.set(now)
+                    consumerHealthMetric.consumerPollProcessed(now)
                 }
             }.onFailure { throwable ->
                 runCatching { consumer.close(Duration.ofSeconds(1)) }
