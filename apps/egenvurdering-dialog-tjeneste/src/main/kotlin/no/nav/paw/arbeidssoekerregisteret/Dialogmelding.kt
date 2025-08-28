@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret
 
+import no.nav.paw.arbeidssoekerregisteret.client.DialogRequest
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import java.time.LocalDate

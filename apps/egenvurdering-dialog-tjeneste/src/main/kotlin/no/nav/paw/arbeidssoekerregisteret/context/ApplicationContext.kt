@@ -3,7 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.context
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.DialogService
-import no.nav.paw.arbeidssoekerregisteret.VeilarbdialogClient
+import no.nav.paw.arbeidssoekerregisteret.client.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG

@@ -1,9 +1,11 @@
-package no.nav.paw.arbeidssoekerregisteret
+package no.nav.paw.arbeidssoekerregisteret.client
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -40,12 +42,45 @@ class DialogClientTest : FreeSpec({
 
         val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
 
-        val response = runBlocking {
+        val resultat = runBlocking {
             veilarbDialogClient.lagEllerOppdaterDialog(dialogRequestJson.tilDialogRequest())
         }
-        response.dialogId shouldBe testDialogId
+        (resultat as DialogResponse).dialogId shouldBe testDialogId
     }
 
+    "Arbeidsoppfølgingsperiode er avsluttet" - {
+        val mockEngine = MockEngine { request ->
+            request.method shouldBe HttpMethod.Post
+            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPostPath")
+
+            respond(
+                content = "Funksjonell feil under behandling: NyHenvendelsePåHistoriskDialogException - Kan ikke sende henvendelse på historisk dialog ",
+                status = HttpStatusCode.Conflict,
+            )
+        }
+
+        val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
+
+        runBlocking {
+            veilarbDialogClient.lagEllerOppdaterDialog(dialogRequestJson.tilDialogRequest())
+        }.shouldBeInstanceOf<ArbeidsoppfølgingsperiodeAvsluttet>()
+    }
+
+    "Feilsituasjon kaster VeilarbdialogClientException" - {
+        val mockEngine = MockEngine { request ->
+            request.method shouldBe HttpMethod.Post
+            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPostPath")
+
+            respond(
+                content = "En eller annen feil",
+                status = HttpStatusCode.Conflict,
+            )
+        }
+        val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
+        shouldThrow<VeilarbdialogClientException> {
+            veilarbDialogClient.lagEllerOppdaterDialog(dialogRequestJson.tilDialogRequest())
+        }
+    }
 })
 
 val testDialogId = "4141121"
