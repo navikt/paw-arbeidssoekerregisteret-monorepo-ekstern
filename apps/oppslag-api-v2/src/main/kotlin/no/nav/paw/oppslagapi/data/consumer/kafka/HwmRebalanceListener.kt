@@ -29,10 +29,12 @@ class HwmRebalanceListener(
     override fun onPartitionsRevoked(partitions: MutableCollection<TopicPartition>?) {
         logger.info("Revoked: $partitions")
         partitions?.forEach { partition ->
-            Span.current().addEvent("partition_revoked", Attributes.of(
-                stringKey("topic"), partition.topic(),
-                longKey("partition"), partition.partition().toLong()
-            ))
+            Span.current().addEvent(
+                "partition_revoked", Attributes.of(
+                    stringKey("topic"), partition.topic(),
+                    longKey("partition"), partition.partition().toLong()
+                )
+            )
         }
     }
 
@@ -74,9 +76,9 @@ class HwmRebalanceListener(
         }
             .onSuccess { Span.current().setStatus(OK) }
             .onFailure { t ->
-            Span.current().recordException(t)
-            Span.current().setStatus(ERROR, "Failed to set offsets on rebalance")
-            Span.current().setAttribute(stringKey("error.type"), t::class.java.canonicalName)
-        }.getOrThrow()
+                Span.current().recordException(t)
+                Span.current().setStatus(ERROR, "Failed to set offsets on rebalance")
+                Span.current().setAttribute(stringKey("error.type"), t::class.java.canonicalName)
+            }.getOrThrow()
     }
 }
