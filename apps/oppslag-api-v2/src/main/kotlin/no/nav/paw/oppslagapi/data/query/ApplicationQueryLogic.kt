@@ -31,7 +31,7 @@ class ApplicationQueryLogic(
             ?: listOf(identitetsnummer)
 
         return autorisasjonsTjeneste.autoriser(
-            handling = "Hent arbeidssoekerperioder",
+            handling = "Hent arbeidssøker data",
             securityContext = securityContext,
             oenskerTilgangTil = identieteter
         ) {
