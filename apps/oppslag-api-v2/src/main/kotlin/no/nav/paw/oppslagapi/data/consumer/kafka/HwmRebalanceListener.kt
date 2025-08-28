@@ -28,6 +28,12 @@ class HwmRebalanceListener(
     )
     override fun onPartitionsRevoked(partitions: MutableCollection<TopicPartition>?) {
         logger.info("Revoked: $partitions")
+        partitions?.forEach { partition ->
+            Span.current().addEvent("partition_revoked", Attributes.of(
+                stringKey("topic"), partition.topic(),
+                longKey("partition"), partition.partition().toLong()
+            ))
+        }
     }
 
     @WithSpan(
