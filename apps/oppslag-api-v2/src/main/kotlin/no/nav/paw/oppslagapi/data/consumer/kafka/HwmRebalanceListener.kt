@@ -8,6 +8,7 @@ import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.api.trace.StatusCode.ERROR
 import io.opentelemetry.api.trace.StatusCode.OK
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.paw.oppslagapi.data.consumer.ConsumerHealthMetric
 import no.nav.paw.oppslagapi.data.consumer.kafka.hwm.getHwm
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
@@ -17,7 +18,8 @@ import org.slf4j.LoggerFactory
 
 class HwmRebalanceListener(
     private val consumerVersion: Int,
-    private val consumer: Consumer<*, *>
+    private val consumer: Consumer<*, *>,
+    private val consumerHealthMetric: ConsumerHealthMetric
 ) : ConsumerRebalanceListener {
 
     private val logger = LoggerFactory.getLogger(HwmRebalanceListener::class.java)
@@ -34,6 +36,10 @@ class HwmRebalanceListener(
                     stringKey("topic"), partition.topic(),
                     longKey("partition"), partition.partition().toLong()
                 )
+            )
+            consumerHealthMetric.fjernTildeling(
+                topic = partition.topic(),
+                partisjon = partition.partition()
             )
         }
     }
@@ -58,6 +64,10 @@ class HwmRebalanceListener(
                         ) {
                             "No hwm for topic:partition ${partition.topic()}:${partition.partition()}, init not called?"
                         }
+                        consumerHealthMetric.nyTildeling(
+                            topic = partition.topic(),
+                            partisjon = partition.partition()
+                        )
                         partition to offset
                     }
                 }.forEach { (partition, offset) ->
