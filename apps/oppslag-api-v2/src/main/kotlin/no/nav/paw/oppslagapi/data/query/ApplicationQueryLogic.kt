@@ -11,6 +11,7 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.security.authentication.model.SecurityContext
+import java.time.Instant
 import java.util.UUID
 
 class ApplicationQueryLogic(
@@ -66,10 +67,12 @@ class ApplicationQueryLogic(
         return autorisasjonsTjeneste.autoriser(
             handling = "Hent bekreftelser for arbeidssøkerperiode",
             securityContext = securityContext,
-            oenskerTilgangTil = identerOensketInfoOm.map(::Identitetsnummer),
+            oenskerTilgangTil = identerOensketInfoOm.map(::Identitetsnummer)
         ) {
             BekreftelserResponse(
-                bekreftelser = tidslinjer.flatMap { it.bekreftelser }
+                bekreftelser = tidslinjer
+                    .flatMap { it.bekreftelser }
+                    .sortedByDescending { it.bekreftelse?.svar?.sendtInnAv?.tidspunkt ?: Instant.EPOCH }
             )
         }
     }
