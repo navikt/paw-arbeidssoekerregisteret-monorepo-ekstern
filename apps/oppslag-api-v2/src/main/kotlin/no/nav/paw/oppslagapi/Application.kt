@@ -4,6 +4,9 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmInfoMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -82,7 +85,11 @@ fun main() {
     dataConsumerTask.run()
     initEmbeddedKtorServer(
         prometheusRegistry = prometheusRegistry,
-        meterBinders = listOf(consumerMetrics),
+        meterBinders = listOf(
+            consumerMetrics,
+            JvmMemoryMetrics(),
+            JvmGcMetrics()
+        ),
         healthIndicator = healthIndicator,
         authProviders = securityConfig.authProviders,
         appQueryLogic = applicationQueryLogic
