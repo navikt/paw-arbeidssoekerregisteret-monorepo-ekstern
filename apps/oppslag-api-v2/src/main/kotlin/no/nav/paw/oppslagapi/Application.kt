@@ -1,5 +1,6 @@
 package no.nav.paw.oppslagapi
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -51,7 +52,10 @@ fun main() {
     initDatabase(topicNames, loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val webClients = initWebClients(httpClient = HttpClient {
         install(ContentNegotiation) {
-            jackson { registerKotlinModule() }
+            jackson {
+                registerKotlinModule()
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            }
         }
     })
     val applicationQueryLogic = ApplicationQueryLogic(
