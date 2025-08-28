@@ -26,3 +26,17 @@ fun <T1, T2> Response<T1>.flatMap(transform: (T1) -> Response<T2>): Response<T2>
         is ProblemDetails -> this
     }
 }
+
+fun <T> Response<T>.onSuccess(action: (T) -> Unit): Response<T> {
+    if (this is Data) {
+        action(this.data)
+    }
+    return this
+}
+
+fun <T> Response<T>.onFailure(action: (ProblemDetails) -> Unit): Response<T> {
+    if (this is ProblemDetails) {
+        action(this)
+    }
+    return this
+}

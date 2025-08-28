@@ -1,6 +1,9 @@
 package no.nav.paw.oppslagapi
 
 import io.ktor.http.HttpStatusCode
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -9,6 +12,8 @@ import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.flatMap
 import no.nav.paw.error.model.map
+import no.nav.paw.error.model.onFailure
+import no.nav.paw.error.model.onSuccess
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.model.Identitetsnummer
@@ -58,6 +63,16 @@ class AutorisasjonsTjeneste(
                 bruker = bruker,
                 identitetsnummer = oenskerTilgangTil
             )
+        }.onSuccess{
+            Span.current().addEvent(
+            "autorisering_ok", Attributes.of(
+                stringKey("brukertype"), bruker::class.simpleName?.lowercase() ?: "null",
+            ))
+        }.onFailure {
+            Span.current().addEvent(
+            "autorisering_avvist", Attributes.of(
+                stringKey("brukertype"), bruker::class.simpleName?.lowercase() ?: "null",
+            ))
         }.map {
             val brukerIdent = when (bruker) {
                 is NavAnsatt -> bruker.ident
@@ -104,6 +119,7 @@ class AutorisasjonsTjeneste(
             .firstOrNull() ?: return RESPONSE_DATA_UNIT
     }
 
+    @WithSpan
     fun autoriserAnonym(securityContext: SecurityContext): Response<Unit> {
         val accessToken = securityContext.accessToken
         return if (accessToken.isM2MToken()) {

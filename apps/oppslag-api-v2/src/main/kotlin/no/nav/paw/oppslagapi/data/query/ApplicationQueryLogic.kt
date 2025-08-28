@@ -1,5 +1,7 @@
 package no.nav.paw.oppslagapi.data.query
 
+import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
@@ -17,6 +19,10 @@ class ApplicationQueryLogic(
     private val kafkaKeysClient: KafkaKeysClient
 ) {
 
+    @WithSpan(
+        value = "hent_tidslinjer",
+        kind = SpanKind.SERVER
+    )
     suspend fun hentTidslinjer(
         securityContext: SecurityContext,
         identitetsnummer: Identitetsnummer
@@ -41,6 +47,10 @@ class ApplicationQueryLogic(
         }
     }
 
+    @WithSpan(
+        value = "hent_bekreftelser",
+        kind = SpanKind.SERVER
+    )
     suspend fun hentBekreftelser(
         securityContext: SecurityContext,
         request: ApiV2BekreftelserPostRequest
@@ -64,6 +74,10 @@ class ApplicationQueryLogic(
         }
     }
 
+    @WithSpan(
+        value = "lag_tidslinjer",
+        kind = SpanKind.SERVER
+    )
     suspend fun lagTidslinjer(
         securityContext: SecurityContext,
         perioder: List<UUID>
