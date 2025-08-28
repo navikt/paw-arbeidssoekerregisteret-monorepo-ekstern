@@ -9,6 +9,7 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.nav.security.token.validation.ktor)
     implementation(libs.ktor.serialization.jackson)
+    implementation(libs.opentelemetry.annotations)
 
     //Test
     testImplementation(project(":lib:http-client-utils"))

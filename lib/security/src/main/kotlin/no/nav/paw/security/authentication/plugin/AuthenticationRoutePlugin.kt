@@ -1,9 +1,12 @@
 package no.nav.paw.security.authentication.plugin
 
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.RouteScopedPlugin
 import io.ktor.server.application.createRouteScopedPlugin
 import io.ktor.server.application.log
 import io.ktor.server.auth.AuthenticationChecked
+import io.opentelemetry.api.trace.SpanKind.INTERNAL
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.resolveSecurityContext
 import no.nav.paw.security.authentication.model.securityContext
@@ -30,8 +33,19 @@ val AuthenticationRoutePlugin
         val modifyPrincipal = pluginConfig.modifyPrincipal ?: { it }
 
         on(AuthenticationChecked) { call ->
-            logger.trace("Kjører autentisering")
-            val securityContext = modifyPrincipal(call.resolveSecurityContext())
-            call.securityContext(securityContext)
+            authenticate(modifyPrincipal, call)
         }
     }
+
+@WithSpan(
+    value = "authenticate_incoming",
+    kind = INTERNAL
+)
+private suspend fun authenticate(
+    modifyPrincipal: suspend (SecurityContext) -> SecurityContext,
+    call: ApplicationCall
+) {
+    logger.trace("Kjører autentisering")
+    val securityContext = modifyPrincipal(call.resolveSecurityContext())
+    call.securityContext(securityContext)
+}
