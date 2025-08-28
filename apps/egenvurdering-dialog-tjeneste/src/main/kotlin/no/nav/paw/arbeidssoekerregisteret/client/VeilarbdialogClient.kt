@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.client
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -32,7 +31,7 @@ class VeilarbdialogClient(
         }
         return when {
             response.status.isSuccess() -> response.body<DialogResponse>()
-            response.arbeidsoppfølgingsperiodeErAvsluttet() -> return ArbeidsoppfølgingsperiodeAvsluttet
+            response.arbeidsoppfølgingsperiodeErAvsluttet() -> ArbeidsoppfølgingsperiodeAvsluttet
             else -> throw VeilarbdialogClientException(
                 status = response.status,
                 type = ErrorType.domain("egenvurdering").error("ukjent-veilarbdialog-feil").build(),

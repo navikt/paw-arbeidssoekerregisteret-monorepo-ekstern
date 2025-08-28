@@ -42,10 +42,11 @@ class DialogClientTest : FreeSpec({
 
         val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
 
-        val resultat = runBlocking {
+        runBlocking {
             veilarbDialogClient.lagEllerOppdaterDialog(dialogRequestJson.tilDialogRequest())
+        }.shouldBeInstanceOf<DialogResponse> { resultat ->
+            resultat.dialogId shouldBe testDialogId
         }
-        (resultat as DialogResponse).dialogId shouldBe testDialogId
     }
 
     "Arbeidsoppfølgingsperiode er avsluttet" - {
@@ -91,12 +92,6 @@ val dialogRequestJson = """
           "tekst": "Egenvurdering tekst.",
           "dialogId": "$testDialogId",
           "overskrift": "Oppfølging av søknad",
-          "aktivitetId": "4141121",
-          "venterPaaSvarFraNav": true,
-          "venterPaaSvarFraBruker": true,
-          "egenskaper": [
-            "ESKALERINGSVARSEL"
-          ],
           "fnr": "string"
         }
     """.trimIndent()
@@ -115,7 +110,7 @@ val dialogResponseJson = """
       "sisteTekst": "string",
       "sisteDato": "2025-07-04T08:51:42.036Z",
       "opprettetDato": "2025-07-04T08:51:42.036Z",
-      "historisk": true,
+      "historisk": false,
       "lest": true,
       "venterPaSvar": true,
       "ferdigBehandlet": true,
