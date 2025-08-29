@@ -77,7 +77,7 @@ java {
 }
 
 application {
-    mainClass.set("no.nav.paw.arbeidssoekerregisteret.ApplicationKt")
+    mainClass.set("no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.ApplicationKt")
 }
 
 tasks.withType<Test>().configureEach {
