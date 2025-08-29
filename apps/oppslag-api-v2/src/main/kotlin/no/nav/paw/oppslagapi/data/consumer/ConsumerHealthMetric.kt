@@ -34,7 +34,7 @@ class ConsumerHealthMetric(
         )).register(registry)
         val nyesteMeldingTimestampGauge = Gauge.builder(
             "paw_oppslagsapi_last_record_timestamp",
-            sistePollTimestamp,
+            nyesteMeldingTimestamp,
             { it.get().toDouble() }
         ).tags(Tags.of(
             Tag.of("topic", topic),
