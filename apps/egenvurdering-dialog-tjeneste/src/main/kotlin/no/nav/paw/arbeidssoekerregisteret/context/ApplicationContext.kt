@@ -8,8 +8,6 @@ import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.config.VeilarbdialogClientConfig
-import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
@@ -22,8 +20,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
 import javax.sql.DataSource
-
-private val logger = buildApplicationLogger
 
 data class ApplicationContext(
     val serverConfig: ServerConfig,
@@ -39,10 +35,10 @@ data class ApplicationContext(
         fun create(): ApplicationContext {
             val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
             val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
-            val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
+            val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
             val kafkaFactory = KafkaFactory(kafkaConfig)
             val egenvurderingAvroDeserializer: Deserializer<Egenvurdering> = kafkaFactory.kafkaAvroDeSerializer()
             val egenvurderingConsumer = kafkaFactory.createConsumer<Long, Egenvurdering>(
@@ -50,15 +46,12 @@ data class ApplicationContext(
                 clientId = "${applicationConfig.kafkaTopology.applicationIdPrefix}_${applicationConfig.kafkaTopology.consumerVersion}",
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = egenvurderingAvroDeserializer::class,
+
             )
 
-            val veilarbdialogClient = VeilarbdialogClient(
-                config = VeilarbdialogClientConfig("", ""),
-            )
-            val dialogService = DialogService(veilarbdialogClient = veilarbdialogClient)
-
+            val veilarbdialogClient = VeilarbdialogClient(applicationConfig.veilarbdialogClientConfig)
+            val dialogService = DialogService(veilarbdialogClient)
             val dataSource = createDataSource()
-            logger.info("Datasource er opprettet")
 
             return ApplicationContext(
                 serverConfig = serverConfig,

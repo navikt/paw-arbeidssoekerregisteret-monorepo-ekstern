@@ -1,7 +1,7 @@
 [kafkaTopology]
 consumerVersion = "paw-egenvurdering-dialog-tjeneste-consumer-v1"
-applicationIdPrefix = "paw-arbeidssoekerregisteret-egenvurdering-dialog-tjeneste"
-egenvurderingTopic = "arbeidssoker-egenvurdering-v1"
+applicationIdPrefix = "egenvurdering-dialog-tjeneste"
+egenvurderingTopic = "arbeidssoker-egenvurdering-beta-v2"
 
 [veilarbdialogClientConfig]
 url = "MOCK"
