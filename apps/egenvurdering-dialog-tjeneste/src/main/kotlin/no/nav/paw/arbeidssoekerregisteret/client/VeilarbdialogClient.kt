@@ -18,14 +18,14 @@ import java.net.URI
 
 //https://veilarbdialog.intern.dev.nav.no/veilarbdialog/swagger-ui/index.html#/Dialog(tr%C3%A5d)%20og%20meldings%20API/nyMelding
 
-const val veilarbDialogPostPath = "/api/dialog"
+const val veilarbDialogPath = "/api/dialog"
 
 class VeilarbdialogClient(
     private val config: VeilarbdialogClientConfig,
     private val httpClient: HttpClient = createHttpClient(),
 ) {
     suspend fun lagEllerOppdaterDialog(dialogRequest: DialogRequest): DialogResultat {
-        val response = httpClient.post(config.url + veilarbDialogPostPath) {
+        val response = httpClient.post(config.url + veilarbDialogPath) {
             contentType(ContentType.Application.Json)
             setBody(dialogRequest)
         }

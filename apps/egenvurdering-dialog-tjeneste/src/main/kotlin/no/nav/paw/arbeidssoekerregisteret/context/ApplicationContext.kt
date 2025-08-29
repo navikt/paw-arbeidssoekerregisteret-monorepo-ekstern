@@ -71,14 +71,11 @@ data class ApplicationContext(
             )
         }
 
-        private fun createDataSource(): DataSource {
-            try {
-                val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
-                return createHikariDataSource(databaseConfig)
-            } catch (e: Exception) {
-                logger.error("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
-                throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
-            }
+        private fun createDataSource() = try {
+            val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
+            createHikariDataSource(databaseConfig)
+        } catch (e: Exception) {
+            throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
         }
 
         class KunneIkkeOppretteDatasource(message: String) : RuntimeException(message)

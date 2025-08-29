@@ -31,7 +31,7 @@ class DialogClientTest : FreeSpec({
     "Får postet egenvurdering til dialog" - {
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
-            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPostPath")
+            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
 
             respond(
                 content = dialogResponseJson,
@@ -52,7 +52,7 @@ class DialogClientTest : FreeSpec({
     "Arbeidsoppfølgingsperiode er avsluttet" - {
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
-            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPostPath")
+            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
 
             respond(
                 content = "Funksjonell feil under behandling: NyHenvendelsePåHistoriskDialogException - Kan ikke sende henvendelse på historisk dialog ",
@@ -70,7 +70,7 @@ class DialogClientTest : FreeSpec({
     "Feilsituasjon kaster VeilarbdialogClientException" - {
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
-            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPostPath")
+            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
 
             respond(
                 content = "En eller annen feil",
@@ -84,7 +84,7 @@ class DialogClientTest : FreeSpec({
     }
 })
 
-val testDialogId = "4141121"
+const val testDialogId = "4141121"
 
 //language=JSON
 val dialogRequestJson = """
