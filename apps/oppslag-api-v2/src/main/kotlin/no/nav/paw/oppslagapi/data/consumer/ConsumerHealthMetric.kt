@@ -56,12 +56,11 @@ class ConsumerHealthMetric(
     }
 
     fun fjernTildeling(topic: String, partisjon: Int) {
-        tildeltePartisjoner.compute(Key(topic, partisjon)) { key, current ->
-            current?.let { (meterId, _) ->
-                registry.remove(meterId)
-                null
+        tildeltePartisjoner.remove(Key(topic, partisjon))
+            ?.also { qosGauge ->
+                registry.remove(qosGauge.forsinkelseMeterId)
+                registry.remove(qosGauge.sistePollMeterId)
             }
-        }
     }
 
     fun consumerPollProcessed(timestamp: Instant) {
