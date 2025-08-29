@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import java.lang.System.currentTimeMillis
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -17,13 +18,13 @@ class ConsumerHealthMetric(
     private data class QosGauge(
         val sistePollMeterId: Meter.Id,
         val sistePollTimestamp: AtomicLong,
-        val nyesteMeldingMeterId: Meter.Id,
-        val nyesteMeldingTimestamp: AtomicLong
+        val forsinkelseMeterId: Meter.Id,
+        val forsinkelse: AtomicLong
     )
 
     private fun createGauge(topic: String, partisjon: Int): QosGauge {
         val sistePollTimestamp = AtomicLong(0L)
-        val nyesteMeldingTimestamp = AtomicLong(0L)
+        val latency = AtomicLong(0L)
         val sistePollTimestampGauge = Gauge.builder(
             "paw_oppslagsapi_last_consumer_poll_timestamp",
             sistePollTimestamp,
@@ -33,8 +34,8 @@ class ConsumerHealthMetric(
             Tag.of("partition", partisjon.toString())
         )).register(registry)
         val nyesteMeldingTimestampGauge = Gauge.builder(
-            "paw_oppslagsapi_last_record_timestamp",
-            nyesteMeldingTimestamp,
+            "paw_oppslagsapi_processed_record_latency",
+            latency,
             { it.get().toDouble() }
         ).tags(Tags.of(
             Tag.of("topic", topic),
@@ -43,8 +44,8 @@ class ConsumerHealthMetric(
         return QosGauge(
             sistePollMeterId = sistePollTimestampGauge.id,
             sistePollTimestamp = sistePollTimestamp,
-            nyesteMeldingMeterId = nyesteMeldingTimestampGauge.id,
-            nyesteMeldingTimestamp = nyesteMeldingTimestamp
+            forsinkelseMeterId = nyesteMeldingTimestampGauge.id,
+            forsinkelse = latency
         )
     }
 
@@ -70,11 +71,8 @@ class ConsumerHealthMetric(
     }
 
     fun recordProcessed(topic: String, partisjon: Int, recordTimestampMs: Long) {
-        tildeltePartisjoner[Key(topic, partisjon)]?.let { qosGauge ->
-            qosGauge.nyesteMeldingTimestamp
-                .getAndUpdate { current ->
-                    maxOf(current, recordTimestampMs)
-                }
-        }
+        tildeltePartisjoner[Key(topic, partisjon)]
+            ?.forsinkelse
+            ?.set(currentTimeMillis() - recordTimestampMs)
     }
 }

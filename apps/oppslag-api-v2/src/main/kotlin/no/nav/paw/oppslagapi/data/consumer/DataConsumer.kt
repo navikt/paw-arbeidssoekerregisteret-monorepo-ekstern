@@ -17,7 +17,7 @@ import java.time.Instant
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.math.max
+import kotlin.math.min
 
 class DataConsumer(
     private val deserializer: Deserializer<SpecificRecord>,
@@ -62,7 +62,7 @@ class DataConsumer(
                     consumer.poll(pollTimeout)
                         .takeIf { !it.isEmpty }
                         ?.let { records ->
-                            val timestamps = mutableMapOf<Pair<String, Int>, Long>()
+                            val eldsteRecordTidspunkt = mutableMapOf<Pair<String, Int>, Long>()
                             transaction {
                                 records
                                     .asSequence()
@@ -76,14 +76,14 @@ class DataConsumer(
                                     }
                                     .onEach { record ->
                                         Span.current().addEvent("added_to_batch")
-                                        timestamps.compute(record.topic() to record.partition()) { _, current ->
-                                            current?.let { max(it, record.timestamp()) } ?: record.timestamp()
+                                        eldsteRecordTidspunkt.compute(record.topic() to record.partition()) { _, current ->
+                                            current?.let { min(it, record.timestamp()) } ?: record.timestamp()
                                         }
                                     }
                                     .map { record -> record.toRow(deserializer) to Span.current() }
                                     .let(::writeBatchToDb)
                             }
-                            timestamps.forEach { (key, value) ->
+                            eldsteRecordTidspunkt.forEach { (key, value) ->
                                 consumerHealthMetric.recordProcessed(
                                     topic = key.first,
                                     partisjon = key.second,
