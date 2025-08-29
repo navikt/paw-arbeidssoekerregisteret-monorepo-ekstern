@@ -1,13 +1,12 @@
 package no.nav.paw.arbeidssoekerregisteret
 
-import no.nav.paw.arbeidssoekerregisteret.client.DialogRequest
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import java.time.LocalDate
 
 abstract class Dialogmelding(
     val overskrift: String,
-    val tekst: String
+    val tekst: String,
 )
 
 class ANTATT_GODE_MULIGHETER_MEN_VIL_HA_VEILEDNING(dato: String) : Dialogmelding(
@@ -48,7 +47,7 @@ fun Egenvurdering.toDialogmelding(): Dialogmelding {
         else -> throw UnsupportedOperationException("Har ikke støtte for denne profilertTil: ${this.profilertTil}")
     }
 }
-
+/*
 fun Dialogmelding.toDialogRequest(egenvurdering: Egenvurdering): DialogRequest {
     return DialogRequest(
         tekst = this.tekst,
@@ -56,4 +55,4 @@ fun Dialogmelding.toDialogRequest(egenvurdering: Egenvurdering): DialogRequest {
         overskrift = this.overskrift,
         fnr = egenvurdering.sendtInnAv.utfoertAv.id
     )
-}
+}*/

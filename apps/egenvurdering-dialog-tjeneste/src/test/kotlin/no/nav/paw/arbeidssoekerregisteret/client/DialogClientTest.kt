@@ -1,7 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.client
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
@@ -28,7 +26,7 @@ class DialogClientTest : FreeSpec({
         scope = "dialog-test-scope",
     )
 
-    "Får postet egenvurdering til dialog" - {
+    "Får postet ny tråd og melding til dialog" - {
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
             request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
@@ -43,9 +41,15 @@ class DialogClientTest : FreeSpec({
         val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
 
         runBlocking {
-            veilarbDialogClient.lagEllerOppdaterDialog(dialogRequestJson.tilDialogRequest())
+            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyTråd("tekst", "overskrift"))
         }.shouldBeInstanceOf<DialogResponse> { resultat ->
-            resultat.dialogId shouldBe testDialogId
+            resultat.dialogId shouldBe testDialogId.value
+        }
+
+        runBlocking {
+            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyMelding("tekst", testDialogId))
+        }.shouldBeInstanceOf<DialogResponse> { resultat ->
+            resultat.dialogId shouldBe testDialogId.value
         }
     }
 
@@ -63,7 +67,7 @@ class DialogClientTest : FreeSpec({
         val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
 
         runBlocking {
-            veilarbDialogClient.lagEllerOppdaterDialog(dialogRequestJson.tilDialogRequest())
+            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyMelding("tekst", DialogId("adsasd")))
         }.shouldBeInstanceOf<ArbeidsoppfølgingsperiodeAvsluttet>()
     }
 
@@ -79,32 +83,17 @@ class DialogClientTest : FreeSpec({
         }
         val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
         shouldThrow<VeilarbdialogClientException> {
-            veilarbDialogClient.lagEllerOppdaterDialog(dialogRequestJson.tilDialogRequest())
+            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyTråd("tekst", "overskrift"))
         }
     }
 })
 
-const val testDialogId = "4141121"
-
-//language=JSON
-val dialogRequestJson = """
-        {
-          "tekst": "Egenvurdering tekst.",
-          "dialogId": "$testDialogId",
-          "overskrift": "Oppfølging av søknad",
-          "fnr": "string"
-        }
-    """.trimIndent()
-
-fun String.tilDialogRequest(): DialogRequest {
-    val mapper = jacksonObjectMapper()
-    return mapper.readValue(this)
-}
+val testDialogId = DialogId("4141121")
 
 //language=JSON
 val dialogResponseJson = """
     {
-      "id": "$testDialogId",
+      "id": "${testDialogId.value}",
       "aktivitetId": "string",
       "overskrift": "string",
       "sisteTekst": "string",
