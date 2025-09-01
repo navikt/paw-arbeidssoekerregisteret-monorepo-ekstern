@@ -10,7 +10,7 @@ jib {
     from.image = distrolessJavaImage
     to.image = targetImage
     container {
-        jvmFlags = listOf("-XX:ActiveProcessorCount=4", "-XX:+UseZGC", "-XX:+ZGenerational")
+        jvmFlags = listOf("-XX:ActiveProcessorCount=8", "-XX:+UseZGC", "-XX:+ZGenerational")
         environment = mapOf(
             "IMAGE_WITH_VERSION" to targetImage
         )
