@@ -75,7 +75,6 @@ class DataConsumer(
                                         )
                                     }
                                     .onEach { record ->
-                                        Span.current().addEvent("added_to_batch")
                                         eldsteRecordTidspunkt.compute(record.topic() to record.partition()) { _, current ->
                                             current?.let { min(it, record.timestamp()) } ?: record.timestamp()
                                         }
