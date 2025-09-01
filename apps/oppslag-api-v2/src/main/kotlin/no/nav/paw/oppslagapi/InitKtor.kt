@@ -17,6 +17,7 @@ import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ProblemDetails
@@ -34,6 +35,7 @@ import no.nav.paw.security.authentication.config.AuthProvider
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.slf4j.event.Level
+import java.time.Duration
 
 fun <A> initEmbeddedKtorServer(
     prometheusRegistry: PrometheusMeterRegistry,
@@ -76,6 +78,16 @@ fun Application.configureKtorServer(
     install(MicrometerMetrics) {
         registry = prometheusRegistry
         this.meterBinders = meterBinders
+        distributionStatisticConfig =
+            DistributionStatisticConfig.builder()
+                .percentilesHistogram(true)
+                .maximumExpectedValue(Duration.ofSeconds(1).toNanos().toDouble())
+                .minimumExpectedValue(Duration.ofMillis(20).toNanos().toDouble())
+                .serviceLevelObjectives(
+                    Duration.ofMillis(150).toNanos().toDouble(),
+                    Duration.ofMillis(500).toNanos().toDouble()
+                )
+                .build()
     }
     installAuthenticationPlugin(authProviders)
 }
