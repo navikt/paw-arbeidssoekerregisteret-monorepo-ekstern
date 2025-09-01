@@ -41,13 +41,13 @@ class DialogClientTest : FreeSpec({
         val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
 
         runBlocking {
-            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyTråd("tekst", "overskrift"))
+            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyTråd("tekst", "overskrift", venterPaaSvarFraNav = true))
         }.shouldBeInstanceOf<DialogResponse> { resultat ->
             resultat.dialogId shouldBe testDialogId.value
         }
 
         runBlocking {
-            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyMelding("tekst", testDialogId))
+            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyMelding("tekst", testDialogId, venterPaaSvarFraNav = false))
         }.shouldBeInstanceOf<DialogResponse> { resultat ->
             resultat.dialogId shouldBe testDialogId.value
         }
@@ -67,7 +67,7 @@ class DialogClientTest : FreeSpec({
         val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
 
         runBlocking {
-            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyMelding("tekst", DialogId("adsasd")))
+            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyMelding("tekst", DialogId("adsasd"), venterPaaSvarFraNav = true))
         }.shouldBeInstanceOf<ArbeidsoppfølgingsperiodeAvsluttet>()
     }
 
@@ -83,7 +83,7 @@ class DialogClientTest : FreeSpec({
         }
         val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
         shouldThrow<VeilarbdialogClientException> {
-            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyTråd("tekst", "overskrift"))
+            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyTråd("tekst", "overskrift", venterPaaSvarFraNav = true))
         }
     }
 })
