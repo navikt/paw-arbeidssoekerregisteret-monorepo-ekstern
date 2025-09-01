@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste
 
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.formaterDato
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
@@ -43,7 +44,7 @@ fun Egenvurdering.tilDialogmelding(): Dialogmelding {
                 ventPåSvarFraNav = true
             )
 
-            else -> error("Ustøttet kombinasjon: Nav vurdering=$navProfilering, brukers egenvurdering=$brukersEgenvurdering")
+            else -> throw ProfileringKombinasjonIkkeStøttet(navProfilering, brukersEgenvurdering)
         }
 
         ANTATT_BEHOV_FOR_VEILEDNING -> when (brukersEgenvurdering) {
@@ -61,10 +62,10 @@ fun Egenvurdering.tilDialogmelding(): Dialogmelding {
                 ventPåSvarFraNav = false
             )
 
-            else -> error("Ustøttet kombinasjon: Nav vurdering=$navProfilering, brukers egenvurdering=$brukersEgenvurdering")
+            else -> throw ProfileringKombinasjonIkkeStøttet(navProfilering, brukersEgenvurdering)
         }
 
-        else -> error("Ustøttet profilertTil: $navProfilering")
+        else -> throw ProfileringIkkeStøttet(navProfilering)
     }
 }
 
@@ -83,4 +84,17 @@ private fun lagDialogmelding(
     
         $FOOTER_TEKST ${formaterDato(egenvurderingMottatt)}."
     """.trimIndent()
+)
+
+class ProfileringKombinasjonIkkeStøttet(
+    navProfilering: ProfilertTil,
+    brukersEgenvurdering: ProfilertTil,
+) : UnsupportedOperationException(
+    "Kombinasjonen støtter ikke bygging av dialogmelding: Nav profilering=$navProfilering, brukers egenvurdering=$brukersEgenvurdering"
+)
+
+class ProfileringIkkeStøttet(
+    profilertTil: ProfilertTil,
+) : UnsupportedOperationException(
+    "Profilering ikke støttet for bygging av dialogmelding: profilertTil=$profilertTil"
 )

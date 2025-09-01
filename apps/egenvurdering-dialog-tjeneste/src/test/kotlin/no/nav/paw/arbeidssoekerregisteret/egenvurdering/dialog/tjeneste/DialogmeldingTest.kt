@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -10,6 +11,9 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.OPPGITT_HINDRINGER
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.UDEFINERT
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.UKJENT_VERDI
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import java.time.Instant
 import java.util.*
@@ -75,10 +79,31 @@ class DialogmeldingTest : FreeSpec({
         dialogmelding.tekst shouldContain BRUKER_VIL_KLARE_SEG_SELV
         dialogmelding.tekst shouldContain forventetFooter
     }
-})
 
-fun metadata(tidspunkt: Instant): Metadata =
-    Metadata().apply { setTidspunkt(tidspunkt) }
+
+    "Ustøttede kombinasjoner/profileringer" {
+        shouldThrow<ProfileringKombinasjonIkkeStøttet> {
+            egenvurdering(ANTATT_GODE_MULIGHETER, OPPGITT_HINDRINGER).tilDialogmelding()
+        }
+        shouldThrow<ProfileringKombinasjonIkkeStøttet> {
+            egenvurdering(ANTATT_GODE_MULIGHETER, UDEFINERT).tilDialogmelding()
+        }
+        shouldThrow<ProfileringKombinasjonIkkeStøttet> {
+            egenvurdering(ANTATT_BEHOV_FOR_VEILEDNING, UKJENT_VERDI).tilDialogmelding()
+        }
+
+        shouldThrow<ProfileringIkkeStøttet> {
+            egenvurdering(OPPGITT_HINDRINGER, ANTATT_GODE_MULIGHETER).tilDialogmelding()
+        }
+        shouldThrow<ProfileringIkkeStøttet> {
+            egenvurdering(UDEFINERT, ANTATT_GODE_MULIGHETER).tilDialogmelding()
+        }
+        shouldThrow<ProfileringIkkeStøttet> {
+            egenvurdering(UKJENT_VERDI, ANTATT_GODE_MULIGHETER).tilDialogmelding()
+        }
+    }
+
+})
 
 fun egenvurdering(
     navProfilering: ProfilertTil,
@@ -89,7 +114,7 @@ fun egenvurdering(
     UUID.randomUUID(),
     UUID.randomUUID(),
     UUID.randomUUID(),
-    metadata(tidspunkt),
+    Metadata().apply<Metadata> { setTidspunkt(tidspunkt) },
     navProfilering,
     brukersEgenvurdering
 )
