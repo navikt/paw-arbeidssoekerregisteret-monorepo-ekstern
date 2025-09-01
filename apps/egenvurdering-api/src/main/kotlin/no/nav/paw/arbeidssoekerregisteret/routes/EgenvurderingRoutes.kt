@@ -12,6 +12,7 @@ import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.config.env.NAIS_PROD_CLUSER_NAME
+import no.nav.paw.config.env.ProdGcp
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
@@ -38,7 +39,7 @@ fun Route.egenvurderingRoutes(
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.READ, accessPolicies) {
                     val accessToken = call.securityContext().accessToken
-                    val egenvurderingGrunnlag = if (currentRuntimeEnvironment.equals(NAIS_PROD_CLUSER_NAME)) {
+                    val egenvurderingGrunnlag = if (currentRuntimeEnvironment is ProdGcp) {
                         EgenvurderingGrunnlag(grunnlag = null)
                     } else {
                         egenvurderingService.getEgenvurderingGrunnlag(accessToken)
