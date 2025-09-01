@@ -12,7 +12,7 @@ class DialogService(val veilarbdialogClient: VeilarbdialogClient) {
         logger.info("Received ${records.count()} records from Kafka")
         records.forEach { record ->
             val egenvurdering = record.value()
-            val dialogmelding = egenvurdering.toDialogmelding()
+            val dialogmelding = egenvurdering.tilDialogmelding()
             //val response = runBlocking { veilarbdialogClient.lagEllerOppdaterDialog(dialogmelding.toDialogRequest()) }
             TODO("handle response")
         }
