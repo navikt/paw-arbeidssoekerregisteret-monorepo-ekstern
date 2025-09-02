@@ -15,6 +15,6 @@ fun List<ApiTidslinje>.gjeldeneEllerSisteTidslinje(): ApiTidslinje? {
             tidslinjeFilterLogger.error("Flere aktive perioder funnet, bruker eldste som 'siste'")
             aktive.minBy { it.startet }
         }
-        else -> minByOrNull { it.avsluttet ?: Instant.MAX }
+        else -> maxByOrNull { it.avsluttet ?: Instant.MAX }
     }
 }
