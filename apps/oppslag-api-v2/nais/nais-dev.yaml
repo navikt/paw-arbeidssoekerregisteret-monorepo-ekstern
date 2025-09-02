@@ -71,6 +71,10 @@ spec:
           namespace: paw
         - application: ao-oppfolgingskontor
           namespace: dab
+        - application: flex-arbeidssokerregister-oppdatering
+          namespace: flex
+        - application: sykepengesoknad-backend
+          namespace: flex
     outbound:
       rules:
         - application: paw-tilgangskontroll
