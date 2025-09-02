@@ -1,8 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.application.profilering
 
 import io.kotest.core.spec.style.FreeSpec
-import io.kotest.data.Row6
-import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
@@ -136,5 +134,21 @@ fun test(
     forventetAlder: Int,
     forventetHarJobbetSammenhengendeSiste12Mnd: Boolean,
     forventetProfilertTil: ProfilertTil
-): Row6<String, PersonInfo, OpplysningerOmArbeidssoeker, Int, Boolean, ProfilertTil> =
-    row(beskrivelse, personInfo, opplysninger, forventetAlder, forventetHarJobbetSammenhengendeSiste12Mnd, forventetProfilertTil)
+): ProfileringsTest = ProfileringsTest(
+    beskrivelse = beskrivelse,
+    personInfo = personInfo,
+    opplysninger = opplysninger,
+    forventetAlder = forventetAlder,
+    forventetHarJobbetSammenhengendeSiste12Mnd = forventetHarJobbetSammenhengendeSiste12Mnd,
+    forventetProfilertTil = forventetProfilertTil
+)
+
+
+data class ProfileringsTest(
+    val beskrivelse: String,
+    val personInfo: PersonInfo,
+    val opplysninger: OpplysningerOmArbeidssoeker,
+    val forventetAlder: Int,
+    val forventetHarJobbetSammenhengendeSiste12Mnd: Boolean,
+    val forventetProfilertTil: ProfilertTil
+)
