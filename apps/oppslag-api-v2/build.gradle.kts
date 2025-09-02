@@ -142,7 +142,7 @@ tasks {
 
     register<GenerateTask>("${legacyApi}Generator") {
         generatorName.set("kotlin-server")
-        library = "ktor"
+        library.set("ktor")
         inputSpec = legacyApiDocFile
         outputDir = "${layout.buildDirectory.get()}/generated/"
         packageName = "no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag"
@@ -166,7 +166,7 @@ tasks {
 
     register<GenerateTask>("apiGenerator") {
         generatorName.set("kotlin-server")
-        library = "ktor"
+        library.set("ktor")
         inputSpec = openApiDocFile
         outputDir = "${layout.buildDirectory.get()}/generated/"
         packageName = "no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag"

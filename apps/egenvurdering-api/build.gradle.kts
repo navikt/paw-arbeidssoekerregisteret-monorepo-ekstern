@@ -121,8 +121,8 @@ openApiValidate {
 
 openApiGenerate {
     generatorName.set("kotlin-server")
-    library = "ktor"
     inputSpec = openApiDocFile
+    library.set("ktor")
     outputDir = "${layout.buildDirectory.get()}/generated/"
     packageName = "no.nav.paw.arbeidssoekerregisteret.egenvurdering.api"
     configOptions.set(

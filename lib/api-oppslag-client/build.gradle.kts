@@ -52,7 +52,7 @@ openApiValidate {
 
 openApiGenerate {
     generatorName.set("kotlin")
-    library = "jvm-ktor"
+    library.set("jvm-ktor")
     inputSpec = "${layout.projectDirectory}/src/main/resources/openapi/api-oppslag.yaml"
     outputDir = "${layout.buildDirectory.get()}/generated/"
     packageName = "no.nav.paw.client.api.oppslag"

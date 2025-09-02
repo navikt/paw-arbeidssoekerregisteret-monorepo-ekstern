@@ -45,7 +45,7 @@ mapOf(
     val taskName = "generate${pkgName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
     tasks.register(taskName, GenerateTask::class) {
         generatorName.set("kotlin")
-        library = "jvm-ktor"
+        library.set("jvm-ktor")
         inputSpec = openApiDocFile
         outputDir = generatedCodeOutputDir
         packageName = pkgName
