@@ -59,6 +59,8 @@ spec:
           namespace: nais
         - application: azure-token-generator
           namespace: nais
+        - application: paw-arbeidssoekerregisteret-api-dolly
+          namespace: paw
         - application: paw-brukerstotte
           namespace: paw
         - application: arbeidssokerregistrering-for-veileder
