@@ -69,6 +69,8 @@ spec:
           namespace: paw
         - application: arbeidssokerregistrering
           namespace: paw
+        - application: paw-arbeidssoekerregisteret-hendelselogg-backup
+          namespace: paw
         - application: ao-oppfolgingskontor
           namespace: dab
         - application: flex-arbeidssokerregister-oppdatering

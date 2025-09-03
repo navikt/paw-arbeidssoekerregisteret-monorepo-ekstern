@@ -68,6 +68,8 @@ spec:
         - application: arbeidssokerregistrering
           namespace: paw
           cluster: prod-gcp
+        - application: paw-arbeidssoekerregisteret-hendelselogg-backup
+          namespace: paw
         - application: ao-oppfolgingskontor
           namespace: dab
           cluster: prod-gcp
