@@ -9,6 +9,7 @@ import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmInfoMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
+import io.micrometer.core.instrument.binder.system.UptimeMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.asList
@@ -95,7 +96,8 @@ fun main() {
         meterBinders = listOf(
             consumerMetrics,
             JvmMemoryMetrics(),
-            JvmGcMetrics()
+            JvmGcMetrics(),
+            UptimeMetrics()
         ),
         healthIndicator = healthIndicator,
         authProviders = securityConfig.authProviders,
