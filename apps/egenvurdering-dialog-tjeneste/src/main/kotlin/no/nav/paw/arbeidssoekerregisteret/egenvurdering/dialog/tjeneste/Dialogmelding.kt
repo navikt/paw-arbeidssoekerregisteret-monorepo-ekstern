@@ -2,7 +2,6 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste
 
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.DialogId
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.DialogRequest
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.formaterDato
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER

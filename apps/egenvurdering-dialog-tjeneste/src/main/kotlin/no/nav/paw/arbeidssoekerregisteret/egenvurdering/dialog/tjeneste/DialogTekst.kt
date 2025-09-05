@@ -1,7 +1,10 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste
 
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.formaterDato
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit.MINUTES
+import java.util.*
 
 internal object DialogTekst {
     const val OVERSKRIFT = "Egenvurdering"
@@ -20,3 +23,9 @@ internal object DialogTekst {
 
     fun footer(innsendt: Instant): String = "$FOOTER_PREFIX ${formaterDato(innsendt)}."
 }
+
+private fun formaterDato(instant: Instant): String = dateTimeFormatter.format(instant.atZone(OSLO).truncatedTo(MINUTES))
+
+private val OSLO = ZoneId.of("Europe/Oslo")
+private val NB_NO = Locale.of("nb", "NO")
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("d. MMMM yyyy 'kl.' HH:mm", NB_NO)
