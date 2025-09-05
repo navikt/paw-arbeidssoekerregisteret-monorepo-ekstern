@@ -1,4 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste
+
 import io.ktor.server.application.Application
 import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
@@ -49,7 +50,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureDatabase(applicationContext.dataSource)
     configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
         if (!records.isEmpty) {
-            applicationContext.dialogService.handleRecords(records)
+            applicationContext.dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
         }
     }
     configureRouting(applicationContext)
