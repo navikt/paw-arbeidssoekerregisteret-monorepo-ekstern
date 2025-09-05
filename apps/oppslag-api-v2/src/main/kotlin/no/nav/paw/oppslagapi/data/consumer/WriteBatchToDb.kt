@@ -13,7 +13,7 @@ fun writeBatchToDb(rows: Sequence<Pair<Row<String>, Span>>) {
     val tracer = GlobalOpenTelemetry
         .getTracer("write_batch_to_db")
     val batchSpan = tracer.spanBuilder("write_batch_to_db")
-        .setSpanKind(SpanKind.SERVER)
+        .setSpanKind(SpanKind.INTERNAL)
         .startSpan()
     runCatching {
         val linkedRows = rows
