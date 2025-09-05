@@ -16,7 +16,7 @@ spec:
       memory: 1024Mi
     requests:
       cpu: 200m
-      memory: 640Mi
+      memory: 736Mi
   tokenx:
     enabled: true
   azure:
