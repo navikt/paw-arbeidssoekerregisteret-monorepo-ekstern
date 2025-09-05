@@ -51,7 +51,9 @@ class KafkaFactory(private val config: KafkaConfig) {
         valueDeserializer: KClass<out Deserializer<V>>,
         autoCommit: Boolean = false,
         autoOffsetReset: String = "earliest",
-        maxPollrecords: Int = ConsumerConfig.DEFAULT_MAX_POLL_RECORDS
+        maxPollRecords: Int = ConsumerConfig.DEFAULT_MAX_POLL_RECORDS,
+        fetchMaxBytes: Int = ConsumerConfig.DEFAULT_FETCH_MAX_BYTES,
+        maxPartitionFetchBytes: Int = ConsumerConfig.DEFAULT_MAX_PARTITION_FETCH_BYTES
     ): KafkaConsumer<K, V> =
         KafkaConsumer(
             baseProperties +
@@ -62,7 +64,9 @@ class KafkaFactory(private val config: KafkaConfig) {
                         ConsumerConfig.CLIENT_ID_CONFIG to clientId,
                         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to keyDeserializer.java,
                         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to valueDeserializer.java,
-                        ConsumerConfig.MAX_POLL_RECORDS_CONFIG to maxPollrecords
+                        ConsumerConfig.MAX_POLL_RECORDS_CONFIG to maxPollRecords,
+                        ConsumerConfig.FETCH_MAX_BYTES_CONFIG to fetchMaxBytes,
+                        ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG to maxPartitionFetchBytes
                     )
         )
 
