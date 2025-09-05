@@ -76,7 +76,9 @@ fun main() {
         keyDeserializer = LongDeserializer::class,
         valueDeserializer = ByteArrayDeserializer::class,
         autoCommit = false,
-        autoOffsetReset = "earliest"
+        autoOffsetReset = "earliest",
+        fetchMaxBytes = 30 * 1024 * 1024, // 30MB, 30 partisjoner * 1MB, ser om dette gir lavere forsinkelse ved burts på en topic.
+        maxPartitionFetchBytes = 1 * 1024 * 1024  // 1MB
     )
     val consumerHealthMetric = ConsumerHealthMetric(prometheusRegistry)
     val rebalanceListener = HwmRebalanceListener(consumer_version, consumer, consumerHealthMetric)
