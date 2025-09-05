@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.reposit
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.util.*
@@ -16,14 +17,16 @@ object PeriodeIdDialogIdRepository {
             ?.get(PeriodeIdDialogIdTable.dialogId)
     }
 
-    fun insert(periodeId: UUID, dialogId: Long) = transaction {
-        try {
-            PeriodeIdDialogIdTable.insert {
-                it[PeriodeIdDialogIdTable.periodeId] = periodeId
-                it[PeriodeIdDialogIdTable.dialogId] = dialogId
+    fun insert(periodeId: UUID, dialogId: Long) {
+        return transaction {
+            try {
+                PeriodeIdDialogIdTable.insert {
+                    it[PeriodeIdDialogIdTable.periodeId] = periodeId
+                    it[PeriodeIdDialogIdTable.dialogId] = dialogId
+                }
+            } catch (e: Exception) {
+                throw InsertFeilet(periodeId, dialogId, e)
             }
-        } catch (e: Exception) {
-            throw InsertFeilet(periodeId, dialogId, e)
         }
     }
 
