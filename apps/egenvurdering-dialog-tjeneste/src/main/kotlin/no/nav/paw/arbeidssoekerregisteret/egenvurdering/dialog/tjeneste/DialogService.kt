@@ -36,6 +36,8 @@ class DialogService(
                     is DialogResponse -> {
                         if (eksisterendeDialogId == null) {
                             periodeIdDialogIdRepository.insert(periodeId, response.dialogId.toLong())
+                        } else if (eksisterendeDialogId == response.dialogId.toLong()) {
+                            traceNyMeldingPåEksisterendeTråd(response, periodeId)
                         } else if (eksisterendeDialogId != response.dialogId.toLong()) {
                             traceEndringAvDialogId(eksisterendeDialogId, response, periodeId)
                             //TODO: Edgecase
@@ -49,26 +51,28 @@ class DialogService(
                 }
             }
     }
+}
 
-    private fun traceEndringAvDialogId(
-        dialogId: Long,
-        response: DialogResponse,
-        periodeId: UUID,
-    ) {
-        Span.current().addEvent(
-            "endret_dialog_id", Attributes.of(
-                stringKey("eksisterende_dialogId"), dialogId.toString(),
-                stringKey("ny_dialogId"), response.dialogId
-            )
+private fun traceEndringAvDialogId(dialogId: Long, response: DialogResponse, periodeId: UUID) {
+    Span.current().addEvent(
+        "endret_dialog_id", Attributes.of(
+            stringKey("eksisterende_dialogId"), dialogId.toString(),
+            stringKey("ny_dialogId"), response.dialogId
         )
-        logger.warn("Fant ikke dialog med $dialogId. Oppdaterer til ny dialogId=${response.dialogId}, for periodeId=$periodeId.")
-    }
+    )
+    logger.warn("Fant ikke dialog med $dialogId. Oppdaterer til ny dialogId=${response.dialogId}, for periodeId=$periodeId.")
+}
 
-    private fun traceArbeidsoppfølgingsperiodeAvsluttet(periodeId: UUID, dialogId: Long?) {
-        Span.current()
-            .addEvent("arbeidsoppfølgingsperiode_avsluttet", Attributes.of(stringKey("dialogId"), dialogId.toString()))
-        logger.warn("Arbeidsoppfølgingsperiode for periodeId=$periodeId, dialogId=$dialogId er avsluttet. Klarte ikke å sende dialogmelding.")
-    }
+private fun traceArbeidsoppfølgingsperiodeAvsluttet(periodeId: UUID, dialogId: Long?) {
+    Span.current()
+        .addEvent("arbeidsoppfølgingsperiode_avsluttet", Attributes.of(stringKey("dialogId"), dialogId.toString()))
+    logger.warn("Arbeidsoppfølgingsperiode for periodeId=$periodeId, dialogId=$dialogId er avsluttet. Klarte ikke å sende dialogmelding.")
+}
+
+private fun traceNyMeldingPåEksisterendeTråd(response: DialogResponse, periodeId: UUID) {
+    Span.current()
+        .addEvent("ny_melding_på_eksisterende_tråd", Attributes.of(stringKey("dialogId"), response.dialogId))
+    logger.info("Ny melding på eksisterende tråd med dialogId=${response.dialogId} for periodeId=$periodeId")
 }
 
 @JvmRecord

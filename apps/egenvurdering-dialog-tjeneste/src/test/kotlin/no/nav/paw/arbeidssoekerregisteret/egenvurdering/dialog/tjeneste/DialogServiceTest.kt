@@ -70,6 +70,44 @@ class DialogServiceTest : FreeSpec({
         confirmVerified(periodeIdDialogIdRepository)
     }
 
+    "Eksisterende tråd – 200 OK med samme dialogId gir ingen endring i mapping" {
+        val existingDialogId = 888L
+        val periodeId = UUID.randomUUID()
+
+        val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
+        every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns existingDialogId
+        every { periodeIdDialogIdRepository.insert(any(), any()) } just runs
+
+        val engine = MockEngine {
+            respond(
+                content = """{"id":"$existingDialogId"}""",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            )
+        }
+        val client = VeilarbdialogClient(
+            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", scope = "test"),
+            httpClient = testClient(engine)
+        )
+        val service = DialogService(client, periodeIdDialogIdRepository)
+
+        val egenvurdering = egenvurdering(
+            periodeId = periodeId,
+            navProfilering = ANTATT_GODE_MULIGHETER,
+            brukersEgenvurdering = ANTATT_GODE_MULIGHETER,
+            tidspunkt = Instant.parse("2025-03-20T09:00:00Z"),
+            fnr = "55555555555"
+        )
+
+        val records = consumerRecordsOf(egenvurdering)
+        service.varsleVeilederOmEgenvurderingAvProfilering(records)
+
+        verify { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
+        verify(exactly = 0) { periodeIdDialogIdRepository.insert(any(), any()) }
+        confirmVerified(periodeIdDialogIdRepository)
+    }
+
+
     "Eksisterende tråd – Oppfølgingsperiode avsluttet gir ingen endring i mapping" {
         val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
         val existingDialogId = 777L
@@ -107,8 +145,8 @@ class DialogServiceTest : FreeSpec({
 private fun consumerRecordsOf(egenvurdering: Egenvurdering): ConsumerRecords<Long, Egenvurdering> {
     val topic = "egenvurdering"
     val record = ConsumerRecord(topic, 0, 0L, 1L, egenvurdering)
-    val tp = TopicPartition(topic, 0)
-    return ConsumerRecords(mapOf(tp to listOf(record)))
+    val topicPartition = TopicPartition(topic, 0)
+    return ConsumerRecords(mapOf(topicPartition to listOf(record)))
 }
 
 private fun egenvurdering(
