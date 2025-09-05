@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client
 
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.Dialogmelding
+
 @JvmInline
 value class DialogId(val value: String)
 
@@ -36,6 +38,24 @@ data class DialogRequest private constructor(
             overskrift = null,
             fnr = fnr,
             venterPaaSvarFraNav = venterPaaSvarFraNav
+        )
+    }
+}
+
+fun Dialogmelding.toDialogRequest(fnr: String, dialogId: Long?): DialogRequest {
+    return when (dialogId) {
+        null -> DialogRequest.nyTråd(
+            tekst = this.tekst,
+            overskrift = this.overskrift,
+            fnr = fnr,
+            venterPaaSvarFraNav = this.venterPaaSvarFraNav
+        )
+
+        else -> DialogRequest.nyMelding(
+            tekst = this.tekst,
+            dialogId = DialogId(dialogId.toString()),
+            fnr = fnr,
+            venterPaaSvarFraNav = this.venterPaaSvarFraNav
         )
     }
 }

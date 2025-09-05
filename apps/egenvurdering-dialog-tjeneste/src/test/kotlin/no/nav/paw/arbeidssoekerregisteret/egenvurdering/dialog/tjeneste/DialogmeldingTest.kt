@@ -21,8 +21,6 @@ private val timestamp: Instant = Instant.parse("2025-03-15T10:00:59Z")
 
 class DialogmeldingTest : FreeSpec({
 
-    val forventetFooter = DialogTekst.footer(timestamp)
-
     "Nav: ANTATT_GODE_MULIGHETER, bruker: ANTATT_GODE_MULIGHETER" {
         val dialogmelding = egenvurdering(
             navProfilering = ANTATT_GODE_MULIGHETER,
@@ -34,7 +32,7 @@ class DialogmeldingTest : FreeSpec({
 
         dialogmelding.tekst shouldContain DialogTekst.NAV_GODE_MULIGHETER
         dialogmelding.tekst shouldContain DialogTekst.BRUKER_TRENGER_IKKE_VEILEDNING
-        dialogmelding.tekst shouldContain forventetFooter
+        dialogmelding.tekst shouldContain DialogTekst.footer(timestamp)
     }
     "Nav: ANTATT_GODE_MULIGHETER, bruker: ANTATT_BEHOV_FOR_VEILEDNING" {
         val dialogmelding = egenvurdering(
@@ -47,7 +45,7 @@ class DialogmeldingTest : FreeSpec({
 
         dialogmelding.tekst shouldContain DialogTekst.NAV_GODE_MULIGHETER
         dialogmelding.tekst shouldContain DialogTekst.BRUKER_TRENGER_VEILEDNING
-        dialogmelding.tekst shouldContain forventetFooter
+        dialogmelding.tekst shouldContain DialogTekst.footer(timestamp)
     }
 
 
@@ -62,7 +60,7 @@ class DialogmeldingTest : FreeSpec({
 
         dialogmelding.tekst shouldContain DialogTekst.NAV_BEHOV_FOR_VEILEDNING
         dialogmelding.tekst shouldContain DialogTekst.BRUKER_ØNSKER_HJELP
-        dialogmelding.tekst shouldContain forventetFooter
+        dialogmelding.tekst shouldContain DialogTekst.footer(timestamp)
     }
 
     "Nav: ANTATT_BEHOV_FOR_VEILEDNING, bruker: ANTATT_GODE_MULIGHETER" {
@@ -76,7 +74,7 @@ class DialogmeldingTest : FreeSpec({
 
         dialogmelding.tekst shouldContain DialogTekst.NAV_BEHOV_FOR_VEILEDNING
         dialogmelding.tekst shouldContain DialogTekst.BRUKER_VIL_KLARE_SEG_SELV
-        dialogmelding.tekst shouldContain forventetFooter
+        dialogmelding.tekst shouldContain DialogTekst.footer(timestamp)
     }
 
 

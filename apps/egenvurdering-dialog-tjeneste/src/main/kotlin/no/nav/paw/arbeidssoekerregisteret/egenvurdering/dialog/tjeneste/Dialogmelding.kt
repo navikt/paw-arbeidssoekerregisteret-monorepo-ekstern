@@ -1,7 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste
 
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.DialogId
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.DialogRequest
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
@@ -59,24 +57,6 @@ fun Egenvurdering.tilDialogmelding(): Dialogmelding {
     }
 }
 
-fun Dialogmelding.toDialogRequest(fnr: String, dialogId: Long?): DialogRequest {
-    return when (dialogId) {
-        null -> DialogRequest.nyTråd(
-            tekst = this.tekst,
-            overskrift = this.overskrift,
-            fnr = fnr,
-            venterPaaSvarFraNav = this.venterPaaSvarFraNav
-        )
-
-        else -> DialogRequest.nyMelding(
-            tekst = this.tekst,
-            dialogId = DialogId(dialogId.toString()),
-            fnr = fnr,
-            venterPaaSvarFraNav = this.venterPaaSvarFraNav
-        )
-    }
-}
-
 private fun lagDialogmelding(
     navVurderingTekst: String,
     brukerVurderingTekst: String,
@@ -90,7 +70,7 @@ private fun lagDialogmelding(
     
         $brukerVurderingTekst
     
-        ${DialogTekst.footer(egenvurderingMottatt)}."
+        ${DialogTekst.footer(egenvurderingMottatt)}"
     """.trimIndent()
 )
 
