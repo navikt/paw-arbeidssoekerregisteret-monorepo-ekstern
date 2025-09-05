@@ -15,17 +15,6 @@ data class Dialogmelding(
     val venterPaaSvarFraNav: Boolean,
 )
 
-internal const val OVERSKRIFT = "Egenvurdering"
-internal const val NAV_GODE_MULIGHETER =
-    "Nav sin vurdering: Vi tror du har gode muligheter til å komme i jobb uten en veileder eller tiltak fra Nav."
-internal const val NAV_BEHOV_FOR_VEILEDNING =
-    "Nav sin vurdering: Vi tror du vil trenge hjelp fra en veileder for å nå ditt mål om arbeid."
-internal const val BRUKER_TRENGER_IKKE_VEILEDNING = "Min vurdering: Jeg klarer meg uten veileder"
-internal const val BRUKER_TRENGER_VEILEDNING = "Min vurdering: Jeg trenger en veileder for å komme i arbeid"
-internal const val BRUKER_ØNSKER_HJELP = "Min vurdering: Ja, jeg ønsker hjelp"
-internal const val BRUKER_VIL_KLARE_SEG_SELV = "Min vurdering: Nei, jeg vil gjerne klare meg selv"
-internal const val FOOTER_TEKST = "Dette er en automatisk generert melding basert på egenvurdering mottatt fra bruker:"
-
 fun Egenvurdering.tilDialogmelding(): Dialogmelding {
     val egenvurderingMottattTidspunkt = this.sendtInnAv.tidspunkt
     val navProfilering = this.profilertTil
@@ -33,15 +22,15 @@ fun Egenvurdering.tilDialogmelding(): Dialogmelding {
     return when (navProfilering) {
         ANTATT_GODE_MULIGHETER -> when (brukersEgenvurdering) {
             ANTATT_GODE_MULIGHETER -> lagDialogmelding(
-                navVurderingTekst = NAV_GODE_MULIGHETER,
-                brukerVurderingTekst = BRUKER_TRENGER_IKKE_VEILEDNING,
+                navVurderingTekst = DialogTekst.NAV_GODE_MULIGHETER,
+                brukerVurderingTekst = DialogTekst.BRUKER_TRENGER_IKKE_VEILEDNING,
                 egenvurderingMottatt = egenvurderingMottattTidspunkt,
                 ventPåSvarFraNav = false
             )
 
             ANTATT_BEHOV_FOR_VEILEDNING -> lagDialogmelding(
-                navVurderingTekst = NAV_GODE_MULIGHETER,
-                brukerVurderingTekst = BRUKER_TRENGER_VEILEDNING,
+                navVurderingTekst = DialogTekst.NAV_GODE_MULIGHETER,
+                brukerVurderingTekst = DialogTekst.BRUKER_TRENGER_VEILEDNING,
                 egenvurderingMottatt = egenvurderingMottattTidspunkt,
                 ventPåSvarFraNav = true
             )
@@ -51,15 +40,15 @@ fun Egenvurdering.tilDialogmelding(): Dialogmelding {
 
         ANTATT_BEHOV_FOR_VEILEDNING -> when (brukersEgenvurdering) {
             ANTATT_BEHOV_FOR_VEILEDNING -> lagDialogmelding(
-                navVurderingTekst = NAV_BEHOV_FOR_VEILEDNING,
-                brukerVurderingTekst = BRUKER_ØNSKER_HJELP,
+                navVurderingTekst = DialogTekst.NAV_BEHOV_FOR_VEILEDNING,
+                brukerVurderingTekst = DialogTekst.BRUKER_ØNSKER_HJELP,
                 egenvurderingMottatt = egenvurderingMottattTidspunkt,
                 ventPåSvarFraNav = true
             )
 
             ANTATT_GODE_MULIGHETER -> lagDialogmelding(
-                navVurderingTekst = NAV_BEHOV_FOR_VEILEDNING,
-                brukerVurderingTekst = BRUKER_VIL_KLARE_SEG_SELV,
+                navVurderingTekst = DialogTekst.NAV_BEHOV_FOR_VEILEDNING,
+                brukerVurderingTekst = DialogTekst.BRUKER_VIL_KLARE_SEG_SELV,
                 egenvurderingMottatt = egenvurderingMottattTidspunkt,
                 ventPåSvarFraNav = false
             )
@@ -95,14 +84,14 @@ private fun lagDialogmelding(
     egenvurderingMottatt: Instant,
     ventPåSvarFraNav: Boolean,
 ) = Dialogmelding(
-    overskrift = OVERSKRIFT,
+    overskrift = DialogTekst.OVERSKRIFT,
     venterPaaSvarFraNav = ventPåSvarFraNav,
     tekst = """
         $navVurderingTekst
     
         $brukerVurderingTekst
     
-        $FOOTER_TEKST ${formaterDato(egenvurderingMottatt)}."
+        ${DialogTekst.footer(egenvurderingMottatt)}."
     """.trimIndent()
 )
 
