@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste
 
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.DialogId
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.DialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.formaterDato
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
@@ -66,6 +68,24 @@ fun Egenvurdering.tilDialogmelding(): Dialogmelding {
         }
 
         else -> throw ProfileringIkkeStøttet(navProfilering)
+    }
+}
+
+fun Dialogmelding.toDialogRequest(fnr: String, dialogId: Long?): DialogRequest {
+    return when (dialogId) {
+        null -> DialogRequest.nyTråd(
+            tekst = this.tekst,
+            overskrift = this.overskrift,
+            fnr = fnr,
+            venterPaaSvarFraNav = this.venterPaaSvarFraNav
+        )
+
+        else -> DialogRequest.nyMelding(
+            tekst = this.tekst,
+            dialogId = DialogId(dialogId.toString()),
+            fnr = fnr,
+            venterPaaSvarFraNav = this.venterPaaSvarFraNav
+        )
     }
 }
 
