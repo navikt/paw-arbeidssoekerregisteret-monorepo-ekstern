@@ -52,4 +52,39 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
             periodeIdDialogIdRepository.insert(periodeId2, dialogId)
         }
     }
+
+    "Update oppdaterer dialogId for eksisterende periodeId" {
+        val periodeId = UUID.randomUUID()
+        val opprinnelig = 11L
+        val ny = 12L
+
+        periodeIdDialogIdRepository.insert(periodeId, opprinnelig)
+        periodeIdDialogIdRepository.update(periodeId, ny)
+
+        periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) shouldBe ny
+    }
+
+    "Update av ikke-eksisterende periodeId kaster UpdateFeilet" {
+        val ukjentPeriode = UUID.randomUUID()
+        shouldThrow<UpdateFeilet> {
+            periodeIdDialogIdRepository.update(ukjentPeriode, 999L)
+        }
+    }
+
+    "Update som bryter unikhet (dialogId finnes på annen periode) kaster UpdateFeilet" {
+        val periodeId1 = UUID.randomUUID()
+        val periodeId2 = UUID.randomUUID()
+        val dialogId1 = 200L
+        val dialogId2 = 201L
+
+        periodeIdDialogIdRepository.insert(periodeId1, dialogId1)
+        periodeIdDialogIdRepository.insert(periodeId2, dialogId2)
+
+        shouldThrow<UpdateFeilet> {
+            periodeIdDialogIdRepository.update(periodeId2, dialogId1)
+        }
+
+        periodeIdDialogIdRepository.getDialogIdOrNull(periodeId1) shouldBe dialogId1
+        periodeIdDialogIdRepository.getDialogIdOrNull(periodeId2) shouldBe dialogId2
+    }
 })
