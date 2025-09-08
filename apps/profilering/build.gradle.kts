@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("jib-distroless")
+    id("jib-chainguard")
     application
 }
 val jvmVersion = JavaVersion.VERSION_21
