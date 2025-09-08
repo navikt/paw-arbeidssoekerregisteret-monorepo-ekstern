@@ -2,7 +2,7 @@ plugins {
     id("com.google.cloud.tools.jib")
 }
 
-val chainguardJavaImage = "europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21"
+val chainguardJavaImage : String by project
 val image: String? by project
 val targetImage: String = "${image ?: project.name}:${project.version}"
 
