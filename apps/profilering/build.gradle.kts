@@ -3,7 +3,7 @@ plugins {
     id("jib-chainguard")
     application
 }
-val jvmVersion = JavaVersion.VERSION_21
+val jvmMajorVersion: String by project
 
 dependencies {
     implementation(project(":domain:main-avro-schema"))
@@ -53,7 +53,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(jvmVersion.majorVersion)
+        languageVersion = JavaLanguageVersion.of(jvmMajorVersion)
     }
 }
 
