@@ -4,7 +4,7 @@ import org.openapitools.generator.gradle.plugin.tasks.ValidateTask
 plugins {
     kotlin("jvm")
     id("org.openapi.generator")
-    id("jib-distroless")
+    id("jib-chainguard")
     application
 }
 
