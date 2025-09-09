@@ -25,10 +25,7 @@ import no.nav.paw.security.texas.m2m.MachineToMachineTokenResponse
 
 class VeilarbdialogClientTest : FreeSpec({
     val dialogTestEndepunkt = "http://veilarbdialog.dab/veilarbdialog"
-    val testConfig = VeilarbdialogClientConfig(
-        url = dialogTestEndepunkt,
-        scope = "dialog-test-scope",
-    )
+    val testConfig = VeilarbdialogClientConfig(url = dialogTestEndepunkt)
 
     val token = "test-m2m-token"
 
