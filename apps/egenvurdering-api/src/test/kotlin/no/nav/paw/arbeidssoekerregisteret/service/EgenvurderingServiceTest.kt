@@ -26,8 +26,8 @@ import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Claims
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.token.AccessToken
-import no.nav.paw.security.texas.OnBehalfOfResponse
 import no.nav.paw.security.texas.TexasClient
+import no.nav.paw.security.texas.obo.OnBehalfOfResponse
 import java.time.Instant
 import java.util.*
 

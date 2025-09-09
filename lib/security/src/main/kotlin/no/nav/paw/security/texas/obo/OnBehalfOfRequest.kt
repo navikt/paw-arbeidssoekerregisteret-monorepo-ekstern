@@ -1,4 +1,4 @@
-package no.nav.paw.security.texas
+package no.nav.paw.security.texas.obo
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.paw.security.texas.IdentityProvider.AZURE_AD

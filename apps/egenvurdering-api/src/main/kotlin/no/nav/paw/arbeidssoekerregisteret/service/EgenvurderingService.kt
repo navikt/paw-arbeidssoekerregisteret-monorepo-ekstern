@@ -21,7 +21,7 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.ACR
 import no.nav.paw.security.authentication.token.AccessToken
-import no.nav.paw.security.texas.OnBehalfOfBrukerRequest
+import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
 import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
