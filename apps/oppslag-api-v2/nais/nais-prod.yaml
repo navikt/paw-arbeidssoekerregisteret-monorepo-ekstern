@@ -77,6 +77,10 @@ spec:
           namespace: flex
         - application: sykepengesoknad-backend
           namespace: flex
+        - application: veilarbperson
+          namespace: obo
+        - application: veilarbportefolje
+          namespace: obo
     outbound:
       rules:
         - application: paw-tilgangskontroll
