@@ -50,7 +50,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureDatabase(applicationContext.dataSource)
     configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
         if (!records.isEmpty) {
-            //applicationContext.dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
+            applicationContext.dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
         }
     }
     configureRouting(applicationContext)
