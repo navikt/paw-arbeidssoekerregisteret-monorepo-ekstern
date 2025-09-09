@@ -36,11 +36,11 @@ class DialogService(
                     is DialogResponse -> {
                         if (eksisterendeDialogId == null) {
                             periodeIdDialogIdRepository.insert(periodeId, response.dialogId.toLong())
+                            traceNyMelding(response.dialogId, periodeId)
                         } else if (eksisterendeDialogId == response.dialogId.toLong()) {
-                            traceNyMeldingPåEksisterendeTråd(response, periodeId)
+                            traceNyMeldingPåEksisterendeTråd(response.dialogId, periodeId)
                         } else if (eksisterendeDialogId != response.dialogId.toLong()) {
                             traceEndringAvDialogId(eksisterendeDialogId, response, periodeId)
-                            //TODO: Edgecase
                             //periodeIdDialogIdRepository.update(egenvurdering.periodeId, response.dialogId.toLong())
                         }
                     }
@@ -65,14 +65,19 @@ private fun traceEndringAvDialogId(dialogId: Long, response: DialogResponse, per
 
 private fun traceArbeidsoppfølgingsperiodeAvsluttet(periodeId: UUID, dialogId: Long?) {
     Span.current()
-        .addEvent("arbeidsoppfølgingsperiode_avsluttet", Attributes.of(stringKey("dialogId"), dialogId.toString()))
+        .addEvent("arbeidsoppfoelgingsperiode_avsluttet", Attributes.of(stringKey("dialogId"), dialogId.toString()))
     logger.warn("Arbeidsoppfølgingsperiode for periodeId=$periodeId, dialogId=$dialogId er avsluttet. Klarte ikke å sende dialogmelding.")
 }
 
-private fun traceNyMeldingPåEksisterendeTråd(response: DialogResponse, periodeId: UUID) {
+private fun traceNyMeldingPåEksisterendeTråd(dialogId: String, periodeId: UUID) {
     Span.current()
-        .addEvent("ny_melding_på_eksisterende_tråd", Attributes.of(stringKey("dialogId"), response.dialogId))
-    logger.info("Ny melding på eksisterende tråd med dialogId=${response.dialogId} for periodeId=$periodeId")
+        .addEvent("ny_melding_på_eksisterende_traad", Attributes.of(stringKey("dialogId"), dialogId))
+    logger.info("Ny melding på eksisterende tråd med dialogId=$dialogId for periodeId=$periodeId")
+}
+
+private fun traceNyMelding(dialogId: String, periodeId: UUID) {
+    Span.current().addEvent("ny_melding", Attributes.of(stringKey("dialogId"), dialogId))
+    logger.info("Ny meldingmed dialogId=$dialogId for periodeId=$periodeId")
 }
 
 @JvmRecord
