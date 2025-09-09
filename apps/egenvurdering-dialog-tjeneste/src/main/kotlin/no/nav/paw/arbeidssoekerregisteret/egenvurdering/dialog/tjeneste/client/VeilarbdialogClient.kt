@@ -32,11 +32,13 @@ class VeilarbdialogClient(
         return when {
             response.status.isSuccess() -> response.body<DialogResponse>()
             response.arbeidsoppfølgingsperiodeErAvsluttet() -> ArbeidsoppfølgingsperiodeAvsluttet
-            else -> throw VeilarbdialogClientException(
-                status = response.status,
-                type = ErrorType.domain("egenvurdering").error("ukjent-veilarbdialog-feil").build(),
-                message = response.bodyAsText()
-            )
+            else -> {
+                throw VeilarbdialogClientException(
+                    status = response.status,
+                    type = ErrorType.domain("egenvurdering").error("ukjent-veilarbdialog-feil").build(),
+                    message = "Status: ${response.status}. Body: ${response.bodyAsText()}"
+                )
+            }
         }
     }
 
