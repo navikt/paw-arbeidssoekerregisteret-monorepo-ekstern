@@ -30,6 +30,7 @@ class VeilarbdialogClient(
     suspend fun lagEllerOppdaterDialog(dialogRequest: DialogRequest): DialogResultat {
         val response = httpClient.post(config.url + veilarbDialogPath) {
             contentType(ContentType.Application.Json)
+            bearerAuth(texasClient.getMachineToMachineToken().accessToken)
             setBody(dialogRequest)
         }
         return when {

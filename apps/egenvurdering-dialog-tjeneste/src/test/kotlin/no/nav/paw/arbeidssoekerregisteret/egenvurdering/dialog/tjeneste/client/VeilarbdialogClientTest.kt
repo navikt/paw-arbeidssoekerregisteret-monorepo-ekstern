@@ -15,10 +15,13 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.jackson
+import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
 import no.nav.paw.client.factory.configureJackson
+import no.nav.paw.security.texas.TexasClient
+import no.nav.paw.security.texas.m2m.MachineToMachineTokenResponse
 
 class VeilarbdialogClientTest : FreeSpec({
     val dialogTestEndepunkt = "http://veilarbdialog.dab/veilarbdialog"
@@ -27,10 +30,13 @@ class VeilarbdialogClientTest : FreeSpec({
         scope = "dialog-test-scope",
     )
 
+    val token = "test-m2m-token"
+
     "Får postet ny tråd og melding til dialog" - {
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
-            request.url shouldBe Url("$dialogTestEndepunkt${veilarbDialogPath}")
+            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
+            request.headers[HttpHeaders.Authorization] shouldBe "Bearer $token"
 
             respond(
                 content = dialogResponseJson,
@@ -39,17 +45,20 @@ class VeilarbdialogClientTest : FreeSpec({
             )
         }
 
+        val texasClientMock = mockk<TexasClient>()
+        coEvery { texasClientMock.getMachineToMachineToken() } returns MachineToMachineTokenResponse(accessToken = token)
+
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,
-            texasClient = mockk(relaxed = true),
+            texasClient = texasClientMock,
             httpClient = testClient(mockEngine)
         )
 
         runBlocking {
             veilarbDialogClient.lagEllerOppdaterDialog(
                 DialogRequest.nyTråd(
-                    "tekst",
-                    "overskrift",
+                    tekst = "tekst",
+                    overskrift = "overskrift",
                     venterPaaSvarFraNav = true
                 )
             )
@@ -60,8 +69,8 @@ class VeilarbdialogClientTest : FreeSpec({
         runBlocking {
             veilarbDialogClient.lagEllerOppdaterDialog(
                 DialogRequest.nyMelding(
-                    "tekst",
-                    testDialogId,
+                    tekst = "tekst",
+                    dialogId = testDialogId,
                     venterPaaSvarFraNav = false
                 )
             )
@@ -73,7 +82,8 @@ class VeilarbdialogClientTest : FreeSpec({
     "Arbeidsoppfølgingsperiode er avsluttet" - {
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
-            request.url shouldBe Url("$dialogTestEndepunkt${veilarbDialogPath}")
+            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
+            request.headers[HttpHeaders.Authorization] shouldBe "Bearer $token"
 
             respond(
                 content = "Funksjonell feil under behandling: NyHenvendelsePåHistoriskDialogException - Kan ikke sende henvendelse på historisk dialog ",
@@ -81,17 +91,20 @@ class VeilarbdialogClientTest : FreeSpec({
             )
         }
 
+        val texasClientMock = mockk<TexasClient>()
+        coEvery { texasClientMock.getMachineToMachineToken() } returns MachineToMachineTokenResponse(token)
+
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,
-            texasClient = mockk(relaxed = true),
+            texasClient = texasClientMock,
             httpClient = testClient(mockEngine)
         )
 
         runBlocking {
             veilarbDialogClient.lagEllerOppdaterDialog(
                 DialogRequest.nyMelding(
-                    "tekst",
-                    DialogId("adsasd"),
+                    tekst = "tekst",
+                    dialogId = DialogId("adsasd"),
                     venterPaaSvarFraNav = true
                 )
             )
@@ -101,26 +114,34 @@ class VeilarbdialogClientTest : FreeSpec({
     "Feilsituasjon kaster VeilarbdialogClientException" - {
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
-            request.url shouldBe Url("$dialogTestEndepunkt${veilarbDialogPath}")
+            request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
+            request.headers[HttpHeaders.Authorization] shouldBe "Bearer $token"
 
             respond(
                 content = "En eller annen feil",
                 status = HttpStatusCode.Conflict,
             )
         }
+
+        val texasClientMock = mockk<TexasClient>()
+        coEvery { texasClientMock.getMachineToMachineToken() } returns MachineToMachineTokenResponse(token)
+
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,
-            texasClient = mockk(relaxed = true),
+            texasClient = texasClientMock,
             httpClient = testClient(mockEngine)
         )
+
         shouldThrow<VeilarbdialogClientException> {
-            veilarbDialogClient.lagEllerOppdaterDialog(
-                DialogRequest.nyTråd(
-                    "tekst",
-                    "overskrift",
-                    venterPaaSvarFraNav = true
+            runBlocking {
+                veilarbDialogClient.lagEllerOppdaterDialog(
+                    DialogRequest.nyTråd(
+                        tekst = "tekst",
+                        overskrift = "overskrift",
+                        venterPaaSvarFraNav = true
+                    )
                 )
-            )
+            }
         }
     }
 })
