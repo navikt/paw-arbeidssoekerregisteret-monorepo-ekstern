@@ -6,3 +6,7 @@ egenvurderingTopic = "arbeidssoker-egenvurdering-beta-v2"
 [veilarbdialogClientConfig]
 url = "MOCK"
 scope = "api://<cluster>.<namespace>.<outbound-app-name>/.default"
+
+[texasClientConfig]
+endpoint = "MOCK"
+target = "api://<cluster>.<namespace>.<outbound-app-name>/.default

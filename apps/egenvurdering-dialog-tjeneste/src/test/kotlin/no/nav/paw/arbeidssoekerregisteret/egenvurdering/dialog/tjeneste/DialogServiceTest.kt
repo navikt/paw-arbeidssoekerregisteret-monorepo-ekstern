@@ -50,6 +50,7 @@ class DialogServiceTest : FreeSpec({
         }
         val client = VeilarbdialogClient(
             config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", scope = "test"),
+            texasClient = mockk(relaxed = true),
             httpClient = testClient(engine)
         )
         val service = DialogService(client, periodeIdDialogIdRepository)
@@ -87,6 +88,7 @@ class DialogServiceTest : FreeSpec({
         }
         val client = VeilarbdialogClient(
             config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", scope = "test"),
+            texasClient = mockk(relaxed = true),
             httpClient = testClient(engine)
         )
         val service = DialogService(client, periodeIdDialogIdRepository)
@@ -122,6 +124,7 @@ class DialogServiceTest : FreeSpec({
         }
         val client = VeilarbdialogClient(
             config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", scope = "test"),
+            texasClient = mockk(relaxed = true),
             httpClient = testClient(engine)
         )
         val service = DialogService(client, periodeIdDialogIdRepository)

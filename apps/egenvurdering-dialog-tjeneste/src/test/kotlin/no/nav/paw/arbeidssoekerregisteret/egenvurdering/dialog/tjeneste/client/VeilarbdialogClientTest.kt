@@ -15,11 +15,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.jackson
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
 import no.nav.paw.client.factory.configureJackson
 
-class DialogClientTest : FreeSpec({
+class VeilarbdialogClientTest : FreeSpec({
     val dialogTestEndepunkt = "http://veilarbdialog.dab/veilarbdialog"
     val testConfig = VeilarbdialogClientConfig(
         url = dialogTestEndepunkt,
@@ -38,16 +39,32 @@ class DialogClientTest : FreeSpec({
             )
         }
 
-        val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
+        val veilarbDialogClient = VeilarbdialogClient(
+            config = testConfig,
+            texasClient = mockk(relaxed = true),
+            httpClient = testClient(mockEngine)
+        )
 
         runBlocking {
-            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyTråd("tekst", "overskrift", venterPaaSvarFraNav = true))
+            veilarbDialogClient.lagEllerOppdaterDialog(
+                DialogRequest.nyTråd(
+                    "tekst",
+                    "overskrift",
+                    venterPaaSvarFraNav = true
+                )
+            )
         }.shouldBeInstanceOf<DialogResponse> { resultat ->
             resultat.dialogId shouldBe testDialogId.value
         }
 
         runBlocking {
-            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyMelding("tekst", testDialogId, venterPaaSvarFraNav = false))
+            veilarbDialogClient.lagEllerOppdaterDialog(
+                DialogRequest.nyMelding(
+                    "tekst",
+                    testDialogId,
+                    venterPaaSvarFraNav = false
+                )
+            )
         }.shouldBeInstanceOf<DialogResponse> { resultat ->
             resultat.dialogId shouldBe testDialogId.value
         }
@@ -64,10 +81,20 @@ class DialogClientTest : FreeSpec({
             )
         }
 
-        val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
+        val veilarbDialogClient = VeilarbdialogClient(
+            config = testConfig,
+            texasClient = mockk(relaxed = true),
+            httpClient = testClient(mockEngine)
+        )
 
         runBlocking {
-            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyMelding("tekst", DialogId("adsasd"), venterPaaSvarFraNav = true))
+            veilarbDialogClient.lagEllerOppdaterDialog(
+                DialogRequest.nyMelding(
+                    "tekst",
+                    DialogId("adsasd"),
+                    venterPaaSvarFraNav = true
+                )
+            )
         }.shouldBeInstanceOf<ArbeidsoppfølgingsperiodeAvsluttet>()
     }
 
@@ -81,9 +108,19 @@ class DialogClientTest : FreeSpec({
                 status = HttpStatusCode.Conflict,
             )
         }
-        val veilarbDialogClient = VeilarbdialogClient(config = testConfig, httpClient = testClient(mockEngine))
+        val veilarbDialogClient = VeilarbdialogClient(
+            config = testConfig,
+            texasClient = mockk(relaxed = true),
+            httpClient = testClient(mockEngine)
+        )
         shouldThrow<VeilarbdialogClientException> {
-            veilarbDialogClient.lagEllerOppdaterDialog(DialogRequest.nyTråd("tekst", "overskrift", venterPaaSvarFraNav = true))
+            veilarbDialogClient.lagEllerOppdaterDialog(
+                DialogRequest.nyTråd(
+                    "tekst",
+                    "overskrift",
+                    venterPaaSvarFraNav = true
+                )
+            )
         }
     }
 })

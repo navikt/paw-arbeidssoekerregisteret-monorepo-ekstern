@@ -17,6 +17,8 @@ spec:
       value: "http://veilarbdialog.dab/veilarbdialog/"
     - name: DIALOG_TJENESTE_SCOPE
       value: "api://dev-gcp.dab.veilarbdialog/.default"
+    - name: DIALOG_TJENESTE_API_TARGET
+      value: "api://dev-gcp.dab.veilarbdialog/.default"
   resources:
     limits:
       memory: 1024Mi

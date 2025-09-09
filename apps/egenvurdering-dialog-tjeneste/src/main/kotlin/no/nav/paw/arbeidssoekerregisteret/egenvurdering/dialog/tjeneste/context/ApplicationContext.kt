@@ -9,6 +9,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.A
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ServerConfig
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
@@ -16,6 +17,7 @@ import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
@@ -48,8 +50,11 @@ data class ApplicationContext(
                 valueDeserializer = egenvurderingAvroDeserializer::class,
 
             )
-
-            val veilarbdialogClient = VeilarbdialogClient(applicationConfig.veilarbdialogClientConfig)
+            val texasClient = TexasClient(applicationConfig.texasClientConfig, createHttpClient())
+            val veilarbdialogClient = VeilarbdialogClient(
+                config = applicationConfig.veilarbdialogClientConfig,
+                texasClient = texasClient,
+            )
             val dialogService = DialogService(veilarbdialogClient)
             val dataSource = createDataSource()
 
