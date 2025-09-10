@@ -81,6 +81,8 @@ spec:
           namespace: obo
         - application: veilarbportefolje
           namespace: obo
+        - application: dp-oppslag-arbeidssoker
+          namespace: teamdagpenger   
     outbound:
       rules:
         - application: paw-tilgangskontroll
