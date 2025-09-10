@@ -36,7 +36,7 @@ class DialogService(
                     is DialogResponse -> {
                         if (eksisterendeDialogId == null) {
                             periodeIdDialogIdRepository.insert(periodeId, response.dialogId.toLong())
-                            traceNyMelding(response.dialogId, periodeId)
+                            traceNyTraad(response.dialogId, periodeId)
                         } else if (eksisterendeDialogId == response.dialogId.toLong()) {
                             traceNyMeldingPåEksisterendeTråd(response.dialogId, periodeId)
                         } else if (eksisterendeDialogId != response.dialogId.toLong()) {
@@ -75,9 +75,9 @@ private fun traceNyMeldingPåEksisterendeTråd(dialogId: String, periodeId: UUID
     logger.info("Ny melding på eksisterende tråd med dialogId=$dialogId for periodeId=$periodeId")
 }
 
-private fun traceNyMelding(dialogId: String, periodeId: UUID) {
-    Span.current().addEvent("ny_melding", Attributes.of(stringKey("dialogId"), dialogId))
-    logger.info("Ny meldingmed dialogId=$dialogId for periodeId=$periodeId")
+private fun traceNyTraad(dialogId: String, periodeId: UUID) {
+    Span.current().addEvent("ny_traad", Attributes.of(stringKey("dialogId"), dialogId))
+    logger.info("Ny traad med dialogId=$dialogId for periodeId=$periodeId")
 }
 
 @JvmRecord
