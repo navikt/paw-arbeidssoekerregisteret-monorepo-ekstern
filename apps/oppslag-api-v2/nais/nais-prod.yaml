@@ -13,10 +13,10 @@ spec:
       value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
   resources:
     limits:
-      memory: 1024Mi
-    requests:
-      cpu: 200m
       memory: 736Mi
+    requests:
+      cpu: 100m
+      memory: 512Mi
   tokenx:
     enabled: true
   azure:
