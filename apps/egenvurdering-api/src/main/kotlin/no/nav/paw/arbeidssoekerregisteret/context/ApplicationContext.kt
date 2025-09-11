@@ -12,6 +12,9 @@ import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.database.config.DATABASE_CONFIG
+import no.nav.paw.database.config.DatabaseConfig
+import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -23,6 +26,7 @@ import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.Serializer
+import javax.sql.DataSource
 
 data class ApplicationContext(
     val serverConfig: ServerConfig,
@@ -33,7 +37,8 @@ data class ApplicationContext(
     val kafkaKeysClient: KafkaKeysClient,
     val egenvurderingService: EgenvurderingService,
     val egenvurderingAvroSerializer: Serializer<Egenvurdering>,
-    val producer: Producer<Long, Egenvurdering>
+    val producer: Producer<Long, Egenvurdering>,
+    val datasource: DataSource
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -66,6 +71,7 @@ data class ApplicationContext(
 
             val egenvurderingService = EgenvurderingService(applicationConfig, kafkaKeysClient, egenvurderingProducer, texasClient, oppslagsClient)
 
+            val datasource = createDataSource()
 
             return ApplicationContext(
                 serverConfig,
@@ -76,8 +82,17 @@ data class ApplicationContext(
                 kafkaKeysClient,
                 egenvurderingService,
                 egenvurderingAvroSerializer,
-                egenvurderingProducer
+                egenvurderingProducer,
+                datasource
             )
         }
+        private fun createDataSource(): DataSource = try {
+            val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
+            createHikariDataSource(databaseConfig)
+        } catch (e: Exception) {
+            throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
+        }
+
+        class KunneIkkeOppretteDatasource(message: String) : RuntimeException(message)
     }
 }

@@ -62,6 +62,7 @@ open class TestContext {
             egenvurderingService,
             mockk<Serializer<Egenvurdering>>(relaxed = true),
             mockk<Producer<Long, Egenvurdering>>(relaxed = true),
+            datasource = mockk(relaxed = true),
         )
         application {
             configureSerialization()

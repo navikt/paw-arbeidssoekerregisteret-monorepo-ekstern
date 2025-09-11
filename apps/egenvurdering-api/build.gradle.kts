@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":lib:security"))
     implementation(project(":lib:kafka-key-generator-client"))
     implementation(project(":lib:kafka"))
+    implementation(project(":lib:database"))
     implementation(project(":lib:common-model"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:api-oppslag-client"))
@@ -35,6 +36,12 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.mock)
 
+    //Database
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.java.time)
+    implementation(libs.hikari.connection.pool)
+    implementation(libs.postgres.driver)
+    implementation(libs.flyway.postgres)
 
     // Serialization
     implementation(libs.ktor.serialization.jackson)
