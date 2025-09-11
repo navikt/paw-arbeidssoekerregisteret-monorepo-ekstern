@@ -82,7 +82,13 @@ spec:
         - application: veilarbportefolje
           namespace: obo
         - application: dp-oppslag-arbeidssoker
-          namespace: teamdagpenger   
+          namespace: teamdagpenger
+        - application: dp-rapportering-personregister
+          namespace: teamdagpenger
+        - application: dp-meldekortregister
+          namespace: teamdagpenger
+        - application: dp-rapportering
+          namespace: teamdagpenger
     outbound:
       rules:
         - application: paw-tilgangskontroll
