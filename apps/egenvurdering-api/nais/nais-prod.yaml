@@ -48,6 +48,13 @@ spec:
       enabled: true
   kafka:
     pool: nav-prod
+  postgres:
+    cluster:
+      majorVersion: "17"
+      resources:
+        cpu: 100m
+        diskSize: 1Gi
+        memory: 2G
   accessPolicy:
     inbound:
       rules:

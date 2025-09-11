@@ -26,7 +26,7 @@ import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 
 class EgenvurderingService(
