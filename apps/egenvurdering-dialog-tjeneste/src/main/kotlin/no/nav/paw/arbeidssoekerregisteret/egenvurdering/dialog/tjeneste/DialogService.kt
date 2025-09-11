@@ -27,8 +27,10 @@ class DialogService(
             .map { egenvurdering ->
                 val eksisterendeDialogId: Long? = periodeIdDialogIdRepository.getDialogIdOrNull(egenvurdering.periodeId)
                 val dialogmelding = egenvurdering.tilDialogmelding()
-                val dialogRequest =
-                    dialogmelding.toDialogRequest(egenvurdering.sendtInnAv.utfoertAv.id, eksisterendeDialogId)
+                val dialogRequest = dialogmelding.toDialogRequest(
+                    fnr = egenvurdering.sendtInnAv.utfoertAv.id,
+                    dialogId = eksisterendeDialogId
+                )
                 val response = runBlocking { veilarbdialogClient.lagEllerOppdaterDialog(dialogRequest) }
                 TempData(egenvurdering.periodeId, eksisterendeDialogId, response)
             }.forEach { (periodeId, eksisterendeDialogId, response) ->
@@ -36,12 +38,12 @@ class DialogService(
                     is DialogResponse -> {
                         if (eksisterendeDialogId == null) {
                             periodeIdDialogIdRepository.insert(periodeId, response.dialogId.toLong())
-                            traceNyTraad(response.dialogId, periodeId)
+                            traceNyTråd(response.dialogId, periodeId)
                         } else if (eksisterendeDialogId == response.dialogId.toLong()) {
                             traceNyMeldingPåEksisterendeTråd(response.dialogId, periodeId)
                         } else if (eksisterendeDialogId != response.dialogId.toLong()) {
                             traceEndringAvDialogId(eksisterendeDialogId, response, periodeId)
-                            //periodeIdDialogIdRepository.update(egenvurdering.periodeId, response.dialogId.toLong())
+                            periodeIdDialogIdRepository.update(periodeId, response.dialogId.toLong())
                         }
                     }
 
@@ -75,7 +77,7 @@ private fun traceNyMeldingPåEksisterendeTråd(dialogId: String, periodeId: UUID
     logger.info("Ny melding på eksisterende tråd med dialogId=$dialogId for periodeId=$periodeId")
 }
 
-private fun traceNyTraad(dialogId: String, periodeId: UUID) {
+private fun traceNyTråd(dialogId: String, periodeId: UUID) {
     Span.current().addEvent("ny_traad", Attributes.of(stringKey("dialogId"), dialogId))
     logger.info("Ny traad med dialogId=$dialogId for periodeId=$periodeId")
 }

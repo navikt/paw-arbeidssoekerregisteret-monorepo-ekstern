@@ -6,6 +6,7 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
+import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
@@ -45,7 +46,7 @@ class DialogServiceTest : FreeSpec({
             respond(
                 content = """{"id":"$newDialogId"}""",
                 status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                headers = headersOf(HttpHeaders.ContentType, Application.Json.toString())
             )
         }
         val client = VeilarbdialogClient(
@@ -83,7 +84,7 @@ class DialogServiceTest : FreeSpec({
             respond(
                 content = """{"id":"$existingDialogId"}""",
                 status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                headers = headersOf(HttpHeaders.ContentType, Application.Json.toString())
             )
         }
         val client = VeilarbdialogClient(
@@ -141,6 +142,46 @@ class DialogServiceTest : FreeSpec({
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
         verify { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
+        confirmVerified(periodeIdDialogIdRepository)
+    }
+
+    "DialogId i db er ulik dialogId fra veilarbdialog – Id i db oppdateres" {
+        val dialogIdDb = 888L
+        val dialogIdFraVeilarb = 999L
+        val periodeId = UUID.randomUUID()
+
+        val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
+        every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns dialogIdDb
+        every { periodeIdDialogIdRepository.update(periodeId, dialogIdFraVeilarb) } just runs
+
+        val engine = MockEngine {
+            respond(
+                content = """{"id":"$dialogIdFraVeilarb"}""",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, Application.Json.toString())
+            )
+        }
+        val client = VeilarbdialogClient(
+            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake"),
+            texasClient = mockk(relaxed = true),
+            httpClient = testClient(engine)
+        )
+        val service = DialogService(client, periodeIdDialogIdRepository)
+
+        val egenvurdering = egenvurdering(
+            periodeId = periodeId,
+            navProfilering = ANTATT_GODE_MULIGHETER,
+            brukersEgenvurdering = ANTATT_GODE_MULIGHETER,
+            tidspunkt = Instant.parse("2025-03-20T09:00:00Z"),
+            fnr = "55555555555"
+        )
+
+        val records = consumerRecordsOf(egenvurdering)
+        service.varsleVeilederOmEgenvurderingAvProfilering(records)
+
+        verify { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
+        verify(exactly = 0) { periodeIdDialogIdRepository.insert(any(), any()) }
+        verify { periodeIdDialogIdRepository.update(periodeId, dialogIdFraVeilarb) }
         confirmVerified(periodeIdDialogIdRepository)
     }
 })
