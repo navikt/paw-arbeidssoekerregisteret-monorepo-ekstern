@@ -8,9 +8,12 @@ import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
+import no.nav.paw.arbeidssokerregisteret.TopicNames
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.client.factory.createHttpClient
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
@@ -23,7 +26,11 @@ import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.texas.TexasClient
+import org.apache.avro.specific.SpecificRecord
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.Producer
+import org.apache.kafka.common.serialization.Deserializer
+import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.Serializer
 import javax.sql.DataSource
@@ -38,7 +45,9 @@ data class ApplicationContext(
     val egenvurderingService: EgenvurderingService,
     val egenvurderingAvroSerializer: Serializer<Egenvurdering>,
     val producer: Producer<Long, Egenvurdering>,
-    val datasource: DataSource
+    val datasource: DataSource,
+    val consumer: KafkaConsumer<Long, SpecificRecord>,
+    val topics: TopicNames,
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -69,7 +78,23 @@ data class ApplicationContext(
                 valueSerializer = egenvurderingAvroSerializer::class,
             )
 
-            val egenvurderingService = EgenvurderingService(applicationConfig, kafkaKeysClient, egenvurderingProducer, texasClient, oppslagsClient)
+            val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
+            val consumer: KafkaConsumer<Long, SpecificRecord> = kafkaFactory.createConsumer<Long, SpecificRecord>(
+                groupId = "${applicationConfig.kafkaTopology.applicationIdPrefix}_${applicationConfig.kafkaTopology.producerVersion}",
+                clientId = "${applicationConfig.kafkaTopology.applicationIdPrefix}_${applicationConfig.kafkaTopology.producerVersion}",
+                keyDeserializer = LongDeserializer::class,
+                valueDeserializer = deserializer::class,
+            )
+
+            val topics = standardTopicNames(currentRuntimeEnvironment)
+
+            val egenvurderingService = EgenvurderingService(
+                applicationConfig,
+                kafkaKeysClient,
+                egenvurderingProducer,
+                texasClient,
+                oppslagsClient
+            )
 
             val datasource = createDataSource()
 
@@ -83,9 +108,12 @@ data class ApplicationContext(
                 egenvurderingService,
                 egenvurderingAvroSerializer,
                 egenvurderingProducer,
-                datasource
+                datasource,
+                consumer,
+                topics
             )
         }
+
         private fun createDataSource(): DataSource = try {
             val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
             createHikariDataSource(databaseConfig)

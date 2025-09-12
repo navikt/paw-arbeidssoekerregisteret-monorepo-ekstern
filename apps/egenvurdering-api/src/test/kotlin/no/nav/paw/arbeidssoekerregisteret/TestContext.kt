@@ -4,7 +4,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -22,6 +21,8 @@ import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.standardTopicNames
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
@@ -32,13 +33,10 @@ import org.apache.kafka.common.serialization.Serializer
 
 open class TestContext {
 
-    val SCHEMA_REGISTRY_SCOPE = "test-registry"
-
     val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
     val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
     val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
     val mockOAuth2Server = MockOAuth2Server()
-    val meterRegistry = SimpleMeterRegistry()
     val kafkaKeysClientMock = mockk<KafkaKeysClient>()
     val prometheusMeterRegistryMock = mockk<PrometheusMeterRegistry>()
     val authorizationService = AuthorizationService()
@@ -48,21 +46,23 @@ open class TestContext {
 
     fun ApplicationTestBuilder.configureTestApplication() {
         val applicationContext = ApplicationContext(
-            serverConfig,
-            applicationConfig,
-            securityConfig.copy(authProviders = securityConfig.authProviders.map {
+            serverConfig = serverConfig,
+            applicationConfig = applicationConfig,
+            securityConfig = securityConfig.copy(authProviders = securityConfig.authProviders.map {
                 it.copy(
                     audiences = listOf("default"),
                     discoveryUrl = mockOAuth2Server.wellKnownUrl("default").toString()
                 )
             }),
-            prometheusMeterRegistryMock,
-            authorizationService,
-            kafkaKeysClientMock,
-            egenvurderingService,
-            mockk<Serializer<Egenvurdering>>(relaxed = true),
-            mockk<Producer<Long, Egenvurdering>>(relaxed = true),
+            prometheusMeterRegistry = prometheusMeterRegistryMock,
+            authorizationService = authorizationService,
+            kafkaKeysClient = kafkaKeysClientMock,
+            egenvurderingService = egenvurderingService,
+            egenvurderingAvroSerializer = mockk<Serializer<Egenvurdering>>(relaxed = true),
+            producer = mockk<Producer<Long, Egenvurdering>>(relaxed = true),
             datasource = mockk(relaxed = true),
+            consumer = mockk(relaxed = true),
+            topics = standardTopicNames(currentRuntimeEnvironment),
         )
         application {
             configureSerialization()

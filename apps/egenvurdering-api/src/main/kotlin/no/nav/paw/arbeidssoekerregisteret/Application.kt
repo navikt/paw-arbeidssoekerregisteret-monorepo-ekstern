@@ -45,7 +45,11 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
-    configureKafka(applicationContext)
+    configureKafka(applicationContext, recordHandler = { records ->
+        if (!records.isEmpty) {
+            TODO("Håndter noe records her")
+        }
+    })
     configureAuthentication(applicationContext)
     configureRouting(applicationContext)
 }
