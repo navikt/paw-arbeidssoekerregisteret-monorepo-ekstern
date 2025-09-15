@@ -9,7 +9,7 @@ servers:
 paths:
   /api/v2/bekreftelser:
     post:
-      description: "Hent alle bekreftelser for oppgitte perioder"
+      description: "Hent alle bekreftelser for oppgitte perioder, body: PeriodeRequest eller IdentitetsnummerRequest"
       parameters:
         - name: "traceparent"
           in: "header"
@@ -22,7 +22,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PerioderRequest'
+              oneOf:
+                - $ref: '#/components/schemas/IdentitetsnummerRequest'
+                - $ref: '#/components/schemas/PerioderRequest'
         required: true
       responses:
         "200":
@@ -39,7 +41,7 @@ paths:
 
   /api/v2/tidslinjer:
     post:
-      description: "Hent alle bekreftelser for oppgitte perioder"
+      description: "Hent alle bekreftelser for oppgitte perioder, body: PeriodeRequest eller IdentitetsnummerRequest"
       parameters:
         - name: "traceparent"
           in: "header"
