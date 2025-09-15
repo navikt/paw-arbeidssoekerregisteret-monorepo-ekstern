@@ -12,7 +12,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.append
 import io.ktor.http.headers
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PerioderRequest
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.test.data.periode.MetadataFactory
@@ -80,7 +80,7 @@ suspend fun HttpClient.hentBekreftelser(
             append(HttpHeaders.ContentType, ContentType.Application.Json)
         }
         setBody(
-            ApiV2BekreftelserPostRequest(
+            PerioderRequest(
                 perioder = perioder
             )
         )
@@ -98,7 +98,7 @@ suspend fun HttpClient.hentTidslinjer(
             append(HttpHeaders.ContentType, ContentType.Application.Json)
         }
         setBody(
-            ApiV2BekreftelserPostRequest(
+            PerioderRequest(
                 perioder = perioder
             )
         )

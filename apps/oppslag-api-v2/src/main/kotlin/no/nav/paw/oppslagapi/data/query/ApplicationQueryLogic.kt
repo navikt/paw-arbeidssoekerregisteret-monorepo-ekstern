@@ -2,8 +2,8 @@ package no.nav.paw.oppslagapi.data.query
 
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ApiV2BekreftelserPostRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PerioderRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
@@ -54,7 +54,7 @@ class ApplicationQueryLogic(
     )
     suspend fun hentBekreftelser(
         securityContext: SecurityContext,
-        request: ApiV2BekreftelserPostRequest
+        request: PerioderRequest
     ): Response<BekreftelserResponse> {
         if (request.perioder.isEmpty()) {
             return Data(BekreftelserResponse(emptyList()))

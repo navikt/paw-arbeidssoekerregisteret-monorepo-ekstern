@@ -22,15 +22,7 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                perioder:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-              required:
-                - "perioder"
+              $ref: '#/components/schemas/PerioderRequest'
         required: true
       responses:
         "200":
@@ -60,15 +52,7 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                perioder:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-              required:
-                - "perioder"
+              $ref: '#/components/schemas/PerioderRequest'
         required: true
       responses:
         "200":
@@ -85,6 +69,16 @@ paths:
 
 components:
   schemas:
+    PerioderRequest:
+      type: object
+      properties:
+        perioder:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - perioder
     # --- Periode and dependencies ---
     Periode:
       type: object
@@ -637,6 +631,3 @@ components:
                 $ref: '#/components/schemas/Tidslinje'
         required:
             - tidslinje
-
-
-
