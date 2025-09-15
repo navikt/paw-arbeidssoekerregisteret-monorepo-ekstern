@@ -52,7 +52,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PerioderRequest'
+              oneOf:
+                - $ref: '#/components/schemas/PerioderRequest'
+                - $ref: '#/components/schemas/IdentitetsnummerRequest'
         required: true
       responses:
         "200":
@@ -79,6 +81,16 @@ components:
             format: uuid
       required:
         - perioder
+    IdentitetsnummerRequest:
+      type: object
+      properties:
+        identitetsnummer:
+          type: string
+          format: identitetsnummer
+          pattern: '^\d{11}$'
+          description: "Norsk identitetsnummer (11 siffer, ingen andre tegn)"
+      required:
+        - identitetsnummer
     # --- Periode and dependencies ---
     Periode:
       type: object
@@ -565,33 +577,33 @@ components:
         - "pa_vegne_av_start_v1"
         - "pa_vegne_av_stopp_v1"
     Hendelse:
-        type: object
-        description: "En hendelse i tidslinjen for en periode"
-        properties:
-          hendelseType:
-            description: "Angir hvilken hendelse dette er, som angir hvilken type data som er inkludert"
-            $ref: '#/components/schemas/HendelseType'
-          tidspunkt:
-            type: string
-            format: date-time
-            description: "Tidspunktet for hendelsen"
-          periode_startet_v1:
-            $ref: '#/components/schemas/Metadata'
-          periode_avsluttet_v1:
-            $ref: '#/components/schemas/Metadata'
-          opplysninger_v4:
-            $ref: '#/components/schemas/OpplysningerOmArbeidssoeker'
-          profilering_v1:
-            $ref: '#/components/schemas/Profilering'
-          bekreftelse_v1:
-            $ref: '#/components/schemas/BekreftelseMedMetadata'
-          pa_vegne_av_start_v1:
-            $ref: '#/components/schemas/PaaVegneAvStart'
-          pa_vegne_av_stopp_v1:
-            $ref: '#/components/schemas/PaaVegneAvStopp'
-        required:
-            - hendelseType
-            - tidspunkt
+      type: object
+      description: "En hendelse i tidslinjen for en periode"
+      properties:
+        hendelseType:
+          description: "Angir hvilken hendelse dette er, som angir hvilken type data som er inkludert"
+          $ref: '#/components/schemas/HendelseType'
+        tidspunkt:
+          type: string
+          format: date-time
+          description: "Tidspunktet for hendelsen"
+        periode_startet_v1:
+          $ref: '#/components/schemas/Metadata'
+        periode_avsluttet_v1:
+          $ref: '#/components/schemas/Metadata'
+        opplysninger_v4:
+          $ref: '#/components/schemas/OpplysningerOmArbeidssoeker'
+        profilering_v1:
+          $ref: '#/components/schemas/Profilering'
+        bekreftelse_v1:
+          $ref: '#/components/schemas/BekreftelseMedMetadata'
+        pa_vegne_av_start_v1:
+          $ref: '#/components/schemas/PaaVegneAvStart'
+        pa_vegne_av_stopp_v1:
+          $ref: '#/components/schemas/PaaVegneAvStopp'
+      required:
+        - hendelseType
+        - tidspunkt
     Tidslinje:
       description: "Tidslinje for en Arbeidssøkerperiode"
       type: object
@@ -622,12 +634,12 @@ components:
         - hendelser
 
     TidslinjeResponse:
-        type: object
-        description: "Response for tidslinjekall"
-        properties:
-            tidslinjer:
-              type: array
-              items:
-                $ref: '#/components/schemas/Tidslinje'
-        required:
-            - tidslinje
+      type: object
+      description: "Response for tidslinjekall"
+      properties:
+        tidslinjer:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tidslinje'
+      required:
+        - tidslinje
