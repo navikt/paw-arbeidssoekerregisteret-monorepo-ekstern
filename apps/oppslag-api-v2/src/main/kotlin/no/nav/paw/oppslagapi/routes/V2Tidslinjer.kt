@@ -2,10 +2,11 @@ package no.nav.paw.oppslagapi.routes
 
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PerioderRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.error.model.map
+import no.nav.paw.oppslagapi.V2Request
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
+import no.nav.paw.oppslagapi.hentTidslinjer
 import no.nav.paw.oppslagapi.respondWith
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.TokenX
@@ -14,11 +15,11 @@ import no.nav.paw.security.authentication.plugin.autentisering
 
 fun Route.v2Tidslinjer(appQueryLogic: ApplicationQueryLogic) {
     autentisering(TokenX, AzureAd) {
-        post<PerioderRequest> { request ->
+        post<V2Request> { request ->
             val securityContext = call.securityContext()
-            val response = appQueryLogic.lagTidslinjer(
+            val response = appQueryLogic.hentTidslinjer(
                 securityContext = securityContext,
-                perioder = request.perioder
+                baseRequest = request.typedRequest
             ).map(::TidslinjeResponse)
             call.respondWith(response)
         }

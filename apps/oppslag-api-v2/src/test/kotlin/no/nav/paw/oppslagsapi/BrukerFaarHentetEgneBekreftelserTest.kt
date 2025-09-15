@@ -60,7 +60,7 @@ class BrukerFaarHentetEgneBekreftelserTest : FreeSpec({
             periodeId = periode1.id,
             identitetsnummer = periode1.identitetsnummer,
             timestamp = periode1.startet.tidspunkt,
-            data = periode1.toOpenApi(),
+            data = periode1.startet.toOpenApi(),
             type = periode_startet_v1
         ),
         Row(
