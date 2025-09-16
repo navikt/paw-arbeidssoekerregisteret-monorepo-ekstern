@@ -12,6 +12,7 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagrePerioderOgProfileringer
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 
@@ -45,11 +46,11 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
-    configureKafka(applicationContext, recordHandler = { records ->
+    configureKafka(applicationContext) { records ->
         if (!records.isEmpty) {
-            TODO("Håndter noe records her")
+            //lagrePerioderOgProfileringer(records)
         }
-    })
+    }
     configureAuthentication(applicationContext)
     configureRouting(applicationContext)
 }
