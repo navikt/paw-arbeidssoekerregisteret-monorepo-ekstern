@@ -16,7 +16,7 @@ fun Application.configureKafka(applicationContext: ApplicationContext, recordHan
         }
         install(KafkaConsumerPlugin<Long, SpecificRecord>("ProfileringOgPeriode")) {
             kafkaConsumer = applicationContext.consumer
-            kafkaTopics = emptyList() //listOf(topics.profileringTopic, topics.periodeTopic)
+            kafkaTopics = listOf(topics.profileringTopic, topics.periodeTopic)
             consumeFunction = recordHandler
         }
     }

@@ -50,7 +50,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureDatabase(applicationContext.datasource)
     configureKafka(applicationContext) { records ->
         if (!records.isEmpty) {
-            //lagrePerioderOgProfileringer(records)
+            lagrePerioderOgProfileringer(records)
         }
     }
     configureAuthentication(applicationContext)
