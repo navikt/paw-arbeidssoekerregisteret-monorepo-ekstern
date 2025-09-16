@@ -99,18 +99,18 @@ data class ApplicationContext(
             val datasource = createDataSource()
 
             return ApplicationContext(
-                serverConfig,
-                applicationConfig,
-                securityConfig,
-                prometheusMeterRegistry,
-                authorizationService,
-                kafkaKeysClient,
-                egenvurderingService,
-                egenvurderingAvroSerializer,
-                egenvurderingProducer,
-                datasource,
-                consumer,
-                topics
+                serverConfig = serverConfig,
+                applicationConfig = applicationConfig,
+                securityConfig = securityConfig,
+                prometheusMeterRegistry = prometheusMeterRegistry,
+                authorizationService = authorizationService,
+                kafkaKeysClient = kafkaKeysClient,
+                egenvurderingService = egenvurderingService,
+                egenvurderingAvroSerializer = egenvurderingAvroSerializer,
+                producer = egenvurderingProducer,
+                datasource = datasource,
+                consumer = consumer,
+                topics = topics,
             )
         }
 
