@@ -23,6 +23,14 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
         }
     }
 
+    override fun lagreEgenvurdering(egenvurdering: Egenvurdering): InsertStatement<Number> = transaction {
+        EgenvurderingTable.insert {
+            it[id] = egenvurdering.id
+            it[profileringId] = egenvurdering.profileringId
+            it[EgenvurderingTable.egenvurdering] = egenvurdering.egenvurdering.name
+        }
+    }
+
     override fun finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident: String): NyesteProfilering? = transaction {
         ProfileringTable.join(
             otherTable = PeriodeTable,
@@ -58,14 +66,6 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
             it[identitetsnummer] = periode.identitetsnummer
             it[startet] = periode.startet.tidspunkt
             it[avsluttet] = periode.avsluttet?.tidspunkt
-        }
-    }
-
-    override fun lagreEgenvurdering(egenvurdering: Egenvurdering): InsertStatement<Number> = transaction {
-        EgenvurderingTable.insert {
-            it[id] = egenvurdering.id
-            it[profileringId] = egenvurdering.profileringId
-            it[EgenvurderingTable.egenvurdering] = egenvurdering.egenvurdering.name
         }
     }
 
