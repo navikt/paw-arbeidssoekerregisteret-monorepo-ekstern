@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.repository
 
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -23,6 +24,8 @@ import org.apache.kafka.common.TopicPartition
 import org.jetbrains.exposed.sql.Database.Companion.connect
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.postgresql.util.PSQLException
 import java.time.Instant
 import java.util.*
 
@@ -30,6 +33,84 @@ class EgenvurderingRepositoryTest : FreeSpec({
 
     val dataSource = autoClose(initTestDatabase())
     beforeSpec { connect(dataSource) }
+
+    "Ignorerer duplikat profilering" {
+        val periodeId = UUID.randomUUID()
+        val ident = "44444444444"
+        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident)
+        val profilering = createProfilering(id = UUID.randomUUID(), periodeId = periodeId)
+        val duplikatProfilering = createProfilering(id = profilering.id, periodeId = profilering.periodeId)
+
+        shouldNotThrow<PSQLException> {
+            lagrePerioderOgProfileringer(recordsOf(periode, profilering, duplikatProfilering))
+        }
+
+        transaction {
+            val rader = ProfileringTable
+                .selectAll()
+                .where { ProfileringTable.id eq profilering.id }
+                .toList()
+
+            rader.size shouldBe 1
+        }
+    }
+
+    "Oppdaterer avsluttet tidspunkt når stop-hendelse mottas for eksisterende periode" {
+        val periodeId = UUID.randomUUID()
+        val ident = "70000000000"
+
+        val startHendelse = PeriodeFactory.create().build(
+            id = periodeId,
+            identitetsnummer = ident,
+            avsluttet = null
+        )
+        val periodeStoppet = Instant.parse("2025-01-01T12:00:00Z")
+        val stoppHendelse = PeriodeFactory.create().build(
+            id = periodeId,
+            identitetsnummer = ident,
+            avsluttet = MetadataFactory.create().build(tidspunkt = periodeStoppet)
+        )
+
+        lagrePerioderOgProfileringer(recordsOf(startHendelse, stoppHendelse))
+
+        transaction {
+            val rader = PeriodeTable
+                .selectAll()
+                .where { PeriodeTable.id eq periodeId }
+                .toList()
+            rader.size shouldBe 1
+            rader.single()[PeriodeTable.avsluttet] shouldBe periodeStoppet
+        }
+    }
+
+    "Ignorer duplikat start periode hendelse" {
+        val periodeId = UUID.randomUUID()
+        val ident = "80000000000"
+
+        val startHendelse = PeriodeFactory.create().build(
+            id = periodeId,
+            identitetsnummer = ident,
+            avsluttet = null
+        )
+        val duplikatStartHendelse = PeriodeFactory.create().build(
+            id = periodeId,
+            identitetsnummer = ident,
+            avsluttet = null
+        )
+
+        lagrePerioderOgProfileringer(
+            recordsOf(startHendelse, duplikatStartHendelse)
+        )
+
+        transaction {
+            val rader = PeriodeTable
+                .selectAll()
+                .where { PeriodeTable.id eq periodeId }
+                .toList()
+            rader.size shouldBe 1
+            rader.single()[PeriodeTable.avsluttet] shouldBe null
+        }
+    }
 
     "Returnerer nyeste profilering fra åpen periode uten egenvurdering" {
         val periodeId = UUID.randomUUID()

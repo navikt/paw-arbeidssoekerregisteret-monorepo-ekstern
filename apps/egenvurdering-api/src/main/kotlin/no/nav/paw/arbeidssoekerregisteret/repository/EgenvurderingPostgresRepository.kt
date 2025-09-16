@@ -9,15 +9,17 @@ import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.InsertStatement
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object EgenvurderingPostgresRepository : EgenvurderingRepository {
     override fun lagrePerioderOgProfileringer(records: ConsumerRecords<Long, SpecificRecord>) = transaction {
         records.asSequence().forEach { record ->
             when (val value = record.value()) {
-                is Periode -> lagrePeriode(value)
+                is Periode -> lagreEllerOppdaterPeriode(value)
                 is Profilering -> lagreProfilering(value)
             }
         }
@@ -60,17 +62,29 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
             }
     }
 
-    private fun lagrePeriode(periode: Periode) {
-        PeriodeTable.insert {
-            it[id] = periode.id
-            it[identitetsnummer] = periode.identitetsnummer
-            it[startet] = periode.startet.tidspunkt
-            it[avsluttet] = periode.avsluttet?.tidspunkt
-        }
+    private fun lagreEllerOppdaterPeriode(periode: Periode) {
+        //language=SQL
+        val upsertStatement = """
+            INSERT INTO ${PeriodeTable.tableName} (id, identitetsnummer, startet, avsluttet)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (id) DO UPDATE
+                SET avsluttet = EXCLUDED.avsluttet
+            WHERE ${PeriodeTable.tableName}.avsluttet IS NULL
+              AND EXCLUDED.avsluttet IS NOT NULL
+        """.trimIndent()
+
+        val args = listOf(
+            PeriodeTable.id.columnType to periode.id,
+            PeriodeTable.identitetsnummer.columnType to periode.identitetsnummer,
+            PeriodeTable.startet.columnType to periode.startet.tidspunkt,
+            PeriodeTable.avsluttet.columnType to periode.avsluttet?.tidspunkt
+        )
+
+        TransactionManager.current().exec(upsertStatement, args)
     }
 
     private fun lagreProfilering(profilering: Profilering) {
-        ProfileringTable.insert {
+        ProfileringTable.insertIgnore {
             it[id] = profilering.id
             it[periodeId] = profilering.periodeId
             it[profileringTidspunkt] = profilering.sendtInnAv.tidspunkt
