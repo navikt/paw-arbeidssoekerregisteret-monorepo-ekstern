@@ -6,6 +6,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
+import no.nav.paw.arbeidssoekerregisteret.plugins.configureDatabase
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
@@ -46,6 +47,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
+    configureDatabase(applicationContext.datasource)
     configureKafka(applicationContext) { records ->
         if (!records.isEmpty) {
             //lagrePerioderOgProfileringer(records)
