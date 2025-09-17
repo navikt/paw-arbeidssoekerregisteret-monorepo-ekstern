@@ -24,7 +24,6 @@ import org.apache.kafka.common.TopicPartition
 import org.jetbrains.exposed.sql.Database.Companion.connect
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.postgresql.util.PSQLException
 import java.time.Instant
 import java.util.*
