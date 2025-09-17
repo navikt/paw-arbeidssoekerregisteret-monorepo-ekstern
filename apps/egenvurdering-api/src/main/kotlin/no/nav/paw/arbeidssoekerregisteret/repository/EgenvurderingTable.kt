@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.repository
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object EgenvurderingTable : Table("egenvurdering") {
     val id = uuid("id")

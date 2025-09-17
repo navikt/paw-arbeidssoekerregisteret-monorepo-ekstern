@@ -3,7 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.repository
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
-import org.jetbrains.exposed.sql.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
 import java.time.Instant
 import java.util.*
 
