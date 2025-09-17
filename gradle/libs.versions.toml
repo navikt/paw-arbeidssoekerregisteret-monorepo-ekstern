@@ -12,6 +12,7 @@ confluent-kafka = "8.0.0"
 avro = "1.12.0"
 jackson = "2.20.0"
 exposed = "0.61.0"
+exposed-v1 = "1.0.0-rc-1"
 logstash = "8.1"
 logback = "1.5.18"
 janino = "3.1.12"
@@ -65,11 +66,19 @@ logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.
 logstash-logback-encoder = { group = "net.logstash.logback", name = "logstash-logback-encoder", version.ref = "logstash" }
 janino = { group = "org.codehaus.janino", name = "janino", version.ref = "janino" }
 hoplite-toml = { group = "com.sksamuel.hoplite", name = "hoplite-toml", version.ref = "hoplite" }
+
 exposed-core = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "exposed" }
-exposed-crypt = { group = "org.jetbrains.exposed", name = "exposed-crypt", version.ref = "exposed" }
 exposed-dao = { group = "org.jetbrains.exposed", name = "exposed-dao", version.ref = "exposed" }
 exposed-jdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed" }
 exposed-java-time = { group = "org.jetbrains.exposed", name = "exposed-java-time", version.ref = "exposed" }
+exposed-crypt = { group = "org.jetbrains.exposed", name = "exposed-crypt", version.ref = "exposed" }
+
+exposed-core-v1 = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "exposed-v1" }
+exposed-dao-v1 = { group = "org.jetbrains.exposed", name = "exposed-dao", version.ref = "exposed-v1" }
+exposed-jdbc-v1 = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed-v1" }
+exposed-java-time-v1 = { group = "org.jetbrains.exposed", name = "exposed-java-time", version.ref = "exposed-v1" }
+exposed-crypt-v1 = { group = "org.jetbrains.exposed", name = "exposed-crypt", version.ref = "exposed-v1" }
+
 postgres-driver = { group = "org.postgresql", name = "postgresql", version.ref = "postgres-driver" }
 flyway-postgres = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
 hikari-connection-pool = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
