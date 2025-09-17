@@ -4,11 +4,11 @@ import io.ktor.server.plugins.BadRequestException
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
+import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.findSisteOpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssoekerregisteret.utils.findSisteProfilering
-import no.nav.paw.arbeidssoekerregisteret.utils.isPeriodeAvsluttet
-import no.nav.paw.arbeidssoekerregisteret.utils.toApiProfilering
 import no.nav.paw.arbeidssoekerregisteret.utils.toProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
@@ -20,13 +20,16 @@ import no.nav.paw.kafka.producer.sendDeferred
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.ACR
+import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.token.AccessToken
-import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
 import no.nav.paw.security.texas.TexasClient
+import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
 import java.util.*
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering as ProfileringDto
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil as ProfilertTilDto
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as RecordMetadata
 
 class EgenvurderingService(
@@ -35,23 +38,17 @@ class EgenvurderingService(
     private val producer: Producer<Long, Egenvurdering>,
     private val texasClient: TexasClient,
     private val oppslagsClient: ApiOppslagClient,
+    private val egenvurderingRepository: EgenvurderingRepository = EgenvurderingPostgresRepository,
 ) {
     private val logger = buildApplicationLogger
 
-    suspend fun getEgenvurderingGrunnlag(accessToken: AccessToken): EgenvurderingGrunnlag {
-        val target = applicationConfig.texasClientConfig.target
-        val exchangedToken = texasClient.exchangeOnBehalfOfBrukerToken(
-            OnBehalfOfBrukerRequest(accessToken.jwt, target)
-        ).accessToken
-        val arbeidssoekerperioderAggregert = oppslagsClient.findSisteArbeidssoekerperioderAggregert { exchangedToken }
-        val sisteProfilering = arbeidssoekerperioderAggregert.findSisteProfilering()
-        val innsendtEgenvurderinger = sisteProfilering?.egenvurderinger ?: emptyList()
-        return if (sisteProfilering == null || innsendtEgenvurderinger.isNotEmpty() || arbeidssoekerperioderAggregert.isPeriodeAvsluttet()) {
-            EgenvurderingGrunnlag(grunnlag = null)
-        } else {
-            EgenvurderingGrunnlag(
-                grunnlag = sisteProfilering.toApiProfilering(),
-            )
+    fun getEgenvurderingGrunnlag(securityContext: SecurityContext): EgenvurderingGrunnlag {
+        val ident = securityContext.bruker.ident.toString()
+        val nyesteProfilering = egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
+
+        return when (nyesteProfilering) {
+            null -> EgenvurderingGrunnlag(null)
+            else -> EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
         }
     }
 
@@ -110,3 +107,11 @@ class EgenvurderingService(
         }
     }
 }
+
+private fun NyesteProfilering.toProfileringDto() = ProfileringDto(
+    profileringId = id,
+    profilertTil = profilertTil.toApiProfilertTil()
+)
+
+private fun String.toApiProfilertTil() = runCatching { ProfilertTilDto.valueOf(this) }
+    .getOrElse { throw IllegalArgumentException("Ugyldig ApiProfilertTil: $this") }

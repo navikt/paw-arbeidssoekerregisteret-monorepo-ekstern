@@ -11,7 +11,6 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
-import no.nav.paw.config.env.NAIS_PROD_CLUSER_NAME
 import no.nav.paw.config.env.ProdGcp
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -38,11 +37,11 @@ fun Route.egenvurderingRoutes(
             get(grunnlagPath) {
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.READ, accessPolicies) {
-                    val accessToken = call.securityContext().accessToken
+                    val securityContext = call.securityContext() //TODO: Skulle man hentet ut sluttbruker istedenfor?
                     val egenvurderingGrunnlag = if (currentRuntimeEnvironment is ProdGcp) {
                         EgenvurderingGrunnlag(grunnlag = null)
                     } else {
-                        egenvurderingService.getEgenvurderingGrunnlag(accessToken)
+                        egenvurderingService.getEgenvurderingGrunnlag(securityContext)
                     }
                     call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)
                 }
