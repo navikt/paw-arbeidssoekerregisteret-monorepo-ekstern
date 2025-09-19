@@ -78,7 +78,7 @@ dependencies {
     implementation(libs.nav.security.token.validation.ktor)
 
     // Swagger Request Validator
-    implementation("com.atlassian.oai:swagger-request-validator-core:2.44.9")
+    implementation("com.atlassian.oai:swagger-request-validator-core:2.45.1")
 
     // Test
     testImplementation(libs.ktor.server.test.host)
