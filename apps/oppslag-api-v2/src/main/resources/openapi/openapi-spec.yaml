@@ -143,9 +143,10 @@ components:
           type: string
           description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende.
         tidspunktFraKilde:
-          $ref: '#/components/schemas/TidspunktFraKilde'
-          nullable: true
           description: Avvik i tid mellom kilde og register.
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/TidspunktFraKilde'
       required:
         - tidspunkt
         - utfoertAv
@@ -165,6 +166,7 @@ components:
           description: Identifikator for brukeren, format avhenger av brukertype
         sikkerhetsnivaa:
           type: string
+          nullable: true
           description: Sikkerhetsnivået bruker var innlogget med ved utførelse av handlingen
       required:
         - type

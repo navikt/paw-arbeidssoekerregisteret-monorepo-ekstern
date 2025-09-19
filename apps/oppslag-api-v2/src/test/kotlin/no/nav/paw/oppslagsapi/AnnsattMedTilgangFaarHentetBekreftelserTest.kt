@@ -1,6 +1,7 @@
 package no.nav.paw.oppslagsapi
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.atlassian.oai.validator.model.Request
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.FreeSpec
@@ -36,6 +37,10 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import com.atlassian.oai.validator.OpenApiInteractionValidator
+import com.atlassian.oai.validator.model.Response
+import okhttp3.MediaType
+import java.nio.file.Paths
 
 
 class AnsattMedTilgangFaarHentetBekreftelserTest : FreeSpec({
@@ -115,14 +120,15 @@ class AnsattMedTilgangFaarHentetBekreftelserTest : FreeSpec({
                     )
                     //Ansatt med tilgang får hentet bekreftelser
                     val response = client.hentBekreftelser(token, listOf(periode1.id))
+                        .validatedWith(specValidator)
                     response.status shouldBe HttpStatusCode.OK
+                    val bodyAsJsonString: String = response.body()
                     val body: BekreftelserResponse = response.body()
                     body.bekreftelser.size shouldBe 1
                     body.bekreftelser.first().status shouldBe BekreftelseMedMetadata.Status.GYLDIG
                     body.bekreftelser.first().bekreftelse shouldBe bekreftelseMelding.toOpenApi()
+
                 }
             }
         }
 })
-
-
