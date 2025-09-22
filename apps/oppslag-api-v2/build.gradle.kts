@@ -77,10 +77,8 @@ dependencies {
     implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
 
-    // Swagger Request Validator
-    implementation("com.atlassian.oai:swagger-request-validator-core:2.44.9")
-
     // Test
+    testImplementation(libs.atlassian.oai.swaggerRequestValidator.core)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.nav.security.mock.oauth2.server)
