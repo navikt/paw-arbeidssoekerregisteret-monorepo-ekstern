@@ -118,7 +118,7 @@ data class ApplicationContext(
             val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
             createHikariDataSource(databaseConfig)
         } catch (e: Exception) {
-            throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
+            throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${(e.cause ?: e)::class.simpleName}")
         }
 
         class KunneIkkeOppretteDatasource(message: String) : RuntimeException(message)
