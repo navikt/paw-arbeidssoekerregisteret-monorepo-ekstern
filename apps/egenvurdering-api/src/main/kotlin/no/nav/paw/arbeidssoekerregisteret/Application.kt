@@ -47,10 +47,10 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
-    //configureDatabase(applicationContext.datasource)
+    configureDatabase(applicationContext.datasource)
     configureKafka(applicationContext) { records ->
         if (!records.isEmpty) {
-            //lagrePerioderOgProfileringer(records)
+            lagrePerioderOgProfileringer(records)
         }
     }
     configureAuthentication(applicationContext)
