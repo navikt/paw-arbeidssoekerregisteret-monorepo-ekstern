@@ -28,7 +28,7 @@ hikari = "7.0.2"
 graphql = "8.8.1"
 kotlinx-coroutines = "1.10.2"
 ktor = "3.3.0"
-atlassianRequestValidator = "2.45.1"
+atlassianRequestValidator = "2.46.0"
 
 [libraries]
 atlassian-oai-swaggerRequestValidator-core = { group = "com.atlassian.oai", name = "swagger-request-validator-core", version.ref = "atlassianRequestValidator" }
