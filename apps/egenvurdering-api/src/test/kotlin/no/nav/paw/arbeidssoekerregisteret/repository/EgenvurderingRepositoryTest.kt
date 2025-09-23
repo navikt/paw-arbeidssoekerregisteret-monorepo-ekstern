@@ -1,14 +1,13 @@
 package no.nav.paw.arbeidssoekerregisteret.repository
 
-import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import no.nav.paw.arbeidssoekerregisteret.prosesserPerioderOgProfileringer
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagreEgenvurdering
-import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagrePerioderOgProfileringer
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
@@ -25,7 +24,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database.Companion.connect
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.postgresql.util.PSQLException
 import java.time.Instant
 import java.util.*
 
@@ -34,28 +32,8 @@ class EgenvurderingRepositoryTest : FreeSpec({
     val dataSource = autoClose(initTestDatabase())
     beforeSpec { connect(dataSource) }
 
-    "Ignorerer duplikat profilering" {
-        val periodeId = UUID.randomUUID()
-        val ident = "44444444444"
-        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident)
-        val profilering = createProfilering(id = UUID.randomUUID(), periodeId = periodeId)
-        val duplikatProfilering = createProfilering(id = profilering.id, periodeId = profilering.periodeId)
 
-        shouldNotThrow<PSQLException> {
-            lagrePerioderOgProfileringer(recordsOf(periode, profilering, duplikatProfilering))
-        }
-
-        transaction {
-            val rader = ProfileringTable
-                .selectAll()
-                .where { ProfileringTable.id eq profilering.id }
-                .toList()
-
-            rader.size shouldBe 1
-        }
-    }
-
-    "Oppdaterer avsluttet tidspunkt når stop-hendelse mottas for eksisterende periode" {
+    "Sletter periode, profileringer og egenvurdering når stop-hendelse mottas for eksisterende periode" {
         val periodeId = UUID.randomUUID()
         val ident = "70000000000"
 
@@ -70,47 +48,105 @@ class EgenvurderingRepositoryTest : FreeSpec({
             identitetsnummer = ident,
             avsluttet = MetadataFactory.create().build(tidspunkt = periodeStoppet)
         )
+        val profilering = createProfilering(periodeId = periodeId)
+        val profilering2 = createProfilering(periodeId = periodeId)
+        val egenvurdering = createEgenvurderingFor(profilering)
+        val egenvurdering2 = createEgenvurderingFor(profilering2)
 
-        lagrePerioderOgProfileringer(recordsOf(startHendelse, stoppHendelse))
+        recordSequence(startHendelse, profilering, profilering2).prosesserPerioderOgProfileringer()
+        lagreEgenvurdering(egenvurdering)
+        lagreEgenvurdering(egenvurdering2)
+        recordSequence(stoppHendelse).prosesserPerioderOgProfileringer()
 
         transaction {
-            val rader = PeriodeTable
+            PeriodeTable
                 .selectAll()
                 .where { PeriodeTable.id eq periodeId }
-                .toList()
-            rader.size shouldBe 1
-            rader.single()[PeriodeTable.avsluttet] shouldBe periodeStoppet
+                .toList().size shouldBe 0
+
+            ProfileringTable
+                .selectAll()
+                .where { ProfileringTable.periodeId eq periodeId }
+                .toList().size shouldBe 0
+
+            EgenvurderingTable.selectAll().toList().size shouldBe 0
         }
     }
 
-    "Ignorer duplikat start periode hendelse" {
-        val periodeId = UUID.randomUUID()
-        val ident = "80000000000"
+    "Idempotens" - {
+        "Duplikate profileringer" - {
+            val periodeId = UUID.randomUUID()
+            val ident = "44444444444"
+            val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident)
+            val profilering = createProfilering(id = UUID.randomUUID(), periodeId = periodeId)
+            val duplikatProfilering = createProfilering(id = profilering.id, periodeId = profilering.periodeId)
 
-        val startHendelse = PeriodeFactory.create().build(
-            id = periodeId,
-            identitetsnummer = ident,
-            avsluttet = null
-        )
-        val duplikatStartHendelse = PeriodeFactory.create().build(
-            id = periodeId,
-            identitetsnummer = ident,
-            avsluttet = null
-        )
+            shouldNotThrowAny {
+                recordSequence(periode, profilering, duplikatProfilering).prosesserPerioderOgProfileringer()
+            }
 
-        lagrePerioderOgProfileringer(
-            recordsOf(startHendelse, duplikatStartHendelse)
-        )
+            transaction {
+                ProfileringTable
+                    .selectAll()
+                    .where { ProfileringTable.id eq profilering.id }
+                    .toList().size shouldBe 1
+            }
+        }
 
-        transaction {
-            val rader = PeriodeTable
-                .selectAll()
-                .where { PeriodeTable.id eq periodeId }
-                .toList()
-            rader.size shouldBe 1
-            rader.single()[PeriodeTable.avsluttet] shouldBe null
+        "Duplikate start periode hendelser" - {
+            val periodeId = UUID.randomUUID()
+            val ident = "80000000000"
+
+            val startHendelse = PeriodeFactory.create().build(
+                id = periodeId,
+                identitetsnummer = ident,
+            )
+            val duplikatStartHendelse = PeriodeFactory.create().build(
+                id = periodeId,
+                identitetsnummer = ident,
+            )
+
+            shouldNotThrowAny {
+                recordSequence(startHendelse, duplikatStartHendelse).prosesserPerioderOgProfileringer()
+            }
+
+            transaction {
+                val rader = PeriodeTable
+                    .selectAll()
+                    .where { PeriodeTable.id eq periodeId }
+                    .toList()
+                rader.size shouldBe 1
+                rader.single()[PeriodeTable.avsluttet] shouldBe null
+            }
+        }
+
+        "Duplikate stop periode hendelser" - {
+            val startHendelse = PeriodeFactory.create().build(
+                id = UUID.randomUUID(),
+                avsluttet = null,
+            )
+            val stopHendelse = PeriodeFactory.create().build(
+                id = startHendelse.id,
+                avsluttet = MetadataFactory.create().build(tidspunkt = Instant.now()),
+            )
+            val duplikatStopHendelse = PeriodeFactory.create().build(
+                id = stopHendelse.id,
+                avsluttet = stopHendelse.avsluttet,
+            )
+
+            shouldNotThrowAny {
+                recordSequence(startHendelse, stopHendelse, duplikatStopHendelse).prosesserPerioderOgProfileringer()
+            }
+
+            transaction {
+                PeriodeTable
+                    .selectAll()
+                    .where { PeriodeTable.id eq startHendelse.id }
+                    .toList().size shouldBe 0
+            }
         }
     }
+
 
     "Returnerer nyeste profilering fra åpen periode uten egenvurdering" {
         val periodeId = UUID.randomUUID()
@@ -130,9 +166,8 @@ class EgenvurderingRepositoryTest : FreeSpec({
             )
         )
 
-        lagrePerioderOgProfileringer(
-            recordsOf(periode, eldreProfilering, nyereProfilering)
-        )
+        recordSequence(periode, eldreProfilering, nyereProfilering)
+            .prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
 
         val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
 
@@ -141,7 +176,6 @@ class EgenvurderingRepositoryTest : FreeSpec({
         nyesteProfilering.profilertTil shouldBe nyereProfilering.profilertTil.name
     }
 
-
     "Returnerer null når egenvurdering finnes for nyeste profilering" {
         val periodeId = UUID.randomUUID()
         val ident = "10987654321"
@@ -149,7 +183,8 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val profilering = createProfilering(periodeId = periodeId)
         val egenvurdering = createEgenvurderingFor(profilering)
 
-        lagrePerioderOgProfileringer(recordsOf(periode, profilering))
+        recordSequence(periode, profilering).prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
+
         lagreEgenvurdering(egenvurdering)
 
         val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
@@ -166,7 +201,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
         )
         val profilering = createProfilering(periodeId = periodeId)
 
-        lagrePerioderOgProfileringer(recordsOf(avsluttetPeriode, profilering))
+        recordSequence(avsluttetPeriode, profilering).prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
 
         val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
         nyesteProfilering.shouldBeNull()
@@ -174,10 +209,10 @@ class EgenvurderingRepositoryTest : FreeSpec({
 
     "Gjør ingenting for ukjent Avro type" {
         val ustøttetRecord = OpplysningerOmArbeidssoeker()
-        val records = recordsOf(ustøttetRecord)
+        val records = recordSequence(ustøttetRecord)
 
         shouldNotThrowAny {
-            lagrePerioderOgProfileringer(records)
+            records.prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
         }
     }
 
@@ -185,11 +220,11 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val ingenRecords = ConsumerRecords<Long, SpecificRecord>(emptyMap(), emptyMap())
 
         shouldNotThrowAny {
-            lagrePerioderOgProfileringer(ingenRecords)
+            ingenRecords.asSequence().prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
         }
     }
 
-    "Lagrer egenvurdering (lagrer brukerens egenvurdering, ikke profilertTil)" {
+    "Lagrer egenvurdering (brukerens egenvurdering, ikke profilertTil)" {
         val periodeId = UUID.randomUUID()
         val ident = "22222222222"
         val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident)
@@ -203,7 +238,8 @@ class EgenvurderingRepositoryTest : FreeSpec({
             profilertTil = profilering.profilertTil,
         )
 
-        lagrePerioderOgProfileringer(recordsOf(periode, profilering))
+        recordSequence(periode, profilering).prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
+
         lagreEgenvurdering(egenvurdering)
 
         transaction {
@@ -216,13 +252,13 @@ class EgenvurderingRepositoryTest : FreeSpec({
     }
 })
 
-private fun recordsOf(
+fun recordSequence(
     vararg values: SpecificRecord,
     topic: String = "test-topic",
     partition: Int = 0,
     startOffset: Long = 0L,
     key: Long = 123L,
-): ConsumerRecords<Long, SpecificRecord> {
+): Sequence<ConsumerRecord<Long, SpecificRecord>> {
     val tp = TopicPartition(topic, partition)
 
     val list: List<ConsumerRecord<Long, SpecificRecord>> =
@@ -233,5 +269,5 @@ private fun recordsOf(
     val nextOffset = if (list.isEmpty()) startOffset else list.last().offset() + 1
     val nextOffsets = mapOf(tp to OffsetAndMetadata(nextOffset))
 
-    return ConsumerRecords(mapOf(tp to list), nextOffsets)
+    return ConsumerRecords(mapOf(tp to list), nextOffsets).asSequence()
 }

@@ -13,9 +13,15 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
-import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagrePerioderOgProfileringer
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
+import org.apache.avro.specific.SpecificRecord
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun main() {
     val logger = buildApplicationLogger
@@ -48,11 +54,26 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureLogging()
     configureMetrics(applicationContext)
     configureDatabase(applicationContext.datasource)
-    configureKafka(applicationContext) { records ->
-        if (!records.isEmpty) {
-            lagrePerioderOgProfileringer(records)
-        }
-    }
     configureAuthentication(applicationContext)
     configureRouting(applicationContext)
+    configureKafka(applicationContext) { records ->
+        records.takeIf { !it.isEmpty }
+            ?.asSequence()
+            ?.prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
+    }
+}
+
+fun Sequence<ConsumerRecord<Long, SpecificRecord>>.prosesserPerioderOgProfileringer(
+    repo: EgenvurderingRepository = EgenvurderingPostgresRepository,
+) = transaction {
+    forEach { record ->
+        when (val value = record.value()) {
+            is Periode -> {
+                if (value.avsluttet != null) repo.slettPeriode(value.id)
+                else repo.lagrePeriode(value)
+            }
+
+            is Profilering -> repo.lagreProfilering(value)
+        }
+    }
 }

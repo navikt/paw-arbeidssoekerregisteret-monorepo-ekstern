@@ -1,16 +1,17 @@
 package no.nav.paw.arbeidssoekerregisteret.repository
 
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
-import org.apache.avro.specific.SpecificRecord
-import org.apache.kafka.clients.consumer.ConsumerRecords
-import org.jetbrains.exposed.v1.core.statements.InsertStatement
 import java.time.Instant
 import java.util.*
 
 interface EgenvurderingRepository {
-    fun lagrePerioderOgProfileringer(records: ConsumerRecords<Long, SpecificRecord>)
     fun finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident: String): NyesteProfilering?
-    fun lagreEgenvurdering(egenvurdering: Egenvurdering): InsertStatement<Number>
+    fun lagrePeriode(periode: Periode)
+    fun lagreProfilering(profilering: Profilering)
+    fun lagreEgenvurdering(egenvurdering: Egenvurdering)
+    fun slettPeriode(periodeId: UUID): Boolean
 }
 
 data class NyesteProfilering(
