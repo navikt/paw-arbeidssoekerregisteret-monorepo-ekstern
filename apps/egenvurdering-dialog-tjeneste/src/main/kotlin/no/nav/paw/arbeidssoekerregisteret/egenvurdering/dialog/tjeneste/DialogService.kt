@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.V
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.toDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.buildApplicationLogger
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 

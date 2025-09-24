@@ -5,7 +5,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.ContentType
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -23,7 +22,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.reposito
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.factory.configureJackson
 import no.nav.paw.test.data.periode.BrukerFactory
 import no.nav.paw.test.data.periode.MetadataFactory
@@ -207,7 +206,6 @@ private fun egenvurdering(
     return Egenvurdering(
         UUID.randomUUID(),
         periodeId,
-        UUID.randomUUID(),
         UUID.randomUUID(),
         meta,
         navProfilering,

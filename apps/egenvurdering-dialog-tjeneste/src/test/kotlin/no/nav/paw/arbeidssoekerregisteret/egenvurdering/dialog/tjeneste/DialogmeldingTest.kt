@@ -13,7 +13,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHE
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.OPPGITT_HINDRINGER
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.UDEFINERT
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.UKJENT_VERDI
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import java.time.Instant
 import java.util.*
 
@@ -107,7 +107,6 @@ fun egenvurdering(
     brukersEgenvurdering: ProfilertTil,
     tidspunkt: Instant = timestamp,
 ) = Egenvurdering(
-    UUID.randomUUID(),
     UUID.randomUUID(),
     UUID.randomUUID(),
     UUID.randomUUID(),

@@ -4,7 +4,7 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.context.ApplicationContext
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.kafka.plugin.KafkaConsumerPlugin
 import org.apache.kafka.clients.consumer.ConsumerRecords
 

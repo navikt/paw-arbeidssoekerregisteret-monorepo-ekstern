@@ -8,7 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.A
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ServerConfig
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
