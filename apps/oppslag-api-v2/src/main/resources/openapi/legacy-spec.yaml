@@ -191,41 +191,6 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ProfileringResponse"
-  /api/v1/profilering/egenvurderinger:
-    get:
-      description: "Henter brukers egenvurdering av profilering."
-      tags:
-        - "Endepunkter for personbruker"
-      security:
-        - TokenXAuth: []
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/EgenvurderingResponse"
-        "400":
-          description: "Bad Request"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-        "403":
-          description: "Forbidden"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-        "500":
-          description: "Internal Server Error"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-
   /api/v1/arbeidssoekerbekreftelser:
     get:
       description: ""
@@ -498,47 +463,6 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ProfileringResponse"
-  /api/v1/veileder/profilering/egenvurderinger:
-    post:
-      description: ""
-      tags:
-        - "Endepunkter for veileder/system"
-      security:
-        - AzureAuth: []
-      parameters:
-        - name: "siste"
-          in: "query"
-          required: false
-          schema:
-            type: "boolean"
-          description: "siste=true returnerer siste egenvurdering."
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/EgenvurderingRequest"
-        required: true
-      responses:
-        "500":
-          description: "Internal Server Error"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-        "403":
-          description: "Forbidden"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/EgenvurderingResponse"
   /api/v1/veileder/arbeidssoekerbekreftelser/{periodeId}:
     get:
       description: ""
@@ -834,10 +758,6 @@ components:
         alder:
           type: "integer"
           format: "int32"
-        egenvurderinger:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/EgenvurderingResponse"
       required:
         - "profileringId"
         - "periodeId"
@@ -871,35 +791,6 @@ components:
         - "opplysningerOmArbeidssoekerId"
         - "sendtInnAv"
         - "profilertTil"
-    EgenvurderingResponse:
-      type: "object"
-      properties:
-        egenvurderingId:
-          type: "string"
-          format: "uuid"
-        periodeId:
-          type: "string"
-          format: "uuid"
-        opplysningerOmArbeidssoekerId:
-          type: "string"
-          format: "uuid"
-        profileringId:
-          type: "string"
-          format: "uuid"
-        sendtInnAv:
-          $ref: "#/components/schemas/MetadataResponse"
-        profilertTil:
-          $ref: '#/components/schemas/ProfileringsResultat'
-        egenvurdering:
-          $ref: "#/components/schemas/ProfileringsResultat"
-      required:
-        - "egenvurderingId"
-        - "periodeId"
-        - "opplysningerOmArbeidssoekerId"
-        - "profileringId"
-        - "sendtInnAv"
-        - "profilertTil"
-        - "egenvurdering"
     SamletInformasjonResponse:
       type: "object"
       properties:
@@ -977,16 +868,6 @@ components:
       required:
         - "identitetsnummer"
     ProfileringRequest:
-      type: "object"
-      properties:
-        identitetsnummer:
-          type: "string"
-        periodeId:
-          type: "string"
-          format: "uuid"
-      required:
-        - "identitetsnummer"
-    EgenvurderingRequest:
       type: "object"
       properties:
         identitetsnummer:
