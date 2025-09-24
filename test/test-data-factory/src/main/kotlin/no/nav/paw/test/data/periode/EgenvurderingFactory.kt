@@ -3,13 +3,12 @@ package no.nav.paw.test.data.periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import java.util.*
 
 fun createEgenvurdering(
     id: UUID = UUID.randomUUID(),
     periodeId: UUID = UUID.randomUUID(),
-    opplysningerId: UUID = UUID.randomUUID(),
     profileringId: UUID = UUID.randomUUID(),
     sendtInnAv: Metadata = MetadataFactory.create().build(),
     profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
@@ -17,7 +16,6 @@ fun createEgenvurdering(
 ) = Egenvurdering(
     id,
     periodeId,
-    opplysningerId,
     profileringId,
     sendtInnAv,
     profilertTil,
@@ -33,7 +31,6 @@ fun createEgenvurderingFor(
 ) = Egenvurdering(
     id,
     profilering.periodeId,
-    profilering.opplysningerOmArbeidssokerId,
     profilering.id,
     sendtInnAv,
     profilertTil,
