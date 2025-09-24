@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.security.authentication.model.SecurityContext

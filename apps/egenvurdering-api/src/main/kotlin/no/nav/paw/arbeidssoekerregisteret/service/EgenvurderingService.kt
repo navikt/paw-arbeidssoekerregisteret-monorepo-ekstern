@@ -12,7 +12,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.findSisteOpplysningerOmArbeidsso
 import no.nav.paw.arbeidssoekerregisteret.utils.toProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -95,7 +95,6 @@ class EgenvurderingService(
             Egenvurdering(
                 UUID.randomUUID(),
                 periode.periodeId,
-                opplysningerOmArbeidssoeker.opplysningerOmArbeidssoekerId,
                 profilering.profileringId,
                 metadata,
                 profilering.profilertTil.toProfilertTil(),
