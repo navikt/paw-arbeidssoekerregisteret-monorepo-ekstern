@@ -1,6 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.service
 
 import io.ktor.server.plugins.BadRequestException
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
@@ -47,8 +50,21 @@ class EgenvurderingService(
         val nyesteProfilering = egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
 
         return when (nyesteProfilering) {
-            null -> EgenvurderingGrunnlag(null)
-            else -> EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
+            null -> {
+                Span.current().addEvent(
+                    "ingen_profilering_fra_aapen_periode_uten_egenvurdering",
+                    Attributes.of(stringKey("maskert_ident"), ident.maskert())
+                )
+                EgenvurderingGrunnlag(null)
+            }
+
+            else -> {
+                Span.current().addEvent(
+                    "fant_profilering_fra_aapen_periode_uten_egenvurdering",
+                    Attributes.of(stringKey("maskert_ident"), ident.maskert())
+                )
+                EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
+            }
         }
     }
 
@@ -114,3 +130,11 @@ private fun NyesteProfilering.toProfileringDto() = ProfileringDto(
 
 private fun String.toApiProfilertTil() = runCatching { ProfilertTilDto.valueOf(this) }
     .getOrElse { throw IllegalArgumentException("Ugyldig ApiProfilertTil: $this") }
+
+fun String.maskert(suffixCount: Int = 5, maskChar: Char = '*'): String {
+    if (isEmpty()) return this
+    val n = suffixCount.coerceAtMost(length)
+    val prefix = substring(0, length - n)
+    val masked = maskChar.toString().repeat(n)
+    return prefix + masked
+}
