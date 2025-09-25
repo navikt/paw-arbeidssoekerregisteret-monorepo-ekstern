@@ -129,17 +129,15 @@ data class ApplicationContext(
 fun createHikariDataSource(databaseConfig: DatabaseConfig): HikariDataSource =
     HikariDataSource(
         HikariConfig().apply {
-            jdbcUrl = databaseConfig.buildJdbcUrl() + "&preparedStatementCacheQueries=0"
+            jdbcUrl = databaseConfig.buildJdbcUrl()
             maximumPoolSize = databaseConfig.maximumPoolSize
             isAutoCommit = databaseConfig.autoCommit
             connectionTimeout = databaseConfig.connectionTimeout.toMillis()
             idleTimeout = databaseConfig.idleTimeout.toMillis()
             maxLifetime = databaseConfig.maxLifetime.toMillis()
+            addDataSourceProperty("prepareThreshold", "0")
         }
-    ).apply {
-        this.addDataSourceProperty("cachePrepStmts", "false")
-    }
-
+    )
 /*
 ds.addDataSourceProperty("cachePrepStmts", "true");
 ds.addDataSourceProperty("cachePrepStmts", "true");
