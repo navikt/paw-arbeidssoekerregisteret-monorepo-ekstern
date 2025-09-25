@@ -51,18 +51,12 @@ class EgenvurderingService(
 
         return when (nyesteProfilering) {
             null -> {
-                Span.current().addEvent(
-                    "ingen_profilering_fra_aapen_periode_uten_egenvurdering",
-                    Attributes.of(stringKey("maskert_ident"), ident.maskert())
-                )
+                traceTomtEgenvurderingGrunnlag(ident)
                 EgenvurderingGrunnlag(null)
             }
 
             else -> {
-                Span.current().addEvent(
-                    "fant_profilering_fra_aapen_periode_uten_egenvurdering",
-                    Attributes.of(stringKey("maskert_ident"), ident.maskert())
-                )
+                traceEgenvurderingGrunnlag(ident)
                 EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
             }
         }
@@ -121,6 +115,20 @@ class EgenvurderingService(
             logger.info("Egenvurdering sendt til Kafka")
         }
     }
+}
+
+private fun traceEgenvurderingGrunnlag(ident: String) {
+    Span.current().addEvent(
+        "fant_profilering_fra_aapen_periode_uten_egenvurdering",
+        Attributes.of(stringKey("maskert_ident"), ident.maskert())
+    )
+}
+
+private fun traceTomtEgenvurderingGrunnlag(ident: String) {
+    Span.current().addEvent(
+        "ingen_profilering_fra_aapen_periode_uten_egenvurdering",
+        Attributes.of(stringKey("maskert_ident"), ident.maskert())
+    )
 }
 
 private fun NyesteProfilering.toProfileringDto() = ProfileringDto(
