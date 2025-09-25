@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.context
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
@@ -17,7 +19,6 @@ import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
-import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -124,3 +125,24 @@ data class ApplicationContext(
         class KunneIkkeOppretteDatasource(message: String) : RuntimeException(message)
     }
 }
+
+fun createHikariDataSource(databaseConfig: DatabaseConfig): HikariDataSource =
+    HikariDataSource(
+        HikariConfig().apply {
+            jdbcUrl = databaseConfig.buildJdbcUrl() + "?preparedStatementCacheQueries=0"
+            maximumPoolSize = databaseConfig.maximumPoolSize
+            isAutoCommit = databaseConfig.autoCommit
+            connectionTimeout = databaseConfig.connectionTimeout.toMillis()
+            idleTimeout = databaseConfig.idleTimeout.toMillis()
+            maxLifetime = databaseConfig.maxLifetime.toMillis()
+        }
+    ).apply {
+        this.addDataSourceProperty("cachePrepStmts", "false")
+    }
+
+/*
+ds.addDataSourceProperty("cachePrepStmts", "true");
+ds.addDataSourceProperty("cachePrepStmts", "true");
+ds.addDataSourceProperty("prepStmtCacheSize", "250");
+ds.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+*/
