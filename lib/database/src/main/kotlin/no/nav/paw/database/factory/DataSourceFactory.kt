@@ -13,5 +13,6 @@ fun createHikariDataSource(databaseConfig: DatabaseConfig): HikariDataSource =
             connectionTimeout = databaseConfig.connectionTimeout.toMillis()
             idleTimeout = databaseConfig.idleTimeout.toMillis()
             maxLifetime = databaseConfig.maxLifetime.toMillis()
+            addDataSourceProperty("prepareThreshold", 0)
         }
     )
