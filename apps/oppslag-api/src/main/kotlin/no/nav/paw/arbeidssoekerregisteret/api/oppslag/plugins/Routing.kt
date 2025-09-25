@@ -22,14 +22,12 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
                 { opplysningerKafkaConsumerLivenessProbe.isRunning() },
                 { profileringKafkaConsumerLivenessProbe.isRunning() },
                 { bekreftelseKafkaConsumerLivenessProbe.isRunning() },
-                { egenvurderingKafkaConsumerLivenessProbe.isRunning() },
             )
             readinessRoute(
                 { periodeKafkaConsumerLivenessProbe.isRunning() },
                 { opplysningerKafkaConsumerLivenessProbe.isRunning() },
                 { profileringKafkaConsumerLivenessProbe.isRunning() },
                 { bekreftelseKafkaConsumerLivenessProbe.isRunning() },
-                { egenvurderingKafkaConsumerLivenessProbe.isRunning() },
             )
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
@@ -44,7 +42,6 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
             profileringRoutes(
                 authorizationService,
                 profileringService,
-                egenvurderingService
             )
             samletInformasjonRoutes(
                 authorizationService,

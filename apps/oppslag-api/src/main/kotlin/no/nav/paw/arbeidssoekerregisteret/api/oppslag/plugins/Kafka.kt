@@ -5,17 +5,14 @@ import io.ktor.server.application.install
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.KafkaConsumerHandler
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
-import no.nav.paw.kafka.consumer.defaultSuccessFunction
 import no.nav.paw.kafka.plugin.KafkaConsumerPlugin
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
@@ -27,15 +24,12 @@ fun Application.configureKafka(
     opplysningerKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
     profileringKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
-    egenvurderingKafkaConsumer: KafkaConsumer<Long, Egenvurdering>,
-    egenvurderingKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
     bekreftelseKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     kafkaConsumerHandler: KafkaConsumerHandler,
     periodeService: PeriodeService,
     opplysningerService: OpplysningerService,
     profileringService: ProfileringService,
-    egenvurderingService: EgenvurderingService,
     bekreftelseService: BekreftelseService,
 ) {
     install(KafkaConsumerPlugin<Long, Periode>("Perioder")) {
@@ -87,23 +81,6 @@ fun Application.configureKafka(
         }
         errorFunction = { throwable: Throwable ->
             profileringKafkaConsumerLivenessProbe.markUnhealthy()
-            kafkaConsumerHandler.handleException(throwable)
-        }
-    }
-    install(KafkaConsumerPlugin<Long, Egenvurdering>("Egenvurderinger")) {
-        kafkaConsumer = egenvurderingKafkaConsumer
-        kafkaTopics = listOf(applicationConfig.egenvurderingTopic)
-        consumeFunction = { records ->
-            if (!records.isEmpty) {
-                egenvurderingService.handleRecords(records)
-            }
-        }
-        successFunction = {
-            if (!it.isEmpty) egenvurderingKafkaConsumer.commitSync()
-            egenvurderingKafkaConsumerLivenessProbe.markAlive()
-        }
-        errorFunction = { throwable: Throwable ->
-            egenvurderingKafkaConsumerLivenessProbe.markUnhealthy()
             kafkaConsumerHandler.handleException(throwable)
         }
     }

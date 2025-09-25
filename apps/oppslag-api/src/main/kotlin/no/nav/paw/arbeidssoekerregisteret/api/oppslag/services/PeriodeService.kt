@@ -9,13 +9,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerPeriodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toBekreftelseResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toEgenvurderingResponse
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toEgenvurderingResponseList
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toOpplysningerOmArbeidssoekerAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toPeriode
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.toProfileringAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
@@ -33,7 +30,6 @@ class PeriodeService(
     private val periodeRepository: PeriodeRepository,
     private val opplysningerRepository: OpplysningerRepository,
     private val profileringRepository: ProfileringRepository,
-    private val egenvurderingRepository: EgenvurderingRepository,
     private val bekreftelseRepository: BekreftelseRepository
 ) {
     private val logger = buildLogger
@@ -58,9 +54,7 @@ class PeriodeService(
                         periode.periodeId,
                         opplysning.opplysningerId
                     )
-                    val egenvurderinger = profilering?.profileringId?.let { profileringId -> egenvurderingRepository.hentEgenvurderingForPeriodeIdOgProfileringId(periode.periodeId, profileringId)}
-
-                    opplysning.toOpplysningerOmArbeidssoekerAggregertResponse(profilering?.toProfileringAggregertResponse(egenvurderinger?.toEgenvurderingResponseList() ?: emptyList()))
+                    opplysning.toOpplysningerOmArbeidssoekerAggregertResponse(profilering?.toProfileringAggregertResponse(emptyList()))
                 }
 
             val bekreftelser = bekreftelseRepository.finnBekreftelserForPeriodeIdList(listOf(periode.periodeId))

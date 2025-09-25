@@ -12,25 +12,21 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.KafkaConsumerHandler
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.consumer.PdlHttpConsumer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.BekreftelseRepository
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.OpplysningerRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.ProfileringRepository
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.BekreftelseService
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.MetricsService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.OpplysningerService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.PeriodeService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.ProfileringService
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.BekreftelseDeserializer
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.EgenvurderingDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.OpplysningerOmArbeidssoekerDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.PeriodeDeserializer
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.ProfileringDeserializer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.client.config.AZURE_M2M_CONFIG
@@ -67,7 +63,6 @@ data class ApplicationContext(
     val opplysningerService: OpplysningerService,
     val profileringService: ProfileringService,
     val bekreftelseService: BekreftelseService,
-    val egenvurderingService: EgenvurderingService,
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
     val periodeKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
@@ -76,8 +71,6 @@ data class ApplicationContext(
     val profileringKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
     val bekreftelseKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
-    val egenvurderingKafkaConsumer: KafkaConsumer<Long, Egenvurdering>,
-    val egenvurderingKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val kafkaConsumerHandler: KafkaConsumerHandler,
 ) {
     companion object {
@@ -99,7 +92,6 @@ data class ApplicationContext(
             val opplysningerRepository = OpplysningerRepository()
             val profileringRepository = ProfileringRepository()
             val bekreftelseRepository = BekreftelseRepository()
-            val egenvurderingRepository = EgenvurderingRepository()
 
             val pdlClient = createPdlClient()
 
@@ -126,13 +118,11 @@ data class ApplicationContext(
 
             val metricsService = MetricsService(prometheusMeterRegistry, periodeRepository)
 
-            // Perioder avhengigheter
             val periodeService = PeriodeService(
                 meterRegistry = prometheusMeterRegistry,
                 periodeRepository = periodeRepository,
                 opplysningerRepository = opplysningerRepository,
                 profileringRepository = profileringRepository,
-                egenvurderingRepository = egenvurderingRepository,
                 bekreftelseRepository = bekreftelseRepository
             )
             val periodeKafkaConsumer = kafkaFactory.createConsumer<Long, Periode>(
@@ -143,7 +133,6 @@ data class ApplicationContext(
             )
             val periodeKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
-            // Opplysninger avhengigheter
             val opplysningerService = OpplysningerService(
                 meterRegistry = prometheusMeterRegistry,
                 opplysningerRepository = opplysningerRepository
@@ -157,7 +146,6 @@ data class ApplicationContext(
             )
             val opplysningsKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
-            // Profileringer avhengigheter
             val profileringService = ProfileringService(
                 meterRegistry = prometheusMeterRegistry,
                 profileringRepository = profileringRepository
@@ -170,7 +158,6 @@ data class ApplicationContext(
             )
             val profileringKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
-            // Bekreftelser avhengigheter
             val bekreftelseService = BekreftelseService(
                 meterRegistry = prometheusMeterRegistry,
                 bekreftelseRepository = bekreftelseRepository
@@ -183,22 +170,7 @@ data class ApplicationContext(
             )
             val bekreftelseKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
-            // Egenvurderinger avhengigheter
-            val egenvurderingService = EgenvurderingService(
-                meterRegistry = prometheusMeterRegistry,
-                egenvurderingRepository = egenvurderingRepository
-            )
-
-            val egenvurderingKafkaConsumer = kafkaFactory.createConsumer<Long, Egenvurdering>(
-                groupId = applicationConfig.egenvurderingGroupId,
-                clientId = "${applicationConfig.egenvurderingGroupId}-consumer",
-                keyDeserializer = LongDeserializer::class,
-                valueDeserializer = EgenvurderingDeserializer::class
-            )
-            val egenvurderingKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
-
             val kafkaConsumerHandler = KafkaConsumerHandler()
-
 
             return ApplicationContext(
                 serverConfig = serverConfig,
@@ -213,7 +185,6 @@ data class ApplicationContext(
                 opplysningerService = opplysningerService,
                 profileringService = profileringService,
                 bekreftelseService = bekreftelseService,
-                egenvurderingService = egenvurderingService,
                 periodeKafkaConsumer = periodeKafkaConsumer,
                 periodeKafkaConsumerLivenessProbe = periodeKafkaConsumerLivenessProbe,
                 opplysningerKafkaConsumer = opplysningerKafkaConsumer,
@@ -222,8 +193,6 @@ data class ApplicationContext(
                 profileringKafkaConsumerLivenessProbe = profileringKafkaConsumerLivenessProbe,
                 bekreftelseKafkaConsumer = bekreftelseKafkaConsumer,
                 bekreftelseKafkaConsumerLivenessProbe = bekreftelseKafkaConsumerLivenessProbe,
-                egenvurderingKafkaConsumer = egenvurderingKafkaConsumer,
-                egenvurderingKafkaConsumerLivenessProbe = egenvurderingKafkaConsumerLivenessProbe,
                 kafkaConsumerHandler = kafkaConsumerHandler
             )
         }

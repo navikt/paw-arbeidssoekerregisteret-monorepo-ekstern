@@ -15,8 +15,6 @@ import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.EgenvurderingRequest
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.EgenvurderingResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRequest
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.plugins.configureHTTP
@@ -55,7 +53,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -72,7 +70,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -91,7 +89,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -114,7 +112,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -140,7 +138,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -176,7 +174,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -201,57 +199,6 @@ class ProfileringerRoutesTest : FreeSpec({
             }
         }
 
-        "/profilering/egenvurderinger should return OK" {
-            coEvery {
-                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr4, IdentGruppe.FOLKEREGISTERIDENT))
-
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
-                    }
-                }
-
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr4)
-                val opplysninger = TestData.nyOpplysningerOmArbeidssoeker(
-                    periodeId = periode.id,
-                    opplysningerId = TestData.opplysningerId1
-                )
-                val profilering = TestData.nyProfilering(
-                    periodeId = periode.id,
-                    opplysningerId = opplysninger.id,
-                    profileringId = TestData.profileringId1
-                )
-
-                val egenvurdering = TestData.nyEgenvurdering(
-                    periodeId = periode.id,
-                    opplysningerId = opplysninger.id,
-                    profileringId = profilering.id,
-                )
-
-                periodeService.lagrePeriode(periode)
-                opplysningerService.lagreOpplysninger(opplysninger)
-                profileringService.lagreProfilering(profilering)
-                egenvurderingService.lagreEgenvurdering(egenvurdering)
-
-                val testClient = configureTestClient()
-                val response = testClient.get("/api/v1/profilering/egenvurderinger") {
-                    bearerAuth(mockOAuth2Server.issueTokenXToken(pid = TestData.fnr4))
-                }
-
-                response.status shouldBe HttpStatusCode.OK
-                val egenvurderingResponse = response.body<List<EgenvurderingResponse>>()
-                egenvurderingResponse.size shouldBe 1
-                egenvurdering shouldBeEqualTo egenvurderingResponse[0]
-
-                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-            }
-        }
-
         "/profilering med siste-flagg should return OK" {
             coEvery {
                 pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
@@ -263,7 +210,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -293,7 +240,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -327,7 +274,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -364,7 +311,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -411,7 +358,7 @@ class ProfileringerRoutesTest : FreeSpec({
                     configureSerialization()
                     configureHTTP()
                     routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
+                        profileringRoutes(authorizationService, profileringService)
                     }
                 }
 
@@ -436,97 +383,6 @@ class ProfileringerRoutesTest : FreeSpec({
                 val profileringResponses = response.body<List<ProfileringResponse>>()
                 profileringResponses.size shouldBe 1
                 profileringer[0] shouldBeEqualTo profileringResponses[0]
-
-                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
-            }
-        }
-        "/veileder/profilering/egenvurderinger should return 200 OK" {
-            coEvery {
-                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr8, IdentGruppe.FOLKEREGISTERIDENT))
-            coEvery {
-                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
-            } returns Data(true)
-
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
-                    }
-                }
-
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr8)
-                val egenvurderinger = TestData.nyEgenvurderingList(size = 3, periodeId = periode.id, identitetsnummer = TestData.fnr8)
-
-                periodeService.lagrePeriode(periode)
-                egenvurderinger.forEach(egenvurderingService::lagreEgenvurdering)
-
-                val testClient = configureTestClient()
-                val response = testClient.post("api/v1/veileder/profilering/egenvurderinger") {
-                    bearerAuth(mockOAuth2Server.issueAzureToken())
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        EgenvurderingRequest(
-                            identitetsnummer = periode.identitetsnummer,
-                            periodeId = periode.id
-                        )
-                    )
-                }
-
-                response.status shouldBe HttpStatusCode.OK
-                val egenvurderingResponses = response.body<List<EgenvurderingResponse>>()
-                egenvurderingResponses.size shouldBe 3
-                egenvurderinger[0] shouldBeEqualTo egenvurderingResponses[0]
-                egenvurderinger[1] shouldBeEqualTo egenvurderingResponses[1]
-                egenvurderinger[2] shouldBeEqualTo egenvurderingResponses[2]
-
-                coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
-                coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }
-            }
-        }
-        "/veileder/profilering/egenvurderinger med siste-flagg should return 200 OK" {
-            coEvery {
-                pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>())
-            } returns listOf(IdentInformasjon(TestData.fnr9, IdentGruppe.FOLKEREGISTERIDENT))
-            coEvery {
-                tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any())
-            } returns Data(true)
-
-            testApplication {
-                application {
-                    configureAuthentication(mockOAuth2Server)
-                    configureSerialization()
-                    configureHTTP()
-                    routing {
-                        profileringRoutes(authorizationService, profileringService, egenvurderingService)
-                    }
-                }
-
-                val periode = TestData.nyStartetPeriode(identitetsnummer = TestData.fnr9)
-                val egenvurderinger = TestData.nyEgenvurderingList(size = 3, periodeId = periode.id, identitetsnummer = TestData.fnr9)
-                periodeService.lagrePeriode(periode)
-                egenvurderinger.forEach(egenvurderingService::lagreEgenvurdering)
-
-                val testClient = configureTestClient()
-                val response = testClient.post("api/v1/veileder/profilering/egenvurderinger?siste=true") {
-                    bearerAuth(mockOAuth2Server.issueAzureToken())
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        EgenvurderingRequest(
-                            identitetsnummer = periode.identitetsnummer,
-                            periodeId = periode.id
-                        )
-                    )
-                }
-
-                response.status shouldBe HttpStatusCode.OK
-                val egenvurderingResponses = response.body<List<EgenvurderingResponse>>()
-                egenvurderingResponses.size shouldBe 1
-                egenvurderinger[0] shouldBeEqualTo egenvurderingResponses[0]
 
                 coVerify { pdlHttpConsumerMock.finnIdenter(any<Identitetsnummer>()) }
                 coVerify { tilgangskontrollClientMock.harAnsattTilgangTilPerson(any(), any(), any()) }

@@ -6,13 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
-
-val buildObjectMapper: ObjectMapper
-    get() = jacksonObjectMapper().apply {
-        configureJackson()
-    }
 
 fun ObjectMapper.configureJackson() {
     setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)

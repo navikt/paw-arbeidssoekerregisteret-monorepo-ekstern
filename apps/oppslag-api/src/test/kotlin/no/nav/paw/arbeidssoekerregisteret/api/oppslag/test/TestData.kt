@@ -4,7 +4,6 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.AnnetRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BeskrivelseMedDetaljerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.BrukerRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.DetaljerRow
-import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.EgenvurderingRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.HelseRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.MetadataRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.OpplysningerRow
@@ -19,7 +18,6 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.BeskrivelseMedDetaljer
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
-import no.nav.paw.arbeidssokerregisteret.api.v2.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Helse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
@@ -34,12 +32,12 @@ import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.security.authentication.model.Claims
-import no.nav.paw.model.Identitetsnummer
-import no.nav.paw.security.authentication.model.Issuer
 import no.nav.paw.security.authentication.model.Anonym
+import no.nav.paw.security.authentication.model.Claims
+import no.nav.paw.security.authentication.model.Issuer
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -106,16 +104,16 @@ object TestData {
     val kafkaKey3 = 10003L
 
     fun nySluttbruker(
-        identitetsnummer: Identitetsnummer = identitetsnummer1
+        identitetsnummer: Identitetsnummer = identitetsnummer1,
     ) = Sluttbruker(identitetsnummer, sikkerhetsnivaa = "tokenx:Level4")
 
     fun nyNavAnsatt(
         oid: UUID = UUID.randomUUID(),
-        navIdent: String = navIdent1
+        navIdent: String = navIdent1,
     ) = NavAnsatt(oid = oid, ident = navIdent, sikkerhetsnivaa = "tokenx:Level4")
 
     fun nyM2MToken(
-        oid: UUID = UUID.randomUUID()
+        oid: UUID = UUID.randomUUID(),
     ) = Anonym(oid = oid)
 
     fun nyttAccessToken(
@@ -129,7 +127,7 @@ object TestData {
 
     fun nySecurityContext(
         bruker: no.nav.paw.security.authentication.model.Bruker<*> = nySluttbruker(),
-        accessToken: AccessToken = nyttAccessToken()
+        accessToken: AccessToken = nyttAccessToken(),
     ) = SecurityContext(
         bruker = bruker,
         accessToken = accessToken
@@ -161,7 +159,7 @@ object TestData {
     )
 
     fun nyJobbsituasjonRows(
-        beskrivelser: List<Beskrivelse> = listOf(Beskrivelse.HAR_SAGT_OPP)
+        beskrivelser: List<Beskrivelse> = listOf(Beskrivelse.HAR_SAGT_OPP),
     ): List<BeskrivelseMedDetaljerRow> =
         beskrivelser.map { nyBeskrivelseMedDetaljerRow(beskrivelse = it) }
 
@@ -178,7 +176,7 @@ object TestData {
     fun nyDetaljerRow(
         id: Long = 1L,
         noekkel: String = "NOEKKEL",
-        verdi: String = "VERDI"
+        verdi: String = "VERDI",
     ) = DetaljerRow(
         id = id,
         noekkel = noekkel,
@@ -189,7 +187,7 @@ object TestData {
         id: Long = 1L,
         nus: String = "NUS_KODE",
         bestaatt: JaNeiVetIkke? = JaNeiVetIkke.JA,
-        godkjent: JaNeiVetIkke? = JaNeiVetIkke.JA
+        godkjent: JaNeiVetIkke? = JaNeiVetIkke.JA,
     ) = UtdanningRow(
         id = id,
         nus = nus,
@@ -199,7 +197,7 @@ object TestData {
 
     fun nyHelseRow(
         id: Long = 1L,
-        helsetilstandHindrerArbeid: JaNeiVetIkke = JaNeiVetIkke.NEI
+        helsetilstandHindrerArbeid: JaNeiVetIkke = JaNeiVetIkke.NEI,
     ) = HelseRow(
         id = id,
         helsetilstandHindrerArbeid = helsetilstandHindrerArbeid
@@ -207,7 +205,7 @@ object TestData {
 
     fun nyAnnetRow(
         id: Long = 1L,
-        andreForholdHindrerArbeid: JaNeiVetIkke? = JaNeiVetIkke.NEI
+        andreForholdHindrerArbeid: JaNeiVetIkke? = JaNeiVetIkke.NEI,
     ) = AnnetRow(
         id = id,
         andreForholdHindrerArbeid = andreForholdHindrerArbeid
@@ -221,7 +219,7 @@ object TestData {
             tidspunkt = Instant.now().minus(Duration.ofDays(30)),
             utfoertAv = nyBrukerRow(brukerId = identitetsnummer)
         ),
-        avsluttetMetadata: MetadataRow? = null
+        avsluttetMetadata: MetadataRow? = null,
     ) = PeriodeRow(
         id = id,
         periodeId = periodeId,
@@ -244,7 +242,7 @@ object TestData {
                 type = no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType.SYSTEM,
                 brukerId = "ARENA"
             )
-        )
+        ),
     ) = PeriodeRow(
         id = id,
         periodeId = periodeId,
@@ -261,7 +259,7 @@ object TestData {
         sendtInAv: MetadataRow = nyMetadataRow(),
         profilertTil: ProfilertTil = ProfilertTil.UDEFINERT,
         jobbetSammenhengendeSeksAvTolvSisteManeder: Boolean = true,
-        alder: Int = 30
+        alder: Int = 30,
     ) = ProfileringRow(
         id = id,
         profileringId = profileringId,
@@ -273,33 +271,13 @@ object TestData {
         alder = alder
     )
 
-    fun nyEgenvurderingRow(
-        id: Long = 1L,
-        egenvurderingId: UUID = UUID.randomUUID(),
-        periodeId: UUID = UUID.randomUUID(),
-        opplysningerOmArbeidssoekerId: UUID = UUID.randomUUID(),
-        profileringId: UUID = UUID.randomUUID(),
-        sendtInnAv: MetadataRow = nyMetadataRow(),
-        profilertTil: ProfilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING,
-        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
-    ) = EgenvurderingRow(
-        id = id,
-        egenvurderingId = egenvurderingId,
-        periodeId = periodeId,
-        opplysningerOmArbeidssoekerId = opplysningerOmArbeidssoekerId,
-        profileringId = profileringId,
-        sendtInnAv = sendtInnAv,
-        profilertTil = profilertTil,
-        egenvurdering = egenvurdering
-    )
-
     fun nyMetadataRow(
         id: Long = 1L,
         tidspunkt: Instant = Instant.now(),
         utfoertAv: BrukerRow = nyBrukerRow(),
         kilde: String = "KILDE",
         aarsak: String = "AARSAK",
-        tidspunktFraKilde: TidspunktFraKildeRow = nyTidspunktFraKildeRow()
+        tidspunktFraKilde: TidspunktFraKildeRow = nyTidspunktFraKildeRow(),
     ) = MetadataRow(
         id = id,
         tidspunkt = tidspunkt,
@@ -312,13 +290,13 @@ object TestData {
     fun nyBrukerRow(
         id: Long = 1L,
         type: BrukerType = BrukerType.SLUTTBRUKER,
-        brukerId: String = fnrDefault
+        brukerId: String = fnrDefault,
     ) = BrukerRow(id = id, type = type, brukerId = brukerId)
 
     fun nyTidspunktFraKildeRow(
         id: Long = 1L,
         tidspunkt: Instant = Instant.now(),
-        avviksType: AvviksType = AvviksType.UKJENT_VERDI
+        avviksType: AvviksType = AvviksType.UKJENT_VERDI,
     ) = TidspunktFraKildeRow(id = id, tidspunkt = tidspunkt, avviksType = avviksType)
 
     fun nyStartetPeriode(
@@ -328,7 +306,7 @@ object TestData {
             tidspunkt = Instant.now().minus(Duration.ofDays(30)),
             utfoertAv = nyBruker(brukerId = identitetsnummer)
         ),
-        avsluttetMetadata: Metadata? = null
+        avsluttetMetadata: Metadata? = null,
     ) = Periode(
         periodeId,
         identitetsnummer,
@@ -349,7 +327,7 @@ object TestData {
                 type = BrukerType.SYSTEM,
                 brukerId = "ARENA"
             )
-        )
+        ),
     ) = Periode(
         periodeId,
         identitetsnummer,
@@ -393,7 +371,7 @@ object TestData {
         }
 
     fun nyJobbsituasjon(
-        beskrivelser: List<Beskrivelse> = listOf(Beskrivelse.HAR_SAGT_OPP)
+        beskrivelser: List<Beskrivelse> = listOf(Beskrivelse.HAR_SAGT_OPP),
     ): Jobbsituasjon {
         val beskrivelseMedDetaljer = beskrivelser.map { nyBeskrivelseMedDetaljer(beskrivelse = it) }
         return Jobbsituasjon(beskrivelseMedDetaljer)
@@ -410,15 +388,15 @@ object TestData {
     fun nyUtdanning(
         nus: String = "NUS_KODE",
         bestaatt: JaNeiVetIkke? = JaNeiVetIkke.JA,
-        godkjent: JaNeiVetIkke? = JaNeiVetIkke.JA
+        godkjent: JaNeiVetIkke? = JaNeiVetIkke.JA,
     ) = Utdanning(nus, bestaatt, godkjent)
 
     fun nyHelse(
-        helsetilstandHindrerArbeid: JaNeiVetIkke = JaNeiVetIkke.NEI
+        helsetilstandHindrerArbeid: JaNeiVetIkke = JaNeiVetIkke.NEI,
     ) = Helse(helsetilstandHindrerArbeid)
 
     fun nyAnnet(
-        andreForholdHindrerArbeid: JaNeiVetIkke? = JaNeiVetIkke.NEI
+        andreForholdHindrerArbeid: JaNeiVetIkke? = JaNeiVetIkke.NEI,
     ) = Annet(andreForholdHindrerArbeid)
 
     fun nyProfilering(
@@ -428,7 +406,7 @@ object TestData {
         sendtInAv: Metadata = nyMetadata(),
         profilertTil: ProfilertTil = ProfilertTil.UDEFINERT,
         jobbetSammenhengendeSeksAvTolvSisteManeder: Boolean = true,
-        alder: Int = 30
+        alder: Int = 30,
     ) = Profilering(
         profileringId,
         periodeId,
@@ -437,24 +415,6 @@ object TestData {
         profilertTil,
         jobbetSammenhengendeSeksAvTolvSisteManeder,
         alder
-    )
-
-    fun nyEgenvurdering(
-        egenvurderingId: UUID = UUID.randomUUID(),
-        periodeId: UUID = UUID.randomUUID(),
-        opplysningerId: UUID = UUID.randomUUID(),
-        profileringId: UUID = UUID.randomUUID(),
-        identitetsnummer: String = fnrDefault,
-        profilertTil: ProfilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING,
-        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
-    ) = Egenvurdering(
-        egenvurderingId,
-        periodeId,
-        opplysningerId,
-        profileringId,
-        nyMetadata(utfoertAv = nyBruker(brukerId = identitetsnummer)),
-        profilertTil,
-        egenvurdering
     )
 
     fun ProfileringAggregertResponse.toProfileringResponse(): ProfileringResponse = ProfileringResponse(
@@ -467,26 +427,10 @@ object TestData {
         alder = this.alder,
     )
 
-    fun nyEgenvurderingList(
-        size: Int = 1,
-        identitetsnummer: String = fnrDefault,
-        periodeId: UUID = UUID.randomUUID(),
-        opplysningerId: UUID = UUID.randomUUID(),
-        profileringId: UUID = UUID.randomUUID()
-    ) =
-        IntRange(1, size).map { i ->
-            nyEgenvurdering(
-                periodeId = periodeId,
-                opplysningerId = opplysningerId,
-                profileringId = profileringId,
-                identitetsnummer = identitetsnummer,
-            )
-        }
-
     fun nyProfileringList(
         size: Int = 1,
         periodeId: UUID = UUID.randomUUID(),
-        opplysningerId: UUID = UUID.randomUUID()
+        opplysningerId: UUID = UUID.randomUUID(),
     ) =
         IntRange(1, size).map { i ->
             val sendtInnAv = nyMetadata(tidspunkt = Instant.now().minus(Duration.ofDays(i.toLong())))
@@ -498,7 +442,7 @@ object TestData {
         utfoertAv: Bruker = nyBruker(),
         kilde: String = "KILDE",
         aarsak: String = "AARSAK",
-        tidspunktFraKilde: TidspunktFraKilde = nyTidspunktFraKilde()
+        tidspunktFraKilde: TidspunktFraKilde = nyTidspunktFraKilde(),
     ) = Metadata(
         tidspunkt,
         utfoertAv,
@@ -510,19 +454,19 @@ object TestData {
     fun nyBruker(
         type: BrukerType = BrukerType.SLUTTBRUKER,
         brukerId: String = fnrDefault,
-        sikkerhetsnivaa: String? = "tokenx:Level4"
+        sikkerhetsnivaa: String? = "tokenx:Level4",
     ) = Bruker(type, brukerId, sikkerhetsnivaa)
 
     fun nyTidspunktFraKilde(
         tidspunkt: Instant = Instant.now(),
-        avviksType: AvviksType = AvviksType.UKJENT_VERDI
+        avviksType: AvviksType = AvviksType.UKJENT_VERDI,
     ) = TidspunktFraKilde(tidspunkt, avviksType)
 
     fun nyBekreftelse(
         bekreftelseId: UUID = UUID.randomUUID(),
         periodeId: UUID = UUID.randomUUID(),
         bekreftelsesloesning: Bekreftelsesloesning = Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET,
-        svar: Svar = nyBekreftelseSvar()
+        svar: Svar = nyBekreftelseSvar(),
     ) = Bekreftelse(periodeId, bekreftelsesloesning, bekreftelseId, svar)
 
     fun nyBekreftelseSvar(
@@ -530,7 +474,7 @@ object TestData {
         gjelderFra: Instant = Instant.now(),
         gjelderTil: Instant = Instant.now().plus(Duration.ofDays(14)),
         harJobbetIDennePerioden: Boolean = false,
-        vilFortsetteSomArbeidssoeker: Boolean = true
+        vilFortsetteSomArbeidssoeker: Boolean = true,
     ) = Svar(
         sendtInnAv,
         gjelderFra,
@@ -554,7 +498,7 @@ object TestData {
 
     fun nyBekreftelseList(
         size: Int = 1,
-        periodeId: UUID = UUID.randomUUID()
+        periodeId: UUID = UUID.randomUUID(),
     ) = IntRange(1, size).map { i ->
         val gjelderFra = Instant.now().minus(Duration.ofDays(i.toLong()))
         val svar = nyBekreftelseSvar(gjelderFra = gjelderFra, gjelderTil = gjelderFra.plus(Duration.ofDays(14)))
