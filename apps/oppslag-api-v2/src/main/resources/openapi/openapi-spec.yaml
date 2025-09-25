@@ -591,19 +591,19 @@ components:
           type: string
           format: date-time
           description: "Tidspunktet for hendelsen"
-        periode_startet_v1:
+        periodeStartetV1:
           $ref: '#/components/schemas/Metadata'
-        periode_avsluttet_v1:
+        periodeAvsluttetV1:
           $ref: '#/components/schemas/Metadata'
-        opplysninger_v4:
+        opplysningerV4:
           $ref: '#/components/schemas/OpplysningerOmArbeidssoeker'
-        profilering_v1:
+        profileringV1:
           $ref: '#/components/schemas/Profilering'
-        bekreftelse_v1:
+        bekreftelseV1:
           $ref: '#/components/schemas/BekreftelseMedMetadata'
-        pa_vegne_av_start_v1:
+        paVegneAvStartV1:
           $ref: '#/components/schemas/PaaVegneAvStart'
-        pa_vegne_av_stopp_v1:
+        paVegneAvStoppV1:
           $ref: '#/components/schemas/PaaVegneAvStopp'
       required:
         - hendelseType
