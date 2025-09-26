@@ -12,10 +12,17 @@ interface EgenvurderingRepository {
     fun lagreProfilering(profilering: Profilering)
     fun lagreEgenvurdering(egenvurdering: Egenvurdering)
     fun slettPeriode(periodeId: UUID): Boolean
+    fun finnProfilering(profileringId: UUID, ident: String): ProfileringRow?
 }
 
 data class NyesteProfilering(
     val id: UUID,
     val profilertTil: String,
     val tidspunkt: Instant,
+)
+
+data class ProfileringRow(
+    val id: UUID,
+    val periodeId: UUID,
+    val profilertTil: String,
 )

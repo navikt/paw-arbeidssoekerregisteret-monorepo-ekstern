@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.prosesserPerioderOgProfileringer
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagreEgenvurdering
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnProfilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
@@ -249,6 +250,18 @@ class EgenvurderingRepositoryTest : FreeSpec({
                 .single()[EgenvurderingTable.egenvurdering]
             lagretEgenvurdering shouldBe ANTATT_GODE_MULIGHETER.name
         }
+    }
+
+    "Finn profilering fra profileringId og ident" - {
+        val startHendelse = PeriodeFactory.create().build()
+        val profilering = createProfilering(periodeId = startHendelse.id)
+        val profilering2 = createProfilering(periodeId = startHendelse.id)
+        recordSequence(startHendelse, profilering, profilering2).prosesserPerioderOgProfileringer()
+
+        val profileringRow = finnProfilering(profilering.id, startHendelse.identitetsnummer)
+        profileringRow.shouldNotBeNull()
+        profileringRow.id shouldBe profilering.id
+        profileringRow.periodeId shouldBe startHendelse.id
     }
 })
 

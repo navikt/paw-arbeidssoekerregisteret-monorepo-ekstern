@@ -78,4 +78,22 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
         ProfileringTable.deleteWhere { ProfileringTable.periodeId eq periodeId }
         return PeriodeTable.deleteWhere { PeriodeTable.id eq periodeId } > 0
     }
+
+    override fun finnProfilering(profileringId: UUID, ident: String): ProfileringRow? = transaction {
+        ProfileringTable.join(
+            otherTable = PeriodeTable,
+            joinType = JoinType.INNER,
+            onColumn = ProfileringTable.periodeId,
+            otherColumn = PeriodeTable.id
+        ).selectAll()
+            .where { ProfileringTable.id eq profileringId and (PeriodeTable.identitetsnummer eq ident) }
+            .firstOrNull()
+            ?.let { row ->
+                ProfileringRow(
+                    id = row[ProfileringTable.id],
+                    periodeId = row[ProfileringTable.periodeId],
+                    profilertTil = row[ProfileringTable.profilertTil]
+                )
+            }
+    }
 }
