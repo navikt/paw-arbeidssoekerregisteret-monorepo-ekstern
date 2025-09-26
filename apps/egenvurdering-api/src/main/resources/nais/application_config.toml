@@ -5,4 +5,4 @@ egenvurderingTopic = "${KAFKA_PAW_EGENVURDERING_TOPIC}"
 
 [TexasClientConfig]
 endpoint = "${NAIS_TOKEN_EXCHANGE_ENDPOINT}"
-target = "${OPPSLAG_API_TARGET}"
+target = "change-me"
