@@ -6,9 +6,12 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.server.plugins.BadRequestException
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.ProducerConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
@@ -17,7 +20,6 @@ import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
 import no.nav.paw.arbeidssoekerregisteret.repository.ProfileringRow
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering as EgenvurderingDto
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import no.nav.paw.model.Identitetsnummer
@@ -34,6 +36,7 @@ import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.Serializer
 import java.time.Instant
 import java.util.*
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering as EgenvurderingDto
 
 class EgenvurderingServiceTest : FreeSpec({
 
@@ -111,12 +114,13 @@ class EgenvurderingServiceTest : FreeSpec({
         val profileringId = UUID.randomUUID()
         val periodeId = UUID.randomUUID()
 
-        val repo = mockk<EgenvurderingRepository>()
+        val repo = mockk<EgenvurderingRepository>(relaxed = true)
         every { repo.finnProfilering(profileringId, any()) } returns ProfileringRow(
             id = profileringId,
             periodeId = periodeId,
             profilertTil = "ANTATT_BEHOV_FOR_VEILEDNING"
         )
+        every { repo.lagreEgenvurdering(any()) } just Runs
 
         val mockProducer = mockProducer()
 
@@ -149,6 +153,8 @@ class EgenvurderingServiceTest : FreeSpec({
             this.profilertTil.name shouldBe "ANTATT_BEHOV_FOR_VEILEDNING"
             this.egenvurdering.name shouldBe EgenvurderingDto.OPPGITT_HINDRINGER.name
         }
+
+        verify(exactly = 1) { repo.lagreEgenvurdering(any()) }
     }
 
     "postEgenvurdering - kaster BadRequest når profilering ikke finnes" {
@@ -178,6 +184,7 @@ class EgenvurderingServiceTest : FreeSpec({
         shouldThrow<BadRequestException> {
             egenvurderingService.postEgenvurdering(request, securityContext)
         }
+        verify(exactly = 0) { egenvurderingRepository.lagreEgenvurdering(any()) }
     }
 })
 

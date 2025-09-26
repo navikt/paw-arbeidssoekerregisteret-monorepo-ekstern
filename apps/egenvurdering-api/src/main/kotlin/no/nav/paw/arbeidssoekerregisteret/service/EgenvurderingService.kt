@@ -6,6 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagreEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
@@ -87,7 +88,7 @@ class EgenvurderingService(
             navProfilering,
             brukersEgenvurdering
         )
-
+        egenvurderingRepository.lagreEgenvurdering(egenvurdering)
         val record = ProducerRecord(applicationConfig.producerConfig.egenvurderingTopic, key, egenvurdering)
         producer.sendDeferred(record).await().also {
             logger.info("Egenvurdering sendt til Kafka")
