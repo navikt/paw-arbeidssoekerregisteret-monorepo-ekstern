@@ -13,7 +13,6 @@ import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssokerregisteret.TopicNames
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
-import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
@@ -65,8 +64,6 @@ data class ApplicationContext(
                 httpClient = createHttpClient(),
             )
 
-            val oppslagsClient = ApiOppslagClient(applicationConfig.oppslagApiConfig.url)
-
             val authorizationService = AuthorizationService()
 
             val kafkaFactory = KafkaFactory(
@@ -74,15 +71,15 @@ data class ApplicationContext(
             )
             val egenvurderingAvroSerializer: Serializer<Egenvurdering> = kafkaFactory.kafkaAvroSerializer()
             val egenvurderingProducer = kafkaFactory.createProducer<Long, Egenvurdering>(
-                clientId = "${applicationConfig.kafkaTopology.applicationIdPrefix}_${applicationConfig.kafkaTopology.producerVersion}",
+                clientId = "${applicationConfig.producerConfig.applicationIdPrefix}_${applicationConfig.producerConfig.producerVersion}",
                 keySerializer = LongSerializer::class,
                 valueSerializer = egenvurderingAvroSerializer::class,
             )
 
             val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
             val consumer: KafkaConsumer<Long, SpecificRecord> = kafkaFactory.createConsumer<Long, SpecificRecord>(
-                groupId = "${applicationConfig.kafkaTopology.applicationIdPrefix}_${applicationConfig.kafkaTopology.producerVersion}",
-                clientId = "${applicationConfig.kafkaTopology.applicationIdPrefix}_${applicationConfig.kafkaTopology.producerVersion}",
+                groupId = "${applicationConfig.producerConfig.applicationIdPrefix}_${applicationConfig.producerConfig.producerVersion}",
+                clientId = "${applicationConfig.producerConfig.applicationIdPrefix}_${applicationConfig.producerConfig.producerVersion}",
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = deserializer::class,
             )
@@ -92,9 +89,7 @@ data class ApplicationContext(
             val egenvurderingService = EgenvurderingService(
                 applicationConfig,
                 kafkaKeysClient,
-                egenvurderingProducer,
-                texasClient,
-                oppslagsClient
+                egenvurderingProducer
             )
 
             val datasource = createDataSource()
