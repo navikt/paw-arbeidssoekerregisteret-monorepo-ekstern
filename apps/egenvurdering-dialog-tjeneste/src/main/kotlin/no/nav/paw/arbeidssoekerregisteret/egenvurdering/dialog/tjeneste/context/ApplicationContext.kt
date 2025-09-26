@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.context
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.DialogService
@@ -13,7 +15,6 @@ import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
-import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -79,3 +80,16 @@ data class ApplicationContext(
         class KunneIkkeOppretteDatasource(message: String) : RuntimeException(message)
     }
 }
+
+fun createHikariDataSource(databaseConfig: DatabaseConfig): HikariDataSource =
+    HikariDataSource(
+        HikariConfig().apply {
+            jdbcUrl = databaseConfig.buildJdbcUrl()
+            maximumPoolSize = databaseConfig.maximumPoolSize
+            isAutoCommit = databaseConfig.autoCommit
+            connectionTimeout = databaseConfig.connectionTimeout.toMillis()
+            idleTimeout = databaseConfig.idleTimeout.toMillis()
+            maxLifetime = databaseConfig.maxLifetime.toMillis()
+            addDataSourceProperty("prepareThreshold", "0")
+        }
+    )
