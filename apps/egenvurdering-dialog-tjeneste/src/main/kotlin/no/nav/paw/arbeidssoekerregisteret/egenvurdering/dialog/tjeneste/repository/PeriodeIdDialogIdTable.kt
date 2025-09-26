@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.timestamp
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.javatime.timestamp
 import java.time.Instant
 
 object PeriodeIdDialogIdTable : Table("periode_id_dialog_id") {
