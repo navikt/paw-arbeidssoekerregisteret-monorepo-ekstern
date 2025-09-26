@@ -22,7 +22,6 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingGrunnlagPath
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingPath
-import no.nav.paw.client.api.oppslag.exception.ArbeidssoekerperioderAggregertOppslagResponseException
 import java.util.*
 
 class EgenvurderingRoutesTest : FreeSpec({
@@ -70,27 +69,6 @@ class EgenvurderingRoutesTest : FreeSpec({
                         bearerAuth(mockOAuth2Server.issueTokenXToken())
                     }
                     response.status shouldBe HttpStatusCode.BadRequest
-                    response.headers["x-trace-id"] shouldNotBe null
-                }
-            }
-
-            "502 Bad gateway når vi ikke når Oppslag API" - {
-                testApplication {
-                    configureTestApplication()
-                    val client = configureTestClient()
-                    coEvery {
-                        egenvurderingService.postEgenvurdering(any(), any())
-                    } throws ArbeidssoekerperioderAggregertOppslagResponseException(
-                        status = HttpStatusCode.BadGateway,
-                        "hugga bugga"
-                    )
-
-                    val response = client.post(egenvurderingPath) {
-                        contentType(Application.Json)
-                        setBody(egenvurderingRequestJson)
-                        bearerAuth(mockOAuth2Server.issueTokenXToken())
-                    }
-                    response.status shouldBe HttpStatusCode.BadGateway
                     response.headers["x-trace-id"] shouldNotBe null
                 }
             }
