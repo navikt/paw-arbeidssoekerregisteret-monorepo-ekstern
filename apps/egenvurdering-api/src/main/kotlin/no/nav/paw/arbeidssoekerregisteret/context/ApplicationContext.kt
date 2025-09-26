@@ -138,9 +138,3 @@ fun createHikariDataSource(databaseConfig: DatabaseConfig): HikariDataSource =
             addDataSourceProperty("prepareThreshold", "0")
         }
     )
-/*
-ds.addDataSourceProperty("cachePrepStmts", "true");
-ds.addDataSourceProperty("cachePrepStmts", "true");
-ds.addDataSourceProperty("prepStmtCacheSize", "250");
-ds.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-*/
