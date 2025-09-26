@@ -7,11 +7,12 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.prosesserPerioderOgProfileringer
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering
-import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagreEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnProfilering
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagreEgenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.paw.test.data.periode.createEgenvurderingFor
@@ -151,8 +152,8 @@ class EgenvurderingRepositoryTest : FreeSpec({
 
     "Returnerer nyeste profilering fra åpen periode uten egenvurdering" {
         val periodeId = UUID.randomUUID()
-        val ident = "12345678910"
-        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident)
+        val ident = Identitetsnummer("12345678910")
+        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident.verdi)
 
         val eldreProfilering = createProfilering(
             periodeId = periodeId,
@@ -179,8 +180,8 @@ class EgenvurderingRepositoryTest : FreeSpec({
 
     "Returnerer null når egenvurdering finnes for nyeste profilering" {
         val periodeId = UUID.randomUUID()
-        val ident = "10987654321"
-        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident)
+        val ident = Identitetsnummer("10987654321")
+        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident.verdi)
         val profilering = createProfilering(periodeId = periodeId)
         val egenvurdering = createEgenvurderingFor(profilering)
 
@@ -194,10 +195,10 @@ class EgenvurderingRepositoryTest : FreeSpec({
 
     "Returnerer null når perioden er avsluttet" {
         val periodeId = UUID.randomUUID()
-        val ident = "55555555555"
+        val ident = Identitetsnummer("55555555555")
         val avsluttetPeriode = PeriodeFactory.create().build(
             id = periodeId,
-            identitetsnummer = ident,
+            identitetsnummer = ident.verdi,
             avsluttet = MetadataFactory.create().build()
         )
         val profilering = createProfilering(periodeId = periodeId)
@@ -258,7 +259,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val profilering2 = createProfilering(periodeId = startHendelse.id)
         recordSequence(startHendelse, profilering, profilering2).prosesserPerioderOgProfileringer()
 
-        val profileringRow = finnProfilering(profilering.id, startHendelse.identitetsnummer)
+        val profileringRow = finnProfilering(profilering.id, Identitetsnummer(startHendelse.identitetsnummer))
         profileringRow.shouldNotBeNull()
         profileringRow.id shouldBe profilering.id
         profileringRow.periodeId shouldBe startHendelse.id

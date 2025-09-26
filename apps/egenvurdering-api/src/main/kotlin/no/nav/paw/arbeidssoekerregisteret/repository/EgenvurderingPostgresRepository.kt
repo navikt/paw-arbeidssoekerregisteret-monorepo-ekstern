@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.repository
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
+import no.nav.paw.model.Identitetsnummer
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -17,7 +18,7 @@ import java.util.*
 
 object EgenvurderingPostgresRepository : EgenvurderingRepository {
 
-    override fun finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident: String): NyesteProfilering? = transaction {
+    override fun finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident: Identitetsnummer): NyesteProfilering? = transaction {
         ProfileringTable.join(
             otherTable = PeriodeTable,
             joinType = JoinType.INNER,
@@ -30,7 +31,7 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
             otherColumn = EgenvurderingTable.profileringId
         ).selectAll()
             .where {
-                PeriodeTable.identitetsnummer eq ident and
+                PeriodeTable.identitetsnummer eq ident.verdi and
                         PeriodeTable.avsluttet.isNull() and
                         EgenvurderingTable.id.isNull()
             }
@@ -79,14 +80,14 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
         return PeriodeTable.deleteWhere { PeriodeTable.id eq periodeId } > 0
     }
 
-    override fun finnProfilering(profileringId: UUID, ident: String): ProfileringRow? = transaction {
+    override fun finnProfilering(profileringId: UUID, ident: Identitetsnummer): ProfileringRow? = transaction {
         ProfileringTable.join(
             otherTable = PeriodeTable,
             joinType = JoinType.INNER,
             onColumn = ProfileringTable.periodeId,
             otherColumn = PeriodeTable.id
         ).selectAll()
-            .where { ProfileringTable.id eq profileringId and (PeriodeTable.identitetsnummer eq ident) }
+            .where { ProfileringTable.id eq profileringId and (PeriodeTable.identitetsnummer eq ident.verdi) }
             .firstOrNull()
             ?.let { row ->
                 ProfileringRow(
