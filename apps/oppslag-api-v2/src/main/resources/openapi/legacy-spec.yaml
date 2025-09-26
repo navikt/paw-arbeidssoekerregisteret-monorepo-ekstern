@@ -732,6 +732,8 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/BeskrivelseMedDetaljerResponse"
+        profilering:
+          $ref: "#/components/schemas/ProfileringResponse"
       required:
         - "opplysningerOmArbeidssoekerId"
         - "periodeId"

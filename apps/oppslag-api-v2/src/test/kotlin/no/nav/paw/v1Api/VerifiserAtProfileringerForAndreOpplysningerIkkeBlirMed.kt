@@ -14,8 +14,8 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
-import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.inMemoryKafkaKeysMock
 import no.nav.paw.logging.logger.AuditLogger
@@ -25,11 +25,13 @@ import no.nav.paw.oppslagapi.configureKtorServer
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
+import no.nav.paw.oppslagapi.data.opplysninger_om_arbeidssoeker_v4
 import no.nav.paw.oppslagapi.data.periode_startet_v1
+import no.nav.paw.oppslagapi.data.profilering_v1
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.DatabaseQeurySupport
 import no.nav.paw.oppslagapi.routes.V1_API_BASE_PATH
-import no.nav.paw.oppslagapi.routes.V1_API_VEILEDER_ARBEIDSSOEKERPERIODER
+import no.nav.paw.oppslagapi.routes.V1_API_VEILEDER_ARBEIDSSOEKERPERIODER_AGGREGERT
 import no.nav.paw.oppslagapi.routes.v1Routes
 import no.nav.paw.oppslagsapi.ansatt1
 import no.nav.paw.oppslagsapi.ansattToken
@@ -40,6 +42,8 @@ import no.nav.paw.oppslagsapi.periode
 import no.nav.paw.oppslagsapi.person1
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
+import no.nav.paw.test.data.periode.createOpplysninger
+import no.nav.paw.test.data.periode.createProfilering
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.Duration
@@ -47,7 +51,7 @@ import java.time.Instant
 import java.util.*
 
 
-class AnsattMedTilgangFaarHentetPerioder : FreeSpec({
+class VerifiserAtProfileringerForAndreOpplysningerIkkeBlirMed : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
     val kafkaKeysClientMock: KafkaKeysClient = inMemoryKafkaKeysMock()
     val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
@@ -64,6 +68,7 @@ class AnsattMedTilgangFaarHentetPerioder : FreeSpec({
     val startTime = Instant.now() - Duration.ofDays(30)
     val periode1 = periode(identitetsnummer = person1.first(), startet = startTime)
     val bekreftelseMelding = bekreftelseMelding(periodeId = periode1.id)
+    val opplysningerId = UUID.randomUUID()
     every { databaseQuerySupportMock.hentPerioder(Identitetsnummer(periode1.identitetsnummer)) } returns listOf(periode1.id)
     every { databaseQuerySupportMock.hentRaderForPeriode(periode1.id) } returns listOf(
         Row(
@@ -79,6 +84,27 @@ class AnsattMedTilgangFaarHentetPerioder : FreeSpec({
             timestamp = startTime + Duration.ofDays(1),
             data = bekreftelseMelding.toOpenApi(),
             type = bekreftelsemelding_v1
+        ),
+        Row(
+            periodeId = periode1.id,
+            identitetsnummer = null,
+            timestamp = periode1.startet.tidspunkt,
+            data = createOpplysninger(id = opplysningerId, periodeId = periode1.id).toOpenApi(),
+            type = opplysninger_om_arbeidssoeker_v4
+        ),
+        Row(
+            periodeId = periode1.id,
+            identitetsnummer = null,
+            timestamp = periode1.startet.tidspunkt,
+            data = createProfilering(periodeId = periode1.id, opplysningerId = UUID.randomUUID()).toOpenApi(),
+            type = profilering_v1
+        ),
+        Row(
+            periodeId = periode1.id,
+            identitetsnummer = null,
+            timestamp = periode1.startet.tidspunkt,
+            data = createProfilering(periodeId = periode1.id, opplysningerId = UUID.randomUUID()).toOpenApi(),
+            type = profilering_v1
         )
     )
     tilgangsTjenesteForAnsatteMock.configureMock()
@@ -89,57 +115,51 @@ class AnsattMedTilgangFaarHentetPerioder : FreeSpec({
     afterSpec {
         oauthServer.shutdown()
     }
-    "Verifiser at endepunkter fungerer" - {
-        "/api/v1/veileder/arbeidssoekerperioder\"" {
-                testApplication {
-                    application {
-                        configureKtorServer(
-                            prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                            meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
-                        )
-                    }
-                    routing {
-                        v1Routes(
-                            appQueryLogic = appLogic
-                        )
-                    }
-                    val client = createClient {
-                        install(ContentNegotiation) {
-                            jackson {
-                                registerKotlinModule()
-                                registerModule(JavaTimeModule())
-                                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                            }
+    "Verifiser at profileringer for andre opplysninger ikke blir med" - {
+        "/api/v1/${V1_API_VEILEDER_ARBEIDSSOEKERPERIODER_AGGREGERT}" {
+            testApplication {
+                application {
+                    configureKtorServer(
+                        prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+                        meterBinders = emptyList(),
+                        authProviders = oauthServer.createAuthProviders()
+                    )
+                }
+                routing {
+                    v1Routes(
+                        appQueryLogic = appLogic
+                    )
+                }
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        jackson {
+                            registerKotlinModule()
+                            registerModule(JavaTimeModule())
+                            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                         }
                     }
-                    val token = oauthServer.ansattToken(
-                        NavAnsatt(
-                            oid = UUID.randomUUID(),
-                            ident = ansatt1.verdi,
-                            sikkerhetsnivaa = "tokenx:Level4"
-                        )
-                    )
-                    val response = client.hentViaPost(
-                        url = "${V1_API_BASE_PATH}/${V1_API_VEILEDER_ARBEIDSSOEKERPERIODER}",
-                        token = token,
-                        request = ArbeidssoekerperiodeRequest(periode1.identitetsnummer)
-                    )
-                    response.status shouldBe HttpStatusCode.OK
-                    val body: List<ArbeidssoekerperiodeResponse> = response.body()
-                    body.size shouldBe 1
-                    val periode = body.first()
-
-                    periode.periodeId shouldBe periode1.id
-                    periode.startet.tidspunkt shouldBe periode1.startet.tidspunkt
-                    periode.startet.utfoertAv.id shouldBe periode1.startet.utfoertAv.id
-                    periode.startet.utfoertAv.type.name shouldBe periode1.startet.utfoertAv.type.name
-                    periode.avsluttet?.tidspunkt shouldBe periode1.avsluttet?.tidspunkt
-                    periode.avsluttet?.utfoertAv?.id shouldBe periode1.avsluttet?.utfoertAv?.id
-                    periode.avsluttet?.utfoertAv?.type?.name shouldBe periode1.avsluttet?.utfoertAv?.type?.name
                 }
+                val token = oauthServer.ansattToken(
+                    NavAnsatt(
+                        oid = UUID.randomUUID(),
+                        ident = ansatt1.verdi,
+                        sikkerhetsnivaa = "tokenx:Level4"
+                    )
+                )
+                val response = client.hentViaPost(
+                    url = "${V1_API_BASE_PATH}/${V1_API_VEILEDER_ARBEIDSSOEKERPERIODER_AGGREGERT}",
+                    token = token,
+                    request = ArbeidssoekerperiodeRequest(periode1.identitetsnummer)
+                )
+                response.status shouldBe HttpStatusCode.OK
+                val body: List<ArbeidssoekerperiodeAggregertResponse> = response.body()
+                body.size shouldBe 1
+                val data = body.first()
+                data.opplysningerOmArbeidssoeker?.size shouldBe 1
+                data.opplysningerOmArbeidssoeker?.firstOrNull()?.profilering shouldBe null
             }
         }
+    }
 })
 
 

@@ -22,7 +22,11 @@ fun Tidslinje.v1Periode(): ArbeidssoekerperiodeResponse {
 fun Tidslinje.v1Opplysninger(): List<OpplysningerOmArbeidssoekerResponse> =
     hendelser
         .mapNotNull { it.opplysningerV4 }
-        .map(OpplysningerOmArbeidssoeker::toV1)
+        .map { opplysninger -> opplysninger.toV1(
+            profilering = hendelser
+                .mapNotNull { it.profileringV1 }
+                .firstOrNull { it.opplysningerOmArbeidssokerId == opplysninger.id }
+        ) }
 
 fun Tidslinje.v1Profileringer(): List<ProfileringResponse> =
     hendelser

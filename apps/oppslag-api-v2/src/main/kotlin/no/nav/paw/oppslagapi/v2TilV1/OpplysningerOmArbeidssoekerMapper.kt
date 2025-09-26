@@ -8,10 +8,11 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Helse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidspunktFraKilde
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Utdanning
 
-fun OpplysningerOmArbeidssoeker.toV1(): OpplysningerOmArbeidssoekerResponse =
+fun OpplysningerOmArbeidssoeker.toV1(profilering: Profilering?): OpplysningerOmArbeidssoekerResponse =
     OpplysningerOmArbeidssoekerResponse(
         opplysningerOmArbeidssoekerId = this.id,
         periodeId = this.periodeId,
@@ -19,7 +20,8 @@ fun OpplysningerOmArbeidssoeker.toV1(): OpplysningerOmArbeidssoekerResponse =
         jobbsituasjon = this.jobbsituasjon?.beskrivelser?.map { it.toV1() } ?: emptyList(),
         utdanning = this.utdanning?.toV1(),
         helse = this.helse?.toV1(),
-        annet = this.annet?.toV1()
+        annet = this.annet?.toV1(),
+        profilering = profilering?.v1Profilering()
     )
 
 fun BeskrivelseMedDetaljer.toV1(): BeskrivelseMedDetaljerResponse =
