@@ -15,10 +15,6 @@ spec:
       value: "paw.arbeidssoker-egenvurdering-beta-v2"
     - name: KAFKA_KEYS_SCOPE
       value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
-    - name: OPPSLAG_API_SCOPE
-      value: "api://prod-gcp.paw.paw-arbeidssoekerregisteret-api-oppslag/.default"
-    - name: OPPSLAG_API_TARGET
-      value: "prod-gcp:paw:paw-arbeidssoekerregisteret-api-oppslag"
   resources:
     limits:
       memory: 2048Mi
@@ -62,6 +58,4 @@ spec:
     outbound:
       rules:
         - application: paw-kafka-key-generator
-          namespace: paw
-        - application: paw-arbeidssoekerregisteret-api-oppslag
           namespace: paw
