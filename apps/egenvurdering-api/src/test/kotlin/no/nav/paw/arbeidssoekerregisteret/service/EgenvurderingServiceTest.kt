@@ -12,9 +12,8 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil.
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
-import no.nav.paw.client.api.oppslag.client.ApiOppslagClient
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.security.authentication.model.SecurityContext
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.producer.Producer
 import java.time.Instant
@@ -26,22 +25,18 @@ class EgenvurderingServiceTest : FreeSpec({
     val kafkaKeysClient = mockk<KafkaKeysClient>(relaxed = true)
     val producer = mockk<Producer<Long, Egenvurdering>>(relaxed = true)
     val texasClient = mockk<TexasClient>(relaxed = true)
-    val oppslagsClient = mockk<ApiOppslagClient>(relaxed = true)
     val egenvurderingRepository = mockk<EgenvurderingRepository>()
 
     val egenvurderingService = EgenvurderingService(
         applicationConfig = applicationConfig,
         kafkaKeysClient = kafkaKeysClient,
         producer = producer,
-        texasClient = texasClient,
-        oppslagsClient = oppslagsClient,
         egenvurderingRepository = egenvurderingRepository,
     )
 
 
     "Returnerer egenvurdering grunnlag" {
-        val ident = "10987654321"
-        val securityContext = securityContextMed(ident)
+        val ident = Identitetsnummer("10987654321")
         val profileringId = UUID.randomUUID()
         val nyesteProfilering = NyesteProfilering(
             id = profileringId,
@@ -53,28 +48,26 @@ class EgenvurderingServiceTest : FreeSpec({
             egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
         } returns nyesteProfilering
 
-        val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(securityContext)
+        val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(ident)
         egenvurderingGrunnlag.grunnlag.shouldNotBeNull()
         egenvurderingGrunnlag.grunnlag.profileringId shouldBe profileringId
         egenvurderingGrunnlag.grunnlag.profilertTil shouldBe ANTATT_GODE_MULIGHETER
     }
 
     "Tomt grunnlag når repository ikke finner profilering" {
-        val ident = "12345678901"
-        val securityContext = securityContextMed(ident)
+        val ident = Identitetsnummer("12345678901")
 
         every {
             egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
         } returns null
 
-        val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(securityContext)
+        val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(ident)
         egenvurderingGrunnlag.grunnlag.shouldBeNull()
     }
 
 
     "IllegalArgumentException når profilertTil ikke kan mappes" {
-        val ident = "55555555555"
-        val securityContext = securityContextMed(ident)
+        val ident = Identitetsnummer("55555555555")
         val profileringId = UUID.randomUUID()
         val ugyldig = NyesteProfilering(
             id = profileringId,
@@ -87,12 +80,7 @@ class EgenvurderingServiceTest : FreeSpec({
         } returns ugyldig
 
         shouldThrow<IllegalArgumentException> {
-            egenvurderingService.getEgenvurderingGrunnlag(securityContext)
+            egenvurderingService.getEgenvurderingGrunnlag(ident)
         }
     }
 })
-
-private fun securityContextMed(ident: String): SecurityContext =
-    mockk(relaxed = true) {
-        every { bruker.ident.toString() } returns ident
-    }

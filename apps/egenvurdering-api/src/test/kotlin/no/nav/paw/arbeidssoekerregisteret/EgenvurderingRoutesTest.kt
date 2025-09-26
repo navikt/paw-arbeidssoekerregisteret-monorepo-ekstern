@@ -49,7 +49,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                     configureTestApplication()
                     val client = configureTestClient()
 
-                    coEvery { egenvurderingService.postEgenvurdering(any(), any(), any()) } just Runs
+                    coEvery { egenvurderingService.postEgenvurdering(any(), any()) } just Runs
                     val response = client.post(egenvurderingPath) {
                         contentType(Application.Json)
                         setBody(egenvurderingRequestJson)
@@ -79,7 +79,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                     configureTestApplication()
                     val client = configureTestClient()
                     coEvery {
-                        egenvurderingService.postEgenvurdering(any(), any(), any())
+                        egenvurderingService.postEgenvurdering(any(), any())
                     } throws ArbeidssoekerperioderAggregertOppslagResponseException(
                         status = HttpStatusCode.BadGateway,
                         "hugga bugga"

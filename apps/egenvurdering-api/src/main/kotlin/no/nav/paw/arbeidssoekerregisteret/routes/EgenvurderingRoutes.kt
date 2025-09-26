@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.routes
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -13,9 +14,9 @@ import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.config.env.ProdGcp
 import no.nav.paw.config.env.currentRuntimeEnvironment
+import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
-import no.nav.paw.security.authentication.model.bruker
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authorization.interceptor.autorisering
@@ -37,11 +38,14 @@ fun Route.egenvurderingRoutes(
             get(grunnlagPath) {
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.READ, accessPolicies) {
-                    val securityContext = call.securityContext() //TODO: Skulle man hentet ut sluttbruker istedenfor?
+                    val ident = call.securityContext()
+                        .hentSluttbrukerEllerNull()
+                        ?.ident ?: throw BadRequestException("Kun støtte for tokenX")
+
                     val egenvurderingGrunnlag = if (currentRuntimeEnvironment is ProdGcp) {
                         EgenvurderingGrunnlag(grunnlag = null)
                     } else {
-                        egenvurderingService.getEgenvurderingGrunnlag(securityContext)
+                        egenvurderingService.getEgenvurderingGrunnlag(ident)
                     }
                     call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)
                 }
@@ -50,9 +54,7 @@ fun Route.egenvurderingRoutes(
             post<EgenvurderingRequest> { egenvurderingRequest ->
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.WRITE, accessPolicies) {
-                    val sluttbruker = call.bruker<Sluttbruker>()
-                    val accessToken = call.securityContext().accessToken
-                    egenvurderingService.postEgenvurdering(sluttbruker.ident, egenvurderingRequest, accessToken)
+                    egenvurderingService.postEgenvurdering(egenvurderingRequest, call.securityContext())
                     call.respond(HttpStatusCode.Accepted)
                 }
             }
@@ -60,3 +62,6 @@ fun Route.egenvurderingRoutes(
         }
     }
 }
+
+fun SecurityContext.hentSluttbrukerEllerNull(): Sluttbruker? =
+    (this.bruker as? Sluttbruker)
