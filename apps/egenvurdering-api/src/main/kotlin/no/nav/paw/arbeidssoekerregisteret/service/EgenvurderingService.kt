@@ -57,8 +57,8 @@ class EgenvurderingService(
         request: EgenvurderingRequest,
         securityContext: SecurityContext,
     ) {
-        val sluttbruker =
-            securityContext.hentSluttbrukerEllerNull() ?: throw BadRequestException("Kun støtte for tokenX")
+        val sluttbruker = securityContext.hentSluttbrukerEllerNull()
+            ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
         val profilering = egenvurderingRepository.finnProfilering(request.profileringId, sluttbruker.ident)
             ?: throw BadRequestException("Fant ingen profilering for oppgit profileringId ${request.profileringId} og oppgitt ident")
 
