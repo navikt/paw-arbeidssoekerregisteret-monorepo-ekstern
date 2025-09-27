@@ -6,9 +6,10 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository
-import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagreEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
+import no.nav.paw.arbeidssoekerregisteret.repository.ProfileringRow
+import no.nav.paw.arbeidssoekerregisteret.routes.hentSluttbrukerEllerNull
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.toProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
@@ -21,12 +22,12 @@ import no.nav.paw.kafka.producer.sendDeferred
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.SecurityContext
-import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.sikkerhetsnivaa
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
 import java.util.*
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering as EgenvurderingDto
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering as ProfileringDto
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil as ProfilertTilDto
 
@@ -61,49 +62,55 @@ class EgenvurderingService(
         val sluttbruker = securityContext.hentSluttbrukerEllerNull()
             ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
         val profilering = egenvurderingRepository.finnProfilering(request.profileringId, sluttbruker.ident)
-            ?: throw BadRequestException("Fant ingen profilering for oppgit profileringId ${request.profileringId} og oppgitt ident")
+            ?: throw BadRequestException("Fant ingen profilering for oppgit profileringId ${request.profileringId} og ident")
 
-        val metadata = Metadata(
-            Instant.now(),
-            Bruker(
-                BrukerType.SLUTTBRUKER,
-                sluttbruker.ident.verdi,
-                securityContext.accessToken.sikkerhetsnivaa()
-            ),
-            currentRuntimeEnvironment.appNameOrDefaultForLocal(),
-            "Bruker har gjort en egenvurdering av profileringsresultatet",
-            null
+        val kafkaKey = kafkaKeysClient.getIdAndKey(sluttbruker.ident.verdi).key
+
+        val egenvurdering = lagEgenvurdering(
+            navProfilering = profilering,
+            brukersEgenvurdering = request.egenvurdering,
+            metadata = lagMetadata(securityContext)
         )
 
-        val key = kafkaKeysClient.getIdAndKey(sluttbruker.ident.verdi).key
+        val record = ProducerRecord(applicationConfig.producerConfig.egenvurderingTopic, kafkaKey, egenvurdering)
 
-        val navProfilering = profilering.profilertTil.toProfilertTil()
-        val brukersEgenvurdering = request.egenvurdering.toProfilertTil()
-
-        val egenvurdering = Egenvurdering(
-            UUID.randomUUID(),
-            profilering.periodeId,
-            profilering.id,
-            metadata,
-            navProfilering,
-            brukersEgenvurdering
-        )
+        producer.sendDeferred(record).await()
         egenvurderingRepository.lagreEgenvurdering(egenvurdering)
-        val record = ProducerRecord(applicationConfig.producerConfig.egenvurderingTopic, key, egenvurdering)
-        producer.sendDeferred(record).await().also {
-            logger.info("Egenvurdering sendt til Kafka")
-        }
+        logger.info("Egenvurdering med id ${egenvurdering.id} for profilering ${profilering.id} lagret og sendt til kafka")
     }
 
-    private fun SecurityContext.hentSluttbrukerEllerNull(): Sluttbruker? =
-        (this.bruker as? Sluttbruker)
+    private fun lagEgenvurdering(
+        navProfilering: ProfileringRow,
+        brukersEgenvurdering: EgenvurderingDto,
+        metadata: Metadata,
+    ) = Egenvurdering(
+        UUID.randomUUID(),
+        navProfilering.periodeId,
+        navProfilering.id,
+        metadata,
+        navProfilering.profilertTil.toProfilertTil(),
+        brukersEgenvurdering.toProfilertTil()
+    )
+
+    private fun lagMetadata(securityContext: SecurityContext) = Metadata(
+        Instant.now(),
+        Bruker(
+            BrukerType.SLUTTBRUKER,
+            securityContext.hentSluttbrukerEllerNull()!!.ident.verdi,
+            securityContext.accessToken.sikkerhetsnivaa()
+        ),
+        currentRuntimeEnvironment.appNameOrDefaultForLocal(),
+        "Bruker har gjort en egenvurdering av profileringsresultatet",
+        null
+    )
 }
 
 private fun NyesteProfilering.toProfileringDto() = ProfileringDto(
     profileringId = id,
-    profilertTil = profilertTil.toApiProfilertTil()
+    profilertTil = profilertTil.runCatching {
+        ProfilertTilDto.valueOf(profilertTil)
+    }.getOrElse {
+        throw IllegalArgumentException("Ugyldig ApiProfilertTil: $profilertTil")
+    }
 )
-
-private fun String.toApiProfilertTil() = runCatching { ProfilertTilDto.valueOf(this) }
-    .getOrElse { throw IllegalArgumentException("Ugyldig ApiProfilertTil: $this") }
 

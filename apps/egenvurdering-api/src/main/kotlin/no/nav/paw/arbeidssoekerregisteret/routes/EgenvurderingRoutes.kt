@@ -38,10 +38,8 @@ fun Route.egenvurderingRoutes(
             get(grunnlagPath) {
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.READ, accessPolicies) {
-                    val ident = call.securityContext()
-                        .hentSluttbrukerEllerNull()
-                        ?.ident ?: throw BadRequestException("Kun støtte for tokenX")
-
+                    val ident = call.securityContext().hentSluttbrukerEllerNull()?.ident
+                        ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
                     val egenvurderingGrunnlag = if (currentRuntimeEnvironment is ProdGcp) {
                         EgenvurderingGrunnlag(grunnlag = null)
                     } else {
@@ -63,5 +61,4 @@ fun Route.egenvurderingRoutes(
     }
 }
 
-fun SecurityContext.hentSluttbrukerEllerNull(): Sluttbruker? =
-    (this.bruker as? Sluttbruker)
+fun SecurityContext.hentSluttbrukerEllerNull(): Sluttbruker? = (this.bruker as? Sluttbruker)
