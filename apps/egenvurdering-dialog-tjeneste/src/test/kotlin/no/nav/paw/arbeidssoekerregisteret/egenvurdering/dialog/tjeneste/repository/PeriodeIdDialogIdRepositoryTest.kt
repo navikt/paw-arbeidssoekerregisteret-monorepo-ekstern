@@ -6,19 +6,13 @@ import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.v1.jdbc.Database
 
 import java.util.*
-import javax.sql.DataSource
 
 class PeriodeIdDialogIdRepositoryTest : FreeSpec({
-    lateinit var dataSource: DataSource
-    lateinit var periodeIdDialogIdRepository: PeriodeIdDialogIdRepository
 
-    beforeSpec {
-        dataSource = initTestDatabase()
-        Database.connect(dataSource)
-        periodeIdDialogIdRepository = PeriodeIdDialogIdRepository
-    }
-    afterSpec { dataSource.connection.close() }
+    val periodeIdDialogIdRepository = PeriodeIdDialogIdRepository
 
+    val dataSource = autoClose(initTestDatabase())
+    beforeSpec { Database.connect(dataSource) }
 
     "getDialogIdOrNull er null når periode ikke finnes" {
         periodeIdDialogIdRepository.getDialogIdOrNull(UUID.randomUUID()) shouldBe null

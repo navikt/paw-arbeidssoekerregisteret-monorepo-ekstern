@@ -23,7 +23,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.Database.Companion.connect
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
@@ -32,7 +32,7 @@ import java.util.*
 class EgenvurderingRepositoryTest : FreeSpec({
 
     val dataSource = autoClose(initTestDatabase())
-    beforeSpec { connect(dataSource) }
+    beforeSpec { Database.connect(dataSource) }
 
 
     "Sletter periode, profileringer og egenvurdering når stop-hendelse mottas for eksisterende periode" {

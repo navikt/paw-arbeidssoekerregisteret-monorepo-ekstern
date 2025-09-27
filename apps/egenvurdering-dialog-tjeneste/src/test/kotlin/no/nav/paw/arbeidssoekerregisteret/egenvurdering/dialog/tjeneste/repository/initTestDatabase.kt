@@ -1,13 +1,13 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository
 
+import com.zaxxer.hikari.HikariDataSource
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import org.flywaydb.core.Flyway
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
-import javax.sql.DataSource
 
-fun initTestDatabase(): DataSource {
+fun initTestDatabase(): HikariDataSource {
     val postgres = postgreSQLContainer()
     val databaseConfig = DatabaseConfig(
         host = postgres.host,
