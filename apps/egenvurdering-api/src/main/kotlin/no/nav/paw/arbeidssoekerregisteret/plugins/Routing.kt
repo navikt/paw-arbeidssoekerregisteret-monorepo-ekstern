@@ -7,13 +7,20 @@ import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.swaggerRoutes
 import no.nav.paw.health.liveness.livenessRoute
+import no.nav.paw.health.probes.isDatabaseReady
 import no.nav.paw.health.readiness.readinessRoute
 
 fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {
         routing {
-            livenessRoute(kafkaConsumerLivenessProbe::isRunning)
-            readinessRoute(kafkaConsumerLivenessProbe::isRunning)
+            livenessRoute(
+                kafkaConsumerLivenessProbe::isRunning,
+                { isDatabaseReady(datasource) }
+            )
+            readinessRoute(
+                kafkaConsumerLivenessProbe::isRunning,
+                { isDatabaseReady(datasource) }
+            )
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
             egenvurderingRoutes(applicationContext.authorizationService, applicationContext.egenvurderingService)
