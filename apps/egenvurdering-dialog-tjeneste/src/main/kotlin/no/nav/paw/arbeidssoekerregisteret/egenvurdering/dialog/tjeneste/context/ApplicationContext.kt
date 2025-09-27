@@ -15,6 +15,7 @@ import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
+import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -32,6 +33,7 @@ data class ApplicationContext(
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
     val dataSource: DataSource,
+    val kafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 ) {
 
     companion object {

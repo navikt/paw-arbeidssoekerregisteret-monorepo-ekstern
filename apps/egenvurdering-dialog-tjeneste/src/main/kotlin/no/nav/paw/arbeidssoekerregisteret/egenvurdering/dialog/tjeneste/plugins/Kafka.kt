@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins
 
-
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.context.ApplicationContext
@@ -11,12 +10,18 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 fun Application.configureKafka(
     applicationContext: ApplicationContext,
     handleRecords: (records: ConsumerRecords<Long, Egenvurdering>) -> Unit,
-) {
-    with(applicationContext) {
-        install(KafkaConsumerPlugin<Long, Egenvurdering>("egenvurdering-consumer")) {
-            kafkaConsumer = consumer
-            kafkaTopics = listOf(applicationConfig.kafkaTopology.egenvurderingTopic)
-            consumeFunction = handleRecords
+) = with(applicationContext) {
+    install(KafkaConsumerPlugin<Long, Egenvurdering>("egenvurdering-consumer")) {
+        kafkaConsumer = consumer
+        kafkaTopics = listOf(applicationConfig.kafkaTopology.egenvurderingTopic)
+        consumeFunction = handleRecords
+        successFunction = {
+            if (!it.isEmpty) kafkaConsumer?.commitSync()
+            kafkaConsumerLivenessProbe.markAlive()
+        }
+        errorFunction = { throwable: Throwable ->
+            kafkaConsumerLivenessProbe.markUnhealthy()
+            throw throwable
         }
     }
 }

@@ -48,10 +48,10 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureLogging()
     configureMetrics(applicationContext)
     configureDatabase(applicationContext.dataSource)
+    configureRouting(applicationContext)
     configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
         if (!records.isEmpty) {
             applicationContext.dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
         }
     }
-    configureRouting(applicationContext)
 }
