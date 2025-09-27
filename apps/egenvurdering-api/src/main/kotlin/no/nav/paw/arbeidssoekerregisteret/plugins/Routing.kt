@@ -12,8 +12,8 @@ import no.nav.paw.health.readiness.readinessRoute
 fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {
         routing {
-            livenessRoute()
-            readinessRoute()
+            livenessRoute(kafkaConsumerLivenessProbe::isRunning)
+            readinessRoute(kafkaConsumerLivenessProbe::isRunning)
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
             egenvurderingRoutes(applicationContext.authorizationService, applicationContext.egenvurderingService)

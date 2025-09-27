@@ -18,6 +18,7 @@ import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
+import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -48,6 +49,7 @@ data class ApplicationContext(
     val datasource: DataSource,
     val consumer: KafkaConsumer<Long, SpecificRecord>,
     val topics: TopicNames,
+    val kafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -93,7 +95,6 @@ data class ApplicationContext(
             )
 
             val datasource = createDataSource()
-
             return ApplicationContext(
                 serverConfig = serverConfig,
                 applicationConfig = applicationConfig,
