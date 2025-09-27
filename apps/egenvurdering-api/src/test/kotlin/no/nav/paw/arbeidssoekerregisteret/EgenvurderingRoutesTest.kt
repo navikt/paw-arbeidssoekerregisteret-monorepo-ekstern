@@ -48,7 +48,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                     configureTestApplication()
                     val client = configureTestClient()
 
-                    coEvery { egenvurderingService.postEgenvurdering(any(), any()) } just Runs
+                    coEvery { egenvurderingService.publiserOgLagreEgenvurdering(any(), any()) } just Runs
                     val response = client.post(egenvurderingPath) {
                         contentType(Application.Json)
                         setBody(egenvurderingRequestJson)

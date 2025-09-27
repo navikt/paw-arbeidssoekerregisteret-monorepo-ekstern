@@ -52,7 +52,7 @@ fun Route.egenvurderingRoutes(
             post<EgenvurderingRequest> { egenvurderingRequest ->
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.WRITE, accessPolicies) {
-                    egenvurderingService.postEgenvurdering(egenvurderingRequest, call.securityContext())
+                    egenvurderingService.publiserOgLagreEgenvurdering(egenvurderingRequest, call.securityContext())
                     call.respond(HttpStatusCode.Accepted)
                 }
             }

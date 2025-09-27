@@ -141,7 +141,7 @@ class EgenvurderingServiceTest : FreeSpec({
             egenvurdering = EgenvurderingDto.OPPGITT_HINDRINGER
         )
 
-        service.postEgenvurdering(request, securityContext)
+        service.publiserOgLagreEgenvurdering(request, securityContext)
 
         mockProducer.history().size shouldBe 1
         val sentRecord = mockProducer.history().single()
@@ -182,7 +182,7 @@ class EgenvurderingServiceTest : FreeSpec({
         )
 
         shouldThrow<BadRequestException> {
-            egenvurderingService.postEgenvurdering(request, securityContext)
+            egenvurderingService.publiserOgLagreEgenvurdering(request, securityContext)
         }
         verify(exactly = 0) { egenvurderingRepository.lagreEgenvurdering(any()) }
     }

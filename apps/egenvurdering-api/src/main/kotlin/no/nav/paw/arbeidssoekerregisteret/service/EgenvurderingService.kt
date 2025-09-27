@@ -55,7 +55,7 @@ class EgenvurderingService(
         }
     }
 
-    suspend fun postEgenvurdering(
+    suspend fun publiserOgLagreEgenvurdering(
         request: EgenvurderingRequest,
         securityContext: SecurityContext,
     ) {
