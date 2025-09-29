@@ -1,18 +1,21 @@
 package no.nav.paw.oppslagapi.v2TilV1
 
-import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.*
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.AnnetResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.BeskrivelseMedDetaljerResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.HelseResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.JaNeiVetIkke
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.JobbSituasjonBeskrivelse
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerAggregertResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.UtdanningResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Annet
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BeskrivelseMedDetaljer
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Helse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidspunktFraKilde
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Utdanning
 
-fun OpplysningerOmArbeidssoeker.toV1(profilering: Profilering?): OpplysningerOmArbeidssoekerResponse =
+fun OpplysningerOmArbeidssoeker.toV1(): OpplysningerOmArbeidssoekerResponse =
     OpplysningerOmArbeidssoekerResponse(
         opplysningerOmArbeidssoekerId = this.id,
         periodeId = this.periodeId,
@@ -20,8 +23,19 @@ fun OpplysningerOmArbeidssoeker.toV1(profilering: Profilering?): OpplysningerOmA
         jobbsituasjon = this.jobbsituasjon?.beskrivelser?.map { it.toV1() } ?: emptyList(),
         utdanning = this.utdanning?.toV1(),
         helse = this.helse?.toV1(),
+        annet = this.annet?.toV1()
+    )
+
+fun OpplysningerOmArbeidssoeker.toV1Aggregert(profilering: Profilering?): OpplysningerOmArbeidssoekerAggregertResponse =
+    OpplysningerOmArbeidssoekerAggregertResponse(
+        opplysningerOmArbeidssoekerId = this.id,
+        periodeId = this.periodeId,
+        sendtInnAv = this.sendtInnAv.v1Metadata(),
+        jobbsituasjon = this.jobbsituasjon?.beskrivelser?.map { it.toV1() } ?: emptyList(),
+        utdanning = this.utdanning?.toV1(),
+        helse = this.helse?.toV1(),
         annet = this.annet?.toV1(),
-        profilering = profilering?.v1Profilering()
+        profilering = profilering?.toV1ProfileringAggregert()
     )
 
 fun BeskrivelseMedDetaljer.toV1(): BeskrivelseMedDetaljerResponse =

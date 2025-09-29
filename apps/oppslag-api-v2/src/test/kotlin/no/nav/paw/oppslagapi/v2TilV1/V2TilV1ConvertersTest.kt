@@ -17,14 +17,12 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Svar
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidspunktFraKilde
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Utdanning
-import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.oppslagapi.v2TilV1.toV1
+import no.nav.paw.oppslagapi.v2TilV1.toV1Profilering
 import no.nav.paw.oppslagapi.v2TilV1.v1Bekreftelse
 import no.nav.paw.oppslagapi.v2TilV1.v1Bruker
 import no.nav.paw.oppslagapi.v2TilV1.v1Metadata
-import no.nav.paw.oppslagapi.v2TilV1.v1Profilering
 import no.nav.paw.oppslagapi.v2TilV1.v1TidspunktFraKilde
-import no.nav.paw.test.data.periode.createProfilering
 import java.time.Instant
 import java.util.*
 
@@ -60,7 +58,7 @@ class V2TilV1ConvertersTest : FreeSpec({
             helse = helseV2,
             annet = annetV2
         )
-        val v1 = v2.toV1(createProfilering(opplysningerId = v2.id).toOpenApi())
+        val v1 = v2.toV1()
         v1.opplysningerOmArbeidssoekerId shouldBe id
         v1.periodeId shouldBe periodeId
         v1.sendtInnAv.tidspunkt shouldBe metadata.tidspunkt
@@ -164,7 +162,7 @@ class V2TilV1ConvertersTest : FreeSpec({
             alder = 30,
             jobbetSammenhengendeSeksAvTolvSisteMnd = true
         )
-        val v1 = v2.v1Profilering()
+        val v1 = v2.toV1Profilering()
         v1.profileringId shouldBe id
         v1.periodeId shouldBe periodeId
         v1.opplysningerOmArbeidssoekerId shouldBe opplysningerId

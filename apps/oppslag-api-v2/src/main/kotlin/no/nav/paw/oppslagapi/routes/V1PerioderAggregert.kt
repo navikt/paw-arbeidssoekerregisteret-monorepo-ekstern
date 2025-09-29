@@ -7,7 +7,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
-import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
@@ -16,7 +15,7 @@ import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
 import no.nav.paw.oppslagapi.v2TilV1.v1Bekreftelser
-import no.nav.paw.oppslagapi.v2TilV1.v1Opplysninger
+import no.nav.paw.oppslagapi.v2TilV1.v1OpplysningerAggregert
 import no.nav.paw.oppslagapi.v2TilV1.v1Periode
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -49,7 +48,7 @@ fun Route.v1PerioderAggregert(
                         periodeId = periode.periodeId,
                         startet = periode.startet,
                         avsluttet = periode.avsluttet,
-                        opplysningerOmArbeidssoeker = tidslinje.v1Opplysninger(),
+                        opplysningerOmArbeidssoeker = tidslinje.v1OpplysningerAggregert(),
                         bekreftelser = tidslinje.v1Bekreftelser()
                     )
                 }
@@ -88,7 +87,7 @@ fun Route.v1VeilederPerioderAggregert(
                         periodeId = periode.periodeId,
                         startet = periode.startet,
                         avsluttet = periode.avsluttet,
-                        opplysningerOmArbeidssoeker = tidslinje.v1Opplysninger(),
+                        opplysningerOmArbeidssoeker = tidslinje.v1OpplysningerAggregert(),
                         bekreftelser = tidslinje.v1Bekreftelser()
                     )
                 }

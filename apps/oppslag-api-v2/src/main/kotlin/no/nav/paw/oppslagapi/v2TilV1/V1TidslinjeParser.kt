@@ -2,9 +2,9 @@ package no.nav.paw.oppslagapi.v2TilV1
 
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.BekreftelseResponse
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringResponse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 
 fun Tidslinje.v1Periode(): ArbeidssoekerperiodeResponse {
@@ -22,16 +22,23 @@ fun Tidslinje.v1Periode(): ArbeidssoekerperiodeResponse {
 fun Tidslinje.v1Opplysninger(): List<OpplysningerOmArbeidssoekerResponse> =
     hendelser
         .mapNotNull { it.opplysningerV4 }
-        .map { opplysninger -> opplysninger.toV1(
-            profilering = hendelser
-                .mapNotNull { it.profileringV1 }
-                .firstOrNull { it.opplysningerOmArbeidssokerId == opplysninger.id }
-        ) }
+        .map { it.toV1() }
+
+fun Tidslinje.v1OpplysningerAggregert(): List<OpplysningerOmArbeidssoekerAggregertResponse> =
+    hendelser
+        .mapNotNull { it.opplysningerV4 }
+        .map { opplysninger ->
+            opplysninger.toV1Aggregert(
+                profilering = hendelser
+                    .mapNotNull { it.profileringV1 }
+                    .firstOrNull { it.opplysningerOmArbeidssokerId == opplysninger.id }
+            )
+        }
 
 fun Tidslinje.v1Profileringer(): List<ProfileringResponse> =
     hendelser
         .mapNotNull { it.profileringV1 }
-        .map { it.v1Profilering() }
+        .map { it.toV1Profilering() }
 
 fun Tidslinje.v1Bekreftelser(): List<BekreftelseResponse> =
     hendelser
