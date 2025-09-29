@@ -18,13 +18,13 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
-import no.nav.paw.kafka.producer.sendDeferred
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.sikkerhetsnivaa
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.util.*
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering as EgenvurderingDto
@@ -74,8 +74,10 @@ class EgenvurderingService(
 
         val record = ProducerRecord(applicationConfig.producerConfig.egenvurderingTopic, kafkaKey, egenvurdering)
 
-        producer.sendDeferred(record).await()
-        egenvurderingRepository.lagreEgenvurdering(egenvurdering)
+        transaction {
+            egenvurderingRepository.lagreEgenvurdering(egenvurdering)
+            producer.send(record).get()
+        }
         logger.info("Egenvurdering med id ${egenvurdering.id} for profilering ${profilering.id} lagret og sendt til kafka")
     }
 

@@ -56,8 +56,10 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val egenvurdering2 = createEgenvurderingFor(profilering2)
 
         recordSequence(startHendelse, profilering, profilering2).prosesserPerioderOgProfileringer()
-        lagreEgenvurdering(egenvurdering)
-        lagreEgenvurdering(egenvurdering2)
+        transaction {
+            lagreEgenvurdering(egenvurdering)
+            lagreEgenvurdering(egenvurdering2)
+        }
         recordSequence(stoppHendelse).prosesserPerioderOgProfileringer()
 
         transaction {
@@ -187,7 +189,9 @@ class EgenvurderingRepositoryTest : FreeSpec({
 
         recordSequence(periode, profilering).prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
 
-        lagreEgenvurdering(egenvurdering)
+        transaction {
+            lagreEgenvurdering(egenvurdering)
+        }
 
         val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
         nyesteProfilering.shouldBeNull()
@@ -242,7 +246,9 @@ class EgenvurderingRepositoryTest : FreeSpec({
 
         recordSequence(periode, profilering).prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
 
-        lagreEgenvurdering(egenvurdering)
+        transaction {
+            lagreEgenvurdering(egenvurdering)
+        }
 
         transaction {
             val lagretEgenvurdering = EgenvurderingTable

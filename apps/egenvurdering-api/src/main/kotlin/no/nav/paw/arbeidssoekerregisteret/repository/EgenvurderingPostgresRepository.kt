@@ -48,12 +48,10 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
     }
 
     override fun lagreEgenvurdering(egenvurdering: Egenvurdering) {
-        transaction {
-            EgenvurderingTable.insert {
-                it[id] = egenvurdering.id
-                it[profileringId] = egenvurdering.profileringId
-                it[EgenvurderingTable.egenvurdering] = egenvurdering.egenvurdering.name
-            }
+        EgenvurderingTable.insert {
+            it[id] = egenvurdering.id
+            it[profileringId] = egenvurdering.profileringId
+            it[EgenvurderingTable.egenvurdering] = egenvurdering.egenvurdering.name
         }
     }
 
