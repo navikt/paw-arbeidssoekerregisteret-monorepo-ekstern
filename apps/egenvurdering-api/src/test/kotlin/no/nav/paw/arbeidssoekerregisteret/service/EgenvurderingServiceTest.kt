@@ -102,7 +102,7 @@ class EgenvurderingServiceTest : FreeSpec({
         }
     }
 
-    "postEgenvurdering - sender melding til Kafka (MockProducer)" {
+    "Lagrer og sender egenvurdering til Kafka" {
         val applicationConfig = mockk<ApplicationConfig>()
         val egenvurderingTopic = "egenvurdering-topic"
         every { applicationConfig.producerConfig } returns ProducerConfig("v1", "app", egenvurderingTopic)
@@ -157,7 +157,7 @@ class EgenvurderingServiceTest : FreeSpec({
         verify(exactly = 1) { repo.lagreEgenvurdering(any()) }
     }
 
-    "postEgenvurdering - kaster BadRequest når profilering ikke finnes" {
+    "BadRequest når profilering ikke finnes" {
         val topic = "egenvurdering-topic"
         every { applicationConfig.producerConfig } returns ProducerConfig("v1", "app", topic)
 

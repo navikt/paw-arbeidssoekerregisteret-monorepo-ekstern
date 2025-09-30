@@ -5,6 +5,7 @@ import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
+import no.nav.paw.arbeidssoekerregisteret.hwm.updateHwm
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureDatabase
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
@@ -57,16 +58,25 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureAuthentication(applicationContext)
     configureRouting(applicationContext)
     configureKafka(applicationContext) { records ->
-        records.takeIf { !it.isEmpty }
-            ?.asSequence()
-            ?.prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
+        if (!records.isEmpty) {
+            transaction {
+                records.asSequence().lagrePerioderOgProfileringer()
+            }
+        }
     }
 }
 
-fun Sequence<ConsumerRecord<Long, SpecificRecord>>.prosesserPerioderOgProfileringer(
+fun Sequence<ConsumerRecord<Long, SpecificRecord>>.lagrePerioderOgProfileringer(
     repo: EgenvurderingRepository = EgenvurderingPostgresRepository,
-) = transaction {
-    forEach { record ->
+) {
+    filter { record ->
+        updateHwm(
+            consumerVersion = 1,
+            topic = record.topic(),
+            partition = record.partition(),
+            offset = record.offset()
+        )
+    }.forEach { record ->
         when (val value = record.value()) {
             is Periode -> {
                 if (value.avsluttet != null) repo.slettPeriode(value.id)

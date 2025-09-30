@@ -5,7 +5,8 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import no.nav.paw.arbeidssoekerregisteret.prosesserPerioderOgProfileringer
+import no.nav.paw.arbeidssoekerregisteret.hwm.initHwm
+import no.nav.paw.arbeidssoekerregisteret.lagrePerioderOgProfileringer
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnProfilering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagreEgenvurdering
@@ -20,7 +21,6 @@ import no.nav.paw.test.data.periode.createProfilering
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
-import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -28,12 +28,17 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.atomic.AtomicLong
 
 class EgenvurderingRepositoryTest : FreeSpec({
 
     val dataSource = autoClose(initTestDatabase())
-    beforeSpec { Database.connect(dataSource) }
-
+    beforeSpec {
+        Database.connect(dataSource)
+        transaction {
+            initHwm(testTopic, 1, partitionCount = 6)
+        }
+    }
 
     "Sletter periode, profileringer og egenvurdering når stop-hendelse mottas for eksisterende periode" {
         val periodeId = UUID.randomUUID()
@@ -55,13 +60,12 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val egenvurdering = createEgenvurderingFor(profilering)
         val egenvurdering2 = createEgenvurderingFor(profilering2)
 
-        recordSequence(startHendelse, profilering, profilering2).prosesserPerioderOgProfileringer()
         transaction {
+            recordSequence(startHendelse, profilering, profilering2).lagrePerioderOgProfileringer()
             lagreEgenvurdering(egenvurdering)
             lagreEgenvurdering(egenvurdering2)
+            recordSequence(stoppHendelse).lagrePerioderOgProfileringer()
         }
-        recordSequence(stoppHendelse).prosesserPerioderOgProfileringer()
-
         transaction {
             PeriodeTable
                 .selectAll()
@@ -86,7 +90,9 @@ class EgenvurderingRepositoryTest : FreeSpec({
             val duplikatProfilering = createProfilering(id = profilering.id, periodeId = profilering.periodeId)
 
             shouldNotThrowAny {
-                recordSequence(periode, profilering, duplikatProfilering).prosesserPerioderOgProfileringer()
+                transaction {
+                    recordSequence(periode, profilering, duplikatProfilering).lagrePerioderOgProfileringer()
+                }
             }
 
             transaction {
@@ -111,7 +117,9 @@ class EgenvurderingRepositoryTest : FreeSpec({
             )
 
             shouldNotThrowAny {
-                recordSequence(startHendelse, duplikatStartHendelse).prosesserPerioderOgProfileringer()
+                transaction {
+                    recordSequence(startHendelse, duplikatStartHendelse).lagrePerioderOgProfileringer()
+                }
             }
 
             transaction {
@@ -139,7 +147,9 @@ class EgenvurderingRepositoryTest : FreeSpec({
             )
 
             shouldNotThrowAny {
-                recordSequence(startHendelse, stopHendelse, duplikatStopHendelse).prosesserPerioderOgProfileringer()
+                transaction {
+                    recordSequence(startHendelse, stopHendelse, duplikatStopHendelse).lagrePerioderOgProfileringer()
+                }
             }
 
             transaction {
@@ -170,8 +180,9 @@ class EgenvurderingRepositoryTest : FreeSpec({
             )
         )
 
-        recordSequence(periode, eldreProfilering, nyereProfilering)
-            .prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
+        transaction {
+            recordSequence(periode, eldreProfilering, nyereProfilering).lagrePerioderOgProfileringer()
+        }
 
         val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
 
@@ -187,9 +198,8 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val profilering = createProfilering(periodeId = periodeId)
         val egenvurdering = createEgenvurderingFor(profilering)
 
-        recordSequence(periode, profilering).prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
-
         transaction {
+            recordSequence(periode, profilering).lagrePerioderOgProfileringer()
             lagreEgenvurdering(egenvurdering)
         }
 
@@ -207,18 +217,20 @@ class EgenvurderingRepositoryTest : FreeSpec({
         )
         val profilering = createProfilering(periodeId = periodeId)
 
-        recordSequence(avsluttetPeriode, profilering).prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
-
+        transaction {
+            recordSequence(avsluttetPeriode, profilering).lagrePerioderOgProfileringer()
+        }
         val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
         nyesteProfilering.shouldBeNull()
     }
 
     "Gjør ingenting for ukjent Avro type" {
         val ustøttetRecord = OpplysningerOmArbeidssoeker()
-        val records = recordSequence(ustøttetRecord)
 
         shouldNotThrowAny {
-            records.prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
+            transaction {
+                recordSequence(ustøttetRecord).lagrePerioderOgProfileringer()
+            }
         }
     }
 
@@ -226,7 +238,9 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val ingenRecords = ConsumerRecords<Long, SpecificRecord>(emptyMap(), emptyMap())
 
         shouldNotThrowAny {
-            ingenRecords.asSequence().prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
+            transaction {
+                ingenRecords.asSequence().lagrePerioderOgProfileringer()
+            }
         }
     }
 
@@ -244,9 +258,8 @@ class EgenvurderingRepositoryTest : FreeSpec({
             profilertTil = profilering.profilertTil,
         )
 
-        recordSequence(periode, profilering).prosesserPerioderOgProfileringer(EgenvurderingPostgresRepository)
-
         transaction {
+            recordSequence(periode, profilering).lagrePerioderOgProfileringer()
             lagreEgenvurdering(egenvurdering)
         }
 
@@ -263,8 +276,9 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val startHendelse = PeriodeFactory.create().build()
         val profilering = createProfilering(periodeId = startHendelse.id)
         val profilering2 = createProfilering(periodeId = startHendelse.id)
-        recordSequence(startHendelse, profilering, profilering2).prosesserPerioderOgProfileringer()
-
+        transaction {
+            recordSequence(startHendelse, profilering, profilering2).lagrePerioderOgProfileringer()
+        }
         val profileringRow = finnProfilering(profilering.id, Identitetsnummer(startHendelse.identitetsnummer))
         profileringRow.shouldNotBeNull()
         profileringRow.id shouldBe profilering.id
@@ -272,22 +286,22 @@ class EgenvurderingRepositoryTest : FreeSpec({
     }
 })
 
+private const val testTopic = "test-topic"
+
+private val offsetCounter = AtomicLong(0L)
+
 fun recordSequence(
     vararg values: SpecificRecord,
-    topic: String = "test-topic",
+    topic: String = testTopic,
     partition: Int = 0,
-    startOffset: Long = 0L,
     key: Long = 123L,
 ): Sequence<ConsumerRecord<Long, SpecificRecord>> {
     val tp = TopicPartition(topic, partition)
 
     val list: List<ConsumerRecord<Long, SpecificRecord>> =
-        values.mapIndexed { index, specificRecord ->
-            ConsumerRecord(topic, partition, startOffset + index, key, specificRecord)
+        values.map { specificRecord ->
+            ConsumerRecord(topic, partition, offsetCounter.getAndIncrement(), key, specificRecord)
         }
 
-    val nextOffset = if (list.isEmpty()) startOffset else list.last().offset() + 1
-    val nextOffsets = mapOf(tp to OffsetAndMetadata(nextOffset))
-
-    return ConsumerRecords(mapOf(tp to list), nextOffsets).asSequence()
+    return ConsumerRecords(mapOf(tp to list), emptyMap()).asSequence()
 }

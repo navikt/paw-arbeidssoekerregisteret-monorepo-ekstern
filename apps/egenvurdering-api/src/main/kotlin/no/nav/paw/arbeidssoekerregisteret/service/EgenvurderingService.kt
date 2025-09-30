@@ -40,6 +40,7 @@ class EgenvurderingService(
     private val logger = buildApplicationLogger
 
     fun getEgenvurderingGrunnlag(ident: Identitetsnummer): EgenvurderingGrunnlag {
+        //TODO: Sjekk om det finnes noe for andre identeter knyttet til samme person (nytt api)
         val nyesteProfilering = egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
 
         return when (nyesteProfilering) {

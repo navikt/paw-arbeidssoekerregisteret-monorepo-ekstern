@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.repository
+package no.nav.paw.arbeidssoekerregisteret.hwm
 
 import org.jetbrains.exposed.v1.core.Table
 

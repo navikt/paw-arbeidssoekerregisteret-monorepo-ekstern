@@ -19,10 +19,7 @@ fun Application.configureKafka(
         kafkaConsumer = applicationContext.consumer
         kafkaTopics = listOf(topics.profileringTopic, topics.periodeTopic)
         consumeFunction = recordHandler
-        successFunction = {
-            if (!it.isEmpty) kafkaConsumer?.commitSync()
-            kafkaConsumerLivenessProbe.markAlive()
-        }
+        successFunction = { kafkaConsumerLivenessProbe.markAlive() }
         errorFunction = { throwable: Throwable ->
             kafkaConsumerLivenessProbe.markUnhealthy()
             throw throwable
