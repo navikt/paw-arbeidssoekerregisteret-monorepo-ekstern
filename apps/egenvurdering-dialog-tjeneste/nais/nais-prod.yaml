@@ -35,7 +35,7 @@ spec:
   startup:
     failureThreshold: 10
     initialDelay: 12
-    path: /internal/isStarted
+    path: /internal/hasStarted
     periodSeconds: 10
     timeout: 5
   prometheus:
