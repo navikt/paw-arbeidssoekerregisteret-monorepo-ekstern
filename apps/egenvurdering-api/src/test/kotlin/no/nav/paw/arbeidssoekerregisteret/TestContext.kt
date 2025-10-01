@@ -17,7 +17,6 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingRoutes
-import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
@@ -41,7 +40,6 @@ open class TestContext {
     val mockOAuth2Server = MockOAuth2Server()
     val kafkaKeysClientMock = mockk<KafkaKeysClient>()
     val prometheusMeterRegistryMock = mockk<PrometheusMeterRegistry>()
-    val authorizationService = AuthorizationService()
     val egenvurderingService = mockk<EgenvurderingService>().also {
         coEvery { it.getEgenvurderingGrunnlag(any()) } returns EgenvurderingGrunnlag(grunnlag = null)
     }
@@ -57,7 +55,6 @@ open class TestContext {
                 )
             }),
             prometheusMeterRegistry = prometheusMeterRegistryMock,
-            authorizationService = authorizationService,
             kafkaKeysClient = kafkaKeysClientMock,
             egenvurderingService = egenvurderingService,
             egenvurderingAvroSerializer = mockk<Serializer<Egenvurdering>>(relaxed = true),
@@ -74,7 +71,7 @@ open class TestContext {
             configureAuthentication(applicationContext)
         }
         routing {
-            egenvurderingRoutes(authorizationService, egenvurderingService)
+            egenvurderingRoutes(egenvurderingService)
         }
     }
 

@@ -18,7 +18,7 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
             readinessRoute(applicationContext.healthChecks)
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
-            egenvurderingRoutes(applicationContext.authorizationService, applicationContext.egenvurderingService)
+            egenvurderingRoutes(applicationContext.egenvurderingService)
         }
     }
 }

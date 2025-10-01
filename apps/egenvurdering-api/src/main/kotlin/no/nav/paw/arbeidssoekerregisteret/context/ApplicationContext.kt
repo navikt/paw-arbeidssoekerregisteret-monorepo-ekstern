@@ -6,7 +6,6 @@ import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssokerregisteret.TopicNames
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
@@ -43,7 +42,6 @@ data class ApplicationContext(
     val applicationConfig: ApplicationConfig,
     val securityConfig: SecurityConfig,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
-    val authorizationService: AuthorizationService,
     val kafkaKeysClient: KafkaKeysClient,
     val egenvurderingService: EgenvurderingService,
     val egenvurderingAvroSerializer: Serializer<Egenvurdering>,
@@ -68,8 +66,6 @@ data class ApplicationContext(
                 applicationConfig.texasClientConfig,
                 httpClient = createHttpClient(),
             )
-
-            val authorizationService = AuthorizationService()
 
             val kafkaFactory = KafkaFactory(
                 kafkaConfig
@@ -107,7 +103,6 @@ data class ApplicationContext(
                 applicationConfig = applicationConfig,
                 securityConfig = securityConfig,
                 prometheusMeterRegistry = prometheusMeterRegistry,
-                authorizationService = authorizationService,
                 kafkaKeysClient = kafkaKeysClient,
                 egenvurderingService = egenvurderingService,
                 egenvurderingAvroSerializer = egenvurderingAvroSerializer,
