@@ -8,6 +8,6 @@ import io.ktor.server.request.path
 fun Application.configureLogging() {
     install(CallLogging) {
         disableDefaultColors()
-        filter { !it.request.path().startsWith("/internal") }
+        filter { it.request.path().startsWith("/internal") }
     }
 }
