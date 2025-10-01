@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.routes
+package no.nav.paw.arbeidssoekerregisteret
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException

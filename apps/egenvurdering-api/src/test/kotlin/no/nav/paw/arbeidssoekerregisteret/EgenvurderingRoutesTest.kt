@@ -20,8 +20,6 @@ import io.mockk.just
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil
-import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingGrunnlagPath
-import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingPath
 import java.util.*
 
 class EgenvurderingRoutesTest : FreeSpec({
