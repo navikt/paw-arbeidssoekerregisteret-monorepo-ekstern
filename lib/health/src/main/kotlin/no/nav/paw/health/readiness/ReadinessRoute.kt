@@ -8,11 +8,16 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import no.nav.paw.health.HealthStatus.HEALTHY
 import no.nav.paw.health.HealthStatus.UNHEALTHY
+import no.nav.paw.health.HealthCheck
 
 const val readinessPath = "/internal/isReady"
 
-fun interface ReadinessCheck {
+interface ReadinessCheck: HealthCheck {
     fun isReady(): Boolean
+}
+
+fun isReady(function: () -> Boolean) = object : ReadinessCheck {
+    override fun isReady(): Boolean = function()
 }
 
 fun Route.readinessRoute(vararg readinessChecks: ReadinessCheck) {

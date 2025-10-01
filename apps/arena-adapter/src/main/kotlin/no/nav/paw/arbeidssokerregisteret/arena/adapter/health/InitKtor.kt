@@ -13,8 +13,7 @@ import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.health.liveness.livenessRoute
-import no.nav.paw.health.probes.isAlive
-import no.nav.paw.health.probes.isReady
+import no.nav.paw.health.probes.KafkaStreamsHealthProbe
 import no.nav.paw.health.readiness.readinessRoute
 import org.apache.kafka.streams.KafkaStreams
 
@@ -33,8 +32,9 @@ fun initKtor(
         )
     }
     routing {
-        livenessRoute({ kafkaStreams.isAlive() })
-        readinessRoute({ kafkaStreams.isReady() })
+        val kafkaStreamsHealth = KafkaStreamsHealthProbe(kafkaStreams)
+        livenessRoute(kafkaStreamsHealth)
+        readinessRoute(kafkaStreamsHealth)
         get("/internal/metrics") {
             call.respond(prometheusRegistry.scrape())
         }

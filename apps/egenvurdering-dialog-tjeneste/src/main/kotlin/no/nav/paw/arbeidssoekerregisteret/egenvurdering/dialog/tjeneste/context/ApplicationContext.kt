@@ -14,7 +14,10 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
+import no.nav.paw.health.HealthChecks
+import no.nav.paw.health.healthChecksOf
 import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
+import no.nav.paw.health.probes.databaseIsAliveCheck
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -32,7 +35,8 @@ data class ApplicationContext(
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
     val dataSource: DataSource,
-    val kafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+    val kafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val healthChecks: HealthChecks
 ) {
 
     companion object {
@@ -59,6 +63,11 @@ data class ApplicationContext(
             )
             val dialogService = DialogService(veilarbdialogClient)
             val dataSource = createDataSource()
+            val kafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+            val healthChecks = healthChecksOf(
+                kafkaConsumerLivenessProbe,
+                databaseIsAliveCheck(dataSource)
+            )
 
             return ApplicationContext(
                 serverConfig = serverConfig,
@@ -67,7 +76,9 @@ data class ApplicationContext(
                 egenvurderingAvroDeserializer = egenvurderingAvroDeserializer,
                 consumer = egenvurderingConsumer,
                 dialogService = dialogService,
-                dataSource = dataSource
+                dataSource = dataSource,
+                healthChecks = healthChecks,
+                kafkaConsumerLivenessProbe = kafkaConsumerLivenessProbe
             )
         }
 

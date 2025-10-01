@@ -36,7 +36,10 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
+import no.nav.paw.health.HealthChecks
+import no.nav.paw.health.healthChecksOf
 import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
+import no.nav.paw.health.probes.databaseIsAliveCheck
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -72,6 +75,7 @@ data class ApplicationContext(
     val bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
     val bekreftelseKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
     val kafkaConsumerHandler: KafkaConsumerHandler,
+    val healthChecks: HealthChecks
 ) {
     companion object {
         fun build(): ApplicationContext {
@@ -171,7 +175,13 @@ data class ApplicationContext(
             val bekreftelseKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
 
             val kafkaConsumerHandler = KafkaConsumerHandler()
-
+            val healthChecks = healthChecksOf(
+                databaseIsAliveCheck(dataSource),
+                periodeKafkaConsumerLivenessProbe,
+                opplysningsKafkaConsumerLivenessProbe,
+                profileringKafkaConsumerLivenessProbe,
+                bekreftelseKafkaConsumerLivenessProbe,
+            )
             return ApplicationContext(
                 serverConfig = serverConfig,
                 applicationConfig = applicationConfig,
@@ -193,7 +203,8 @@ data class ApplicationContext(
                 profileringKafkaConsumerLivenessProbe = profileringKafkaConsumerLivenessProbe,
                 bekreftelseKafkaConsumer = bekreftelseKafkaConsumer,
                 bekreftelseKafkaConsumerLivenessProbe = bekreftelseKafkaConsumerLivenessProbe,
-                kafkaConsumerHandler = kafkaConsumerHandler
+                kafkaConsumerHandler = kafkaConsumerHandler,
+                healthChecks =healthChecks
             )
         }
     }

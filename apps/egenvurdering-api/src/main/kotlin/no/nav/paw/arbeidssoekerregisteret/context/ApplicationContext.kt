@@ -17,7 +17,10 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
+import no.nav.paw.health.HealthChecks
+import no.nav.paw.health.healthChecksOf
 import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
+import no.nav.paw.health.probes.databaseIsAliveCheck
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -48,7 +51,8 @@ data class ApplicationContext(
     val datasource: DataSource,
     val consumer: KafkaConsumer<Long, SpecificRecord>,
     val topics: TopicNames,
-    val kafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe(),
+    val kafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val healthChecks: HealthChecks
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -92,8 +96,12 @@ data class ApplicationContext(
                 kafkaKeysClient,
                 egenvurderingProducer
             )
-
+            val kafkaKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
             val datasource = createDataSource()
+            val healthChecks = healthChecksOf(
+                kafkaKafkaConsumerLivenessProbe,
+                databaseIsAliveCheck(datasource)
+            )
             return ApplicationContext(
                 serverConfig = serverConfig,
                 applicationConfig = applicationConfig,
@@ -107,6 +115,8 @@ data class ApplicationContext(
                 datasource = datasource,
                 consumer = consumer,
                 topics = topics,
+                healthChecks = healthChecks,
+                kafkaConsumerLivenessProbe = kafkaKafkaConsumerLivenessProbe
             )
         }
 

@@ -8,6 +8,7 @@ import io.ktor.http.HttpStatusCode.Companion.ServiceUnavailable
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import no.nav.paw.health.readiness.isReady
 
 class LivenessTest : FreeSpec({
     "Dersom ingen liveness checks er definert, så returnerer vi OK" {
@@ -21,7 +22,7 @@ class LivenessTest : FreeSpec({
 
     "Alle liveness checks er ok" {
         testApplication {
-            testApplication({ true }, { true })
+            testApplication(isAlive { true })
             val client = createClient { }
             val response = client.get(livenessPath)
             response.status shouldBe OK
@@ -29,7 +30,7 @@ class LivenessTest : FreeSpec({
     }
     "En liveness check er ikke ok" {
         testApplication {
-            testApplication({ true }, { false })
+            testApplication(isAlive { true }, isAlive { false })
             val client = createClient { }
             val response = client.get(livenessPath)
             response.status shouldBe ServiceUnavailable

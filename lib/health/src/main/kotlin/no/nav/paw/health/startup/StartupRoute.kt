@@ -8,11 +8,16 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import no.nav.paw.health.HealthStatus.HEALTHY
 import no.nav.paw.health.HealthStatus.UNHEALTHY
+import no.nav.paw.health.HealthCheck
 
 const val startupPath = "/internal/hasStarted"
 
-fun interface StartupCheck {
+interface StartupCheck: HealthCheck {
     fun hasStarted(): Boolean
+}
+
+fun hasStarted(function: () -> Boolean) = object : StartupCheck {
+    override fun hasStarted(): Boolean = function()
 }
 
 fun Route.startupRoute(vararg startupChecks: StartupCheck) {

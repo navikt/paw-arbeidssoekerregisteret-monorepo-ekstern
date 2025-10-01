@@ -24,6 +24,8 @@ import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.health.healthChecksOf
+import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
@@ -63,6 +65,8 @@ open class TestContext {
             datasource = mockk(relaxed = true),
             consumer = mockk(relaxed = true),
             topics = standardTopicNames(currentRuntimeEnvironment),
+            kafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe(),
+            healthChecks = healthChecksOf()
         )
         application {
             configureSerialization()

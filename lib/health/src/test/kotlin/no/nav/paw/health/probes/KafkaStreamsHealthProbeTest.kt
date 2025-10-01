@@ -20,11 +20,11 @@ class KafkaStreamsHealthProbeTest : FreeSpec({
 
         alleKafkaStreamsStates.forEach { state ->
             every { kafkaStreams.state() } returns state
-
+            val probe = KafkaStreamsHealthProbe(kafkaStreams)
             if (state in aliveStates) {
-                kafkaStreams.isAlive() shouldBe true
+                probe.isAlive() shouldBe true
             } else {
-                kafkaStreams.isAlive() shouldBe false
+                probe.isAlive() shouldBe false
             }
         }
     }
@@ -38,11 +38,11 @@ class KafkaStreamsHealthProbeTest : FreeSpec({
 
         alleKafkaStreamsStates.forEach { state ->
             every { kafkaStreams.state() } returns state
-
+            val probe = KafkaStreamsHealthProbe(kafkaStreams)
             if (state in readyStates) {
-                kafkaStreams.isReady() shouldBe true
+                probe.isReady() shouldBe true
             } else {
-                kafkaStreams.isReady() shouldBe false
+                probe.isReady() shouldBe false
             }
         }
     }

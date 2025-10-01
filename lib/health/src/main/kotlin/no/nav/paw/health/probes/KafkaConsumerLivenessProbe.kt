@@ -1,11 +1,12 @@
 package no.nav.paw.health.probes
 
+import no.nav.paw.health.liveness.LivenessCheck
 import java.util.concurrent.atomic.AtomicBoolean
 
-class KafkaConsumerLivenessProbe {
+class KafkaConsumerLivenessProbe: LivenessCheck {
     private val isRunning = AtomicBoolean(false)
 
     fun markAlive() = isRunning.set(true)
     fun markUnhealthy() = isRunning.set(false)
-    fun isRunning(): Boolean = isRunning.get()
+    override fun isAlive(): Boolean = isRunning.get()
 }

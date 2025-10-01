@@ -12,8 +12,8 @@ class StartupProbeTest : FreeSpec({
     "Alle startup checks er ok" {
         testApplication {
             testApplication(
-                { true },
-                { true },
+                hasStarted { true },
+                hasStarted { true }
             )
             val client = createClient { }
             val response = client.get(startupPath)
@@ -33,7 +33,7 @@ class StartupProbeTest : FreeSpec({
     "Startup check feiler" {
         testApplication {
             testApplication(
-                { false },
+                hasStarted { false },
             )
             val client = createClient { }
             val response = client.get(startupPath)
@@ -43,8 +43,8 @@ class StartupProbeTest : FreeSpec({
     "Startup check feiler så lenge en av sjekkene er false" {
         testApplication {
             testApplication(
-                { true },
-                { false }
+                hasStarted { true },
+                hasStarted { false }
             )
             val client = createClient { }
             val response = client.get(startupPath)

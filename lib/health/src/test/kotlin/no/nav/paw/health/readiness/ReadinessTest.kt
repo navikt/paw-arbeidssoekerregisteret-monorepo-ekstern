@@ -21,7 +21,7 @@ class ReadinessTest : FreeSpec({
 
     "Alle readiness checks er ok" {
         testApplication {
-            testApplication({ true }, { true })
+            testApplication(isReady { true }, isReady { true })
             val client = createClient { }
             val response = client.get(readinessPath)
             response.status shouldBe OK
@@ -29,7 +29,7 @@ class ReadinessTest : FreeSpec({
     }
     "En readiness check er ikke ok" {
         testApplication {
-            testApplication({ true }, { false })
+            testApplication(isReady { true }, isReady { false })
             val client = createClient { }
             val response = client.get(readinessPath)
             response.status shouldBe ServiceUnavailable

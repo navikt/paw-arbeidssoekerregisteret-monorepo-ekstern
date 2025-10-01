@@ -28,6 +28,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.health.healthChecksOf
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
@@ -103,7 +104,8 @@ open class TestContext {
             authorizationService,
             toggleServiceMock,
             mockk<KafkaStreams>(),
-            mockk<KafkaStreams>()
+            mockk<KafkaStreams>(),
+            healthChecks = healthChecksOf()
         )
         application {
             configureSerialization()

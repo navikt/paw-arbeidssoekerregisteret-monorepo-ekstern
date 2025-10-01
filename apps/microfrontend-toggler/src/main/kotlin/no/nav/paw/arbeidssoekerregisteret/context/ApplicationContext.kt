@@ -14,6 +14,10 @@ import no.nav.paw.arbeidssoekerregisteret.utils.buildKafkaStreams
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyOrNullBlocking
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.health.HealthCheck
+import no.nav.paw.health.HealthChecks
+import no.nav.paw.health.healthChecksOf
+import no.nav.paw.health.probes.KafkaStreamsHealthProbe
 import no.nav.paw.kafka.config.KAFKA_STREAMS_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
@@ -29,7 +33,8 @@ data class ApplicationContext(
     val authorizationService: AuthorizationService,
     val toggleService: ToggleService,
     val periodeKafkaStreams: KafkaStreams,
-    val siste14aVedtakKafkaStreams: KafkaStreams
+    val siste14aVedtakKafkaStreams: KafkaStreams,
+    val healthChecks: HealthChecks
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -62,6 +67,10 @@ data class ApplicationContext(
                 kafkaConfig,
                 siste14aVedtakTopology
             )
+            val healthChecks = healthChecksOf(
+                KafkaStreamsHealthProbe(periodeKafkaStreams),
+                KafkaStreamsHealthProbe(siste14aVedtakKafkaStreams)
+            )
 
             return ApplicationContext(
                 serverConfig,
@@ -71,7 +80,8 @@ data class ApplicationContext(
                 authorizationService,
                 toggleService,
                 periodeKafkaStreams,
-                siste14aVedtakKafkaStreams
+                siste14aVedtakKafkaStreams,
+                healthChecks
             )
         }
     }

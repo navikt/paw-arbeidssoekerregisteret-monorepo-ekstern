@@ -17,18 +17,8 @@ import no.nav.paw.health.readiness.readinessRoute
 fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {
         routing {
-            livenessRoute(
-                { periodeKafkaConsumerLivenessProbe.isRunning() },
-                { opplysningerKafkaConsumerLivenessProbe.isRunning() },
-                { profileringKafkaConsumerLivenessProbe.isRunning() },
-                { bekreftelseKafkaConsumerLivenessProbe.isRunning() },
-            )
-            readinessRoute(
-                { periodeKafkaConsumerLivenessProbe.isRunning() },
-                { opplysningerKafkaConsumerLivenessProbe.isRunning() },
-                { profileringKafkaConsumerLivenessProbe.isRunning() },
-                { bekreftelseKafkaConsumerLivenessProbe.isRunning() },
-            )
+            livenessRoute(applicationContext.healthChecks)
+            readinessRoute(applicationContext.healthChecks)
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
             perioderRoutes(

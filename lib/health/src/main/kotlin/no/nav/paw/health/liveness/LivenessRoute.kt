@@ -8,11 +8,16 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import no.nav.paw.health.HealthStatus.HEALTHY
 import no.nav.paw.health.HealthStatus.UNHEALTHY
+import no.nav.paw.health.HealthCheck
 
 const val livenessPath = "/internal/isAlive"
 
-fun interface LivenessCheck {
+interface LivenessCheck: HealthCheck {
     fun isAlive(): Boolean
+}
+
+fun isAlive(function: () -> Boolean) = object : LivenessCheck {
+    override fun isAlive(): Boolean = function()
 }
 
 fun Route.livenessRoute(vararg livenessChecks: LivenessCheck) {
