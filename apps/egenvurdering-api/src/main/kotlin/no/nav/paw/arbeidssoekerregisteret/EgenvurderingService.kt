@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret.service
+package no.nav.paw.arbeidssoekerregisteret
 
 import io.ktor.server.plugins.BadRequestException
 import io.opentelemetry.api.trace.Span
@@ -9,7 +9,6 @@ import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresReposi
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
 import no.nav.paw.arbeidssoekerregisteret.repository.ProfileringRow
-import no.nav.paw.arbeidssoekerregisteret.hentSluttbrukerEllerNull
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.toProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
