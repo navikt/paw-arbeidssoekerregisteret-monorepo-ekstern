@@ -21,7 +21,6 @@ include(
     "lib:logging",
     "lib:serialization",
     "lib:hoplite-config",
-    "lib:database",
     "lib:database-v2",
     "lib:scheduling",
     "lib:error-handling",
