@@ -28,7 +28,7 @@ fun initTestDatabase(): DataSource {
 fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
     val postgres =
         PostgreSQLContainer(
-            "postgres:14"
+            "postgres:17"
         ).apply {
             addEnv("POSTGRES_USER", "eksternt_api")
             addEnv("POSTGRES_PASSWORD", "Paw1234")
