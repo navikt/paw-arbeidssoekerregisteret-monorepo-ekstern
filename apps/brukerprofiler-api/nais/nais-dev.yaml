@@ -1,0 +1,108 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: paw-arbeidssoekerregisteret-api-brukerprofiler
+  namespace: paw
+  labels:
+    team: paw
+spec:
+  image: {{ image }}
+  ingresses:
+    - https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no
+  port: 8080
+  env:
+    - name: KAFKA_KEYS_SCOPE
+      value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      cpu: 20m
+      memory: 640Mi
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      claims:
+        extra:
+          - NAVident
+  kafka:
+    pool: nav-dev
+  replicas:
+    min: 2
+    max: 2
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /internal/isReady
+    initialDelay: 10
+  startup:
+    failureThreshold: 10
+    initialDelay: 12
+    path: /internal/hasStarted
+    periodSeconds: 10
+    timeout: 5
+  prometheus:
+    enabled: true
+    path: /internal/metrics
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: "java"
+  accessPolicy:
+    inbound:
+      rules:
+        - application: tokenx-token-generator
+          namespace: nais
+        - application: azure-token-generator
+          namespace: nais
+        - application: paw-arbeidssoekerregisteret-api-dolly
+          namespace: paw
+        - application: paw-brukerstotte
+          namespace: paw
+        - application: arbeidssokerregistrering-for-veileder
+          namespace: paw
+        - application: arbeidssoekerregisteret-for-personbruker
+          namespace: paw
+        - application: aia-backend
+          namespace: paw
+        - application: arbeidssokerregistrering
+          namespace: paw
+        - application: paw-arbeidssoekerregisteret-hendelselogg-backup
+          namespace: paw
+        - application: ao-oppfolgingskontor
+          namespace: dab
+        - application: flex-arbeidssokerregister-oppdatering
+          namespace: flex
+        - application: sykepengesoknad-backend
+          namespace: flex
+        - application: veilarbperson
+          namespace: obo
+        - application: veilarbportefolje
+          namespace: obo
+        - application: dp-oppslag-arbeidssoker
+          namespace: teamdagpenger
+        - application: dp-rapportering-personregister
+          namespace: teamdagpenger
+        - application: dp-meldekortregister
+          namespace: teamdagpenger
+        - application: dp-rapportering
+          namespace: teamdagpenger
+    outbound:
+      rules:
+        - application: paw-tilgangskontroll
+          namespace: paw
+          cluster: dev-gcp
+        - application: paw-kafka-key-generator
+          namespace: paw
+          cluster: dev-gcp
+
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_17
+        tier: db-g1-small
+        databases:
+          - name: arbeidssoekerregisteretapioppslagv2
