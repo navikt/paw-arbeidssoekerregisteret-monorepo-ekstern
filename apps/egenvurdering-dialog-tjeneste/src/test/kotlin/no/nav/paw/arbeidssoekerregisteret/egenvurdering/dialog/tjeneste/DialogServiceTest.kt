@@ -189,7 +189,7 @@ private fun consumerRecordsOf(egenvurdering: Egenvurdering): ConsumerRecords<Lon
     val topic = "egenvurdering"
     val record = ConsumerRecord(topic, 0, 0L, 1L, egenvurdering)
     val topicPartition = TopicPartition(topic, 0)
-    return ConsumerRecords(mapOf(topicPartition to listOf(record)))
+    return ConsumerRecords(mapOf(topicPartition to listOf(record)), emptyMap())
 }
 
 private fun egenvurdering(
