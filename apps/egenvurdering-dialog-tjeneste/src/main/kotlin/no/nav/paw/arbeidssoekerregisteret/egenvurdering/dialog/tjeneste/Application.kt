@@ -57,5 +57,11 @@ fun Application.module(applicationContext: ApplicationContext) {
                 applicationContext.dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
             }
         }
+    } else {
+        configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
+            if (!records.isEmpty) {
+                throw IllegalStateException("Mottok ${records.count()} i produksjon. Noe er galt med feature toggle i egenvurdering-api")
+            }
+        }
     }
 }
