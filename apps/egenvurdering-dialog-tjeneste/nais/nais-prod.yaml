@@ -12,7 +12,7 @@ spec:
     - name: KAFKA_PAW_EGENVURDERING_CONSUMER_VERSION
       value: "egenvurdering-consumer-v1"
     - name: KAFKA_PAW_EGENVURDERING_TOPIC
-      value: "paw.arbeidssoker-egenvurdering-beta-v2"
+      value: "paw.arbeidssoeker-egenvurdering-v1"
     - name: DIALOG_TJENESTE_URL
       value: "http://veilarbdialog.dab/veilarbdialog/"
     - name: DIALOG_TJENESTE_API_TARGET

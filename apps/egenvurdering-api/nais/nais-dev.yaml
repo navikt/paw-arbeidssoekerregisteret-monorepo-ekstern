@@ -14,7 +14,7 @@ spec:
     - name: KAFKA_PAW_EGENVURDERING_PRODUCER_VERSION
       value: "egenvurdering-producer-v1"
     - name: KAFKA_PAW_EGENVURDERING_TOPIC
-      value: "paw.arbeidssoker-egenvurdering-beta-v2"
+      value: "paw.arbeidssoeker-egenvurdering-v1"
     - name: KAFKA_KEYS_SCOPE
       value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
   resources:
