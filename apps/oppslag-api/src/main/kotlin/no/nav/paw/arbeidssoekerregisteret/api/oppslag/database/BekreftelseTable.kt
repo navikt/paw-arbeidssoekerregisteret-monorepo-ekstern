@@ -3,8 +3,8 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.BrukerType
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.javatime.timestamp
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.javatime.timestamp
 
 object BekreftelseSvarTable : LongIdTable("bekreftelse_svar") {
     val sendtInnId = long("sendt_inn_id").references(MetadataTable.id)

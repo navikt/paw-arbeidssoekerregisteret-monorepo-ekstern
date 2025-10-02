@@ -15,7 +15,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRow
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.UtdanningRow
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.v1.core.ResultRow
 
 fun ResultRow.toBekreftelseRow(): BekreftelseRow {
     return BekreftelseRow(

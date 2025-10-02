@@ -3,8 +3,8 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.javatime.timestamp
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.javatime.timestamp
 
 object BrukerTable : LongIdTable("bruker") {
     val brukerId = varchar("bruker_id", 255)

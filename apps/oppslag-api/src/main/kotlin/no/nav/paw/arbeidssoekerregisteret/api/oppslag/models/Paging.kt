@@ -1,6 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.models
 
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.v1.core.SortOrder
 
 data class Paging(
     val size: Int = Int.MAX_VALUE,

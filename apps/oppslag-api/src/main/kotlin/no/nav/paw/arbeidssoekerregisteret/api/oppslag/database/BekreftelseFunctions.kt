@@ -7,12 +7,14 @@ import no.nav.paw.bekreftelse.melding.v1.vo.Bruker
 import no.nav.paw.bekreftelse.melding.v1.vo.Metadata
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar
 import no.nav.paw.model.Identitetsnummer
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.upsert
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.upsert
 import java.util.*
 
 object BekreftelseFunctions {

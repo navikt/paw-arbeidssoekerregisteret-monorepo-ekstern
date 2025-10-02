@@ -12,10 +12,12 @@ import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.api.v4.Utdanning
 import no.nav.paw.model.Identitetsnummer
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.*
 
 object OpplysningerFunctions {

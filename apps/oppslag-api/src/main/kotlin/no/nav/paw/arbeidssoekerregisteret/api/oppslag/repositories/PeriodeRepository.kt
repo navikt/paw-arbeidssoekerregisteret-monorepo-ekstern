@@ -11,9 +11,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.initSpan
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.model.Identitetsnummer
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong

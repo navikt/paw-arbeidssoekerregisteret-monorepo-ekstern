@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
-import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 
 object ProfileringTable : LongIdTable("profilering") {
     val profileringId = uuid("profilering_id")

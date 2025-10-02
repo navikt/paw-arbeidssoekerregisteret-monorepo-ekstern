@@ -8,7 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.initTestDatabase
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.invalidTraceParent
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import java.time.Duration
 import java.time.Instant
 import java.util.*

@@ -11,7 +11,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.test.shouldBeEqualTo
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.invalidTraceParent
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import java.time.Duration
 import java.time.Instant
 import javax.sql.DataSource

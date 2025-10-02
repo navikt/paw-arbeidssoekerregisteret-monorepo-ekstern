@@ -4,10 +4,12 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.ProfileringRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.model.Identitetsnummer
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.*
 
 object ProfileringFunctions {

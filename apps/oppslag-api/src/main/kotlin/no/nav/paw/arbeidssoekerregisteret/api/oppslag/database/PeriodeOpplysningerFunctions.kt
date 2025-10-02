@@ -1,7 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeOpplysningerRow
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.*
 
 object PeriodeOpplysningerFunctions {

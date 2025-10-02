@@ -9,8 +9,8 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.initSpan
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.model.Identitetsnummer
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
 class OpplysningerRepository {

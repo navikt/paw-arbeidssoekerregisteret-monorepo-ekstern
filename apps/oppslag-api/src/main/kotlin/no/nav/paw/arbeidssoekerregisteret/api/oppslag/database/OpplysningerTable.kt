@@ -3,7 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
-import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 
 object OpplysningerOmArbeidssoekerTable : LongIdTable("opplysninger_om_arbeidssoeker") {
     val opplysningerOmArbeidssoekerId = uuid("opplysninger_om_arbeidssoeker_id")

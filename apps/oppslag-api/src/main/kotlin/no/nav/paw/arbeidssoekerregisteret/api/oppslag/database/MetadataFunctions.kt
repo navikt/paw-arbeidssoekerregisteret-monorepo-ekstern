@@ -5,11 +5,12 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.TidspunktFraKildeRo
 import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde
-import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.upsert
+import org.jetbrains.exposed.v1.core.alias
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.update
+import org.jetbrains.exposed.v1.jdbc.upsert
 
 val StartetMetadataAlias = MetadataTable.alias("startet_metadata")
 val AvsluttetMetadataAlias = MetadataTable.alias("avsluttet_metadata")
