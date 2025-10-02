@@ -14,7 +14,7 @@ dependencies {
     implementation(project(":lib:security"))
     implementation(project(":lib:kafka-key-generator-client"))
     implementation(project(":lib:kafka"))
-    implementation(project(":lib:database-v2"))
+    implementation(project(":lib:database"))
     implementation(project(":lib:common-model"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:health"))

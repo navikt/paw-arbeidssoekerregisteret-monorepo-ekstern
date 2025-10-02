@@ -13,7 +13,7 @@ val jvmMajorVersion: String by project
 dependencies {
     implementation(project(":lib:topics"))
     implementation(project(":lib:hoplite-config"))
-    implementation(project(":lib:database-v2"))
+    implementation(project(":lib:database"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
     implementation(project(":lib:kafka"))

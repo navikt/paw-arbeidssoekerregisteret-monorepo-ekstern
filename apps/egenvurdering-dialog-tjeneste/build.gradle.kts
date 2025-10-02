@@ -12,7 +12,7 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:kafka"))
-    implementation(project(":lib:database-v2"))
+    implementation(project(":lib:database"))
     implementation(project(":lib:health"))
     implementation(project(":lib:security"))
     implementation(project(":lib:common-model"))
