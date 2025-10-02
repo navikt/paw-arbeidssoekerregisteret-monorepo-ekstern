@@ -1,4 +1,4 @@
-package no.nav.paw.health.readiness
+package no.nav.paw.health
 
 import io.ktor.http.ContentType.Text
 import io.ktor.http.HttpStatusCode.Companion.OK
@@ -8,7 +8,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import no.nav.paw.health.HealthStatus.HEALTHY
 import no.nav.paw.health.HealthStatus.UNHEALTHY
-import no.nav.paw.health.HealthCheck
 
 const val readinessPath = "/internal/isReady"
 

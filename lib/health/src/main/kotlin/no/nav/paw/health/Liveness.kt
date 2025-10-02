@@ -1,4 +1,4 @@
-package no.nav.paw.health.startup
+package no.nav.paw.health
 
 import io.ktor.http.ContentType.Text
 import io.ktor.http.HttpStatusCode.Companion.OK
@@ -8,22 +8,21 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import no.nav.paw.health.HealthStatus.HEALTHY
 import no.nav.paw.health.HealthStatus.UNHEALTHY
-import no.nav.paw.health.HealthCheck
 
-const val startupPath = "/internal/hasStarted"
+const val livenessPath = "/internal/isAlive"
 
-interface StartupCheck: HealthCheck {
-    fun hasStarted(): Boolean
+interface LivenessCheck: HealthCheck {
+    fun isAlive(): Boolean
 }
 
-fun hasStarted(function: () -> Boolean) = object : StartupCheck {
-    override fun hasStarted(): Boolean = function()
+fun isAlive(function: () -> Boolean) = object : LivenessCheck {
+    override fun isAlive(): Boolean = function()
 }
 
-fun Route.startupRoute(vararg startupChecks: StartupCheck) {
-    get(startupPath) {
-        val startupComplete = startupChecks.all { startupCheck -> startupCheck.hasStarted() }
-        when (startupComplete) {
+fun Route.livenessRoute(vararg livenessChecks: LivenessCheck) {
+    get(livenessPath) {
+        val applicationAlive = livenessChecks.all { livenessCheck -> livenessCheck.isAlive() }
+        when (applicationAlive) {
             true -> call.respondText(contentType = Text.Plain, status = OK) { HEALTHY.value }
             false -> call.respondText(contentType = Text.Plain, status = ServiceUnavailable) { UNHEALTHY.value }
         }

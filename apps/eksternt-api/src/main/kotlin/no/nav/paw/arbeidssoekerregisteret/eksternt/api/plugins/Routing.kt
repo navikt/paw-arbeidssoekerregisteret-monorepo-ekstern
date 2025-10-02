@@ -7,8 +7,8 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.routes.periodeRoutes
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.routes.swaggerRoutes
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.services.PeriodeService
-import no.nav.paw.health.liveness.livenessRoute
-import no.nav.paw.health.readiness.readinessRoute
+import no.nav.paw.health.livenessRoute
+import no.nav.paw.health.readinessRoute
 
 fun Application.configureRouting(
     meterRegistry: PrometheusMeterRegistry,

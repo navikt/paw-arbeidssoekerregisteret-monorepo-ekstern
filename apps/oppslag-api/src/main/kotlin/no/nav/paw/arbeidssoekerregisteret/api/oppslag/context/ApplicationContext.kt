@@ -38,7 +38,7 @@ import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.health.HealthChecks
 import no.nav.paw.health.healthChecksOf
-import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
+import no.nav.paw.health.probes.GenericLivenessProbe
 import no.nav.paw.health.probes.databaseIsAliveCheck
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -67,13 +67,13 @@ data class ApplicationContext(
     val profileringService: ProfileringService,
     val bekreftelseService: BekreftelseService,
     val periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
-    val periodeKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val periodeKafkaConsumerLivenessProbe: GenericLivenessProbe,
     val opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
-    val opplysningerKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val opplysningerKafkaConsumerLivenessProbe: GenericLivenessProbe,
     val profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
-    val profileringKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val profileringKafkaConsumerLivenessProbe: GenericLivenessProbe,
     val bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
-    val bekreftelseKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val bekreftelseKafkaConsumerLivenessProbe: GenericLivenessProbe,
     val kafkaConsumerHandler: KafkaConsumerHandler,
     val healthChecks: HealthChecks
 ) {
@@ -135,7 +135,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = PeriodeDeserializer::class
             )
-            val periodeKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+            val periodeKafkaConsumerLivenessProbe = GenericLivenessProbe()
 
             val opplysningerService = OpplysningerService(
                 meterRegistry = prometheusMeterRegistry,
@@ -148,7 +148,7 @@ data class ApplicationContext(
                 valueDeserializer = OpplysningerOmArbeidssoekerDeserializer::class,
                 maxPollRecords = 100
             )
-            val opplysningsKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+            val opplysningsKafkaConsumerLivenessProbe = GenericLivenessProbe()
 
             val profileringService = ProfileringService(
                 meterRegistry = prometheusMeterRegistry,
@@ -160,7 +160,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = ProfileringDeserializer::class
             )
-            val profileringKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+            val profileringKafkaConsumerLivenessProbe = GenericLivenessProbe()
 
             val bekreftelseService = BekreftelseService(
                 meterRegistry = prometheusMeterRegistry,
@@ -172,7 +172,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = BekreftelseDeserializer::class
             )
-            val bekreftelseKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+            val bekreftelseKafkaConsumerLivenessProbe = GenericLivenessProbe()
 
             val kafkaConsumerHandler = KafkaConsumerHandler()
             val healthChecks = healthChecksOf(

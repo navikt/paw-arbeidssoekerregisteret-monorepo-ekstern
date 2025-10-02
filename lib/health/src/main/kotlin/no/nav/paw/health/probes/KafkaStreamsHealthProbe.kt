@@ -1,7 +1,7 @@
 package no.nav.paw.health.probes
 
-import no.nav.paw.health.liveness.LivenessCheck
-import no.nav.paw.health.readiness.ReadinessCheck
+import no.nav.paw.health.LivenessCheck
+import no.nav.paw.health.ReadinessCheck
 import org.apache.kafka.streams.KafkaStreams
 
 class KafkaStreamsHealthProbe(private val kafkaStreams: KafkaStreams): LivenessCheck, ReadinessCheck {

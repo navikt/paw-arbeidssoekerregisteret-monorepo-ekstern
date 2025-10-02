@@ -11,8 +11,8 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.perioderRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.profileringRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.samletInformasjonRoutes
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.routes.swaggerRoutes
-import no.nav.paw.health.liveness.livenessRoute
-import no.nav.paw.health.readiness.readinessRoute
+import no.nav.paw.health.livenessRoute
+import no.nav.paw.health.readinessRoute
 
 fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {

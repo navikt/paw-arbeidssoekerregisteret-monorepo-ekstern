@@ -8,6 +8,10 @@ import io.ktor.http.HttpStatusCode.Companion.ServiceUnavailable
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import no.nav.paw.health.ReadinessCheck
+import no.nav.paw.health.isReady
+import no.nav.paw.health.readinessPath
+import no.nav.paw.health.readinessRoute
 
 class ReadinessTest : FreeSpec({
     "Dersom ingen readiness checks er definert, så returnerer vi OK" {

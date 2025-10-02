@@ -12,9 +12,9 @@ import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.health.liveness.livenessRoute
+import no.nav.paw.health.livenessRoute
 import no.nav.paw.health.probes.KafkaStreamsHealthProbe
-import no.nav.paw.health.readiness.readinessRoute
+import no.nav.paw.health.readinessRoute
 import org.apache.kafka.streams.KafkaStreams
 
 fun initKtor(

@@ -16,7 +16,7 @@ import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.health.HealthChecks
 import no.nav.paw.health.healthChecksOf
-import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
+import no.nav.paw.health.probes.GenericLivenessProbe
 import no.nav.paw.health.probes.databaseIsAliveCheck
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -35,7 +35,7 @@ data class ApplicationContext(
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
     val dataSource: DataSource,
-    val kafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val kafkaConsumerLivenessProbe: GenericLivenessProbe,
     val healthChecks: HealthChecks
 ) {
 
@@ -63,7 +63,7 @@ data class ApplicationContext(
             )
             val dialogService = DialogService(veilarbdialogClient)
             val dataSource = createDataSource()
-            val kafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+            val kafkaConsumerLivenessProbe = GenericLivenessProbe()
             val healthChecks = healthChecksOf(
                 kafkaConsumerLivenessProbe,
                 databaseIsAliveCheck(dataSource)

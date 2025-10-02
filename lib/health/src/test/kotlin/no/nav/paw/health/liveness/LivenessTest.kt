@@ -8,7 +8,10 @@ import io.ktor.http.HttpStatusCode.Companion.ServiceUnavailable
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
-import no.nav.paw.health.readiness.isReady
+import no.nav.paw.health.LivenessCheck
+import no.nav.paw.health.isAlive
+import no.nav.paw.health.livenessPath
+import no.nav.paw.health.livenessRoute
 
 class LivenessTest : FreeSpec({
     "Dersom ingen liveness checks er definert, så returnerer vi OK" {

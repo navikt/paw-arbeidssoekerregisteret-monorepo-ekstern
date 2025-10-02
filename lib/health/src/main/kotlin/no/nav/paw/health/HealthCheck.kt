@@ -1,10 +1,6 @@
 package no.nav.paw.health
 
-import no.nav.paw.health.liveness.LivenessCheck
-import no.nav.paw.health.readiness.ReadinessCheck
-import no.nav.paw.health.startup.StartupCheck
-
-interface HealthCheck {
+sealed interface HealthCheck {
     val name: String get() = this::class.simpleName ?: "Unknown"
 }
 

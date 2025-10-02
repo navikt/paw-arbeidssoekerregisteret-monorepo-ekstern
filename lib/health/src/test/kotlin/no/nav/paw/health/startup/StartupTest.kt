@@ -7,6 +7,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import no.nav.paw.health.StartupCheck
+import no.nav.paw.health.hasStarted
+import no.nav.paw.health.startupPath
+import no.nav.paw.health.startupRoute
 
 class StartupProbeTest : FreeSpec({
     "Alle startup checks er ok" {

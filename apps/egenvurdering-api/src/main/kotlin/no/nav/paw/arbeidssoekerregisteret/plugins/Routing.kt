@@ -6,10 +6,9 @@ import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.routes.egenvurderingRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.metricsRoutes
 import no.nav.paw.arbeidssoekerregisteret.routes.swaggerRoutes
-import no.nav.paw.health.liveness.livenessRoute
-import no.nav.paw.health.probes.databaseIsAliveCheck
-import no.nav.paw.health.readiness.readinessRoute
-import no.nav.paw.health.startup.startupRoute
+import no.nav.paw.health.livenessRoute
+import no.nav.paw.health.readinessRoute
+import no.nav.paw.health.startupRoute
 
 fun Application.configureRouting(applicationContext: ApplicationContext) {
     with(applicationContext) {

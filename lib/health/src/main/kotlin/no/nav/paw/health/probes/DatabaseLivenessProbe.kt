@@ -1,6 +1,6 @@
 package no.nav.paw.health.probes
 
-import no.nav.paw.health.liveness.LivenessCheck
+import no.nav.paw.health.LivenessCheck
 import org.slf4j.LoggerFactory
 import javax.sql.DataSource
 

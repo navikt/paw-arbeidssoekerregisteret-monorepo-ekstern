@@ -12,20 +12,20 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
-import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
+import no.nav.paw.health.probes.GenericLivenessProbe
 import no.nav.paw.kafka.plugin.KafkaConsumerPlugin
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 fun Application.configureKafka(
     applicationConfig: ApplicationConfig,
     periodeKafkaConsumer: KafkaConsumer<Long, Periode>,
-    periodeConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    periodeConsumerLivenessProbe: GenericLivenessProbe,
     opplysningerKafkaConsumer: KafkaConsumer<Long, OpplysningerOmArbeidssoeker>,
-    opplysningerKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    opplysningerKafkaConsumerLivenessProbe: GenericLivenessProbe,
     profileringKafkaConsumer: KafkaConsumer<Long, Profilering>,
-    profileringKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    profileringKafkaConsumerLivenessProbe: GenericLivenessProbe,
     bekreftelseKafkaConsumer: KafkaConsumer<Long, Bekreftelse>,
-    bekreftelseKafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    bekreftelseKafkaConsumerLivenessProbe: GenericLivenessProbe,
     kafkaConsumerHandler: KafkaConsumerHandler,
     periodeService: PeriodeService,
     opplysningerService: OpplysningerService,

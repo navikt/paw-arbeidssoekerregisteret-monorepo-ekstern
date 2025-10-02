@@ -19,7 +19,7 @@ import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.health.HealthChecks
 import no.nav.paw.health.healthChecksOf
-import no.nav.paw.health.probes.KafkaConsumerLivenessProbe
+import no.nav.paw.health.probes.GenericLivenessProbe
 import no.nav.paw.health.probes.databaseIsAliveCheck
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
@@ -51,7 +51,7 @@ data class ApplicationContext(
     val datasource: DataSource,
     val consumer: KafkaConsumer<Long, SpecificRecord>,
     val topics: TopicNames,
-    val kafkaConsumerLivenessProbe: KafkaConsumerLivenessProbe,
+    val kafkaConsumerLivenessProbe: GenericLivenessProbe,
     val healthChecks: HealthChecks
 ) {
     companion object {
@@ -96,7 +96,7 @@ data class ApplicationContext(
                 kafkaKeysClient,
                 egenvurderingProducer
             )
-            val kafkaKafkaConsumerLivenessProbe = KafkaConsumerLivenessProbe()
+            val kafkaKafkaConsumerLivenessProbe = GenericLivenessProbe()
             val datasource = createDataSource()
             val healthChecks = healthChecksOf(
                 kafkaKafkaConsumerLivenessProbe,
