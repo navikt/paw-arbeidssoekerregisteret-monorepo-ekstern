@@ -14,7 +14,9 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
+import no.nav.paw.config.env.DevGcp
 import no.nav.paw.config.env.appNameOrDefaultForLocal
+import no.nav.paw.config.env.currentRuntimeEnvironment
 import org.apache.kafka.clients.consumer.ConsumerRecords
 
 fun main() {
@@ -49,9 +51,11 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureMetrics(applicationContext)
     configureDatabase(applicationContext.dataSource)
     configureRouting(applicationContext)
-    configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
-        if (!records.isEmpty) {
-            applicationContext.dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
+    if (currentRuntimeEnvironment is DevGcp) {
+        configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
+            if (!records.isEmpty) {
+                applicationContext.dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
+            }
         }
     }
 }
