@@ -21,7 +21,7 @@ import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import javax.sql.DataSource
 
 class ApplicationTestContext private constructor(

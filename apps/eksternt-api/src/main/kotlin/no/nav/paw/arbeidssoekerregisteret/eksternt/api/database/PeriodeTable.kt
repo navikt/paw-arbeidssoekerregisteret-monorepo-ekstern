@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api.database
 
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.javatime.timestamp
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.javatime.timestamp
 
 object PeriodeTable : LongIdTable("periode") {
     val periodeId = uuid("periode_id").uniqueIndex()
