@@ -12,7 +12,7 @@ val jvmMajorVersion: String by project
 dependencies {
     implementation(project(":lib:topics"))
     implementation(project(":lib:hoplite-config"))
-    implementation(project(":lib:database"))
+    implementation(project(":lib:database-v2"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
     implementation(project(":lib:kafka"))
@@ -62,8 +62,8 @@ dependencies {
     implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Database
-    implementation(libs.exposed.jdbc)
-    implementation(libs.exposed.java.time)
+    implementation(libs.exposed.jdbc.v1)
+    implementation(libs.exposed.java.time.v1)
     implementation(libs.hikari.connection.pool)
     implementation(libs.postgres.driver)
     implementation(libs.flyway.postgres)
