@@ -1,0 +1,56 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: paw-arbeidssoekerregisteret-api-ledigestillinger
+  namespace: paw
+  labels:
+    team: paw
+spec:
+  image: {{ image }}
+  port: 8080
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      cpu: 20m
+      memory: 640Mi
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      claims:
+        extra:
+          - NAVident
+  kafka:
+    pool: nav-dev
+  replicas:
+    min: 1
+    max: 1
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /internal/isReady
+    initialDelay: 10
+  startup:
+    failureThreshold: 10
+    initialDelay: 12
+    path: /internal/hasStarted
+    periodSeconds: 10
+    timeout: 5
+  prometheus:
+    enabled: true
+    path: /internal/metrics
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: "java"
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_17
+        tier: db-f1-micro
+        databases:
+          - name: ledigestillinger
+
