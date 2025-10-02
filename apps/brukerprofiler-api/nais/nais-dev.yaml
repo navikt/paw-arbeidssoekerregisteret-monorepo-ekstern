@@ -99,10 +99,3 @@ spec:
         - application: paw-kafka-key-generator
           namespace: paw
           cluster: dev-gcp
-
-  gcp:
-    sqlInstances:
-      - type: POSTGRES_17
-        tier: db-g1-small
-        databases:
-          - name: arbeidssoekerregisteretapioppslagv2
