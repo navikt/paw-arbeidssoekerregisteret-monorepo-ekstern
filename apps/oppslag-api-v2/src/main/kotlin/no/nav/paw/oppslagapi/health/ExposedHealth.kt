@@ -1,6 +1,6 @@
 package no.nav.paw.oppslagapi.health
 
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object ExposedHealthIndicator : IsAlive, IsReady, HasStarted {
     override val name: String = "ExposedHealthIndicator"

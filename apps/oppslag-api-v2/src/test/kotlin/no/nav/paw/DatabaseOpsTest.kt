@@ -28,7 +28,7 @@ import no.nav.paw.oppslagapi.data.query.ExposedDatabaseQuerySupport
 import no.nav.paw.oppslagapi.initDatabase
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.Serde
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 import org.testcontainers.utility.DockerImageName

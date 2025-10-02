@@ -2,18 +2,16 @@ package no.nav.paw.oppslagapi
 
 import no.nav.paw.arbeidssokerregisteret.TopicNames
 import no.nav.paw.arbeidssokerregisteret.asList
-import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.oppslagapi.data.consumer.kafka.hwm.initHwm
 import org.flywaydb.core.Flyway
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun initDatabase(topicNames: TopicNames, databaseConfig: DatabaseConfig) {
     val dataSource = createHikariDataSource(databaseConfig)
-    Database.Companion.connect(dataSource)
+    Database.connect(dataSource)
     Flyway.configure()
         .dataSource(dataSource)
         .baselineOnMigrate(true)

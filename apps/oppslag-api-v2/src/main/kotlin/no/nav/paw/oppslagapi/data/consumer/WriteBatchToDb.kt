@@ -7,7 +7,7 @@ import io.opentelemetry.api.trace.StatusCode
 import no.nav.paw.oppslagapi.appLogger
 import no.nav.paw.oppslagapi.data.DataTable
 import no.nav.paw.oppslagapi.data.Row
-import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.v1.jdbc.batchInsert
 
 fun writeBatchToDb(rows: Sequence<Pair<Row<String>, Span>>) {
     val tracer = GlobalOpenTelemetry

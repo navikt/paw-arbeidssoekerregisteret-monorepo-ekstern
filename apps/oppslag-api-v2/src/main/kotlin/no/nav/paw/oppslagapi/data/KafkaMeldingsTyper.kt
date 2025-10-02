@@ -1,7 +1,6 @@
 package no.nav.paw.oppslagapi.data
 
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart

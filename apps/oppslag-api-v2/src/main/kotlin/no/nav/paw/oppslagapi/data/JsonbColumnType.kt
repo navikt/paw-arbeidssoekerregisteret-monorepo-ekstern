@@ -1,7 +1,7 @@
 package no.nav.paw.oppslagapi.data
 
 import no.nav.paw.oppslagapi.data.DataTable.registerColumn
-import org.jetbrains.exposed.sql.IColumnType
+import org.jetbrains.exposed.v1.core.IColumnType
 import org.postgresql.util.PGobject
 import kotlin.apply
 import kotlin.jvm.javaClass
