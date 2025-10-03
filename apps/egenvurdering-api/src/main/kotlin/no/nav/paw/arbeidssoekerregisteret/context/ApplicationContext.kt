@@ -2,11 +2,13 @@ package no.nav.paw.arbeidssoekerregisteret.context
 
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.arbeidssoekerregisteret.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.EgenvurderingService
+import no.nav.paw.arbeidssoekerregisteret.hwm.ConsumerHealthMetric
+import no.nav.paw.arbeidssoekerregisteret.hwm.HwmRebalanceListener
 import no.nav.paw.arbeidssokerregisteret.TopicNames
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
@@ -35,7 +37,11 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.Serializer
+import java.util.*
 import javax.sql.DataSource
+
+const val consumerVersion = 2
+const val partitionCount = 6
 
 data class ApplicationContext(
     val serverConfig: ServerConfig,
@@ -49,8 +55,9 @@ data class ApplicationContext(
     val datasource: DataSource,
     val consumer: KafkaConsumer<Long, SpecificRecord>,
     val topics: TopicNames,
+    val hwmRebalanceListener: HwmRebalanceListener,
     val kafkaConsumerLivenessProbe: GenericLivenessProbe,
-    val healthChecks: HealthChecks
+    val healthChecks: HealthChecks,
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -67,9 +74,7 @@ data class ApplicationContext(
                 httpClient = createHttpClient(),
             )
 
-            val kafkaFactory = KafkaFactory(
-                kafkaConfig
-            )
+            val kafkaFactory = KafkaFactory(kafkaConfig)
             val egenvurderingAvroSerializer: Serializer<Egenvurdering> = kafkaFactory.kafkaAvroSerializer()
             val egenvurderingProducer = kafkaFactory.createProducer<Long, Egenvurdering>(
                 clientId = "${applicationConfig.producerConfig.applicationIdPrefix}_${applicationConfig.producerConfig.producerVersion}",
@@ -79,10 +84,15 @@ data class ApplicationContext(
 
             val deserializer: Deserializer<SpecificRecord> = kafkaFactory.kafkaAvroDeSerializer()
             val consumer: KafkaConsumer<Long, SpecificRecord> = kafkaFactory.createConsumer<Long, SpecificRecord>(
-                groupId = "${applicationConfig.producerConfig.applicationIdPrefix}_${applicationConfig.producerConfig.producerVersion}",
-                clientId = "${applicationConfig.producerConfig.applicationIdPrefix}_${applicationConfig.producerConfig.producerVersion}",
+                groupId = "egenvurdering-api-consumer-v$consumerVersion",
+                clientId = "egenvurdering-api-${UUID.randomUUID()}",
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = deserializer::class,
+                autoCommit = false,
+                autoOffsetReset = "earliest",
+            )
+            val hwmRebalanceListener = HwmRebalanceListener(
+                consumerVersion, consumer, ConsumerHealthMetric(prometheusMeterRegistry)
             )
 
             val topics = standardTopicNames(currentRuntimeEnvironment)
@@ -110,6 +120,7 @@ data class ApplicationContext(
                 datasource = datasource,
                 consumer = consumer,
                 topics = topics,
+                hwmRebalanceListener = hwmRebalanceListener,
                 healthChecks = healthChecks,
                 kafkaConsumerLivenessProbe = kafkaKafkaConsumerLivenessProbe
             )

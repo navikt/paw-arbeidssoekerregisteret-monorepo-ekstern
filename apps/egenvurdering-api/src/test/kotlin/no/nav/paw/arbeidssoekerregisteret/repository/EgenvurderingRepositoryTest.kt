@@ -5,6 +5,8 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import no.nav.paw.arbeidssoekerregisteret.context.consumerVersion
+import no.nav.paw.arbeidssoekerregisteret.context.partitionCount
 import no.nav.paw.arbeidssoekerregisteret.hwm.initHwm
 import no.nav.paw.arbeidssoekerregisteret.lagrePerioderOgProfileringer
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering
@@ -36,7 +38,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
     beforeSpec {
         Database.connect(dataSource)
         transaction {
-            initHwm(testTopic, 1, partitionCount = 6)
+            initHwm(testTopic, consumerVersion, partitionCount)
         }
     }
 

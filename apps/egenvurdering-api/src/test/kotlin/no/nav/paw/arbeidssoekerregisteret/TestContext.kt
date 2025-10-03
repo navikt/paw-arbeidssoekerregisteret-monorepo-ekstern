@@ -60,6 +60,7 @@ open class TestContext {
             datasource = mockk(relaxed = true),
             consumer = mockk(relaxed = true),
             topics = standardTopicNames(currentRuntimeEnvironment),
+            hwmRebalanceListener = mockk(relaxed = true),
             kafkaConsumerLivenessProbe = GenericLivenessProbe(),
             healthChecks = healthChecksOf()
         )

@@ -5,9 +5,9 @@ import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
+import no.nav.paw.arbeidssoekerregisteret.context.consumerVersion
 import no.nav.paw.arbeidssoekerregisteret.hwm.updateHwm
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureDatabase
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
@@ -20,6 +20,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
+import no.nav.paw.database.plugin.installDatabasePlugin
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -54,7 +55,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
-    configureDatabase(applicationContext.datasource)
+    installDatabasePlugin(applicationContext.datasource)
     configureAuthentication(applicationContext)
     configureRouting(applicationContext)
     configureKafka(applicationContext) { records ->
@@ -68,22 +69,20 @@ fun Application.module(applicationContext: ApplicationContext) {
 
 fun Sequence<ConsumerRecord<Long, SpecificRecord>>.lagrePerioderOgProfileringer(
     repo: EgenvurderingRepository = EgenvurderingPostgresRepository,
-) {
-    filter { record ->
-        updateHwm(
-            consumerVersion = 1,
-            topic = record.topic(),
-            partition = record.partition(),
-            offset = record.offset()
-        )
-    }.forEach { record ->
-        when (val value = record.value()) {
-            is Periode -> {
-                if (value.avsluttet != null) repo.slettPeriode(value.id)
-                else repo.lagrePeriode(value)
-            }
-
-            is Profilering -> repo.lagreProfilering(value)
+) = filter { record ->
+    updateHwm(
+        consumerVersion = consumerVersion,
+        topic = record.topic(),
+        partition = record.partition(),
+        offset = record.offset()
+    )
+}.forEach { record ->
+    when (val value = record.value()) {
+        is Periode -> {
+            if (value.avsluttet != null) repo.slettPeriode(value.id)
+            else repo.lagrePeriode(value)
         }
+
+        is Profilering -> repo.lagreProfilering(value)
     }
 }
