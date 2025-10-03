@@ -8,20 +8,16 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.HttpRequestData
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.OutputStreamContent
-import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.client.factory.configureJackson
 import no.nav.paw.security.texas.obo.OnBehalfOfAnsattRequest
 import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
-import java.io.ByteArrayOutputStream
 
 class TexasClientTest : FreeSpec({
     val texasTestEndpoint = "https://texas/token"
