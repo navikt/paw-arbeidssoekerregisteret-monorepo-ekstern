@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":lib:serialization"))
     implementation(project(":lib:logging"))
     implementation(project(":lib:health"))
+    implementation(project(":domain-dev:ledigestillinger"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)

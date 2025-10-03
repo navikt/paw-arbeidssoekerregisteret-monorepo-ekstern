@@ -11,6 +11,7 @@ on:
       - '.github/workflows/brukerprofiler-api.yaml'
       - 'lib/**'
       - 'domain/**'
+      - 'domain-dev/**'
       - 'gradle/**'
       - 'settings.gradle.kts'
       - 'gradle.properties'

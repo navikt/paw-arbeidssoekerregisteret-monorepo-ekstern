@@ -16,6 +16,7 @@ include(
     "domain:arena-avro-schema",
     "domain:bekreftelsesmelding-avro-schema",
     "domain:bekreftelse-paavegneav-avro-schema",
+    "domain-dev:ledigestillinger",
     // libs
     "lib:health",
     "lib:logging",
@@ -49,7 +50,7 @@ include(
     "apps:arena-adapter",
     "apps:oppslag-api-v2",
     "apps:brukerprofiler-api",
-    "apps:ledigestillinger-api"
+    "apps:ledigestillinger-api",
 )
 
 dependencyResolutionManagement {

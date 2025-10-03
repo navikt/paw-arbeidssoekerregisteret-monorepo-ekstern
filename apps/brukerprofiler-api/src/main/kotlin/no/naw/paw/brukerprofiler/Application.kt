@@ -23,7 +23,12 @@ fun main() {
     val topics = listOf(
         HwmTopicConfig(
             topic = topicNames.periodeTopic,
-            consumerVersion = APP_CONSUMER_VERSION,
+            consumerVersion = PERIODE_CONSUMER_VERSION,
+            partitionCount = DEFAULT_PARTITION_COUNT
+        ),
+        HwmTopicConfig(
+            topic = topicNames.profileringTopic,
+            consumerVersion = PROFILERING_CONSUMER_VERSION,
             partitionCount = DEFAULT_PARTITION_COUNT
         )
     )
