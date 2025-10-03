@@ -7,7 +7,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.context.consumerVersion
 import no.nav.paw.arbeidssoekerregisteret.context.partitionCount
-import no.nav.paw.arbeidssoekerregisteret.hwm.initHwm
+import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.lagrePerioderOgProfileringer
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnProfilering
@@ -15,6 +15,7 @@ import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresReposi
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.hwm.insertHwm
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
@@ -38,7 +39,14 @@ class EgenvurderingRepositoryTest : FreeSpec({
     beforeSpec {
         Database.connect(dataSource)
         transaction {
-            initHwm(testTopic, consumerVersion, partitionCount)
+            (0..partitionCount).forEach { partition ->
+                insertHwm(
+                    consumerVersion = consumerVersion,
+                    topic = testTopic,
+                    partition = partition,
+                    offset = -1L
+                )
+            }
         }
     }
 

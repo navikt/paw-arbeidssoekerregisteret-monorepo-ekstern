@@ -1,16 +1,18 @@
-package no.nav.paw.arbeidssoekerregisteret.hwm
+package no.nav.paw.arbeidssoekerregisteret
 
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.paw.hwm.OnAssigned
+import no.nav.paw.hwm.OnRevoked
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 class ConsumerHealthMetric(
     private val registry: PrometheusMeterRegistry,
-) {
+): OnAssigned, OnRevoked {
     private val tildeltePartisjoner = ConcurrentHashMap<Key, QosGauge>()
 
     private data class Key(val topic: String, val partisjon: Int)
@@ -52,14 +54,14 @@ class ConsumerHealthMetric(
         )
     }
 
-    fun nyTildeling(topic: String, partisjon: Int) {
-        tildeltePartisjoner.compute(Key(topic, partisjon)) { key, current ->
+    override fun assigned(topic: String, partition: Int) {
+        tildeltePartisjoner.compute(Key(topic, partition)) { key, current ->
             current ?: createGauge(key.topic, key.partisjon)
         }
     }
 
-    fun fjernTildeling(topic: String, partisjon: Int) {
-        tildeltePartisjoner.remove(Key(topic, partisjon))
+    override fun revoked(topic: String, partition: Int) {
+        tildeltePartisjoner.remove(Key(topic, partition))
             ?.also { qosGauge ->
                 registry.remove(qosGauge.forsinkelseMeterId)
                 registry.remove(qosGauge.sistePollMeterId)

@@ -16,7 +16,7 @@ dependencies {
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.nav.security.mock.oauth2.server)
     testImplementation(libs.testcontainers.postgresql)
-    testImplementation(project(":lib:database-v2"))
+    testImplementation(project(":lib:database"))
 }
 
 java {

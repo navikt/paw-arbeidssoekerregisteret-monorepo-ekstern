@@ -6,7 +6,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.context.consumerVersion
-import no.nav.paw.arbeidssoekerregisteret.hwm.updateHwm
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
@@ -21,6 +20,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.database.plugin.installDatabasePlugin
+import no.nav.paw.hwm.updateHwm
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

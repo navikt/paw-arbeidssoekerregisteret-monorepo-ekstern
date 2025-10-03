@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:health"))
     implementation(project(":lib:topics"))
+    implementation(project(":lib:hwm"))
     implementation(project(":domain:main-avro-schema"))
     testImplementation(project(":test:test-data-factory"))
 

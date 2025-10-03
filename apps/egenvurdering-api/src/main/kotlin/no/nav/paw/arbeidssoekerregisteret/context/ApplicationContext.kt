@@ -7,8 +7,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.hwm.ConsumerHealthMetric
-import no.nav.paw.arbeidssoekerregisteret.hwm.HwmRebalanceListener
+import no.nav.paw.arbeidssoekerregisteret.ConsumerHealthMetric
 import no.nav.paw.arbeidssokerregisteret.TopicNames
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
@@ -22,6 +21,8 @@ import no.nav.paw.health.HealthChecks
 import no.nav.paw.health.healthChecksOf
 import no.nav.paw.health.probes.GenericLivenessProbe
 import no.nav.paw.health.probes.databaseIsAliveCheck
+import no.nav.paw.hwm.HwmRebalanceListener
+import no.nav.paw.hwm.HwmTopicConfig
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
@@ -91,11 +92,24 @@ data class ApplicationContext(
                 autoCommit = false,
                 autoOffsetReset = "earliest",
             )
-            val hwmRebalanceListener = HwmRebalanceListener(
-                consumerVersion, consumer, ConsumerHealthMetric(prometheusMeterRegistry)
-            )
-
             val topics = standardTopicNames(currentRuntimeEnvironment)
+            val consumerHealthMetric = ConsumerHealthMetric(prometheusMeterRegistry)
+            val hwmRebalanceListener = HwmRebalanceListener(
+                topics = listOf(
+                    HwmTopicConfig(
+                        topic = topics.periodeTopic,
+                        consumerVersion = consumerVersion
+                    ),
+                    HwmTopicConfig(
+                        topic = topics.profileringTopic,
+                        consumerVersion = consumerVersion
+                    )
+                ),
+                consumer = consumer,
+                defaultHwm = -1,
+                onAssigned = consumerHealthMetric,
+                onRevoked = consumerHealthMetric
+            )
 
             val egenvurderingService = EgenvurderingService(
                 applicationConfig,
