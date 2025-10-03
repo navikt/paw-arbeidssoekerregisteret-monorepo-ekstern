@@ -6,6 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.context.consumerVersion
 import no.nav.paw.arbeidssoekerregisteret.context.partitionCount
 import no.nav.paw.arbeidssoekerregisteret.hwm.initHwm
+import no.nav.paw.database.plugin.FlywayMigrationCompleted
 import no.nav.paw.kafka.plugin.KafkaConsumerPlugin
 import no.nav.paw.kafka.plugin.KafkaProducerPlugin
 import org.apache.avro.specific.SpecificRecord
@@ -16,9 +17,12 @@ fun Application.configureKafka(
     applicationContext: ApplicationContext,
     recordHandler: ((ConsumerRecords<Long, SpecificRecord>) -> Unit),
 ) = with(applicationContext) {
-    transaction {
-        initHwm(topics.profileringTopic, consumerVersion, partitionCount)
-        initHwm(topics.periodeTopic, consumerVersion, partitionCount)
+
+    monitor.subscribe(FlywayMigrationCompleted) {
+        transaction {
+            initHwm(topics.profileringTopic, consumerVersion, partitionCount)
+            initHwm(topics.periodeTopic, consumerVersion, partitionCount)
+        }
     }
 
     install(KafkaProducerPlugin) {
