@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory
 class HwmRebalanceListener(
     topics: List<HwmTopicConfig>,
     private val consumer: Consumer<*, *>,
-    private val defaultHwm: Long = DEFAULT_HWM
+    private val defaultHwm: Long = DEFAULT_HWM,
+    private val onAssigned: OnAssigned = NoAdditionalActionsOnAssigned,
+    private val onRevoked: OnRevoked = NoAdditionalActionsOnRevoked
 ) : ConsumerRebalanceListener {
 
     private val logger = LoggerFactory.getLogger(HwmRebalanceListener::class.java)
@@ -30,6 +32,7 @@ class HwmRebalanceListener(
     override fun onPartitionsRevoked(partitions: MutableCollection<TopicPartition>?) {
         logger.info("Revoked: $partitions")
         partitions?.forEach { partition ->
+            onRevoked.revoked(partition.topic(), partition.partition())
             Span.current().addEvent(
                 "partition_revoked", Attributes.of(
                     stringKey("topic"), partition.topic(),
@@ -78,6 +81,7 @@ class HwmRebalanceListener(
                     }
                 }.forEach { (partition, offset) ->
                     val seekTo = offset + 1
+                    onAssigned.assigned(partition.topic(), partition.partition())
                     Span.current().addEvent(
                         "seeking_to_offset",
                         Attributes.of(
