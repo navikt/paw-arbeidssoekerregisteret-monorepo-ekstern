@@ -7,6 +7,7 @@ import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.health.HealthChecks
+import no.nav.paw.hwm.HwmTopicConfig
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
@@ -23,13 +24,11 @@ fun main() {
     val topics = listOf(
         HwmTopicConfig(
             topic = topicNames.periodeTopic,
-            consumerVersion = PERIODE_CONSUMER_VERSION,
-            partitionCount = DEFAULT_PARTITION_COUNT
+            consumerVersion = PERIODE_CONSUMER_VERSION
         ),
         HwmTopicConfig(
             topic = topicNames.profileringTopic,
-            consumerVersion = PROFILERING_CONSUMER_VERSION,
-            partitionCount = DEFAULT_PARTITION_COUNT
+            consumerVersion = PROFILERING_CONSUMER_VERSION
         )
     )
     initDatabase(

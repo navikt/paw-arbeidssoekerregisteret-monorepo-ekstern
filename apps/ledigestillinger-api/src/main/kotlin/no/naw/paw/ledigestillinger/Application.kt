@@ -13,10 +13,10 @@ import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import org.slf4j.LoggerFactory
 
-val appLogger = LoggerFactory.getLogger("ledigiestillinger_api")
+val appLogger = LoggerFactory.getLogger("ledigie_stillinger_api")
 
 fun main() {
-    appLogger.info("Starter Ledigiestillinger API...")
+    appLogger.info("Starter Ledigie Stillinger API...")
     val topicNames = standardTopicNames(currentRuntimeEnvironment)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG)

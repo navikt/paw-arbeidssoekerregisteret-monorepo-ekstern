@@ -2,7 +2,6 @@ package no.naw.paw.ledigestillinger
 
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
-import no.naw.paw.ledigestillinger.hwm.initHwm
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -23,13 +22,4 @@ fun initDatabase(topics: Iterable<HwmTopicConfig>, databaseConfig: DatabaseConfi
         .cleanDisabled(false)
         .load()
         .migrate()
-    transaction {
-        topics.forEach { (topic, consumerVersion, partitionCount) ->
-            initHwm(
-                topic = topic,
-                consumerVersion = consumerVersion,
-                partitionCount = partitionCount
-            )
-        }
-    }
 }

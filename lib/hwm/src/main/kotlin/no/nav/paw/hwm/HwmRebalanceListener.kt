@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger.hwm
+package no.nav.paw.hwm
 
 import io.opentelemetry.api.common.AttributeKey.longKey
 import io.opentelemetry.api.common.AttributeKey.stringKey
@@ -8,7 +8,6 @@ import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.api.trace.StatusCode.ERROR
 import io.opentelemetry.api.trace.StatusCode.OK
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.naw.paw.ledigestillinger.HwmTopicConfig
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.common.TopicPartition
@@ -17,7 +16,8 @@ import org.slf4j.LoggerFactory
 
 class HwmRebalanceListener(
     topics: List<HwmTopicConfig>,
-    private val consumer: Consumer<*, *>
+    private val consumer: Consumer<*, *>,
+    private val defaultHwm: Long = DEFAULT_HWM
 ) : ConsumerRebalanceListener {
 
     private val logger = LoggerFactory.getLogger(HwmRebalanceListener::class.java)
@@ -53,14 +53,26 @@ class HwmRebalanceListener(
                         val consumerVersion = requireNotNull(topicCfg[partition.topic()]) {
                             "Manglende HWM config for topic ${partition.topic()}"
                         }.consumerVersion
-                        val offset = requireNotNull(
-                            getHwm(
-                                consumerVersion = consumerVersion,
-                                topic = partition.topic(),
-                                partition = partition.partition()
-                            )
-                        ) {
-                            "No hwm for topic:partition ${partition.topic()}:${partition.partition()}, init not called?"
+                        val offset = getHwm(
+                            consumerVersion = consumerVersion,
+                            topic = partition.topic(),
+                            partition = partition.partition()
+                        ).let { hwm ->
+                            if (hwm == null) {
+                                logger.info(
+                                    "Ingen HWM funnet for topic ${partition.topic()} partition ${partition.partition()} " +
+                                        "for consumer version $consumerVersion. Setter til defaultHwm=$defaultHwm"
+                                )
+                                insertHwm(
+                                    consumerVersion = consumerVersion,
+                                    topic = partition.topic(),
+                                    partition = partition.partition(),
+                                    offset = defaultHwm
+                                )
+                                defaultHwm
+                            } else {
+                                hwm
+                            }
                         }
                         partition to offset
                     }

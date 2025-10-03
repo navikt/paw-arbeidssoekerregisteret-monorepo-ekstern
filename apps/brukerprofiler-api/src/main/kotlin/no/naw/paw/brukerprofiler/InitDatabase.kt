@@ -2,16 +2,11 @@ package no.naw.paw.brukerprofiler
 
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
-import no.naw.paw.brukerprofiler.hwm.initHwm
+import no.nav.paw.hwm.HwmTopicConfig
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-data class HwmTopicConfig(
-    val topic: String,
-    val consumerVersion: Int,
-    val partitionCount: Int
-)
 
 fun initDatabase(topics: Iterable<HwmTopicConfig>, databaseConfig: DatabaseConfig) {
     val dataSource = createHikariDataSource(databaseConfig)
@@ -23,13 +18,4 @@ fun initDatabase(topics: Iterable<HwmTopicConfig>, databaseConfig: DatabaseConfi
         .cleanDisabled(false)
         .load()
         .migrate()
-    transaction {
-        topics.forEach { (topic, consumerVersion, partitionCount) ->
-            initHwm(
-                topic = topic,
-                consumerVersion = consumerVersion,
-                partitionCount = partitionCount
-            )
-        }
-    }
 }

@@ -38,6 +38,7 @@ include(
     "lib:common-model",
     "lib:topics",
     "lib:api-oppslag-client",
+    "lib:hwm",
     // test
     "test:test-data-factory",
     // apps

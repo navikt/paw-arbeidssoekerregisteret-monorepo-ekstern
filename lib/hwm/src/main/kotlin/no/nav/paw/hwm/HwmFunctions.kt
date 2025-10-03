@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger.hwm
+package no.nav.paw.hwm
 
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -7,22 +7,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 
-fun initHwm(topic: String, consumerVersion: Int, partitionCount: Int) =
-    (0 until partitionCount)
-        .filter { partition ->
-            getHwm(
-                consumerVersion = consumerVersion,
-                topic = topic,
-                partition = partition
-            ) == null }
-        .forEach { partition ->
-            insertHwm(
-                consumerVersion = consumerVersion,
-                topic = topic,
-                partition = partition,
-                offset = -1L
-            )
-        }
+const val DEFAULT_HWM = -1L
 
 fun getHwm(consumerVersion: Int, topic: String, partition: Int): Long? =
     HwmTable

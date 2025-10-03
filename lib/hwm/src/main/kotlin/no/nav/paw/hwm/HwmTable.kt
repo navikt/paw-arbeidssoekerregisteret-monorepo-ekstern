@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger.hwm
+package no.nav.paw.hwm
 
 import org.jetbrains.exposed.v1.core.Table
 
