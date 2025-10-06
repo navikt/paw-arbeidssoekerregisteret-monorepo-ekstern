@@ -1,3 +1,4 @@
 url = "http://paw-kafka-key-generator/api/v2/hentEllerOpprett"
 infoUrl = "http://paw-kafka-key-generator/api/v2/info"
+identiteterUrl = "http://paw-kafka-key-generator/api/v2/identiteter"
 scope = "${KAFKA_KEYS_SCOPE}"

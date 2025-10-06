@@ -15,10 +15,17 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.nav.security.token.client)
     api(libs.nav.common.token.client)
+
+    testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.bundles.unit.testing.kotest)
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(jvmVersion.majorVersion)
     }
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }

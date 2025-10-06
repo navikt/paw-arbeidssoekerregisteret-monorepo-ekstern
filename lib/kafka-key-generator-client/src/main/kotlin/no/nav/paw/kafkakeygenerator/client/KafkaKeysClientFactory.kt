@@ -52,5 +52,6 @@ fun kafkaKeysMedHttpClient(
         httpClient = httpClient,
         kafkaKeysUrl = config.url,
         kafkaKeysInfoUrl = config.infoUrl,
+        kafkaKeysIdentiteterUrl = config.identiteterUrl
     ) { m2mTokenFactory() }
 }
