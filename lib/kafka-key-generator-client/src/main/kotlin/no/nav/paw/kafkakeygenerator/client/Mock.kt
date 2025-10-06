@@ -33,5 +33,34 @@ fun inMemoryKafkaKeysMock(): KafkaKeysClient {
                 )
             )
         }
+
+        override suspend fun getIdentiteter(
+            identitetsnummer: String,
+            visKonflikter: Boolean,
+            hentPdl: Boolean,
+            traceparent: String?,
+        ) = IdentiteterResponse(
+            arbeidssoekerId = getIdAndKeyOrNull(identitetsnummer).id,
+            recordKey = getIdAndKeyOrNull(identitetsnummer).key,
+            identiteter = listOf(
+                Identitet(
+                    identitet = identitetsnummer,
+                    type = IdentitetType.FOLKEREGISTERIDENT,
+                    gjeldende = true
+                )
+            ),
+            pdlIdentiteter = if (hentPdl) {
+                listOf(
+                    Identitet(
+                        identitet = identitetsnummer,
+                        type = IdentitetType.FOLKEREGISTERIDENT,
+                        gjeldende = true
+                    )
+                )
+            } else {
+                null
+            },
+            konflikter = emptyList()
+        )
     }
 }
