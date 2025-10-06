@@ -24,21 +24,16 @@ import java.util.*
 
 class EgenvurderingRoutesTest : FreeSpec({
     with(TestContext()) {
-        beforeSpec {
-            mockOAuth2Server.start()
-        }
+        beforeSpec { mockOAuth2Server.start() }
+        afterSpec { mockOAuth2Server.shutdown() }
 
-        afterSpec {
-            mockOAuth2Server.shutdown()
-        }
-
-        val egenvurderingRequestJson =
-            """
-                {
-                  "profileringId": "${UUID.randomUUID()}",
-                  "egenvurdering": "ANTATT_GODE_MULIGHETER"
-                }
-            """.trimIndent()
+        //language=JSON
+        val egenvurderingRequestJson = """
+            {
+              "profileringId": "${UUID.randomUUID()}",
+              "egenvurdering": "ANTATT_GODE_MULIGHETER"
+            }
+         """.trimIndent()
 
         "/api/v1/arbeidssoeker/profilering/egenvurdering" - {
             "202 Accepted" - {
