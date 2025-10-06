@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.server.plugins.BadRequestException
 import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -21,6 +22,9 @@ import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
 import no.nav.paw.arbeidssoekerregisteret.repository.ProfileringRow
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
+import no.nav.paw.kafkakeygenerator.client.Identitet
+import no.nav.paw.kafkakeygenerator.client.IdentitetType
+import no.nav.paw.kafkakeygenerator.client.IdentiteterResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
 import no.nav.paw.model.Identitetsnummer
@@ -54,7 +58,7 @@ class EgenvurderingServiceTest : FreeSpec({
     )
 
 
-    "Returnerer egenvurdering grunnlag" {
+    "Returnerer egenvurdering grunnlag uten å kalle kafka keys når profilering finnes for ident" {
         val ident = Identitetsnummer("10987654321")
         val profileringId = UUID.randomUUID()
         val nyesteProfilering = NyesteProfilering(
@@ -71,19 +75,62 @@ class EgenvurderingServiceTest : FreeSpec({
         egenvurderingGrunnlag.grunnlag.shouldNotBeNull()
         egenvurderingGrunnlag.grunnlag.profileringId shouldBe profileringId
         egenvurderingGrunnlag.grunnlag.profilertTil shouldBe ANTATT_GODE_MULIGHETER
+
+        coVerify(exactly = 0) { kafkaKeysClient.getIdentiteter(ident.verdi) }
     }
 
-    "Tomt grunnlag når repository ikke finner profilering" {
+    "Returnerer egenvurdering grunnlag via alternativ ident" {
+        val ident = Identitetsnummer("10987654321")
+        val alternativIdent = "10987654320" // gyldig alternativ FNR
+        val profileringId = UUID.randomUUID()
+
+        every {
+            egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
+        } returns null
+
+        coEvery {
+            kafkaKeysClient.getIdentiteter(ident.verdi)
+        } returns IdentiteterResponse(
+            identiteter = listOf(
+                Identitet(identitet = ident.verdi, type = IdentitetType.FOLKEREGISTERIDENT, gjeldende = true),
+                Identitet(identitet = alternativIdent, type = IdentitetType.FOLKEREGISTERIDENT, gjeldende = true),
+            )
+        )
+
+        every {
+            egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(Identitetsnummer(alternativIdent))
+        } returns NyesteProfilering(
+            id = profileringId,
+            profilertTil = "ANTATT_GODE_MULIGHETER",
+            tidspunkt = Instant.now()
+        )
+
+        val grunnlag = egenvurderingService.getEgenvurderingGrunnlag(ident)
+
+        grunnlag.grunnlag.shouldNotBeNull()
+        grunnlag.grunnlag.profileringId shouldBe profileringId
+        grunnlag.grunnlag.profilertTil shouldBe ANTATT_GODE_MULIGHETER
+
+        coVerify(exactly = 1) { kafkaKeysClient.getIdentiteter(ident.verdi) }
+    }
+
+
+    "Tomt grunnlag når ingen profilering finnes for identer" {
         val ident = Identitetsnummer("12345678901")
 
         every {
             egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
         } returns null
 
+        coEvery {
+            kafkaKeysClient.getIdentiteter(ident.verdi)
+        } returns IdentiteterResponse(identiteter = emptyList())
+
         val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(ident)
         egenvurderingGrunnlag.grunnlag.shouldBeNull()
-    }
 
+        coVerify(exactly = 1) { kafkaKeysClient.getIdentiteter(ident.verdi) }
+    }
 
     "IllegalArgumentException når profilertTil ikke kan mappes" {
         val ident = Identitetsnummer("55555555555")

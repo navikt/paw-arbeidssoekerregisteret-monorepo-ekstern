@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret
 
 import io.ktor.server.plugins.BadRequestException
 import io.opentelemetry.api.trace.Span
+import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
@@ -17,6 +18,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
+import no.nav.paw.kafkakeygenerator.client.IdentitetType.FOLKEREGISTERIDENT
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.SecurityContext
@@ -39,20 +41,21 @@ class EgenvurderingService(
     private val logger = buildApplicationLogger
 
     fun getEgenvurderingGrunnlag(ident: Identitetsnummer): EgenvurderingGrunnlag {
-        //TODO: Sjekk om det finnes noe for andre identeter knyttet til samme person (nytt api)
-        val nyesteProfilering = egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
+        egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)?.let { nyesteProfilering ->
+            Span.current().addEvent("fant_profilering_fra_aapen_periode_uten_egenvurdering")
+            return EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
+        }
 
-        return when (nyesteProfilering) {
-            null -> {
-                Span.current().addEvent("ingen_profilering_fra_aapen_periode_uten_egenvurdering")
-                EgenvurderingGrunnlag(null)
-            }
-
-            else -> {
+        hentAlternativeIdenter(ident).forEach { identitetsnummer ->
+            val nyesteProfilering = egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(identitetsnummer)
+            if (nyesteProfilering != null) {
                 Span.current().addEvent("fant_profilering_fra_aapen_periode_uten_egenvurdering")
-                EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
+                return EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
             }
         }
+
+        Span.current().addEvent("ingen_profilering_fra_aapen_periode_uten_egenvurdering")
+        return EgenvurderingGrunnlag(null)
     }
 
     suspend fun publiserOgLagreEgenvurdering(
@@ -79,6 +82,16 @@ class EgenvurderingService(
             producer.send(record).get()
         }
         logger.info("Egenvurdering med id ${egenvurdering.id} for profilering ${profilering.id} lagret og sendt til kafka")
+    }
+
+    private fun hentAlternativeIdenter(identitetsnummer: Identitetsnummer): List<Identitetsnummer> = runBlocking {
+        runCatching {
+            kafkaKeysClient.getIdentiteter(identitetsnummer.verdi).identiteter.filter { ident ->
+                ident.gjeldende && ident.type == FOLKEREGISTERIDENT && ident.identitet != identitetsnummer.verdi
+            }.distinct().map { Identitetsnummer(verdi = it.identitet) }
+        }.onFailure { throwable ->
+            logger.warn("Kall mot kafkaKey /identiteter feilet", throwable)
+        }.getOrDefault(emptyList())
     }
 
     private fun lagEgenvurdering(
