@@ -7,7 +7,9 @@ val jvmMajorVersion: String by project
 dependencies {
     implementation(libs.exposed.jdbc.v1)
     implementation(libs.opentelemetry.annotations)
+    compileOnly(libs.micrometer.registry.prometheus)
     compileOnly(libs.kafka.clients)
+    implementation(project(":lib:health"))
 
     // Test
     testImplementation(libs.hikari.connection.pool)
