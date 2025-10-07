@@ -77,6 +77,30 @@
                         "pid": "01017012345",
                         "acr": "Level4"
                     }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-brukerprofiler",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-brukerprofiler",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-brukerprofiler"
+                        ],
+                        "pid": "01017012345",
+                        "acr": "idporten-loa-high"
+                    }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-ledigestillinger",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-ledigestillinger",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-ledigestillinger"
+                        ],
+                        "pid": "01017012345",
+                        "acr": "idporten-loa-high"
+                    }
                 }
             ]
         },
@@ -121,6 +145,32 @@
                         "roles": [
                             "access_as_application"
                         ]
+                    }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-brukerprofiler",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-brukerprofiler",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-brukerprofiler"
+                        ],
+                        "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
+                        "name": "Nav Navesen",
+                        "NAVident": "12345"
+                    }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-ledigestillinger",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-ledigestillinger",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-ledigestillinger"
+                        ],
+                        "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
+                        "name": "Nav Navesen",
+                        "NAVident": "12345"
                     }
                 }
             ]

@@ -1,6 +1,9 @@
 package no.nav.paw.aareg.test
 
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -23,6 +26,12 @@ fun mockAaregClient(content: String, statusCode: HttpStatusCode = HttpStatusCode
         )
     }
 
-    val mockHttpClient = createHttpClient(mockEngine)
+    val mockEngineFactory = object : HttpClientEngineFactory<MockEngineConfig> {
+        override fun create(block: MockEngineConfig.() -> Unit): HttpClientEngine {
+            return mockEngine
+        }
+    }
+
+    val mockHttpClient = createHttpClient(engineFactory = mockEngineFactory)
     return AaregClient("url", httpClient = mockHttpClient) { "fake token" }
 }
