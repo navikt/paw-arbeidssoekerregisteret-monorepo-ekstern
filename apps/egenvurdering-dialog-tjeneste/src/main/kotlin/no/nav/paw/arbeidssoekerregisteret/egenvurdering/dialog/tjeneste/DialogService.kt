@@ -23,7 +23,7 @@ class DialogService(
 ) {
     fun varsleVeilederOmEgenvurderingAvProfilering(records: ConsumerRecords<Long, Egenvurdering>) {
         records.asSequence()
-            .map { it.value() }
+            .map { record -> record.value() }
             .map { egenvurdering ->
                 val eksisterendeDialogId: Long? = periodeIdDialogIdRepository.getDialogIdOrNull(egenvurdering.periodeId)
                 val dialogmelding = egenvurdering.tilDialogmelding()
