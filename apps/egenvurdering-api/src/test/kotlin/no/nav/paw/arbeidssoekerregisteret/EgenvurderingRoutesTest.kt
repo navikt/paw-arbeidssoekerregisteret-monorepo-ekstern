@@ -18,6 +18,7 @@ import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.just
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProblemDetails
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Profilering
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil
 import java.util.*
@@ -27,103 +28,108 @@ class EgenvurderingRoutesTest : FreeSpec({
         beforeSpec { mockOAuth2Server.start() }
         afterSpec { mockOAuth2Server.shutdown() }
 
-        //language=JSON
-        val egenvurderingRequestJson = """
-            {
-              "profileringId": "${UUID.randomUUID()}",
-              "egenvurdering": "ANTATT_GODE_MULIGHETER"
-            }
-         """.trimIndent()
-
-        "/api/v1/arbeidssoeker/profilering/egenvurdering" - {
-            "202 Accepted" - {
-                testApplication {
-                    configureTestApplication()
-                    val client = configureTestClient()
-
-                    coEvery { egenvurderingService.publiserOgLagreEgenvurdering(any(), any()) } just Runs
-                    val response = client.post(egenvurderingPath) {
-                        contentType(Application.Json)
-                        setBody(egenvurderingRequestJson)
-                        bearerAuth(mockOAuth2Server.issueTokenXToken())
-                    }
-                    response.status shouldBe HttpStatusCode.Accepted
-                    response.headers["x-trace-id"] shouldNotBe null
-                }
-            }
-            "400 BadRequest" - {
-                testApplication {
-                    configureTestApplication()
-                    val client = configureTestClient()
-
-                    val response = client.post(egenvurderingPath) {
-                        contentType(Application.Json)
-                        setBody("""{ugyldigJson}""")
-                        bearerAuth(mockOAuth2Server.issueTokenXToken())
-                    }
-                    response.status shouldBe HttpStatusCode.BadRequest
-                    response.headers["x-trace-id"] shouldNotBe null
-                }
-            }
-        }
-
-        "/api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag" - {
-            "200 OK - Finner ikke grunnlag (profilering) for egenvurdering" - {
-                testApplication {
-                    configureTestApplication()
-
-                    val client = configureTestClient()
-
-                    val response = client.get(egenvurderingGrunnlagPath) {
-                        bearerAuth(mockOAuth2Server.issueTokenXToken())
-                    }
-                    response.status shouldBe HttpStatusCode.OK
-                    response.body<EgenvurderingGrunnlag>() shouldBe EgenvurderingGrunnlag(grunnlag = null)
-                    response.bodyAsText() shouldBe """{}"""
-                    response.headers["x-trace-id"] shouldNotBe null
-                }
-            }
-            "200 OK - Grunnlag (profilering) for egenvurdering" - {
-                testApplication {
-                    configureTestApplication()
-                    val profileringId = UUID.randomUUID()
-                    val egenvurderingGrunnlag = EgenvurderingGrunnlag(
-                        grunnlag = Profilering(
-                            profileringId = profileringId,
-                            profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
-                        )
+        "200 OK - Grunnlag (profilering) for egenvurdering" - {
+            testApplication {
+                configureTestApplication()
+                val profileringId = UUID.randomUUID()
+                val egenvurderingGrunnlag = EgenvurderingGrunnlag(
+                    grunnlag = Profilering(
+                        profileringId = profileringId,
+                        profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
                     )
-                    coEvery { egenvurderingService.getEgenvurderingGrunnlag(any()) } returns egenvurderingGrunnlag
-                    val client = configureTestClient()
+                )
+                coEvery { egenvurderingService.getEgenvurderingGrunnlag(any()) } returns egenvurderingGrunnlag
+                val client = configureTestClient()
 
-                    val response = client.get(egenvurderingGrunnlagPath) {
-                        bearerAuth(mockOAuth2Server.issueTokenXToken())
-                    }
-                    response.status shouldBe HttpStatusCode.OK
-                    response.body<EgenvurderingGrunnlag>() shouldBe egenvurderingGrunnlag
+                val response = client.get(egenvurderingGrunnlagPath) {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                }
+                response.status shouldBe HttpStatusCode.OK
+                response.body<EgenvurderingGrunnlag>() shouldBe egenvurderingGrunnlag
 
-                    val expectedJson =
-                        """{
+                val expectedJson = //language=JSON
+                    """{
                           "grunnlag": {
                             "profileringId": "$profileringId",
                             "profilertTil": "ANTATT_GODE_MULIGHETER"
                           }
                         }""".trimIndent()
-                    response.bodyAsText() shouldEqualJson expectedJson
-                    response.headers["x-trace-id"] shouldNotBe null
-                }
+                response.bodyAsText() shouldEqualJson expectedJson
+                response.headers["x-trace-id"] shouldNotBe null
             }
+        }
 
-            "403 Forbidden" - {
-                testApplication {
-                    configureTestApplication()
+        "200 OK - Finner ikke grunnlag (profilering) for egenvurdering" - {
+            testApplication {
+                configureTestApplication()
 
-                    val client = configureTestClient()
+                val client = configureTestClient()
 
-                    val response = client.get(egenvurderingGrunnlagPath)
-                    response.status shouldBe HttpStatusCode.Forbidden
-                    response.headers["x-trace-id"] shouldNotBe null
+                val response = client.get(egenvurderingGrunnlagPath) {
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
                 }
+                response.status shouldBe HttpStatusCode.OK
+                response.body<EgenvurderingGrunnlag>() shouldBe EgenvurderingGrunnlag(grunnlag = null)
+                response.bodyAsText() shouldBe """{}"""
+                response.headers["x-trace-id"] shouldNotBe null
+            }
+        }
+
+        "POST egenvurdering 202 Accepted" - {
+            testApplication {
+                configureTestApplication()
+                val client = configureTestClient()
+                //language=JSON
+                val egenvurderingRequestJson = """
+                    {
+                      "profileringId": "${UUID.randomUUID()}",
+                      "egenvurdering": "ANTATT_GODE_MULIGHETER"
+                    }
+                """.trimIndent()
+
+                coEvery { egenvurderingService.publiserOgLagreEgenvurdering(any(), any()) } just Runs
+                val response = client.post(egenvurderingPath) {
+                    contentType(Application.Json)
+                    setBody(egenvurderingRequestJson)
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                }
+                response.status shouldBe HttpStatusCode.Accepted
+                response.headers["x-trace-id"] shouldNotBe null
+            }
+        }
+
+        "400 BadRequest" - {
+            testApplication {
+                configureTestApplication()
+                val client = configureTestClient()
+
+                val response = client.post(egenvurderingPath) {
+                    contentType(Application.Json)
+                    setBody("""{ugyldigJson}""")
+                    bearerAuth(mockOAuth2Server.issueTokenXToken())
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.headers["x-trace-id"] shouldNotBe null
+
+                val problem = response.body<ProblemDetails>()
+                problem.type shouldBe "urn:paw:http:kunne-ikke-tolke-forespoersel"
+                problem.status.toString() shouldBe "400"
+                problem.title shouldBe "Bad Request"
+                problem.instance shouldBe egenvurderingPath
+                problem.detail.isBlank() shouldBe false
+            }
+        }
+
+        "403 Forbidden" - {
+            testApplication {
+                configureTestApplication()
+
+                val client = configureTestClient()
+
+                val response = client.get(egenvurderingGrunnlagPath)
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.headers["x-trace-id"] shouldNotBe null
             }
         }
     }
