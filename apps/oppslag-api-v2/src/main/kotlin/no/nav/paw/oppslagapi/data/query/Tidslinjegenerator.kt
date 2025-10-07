@@ -45,7 +45,7 @@ data class Tidslinje(
     val ansvarStart: List<PaaVegneAvStart>,
     val ansvarStopp: List<PaaVegneAvStopp>,
     val ansvarlig: Set<Bekreftelsesloesning>,
-    val bekreftelser: List<BekreftelseMedMetadata>
+    val bekreftelser: List<BekreftelseMedMetadata>,
 ) {
     operator fun plus(row: Row<out Any>): Tidslinje =
         when (val data = row.data) {
@@ -56,6 +56,7 @@ data class Tidslinje(
                     .let { it.filterNot { loesning -> loesning == Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET } }
                     .toSet()
             )
+
             is PaaVegneAvStopp -> this.copy(
                 tidspunkt = row.timestamp,
                 ansvarStopp = this.ansvarStopp + data,
@@ -65,6 +66,7 @@ data class Tidslinje(
                     }
                 }
             )
+
             is Bekreftelse -> this.copy(
                 tidspunkt = row.timestamp,
                 bekreftelser = this.bekreftelser + BekreftelseMedMetadata(
@@ -77,6 +79,7 @@ data class Tidslinje(
                     }
                 )
             )
+
             is Metadata -> {
                 when (row.type) {
                     periode_startet_v1 -> this
@@ -90,11 +93,11 @@ data class Tidslinje(
 
             else -> this
         }
-    }
+}
 
 fun tidslinje(
     identitetsnummer: String,
-    periodeStart: Instant
+    periodeStart: Instant,
 ): Tidslinje = Tidslinje(
     identitetsnummer = identitetsnummer,
     periodeStart = periodeStart,
@@ -103,7 +106,7 @@ fun tidslinje(
     ansvarStart = emptyList(),
     ansvarStopp = emptyList(),
     ansvarlig = setOf(Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET),
-    bekreftelser = emptyList()
+    bekreftelser = emptyList(),
 )
 
 

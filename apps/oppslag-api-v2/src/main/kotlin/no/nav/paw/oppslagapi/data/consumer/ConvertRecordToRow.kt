@@ -2,6 +2,7 @@ package no.nav.paw.oppslagapi.data.consumer
 
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
@@ -10,6 +11,7 @@ import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
+import no.nav.paw.oppslagapi.data.egenvurdering_v1
 import no.nav.paw.oppslagapi.data.objectMapper
 import no.nav.paw.oppslagapi.data.opplysninger_om_arbeidssoeker_v4
 import no.nav.paw.oppslagapi.data.pa_vegne_av_start_v1
@@ -56,6 +58,16 @@ fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRec
                 timestamp = melding.sendtInnAv.tidspunkt,
                 data = objectMapper.writeValueAsString(melding.toOpenApi()),
                 type = profilering_v1
+            )
+        }
+
+        is Egenvurdering -> {
+            return Row(
+                identitetsnummer = melding.sendtInnAv.utfoertAv.id,
+                periodeId = melding.periodeId,
+                timestamp = melding.sendtInnAv.tidspunkt,
+                data = objectMapper.writeValueAsString(melding.toOpenApi()),
+                type = egenvurdering_v1
             )
         }
 

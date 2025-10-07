@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -14,7 +16,10 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.*
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.model.Identitetsnummer
@@ -24,6 +29,7 @@ import no.nav.paw.oppslagapi.configureRoutes
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
+import no.nav.paw.oppslagapi.data.egenvurdering_v1
 import no.nav.paw.oppslagapi.data.objectMapper
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
@@ -33,6 +39,7 @@ import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
+import no.nav.paw.test.data.periode.createEgenvurdering
 import no.nav.paw.test.data.periode.createProfilering
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -40,8 +47,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 
-
-class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
+class EgenvurderingerDukkerOppITidslinje : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
     val kafkaKeysClientMock: KafkaKeysClient = mockk()
     val databaseQuerySupportMock: DatabaseQuerySupport = mockk()
@@ -64,6 +70,11 @@ class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
     )
     val bekreftelseMelding = bekreftelseMelding(periodeId = periode1.id)
 
+    val egenvurdering = createEgenvurdering(
+        periodeId = periode1.id,
+        profilertTil = ANTATT_GODE_MULIGHETER,
+        egenvurdering = ANTATT_BEHOV_FOR_VEILEDNING
+    )
     every { databaseQuerySupportMock.hentRaderForPeriode(periode1.id) } returns listOf(
         Row(
             periodeId = periode1.id,
@@ -92,6 +103,13 @@ class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
             timestamp = startTime + Duration.ofDays(2),
             data = createProfilering(periodeId = periode1.id).toOpenApi(),
             type = profilering_v1
+        ),
+        Row(
+            periodeId = periode1.id,
+            identitetsnummer = periode1.identitetsnummer,
+            timestamp = startTime + Duration.ofDays(3),
+            data = egenvurdering.toOpenApi(),
+            type = egenvurdering_v1
         )
     )
     tilgangsTjenesteForAnsatteMock.configureMock()
@@ -104,46 +122,54 @@ class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
     }
     "Verifiser at endepunkter fungerer" - {
         "/api/v2/bekreftelser" {
-                testApplication {
-                    application {
-                        configureKtorServer(
-                            prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                            meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
-                        )
-                    }
-                    routing {
-                        configureRoutes(
-                            healthIndicator = CompoudHealthIndicator(),
-                            prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                            appQueryLogic = appLogic
-                        )
-                    }
-                    val client = createClient {
-                        install(ContentNegotiation) {
-                            jackson {
-                                registerKotlinModule()
-                                registerModule(JavaTimeModule())
-                                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                            }
+            testApplication {
+                application {
+                    configureKtorServer(
+                        prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+                        meterBinders = emptyList(),
+                        authProviders = oauthServer.createAuthProviders()
+                    )
+                }
+                routing {
+                    configureRoutes(
+                        healthIndicator = CompoudHealthIndicator(),
+                        prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+                        appQueryLogic = appLogic
+                    )
+                }
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        jackson {
+                            registerKotlinModule()
+                            registerModule(JavaTimeModule())
+                            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                         }
                     }
-                    val token = oauthServer.ansattToken(
-                        NavAnsatt(
-                            oid = UUID.randomUUID(),
-                            ident = ansatt1.verdi,
-                            sikkerhetsnivaa = "tokenx:Level4"
-                        )
+                }
+                val token = oauthServer.ansattToken(
+                    NavAnsatt(
+                        oid = UUID.randomUUID(),
+                        ident = ansatt1.verdi,
+                        sikkerhetsnivaa = "tokenx:Level4"
                     )
-                    //Ansatt med tilgang får hentet bekreftelser
-                    val response = client.hentTidslinjer(token, listOf(periode1.id))
-                    response.status shouldBe HttpStatusCode.OK
-                    val body: TidslinjeResponse = response.body()
-                    testLogger.info(objectMapper.writeValueAsString(body))
-                    testLogger.info("Hentet tidslinjer: $body")
+                )
+                //Ansatt med tilgang får hentet bekreftelser
+                val response = client.hentTidslinjer(token, listOf(periode1.id))
+                response.status shouldBe HttpStatusCode.OK
+                val body: TidslinjeResponse = response.body()
+                testLogger.info("Hentet tidslinjer: ${objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body)}")
+                val tidslinje = body.tidslinjer?.firstOrNull().shouldNotBeNull()
+                tidslinje.periodeId shouldBe periode1.id
+                tidslinje.hendelser.firstOrNull {
+                    it.hendelseType == HendelseType.egenvurdering_v1
+                }?.egenvurderingV1 should { egenvurdering ->
+                    egenvurdering.shouldNotBeNull()
+                    egenvurdering.profilertTil shouldBe ProfilertTil.ANTATT_GODE_MULIGHETER
+                    egenvurdering.egenvurdering shouldBe ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
                 }
             }
         }
+    }
 })
 
 

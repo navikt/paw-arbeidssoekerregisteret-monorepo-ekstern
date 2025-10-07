@@ -580,6 +580,7 @@ components:
         - "bekreftelse_v1"
         - "pa_vegne_av_start_v1"
         - "pa_vegne_av_stopp_v1"
+        - "egenvurdering_v1"
     Hendelse:
       type: object
       description: "En hendelse i tidslinjen for en periode"
@@ -605,6 +606,8 @@ components:
           $ref: '#/components/schemas/PaaVegneAvStart'
         paVegneAvStoppV1:
           $ref: '#/components/schemas/PaaVegneAvStopp'
+        egenvurderingV1:
+          $ref: '#/components/schemas/Egenvurdering'
       required:
         - hendelseType
         - tidspunkt
@@ -647,3 +650,35 @@ components:
             $ref: '#/components/schemas/Tidslinje'
       required:
         - tidslinje
+
+    Egenvurdering:
+        type: object
+        description: "Brukers egenvurdering av sin situasjon"
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: "Unik id for egenvurderingen"
+          periodeId:
+            type: string
+            format: uuid
+            description: "Periode id"
+          profileringId:
+            type: string
+            format: uuid
+            description: "Profilering id"
+          sendtInnAv:
+            $ref: "#/components/schemas/Metadata"
+            description: "Metadata om når egenvurderingen ble sendt inn og av hvem"
+          profilertTil:
+            $ref: "#/components/schemas/ProfilertTil"
+            description: "Resultatet av profileringen som egenvurderingen gjelder for"
+          egenvurdering:
+            $ref: "#/components/schemas/ProfilertTil"
+        required:
+          - id
+          - periodeId
+          - profileringId
+          - sendtInnAv
+          - profilertTil
+          - egenvurdering

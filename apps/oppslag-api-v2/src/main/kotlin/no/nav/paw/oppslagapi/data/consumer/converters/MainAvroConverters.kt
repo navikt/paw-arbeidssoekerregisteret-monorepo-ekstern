@@ -9,6 +9,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Jobbsituasjon
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v2.Annet
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode as AvroPeriode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as MainAvroMetadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.TidspunktFraKilde as AvroTidspunktFraKilde
@@ -139,3 +140,24 @@ fun Profilering.toOpenApi(): no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.m
             ProfilertTil.OPPGITT_HINDRINGER -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.OPPGITT_HINDRINGER
         }
     )
+
+fun Egenvurdering.toOpenApi() = no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Egenvurdering(
+    id = this.id,
+    periodeId = this.periodeId,
+    profileringId = this.profileringId,
+    sendtInnAv = this.sendtInnAv.toOpenApi(),
+    egenvurdering = when (this.egenvurdering) {
+        ProfilertTil.UKJENT_VERDI -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.UKJENT_VERDI
+        ProfilertTil.UDEFINERT -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.UDEFINERT
+        ProfilertTil.ANTATT_GODE_MULIGHETER -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.ANTATT_GODE_MULIGHETER
+        ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+        ProfilertTil.OPPGITT_HINDRINGER -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.OPPGITT_HINDRINGER
+    },
+    profilertTil = when (this.profilertTil) {
+        ProfilertTil.UKJENT_VERDI -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.UKJENT_VERDI
+        ProfilertTil.UDEFINERT -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.UDEFINERT
+        ProfilertTil.ANTATT_GODE_MULIGHETER -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.ANTATT_GODE_MULIGHETER
+        ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+        ProfilertTil.OPPGITT_HINDRINGER -> no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.OPPGITT_HINDRINGER
+    }
+)
