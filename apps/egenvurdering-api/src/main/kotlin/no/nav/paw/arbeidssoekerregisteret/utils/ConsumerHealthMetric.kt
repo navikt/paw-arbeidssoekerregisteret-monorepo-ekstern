@@ -1,4 +1,4 @@
-package no.nav.paw.arbeidssoekerregisteret
+package no.nav.paw.arbeidssoekerregisteret.utils
 
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.Meter
