@@ -1,0 +1,12 @@
+### GET feed
+GET {{baseUrl}}/api/v1/feed
+Authorization: Bearer {{publicToken}}
+If-Modified-Since: Fri, 8 Aug 2025 00:00:00 +0200
+
+### GET feed page
+GET {{baseUrl}}/api/v1/feed/2987fd69-9240-4d3b-9f97-15144fa360b0
+Authorization: Bearer {{publicToken}}
+
+### GET feed entry
+GET {{baseUrl}}/api/v1/feedentry/beeb13e4-788e-4523-b361-cea68aca5528
+Authorization: Bearer {{publicToken}}

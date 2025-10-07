@@ -17,6 +17,8 @@ include(
     "domain:bekreftelsesmelding-avro-schema",
     "domain:bekreftelse-paavegneav-avro-schema",
     "domain-dev:ledigestillinger",
+    "domain-dev:arbeidsplassen-stillinger-feed",
+    "domain-dev:arbeidsplassen-stillinger-avro-schema",
     // libs
     "lib:health",
     "lib:logging",

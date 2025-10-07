@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  version: v1
+  title: Ledigestillinger API
+  description: API for å hente stillinger
+paths:
+  "/api/v1/stillinger":
+    get:
+      tags:
+        - Stillinger
+      description: Finn stillinger
+      operationId: finnStillinger
+      parameters:
+        - name: last
+          in: query
+          description: Flag for requesting the last (newest) page of the feed
+          required: false
+          deprecated: false
+          allowEmptyValue: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feed page
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Feed"
+        '304':
+          description: Feed page is empty, or its contents have not changed since
+            last time
+        '400':
+          description: Invalid input in the request
+        '404':
+          description: Could not find page
+      deprecated: false
+      security:
+        - BearerAuth: [ ]
+  "/api/v1/stillinger/{stillingId}":
+    get:
+      tags:
+        - Stillinger
+      description: Hent stilling
+      operationId: getStilling
+      parameters:
+        - name: stillingId
+          in: path
+          description: Unit UUID for stillingen
+          required: true
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The specified feed page
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Feed"
+        '304':
+          description: Feed page is empty, or its contents have not changed since
+            last time
+        '400':
+          description: Invalid input in the request
+        '404':
+          description: Could not find page
+      deprecated: false
+      security:
+        - BearerAuth: [ ]
+components:
+  schemas:
+    Feed:
+      type: object
+      additionalProperties: false
+      properties:
+        version:
+          type: string
+        title:
+          type: string
+        home_page_url:
+          type: string
+        feed_url:
+          type: string
+        description:
+          type: string
+        next_url:
+          type: string
+          nullable: true
+        id:
+          type: string
+        next_id:
+          type: string
+          nullable: true
+      required:
+        - version
+        - title
+        - home_page_url
+        - feed_url
+        - description
+        - id
+        - items
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      type: http
+security: [ ]

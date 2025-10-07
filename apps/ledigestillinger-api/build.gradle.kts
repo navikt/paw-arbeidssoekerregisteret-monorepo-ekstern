@@ -1,9 +1,7 @@
-import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
-import org.openapitools.generator.gradle.plugin.tasks.ValidateTask
-
 plugins {
     kotlin("jvm")
     id("jib-chainguard")
+    id("org.openapi.generator")
     application
 }
 
@@ -15,15 +13,14 @@ dependencies {
     implementation(project(":lib:database"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
-    implementation(project(":lib:kafka"))
-    implementation(project(":lib:http-client-utils"))
-    implementation(project(":lib:kafka-key-generator-client"))
-    implementation(project(":domain:main-avro-schema"))
     implementation(project(":lib:serialization"))
     implementation(project(":lib:logging"))
+    implementation(project(":lib:metrics"))
     implementation(project(":lib:health"))
     implementation(project(":lib:hwm"))
+    implementation(project(":lib:kafka"))
     implementation(project(":domain-dev:ledigestillinger"))
+    implementation(project(":domain-dev:arbeidsplassen-stillinger-avro-schema"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)
@@ -33,13 +30,8 @@ dependencies {
     implementation(libs.ktor.server.callid)
     implementation(libs.ktor.server.call.logging)
 
-    // Client
-    implementation(libs.ktor.client.cio)
-    implementation(libs.ktor.client.content.negotiation)
-
     // Serialization
     implementation(libs.ktor.serialization.jackson)
-    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.jackson.datatype.jsr310)
 
     // Logging
@@ -58,11 +50,6 @@ dependencies {
     implementation(libs.opentelemetry.api)
     implementation(libs.opentelemetry.annotations)
 
-    // Kafka
-    implementation(libs.avro)
-    implementation(libs.confluent.kafka.avro.serializer)
-    implementation(libs.confluent.kafka.streams.avro.serde)
-
     // Database
     implementation(libs.exposed.jdbc.v1)
     implementation(libs.exposed.java.time.v1)
@@ -75,6 +62,11 @@ dependencies {
     implementation(libs.nav.common.token.client)
     implementation(libs.nav.security.token.client.core)
     implementation(libs.nav.security.token.validation.ktor)
+
+    // Kafka
+    implementation(libs.avro)
+    implementation(libs.confluent.kafka.avro.serializer)
+    implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Test
     testImplementation(libs.atlassian.oai.swaggerRequestValidator.core)
@@ -93,4 +85,59 @@ java {
 
 application {
     mainClass.set("no.nav.paw.ledigestillinger.ApplicationKt")
+}
+
+sourceSets {
+    main {
+        kotlin {
+            srcDir("${layout.buildDirectory.get()}/generated/src/main/kotlin")
+        }
+    }
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
+tasks.withType(Jar::class) {
+    manifest {
+        attributes["Implementation-Version"] = project.version
+        attributes["Main-Class"] = application.mainClass.get()
+        attributes["Implementation-Title"] = rootProject.name
+    }
+}
+
+tasks.named("compileTestKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("openApiValidate", "openApiGenerate")
+}
+
+val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/api.yaml"
+
+openApiValidate {
+    inputSpec = openApiDocFile
+}
+
+openApiGenerate {
+    generatorName = "kotlin"
+    inputSpec = openApiDocFile
+    outputDir = "${layout.buildDirectory.get()}/generated/"
+    packageName = "no.nav.paw.ledigestillinger.feed"
+    configOptions = mapOf(
+        "serializationLibrary" to "jackson",
+        "enumPropertyNaming" to "original",
+    )
+    globalProperties = mapOf(
+        "apis" to "none",
+        "models" to ""
+    )
+    typeMappings = mapOf(
+        "DateTime" to "Instant"
+    )
+    importMappings = mapOf(
+        "Instant" to "java.time.Instant"
+    )
 }

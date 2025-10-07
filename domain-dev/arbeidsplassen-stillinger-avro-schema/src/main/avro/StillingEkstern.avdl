@@ -1,0 +1,219 @@
+@namespace("no.nav.pam.stilling.ext.avro")
+protocol StillingEkstern {
+    enum AdStatus {
+        ACTIVE,
+        INACTIVE,
+        STOPPED,
+        DELETED,
+        REJECTED
+    }
+
+    enum PrivacyChannel {
+        INTERNAL_NOT_SHOWN, //"Kun behandles ved NAV lokal"
+        SHOW_ALL, //"Presenteres eksternt - NAVs kanaler"
+        DONT_SHOW_EMPLOYER, //"Presenteres eksternt uten arbeidsgiver opplysninger"
+        DONT_SHOW_AUTHOR //"Presenteres eksternt uten annonsørens opplysninger"
+    }
+
+    record StyrkCategory {
+        // STYRK08 kode, f.eks 1311.24
+        string styrkCode;
+        // STYRK08 navn, f.eks Fylkesjordskiftesjef
+        string name;
+    }
+
+    record Classification {
+        string categoryType; // STYRK08, STYRK08NAV, ESCO eller JANZZ
+        string code; // F.eks styrkkode eller esco kode. For janzz er det konseptid, i esco så er det en url
+        string name; // F.eks butikkmedarbeider
+        double score; // Score er mellom 0.0 og 1.0. En score på 1.0 antyder manuell bruk. F.eks av NKS eller SBL
+        string janzzParentId; // Janzz konseptid som er knyttet til klassifiseringen. For categoryType=JANZZ så bør dette vare det samme som code
+    }
+
+    enum AdministrationStatus {
+        RECEIVED,
+        PENDING,
+        DONE
+    }
+
+    enum RemarkType {
+        NOT_APPROVED_BY_LABOUR_INSPECTION,
+        NO_EMPLOYMENT,
+        DUPLICATE,
+        DISCRIMINATING,
+        REJECT_BECAUSE_CAPACITY,
+        FOREIGN_JOB,
+        COLLECTION_JOB,
+        UNKNOWN
+    }
+
+    record Administration {
+        AdministrationStatus status;
+        array<RemarkType> remarks;
+        string comments;
+        string reportee;
+        string navIdent;
+    }
+
+    record Company {
+        // Hverken name eller publicName er relevante for stillingsannonsen. Når annonsen presenteres så er det
+        // businessName i ad som vises frem
+        string name;
+        string publicName;
+
+        // orgnr er virksomhetsnummer, altså nummeret til underenheten
+        union {null, string} orgnr = null;
+        // parentOrgnr er det juridiske org.nummeret til hovedenhenten
+        union {null, string} parentOrgnr = null;
+        // Organisasjonsform som definert i Brønnøysundregistrene: https://www.brreg.no/bedrift/organisasjonsformer/
+        // Typisk finner vi her BEDR eller AAFY
+        string orgform;
+    }
+
+    record Location {
+        union {null, string} address = null;
+        union {null, string} postalCode = null;
+        union {null, string} county = null;
+        union {null, string} municipal = null;
+        union {null, string} city = null;
+        string country;
+        // lat/long er på desimalnotasjon med . som desimalskille (f.eks 62.4976581)
+        // Hvis DVH ikke trenger lat/long så fjerner vi det.
+        union {null, string} latitude;
+        union {null, string} longitude;
+        union {null, string} municipal_code = null;
+        union {null, string} county_code = null;
+    }
+
+    record Property {
+        string key;
+        string value;
+    }
+
+    record Contact {
+        string name;
+        string email;
+        string phone;
+        string role;
+        string title;
+    }
+
+    // Dette er hovedrecorden som beskriver en stillingsannonse.
+    record Ad {
+        // uuid er den unike id'en til annonsen. Dette er også key på topicet.
+        string `uuid`;
+        // adnr er et unikt annonsenummer. Det kan inneholde bokstaver og tall
+        // adnr er ment å være en kort id på en annonse som er egnet til muntlig bruk
+        // For maskinell og varig identifisering av en annonse bør uuid brukes.
+        union {null, string} adnr = null;
+
+        string title;
+        AdStatus status;
+        PrivacyChannel privacy;
+        union {null, Administration} administration = null;
+
+        // Published og expires er tidspunkt på ISO8601 format: "YYYY-MM-DD'T'HH:mm:ss"
+        // TODO: Skal vi ta med tidssone, eller si at det er "lokal tid" (dvs tidssone=Oslo, sommertid=uvisst...)
+        string published;
+        union {null, string} expires = null;
+
+        // Created og updated er tidspunkt på ISO8601 format og angir når annonsen ble opprettet i PAM-AD
+        // og når det sist ble endret i PAM-AD. Hvis annonsen ikke er endret så er created = updated
+        // Dette er egentlig tekniske felter i PAM-AD databasen.
+        string created;
+        string updated;
+
+        union {null, Company} employer = null;
+        array<StyrkCategory> categories;
+
+        // Source er hvilken kilde annonsen er hentet fra. F.ek, EURES, XML_STILLING, Finn, Polaris, DEXI, DIR (direktemeldt), etc
+        string source;
+        // Medium er litt mer uklart hva egentlig er ment å skulle være. Her finner jeg verdier som "Gol kommune" (faktisk de fleste kommunenavn),
+        // "hrmanager", FINN og Mojob-Pipe
+        string medium;
+
+        string reference;
+
+        // Dette er tidspunkt på ISO8601 format for når NSS admin trykker publiser.
+        union {null, string} publishedByAdmin = null;
+
+        // Navn på virksomheten som utlyser stillingen, f.eks "Sector Alarm AS". Det er dette som brukes når annonsen vises
+        // frem istedenfor name eller publicName i company.
+        union {null, string} businessName;
+
+        array<Location> locations;
+
+        array<Property> properties;
+        /*
+        Veldig mye av det som ligger i annonser ligger i properties. De mest interessante er:
+        * adtext (utlysningstekst i HTML)
+        * positioncount (antall stillinger i annonsen)
+        * sector (offentlig/privat)
+        * nace2
+        * engagementtype (stillingstyope, f.eks Vikariat, Fast, Sesong, etc)
+        * jobpercentage (stillingsprosent - egentlig ikke så nyttig siden det er få som har verdi for det)
+        * extent (Heltid/Deltid)
+        * industry (eller holder det egentlig med nace2)
+
+        Her er alle propertyene man kan velge i:
+
+        adtext(PropertyType.HTML),
+        sourceurl(PropertyType.URL),
+        applicationdue(PropertyType.TEXT),
+        applicationemail(PropertyType.EMAIL),
+        applicationmail(PropertyType.TEXT),
+        applicationlabel(PropertyType.TEXT),
+        applicationurl(PropertyType.URL),
+        employerdescription(PropertyType.HTML),
+        employerhomepage(PropertyType.URL),
+        engagementtype(PropertyType.TEXT),
+        extent(PropertyType.TEXT),
+        occupation(PropertyType.TEXT),
+        positioncount(PropertyType.INTEGER),
+        salary(PropertyType.INTEGER),
+        starttime(PropertyType.TEXT),
+        role(PropertyType.TEXT),
+        sector(PropertyType.TEXT),
+        location(PropertyType.TEXT),
+        externalref(PropertyType.TEXT),
+        jobtitle(PropertyType.TEXT),
+        keywords(PropertyType.TEXT),
+        sourcecreated(PropertyType.TEXT),
+        sourceupdated(PropertyType.TEXT),
+        logomain(PropertyType.URL),
+        logolisting(PropertyType.URL),
+        author(PropertyType.TEXT),
+        address(PropertyType.TEXT),
+        industry(PropertyType.TEXT),
+        nace2(PropertyType.JSON),  //SN2007 or NACE Rev 2
+        searchtags(PropertyType.JSON), // Tags related to category of ads
+        classification_styrk08_score(PropertyType.DOUBLE),
+        classification_input_source(PropertyType.TEXT),
+        categories(PropertyType.JSON),
+        euresflagg(PropertyType.TEXT),
+
+        // Properties specifically for/from stillingsregistrering and internal ad registrations
+        tags(PropertyType.JSON),             // Shape: Array of strings, generic tags
+        ontologyJobtitle(PropertyType.JSON), // Shape: Object with string fields "konspetId", "label", "styrk08"
+        workhours(PropertyType.TEXT),
+        workday(PropertyType.TEXT),
+        facebookpage(PropertyType.URL),
+        contactperson(PropertyType.TEXT),
+        contactpersontitle(PropertyType.TEXT),
+        contactpersonemail(PropertyType.TEXT),
+        contactpersonphone(PropertyType.TEXT),
+        linkedinpage(PropertyType.URL),
+        jobpercentage(PropertyType.TEXT),
+        jobarrangement(PropertyType.TEXT),
+        twitteraddress(PropertyType.URL),
+
+        // Properties specifically from stillingsolr
+        education(PropertyType.TEXT),
+        certificate(PropertyType.TEXT),
+        expertise(PropertyType.TEXT),
+        practice(PropertyType.TEXT),
+        */
+        union {null, array<Contact>} contacts = null;
+        union {null, array<Classification>} classifications = null;
+    }
+}

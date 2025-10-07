@@ -1,0 +1,63 @@
+{
+    "uuid": "string",
+    "json": {
+        "uuid": "string",
+        "published": "2023-05-25T08:06:08.355Z",
+        "expires": "2023-05-25T08:06:08.355Z",
+        "updated": "2023-05-25T08:06:08.355Z",
+        "workLocations": [
+            {
+                "country": "string",
+                "address": "string",
+                "city": "string",
+                "postalCode": "string",
+                "county": "string",
+                "municipal": "string"
+            }
+        ],
+        "contactList": [
+            {
+                "name": "string",
+                "email": "string",
+                "phone": "string",
+                "role": "string",
+                "title": "string"
+            }
+        ],
+        "title": "string",
+        "description": "string",
+        "sourceurl": "string",
+        "source": "string",
+        "applicationUrl": "string",
+        "applicationDue": "string",
+        "occupationCategories": [
+            {
+                "level1": "string",
+                "level2": "string"
+            }
+        ],
+        "categoryList": [
+            {
+                "categoryType": "string",
+                "code": "string",
+                "name": "string",
+                "score": 0
+            }
+        ],
+        "jobtitle": "string",
+        "link": "string",
+        "employer": {
+            "name": "string",
+            "orgnr": "string",
+            "description": "string",
+            "homepage": "string"
+        },
+        "engagementtype": "string",
+        "extent": "string",
+        "starttime": "string",
+        "positioncount": "string",
+        "sector": "string"
+    },
+    "sistEndret": "2023-05-25T08:06:08.355Z",
+    "status": "string"
+}

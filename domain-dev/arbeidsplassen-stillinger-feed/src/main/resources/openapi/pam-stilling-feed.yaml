@@ -1,0 +1,433 @@
+---
+openapi: 3.0.3
+info:
+  title: Public feed of job vacancies on Arbeidsplassen.no
+  version: v1
+  description: OpenAPI specification for the public feed of job vacancies on Arbeidsplassen.no
+    provided by the Norwegian Labour and Welfare Administration
+  termsOfService: https://arbeidsplassen.nav.no/vilkar-api
+  contact:
+    name: Arbeidsplassen.no
+    email: nav.team.arbeidsplassen@nav.no
+  license:
+    name: MIT License
+paths:
+  "/api/v1/feed":
+    get:
+      tags:
+        - Feed
+      description: Returns first page of the feed by default, or last if query param
+        'last' is provided
+      operationId: feed
+      parameters:
+        - name: If-None-Match
+          in: header
+          description: Entity tag - Specific version of a resource. Provided by response
+            header ETag
+          required: false
+          deprecated: false
+          allowEmptyValue: true
+          schema:
+            type: string
+        - name: If-Modified-Since
+          in: header
+          description: Last-modified datetime in RFC 1123 format. Provided by response
+            header Last-Modified
+          required: false
+          deprecated: false
+          allowEmptyValue: true
+          schema:
+            type: string
+            example: Thu, 31 Dec 1992 11:56:00 +0200
+        - name: last
+          in: query
+          description: Flag for requesting the last (newest) page of the feed
+          required: false
+          deprecated: false
+          allowEmptyValue: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feed page
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Feed"
+          headers:
+            ETag:
+              description: Entity tag providing a ID for the resource version. type UUID
+            Last-Modified:
+              description: Last modified datetime of resource. type RFC 1123 formatted datetime
+        '304':
+          description: Feed page is empty, or its contents have not changed since
+            last time
+        '400':
+          description: Invalid input in the request
+        '404':
+          description: Could not find page
+      deprecated: false
+      security:
+        - BearerAuth: [ ]
+  "/api/v1/feed/{feedPageId}":
+    get:
+      tags:
+        - Feed
+      description: Returns the specified feed page, or 304 response if the page has
+        not changed since last time (based on If-None-Match and If-Modified-Since
+        headers)
+      operationId: feed/{feedPageId}
+      parameters:
+        - name: If-None-Match
+          in: header
+          description: Entity tag. Specific version of a resource. Provided by response
+            header ETag
+          required: false
+          deprecated: false
+          allowEmptyValue: true
+          schema:
+            type: string
+        - name: If-Modified-Since
+          in: header
+          description: Last-modified datetime in RFC 1123 format. Provided by response
+            header Last-Modified
+          required: false
+          deprecated: false
+          allowEmptyValue: true
+          schema:
+            type: string
+            example: Thu, 31 Dec 1992 11:56:00 +0200
+        - name: feedPageId
+          in: path
+          description: A unique ID for the feed page
+          required: true
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The specified feed page
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Feed"
+        '304':
+          description: Feed page is empty, or its contents have not changed since
+            last time
+        '400':
+          description: Invalid input in the request
+        '404':
+          description: Could not find page
+      deprecated: false
+      security:
+        - BearerAuth: [ ]
+  "/api/v1/feedentry/{entryId}":
+    get:
+      tags:
+        - Feed
+      description: Returns details for the specified feed entry
+      operationId: feedentry/{entryId}
+      parameters:
+        - name: entryId
+          in: path
+          description: A unique ID for the feed entry
+          required: true
+          deprecated: false
+          allowEmptyValue: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The specified feed entry
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FeedEntryContent"
+        '404':
+          description: Could not find feed entry
+      deprecated: false
+      security:
+        - BearerAuth: [ ]
+components:
+  schemas:
+    Feed:
+      type: object
+      additionalProperties: false
+      properties:
+        version:
+          type: string
+        title:
+          type: string
+        home_page_url:
+          type: string
+        feed_url:
+          type: string
+        description:
+          type: string
+        next_url:
+          type: string
+          nullable: true
+        id:
+          type: string
+        next_id:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            "$ref": "#/components/schemas/FeedLine"
+      required:
+        - version
+        - title
+        - home_page_url
+        - feed_url
+        - description
+        - id
+        - items
+    FeedAd:
+      type: object
+      additionalProperties: false
+      properties:
+        uuid:
+          type: string
+        published:
+          type: string
+          format: date-time
+        expires:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        workLocations:
+          type: array
+          items:
+            "$ref": "#/components/schemas/FeedLocation"
+        contactList:
+          type: array
+          items:
+            "$ref": "#/components/schemas/FeedContact"
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sourceurl:
+          type: string
+          nullable: true
+        source:
+          type: string
+          nullable: true
+        applicationUrl:
+          type: string
+          nullable: true
+        applicationDue:
+          type: string
+          nullable: true
+        occupationCategories:
+          type: array
+          items:
+            "$ref": "#/components/schemas/FeedOccupation"
+        categoryList:
+          type: array
+          items:
+            "$ref": "#/components/schemas/FeedCategory"
+        jobtitle:
+          type: string
+          nullable: true
+        link:
+          type: string
+        employer:
+          "$ref": "#/components/schemas/FeedEmployer"
+        engagementtype:
+          type: string
+          nullable: true
+        extent:
+          type: string
+          nullable: true
+        starttime:
+          type: string
+          nullable: true
+        positioncount:
+          type: string
+          nullable: true
+        sector:
+          type: string
+          nullable: true
+      required:
+        - uuid
+        - published
+        - expires
+        - updated
+        - workLocations
+        - contactList
+        - title
+        - occupationCategories
+        - categoryList
+        - link
+        - employer
+    FeedCategory:
+      type: object
+      additionalProperties: false
+      properties:
+        categoryType:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        score:
+          type: number
+          format: double
+      required:
+        - categoryType
+        - code
+        - name
+        - score
+    FeedContact:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        role:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+    FeedEmployer:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        orgnr:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        homepage:
+          type: string
+          nullable: true
+      required:
+        - name
+    FeedEntry:
+      type: object
+      additionalProperties: false
+      properties:
+        uuid:
+          type: string
+        status:
+          type: string
+        title:
+          type: string
+        businessName:
+          type: string
+        municipal:
+          type: string
+        sistEndret:
+          type: string
+          format: date-time
+      required:
+        - uuid
+        - status
+        - title
+        - businessName
+        - municipal
+        - sistEndret
+    FeedEntryContent:
+      type: object
+      additionalProperties: false
+      properties:
+        uuid:
+          type: string
+        sistEndret:
+          type: string
+          format: date-time
+        status:
+          type: string
+        ad_content:
+          "$ref": "#/components/schemas/FeedAd"
+      required:
+        - uuid
+        - sistEndret
+        - status
+    FeedLine:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        title:
+          type: string
+        content_text:
+          type: string
+        date_modified:
+          type: string
+          format: date-time
+          nullable: true
+        _feed_entry:
+          "$ref": "#/components/schemas/FeedEntry"
+      required:
+        - id
+        - url
+        - title
+        - content_text
+        - _feed_entry
+    FeedLocation:
+      type: object
+      additionalProperties: false
+      properties:
+        country:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        postalCode:
+          type: string
+          nullable: true
+        county:
+          type: string
+          nullable: true
+        municipal:
+          type: string
+          nullable: true
+    FeedOccupation:
+      type: object
+      additionalProperties: false
+      properties:
+        level1:
+          type: string
+        level2:
+          type: string
+      required:
+        - level1
+        - level2
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      type: http
+servers:
+  - url: https://pam-stilling-feed.nav.no/
+    description: Arbeidsplassen.no
+    variables: { }
+security: [ ]

@@ -1,66 +1,63 @@
 package no.naw.paw.ledigestillinger
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.request.path
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
-import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.error.plugin.ErrorHandlingPlugin
+import no.nav.paw.database.plugin.installDatabasePlugin
+import no.nav.paw.error.plugin.installErrorHandlingPlugin
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
 import no.nav.paw.health.StartupCheck
 import no.nav.paw.health.livenessRoute
 import no.nav.paw.health.readinessRoute
 import no.nav.paw.health.startupRoute
-import no.nav.paw.security.authentication.config.AuthProvider
+import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
+import no.nav.paw.metrics.route.metricsRoutes
+import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
+import no.naw.paw.ledigestillinger.config.ApplicationConfig
+import no.naw.paw.ledigestillinger.context.ApplicationContext
 import org.slf4j.event.Level
-import java.time.Duration
+import javax.sql.DataSource
 
 fun <A> initEmbeddedKtorServer(
-    prometheusRegistry: PrometheusMeterRegistry,
-    meterBinders: List<MeterBinder>,
-    healthIndicator: A,
-    authProviders: List<AuthProvider>
+    applicationContext: ApplicationContext
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> where
         A : LivenessCheck, A : ReadinessCheck, A : StartupCheck {
-
-    return embeddedServer(Netty, port = 8080) {
-        configureKtorServer(
-            prometheusRegistry = prometheusRegistry,
-            meterBinders = meterBinders,
-            authProviders = authProviders
-        )
-        routing {
-            livenessRoute(healthIndicator)
-            readinessRoute(healthIndicator)
-            startupRoute(healthIndicator)
-            get("/internal/metrics")  {
-                call.respond(
-                    status = HttpStatusCode.OK,
-                    message = prometheusRegistry.scrape()
-                )
+    with(applicationContext) {
+        return embeddedServer(Netty, port = 8080) {
+            configureKtorServer(
+                applicationConfig = applicationConfig,
+                securityConfig = securityConfig,
+                meterRegistry = meterRegistry,
+                meterBinders = meterBinders,
+                //dataSource = dataSource
+            )
+            routing {
+                livenessRoute(healthChecks)
+                readinessRoute(healthChecks)
+                startupRoute(healthChecks)
+                metricsRoutes(meterRegistry)
             }
         }
     }
 }
 
 fun Application.configureKtorServer(
-    prometheusRegistry: PrometheusMeterRegistry,
+    applicationConfig: ApplicationConfig,
+    securityConfig: SecurityConfig,
+    meterRegistry: PrometheusMeterRegistry,
     meterBinders: List<MeterBinder>,
-    authProviders: List<AuthProvider>
+    //dataSource: DataSource
 ) {
     installContentNegotiationPlugin()
     install(CallLogging) {
@@ -69,21 +66,12 @@ fun Application.configureKtorServer(
             !call.request.path().contains("internal")
         }
     }
-    install(ErrorHandlingPlugin)
-    install(MicrometerMetrics) {
-        registry = prometheusRegistry
-        this.meterBinders = meterBinders
-        distributionStatisticConfig =
-            DistributionStatisticConfig.builder()
-                .percentilesHistogram(true)
-                .maximumExpectedValue(Duration.ofSeconds(1).toNanos().toDouble())
-                .minimumExpectedValue(Duration.ofMillis(20).toNanos().toDouble())
-                .serviceLevelObjectives(
-                    Duration.ofMillis(150).toNanos().toDouble(),
-                    Duration.ofMillis(500).toNanos().toDouble()
-                )
-                .build()
-    }
-    installAuthenticationPlugin(authProviders)
+    installErrorHandlingPlugin()
+    installWebAppMetricsPlugin(
+        meterRegistry = meterRegistry,
+        additionalMeterBinders = meterBinders
+    )
+    installAuthenticationPlugin(securityConfig.authProviders)
+    //installDatabasePlugin(dataSource)
 }
 
