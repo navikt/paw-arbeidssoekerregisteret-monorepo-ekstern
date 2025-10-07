@@ -49,6 +49,7 @@ class EgenvurderingService(
         hentAlternativeIdenter(ident).forEach { identitetsnummer ->
             val nyesteProfilering = egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(identitetsnummer)
             if (nyesteProfilering != null) {
+                logger.info("Fant profilering med id:${nyesteProfilering.id} for alternativ ident")
                 Span.current().addEvent("fant_profilering_fra_aapen_periode_uten_egenvurdering")
                 return EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
             }
