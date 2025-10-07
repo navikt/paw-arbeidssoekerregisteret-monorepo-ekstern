@@ -88,7 +88,7 @@ class EgenvurderingService(
     private fun hentAlternativeIdenter(identitetsnummer: Identitetsnummer): List<Identitetsnummer> = runBlocking {
         runCatching {
             kafkaKeysClient.getIdentiteter(identitetsnummer.verdi).identiteter.filter { ident ->
-                ident.gjeldende && ident.type == FOLKEREGISTERIDENT && ident.identitet != identitetsnummer.verdi
+                ident.type == FOLKEREGISTERIDENT && ident.identitet != identitetsnummer.verdi
             }.distinct().map { Identitetsnummer(verdi = it.identitet) }
         }.onFailure { throwable ->
             logger.warn("Kall mot kafkaKey /identiteter feilet", throwable)
