@@ -64,6 +64,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                 configureTestApplication()
 
                 val client = configureTestClient()
+                coEvery { egenvurderingService.getEgenvurderingGrunnlag(any()) } returns EgenvurderingGrunnlag(grunnlag = null)
 
                 val response = client.get(egenvurderingGrunnlagPath) {
                     bearerAuth(mockOAuth2Server.issueTokenXToken())

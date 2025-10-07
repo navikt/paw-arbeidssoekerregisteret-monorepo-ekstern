@@ -38,9 +38,7 @@ open class TestContext {
     val mockOAuth2Server = MockOAuth2Server()
     val kafkaKeysClientMock = mockk<KafkaKeysClient>()
     val prometheusMeterRegistryMock = mockk<PrometheusMeterRegistry>()
-    val egenvurderingService = mockk<EgenvurderingService>().also {
-        coEvery { it.getEgenvurderingGrunnlag(any()) } returns EgenvurderingGrunnlag(grunnlag = null)
-    }
+    val egenvurderingService = mockk<EgenvurderingService>()
 
     fun ApplicationTestBuilder.configureTestApplication() {
         val applicationContext = ApplicationContext(
