@@ -13,7 +13,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 import kotlin.reflect.full.isSubclassOf
 
-interface DatabaseQeurySupport {
+interface DatabaseQuerySupport {
     fun hentRaderForPeriode(
         periodeId: UUID
     ): List<Row<Any>>
@@ -23,7 +23,7 @@ interface DatabaseQeurySupport {
     ): List<UUID>
 }
 
-object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
+object ExposedDatabaseQuerySupport : DatabaseQuerySupport {
     override fun hentRaderForPeriode(
         periodeId: UUID
     ): List<Row<Any>> =
@@ -44,7 +44,7 @@ object ExposedDatabaseQuerySupport : DatabaseQeurySupport {
         }
 }
 
-val exposedDatabaseQuerySupport: DatabaseQeurySupport get() = ExposedDatabaseQuerySupport
+val exposedDatabaseQuerySupport: DatabaseQuerySupport get() = ExposedDatabaseQuerySupport
 
 fun asObject(row: ResultRow): Row<Any> {
     val type = row[DataTable.type]

@@ -13,7 +13,7 @@ import java.util.*
 
 class ApplicationQueryLogic(
     private val autorisasjonsTjeneste: AutorisasjonsTjeneste,
-    private val databaseQuerySupport: DatabaseQeurySupport,
+    private val databaseQuerySupport: DatabaseQuerySupport,
     private val kafkaKeysClient: KafkaKeysClient
 ) {
 

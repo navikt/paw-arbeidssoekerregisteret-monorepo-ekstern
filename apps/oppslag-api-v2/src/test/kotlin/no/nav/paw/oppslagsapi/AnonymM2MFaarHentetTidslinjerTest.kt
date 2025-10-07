@@ -16,7 +16,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.kafkakeygenerator.client.kafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
@@ -29,7 +28,7 @@ import no.nav.paw.oppslagapi.data.objectMapper
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
-import no.nav.paw.oppslagapi.data.query.DatabaseQeurySupport
+import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
@@ -41,7 +40,7 @@ import java.time.Instant
 class AnonymM2MFaarHentetTidslinjerTest : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
     val kafkaKeysClientMock: KafkaKeysClient = mockk()
-    val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
+    val databaseQuerySupportMock: DatabaseQuerySupport = mockk()
     val autorisasjonsTjeneste = AutorisasjonsTjeneste(
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
         kafkaKeysClient = kafkaKeysClientMock,

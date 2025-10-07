@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
@@ -14,8 +13,6 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
@@ -26,7 +23,7 @@ import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
-import no.nav.paw.oppslagapi.data.query.DatabaseQeurySupport
+import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
@@ -40,7 +37,7 @@ import java.util.*
 class AnnsattUtenTilgangFaarIkkeHentetTidslinjeTest : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
     val kafkaKeysClientMock: KafkaKeysClient = mockk()
-    val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
+    val databaseQuerySupportMock: DatabaseQuerySupport = mockk()
     val autorisasjonsTjeneste = AutorisasjonsTjeneste(
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
         kafkaKeysClient = kafkaKeysClientMock,

@@ -26,7 +26,7 @@ import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
-import no.nav.paw.oppslagapi.data.query.DatabaseQeurySupport
+import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
@@ -40,7 +40,7 @@ import java.util.*
 class AnonymM2MFaarHentetBekreftelserTest : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
     val kafkaKeysClientMock: KafkaKeysClient = mockk()
-    val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
+    val databaseQuerySupportMock: DatabaseQuerySupport = mockk()
     val autorisasjonsTjeneste = AutorisasjonsTjeneste(
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
         kafkaKeysClient = kafkaKeysClientMock,

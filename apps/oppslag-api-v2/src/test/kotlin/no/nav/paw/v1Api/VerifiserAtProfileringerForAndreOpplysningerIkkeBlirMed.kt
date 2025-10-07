@@ -29,7 +29,7 @@ import no.nav.paw.oppslagapi.data.opplysninger_om_arbeidssoeker_v4
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.profilering_v1
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
-import no.nav.paw.oppslagapi.data.query.DatabaseQeurySupport
+import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
 import no.nav.paw.oppslagapi.routes.V1_API_BASE_PATH
 import no.nav.paw.oppslagapi.routes.V1_API_VEILEDER_ARBEIDSSOEKERPERIODER_AGGREGERT
 import no.nav.paw.oppslagapi.routes.v1Routes
@@ -54,7 +54,7 @@ import java.util.*
 class VerifiserAtProfileringerForAndreOpplysningerIkkeBlirMed : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
     val kafkaKeysClientMock: KafkaKeysClient = inMemoryKafkaKeysMock()
-    val databaseQuerySupportMock: DatabaseQeurySupport = mockk()
+    val databaseQuerySupportMock: DatabaseQuerySupport = mockk()
     val autorisasjonsTjeneste = AutorisasjonsTjeneste(
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
         kafkaKeysClient = kafkaKeysClientMock,
