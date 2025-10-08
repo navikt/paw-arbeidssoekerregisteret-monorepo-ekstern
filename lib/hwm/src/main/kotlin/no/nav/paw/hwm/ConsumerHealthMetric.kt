@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import java.io.Closeable
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -12,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong
 class ConsumerHealthMetric(
     private val registry: PrometheusMeterRegistry,
     private val groupId: String
-): OnAssigned, OnRevoked{
+): OnAssigned, OnRevoked {
     private data class Key(val topic: String, val partition: Int)
     private val assignedPartitions = ConcurrentHashMap<Key, QosGauge>()
     private data class QosGauge(
@@ -77,4 +78,5 @@ class ConsumerHealthMetric(
             ?.latency
             ?.set(System.currentTimeMillis() - recordTimestampMs)
     }
+
 }

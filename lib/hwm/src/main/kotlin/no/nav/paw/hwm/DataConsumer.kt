@@ -6,6 +6,7 @@ import no.nav.paw.health.StartupCheck
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.io.Closeable
 import java.time.Duration
 import java.time.Duration.between
 import java.time.Instant
@@ -57,7 +58,7 @@ class DataConsumer<B, K, V> internal constructor(
     private val pollTimeout: Duration = Duration.ofMillis(1000L),
     private val isAliveTimeout: Duration = Duration.ofSeconds(10),
     hwmTopicConfig: Iterable<HwmTopicConfig>
-) : LivenessCheck, StartupCheck {
+) : LivenessCheck, StartupCheck, Closeable {
     private val consumerHealthMetric = ConsumerHealthMetric(prometheusMeterRegistry, consumer.groupMetadata().groupId())
     private val lastPollProcessingCompletedAt = AtomicReference(Instant.EPOCH)
     private val hasStarted = AtomicBoolean(false)
@@ -75,12 +76,12 @@ class DataConsumer<B, K, V> internal constructor(
         return between(lastPollProcessingCompletedAt.get(), Instant.now()) < isAliveTimeout
     }
 
-    fun run(): CompletableFuture<Void> {
+    fun runAndCloseOnExit(): CompletableFuture<Void> {
         if (!hasStarted.compareAndSet(false, true)) {
             throw IllegalStateException("DataConsumer kan kun startes en gang")
         }
         return CompletableFuture.runAsync {
-            consumer.use { consumer ->
+            use {
                 while (true) {
                     consumer.poll(pollTimeout)
                         .takeIf { !it.isEmpty }
@@ -119,5 +120,9 @@ class DataConsumer<B, K, V> internal constructor(
                 }
             }
         }
+    }
+
+    override fun close() {
+        runCatching { consumer.close() }
     }
 }
