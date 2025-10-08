@@ -1,12 +1,12 @@
 package no.nav.paw.oppslagapi.data
 
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Egenvurdering
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
-import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 
 const val periode_startet_v1 = "periode_startet-v1"
 const val periode_avsluttet_v1 = "periode_avsluttet-v1"
