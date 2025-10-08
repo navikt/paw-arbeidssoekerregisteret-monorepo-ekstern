@@ -93,12 +93,10 @@ class KafkaKeysClientTest : FreeSpec({
     }
 
     "Tar med query params og traceparent header" {
-        val traceparent = "traceparent"
         val engine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
             request.url.parameters["visKonflikter"] shouldBe "true"
             request.url.parameters["hentPdl"] shouldBe "true"
-            request.headers["traceparent"] shouldBe traceparent
             request.headers[HttpHeaders.Authorization] shouldBe "Bearer $testToken"
 
             //language=JSON
@@ -122,8 +120,7 @@ class KafkaKeysClientTest : FreeSpec({
             val response = client.getIdentiteter(
                 identitetsnummer = "01017012345",
                 visKonflikter = true,
-                hentPdl = true,
-                traceparent = traceparent
+                hentPdl = true
             )
             response.identiteter.shouldBe(emptyList())
             response.konflikter.shouldBe(emptyList())

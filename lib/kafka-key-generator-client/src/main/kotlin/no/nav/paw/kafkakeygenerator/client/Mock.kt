@@ -37,8 +37,7 @@ fun inMemoryKafkaKeysMock(): KafkaKeysClient {
         override suspend fun getIdentiteter(
             identitetsnummer: String,
             visKonflikter: Boolean,
-            hentPdl: Boolean,
-            traceparent: String?,
+            hentPdl: Boolean
         ) = IdentiteterResponse(
             arbeidssoekerId = getIdAndKeyOrNull(identitetsnummer).id,
             recordKey = getIdAndKeyOrNull(identitetsnummer).key,

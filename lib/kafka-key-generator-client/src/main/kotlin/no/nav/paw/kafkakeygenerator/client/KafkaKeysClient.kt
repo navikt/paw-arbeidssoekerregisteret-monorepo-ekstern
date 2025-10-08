@@ -32,8 +32,7 @@ interface KafkaKeysClient {
     suspend fun getIdentiteter(
         identitetsnummer: String,
         visKonflikter: Boolean = false,
-        hentPdl: Boolean = false,
-        traceparent: String? = null
+        hentPdl: Boolean = false
     ): IdentiteterResponse
 }
 
@@ -84,13 +83,11 @@ class StandardKafkaKeysClient(
     override suspend fun getIdentiteter(
         identitetsnummer: String,
         visKonflikter: Boolean,
-        hentPdl: Boolean,
-        traceparent: String?
+        hentPdl: Boolean
     ): IdentiteterResponse =
         httpClient.post(kafkaKeysIdentiteterUrl) {
             header("Authorization", "Bearer ${getAccessToken()}")
             contentType(Application.Json)
-            if (traceparent != null) header("traceparent", traceparent)
             url {
                 if (hentPdl) parameters.append("hentPdl", "true")
                 if (visKonflikter) parameters.append("visKonflikter", "true")
