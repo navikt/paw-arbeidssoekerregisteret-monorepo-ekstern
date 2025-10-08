@@ -8,7 +8,7 @@ create table bruker
     arbeidssoekerperiode_avsluttet timestamp(3),
     unique (identitetsnummer),
     unique (arbeidssoekerperiode_id)
-)
+);
 
 create table profilering
 (
@@ -19,4 +19,4 @@ create table profilering
     profilering_resultat  varchar(255) NOT NULL,
     UNIQUE (periode_id),
     UNIQUE (profilering_tidspunkt)
-)
+);
