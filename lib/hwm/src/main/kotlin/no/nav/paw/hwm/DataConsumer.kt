@@ -10,7 +10,9 @@ import java.io.Closeable
 import java.time.Duration
 import java.time.Duration.between
 import java.time.Instant
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.min
@@ -63,6 +65,8 @@ class DataConsumer<B, K, V> internal constructor(
     private val lastPollProcessingCompletedAt = AtomicReference(Instant.EPOCH)
     private val hasStarted = AtomicBoolean(false)
     private val topicToConsumerVersion: Map<String, Int> = hwmTopicConfig.associate { it.topic to it.consumerVersion }
+    private val shouldRun = AtomicBoolean(true)
+    private val hasStopped = ArrayBlockingQueue<Unit>(10)
 
     private fun consumerVersion(topic: String): Int =
         topicToConsumerVersion[topic]
@@ -82,7 +86,7 @@ class DataConsumer<B, K, V> internal constructor(
         }
         return CompletableFuture.runAsync {
             use {
-                while (true) {
+                while (shouldRun.get()) {
                     consumer.poll(pollTimeout)
                         .takeIf { !it.isEmpty }
                         ?.let { records ->
@@ -118,11 +122,14 @@ class DataConsumer<B, K, V> internal constructor(
                     lastPollProcessingCompletedAt.set(now)
                     consumerHealthMetric.consumerPollProcessed(now)
                 }
+                hasStopped.put(Unit)
             }
         }
     }
 
     override fun close() {
+        shouldRun.set(false)
+        hasStopped.poll(5, TimeUnit.SECONDS)
         runCatching { consumer.close() }
     }
 }
