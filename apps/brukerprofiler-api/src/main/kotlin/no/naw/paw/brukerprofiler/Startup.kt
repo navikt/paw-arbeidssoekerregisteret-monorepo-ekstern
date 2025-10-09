@@ -62,7 +62,7 @@ fun main() {
         prometheusMeterRegistry = prometheusMeterRegistry,
         securityConfig = securityConfig,
         healthChecks = healthChecksOf(
-            //consumer, Tar ut denne slik at appen kjører selv om vi aldre startet å konsumere meldinger
+            consumer,
             DatasourceLivenessProbe(dataSource)
         ),
         idClient = idClient
