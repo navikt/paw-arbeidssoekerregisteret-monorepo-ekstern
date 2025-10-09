@@ -6,6 +6,7 @@ import no.nav.paw.health.StartupCheck
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.time.Duration
 import java.time.Duration.between
@@ -61,6 +62,7 @@ class DataConsumer<B, K, V> internal constructor(
     private val isAliveTimeout: Duration = Duration.ofSeconds(10),
     hwmTopicConfig: Iterable<HwmTopicConfig>
 ) : LivenessCheck, StartupCheck, Closeable {
+    private val logger = LoggerFactory.getLogger("data_consumer")
     private val consumerHealthMetric = ConsumerHealthMetric(prometheusMeterRegistry, consumer.groupMetadata().groupId())
     private val lastPollProcessingCompletedAt = AtomicReference(Instant.EPOCH)
     private val hasStarted = AtomicBoolean(false)
@@ -84,8 +86,10 @@ class DataConsumer<B, K, V> internal constructor(
         if (!hasStarted.compareAndSet(false, true)) {
             throw IllegalStateException("DataConsumer kan kun startes en gang")
         }
+        logger.info("Starter... groupId: ${consumer.groupMetadata().groupId()}")
         return CompletableFuture.runAsync {
             use {
+                logger.info("Startet groupId: ${consumer.groupMetadata().groupId()}")
                 while (shouldRun.get()) {
                     consumer.poll(pollTimeout)
                         .takeIf { !it.isEmpty }
@@ -122,14 +126,21 @@ class DataConsumer<B, K, V> internal constructor(
                     lastPollProcessingCompletedAt.set(now)
                     consumerHealthMetric.consumerPollProcessed(now)
                 }
+                logger.info("Stoppet groupId: ${consumer.groupMetadata().groupId()}")
                 hasStopped.put(Unit)
             }
         }
     }
 
     override fun close() {
+        logger.info("Stopper... groupId: ${consumer.groupMetadata().groupId()}")
         shouldRun.set(false)
         hasStopped.poll(5, TimeUnit.SECONDS)
-        runCatching { consumer.close() }
+        runCatching {
+            consumer.close()
+            logger.info("Underliggende kafka-consumer er lukket")
+        }.onFailure { cause ->
+            logger.info("Feil ved lukking av underliggende kafka-consumer", cause)
+        }
     }
 }
