@@ -88,6 +88,8 @@ class DataConsumer<B, K, V> internal constructor(
         }
         logger.info("Starter... groupId: ${consumer.groupMetadata().groupId()}")
         return CompletableFuture.runAsync {
+            val topics: List<String> = topicToConsumerVersion.keys.toList()
+            consumer.subscribe(topics)
             use {
                 logger.info("Startet groupId: ${consumer.groupMetadata().groupId()}")
                 while (shouldRun.get()) {
