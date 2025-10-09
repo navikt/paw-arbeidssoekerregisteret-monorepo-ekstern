@@ -26,7 +26,7 @@ flyway = "11.13.3"
 hikari = "7.0.2"
 graphql = "8.8.1"
 kotlinx-coroutines = "1.10.2"
-ktor = "3.3.0"
+ktor = "3.3.1"
 atlassianRequestValidator = "2.46.0"
 
 [libraries]
