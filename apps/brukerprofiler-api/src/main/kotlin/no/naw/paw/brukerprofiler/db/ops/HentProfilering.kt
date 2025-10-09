@@ -1,0 +1,24 @@
+package no.naw.paw.brukerprofiler.db.ops
+
+import no.naw.paw.brukerprofiler.db.ProfileringTable
+import no.naw.paw.brukerprofiler.domain.Profilering
+import no.naw.paw.brukerprofiler.domain.ProfileringResultat
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.util.UUID
+
+fun hentProfileringOrNull(periodeId: UUID): Profilering? = transaction {
+    ProfileringTable.selectAll()
+        .where {
+            ProfileringTable.periodeId eq periodeId
+        }.map { row ->
+            Profilering(
+                id = row[ProfileringTable.id],
+                profileringId = row[ProfileringTable.profileringId],
+                periodeId = row[ProfileringTable.periodeId],
+                profileringTidspunkt = row[ProfileringTable.profileringTidspunkt],
+                profileringResultat = ProfileringResultat.valueOf(row[ProfileringTable.profileringResultat])
+            )
+        }.firstOrNull()
+}

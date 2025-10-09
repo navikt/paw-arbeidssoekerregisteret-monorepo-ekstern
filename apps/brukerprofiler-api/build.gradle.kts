@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
     implementation(project(":lib:kafka"))
+    implementation(project(":lib:common-model"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:kafka-key-generator-client"))
     implementation(project(":domain:main-avro-schema"))
@@ -65,6 +66,7 @@ dependencies {
 
     // Database
     implementation(libs.exposed.jdbc.v1)
+    implementation(libs.exposed.core.v1)
     implementation(libs.exposed.java.time.v1)
     implementation(libs.hikari.connection.pool)
     implementation(libs.postgres.driver)
@@ -93,4 +95,10 @@ java {
 
 application {
     mainClass.set("no.nav.paw.brukerprofiler.ApplicationKt")
+}
+
+tasks {
+    withType<Test>().configureEach {
+        useJUnitPlatform()
+    }
 }

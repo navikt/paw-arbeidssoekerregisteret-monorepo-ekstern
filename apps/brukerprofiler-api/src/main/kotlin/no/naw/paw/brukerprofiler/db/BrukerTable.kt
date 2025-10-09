@@ -3,7 +3,7 @@ package no.naw.paw.brukerprofiler.db
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.javatime.timestamp
 
-object BrukerTable : Table("periode") {
+object BrukerTable : Table("bruker") {
     val id = long("id").autoIncrement()
     val identitetsnummer = varchar("identitetsnummer", 11)
     val tjenestenErAktiv = bool("tjenesten_er_aktiv")

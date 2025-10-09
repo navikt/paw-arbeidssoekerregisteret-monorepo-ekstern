@@ -24,15 +24,14 @@ fun runApp(applicationContext: ApplicationContext): Unit {
         applicationContext.consumer.close()
     })
     applicationContext.dataSource.use {
-// Deaktiverer meldingse-konsumering til logikken er klar
-//      applicationContext.consumer.runAndCloseOnExit()
-//            .handle { _, error ->
-//                if (error != null) {
-//                    appLogger.error("Kafka consumer stoppet grunnet feil", error)
-//                } else {
-//                    appLogger.info("Kafka consumer stoppet")
-//                }
-//            }
+        applicationContext.consumer.runAndCloseOnExit()
+            .handle { _, error ->
+                if (error != null) {
+                    appLogger.error("Kafka consumer stoppet grunnet feil", error)
+                } else {
+                    appLogger.info("Kafka consumer stoppet")
+                }
+            }
         ktorInstance.start(wait = true)
     }
     appLogger.info("Applikasjonen er stoppet.")
