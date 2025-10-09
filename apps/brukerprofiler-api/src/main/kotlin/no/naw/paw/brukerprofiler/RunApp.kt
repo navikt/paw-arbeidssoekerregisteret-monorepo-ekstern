@@ -1,6 +1,22 @@
 package no.naw.paw.brukerprofiler
 
 fun runApp(applicationContext: ApplicationContext): Unit {
+    Thread.currentThread().uncaughtExceptionHandler =
+        Thread.UncaughtExceptionHandler { _, e ->
+            appLogger.error("Uventet feil i applikasjonen", e)
+            System.exit(1)
+        }
+    val ktorInstance = initEmbeddedKtorServer(
+        prometheusRegistry = applicationContext.prometheusMeterRegistry,
+        meterBinders = listOf(),
+        healthIndicator = applicationContext.healthChecks,
+        authProviders = applicationContext.securityConfig.authProviders,
+    )
+    Runtime.getRuntime().addShutdownHook(Thread {
+        appLogger.info("Applikasjonen avsluttes...")
+        runCatching { ktorInstance.stop(1000, 1500) }
+        applicationContext.consumer.close()
+    })
     applicationContext.dataSource.use {
 // Deaktiverer meldingse-konsumering til logikken er klar
 //      applicationContext.consumer.runAndCloseOnExit()
@@ -11,11 +27,7 @@ fun runApp(applicationContext: ApplicationContext): Unit {
 //                    appLogger.info("Kafka consumer stoppet")
 //                }
 //            }
-        initEmbeddedKtorServer(
-            prometheusRegistry = applicationContext.prometheusMeterRegistry,
-            meterBinders = listOf(),
-            healthIndicator = applicationContext.healthChecks,
-            authProviders = applicationContext.securityConfig.authProviders,
-        ).start(wait = true)
+        ktorInstance.start(wait = true)
     }
+    appLogger.info("Applikasjonen er stoppet.")
 }

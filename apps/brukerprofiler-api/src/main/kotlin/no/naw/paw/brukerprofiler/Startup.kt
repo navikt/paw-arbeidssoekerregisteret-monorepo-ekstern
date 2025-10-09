@@ -4,7 +4,6 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
-import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
@@ -19,18 +18,11 @@ import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
+import no.naw.paw.brukerprofiler.db.initDatabase
+import no.naw.paw.brukerprofiler.db.ops.lagreProfilering
+import no.naw.paw.brukerprofiler.db.ops.opprettOgOppdaterBruker
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.LongDeserializer
-import org.jetbrains.exposed.v1.core.Table
-import org.jetbrains.exposed.v1.core.Transaction
-import org.jetbrains.exposed.v1.core.statements.buildStatement
-import org.jetbrains.exposed.v1.javatime.timestamp
-import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.insertIgnore
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.jdbc.update
-import org.jetbrains.exposed.v1.jdbc.upsert
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -87,70 +79,3 @@ fun process(source: Sequence<Message<Long, SpecificRecord>>) {
     }
 }
 
-fun lagreProfilering(profilering: Profilering) {
-    ProfileringTable.upsert(
-        keys = arrayOf(ProfileringTable.periodeId),
-        onUpdateExclude = listOf(ProfileringTable.id, ProfileringTable.periodeId),
-        body = {
-            it[periodeId] = profilering.periodeId
-            it[profileringId] = profilering.id
-            it[profileringTidspunkt] = profilering.sendtInnAv.tidspunkt
-            it[profileringResultat] = profilering.profilertTil.interntFormat().name
-        }
-    )
-}
-
-enum class ProfileringResultat {
-    UKJENT_VERDI,
-    UDEFINERT,
-    ANTATT_GODE_MULIGHETER,
-    ANTATT_BEHOV_FOR_VEILEDNING,
-    OPPGITT_HINDRINGER
-}
-
-fun ProfilertTil.interntFormat(): ProfileringResultat = when (this) {
-    ProfilertTil.UKJENT_VERDI -> ProfileringResultat.UKJENT_VERDI
-    ProfilertTil.UDEFINERT -> ProfileringResultat.UDEFINERT
-    ProfilertTil.ANTATT_GODE_MULIGHETER -> ProfileringResultat.ANTATT_GODE_MULIGHETER
-    ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING -> ProfileringResultat.ANTATT_BEHOV_FOR_VEILEDNING
-    ProfilertTil.OPPGITT_HINDRINGER -> ProfileringResultat.OPPGITT_HINDRINGER
-}
-
-fun opprettOgOppdaterBruker(periode: Periode) {
-    val avsluttet = periode.avsluttet
-    if (avsluttet != null) {
-        BrukerTable.update {
-            it[BrukerTable.arbeidssoekerperiodeAvsluttet] = avsluttet.tidspunkt
-            it[BrukerTable.tjenestenErAktiv] = false
-        }
-    } else {
-        BrukerTable.insertIgnore {
-            it[identitetsnummer] = periode.identitetsnummer
-            it[tjenestenErAktiv] = false
-            it[harBruktTjenesten] = false
-            it[arbeidssoekerperiodeId] = periode.id
-            it[arbeidssoekerperiodeAvsluttet] = null
-        }
-    }
-}
-
-object BrukerTable : Table("periode") {
-    val id = long("id").autoIncrement()
-    val identitetsnummer = varchar("identitetsnummer", 11)
-    val tjenestenErAktiv = bool("tjenesten_er_aktiv")
-    val harBruktTjenesten = bool("har_brukt_tjenesten")
-    val arbeidssoekerperiodeId = uuid("arbeidssoekerperiode_id")
-    val arbeidssoekerperiodeAvsluttet = timestamp("arbeidssoekerperiode_avsluttet").nullable()
-
-    override val primaryKey = PrimaryKey(id)
-}
-
-object ProfileringTable : Table("profilering") {
-    val id = long("id").autoIncrement()
-    val periodeId = uuid("periode_id")
-    val profileringId = uuid("profilering_id")
-    val profileringTidspunkt = timestamp("profilering_tidspunkt")
-    val profileringResultat = varchar(name = "profilering_resultat", length = 255)
-
-    override val primaryKey = PrimaryKey(id)
-}
