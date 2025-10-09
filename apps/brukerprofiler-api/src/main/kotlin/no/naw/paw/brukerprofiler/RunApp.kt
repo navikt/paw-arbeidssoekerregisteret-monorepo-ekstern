@@ -14,7 +14,13 @@ fun runApp(applicationContext: ApplicationContext): Unit {
     )
     Runtime.getRuntime().addShutdownHook(Thread {
         appLogger.info("Applikasjonen avsluttes...")
-        runCatching { ktorInstance.stop(1000, 1500) }
+        runCatching {
+            appLogger.info("Avslutter Ktor...")
+            ktorInstance.stop(1000, 1500)
+            appLogger.info("Ktor avsluttet.")
+        }.onFailure { cause ->
+            appLogger.info("Feil av ved avslutting av Ktor", cause)
+        }
         applicationContext.consumer.close()
     })
     applicationContext.dataSource.use {
