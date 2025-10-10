@@ -69,6 +69,8 @@ spec:
           namespace: paw
         - application: aia-backend
           namespace: paw
+        - application: aia-min-side-ssr
+          namespace: paw
         - application: arbeidssokerregistrering
           namespace: paw
         - application: paw-arbeidssoekerregisteret-hendelselogg-backup

@@ -65,6 +65,9 @@ spec:
         - application: aia-backend
           namespace: paw
           cluster: prod-gcp
+        - application: aia-min-side-ssr
+          namespace: paw
+          cluster: prod-gcp
         - application: arbeidssokerregistrering
           namespace: paw
           cluster: prod-gcp
