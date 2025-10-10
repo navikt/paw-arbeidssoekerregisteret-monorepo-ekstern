@@ -14,19 +14,19 @@ import org.jetbrains.exposed.v1.jdbc.Database
 fun initDatabase(databaseConfig: DatabaseConfig): HikariDataSource {
     val dataSource = createHikariDataSource(databaseConfig)
     val disableClean = false
-    val cleanOnValidationError = true
     Database.connect(dataSource)
     if (currentRuntimeEnvironment is ProdGcp ) {
         if (!disableClean) throw IllegalStateException("Cannot run with clean enabled in ProdGcp")
-        if (cleanOnValidationError) throw IllegalStateException("Cannot run with cleanOnValidationError enabled in ProdGcp")
     }
     Flyway.configure()
         .dataSource(dataSource)
         .baselineOnMigrate(true)
         .locations("db/migration")
         .cleanDisabled(disableClean)
-        .cleanOnValidationError(cleanOnValidationError)
         .load()
-        .migrate()
+        .also {
+            it.clean()
+            it.migrate()
+        }
     return dataSource
 }
