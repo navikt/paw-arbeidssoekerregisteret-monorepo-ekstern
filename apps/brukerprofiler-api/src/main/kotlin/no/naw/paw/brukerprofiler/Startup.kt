@@ -23,6 +23,7 @@ import no.naw.paw.brukerprofiler.db.ops.lagreProfilering
 import no.naw.paw.brukerprofiler.db.ops.opprettOgOppdaterBruker
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.LongDeserializer
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -71,11 +72,17 @@ fun main() {
 }
 
 fun process(source: Sequence<Message<Long, SpecificRecord>>) {
-    source.forEach { message ->
-        when (val value = message.value) {
-            is Profilering -> lagreProfilering(value)
-            is Periode -> opprettOgOppdaterBruker(value)
-        }
+    transaction {
+        source
+            .onEach { message ->
+                appLogger.trace("Mottatt melding: topic=${message.topic} - partition=${message.partition} - offset=${message.offset}")
+            }
+            .forEach { message ->
+                when (val value = message.value) {
+                    is Profilering -> lagreProfilering(value)
+                    is Periode -> opprettOgOppdaterBruker(value)
+                }
+            }
     }
 }
 
