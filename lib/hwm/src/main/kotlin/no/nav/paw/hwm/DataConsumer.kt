@@ -1,6 +1,9 @@
 package no.nav.paw.hwm
 
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.opentelemetry.api.common.AttributeKey.booleanKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.StartupCheck
 import org.apache.kafka.clients.consumer.Consumer
@@ -106,7 +109,11 @@ class DataConsumer<B, K, V> internal constructor(
                                             topic = record.topic(),
                                             partition = record.partition(),
                                             offset = record.offset()
-                                        )
+                                        ).also { aboveHwm ->
+                                            Span.current().addEvent("paw_hwm", Attributes.of(
+                                                booleanKey("above_hwm"), aboveHwm
+                                            ))
+                                        }
                                     }
                                     .onEach { record ->
                                         eldsteRecordTidspunkt.compute(record.topic() to record.partition()) { _, current ->
