@@ -63,7 +63,7 @@ class DataConsumer<B, K, V> internal constructor(
     private val receiver: (Sequence<B>) -> Unit,
     private val pollTimeout: Duration = Duration.ofMillis(1000L),
     private val isAliveTimeout: Duration = Duration.ofSeconds(10),
-    hwmTopicConfig: Iterable<HwmTopicConfig>
+    private val hwmTopicConfig: Iterable<HwmTopicConfig>
 ) : LivenessCheck, StartupCheck, Closeable {
     private val logger = LoggerFactory.getLogger("data_consumer")
     private val consumerHealthMetric = ConsumerHealthMetric(prometheusMeterRegistry, consumer.groupMetadata().groupId())
@@ -92,7 +92,13 @@ class DataConsumer<B, K, V> internal constructor(
         logger.info("Starter... groupId: ${consumer.groupMetadata().groupId()}")
         return CompletableFuture.runAsync {
             val topics: List<String> = topicToConsumerVersion.keys.toList()
-            consumer.subscribe(topics)
+            consumer.subscribe(topics, HwmRebalanceListener(
+                topics = hwmTopicConfig.toList(),
+                consumer = consumer,
+                defaultHwm = -1,
+                onAssigned = consumerHealthMetric,
+                onRevoked = consumerHealthMetric
+            ))
             use {
                 logger.info("Startet groupId: ${consumer.groupMetadata().groupId()}")
                 while (shouldRun.get()) {
