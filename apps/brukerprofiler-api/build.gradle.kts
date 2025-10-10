@@ -24,6 +24,7 @@ dependencies {
     implementation(project(":lib:logging"))
     implementation(project(":lib:health"))
     implementation(project(":lib:hwm"))
+    implementation(project(":lib:pdl-client"))
     implementation(project(":domain-dev:ledigestillinger"))
 
     // Server

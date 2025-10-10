@@ -56,7 +56,7 @@ fun main() {
         hwmTopicConfig = topics
     )
     val dataSource = initDatabase(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
-    val idClient = createKafkaKeyGeneratorClient()
+    val webClients = initWebClient()
     val appContext = ApplicationContext(
         consumer = consumer,
         dataSource = dataSource,
@@ -66,7 +66,8 @@ fun main() {
             consumer,
             DatasourceLivenessProbe(dataSource)
         ),
-        idClient = idClient
+        idClient = webClients.kafkaClient,
+        pdlClient = webClients.pdlClient
     )
     runApp(appContext)
 }

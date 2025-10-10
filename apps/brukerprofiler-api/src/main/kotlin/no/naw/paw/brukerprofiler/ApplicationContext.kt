@@ -6,6 +6,7 @@ import no.nav.paw.health.HealthChecks
 import no.nav.paw.hwm.DataConsumer
 import no.nav.paw.hwm.Message
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.avro.specific.SpecificRecord
 import java.io.Closeable
@@ -16,6 +17,7 @@ data class ApplicationContext(
     val prometheusMeterRegistry: PrometheusMeterRegistry,
     val securityConfig: SecurityConfig,
     val healthChecks: HealthChecks,
-    val idClient: KafkaKeysClient
+    val idClient: KafkaKeysClient,
+    val pdlClient: PdlClient,
 )
 
