@@ -2,11 +2,8 @@ package no.nav.paw.pdl.client
 
 import no.nav.paw.pdl.exception.PdlPersonIkkeFunnetException
 import no.nav.paw.pdl.exception.PdlUkjentFeilException
-import no.nav.paw.pdl.graphql.generated.HENT_ADRESSEBESKYTTELSE
 import no.nav.paw.pdl.graphql.generated.HentAdressebeskyttelse
-import no.nav.paw.pdl.graphql.generated.HentOpphold
 import no.nav.paw.pdl.graphql.generated.hentadressebeskyttelse.Adressebeskyttelse
-import no.nav.paw.pdl.graphql.generated.hentopphold.Opphold
 
 suspend fun PdlClient.hentAdressebeskyttelse(
     ident: String,
