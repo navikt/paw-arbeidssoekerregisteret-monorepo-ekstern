@@ -2,6 +2,8 @@ create table bruker
 (
     id                             bigserial primary key,
     identitetsnummer               varchar(11) not null,
+    kan_tilbys_tjenesten           varchar(10)     not null,
+    kan_tilbys_tjenesten_timestamp timestamp(3) not null,
     tjenesten_er_aktiv             boolean     not null,
     har_brukt_tjenesten            boolean     not null,
     arbeidssoekerperiode_id        UUID,
