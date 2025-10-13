@@ -56,8 +56,8 @@ spec:
     inbound:
       rules:
         - application: arena
-        - namespace: teamarenanais
-        - cluster: dev-fss
+          namespace: teamarenanais
+          cluster: dev-fss
         - application: tokenx-token-generator
           namespace: nais
         - application: azure-token-generator
