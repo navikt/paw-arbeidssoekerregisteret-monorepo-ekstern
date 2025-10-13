@@ -8,6 +8,7 @@ import no.nav.paw.model.asIdentitetsnummer
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.brukerprofiler.db.initDatabase
+import no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
@@ -39,6 +40,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
                 bruker.shouldNotBeNull()
                 bruker.identitetsnummer.verdi shouldBe periode.identitetsnummer
                 bruker.arbeidssoekerperiodeId shouldBe periode.id
+                bruker.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
                 bruker.tjenestenErAktiv shouldBe false
                 bruker.harBruktTjenesten shouldBe false
                 bruker.arbeidssoekerperiodeAvsluttet.shouldBeNull()
@@ -58,6 +60,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             brukerFraDb.identitetsnummer.verdi shouldBe periodeAvsluttet.identitetsnummer
             brukerFraDb.arbeidssoekerperiodeId shouldBe periodeAvsluttet.id
             brukerFraDb.tjenestenErAktiv shouldBe false
+            brukerFraDb.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
             brukerFraDb.harBruktTjenesten shouldBe false
             brukerFraDb.arbeidssoekerperiodeAvsluttet shouldBe periodeAvsluttet.avsluttet.tidspunkt
         }

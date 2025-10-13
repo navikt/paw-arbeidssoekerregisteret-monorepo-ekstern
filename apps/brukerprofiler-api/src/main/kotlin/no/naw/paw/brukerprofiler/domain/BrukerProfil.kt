@@ -8,6 +8,8 @@ data class BrukerProfil(
     val id: Long,
     val identitetsnummer: Identitetsnummer,
     val tjenestenErAktiv: Boolean,
+    val kanTilbysTjenesten: KanTilbysTjenesten,
+    val kanTilbysTjenestenTimestamp: Instant,
     val harBruktTjenesten: Boolean,
     val arbeidssoekerperiodeId: UUID,
     val arbeidssoekerperiodeAvsluttet: Instant?
