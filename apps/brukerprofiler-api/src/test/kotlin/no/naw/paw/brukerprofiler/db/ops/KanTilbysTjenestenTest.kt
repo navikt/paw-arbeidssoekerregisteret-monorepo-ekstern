@@ -81,7 +81,7 @@ class KanTilbysTjenestenTest : FreeSpec({
             val resultat = kanTilbysTjenesten(
                 brukerProfil = testCase.brukerProfil,
                 profilering = testCase.profilering,
-                harGradertAdresse = testCase.erAdressebeskyttet,
+                harBeskyttetAdresse = testCase.erAdressebeskyttet,
             )
             resultat shouldBe testCase.forventetResultat
         }
