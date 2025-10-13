@@ -1,0 +1,61 @@
+openapi: "3.0.3"
+info:
+  title: "BrukerprofilerI"
+  description: "Noe greier"
+  version: "0.1.0"
+servers:
+  - url: "https://brukerprofiler-arbeidssoekerregisteret.intern.dev.nav.no"
+    description: "Development"
+paths:
+  /api/v1/brukerprofil/ :
+    get:
+      description: "Hent brukerprofil for en gitt bruker"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Brukerprofil"
+components:
+  schemas:
+    Brukerprofil:
+      type: "object"
+      properties:
+        identitetsnummer:
+          type: "string"
+          example: "12345678901"
+          format: "identitetsnummer"
+        kanTilbysTjenestenLedigeStillinger:
+          type: "boolean"
+          example: true
+        erTjenestenLedigeStillingerAktiv:
+          type: "boolean"
+          example: true
+        stillingssoek:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Stillingssoek"
+    Stillingssoek:
+      oneOf:
+        - $ref: "#/components/schemas/SimpeltSoek"
+    SimpeltSoek:
+      type: "object"
+      properties:
+        soekType:
+          type: "string"
+          enum:
+            - "SIMPELT_SOEK_V1"
+        kommune:
+          type: "string"
+          example: "0301"
+          format: "kommunenummer"
+        styrk08:
+          type: "string"
+          example: "1234"
+          format: "styrk08"
+      required:
+        - "soekType"
+        - "kommune"
+        - "styrk08"
+
