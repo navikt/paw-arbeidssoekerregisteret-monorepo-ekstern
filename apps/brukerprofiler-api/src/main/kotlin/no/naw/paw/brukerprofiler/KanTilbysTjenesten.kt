@@ -14,7 +14,7 @@ import java.time.Duration.between
 import java.time.Duration.ofDays
 import java.time.Instant
 
-val KAN_TILBYS_TJENESTEN_GYLDIGHETSPERIODE = ofDays(1)
+val KAN_TILBYS_TJENESTEN_GYLDIGHETSPERIODE: Duration = ofDays(1)
 
 class BrukerprofilTjeneste(
     private val pdlClient: PdlClient,

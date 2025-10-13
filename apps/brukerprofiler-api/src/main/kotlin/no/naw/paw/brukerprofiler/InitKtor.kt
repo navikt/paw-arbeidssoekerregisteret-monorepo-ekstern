@@ -33,7 +33,8 @@ fun <A> initEmbeddedKtorServer(
     prometheusRegistry: PrometheusMeterRegistry,
     meterBinders: List<MeterBinder>,
     healthIndicator: A,
-    authProviders: List<AuthProvider>
+    authProviders: List<AuthProvider>,
+    brukerprofilTjeneste: BrukerprofilTjeneste,
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> where
         A : LivenessCheck, A : ReadinessCheck, A : StartupCheck {
 
@@ -47,7 +48,8 @@ fun <A> initEmbeddedKtorServer(
             livenessRoute(healthIndicator)
             readinessRoute(healthIndicator)
             startupRoute(healthIndicator)
-            get("/internal/metrics")  {
+            brukerprofilRoute(brukerprofilTjeneste)
+            get("/internal/metrics") {
                 call.respond(
                     status = HttpStatusCode.OK,
                     message = prometheusRegistry.scrape()
@@ -60,7 +62,7 @@ fun <A> initEmbeddedKtorServer(
 fun Application.configureKtorServer(
     prometheusRegistry: PrometheusMeterRegistry,
     meterBinders: List<MeterBinder>,
-    authProviders: List<AuthProvider>
+    authProviders: List<AuthProvider>,
 ) {
     installContentNegotiationPlugin()
     install(CallLogging) {

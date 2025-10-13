@@ -11,6 +11,7 @@ fun runApp(applicationContext: ApplicationContext): Unit {
         meterBinders = listOf(),
         healthIndicator = applicationContext.healthChecks,
         authProviders = applicationContext.securityConfig.authProviders,
+        brukerprofilTjeneste = applicationContext.brukerprofilTjeneste
     )
     Runtime.getRuntime().addShutdownHook(Thread {
         appLogger.info("Applikasjonen avsluttes...")

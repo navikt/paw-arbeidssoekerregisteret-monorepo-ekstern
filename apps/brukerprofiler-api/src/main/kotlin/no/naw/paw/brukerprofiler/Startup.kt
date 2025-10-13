@@ -15,7 +15,6 @@ import no.nav.paw.hwm.Message
 import no.nav.paw.hwm.asMessageConsumerWithHwmAndMetrics
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.factory.KafkaFactory
-import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.naw.paw.brukerprofiler.db.initDatabase
@@ -25,7 +24,7 @@ import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 
 val appLogger = LoggerFactory.getLogger("brukerprofiler_api")
 
@@ -57,6 +56,7 @@ fun main() {
     )
     val dataSource = initDatabase(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val webClients = initWebClient()
+    val brukerprofilTjeneste = BrukerprofilTjeneste(webClients.pdlClient)
     val appContext = ApplicationContext(
         consumer = consumer,
         dataSource = dataSource,
@@ -67,7 +67,8 @@ fun main() {
             DatasourceLivenessProbe(dataSource)
         ),
         idClient = webClients.kafkaClient,
-        pdlClient = webClients.pdlClient
+        pdlClient = webClients.pdlClient,
+        brukerprofilTjeneste = brukerprofilTjeneste
     )
     runApp(appContext)
 }

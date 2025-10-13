@@ -9,7 +9,6 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.avro.specific.SpecificRecord
-import java.io.Closeable
 
 data class ApplicationContext(
     val consumer: DataConsumer<Message<Long, SpecificRecord>, Long, SpecificRecord>,
@@ -19,5 +18,6 @@ data class ApplicationContext(
     val healthChecks: HealthChecks,
     val idClient: KafkaKeysClient,
     val pdlClient: PdlClient,
+    val brukerprofilTjeneste: BrukerprofilTjeneste
 )
 
