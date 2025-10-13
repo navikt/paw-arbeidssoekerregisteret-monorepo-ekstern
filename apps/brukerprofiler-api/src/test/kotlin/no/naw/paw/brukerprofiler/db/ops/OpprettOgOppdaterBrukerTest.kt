@@ -11,6 +11,7 @@ import no.naw.paw.brukerprofiler.db.initDatabase
 import no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Instant
 
 class OpprettOgOppdaterBrukerTest : FreeSpec({
     val postgres = postgreSQLContainer()
@@ -19,7 +20,6 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
     val periodeFactory = PeriodeFactory.create()
     val metadataFactory = MetadataFactory.create()
     beforeSpec { Database.connect(dataSource) }
-
 
     val periode = periodeFactory.build(avsluttet = null)
     "Verifiser oppretting og oppdatering av bruker i databasen" - {
@@ -63,6 +63,25 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             brukerFraDb.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
             brukerFraDb.harBruktTjenesten shouldBe false
             brukerFraDb.arbeidssoekerperiodeAvsluttet shouldBe periodeAvsluttet.avsluttet.tidspunkt
+        }
+    }
+
+    "Sjekk at vi kan oppdatere kanTilbysTjenesten" - {
+        transaction {
+            opprettOgOppdaterBruker(periode)
+        }
+        val nå = Instant.now()
+        val kanTilbysTjenesten = KanTilbysTjenesten.JA
+        transaction {
+            val kunneOppdatereBrukerprofil = settKanTilbysTjenesten(
+                identitetsnummer = periode.identitetsnummer.asIdentitetsnummer(),
+                tidspunkt = nå,
+                kanTilbysTjenesten = kanTilbysTjenesten
+            )
+            kunneOppdatereBrukerprofil shouldBe true
+            val brukerFraDb = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
+            brukerFraDb.shouldNotBeNull()
+            brukerFraDb.kanTilbysTjenesten shouldBe kanTilbysTjenesten
         }
     }
 })

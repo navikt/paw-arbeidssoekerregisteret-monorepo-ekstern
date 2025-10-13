@@ -1,4 +1,4 @@
-package no.naw.paw.brukerprofiler.db.ops
+package no.naw.paw.brukerprofiler
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
@@ -8,7 +8,6 @@ import no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten
 import no.naw.paw.brukerprofiler.domain.Profilering
 import no.naw.paw.brukerprofiler.domain.ProfileringResultat
 import no.naw.paw.brukerprofiler.domain.ProfileringResultat.ANTATT_BEHOV_FOR_VEILEDNING
-import no.naw.paw.brukerprofiler.kanTilbysTjenesten
 import java.time.Instant
 import java.util.UUID
 
