@@ -1,5 +1,9 @@
 package no.naw.paw.brukerprofiler.api
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
+
 data class Brukerprofil(
     val identitetsnummer: String,
     val kanTilbysTjenestenLedigeStillinger: Boolean,
@@ -7,10 +11,20 @@ data class Brukerprofil(
     val stillingssoek: List<Stillingssoek>
 )
 
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "soekType",
+    visible = true
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(SimpeltSoek::class, name = "SIMPELT_SOEK_V1")
+)
 sealed interface Stillingssoek {
     val soekType: StillingssoekType
 }
 
+@JsonTypeName("SIMPELT_SOEK_V1")
 data class SimpeltSoek(
     override val soekType: StillingssoekType,
     val kommune: String,

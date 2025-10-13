@@ -39,6 +39,10 @@ components:
     Stillingssoek:
       oneOf:
         - $ref: "#/components/schemas/SimpeltSoek"
+      discriminator:
+        propertyName: soekType
+        mapping:
+          SIMPELT_SOEK_V1: '#/components/schemas/SimpeltSoek'
     SimpeltSoek:
       type: "object"
       properties:

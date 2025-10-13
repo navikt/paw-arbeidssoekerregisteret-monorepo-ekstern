@@ -53,7 +53,6 @@ class BrukerprofilRouteTest : FreeSpec({
                 contentType(Application.Json)
             }
             response.validateAgainstOpenApiSpec()
-
             response.status shouldBe HttpStatusCode.OK
             response.body<Brukerprofil>().identitetsnummer shouldBe testIdent.verdi
         }

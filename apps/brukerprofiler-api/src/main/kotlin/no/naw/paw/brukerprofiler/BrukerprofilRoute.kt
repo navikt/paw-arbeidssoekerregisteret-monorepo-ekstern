@@ -11,6 +11,8 @@ import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.naw.paw.brukerprofiler.api.Brukerprofil
+import no.naw.paw.brukerprofiler.api.SimpeltSoek
+import no.naw.paw.brukerprofiler.api.StillingssoekType
 
 const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
 
@@ -27,7 +29,13 @@ fun Route.brukerprofilRoute(
                 identitetsnummer = identitetsnummer.verdi,
                 kanTilbysTjenestenLedigeStillinger = kanTilbysTjenesten,
                 erTjenestenLedigeStillingerAktiv = false,
-                stillingssoek = emptyList(),
+                stillingssoek = listOf(
+                    SimpeltSoek(
+                        soekType = StillingssoekType.SIMPELT_SOEK_V1,
+                        kommune = "3057",
+                        styrk08 = "1234"
+                    )
+                ),
             )
             call.respond(HttpStatusCode.OK, brukerprofil)
         }
