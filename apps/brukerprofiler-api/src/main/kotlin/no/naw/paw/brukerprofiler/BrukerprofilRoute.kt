@@ -12,13 +12,18 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
-import no.naw.paw.brukerprofiler.api.ReiseveiSoek
 import no.naw.paw.brukerprofiler.api.Brukerprofil
 import no.naw.paw.brukerprofiler.api.Fylke
+import no.naw.paw.brukerprofiler.api.ReiseveiSoek
 import no.naw.paw.brukerprofiler.api.StedSoek
 import no.naw.paw.brukerprofiler.api.StillingssoekType
+import no.naw.paw.brukerprofiler.db.ops.hentBrukerProfil
+import no.naw.paw.brukerprofiler.db.ops.setErIkkeInteressert
+import no.naw.paw.brukerprofiler.db.ops.setTjenestenErAktiv
 
 const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
+const val ER_TJENESTEN_AKTIV_PATH = "$BRUKERPROFIL_PATH/erTjenestenLedigeStillingerAktiv"
+const val ER_IKKE_INTERESSERT_PATH = "$BRUKERPROFIL_PATH/erIkkeInteressert"
 
 fun Route.brukerprofilRoute(
     brukerprofilTjeneste: BrukerprofilTjeneste,
@@ -28,13 +33,18 @@ fun Route.brukerprofilRoute(
             get("") {
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
+
+                //TODO: Dette er rart. kanTilbysTjenesten kaller hentBrukerprofil, og så kaller vi den på nytt for
+                // å populere tjenestenErAktiv og erIkkeInteressert. Burde se på strukturen her.
                 val kanTilbysTjenesten = brukerprofilTjeneste.kanTilbysTjenesten(identitetsnummer)
+                val brukerProfil = hentBrukerProfil(identitetsnummer)
+
 
                 val brukerprofil = Brukerprofil(
                     identitetsnummer = identitetsnummer.verdi,
                     kanTilbysTjenestenLedigeStillinger = kanTilbysTjenesten,
-                    erTjenestenLedigeStillingerAktiv = false,
-                    erIkkeInteressert = false,
+                    erTjenestenLedigeStillingerAktiv = brukerProfil!!.tjenestenErAktiv,
+                    erIkkeInteressert = brukerProfil.erIkkeInteressert,
                     stillingssoek = listOf(
                         StedSoek(
                             soekType = StillingssoekType.STED_SOEK_V1,
@@ -57,10 +67,22 @@ fun Route.brukerprofilRoute(
                 call.respond(HttpStatusCode.OK, brukerprofil)
             }
             put("/erTjenestenLedigeStillingerAktiv/{aktiv}") {
-                call.respond(HttpStatusCode.NotImplemented)
+                val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
+                    ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
+                val erTjenestenAktiv = call.parameters["aktiv"]?.toBooleanStrictOrNull()
+                    ?: throw BadRequestException("Ugyldig verdi for param 'aktiv'")
+
+                setTjenestenErAktiv(identitetsnummer, erTjenestenAktiv)
+                call.respond(HttpStatusCode.NoContent)
             }
             put("/erIkkeInteressert/{erIkkeInteressert}") {
-                call.respond(HttpStatusCode.NotImplemented)
+                val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
+                    ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
+                val erIkkeInteressert = call.parameters["erIkkeInteressert"]?.toBooleanStrictOrNull()
+                    ?: throw BadRequestException("Ugyldig verdi for param 'erIkkeInteressert'")
+
+                setErIkkeInteressert(identitetsnummer, erIkkeInteressert)
+                call.respond(HttpStatusCode.NoContent)
             }
         }
     }

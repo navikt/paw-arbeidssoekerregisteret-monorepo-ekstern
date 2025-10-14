@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 
-fun settKanTilbysTjenesten(
+fun setKanTilbysTjenesten(
     identitetsnummer: Identitetsnummer,
     tidspunkt: Instant,
     kanTilbysTjenesten: KanTilbysTjenesten

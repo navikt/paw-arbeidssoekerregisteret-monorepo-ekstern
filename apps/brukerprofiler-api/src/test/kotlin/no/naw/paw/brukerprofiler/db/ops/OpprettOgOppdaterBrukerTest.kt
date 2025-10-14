@@ -68,14 +68,14 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
         }
     }
 
-    "Sjekk at vi kan oppdatere kanTilbysTjenesten" - {
+    "Sjekk at vi kan oppdatere kanTilbysTjenesten" {
         transaction {
             opprettOgOppdaterBruker(periode)
         }
         val nå = Instant.now()
         val kanTilbysTjenesten = KanTilbysTjenesten.JA
         transaction {
-            val kunneOppdatereBrukerprofil = settKanTilbysTjenesten(
+            val kunneOppdatereBrukerprofil = setKanTilbysTjenesten(
                 identitetsnummer = periode.identitetsnummer.asIdentitetsnummer(),
                 tidspunkt = nå,
                 kanTilbysTjenesten = kanTilbysTjenesten
@@ -84,6 +84,39 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             val brukerFraDb = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
             brukerFraDb.shouldNotBeNull()
             brukerFraDb.kanTilbysTjenesten shouldBe kanTilbysTjenesten
+        }
+    }
+    "Sjekk at vi kan oppdatere tjenestenErAktiv" {
+        transaction {
+            opprettOgOppdaterBruker(periode)
+        }
+        val erTjenestenAktiv = true
+        transaction {
+            val kunneOppdatereBrukerprofil = setTjenestenErAktiv(
+                identitetsnummer = periode.identitetsnummer.asIdentitetsnummer(),
+                erTjenestenAktiv = erTjenestenAktiv,
+            )
+            kunneOppdatereBrukerprofil shouldBe true
+            val brukerFraDb = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
+            brukerFraDb.shouldNotBeNull()
+            brukerFraDb.tjenestenErAktiv shouldBe erTjenestenAktiv
+        }
+    }
+
+    "Sjekk at vi kan oppdatere erIkkeInteressert" {
+        transaction {
+            opprettOgOppdaterBruker(periode)
+        }
+        val erIkkeInteressert = true
+        transaction {
+            val kunneOppdatereBrukerprofil = setErIkkeInteressert(
+                identitetsnummer = periode.identitetsnummer.asIdentitetsnummer(),
+                erIkkeInteressert = erIkkeInteressert,
+            )
+            kunneOppdatereBrukerprofil shouldBe true
+            val brukerFraDb = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
+            brukerFraDb.shouldNotBeNull()
+            brukerFraDb.erIkkeInteressert shouldBe erIkkeInteressert
         }
     }
 })

@@ -80,13 +80,13 @@ class BrukerprofilRouteTest : FreeSpec({
                 profil.erIkkeInteressert shouldBe false
                 profil.erTjenestenLedigeStillingerAktiv shouldBe false
             }
-            val responseSetAktiv = testClient().put("$BRUKERPROFIL_PATH/erTjenestenLedigeStillingerAktiv/true") {
+            val responseSetAktiv = testClient().put("$ER_TJENESTEN_AKTIV_PATH/true") {
                 bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                 contentType(Application.Json)
             }
             responseSetAktiv.validateAgainstOpenApiSpec()
             responseSetAktiv.status shouldBe HttpStatusCode.NoContent
-            val responseSetIkkeIntr = testClient().put("$BRUKERPROFIL_PATH/erIkkeInteressert/true") {
+            val responseSetIkkeIntr = testClient().put("$ER_IKKE_INTERESSERT_PATH/true") {
                 bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                 contentType(Application.Json)
             }
