@@ -47,12 +47,12 @@ components:
     Stillingssoek:
       oneOf:
         - $ref: "#/components/schemas/StedSoek"
-        - $ref: "#/components/schemas/AvansertSoek"
+        - $ref: "#/components/schemas/ReiseveiSoek"
       discriminator:
         propertyName: soekType
         mapping:
           STED_SOEK_V1: '#/components/schemas/StedSoek'
-          AVANSERT_SOEK_V1: '#/components/schemas/AvansertSoek'
+          REISEVEI_SOEK_V1: '#/components/schemas/ReiseveiSoek'
     StedSoek:
       type: "object"
       properties:
@@ -89,21 +89,27 @@ components:
         - "navn"
         - "kommuner"
 
-    AvansertSoek:
+    ReiseveiSoek:
       type: "object"
       properties:
         soekType:
           type: "string"
           enum:
-            - "AVANSERT_SOEK_V1"
-        hugga:
+            - "REISEVEI_SOEK_V1"
+        maksAvstandKm:
           type: "integer"
           example: 42
-        styrk08:
+        postnummer:
           type: "string"
-          example: "1234"
-          format: "styrk08"
+          example: "5145"
+          format: "postnummer"
+        soekeord:
+          type: "array"
+          items:
+            type: "string"
+            example: "Tryllekunstner"
       required:
         - "soekType"
-        - "hugga"
-        - "styrk08"
+        - "maksAvstandKm"
+        - "postnummer"
+        - "soekeord"

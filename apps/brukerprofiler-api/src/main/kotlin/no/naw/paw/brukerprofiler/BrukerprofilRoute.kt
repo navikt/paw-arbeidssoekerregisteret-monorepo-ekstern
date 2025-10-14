@@ -11,7 +11,7 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
-import no.naw.paw.brukerprofiler.api.AvansertSoek
+import no.naw.paw.brukerprofiler.api.ReiseveiSoek
 import no.naw.paw.brukerprofiler.api.Brukerprofil
 import no.naw.paw.brukerprofiler.api.Fylke
 import no.naw.paw.brukerprofiler.api.StedSoek
@@ -45,10 +45,11 @@ fun Route.brukerprofilRoute(
                             ),
                             soekeord = listOf("Tryllekunstner"),
                         ),
-                        AvansertSoek(
-                            soekType = StillingssoekType.AVANSERT_SOEK_V1,
-                            hugga = 42,
-                            styrk08 = "1234"
+                        ReiseveiSoek(
+                            soekType = StillingssoekType.REISEVEI_SOEK_V1,
+                            maksAvstandKm = 42,
+                            postnummer = "5145",
+                            soekeord = listOf("Tryllekunstner"),
                         )
                     ),
                 )

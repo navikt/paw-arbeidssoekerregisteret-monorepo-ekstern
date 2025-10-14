@@ -20,33 +20,38 @@ data class Brukerprofil(
 )
 @JsonSubTypes(
     JsonSubTypes.Type(StedSoek::class, name = "STED_SOEK_V1"),
-    JsonSubTypes.Type(AvansertSoek::class, name = "AVANSERT_SOEK_V1")
+    JsonSubTypes.Type(ReiseveiSoek::class, name = "REISEVEI_SOEK_V1")
 )
 sealed interface Stillingssoek {
     val soekType: StillingssoekType
+}
+
+interface HarSoekeord {
+    val soekeord: List<String>
 }
 
 @JsonTypeName("STED_SOEK_V1")
 data class StedSoek(
     override val soekType: StillingssoekType,
     val fylker: List<Fylke>,
-    val soekeord: List<String>,
-): Stillingssoek
+    override val soekeord: List<String>,
+): Stillingssoek, HarSoekeord
 
 data class Fylke(
     val navn: String,
     val kommuner: List<String> = emptyList(),
 )
 
-@JsonTypeName("AVANSERT_SOEK_V1")
-data class AvansertSoek(
+@JsonTypeName("REISEVEI_SOEK_V1")
+data class ReiseveiSoek(
     override val soekType: StillingssoekType,
-    val hugga: Int,
-    val styrk08: String
-): Stillingssoek
+    val maksAvstandKm: Int,
+    val postnummer: String,
+    override val soekeord: List<String>
+): Stillingssoek, HarSoekeord
 
 
 enum class StillingssoekType {
     STED_SOEK_V1,
-    AVANSERT_SOEK_V1
+    REISEVEI_SOEK_V1
 }
