@@ -11,7 +11,6 @@ import no.nav.paw.arbeidssoekerregisteret.utils.ConsumerHealthMetric
 import no.nav.paw.arbeidssokerregisteret.TopicNames
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
-import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
@@ -30,7 +29,6 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
-import no.nav.paw.security.texas.TexasClient
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.Producer
@@ -70,10 +68,6 @@ data class ApplicationContext(
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
             val kafkaKeysClient = createKafkaKeyGeneratorClient()
-            val texasClient = TexasClient(
-                applicationConfig.texasClientConfig,
-                httpClient = createHttpClient(),
-            )
 
             val kafkaFactory = KafkaFactory(kafkaConfig)
             val egenvurderingAvroSerializer: Serializer<Egenvurdering> = kafkaFactory.kafkaAvroSerializer()

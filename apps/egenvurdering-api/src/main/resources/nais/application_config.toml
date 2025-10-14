@@ -2,7 +2,3 @@
 producerVersion = "${KAFKA_PAW_EGENVURDERING_PRODUCER_VERSION}"
 applicationIdPrefix = "paw-arbeidssoekerregisteret-api-egenvurdering"
 egenvurderingTopic = "${KAFKA_PAW_EGENVURDERING_TOPIC}"
-
-[TexasClientConfig]
-endpoint = "${NAIS_TOKEN_EXCHANGE_ENDPOINT}"
-target = "change-me"

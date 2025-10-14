@@ -2,7 +2,3 @@
 producerVersion = "paw-egenvurdering-producer-v1"
 applicationIdPrefix = "paw-arbeidssoekerregisteret-api-egenvurdering"
 egenvurderingTopic = "arbeidssoker-egenvurdering-v1"
-
-[texasClientConfig]
-endpoint = "http://localhost:8080/texas-dummy"
-target = "change-me"

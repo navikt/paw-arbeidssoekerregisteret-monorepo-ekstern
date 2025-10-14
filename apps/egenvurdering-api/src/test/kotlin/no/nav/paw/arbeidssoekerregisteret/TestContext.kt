@@ -5,14 +5,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
