@@ -18,19 +18,24 @@ data class Brukerprofil(
     visible = true
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(SimpeltSoek::class, name = "SIMPELT_SOEK_V1"),
+    JsonSubTypes.Type(StedSoek::class, name = "STED_SOEK_V1"),
     JsonSubTypes.Type(AvansertSoek::class, name = "AVANSERT_SOEK_V1")
 )
 sealed interface Stillingssoek {
     val soekType: StillingssoekType
 }
 
-@JsonTypeName("SIMPELT_SOEK_V1")
-data class SimpeltSoek(
+@JsonTypeName("STED_SOEK_V1")
+data class StedSoek(
     override val soekType: StillingssoekType,
-    val kommune: String,
-    val styrk08: String
+    val fylker: List<Fylke>,
+    val soekeord: List<String>,
 ): Stillingssoek
+
+data class Fylke(
+    val navn: String,
+    val kommuner: List<String> = emptyList(),
+)
 
 @JsonTypeName("AVANSERT_SOEK_V1")
 data class AvansertSoek(
@@ -41,6 +46,6 @@ data class AvansertSoek(
 
 
 enum class StillingssoekType {
-    SIMPELT_SOEK_V1,
+    STED_SOEK_V1,
     AVANSERT_SOEK_V1
 }

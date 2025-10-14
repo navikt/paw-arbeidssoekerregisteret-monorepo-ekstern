@@ -38,32 +38,48 @@ components:
             $ref: "#/components/schemas/Stillingssoek"
     Stillingssoek:
       oneOf:
-        - $ref: "#/components/schemas/SimpeltSoek"
+        - $ref: "#/components/schemas/StedSoek"
         - $ref: "#/components/schemas/AvansertSoek"
       discriminator:
         propertyName: soekType
         mapping:
-          SIMPELT_SOEK_V1: '#/components/schemas/SimpeltSoek'
+          STED_SOEK_V1: '#/components/schemas/StedSoek'
           AVANSERT_SOEK_V1: '#/components/schemas/AvansertSoek'
-    SimpeltSoek:
+    StedSoek:
       type: "object"
       properties:
         soekType:
           type: "string"
           enum:
-            - "SIMPELT_SOEK_V1"
-        kommune:
-          type: "string"
-          example: "0301"
-          format: "kommunenummer"
-        styrk08:
-          type: "string"
-          example: "1234"
-          format: "styrk08"
+            - "STED_SOEK_V1"
+        fylker:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Fylke"
+        soekeord:
+          type: "array"
+          items:
+            type: "string"
+            example: "Tryllekunstner"
       required:
         - "soekType"
-        - "kommune"
-        - "styrk08"
+        - "fylker"
+        - "soekeord"
+
+    Fylke:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+          example: "Buskerud"
+        kommuner:
+          type: "array"
+          items:
+            type: "string"
+            example: "Nedre Eiker"
+      required:
+        - "navn"
+        - "kommuner"
 
     AvansertSoek:
       type: "object"

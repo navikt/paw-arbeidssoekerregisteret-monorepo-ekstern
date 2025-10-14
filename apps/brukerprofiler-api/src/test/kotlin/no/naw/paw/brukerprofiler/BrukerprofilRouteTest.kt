@@ -9,7 +9,6 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -44,13 +43,12 @@ class BrukerprofilRouteTest : FreeSpec({
                     authProviders = listOf(oauthServer.tokenXAuthProvider)
                 )
             }
-            routing {
-                brukerprofilRoute(brukerprofilTjeneste)
-            }
+            routing { brukerprofilRoute(brukerprofilTjeneste) }
+
             val testIdent = Identitetsnummer("12345678901")
-            val token: String = oauthServer.personToken(id = testIdent)!!
+
             val response = testClient().get(BRUKERPROFIL_PATH) {
-                bearerAuth(token)
+                bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                 contentType(Application.Json)
             }
             response.validateAgainstOpenApiSpec()
@@ -72,16 +70,16 @@ private val MockOAuth2Server.tokenXAuthProvider: AuthProvider
         )
     )
 
-private fun MockOAuth2Server.personToken(
+private fun MockOAuth2Server.sluttbrukerToken(
     id: Identitetsnummer,
     acr: String = "idporten-loa-high",
-): String? =
+): String =
     mapOf(
         "acr" to acr,
         "pid" to id.verdi
     ).let {
-        it.plus("issuer" to "tokenx") to issueToken(claims = it)
-    }.second.serialize()
+        it.plus("issuer" to TokenX.name) to issueToken(claims = it)
+    }.second.serialize()!!
 
 private fun ApplicationTestBuilder.testClient(): HttpClient = createClient {
     install(ContentNegotiation) {
