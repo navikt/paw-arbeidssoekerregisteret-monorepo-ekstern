@@ -11,6 +11,7 @@ data class BrukerProfil(
     val kanTilbysTjenesten: KanTilbysTjenesten,
     val kanTilbysTjenestenTimestamp: Instant,
     val harBruktTjenesten: Boolean,
+    val erIkkeInteressert: Boolean,
     val arbeidssoekerperiodeId: UUID,
     val arbeidssoekerperiodeAvsluttet: Instant?
 )

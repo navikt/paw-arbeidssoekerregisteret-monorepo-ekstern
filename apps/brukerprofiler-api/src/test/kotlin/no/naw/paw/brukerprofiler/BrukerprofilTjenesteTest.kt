@@ -19,6 +19,7 @@ class BrukerprofilTjenesteTest : FreeSpec({
         arbeidssoekerperiodeId = UUID.randomUUID(),
         harBruktTjenesten = false,
         tjenestenErAktiv = false,
+        erIkkeInteressert = false,
         arbeidssoekerperiodeAvsluttet = null
     )
     val profilering = Profilering(

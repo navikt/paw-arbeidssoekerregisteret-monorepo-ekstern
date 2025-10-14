@@ -27,6 +27,7 @@ val brukerProfil = BrukerProfil(
     kanTilbysTjenestenTimestamp = Instant.now(),
     harBruktTjenesten = true,
     arbeidssoekerperiodeId = arbeidssoekerperiodeId,
+    erIkkeInteressert = false,
     arbeidssoekerperiodeAvsluttet = null
 )
 val profilering = Profilering(

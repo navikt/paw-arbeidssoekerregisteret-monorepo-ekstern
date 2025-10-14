@@ -36,6 +36,14 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Stillingssoek"
+        erIkkeInteressert:
+          type: "boolean"
+          example: false
+      required:
+        - "identitetsnummer"
+        - "kanTilbysTjenestenLedigeStillinger"
+        - "erTjenestenLedigeStillingerAktiv"
+        - "erIkkeInteressert"
     Stillingssoek:
       oneOf:
         - $ref: "#/components/schemas/StedSoek"

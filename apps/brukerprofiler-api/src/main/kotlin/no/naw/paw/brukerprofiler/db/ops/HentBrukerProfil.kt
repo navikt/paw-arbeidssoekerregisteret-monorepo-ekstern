@@ -19,6 +19,7 @@ fun hentBrukerProfil(identitetsnummer: Identitetsnummer): BrukerProfil? =
                 identitetsnummer = row[BrukerTable.identitetsnummer].asIdentitetsnummer(),
                 tjenestenErAktiv = row[BrukerTable.tjenestenErAktiv],
                 harBruktTjenesten = row[BrukerTable.harBruktTjenesten],
+                erIkkeInteressert = row[BrukerTable.erIkkeInteressert],
                 arbeidssoekerperiodeId = row[BrukerTable.arbeidssoekerperiodeId],
                 kanTilbysTjenesten = KanTilbysTjenesten.valueOf(row[BrukerTable.kanTilbysTjenesten]),
                 kanTilbysTjenestenTimestamp = row[BrukerTable.kanTilbysTjenestenTimestamp],

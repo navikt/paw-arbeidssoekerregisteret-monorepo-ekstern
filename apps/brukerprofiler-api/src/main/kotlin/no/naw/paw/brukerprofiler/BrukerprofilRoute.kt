@@ -33,6 +33,7 @@ fun Route.brukerprofilRoute(
                     identitetsnummer = identitetsnummer.verdi,
                     kanTilbysTjenestenLedigeStillinger = kanTilbysTjenesten,
                     erTjenestenLedigeStillingerAktiv = false,
+                    erIkkeInteressert = false,
                     stillingssoek = listOf(
                         StedSoek(
                             soekType = StillingssoekType.STED_SOEK_V1,

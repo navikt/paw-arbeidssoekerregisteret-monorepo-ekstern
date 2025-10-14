@@ -26,6 +26,7 @@ fun opprettOgOppdaterBruker(periode: Periode) {
             it[identitetsnummer] = periode.identitetsnummer
             it[tjenestenErAktiv] = false
             it[harBruktTjenesten] = false
+            it[erIkkeInteressert] = false
             it[kanTilbysTjenesten] = KanTilbysTjenesten.UKJENT.toDbString()
             it[kanTilbysTjenestenTimestamp] = Instant.now()
             it[arbeidssoekerperiodeId] = periode.id

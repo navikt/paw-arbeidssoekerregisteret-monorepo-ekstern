@@ -8,7 +8,8 @@ data class Brukerprofil(
     val identitetsnummer: String,
     val kanTilbysTjenestenLedigeStillinger: Boolean,
     val erTjenestenLedigeStillingerAktiv: Boolean,
-    val stillingssoek: List<Stillingssoek>
+    val stillingssoek: List<Stillingssoek>,
+    val erIkkeInteressert: Boolean,
 )
 
 @JsonTypeInfo(

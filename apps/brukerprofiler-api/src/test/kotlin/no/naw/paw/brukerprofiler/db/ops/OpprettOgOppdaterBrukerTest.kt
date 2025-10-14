@@ -43,6 +43,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
                 bruker.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
                 bruker.tjenestenErAktiv shouldBe false
                 bruker.harBruktTjenesten shouldBe false
+                bruker.erIkkeInteressert shouldBe false
                 bruker.arbeidssoekerperiodeAvsluttet.shouldBeNull()
             }
         }
@@ -62,6 +63,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             brukerFraDb.tjenestenErAktiv shouldBe false
             brukerFraDb.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
             brukerFraDb.harBruktTjenesten shouldBe false
+            brukerFraDb.erIkkeInteressert shouldBe false
             brukerFraDb.arbeidssoekerperiodeAvsluttet shouldBe periodeAvsluttet.avsluttet.tidspunkt
         }
     }
