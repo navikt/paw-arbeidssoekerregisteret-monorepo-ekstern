@@ -5,6 +5,7 @@ import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -54,6 +55,12 @@ fun Route.brukerprofilRoute(
                     ),
                 )
                 call.respond(HttpStatusCode.OK, brukerprofil)
+            }
+            put("/erTjenestenLedigeStillingerAktiv/{aktiv}") {
+                call.respond(HttpStatusCode.NotImplemented)
+            }
+            put("/erIkkeInteressert/{erIkkeInteressert}") {
+                call.respond(HttpStatusCode.NotImplemented)
             }
         }
     }

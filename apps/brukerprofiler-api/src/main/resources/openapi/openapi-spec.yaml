@@ -7,6 +7,34 @@ servers:
   - url: "https://brukerprofiler-arbeidssoekerregisteret.intern.dev.nav.no"
     description: "Development"
 paths:
+  /api/v1/brukerprofil/erTjenestenLedigeStillingerAktiv/{aktiv} :
+    put:
+      description: "Sett om tjenesten ledige stillinger er aktiv for en gitt bruker"
+      parameters:
+        - name: "aktiv"
+          in: "path"
+          required: true
+          schema:
+            type: "boolean"
+      responses:
+        "204":
+          description: "No Content"
+        "404":
+          description: "Not Found"
+  /api/v1/brukerprofil/erIkkeInteressert/{erIkkeInteressert} :
+    put:
+      description: "Sett om en bruker er ikke interessert i ledige stillinger"
+      parameters:
+        - name: "erIkkeInteressert"
+          in: "path"
+          required: true
+          schema:
+            type: "boolean"
+      responses:
+        "204":
+          description: "No Content"
+        "404":
+          description: "Not Found"
   /api/v1/brukerprofil/ :
     get:
       description: "Hent brukerprofil for en gitt bruker"

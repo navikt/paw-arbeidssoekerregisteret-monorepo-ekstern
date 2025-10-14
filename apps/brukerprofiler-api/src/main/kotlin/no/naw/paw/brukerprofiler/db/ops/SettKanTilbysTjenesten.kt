@@ -4,6 +4,7 @@ import no.nav.paw.model.Identitetsnummer
 import no.naw.paw.brukerprofiler.db.BrukerTable
 import no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 
@@ -12,13 +13,15 @@ fun settKanTilbysTjenesten(
     tidspunkt: Instant,
     kanTilbysTjenesten: KanTilbysTjenesten
 ): Boolean {
-    return BrukerTable.update(
-        body = {
-            it[BrukerTable.kanTilbysTjenesten] = kanTilbysTjenesten.name
-            it[kanTilbysTjenestenTimestamp] = tidspunkt
-        },
-        where = {
-            BrukerTable.identitetsnummer eq identitetsnummer.verdi
-        }
-    ) == 1
+    return transaction {
+        BrukerTable.update(
+            body = {
+                it[BrukerTable.kanTilbysTjenesten] = kanTilbysTjenesten.name
+                it[kanTilbysTjenestenTimestamp] = tidspunkt
+            },
+            where = {
+                BrukerTable.identitetsnummer eq identitetsnummer.verdi
+            }
+        ) == 1
+    }
 }
