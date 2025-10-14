@@ -11,6 +11,7 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
+import no.naw.paw.brukerprofiler.api.AvansertSoek
 import no.naw.paw.brukerprofiler.api.Brukerprofil
 import no.naw.paw.brukerprofiler.api.SimpeltSoek
 import no.naw.paw.brukerprofiler.api.StillingssoekType
@@ -36,13 +37,17 @@ fun Route.brukerprofilRoute(
                             soekType = StillingssoekType.SIMPELT_SOEK_V1,
                             kommune = "3057",
                             styrk08 = "1234"
+                        ),
+                        AvansertSoek(
+                            soekType = StillingssoekType.AVANSERT_SOEK_V1,
+                            hugga = 42,
+                            styrk08 = "1234"
                         )
                     ),
                 )
                 call.respond(HttpStatusCode.OK, brukerprofil)
             }
         }
-
     }
 }
 

@@ -39,10 +39,12 @@ components:
     Stillingssoek:
       oneOf:
         - $ref: "#/components/schemas/SimpeltSoek"
+        - $ref: "#/components/schemas/AvansertSoek"
       discriminator:
         propertyName: soekType
         mapping:
           SIMPELT_SOEK_V1: '#/components/schemas/SimpeltSoek'
+          AVANSERT_SOEK_V1: '#/components/schemas/AvansertSoek'
     SimpeltSoek:
       type: "object"
       properties:
@@ -63,3 +65,21 @@ components:
         - "kommune"
         - "styrk08"
 
+    AvansertSoek:
+      type: "object"
+      properties:
+        soekType:
+          type: "string"
+          enum:
+            - "AVANSERT_SOEK_V1"
+        hugga:
+          type: "integer"
+          example: 42
+        styrk08:
+          type: "string"
+          example: "1234"
+          format: "styrk08"
+      required:
+        - "soekType"
+        - "hugga"
+        - "styrk08"

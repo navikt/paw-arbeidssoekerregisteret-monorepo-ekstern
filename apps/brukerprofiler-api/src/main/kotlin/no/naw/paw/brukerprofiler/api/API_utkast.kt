@@ -18,7 +18,8 @@ data class Brukerprofil(
     visible = true
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(SimpeltSoek::class, name = "SIMPELT_SOEK_V1")
+    JsonSubTypes.Type(SimpeltSoek::class, name = "SIMPELT_SOEK_V1"),
+    JsonSubTypes.Type(AvansertSoek::class, name = "AVANSERT_SOEK_V1")
 )
 sealed interface Stillingssoek {
     val soekType: StillingssoekType
@@ -31,7 +32,15 @@ data class SimpeltSoek(
     val styrk08: String
 ): Stillingssoek
 
+@JsonTypeName("AVANSERT_SOEK_V1")
+data class AvansertSoek(
+    override val soekType: StillingssoekType,
+    val hugga: Int,
+    val styrk08: String
+): Stillingssoek
+
 
 enum class StillingssoekType {
-    SIMPELT_SOEK_V1
+    SIMPELT_SOEK_V1,
+    AVANSERT_SOEK_V1
 }
