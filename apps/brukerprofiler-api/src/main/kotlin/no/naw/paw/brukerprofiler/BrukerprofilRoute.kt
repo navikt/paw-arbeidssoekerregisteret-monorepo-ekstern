@@ -5,6 +5,7 @@ import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.route
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
@@ -19,26 +20,29 @@ const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
 fun Route.brukerprofilRoute(
     brukerprofilTjeneste: BrukerprofilTjeneste,
 ) {
-    autentisering(TokenX) {
-        get(BRUKERPROFIL_PATH) {
-            val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
-                ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-            val kanTilbysTjenesten = brukerprofilTjeneste.kanTilbysTjenesten(identitetsnummer)
+    route(BRUKERPROFIL_PATH) {
+        autentisering(TokenX) {
+            get("") {
+                val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
+                    ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
+                val kanTilbysTjenesten = brukerprofilTjeneste.kanTilbysTjenesten(identitetsnummer)
 
-            val brukerprofil = Brukerprofil(
-                identitetsnummer = identitetsnummer.verdi,
-                kanTilbysTjenestenLedigeStillinger = kanTilbysTjenesten,
-                erTjenestenLedigeStillingerAktiv = false,
-                stillingssoek = listOf(
-                    SimpeltSoek(
-                        soekType = StillingssoekType.SIMPELT_SOEK_V1,
-                        kommune = "3057",
-                        styrk08 = "1234"
-                    )
-                ),
-            )
-            call.respond(HttpStatusCode.OK, brukerprofil)
+                val brukerprofil = Brukerprofil(
+                    identitetsnummer = identitetsnummer.verdi,
+                    kanTilbysTjenestenLedigeStillinger = kanTilbysTjenesten,
+                    erTjenestenLedigeStillingerAktiv = false,
+                    stillingssoek = listOf(
+                        SimpeltSoek(
+                            soekType = StillingssoekType.SIMPELT_SOEK_V1,
+                            kommune = "3057",
+                            styrk08 = "1234"
+                        )
+                    ),
+                )
+                call.respond(HttpStatusCode.OK, brukerprofil)
+            }
         }
+
     }
 }
 
