@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 class SSBDataTest : FreeSpec({
     "Splitter fylker riktig" {
         SSBFylke(
-            code = "01",
+            fylkesnummer = "01",
             name = "Oslo - Kristiania",
         ) should {
             it.nameList.size shouldBe 2
@@ -17,7 +17,7 @@ class SSBDataTest : FreeSpec({
         }
 
         SSBFylke(
-            code = "04",
+            fylkesnummer = "04",
             name = "Møre og Romsdal"
         ) should {
             it.nameList.size shouldBe 1
@@ -27,7 +27,7 @@ class SSBDataTest : FreeSpec({
 
     "Splitter kommuner riktig" {
         SSBKommune(
-            code = "5538",
+            kommunenummer = "5538",
             name = "Storfjord - Omasvuotna - Omasvuono"
         ) should {
             it.nameList.size shouldBe 3
@@ -38,7 +38,7 @@ class SSBDataTest : FreeSpec({
         }
 
         SSBKommune(
-            code = "0426",
+            kommunenummer = "0426",
             name = "Stor-Elvdal",
         ) should {
             it.nameList.size shouldBe 1
@@ -47,7 +47,7 @@ class SSBDataTest : FreeSpec({
         }
 
         SSBKommune(
-            code = "0231",
+            kommunenummer = "0231",
             name = "Herøy (Møre og Romsdal)"
         ) should {
             it.nameList.size shouldBe 1

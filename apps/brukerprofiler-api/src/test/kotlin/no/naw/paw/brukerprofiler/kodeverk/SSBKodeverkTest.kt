@@ -15,8 +15,8 @@ class SSBKodeverkTest : FreeSpec({
     }
 
     "Uoppgitt fylke og kommune er ikke med" {
-        SSBKodeverk.fylker.find { it.code == UOPPGITT_FYLKE_CODE } shouldBe null
-        SSBKodeverk.kommuner.find { it.code == UOPPGITT_KOMMUNE_CODE } shouldBe null
+        SSBKodeverk.fylker.find { it.fylkesnummer == UOPPGITT_FYLKESNUMMER } shouldBe null
+        SSBKodeverk.kommuner.find { it.kommunenummer == UOPPGITT_KOMMUNENUMMER } shouldBe null
     }
 
     "Sanity check" {

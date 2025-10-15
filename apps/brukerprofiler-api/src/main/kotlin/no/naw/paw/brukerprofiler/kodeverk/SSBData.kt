@@ -1,14 +1,18 @@
 package no.naw.paw.brukerprofiler.kodeverk
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 data class SSBFylke(
-    val code: String,
+    @param:JsonProperty("code")
+    val fylkesnummer: String,
     private val name: String,
 ) {
     val nameList: List<String> = name.split("-").map { it.trim() }
 }
 
 data class SSBKommune(
-    val code: String,
+    @param:JsonProperty("code")
+    val kommunenummer: String,
     private val name: String,
 ) {
     // splitter "Trondheim - Tråante", men ikke "Stor-Elvdal"
@@ -16,7 +20,7 @@ data class SSBKommune(
         .map { it.trim() }
         .filter { it.isNotBlank() }
 
-    val fylkesnummer: String = code.take(2)
+    val fylkesnummer: String = kommunenummer.take(2)
 }
 
 data class SSBStyrkKode(
