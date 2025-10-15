@@ -17,6 +17,7 @@ import no.naw.paw.brukerprofiler.api.Fylke
 import no.naw.paw.brukerprofiler.api.ReiseveiSoek
 import no.naw.paw.brukerprofiler.api.StedSoek
 import no.naw.paw.brukerprofiler.api.StillingssoekType
+import no.naw.paw.brukerprofiler.api.apiBrukerprofil
 import no.naw.paw.brukerprofiler.db.ops.hentBrukerProfil
 import no.naw.paw.brukerprofiler.db.ops.setErIkkeInteressert
 import no.naw.paw.brukerprofiler.db.ops.setTjenestenErAktiv
@@ -34,37 +35,14 @@ fun Route.brukerprofilRoute(
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
 
-                //TODO: Dette er rart. kanTilbysTjenesten kaller hentBrukerprofil, og så kaller vi den på nytt for
-                // å populere tjenestenErAktiv og erIkkeInteressert. Burde se på strukturen her.
-                val kanTilbysTjenesten = brukerprofilTjeneste.kanTilbysTjenesten(identitetsnummer)
-                val brukerProfil = hentBrukerProfil(identitetsnummer)
-
-
-                val brukerprofil = Brukerprofil(
-                    identitetsnummer = identitetsnummer.verdi,
-                    kanTilbysTjenestenLedigeStillinger = kanTilbysTjenesten,
-                    erTjenestenLedigeStillingerAktiv = brukerProfil!!.tjenestenErAktiv,
-                    erIkkeInteressert = brukerProfil.erIkkeInteressert,
-                    stillingssoek = listOf(
-                        StedSoek(
-                            soekType = StillingssoekType.STED_SOEK_V1,
-                            fylker = listOf(
-                                Fylke("BUSKERUD", kommuner = listOf("DRAMMEN", "KONGSBERG")),
-                                Fylke("VESTLAND", kommuner = listOf("BERGEN")),
-                                Fylke("BODØ", kommuner = listOf("TROMSØ")),
-                                Fylke("FINNMARK", kommuner = emptyList())
-                            ),
-                            soekeord = listOf("Tryllekunstner"),
-                        ),
-                        ReiseveiSoek(
-                            soekType = StillingssoekType.REISEVEI_SOEK_V1,
-                            maksAvstandKm = 42,
-                            postnummer = "5145",
-                            soekeord = listOf("Tryllekunstner"),
-                        )
-                    ),
-                )
-                call.respond(HttpStatusCode.OK, brukerprofil)
+                val oppdatertApiBrukerprofiler = hentBrukerProfil(identitetsnummer)
+                    ?.suspendedLet(brukerprofilTjeneste::oppdaterKanTilbysTjenesten)
+                    ?.let(::apiBrukerprofil)
+                if (oppdatertApiBrukerprofiler != null) {
+                    call.respond(oppdatertApiBrukerprofiler)
+                } else {
+                    call.respond(HttpStatusCode.NotFound)
+                }
             }
             put("/erTjenestenLedigeStillingerAktiv/{aktiv}") {
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
@@ -89,3 +67,5 @@ fun Route.brukerprofilRoute(
 }
 
 fun SecurityContext.hentSluttbrukerEllerNull(): Sluttbruker? = (this.bruker as? Sluttbruker)
+
+suspend fun <T1, R> T1.suspendedLet(transform: suspend (T1) -> R): R = transform(this)

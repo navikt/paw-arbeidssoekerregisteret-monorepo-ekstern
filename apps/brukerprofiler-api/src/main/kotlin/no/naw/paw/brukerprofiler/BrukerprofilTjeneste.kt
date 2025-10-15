@@ -1,41 +1,44 @@
 package no.naw.paw.brukerprofiler
 
-import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
-import no.naw.paw.brukerprofiler.db.ops.hentBrukerProfil
 import no.naw.paw.brukerprofiler.db.ops.hentProfileringOrNull
 import no.naw.paw.brukerprofiler.db.ops.setKanTilbysTjenesten
+import no.naw.paw.brukerprofiler.domain.BrukerProfil
 import no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten
+import no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten.JA
+import no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten.NEI
 import java.time.Instant
 
 class BrukerprofilTjeneste(
     private val pdlClient: PdlClient,
 ) {
-    suspend fun kanTilbysTjenesten(identitetsnummer: Identitetsnummer): Boolean {
-        val brukerProfil = hentBrukerProfil(identitetsnummer) ?: return false
+    suspend fun oppdaterKanTilbysTjenesten(lagretBrukerprofiler: BrukerProfil): BrukerProfil {
         val kanTilbysTjenesten = hentCachetKanTilbysTjenesten(
             tidspunkt = Instant.now(),
             timeout = KAN_TILBYS_TJENESTEN_GYLDIGHETSPERIODE,
-            kanTilbysTjenestenTimestamp = brukerProfil.kanTilbysTjenestenTimestamp,
-            kanTilbysTjenesten = brukerProfil.kanTilbysTjenesten,
+            kanTilbysTjenestenTimestamp = lagretBrukerprofiler.kanTilbysTjenestenTimestamp,
+            kanTilbysTjenesten = lagretBrukerprofiler.kanTilbysTjenesten,
         )
-        return when (kanTilbysTjenesten) {
-            KanTilbysTjenesten.JA -> true
-            KanTilbysTjenesten.NEI -> false
+        val oppdatertKanTilbysTjenesten = when (kanTilbysTjenesten) {
             KanTilbysTjenesten.UKJENT -> {
-                val profilering = hentProfileringOrNull(brukerProfil.arbeidssoekerperiodeId)
+                val profilering = hentProfileringOrNull(lagretBrukerprofiler.arbeidssoekerperiodeId)
                 kanTilbysTjenesten(
-                    brukerProfil = brukerProfil,
+                    brukerProfil = lagretBrukerprofiler,
                     profilering = profilering,
-                    harBeskyttetAdresse = { pdlClient.harBeskyttetAdresse(identitetsnummer) },
-                ).also { resultat ->
+                    harBeskyttetAdresse = { pdlClient.harBeskyttetAdresse(lagretBrukerprofiler.identitetsnummer) },
+                ).let { resultat ->
                     setKanTilbysTjenesten(
-                        identitetsnummer = identitetsnummer,
-                        kanTilbysTjenesten = if (resultat) KanTilbysTjenesten.JA else KanTilbysTjenesten.NEI,
+                        identitetsnummer = lagretBrukerprofiler.identitetsnummer,
+                        kanTilbysTjenesten = if (resultat) JA else NEI,
                         tidspunkt = Instant.now()
                     )
+                    if (resultat) JA else NEI
                 }
             }
+            else -> kanTilbysTjenesten
         }
+        return lagretBrukerprofiler.copy(
+            kanTilbysTjenesten = oppdatertKanTilbysTjenesten
+        )
     }
 }

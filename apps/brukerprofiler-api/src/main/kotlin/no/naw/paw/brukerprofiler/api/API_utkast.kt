@@ -3,6 +3,7 @@ package no.naw.paw.brukerprofiler.api
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import no.naw.paw.brukerprofiler.domain.BrukerProfil as DomainBrukerProfil
 
 data class Brukerprofil(
     val identitetsnummer: String,
@@ -11,6 +12,20 @@ data class Brukerprofil(
     val stillingssoek: List<Stillingssoek>,
     val erIkkeInteressert: Boolean,
 )
+
+fun apiBrukerprofil(brukerProfil: DomainBrukerProfil): Brukerprofil {
+    return Brukerprofil(
+        identitetsnummer = brukerProfil.identitetsnummer.verdi,
+        kanTilbysTjenestenLedigeStillinger = when (brukerProfil.kanTilbysTjenesten) {
+            no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten.JA -> true
+            no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten.NEI -> false
+            no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten.UKJENT -> throw IllegalStateException("Intern feil: 'kanTilbysTjenesten' er ikke utledet")
+        },
+        erTjenestenLedigeStillingerAktiv = brukerProfil.tjenestenErAktiv,
+        erIkkeInteressert = brukerProfil.erIkkeInteressert,
+        stillingssoek = emptyList()
+    )
+}
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
