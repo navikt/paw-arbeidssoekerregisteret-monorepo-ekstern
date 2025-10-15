@@ -15,6 +15,8 @@ data class SSBKommune(
     val nameList: List<String> = name.split(Regex("\\s*-\\s+"))
         .map { it.trim() }
         .filter { it.isNotBlank() }
+
+    val fylkesnummer: String = code.take(2)
 }
 
 data class SSBStyrkKode(

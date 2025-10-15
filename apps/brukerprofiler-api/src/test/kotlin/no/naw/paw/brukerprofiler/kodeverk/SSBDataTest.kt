@@ -34,6 +34,7 @@ class SSBDataTest : FreeSpec({
             it.nameList shouldContain "Storfjord"
             it.nameList shouldContain "Omasvuotna"
             it.nameList shouldContain "Omasvuono"
+            it.fylkesnummer shouldBe "55"
         }
 
         SSBKommune(
@@ -42,6 +43,7 @@ class SSBDataTest : FreeSpec({
         ) should {
             it.nameList.size shouldBe 1
             it.nameList shouldContain "Stor-Elvdal"
+            it.fylkesnummer shouldBe "04"
         }
 
         SSBKommune(
@@ -50,6 +52,7 @@ class SSBDataTest : FreeSpec({
         ) should {
             it.nameList.size shouldBe 1
             it.nameList shouldContain "Herøy (Møre og Romsdal)"
+            it.fylkesnummer shouldBe "02"
         }
     }
 })
