@@ -12,15 +12,11 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
-import no.naw.paw.brukerprofiler.api.Brukerprofil
-import no.naw.paw.brukerprofiler.api.Fylke
-import no.naw.paw.brukerprofiler.api.ReiseveiSoek
-import no.naw.paw.brukerprofiler.api.StedSoek
-import no.naw.paw.brukerprofiler.api.StillingssoekType
-import no.naw.paw.brukerprofiler.api.apiBrukerprofil
 import no.naw.paw.brukerprofiler.db.ops.hentBrukerProfil
 import no.naw.paw.brukerprofiler.db.ops.setErIkkeInteressert
 import no.naw.paw.brukerprofiler.db.ops.setTjenestenErAktiv
+import no.naw.paw.brukerprofiler.domain.BrukerProfil
+import no.naw.paw.brukerprofiler.domain.api
 
 const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
 const val ER_TJENESTEN_AKTIV_PATH = "$BRUKERPROFIL_PATH/erTjenestenLedigeStillingerAktiv"
@@ -37,7 +33,7 @@ fun Route.brukerprofilRoute(
 
                 val oppdatertApiBrukerprofiler = hentBrukerProfil(identitetsnummer)
                     ?.suspendedLet(brukerprofilTjeneste::oppdaterKanTilbysTjenesten)
-                    ?.let(::apiBrukerprofil)
+                    ?.let(BrukerProfil::api)
                 if (oppdatertApiBrukerprofiler != null) {
                     call.respond(oppdatertApiBrukerprofiler)
                 } else {

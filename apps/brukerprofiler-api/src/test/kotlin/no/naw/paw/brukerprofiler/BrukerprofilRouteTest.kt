@@ -29,7 +29,7 @@ import no.nav.paw.security.authentication.config.AuthProviderRequiredClaims
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.naw.paw.brukerprofiler.api.Brukerprofil
+import no.naw.paw.brukerprofiler.api.vo.ApiBrukerprofil
 import no.naw.paw.brukerprofiler.db.initDatabase
 import no.naw.paw.brukerprofiler.db.ops.databaseConfigFrom
 import no.naw.paw.brukerprofiler.db.ops.opprettOgOppdaterBruker
@@ -75,7 +75,7 @@ class BrukerprofilRouteTest : FreeSpec({
             }
             response.validateAgainstOpenApiSpec()
             response.status shouldBe HttpStatusCode.OK
-            response.body<Brukerprofil>() should { profil ->
+            response.body<ApiBrukerprofil>() should { profil ->
                 profil.identitetsnummer shouldBe testIdent.verdi
                 profil.erIkkeInteressert shouldBe false
                 profil.erTjenestenLedigeStillingerAktiv shouldBe false
@@ -98,7 +98,7 @@ class BrukerprofilRouteTest : FreeSpec({
             }
             brukerProfilEtterOppdatering.validateAgainstOpenApiSpec()
             brukerProfilEtterOppdatering.status shouldBe HttpStatusCode.OK
-            brukerProfilEtterOppdatering.body<Brukerprofil>() should { profil ->
+            brukerProfilEtterOppdatering.body<ApiBrukerprofil>() should { profil ->
                 profil.identitetsnummer shouldBe testIdent.verdi
                 profil.erIkkeInteressert shouldBe true
                 profil.erTjenestenLedigeStillingerAktiv shouldBe true
