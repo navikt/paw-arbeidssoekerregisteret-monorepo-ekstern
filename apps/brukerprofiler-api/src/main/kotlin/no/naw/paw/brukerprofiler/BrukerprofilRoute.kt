@@ -13,10 +13,13 @@ import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.naw.paw.brukerprofiler.db.ops.hentBrukerProfil
+import no.naw.paw.brukerprofiler.db.ops.hentSoek
 import no.naw.paw.brukerprofiler.db.ops.setErIkkeInteressert
 import no.naw.paw.brukerprofiler.db.ops.setTjenestenErAktiv
 import no.naw.paw.brukerprofiler.domain.BrukerProfil
+import no.naw.paw.brukerprofiler.domain.Stillingssoek
 import no.naw.paw.brukerprofiler.domain.api
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
 const val ER_TJENESTEN_AKTIV_PATH = "$BRUKERPROFIL_PATH/erTjenestenLedigeStillingerAktiv"
@@ -31,9 +34,20 @@ fun Route.brukerprofilRoute(
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
 
-                val oppdatertApiBrukerprofiler = hentBrukerProfil(identitetsnummer)
-                    ?.suspendedLet(brukerprofilTjeneste::oppdaterKanTilbysTjenesten)
-                    ?.let(BrukerProfil::api)
+                val lagretProfil = hentBrukerProfil(identitetsnummer)
+                val oppdatertApiBrukerprofiler =
+                    lagretProfil
+                        ?.suspendedLet(brukerprofilTjeneste::oppdaterKanTilbysTjenesten)
+                        ?.let(BrukerProfil::api)
+                        ?.let { profil ->
+                            profil.copy(
+                                stillingssoek = transaction {
+                                    hentSoek(lagretProfil.id)
+                                        .map { it.soek }
+                                        .map(Stillingssoek::api)
+                                }
+                            )
+                        }
                 if (oppdatertApiBrukerprofiler != null) {
                     call.respond(oppdatertApiBrukerprofiler)
                 } else {
