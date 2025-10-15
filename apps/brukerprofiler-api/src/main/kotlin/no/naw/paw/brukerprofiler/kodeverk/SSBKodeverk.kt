@@ -5,7 +5,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets.UTF_8
 
+const val UOPPGITT_FYLKE_CODE = "99"
+const val UOPPGITT_KOMMUNE_CODE = "9999"
+
 object SSBKodeverk {
+
     private val objectMapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
@@ -16,12 +20,14 @@ object SSBKodeverk {
 
     private fun loadFylker(): List<SSBFylke> {
         val root = objectMapper.readTree(readResourceUtf8("/fylke.json"))
-        return objectMapper.readerForListOf(SSBFylke::class.java).readValue(root.path("codes"))
+        val fylker = objectMapper.readerForListOf(SSBFylke::class.java).readValue<List<SSBFylke>>(root.path("codes"))
+        return fylker.filterNot { fylke -> fylke.code == UOPPGITT_FYLKE_CODE }
     }
 
     private fun loadKommuner(): List<SSBKommune> {
         val root = objectMapper.readTree(readResourceUtf8("/kommune.json"))
-        return objectMapper.readerForListOf(SSBKommune::class.java).readValue(root.path("codes"))
+        val kommuner = objectMapper.readerForListOf(SSBKommune::class.java).readValue<List<SSBKommune>>(root.path("codes"))
+        return kommuner.filterNot { kommune -> kommune.code == UOPPGITT_KOMMUNE_CODE}
     }
 
     private fun loadStyrkKoder(): List<SSBStyrkKode> {
