@@ -1,7 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.context
 
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.EgenvurderingService
@@ -17,6 +15,7 @@ import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
+import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.health.HealthChecks
 import no.nav.paw.health.healthChecksOf
 import no.nav.paw.health.probes.GenericLivenessProbe
@@ -137,7 +136,11 @@ data class ApplicationContext(
 
         private fun createDataSource(): DataSource = try {
             val databaseConfig = loadNaisOrLocalConfiguration<DatabaseConfig>(DATABASE_CONFIG)
-            createHikariDataSource(databaseConfig)
+            createHikariDataSource(
+                databaseConfig,
+                // grunnet feilmeldinger som: org.postgresql.util.PSQLException: ERROR: prepared statement "S_1" already exists
+                useServerPreparedStatements = false
+            )
         } catch (e: Exception) {
             throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${(e.cause ?: e)::class.simpleName}")
         }
@@ -145,18 +148,3 @@ data class ApplicationContext(
         class KunneIkkeOppretteDatasource(message: String) : RuntimeException(message)
     }
 }
-
-fun createHikariDataSource(
-    databaseConfig: DatabaseConfig,
-) = HikariDataSource(
-    HikariConfig().apply {
-        jdbcUrl = databaseConfig.buildJdbcUrl()
-        maximumPoolSize = databaseConfig.maximumPoolSize
-        isAutoCommit = databaseConfig.autoCommit
-        connectionTimeout = databaseConfig.connectionTimeout.toMillis()
-        idleTimeout = databaseConfig.idleTimeout.toMillis()
-        maxLifetime = databaseConfig.maxLifetime.toMillis()
-        addDataSourceProperty("prepareThreshold", "-1")
-    }
-)
-
