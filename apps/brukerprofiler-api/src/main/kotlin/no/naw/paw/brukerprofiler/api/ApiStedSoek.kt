@@ -3,6 +3,8 @@ package no.naw.paw.brukerprofiler.api
 import com.fasterxml.jackson.annotation.JsonTypeName
 import no.naw.paw.brukerprofiler.api.vo.ApiFylke
 import no.naw.paw.brukerprofiler.api.vo.ApiStillingssoekType
+import no.naw.paw.brukerprofiler.api.vo.domain
+import no.naw.paw.brukerprofiler.domain.StedSoek
 
 @JsonTypeName("STED_SOEK_V1")
 data class ApiStedSoek(
@@ -10,3 +12,9 @@ data class ApiStedSoek(
     val fylker: List<ApiFylke>,
     override val soekeord: List<String>,
 ): ApiStillingssoek, ApiHarSoekeord
+
+fun ApiStedSoek.domain() = StedSoek(
+    soekType = soekType.domain(),
+    fylker = fylker.map { it.domain() },
+    soekeord = soekeord
+)

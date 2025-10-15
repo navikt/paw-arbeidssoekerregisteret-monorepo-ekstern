@@ -2,6 +2,7 @@ package no.naw.paw.brukerprofiler
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.httpsredirect.HttpsRedirect
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -12,14 +13,19 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
+import no.naw.paw.brukerprofiler.api.ApiStillingssoek
+import no.naw.paw.brukerprofiler.api.domain
 import no.naw.paw.brukerprofiler.db.ops.hentBrukerProfil
 import no.naw.paw.brukerprofiler.db.ops.hentSoek
+import no.naw.paw.brukerprofiler.db.ops.lagreSoek
 import no.naw.paw.brukerprofiler.db.ops.setErIkkeInteressert
 import no.naw.paw.brukerprofiler.db.ops.setTjenestenErAktiv
+import no.naw.paw.brukerprofiler.db.ops.slettAlleSoekForBruker
 import no.naw.paw.brukerprofiler.domain.BrukerProfil
 import no.naw.paw.brukerprofiler.domain.Stillingssoek
 import no.naw.paw.brukerprofiler.domain.api
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Instant
 
 const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
 const val ER_TJENESTEN_AKTIV_PATH = "$BRUKERPROFIL_PATH/erTjenestenLedigeStillingerAktiv"
@@ -71,6 +77,24 @@ fun Route.brukerprofilRoute(
 
                 setErIkkeInteressert(identitetsnummer, erIkkeInteressert)
                 call.respond(HttpStatusCode.NoContent)
+            }
+            put<List<ApiStillingssoek>>("/stillingssoek") { stillingssoek ->
+                val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
+                    ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
+                val httpCode = transaction {
+                    val brukerId = hentBrukerProfil(identitetsnummer)?.id
+                    if (brukerId == null) {
+                        HttpStatusCode.NotFound
+                    } else {
+                        slettAlleSoekForBruker(brukerId)
+                        val tidspunkt = Instant.now()
+                        stillingssoek.forEach { soek ->
+                            lagreSoek(brukerId, tidspunkt, soek.domain())
+                        }
+                        HttpStatusCode.NoContent
+                    }
+                }
+                call.respond(httpCode)
             }
         }
     }

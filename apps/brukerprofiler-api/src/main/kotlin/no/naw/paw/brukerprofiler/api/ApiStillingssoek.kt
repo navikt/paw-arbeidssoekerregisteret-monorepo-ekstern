@@ -3,6 +3,7 @@ package no.naw.paw.brukerprofiler.api
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import no.naw.paw.brukerprofiler.api.vo.ApiStillingssoekType
+import no.naw.paw.brukerprofiler.domain.Stillingssoek
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -21,3 +22,9 @@ sealed interface ApiStillingssoek {
 interface ApiHarSoekeord {
     val soekeord: List<String>
 }
+
+fun ApiStillingssoek.domain(): Stillingssoek =
+    when (this) {
+        is ApiReiseveiSoek -> this.domain()
+        is ApiStedSoek -> this.domain()
+    }
