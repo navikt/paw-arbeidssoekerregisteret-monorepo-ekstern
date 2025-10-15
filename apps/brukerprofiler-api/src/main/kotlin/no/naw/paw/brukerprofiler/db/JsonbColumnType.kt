@@ -1,9 +1,10 @@
 package no.naw.paw.brukerprofiler.db
 
 import org.jetbrains.exposed.v1.core.IColumnType
+import org.jetbrains.exposed.v1.core.Table
 import org.postgresql.util.PGobject
 
-fun jsonb(name: String) = SoekTable.registerColumn(name, JsonbColumnType(false))
+fun <A: Table> A.jsonb(name: String) = this.registerColumn(name, JsonbColumnType(false))
 
 class JsonbColumnType(override var nullable: Boolean): IColumnType<String> {
 
