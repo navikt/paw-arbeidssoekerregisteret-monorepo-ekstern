@@ -9,6 +9,17 @@ data class ReiseveiSoek(
     override val soekeord: List<String>
 ): Stillingssoek, HarSoekeord
 
+fun reiseveiSoek(
+    maksAvstandKm: Int,
+    postnummer: String,
+    soekeord: List<String>,
+): ReiseveiSoek = ReiseveiSoek(
+    soekType = StillingssoekType.REISEVEI_SOEK_V1,
+    maksAvstandKm = maksAvstandKm,
+    postnummer = postnummer,
+    soekeord = soekeord
+)
+
 fun ReiseveiSoek.api() = ApiReiseveiSoek(
     soekType = soekType.api(),
     maksAvstandKm = maksAvstandKm,

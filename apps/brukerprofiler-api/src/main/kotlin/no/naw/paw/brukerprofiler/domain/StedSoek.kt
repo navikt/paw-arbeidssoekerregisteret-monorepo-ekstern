@@ -9,6 +9,15 @@ data class StedSoek(
     override val soekeord: List<String>,
 ) : Stillingssoek, HarSoekeord
 
+fun stedSoek(
+    fylker: List<Fylke>,
+    soekeord: List<String>,
+): StedSoek = StedSoek(
+    soekType = StillingssoekType.STED_SOEK_V1,
+    fylker = fylker,
+    soekeord = soekeord
+)
+
 fun ApiStedSoek.domain() = StedSoek(
     soekType = soekType.domain(),
     fylker = fylker.map(ApiFylke::domain),
