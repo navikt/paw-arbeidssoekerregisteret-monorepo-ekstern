@@ -7,7 +7,7 @@ data class SSBFylke(
     val fylkesnummer: String,
     private val name: String,
 ) {
-    val nameList: List<String> = name.split("-").map { it.trim() }
+    val nameList: List<String> = name.split(Regex("\\s*-\\s+")).map { it.trim() }
 }
 
 data class SSBKommune(
