@@ -33,7 +33,7 @@ class KodeverkRouteTest : FreeSpec({
                     authProviders = listOf(oauthServer.tokenXAuthProvider)
                 )
             }
-            routing { route("/api/v1") { kodeverk() } }
+            routing { kodeverk() }
             val testIdent = Identitetsnummer("12345678900")
             val client = testClient()
             "Vi kan hente en liste med alle fylker og kommuner" {

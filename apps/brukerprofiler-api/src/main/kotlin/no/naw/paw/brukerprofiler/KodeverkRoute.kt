@@ -9,7 +9,7 @@ import no.naw.paw.brukerprofiler.api.vo.styrkTre
 import no.naw.paw.brukerprofiler.kodeverk.SSBKodeverk
 
 fun Route.kodeverk() {
-    route("/kodeverk") {
+    route("/api/v1/kodeverk") {
         get("/fylker") {
             call.respond(populerFylkerMedKommuner(SSBKodeverk.fylker, SSBKodeverk.kommuner))
         }
