@@ -45,6 +45,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Brukerprofil"
+  /api/v1/kodeverk/fylker :
+    get:
+      description: "Hent alle fylker og deres kommuner"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Fylke"
 components:
   schemas:
     Brukerprofil:

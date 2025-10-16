@@ -107,34 +107,3 @@ class BrukerprofilRouteTest : FreeSpec({
     }
 
 })
-
-private val MockOAuth2Server.tokenXAuthProvider: AuthProvider
-    get() = AuthProvider(
-        name = TokenX.name,
-        audiences = listOf("default"),
-        discoveryUrl = wellKnownUrl("default").toString(),
-        requiredClaims = AuthProviderRequiredClaims(
-            listOf("acr=Level4", "acr=idporten-loa-high"),
-            true
-        )
-    )
-
-private fun MockOAuth2Server.sluttbrukerToken(
-    id: Identitetsnummer,
-    acr: String = "idporten-loa-high",
-): String =
-    mapOf(
-        "acr" to acr,
-        "pid" to id.verdi
-    ).let {
-        it.plus("issuer" to TokenX.name) to issueToken(claims = it)
-    }.second.serialize()!!
-
-private fun ApplicationTestBuilder.testClient(): HttpClient = createClient {
-    install(ContentNegotiation) {
-        jackson {
-            registerKotlinModule()
-            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        }
-    }
-}
