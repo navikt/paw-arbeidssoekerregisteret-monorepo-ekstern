@@ -65,7 +65,8 @@ class SkrivLesOgSlettSoekTest : FreeSpec({
                         fylkesnummer = "46"
                     )
                 ),
-                soekeord = listOf("Utvikler", "Rust")
+                soekeord = listOf("Utvikler", "Rust"),
+                styrk08 = listOf("123", "42")
             )
             val tidspunkt = Instant.now()
             "Vi lagrer soeket uten feil" {

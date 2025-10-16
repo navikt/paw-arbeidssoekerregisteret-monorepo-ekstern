@@ -122,6 +122,12 @@ components:
           items:
             type: "string"
             example: "Tryllekunstner"
+        styrk08:
+          type: "array"
+          items:
+            type: "string"
+            format: "styrk08"
+            example: "124"
       required:
         - "soekType"
         - "fylker"
