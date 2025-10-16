@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger.model.dao
+package no.nav.paw.ledigestillinger.model.dao
 
 import java.time.Instant
 import java.time.LocalDate

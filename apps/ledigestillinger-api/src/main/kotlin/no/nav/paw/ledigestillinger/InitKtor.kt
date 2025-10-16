@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger
+package no.nav.paw.ledigestillinger
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -11,7 +11,6 @@ import io.ktor.server.request.path
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.database.plugin.installDatabasePlugin
 import no.nav.paw.error.plugin.installErrorHandlingPlugin
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
@@ -19,15 +18,14 @@ import no.nav.paw.health.StartupCheck
 import no.nav.paw.health.livenessRoute
 import no.nav.paw.health.readinessRoute
 import no.nav.paw.health.startupRoute
+import no.nav.paw.ledigestillinger.config.ApplicationConfig
+import no.nav.paw.ledigestillinger.context.ApplicationContext
 import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
 import no.nav.paw.metrics.route.metricsRoutes
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
-import no.naw.paw.ledigestillinger.config.ApplicationConfig
-import no.naw.paw.ledigestillinger.context.ApplicationContext
 import org.slf4j.event.Level
-import javax.sql.DataSource
 
 fun <A> initEmbeddedKtorServer(
     applicationContext: ApplicationContext

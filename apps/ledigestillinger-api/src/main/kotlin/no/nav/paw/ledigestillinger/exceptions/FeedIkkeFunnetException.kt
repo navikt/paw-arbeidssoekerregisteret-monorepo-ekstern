@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger.exceptions
+package no.nav.paw.ledigestillinger.exceptions
 
 import io.ktor.http.HttpStatusCode
 import no.nav.paw.error.exception.ClientResponseException

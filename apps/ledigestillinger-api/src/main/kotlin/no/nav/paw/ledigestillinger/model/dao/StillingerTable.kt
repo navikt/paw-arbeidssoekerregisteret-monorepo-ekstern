@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger.model.dao
+package no.nav.paw.ledigestillinger.model.dao
 
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.javatime.date

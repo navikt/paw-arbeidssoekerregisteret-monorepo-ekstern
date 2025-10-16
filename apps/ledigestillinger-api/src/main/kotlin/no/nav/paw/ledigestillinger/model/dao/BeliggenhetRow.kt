@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger.model.dao
+package no.nav.paw.ledigestillinger.model.dao
 
 data class BeliggenhetRow(
     val id: Long,

@@ -1,4 +1,4 @@
-package no.naw.paw.ledigestillinger.config
+package no.nav.paw.ledigestillinger.config
 
 const val APPLICATION_CONFIG = "application_config.toml"
 
