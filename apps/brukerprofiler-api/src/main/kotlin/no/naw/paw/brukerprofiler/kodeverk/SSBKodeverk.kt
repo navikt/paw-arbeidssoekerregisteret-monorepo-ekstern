@@ -13,10 +13,9 @@ object SSBKodeverk {
     private val objectMapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    // by lazy så de kun lastes 1 gang
-    val fylker: List<SSBFylke> by lazy { loadFylker() }
-    val kommuner: List<SSBKommune> by lazy { loadKommuner() }
-    val styrkKoder: List<SSBStyrkKode> by lazy { loadStyrkKoder() }
+    val fylker: List<SSBFylke> = loadFylker()
+    val kommuner: List<SSBKommune> = loadKommuner()
+    val styrkKoder: List<SSBStyrkKode> = loadStyrkKoder()
 
     private fun loadFylker(): List<SSBFylke> {
         val root = objectMapper.readTree(readResourceUtf8("/fylke.json"))
