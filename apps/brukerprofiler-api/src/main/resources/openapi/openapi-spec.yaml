@@ -57,6 +57,19 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/Fylke"
+  /api/v1/kodeverk/styrk :
+    get:
+      description: "Hent alle fylker og deres kommuner"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Fylke"
+
 components:
   schemas:
     Brukerprofil:
