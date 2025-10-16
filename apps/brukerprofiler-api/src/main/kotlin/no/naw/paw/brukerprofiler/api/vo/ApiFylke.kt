@@ -26,7 +26,7 @@ fun populerFylkerMedKommuner(
             .map { it.nameList.first() } //TODO: kun første navn? Bør vi ta med alle?
         ApiFylke(
             kommuner = kommunerTilhørendeFylke,
-            navn = fylke.nameList.firstOrNull() ?: fylke.fylkesnummer,
+            navn = fylke.nameList.first(),
         )
     }
 }
