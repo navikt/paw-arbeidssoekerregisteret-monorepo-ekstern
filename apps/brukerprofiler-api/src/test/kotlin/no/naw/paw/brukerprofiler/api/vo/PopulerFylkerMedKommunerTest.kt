@@ -1,8 +1,11 @@
 package no.naw.paw.brukerprofiler.api.vo
 
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.naw.paw.brukerprofiler.domain.Kommune
 import no.naw.paw.brukerprofiler.kodeverk.SSBFylke
 import no.naw.paw.brukerprofiler.kodeverk.SSBKommune
 
@@ -21,14 +24,19 @@ class PopulerFylkerMedKommunerTest : FreeSpec({
             )
         ) should { apiFylker ->
             apiFylker.size shouldBe 2
-            apiFylker[0] shouldBe ApiFylke(
-                navn = "Oslo",
-                kommuner = listOf("Oslo"),
-            )
-            apiFylker[1] shouldBe ApiFylke(
-                navn = "Troms",
-                kommuner = listOf("Storfjord", "Tromsø"),
-            )
+            apiFylker[0] should { fylke ->
+                fylke.navn shouldBe "Oslo"
+                fylke.kommuner shouldContainExactly listOf(ApiKommune(kommunenummer = "0301", navn = "Oslo"))
+                fylke.fylkesnummer shouldBe "03"
+            }
+            apiFylker[1] should { fylke ->
+                fylke.navn shouldBe "Troms"
+                fylke.fylkesnummer shouldBe "55"
+                fylke.kommuner shouldContainExactly listOf(
+                    ApiKommune(navn = "Storfjord", kommunenummer = "5538"),
+                    ApiKommune(navn = "Tromsø", kommunenummer = "5501"),
+                )
+            }
         }
 
     }

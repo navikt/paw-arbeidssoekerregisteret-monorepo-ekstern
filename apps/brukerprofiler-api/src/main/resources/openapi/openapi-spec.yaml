@@ -136,11 +136,27 @@ components:
         kommuner:
           type: "array"
           items:
-            type: "string"
-            example: "Nedre Eiker"
+            $ref: "#/components/schemas/Kommune"
+        fylkesnummer:
+          type: "string"
+          example: "46"
+          format: "fylkesnummer"
       required:
         - "navn"
         - "kommuner"
+    Kommune:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+          example: "Bergen"
+        kommunenummer:
+          type: "string"
+          example: "4601"
+          format: "kommunenummer"
+      required:
+        - "navn"
+        - "kommunenummer"
 
     ReiseveiSoek:
       type: "object"

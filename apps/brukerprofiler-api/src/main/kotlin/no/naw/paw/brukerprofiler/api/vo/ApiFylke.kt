@@ -1,19 +1,13 @@
 package no.naw.paw.brukerprofiler.api.vo
 
-import no.naw.paw.brukerprofiler.domain.Fylke
 import no.naw.paw.brukerprofiler.kodeverk.SSBFylke
 import no.naw.paw.brukerprofiler.kodeverk.SSBKommune
 
 data class ApiFylke(
     val navn: String,
-    val kommuner: List<String> = emptyList(),
+    val fylkesnummer: String,
+    val kommuner: List<ApiKommune> = emptyList(),
 )
-
-fun ApiFylke.domain() = Fylke(
-    navn = navn,
-    kommuner = kommuner,
-)
-
 fun populerFylkerMedKommuner(
     fylker: List<SSBFylke>,
     kommuner: List<SSBKommune>,
@@ -21,12 +15,17 @@ fun populerFylkerMedKommuner(
     val kommunerGruppertPåFylkesnummer = kommuner.groupBy { ssbKommune -> ssbKommune.fylkesnummer }
 
     return fylker.map { fylke ->
-        val kommunerTilhørendeFylke: List<String> = kommunerGruppertPåFylkesnummer[fylke.fylkesnummer]
+        val kommunerTilhørendeFylke: List<SSBKommune> = kommunerGruppertPåFylkesnummer[fylke.fylkesnummer]
             .orEmpty()
-            .map { it.nameList.first() } //TODO: kun første navn? Bør vi ta med alle?
         ApiFylke(
-            kommuner = kommunerTilhørendeFylke,
+            kommuner = kommunerTilhørendeFylke.map { kommune ->
+                ApiKommune(
+                    kommunenummer = kommune.kommunenummer,
+                    navn = kommune.nameList.first(),
+                )
+            },
             navn = fylke.nameList.first(),
+            fylkesnummer = fylke.fylkesnummer
         )
     }
 }

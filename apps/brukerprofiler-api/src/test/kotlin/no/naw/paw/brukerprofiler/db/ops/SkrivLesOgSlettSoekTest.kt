@@ -12,6 +12,7 @@ import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.brukerprofiler.db.initDatabase
 import no.naw.paw.brukerprofiler.domain.Fylke
 import no.naw.paw.brukerprofiler.domain.KanTilbysTjenesten
+import no.naw.paw.brukerprofiler.domain.Kommune
 import no.naw.paw.brukerprofiler.domain.StedSoek
 import no.naw.paw.brukerprofiler.domain.stedSoek
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -51,7 +52,17 @@ class SkrivLesOgSlettSoekTest : FreeSpec({
                 fylker = listOf(
                     Fylke(
                         navn = "Vestland",
-                        kommuner = listOf("Bergen", "Askøy")
+                        kommuner = listOf(
+                            Kommune(
+                                navn = "Bergen",
+                                kommunenummer = "4601"
+                            ),
+                            Kommune(
+                                navn = "Askøy",
+                                kommunenummer = "4604"
+                            )
+                        ),
+                        fylkesnummer = "46"
                     )
                 ),
                 soekeord = listOf("Utvikler", "Rust")

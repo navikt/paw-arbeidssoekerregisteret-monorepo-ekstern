@@ -43,15 +43,15 @@ class KodeverkRouteTest : FreeSpec({
                 fylker
                     .firstOrNull { it.navn.equals("Vestland") } should { fylke ->
                     fylke.shouldNotBeNull()
-                    fylke.kommuner shouldContain "Bergen"
-                    fylke.kommuner shouldContain "Stord"
-                    fylke.kommuner shouldContain "Askøy"
+                    fylke.kommuner.map { it.navn } shouldContain "Bergen"
+                    fylke.kommuner.map { it.navn } shouldContain "Stord"
+                    fylke.kommuner.map { it.navn } shouldContain "Askøy"
                 }
                 fylker
                     .firstOrNull { it.navn.equals("Troms") } should { fylke ->
                     fylke.shouldNotBeNull()
 
-                    fylke.kommuner shouldContain "Tromsø"
+                    fylke.kommuner.map { it.navn } shouldContain "Tromsø"
                 }
             }
         }
