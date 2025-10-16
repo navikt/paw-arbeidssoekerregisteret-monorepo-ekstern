@@ -9,6 +9,7 @@ import io.ktor.server.metrics.micrometer.MicrometerMetrics
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.calllogging.CallLogging
+import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.path
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
@@ -49,6 +50,8 @@ fun <A> initEmbeddedKtorServer(
             readinessRoute(healthIndicator)
             startupRoute(healthIndicator)
             brukerprofilRoute(brukerprofilTjeneste)
+            kodeverk()
+            swaggerUI("/docs/api", "openapi/openapi-spec.yaml")
             get("/internal/metrics") {
                 call.respond(
                     status = HttpStatusCode.OK,

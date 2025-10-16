@@ -4,7 +4,7 @@ info:
   description: "Noe greier"
   version: "0.1.0"
 servers:
-  - url: "https://brukerprofiler-arbeidssoekerregisteret.intern.dev.nav.no"
+  - url: "https://brukerpofiler-arbeidssoekerregisteret.intern.dev.nav.no"
     description: "Development"
 paths:
   /api/v1/brukerprofil/erTjenestenLedigeStillingerAktiv/{aktiv} :
