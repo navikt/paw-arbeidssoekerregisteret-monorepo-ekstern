@@ -20,7 +20,7 @@ data class StyrkTreNode(
 }
 
 private const val NO_PARENT = "no_parent"
-fun List<SSBStyrkKode>.toStyrkTre(): List<StyrkTreNode> {
+fun List<SSBStyrkKode>.styrkTre(): List<StyrkTreNode> {
     val byParent: Map<String, List<SSBStyrkKode>> = this.groupBy { it.parentCode ?: NO_PARENT }
     val roots = byParent[NO_PARENT] ?: emptyList()
     return roots.map { root -> node(root, byParent) }

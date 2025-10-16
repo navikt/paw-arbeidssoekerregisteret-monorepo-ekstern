@@ -57,7 +57,7 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/Fylke"
-  /api/v1/kodeverk/styrk :
+  /api/v1/kodeverk/styrk08 :
     get:
       description: "Hent alle fylker og deres kommuner"
       responses:
@@ -68,7 +68,7 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Fylke"
+                  $ref: "#/components/schemas/StyrkTreNode"
 
 components:
   schemas:
@@ -157,7 +157,37 @@ components:
       required:
         - "navn"
         - "kommunenummer"
-
+    Styrk:
+      type: "object"
+      properties:
+        level:
+          type: "string"
+          example: "1"
+          description: Level 1-4
+        code:
+          type: "string"
+          example: "1234"
+          format: "styrk08"
+        name:
+          type: "string"
+          example: "Jordbrukere"
+      required:
+        - "level"
+        - "code"
+        - "name"
+    StyrkTreNode:
+      type: "object"
+      properties:
+        styrk:
+          $ref: "#/components/schemas/Styrk"
+        children:
+          type: "array"
+          description: Empty if leaf node, level 4
+          items:
+            $ref: "#/components/schemas/StyrkTreNode"
+      required:
+        - "styrk"
+        - "children"
     ReiseveiSoek:
       type: "object"
       properties:
