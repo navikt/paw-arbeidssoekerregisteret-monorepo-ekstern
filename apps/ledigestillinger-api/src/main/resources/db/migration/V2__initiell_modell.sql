@@ -71,6 +71,6 @@ CREATE TABLE egenskaper
     id        BIGSERIAL PRIMARY KEY,
     parent_id BIGINT NOT NULL,
     key       VARCHAR(50),
-    value     VARCHAR(255),
+    value     TEXT,
     FOREIGN KEY (parent_id) REFERENCES stillinger (id)
 );

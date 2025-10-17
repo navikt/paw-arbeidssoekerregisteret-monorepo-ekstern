@@ -12,7 +12,7 @@ import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.pam.stilling.ext.avro.Ad
-import no.nav.paw.database.plugin.installDatabasePlugin
+import no.nav.paw.database.plugin.DataSourcePlugin
 import no.nav.paw.error.plugin.installErrorHandlingPlugin
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
@@ -24,6 +24,7 @@ import no.nav.paw.health.startupRoute
 import no.nav.paw.hwm.DataConsumer
 import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.context.ApplicationContext
+import no.nav.paw.ledigestillinger.plugin.CleanAwareFlywayPlugin
 import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
 import no.nav.paw.ledigestillinger.serde.AdAvroDeserializer
 import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
@@ -86,7 +87,13 @@ fun Application.configureKtorServer(
         additionalMeterBinders = meterBinders
     )
     installAuthenticationPlugin(securityConfig.authProviders)
-    installDatabasePlugin(dataSource)
+    install(DataSourcePlugin) {
+        this.dataSource = dataSource
+    }
+    install(CleanAwareFlywayPlugin) {
+        this.dataSource = dataSource
+        this.cleanBeforeMigrate = true
+    }
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
 }
 
