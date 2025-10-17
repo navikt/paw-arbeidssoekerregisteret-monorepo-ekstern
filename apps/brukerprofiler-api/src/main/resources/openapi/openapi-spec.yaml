@@ -21,6 +21,8 @@ paths:
           description: "No Content"
         "404":
           description: "Not Found"
+        "403":
+          description: "Forbidden - brukeren kan ikke tilbys tjenesten ledige stillinger"
   /api/v1/brukerprofil/erIkkeInteressert/{erIkkeInteressert} :
     put:
       description: "Sett om en bruker er ikke interessert i ledige stillinger"
@@ -45,6 +47,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Brukerprofil"
+  /api/v1/ledigestillinger :
+    get:
+      description: "Hent brukerprofil for en gitt bruker"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LedigeStillinger"
+        "404":
+          description: "Bruker har ikke tjenesten aktiv eller har ingen søk konfigurert"
+
   /api/v1/kodeverk/fylker :
     get:
       description: "Hent alle fylker og deres kommuner"
@@ -219,3 +234,47 @@ components:
         - "maksAvstandKm"
         - "postnummer"
         - "soekeord"
+    LedigeStillinger:
+      type: "object"
+      properties:
+        sistKjoert:
+          type: "string"
+          format: "date-time"
+          example: "2025-10-20T12:00:00Z"
+        soek:
+          $ref: "#/components/schemas/Stillingssoek"
+        resultat:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Stilling"
+      required:
+        - "soek"
+        - "stillinger"
+        - "resultat"
+    Stilling:
+      type: "object"
+      properties:
+        tittel:
+          type: "string"
+          example: "Utvikler"
+        stillingbeskrivelse:
+          type: "string"
+          example: "Backendutikler/Java"
+        publisert:
+          type: "string"
+          format: "date-time"
+          example: "2025-10-17T10:30:00Z"
+        soeknadsfrist:
+          type: "string"
+          format: "date-time"
+          example: "2025-11-17T23:59:59Z"
+        land:
+          type: "string"
+          example: "Norge"
+        kommune:
+          type: "string"
+          example: "Oslo"
+      required:
+        - "tittel"
+        - "publisert"
+        - "land"
