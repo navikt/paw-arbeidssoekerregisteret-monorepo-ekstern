@@ -12,6 +12,7 @@ import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.model.dao.insert
 import no.nav.paw.ledigestillinger.model.dao.selectIdByUUID
+import no.nav.paw.ledigestillinger.util.fromIsoString
 import no.nav.paw.logging.logger.buildLogger
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
@@ -23,9 +24,11 @@ class StillingService(
 
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>) = transaction {
         messages
+            .filter { message ->
+                message.value.published.fromIsoString().isAfter(applicationConfig.velgStillingerNyereEnn)
+            }
             .onEach { message -> logger.debug("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}") }
             .map { message -> message.key to message.asStillingRow() }
-            .filter { (_, stillingRow) -> stillingRow.publisertTimestamp.isAfter(applicationConfig.velgStillingerNyereEnn) }
             .forEach { (key, stillingRow) ->
                 runCatching {
                     val existingId = StillingerTable.selectIdByUUID(key)
