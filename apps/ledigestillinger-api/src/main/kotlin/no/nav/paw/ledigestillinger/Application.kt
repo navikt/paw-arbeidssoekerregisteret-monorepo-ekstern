@@ -1,8 +1,8 @@
 package no.nav.paw.ledigestillinger
 
 import no.nav.paw.health.HealthChecks
-import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.ledigestillinger.context.ApplicationContext
+import no.nav.paw.logging.logger.buildApplicationLogger
 
 val appLogger = buildApplicationLogger
 

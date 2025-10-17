@@ -5,31 +5,28 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.update
 
-object KlassifiseringerTable : LongIdTable("klassifiseringer") {
+object KategorierTable : LongIdTable("kategorier") {
     val parentId = long("parent_id").references(StillingerTable.id)
-    val type = varchar("type", 20)
     val kode = varchar("kode", 20)
     val navn = varchar("navn", 255)
 }
 
-fun KlassifiseringerTable.insert(
+fun KategorierTable.insert(
     parentId: Long,
-    row: KlassifiseringRow
+    row: KategoriRow
 ): Long = insertAndGetId {
     it[this.parentId] = parentId
-    it[this.type] = row.type
     it[this.kode] = row.kode
     it[this.navn] = row.navn
 }.value
 
-fun KlassifiseringerTable.updateByParentId(
+fun KategorierTable.updateByParentId(
     parentId: Long,
-    row: KlassifiseringRow
+    row: KategoriRow
 ): Int = update(
-    where = { KlassifiseringerTable.parentId eq parentId }
+    where = { KategorierTable.parentId eq parentId }
 ) {
     it[this.parentId] = parentId
-    it[this.type] = row.type
     it[this.kode] = row.kode
     it[this.navn] = row.navn
 }

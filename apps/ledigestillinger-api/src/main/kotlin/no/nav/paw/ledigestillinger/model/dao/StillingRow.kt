@@ -1,23 +1,57 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.model.StillingStatus
+import no.nav.paw.ledigestillinger.model.VisningGrad
+import org.jetbrains.exposed.v1.core.ResultRow
 import java.time.Instant
-import java.time.LocalDate
 import java.util.*
 
 data class StillingRow(
     val id: Long,
     val uuid: UUID,
+    val adnr: String?,
     val tittel: String,
-    val beskrivelse: String,
-    val status: String, // TODO: Enum?
+    val status: StillingStatus,
+    val visning: VisningGrad,
     val kilde: String,
-    val startDate: LocalDate,
-    val annonseUrl: String,
+    val medium: String,
+    val referanse: String,
+    val arbeidsgiverNavn: String?,
+    val opprettetTimestamp: Instant,
+    val endretTimestamp: Instant,
     val publisertTimestamp: Instant,
     val utloeperTimestamp: Instant?,
-    val endretTimestamp: Instant,
-    val metadata: MetadataRow,
+    val messageTimestamp: Instant,
+    val insertTimestamp: Instant,
+    val updatedTimestamp: Instant?,
+    val arbeidsgiver: ArbeidsgiverRow?,
+    val kategorier: Iterable<KategoriRow>,
     val klassifiseringer: Iterable<KlassifiseringRow>,
-    val arbeidsgivere: Iterable<ArbeidsgiverRow>,
-    val beliggenheter: Iterable<BeliggenhetRow>
+    val beliggenheter: Iterable<BeliggenhetRow>,
+    val egenskaper: Iterable<EgenskapRow>
+)
+
+fun ResultRow.asStillingRow(): StillingRow = StillingRow(
+    id = this[StillingerTable.id].value,
+    uuid = this[StillingerTable.uuid],
+    adnr = this[StillingerTable.adnr],
+    tittel = this[StillingerTable.tittel],
+    status = this[StillingerTable.status],
+    visning = this[StillingerTable.visning],
+    kilde = this[StillingerTable.kilde],
+    medium = this[StillingerTable.medium],
+    referanse = this[StillingerTable.referanse],
+    arbeidsgiverNavn = this[StillingerTable.arbeidsgiverNavn],
+    opprettetTimestamp = this[StillingerTable.opprettetTimestamp],
+    endretTimestamp = this[StillingerTable.endretTimestamp],
+    publisertTimestamp = this[StillingerTable.publisertTimestamp],
+    utloeperTimestamp = this[StillingerTable.utloeperTimestamp],
+    messageTimestamp = this[StillingerTable.messageTimestamp],
+    insertTimestamp = this[StillingerTable.insertTimestamp],
+    updatedTimestamp = this[StillingerTable.updatedTimestamp],
+    arbeidsgiver = null, // TODO: Fiks
+    kategorier = emptyList(), // TODO: Fiks
+    klassifiseringer = emptyList(), // TODO: Fiks
+    beliggenheter = emptyList(), // TODO: Fiks
+    egenskaper = emptyList() // TODO: Fiks
 )
