@@ -2,6 +2,7 @@ package no.nav.paw.ledigestillinger.service
 
 import no.nav.pam.stilling.ext.avro.Ad
 import no.nav.paw.hwm.Message
+import no.nav.paw.ledigestillinger.config.ApplicationConfig
 import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgivereTable
 import no.nav.paw.ledigestillinger.model.dao.BeliggenheterTable
@@ -15,16 +16,19 @@ import no.nav.paw.logging.logger.buildLogger
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
-class StillingService {
+class StillingService(
+    private val applicationConfig: ApplicationConfig
+) {
     private val logger = buildLogger
 
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>) = transaction {
         messages
             .onEach { message -> logger.debug("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}") }
-            .forEach { message ->
+            .map { message -> message.key to message.asStillingRow() }
+            .filter { (_, stillingRow) -> stillingRow.publisertTimestamp.isAfter(applicationConfig.velgStillingerNyereEnn) }
+            .forEach { (key, stillingRow) ->
                 runCatching {
-                    val stillingRow = message.asStillingRow()
-                    val existingId = StillingerTable.selectIdByUUID(message.key)
+                    val existingId = StillingerTable.selectIdByUUID(key)
                     if (existingId == null) {
                         val id = StillingerTable.insert(stillingRow)
                         stillingRow.arbeidsgiver?.let { row ->
