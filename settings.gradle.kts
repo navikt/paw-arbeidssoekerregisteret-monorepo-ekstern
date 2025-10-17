@@ -52,8 +52,7 @@ include(
     "apps:eksternt-api",
     "apps:arena-adapter",
     "apps:oppslag-api-v2",
-    "apps:brukerprofiler-api",
-    "apps:ledigestillinger-api",
+    "apps:mine-stillinger-api",
 )
 
 dependencyResolutionManagement {

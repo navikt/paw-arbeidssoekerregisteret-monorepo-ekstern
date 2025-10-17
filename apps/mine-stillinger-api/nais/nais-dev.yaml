@@ -1,0 +1,67 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: paw-arbeidssoekerregisteret-api-mine-stillinger
+  namespace: paw
+  labels:
+    team: paw
+spec:
+  image: {{ image }}
+  ingresses:
+    - https://mine-stillinger-arbeidssoekerregisteret.intern.dev.nav.no
+  port: 8080
+  env:
+    - name: KAFKA_KEYS_SCOPE
+      value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
+    - name: PDL_SCOPE
+      value: "api://dev-fss.pdl.pdl-api/.default"
+    - name: PDL_URL
+      value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
+    - name: PDL_TEMA
+      value: "OPP"
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      cpu: 20m
+      memory: 640Mi
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      claims:
+        extra:
+          - NAVident
+  kafka:
+    pool: nav-dev
+  replicas:
+    min: 1
+    max: 1
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /internal/isReady
+    initialDelay: 10
+  startup:
+    failureThreshold: 10
+    initialDelay: 12
+    path: /internal/hasStarted
+    periodSeconds: 10
+    timeout: 5
+  prometheus:
+    enabled: true
+    path: /internal/metrics
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: "java"
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_18
+        tier: db-f1-micro
+        databases:
+          - name: brukerprofiler
+
