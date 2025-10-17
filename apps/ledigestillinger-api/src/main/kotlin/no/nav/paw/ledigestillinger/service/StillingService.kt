@@ -22,43 +22,47 @@ class StillingService {
         messages
             .onEach { message -> logger.debug("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}") }
             .forEach { message ->
-                val stillingRow = message.asStillingRow()
-                val existingId = StillingerTable.selectIdByUUID(message.key)
-                if (existingId == null) {
-                    val id = StillingerTable.insert(stillingRow)
-                    stillingRow.arbeidsgiver?.let { row ->
-                        ArbeidsgivereTable.insert(
-                            parentId = id,
-                            row = row
-                        )
+                runCatching {
+                    val stillingRow = message.asStillingRow()
+                    val existingId = StillingerTable.selectIdByUUID(message.key)
+                    if (existingId == null) {
+                        val id = StillingerTable.insert(stillingRow)
+                        stillingRow.arbeidsgiver?.let { row ->
+                            ArbeidsgivereTable.insert(
+                                parentId = id,
+                                row = row
+                            )
+                        }
+                        stillingRow.kategorier.forEach { row ->
+                            KategorierTable.insert(
+                                parentId = id,
+                                row = row
+                            )
+                        }
+                        stillingRow.klassifiseringer.forEach { row ->
+                            KlassifiseringerTable.insert(
+                                parentId = id,
+                                row = row
+                            )
+                        }
+                        stillingRow.beliggenheter.forEach { row ->
+                            BeliggenheterTable.insert(
+                                parentId = id,
+                                row = row
+                            )
+                        }
+                        stillingRow.egenskaper.forEach { row ->
+                            EgenskaperTable.insert(
+                                parentId = id,
+                                row = row
+                            )
+                        }
+                    } else {
+                        logger.warn("Stilling med samme UUID er allerede mottatt, ignorerer melding mens vi tester!")
                     }
-                    stillingRow.kategorier.forEach { row ->
-                        KategorierTable.insert(
-                            parentId = id,
-                            row = row
-                        )
-                    }
-                    stillingRow.klassifiseringer.forEach { row ->
-                        KlassifiseringerTable.insert(
-                            parentId = id,
-                            row = row
-                        )
-                    }
-                    stillingRow.beliggenheter.forEach { row ->
-                        BeliggenheterTable.insert(
-                            parentId = id,
-                            row = row
-                        )
-                    }
-                    stillingRow.egenskaper.forEach { row ->
-                        EgenskaperTable.insert(
-                            parentId = id,
-                            row = row
-                        )
-                    }
-                } else {
-                    logger.warn("Stilling med samme UUID er allerede mottatt, ignorerer melding mens vi tester!")
-                }
+                }.onFailure { cause ->
+                    logger.error("Feil ved mottak av melding", cause)
+                }.getOrThrow()
             }
     }
 }
