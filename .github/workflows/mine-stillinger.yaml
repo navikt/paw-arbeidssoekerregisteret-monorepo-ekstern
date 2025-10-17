@@ -1,4 +1,4 @@
-name: Brukerprofiler API
+name: Mine stillinger API
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
       - dev/*
       - prod/*
     paths:
-      - 'apps/brukerprofiler-api/**'
-      - '.github/workflows/brukerprofiler-api.yaml'
+      - 'apps/mine-stillinger-api/**'
+      - '.github/workflows/mine-stillinger.yaml'
       - 'lib/**'
       - 'domain/**'
       - 'domain-dev/**'
@@ -19,8 +19,8 @@ on:
       - 'gradlew.bat'
 
 env:
-  MODULE: brukerprofiler-api
-  IMAGE: europe-north1-docker.pkg.dev/nais-management-233d/paw/paw-arbeidssoekerregisteret-api-brukerprofiler
+  MODULE: mine-stillinger-api
+  IMAGE: europe-north1-docker.pkg.dev/nais-management-233d/paw/paw-arbeidssoekerregisteret-api-mine-stillinger
 jobs:
   build:
     name: Build
