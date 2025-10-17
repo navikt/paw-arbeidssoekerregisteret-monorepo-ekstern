@@ -1,6 +1,11 @@
 package no.nav.paw.ledigestillinger.service
 
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.pam.stilling.ext.avro.Ad
+import no.nav.pam.stilling.ext.avro.AdStatus
 import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.config.ApplicationConfig
 import no.nav.paw.ledigestillinger.model.asStillingRow
@@ -22,54 +27,78 @@ class StillingService(
 ) {
     private val logger = buildLogger
 
-    fun handleMessages(messages: Sequence<Message<UUID, Ad>>) = transaction {
+    @WithSpan
+    fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
+        val antallTotal = messages.count()
+        var antallProsessert = 0
+        var antallLagret = 0
         messages
+            .filter { message ->
+                message.value.status == AdStatus.ACTIVE
+            }
             .filter { message ->
                 message.value.published.fromIsoString().isAfter(applicationConfig.velgStillingerNyereEnn)
             }
             .onEach { message -> logger.debug("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}") }
-            .map { message -> message.key to message.asStillingRow() }
-            .forEach { (key, stillingRow) ->
+            .forEach { message ->
                 runCatching {
-                    val existingId = StillingerTable.selectIdByUUID(key)
-                    if (existingId == null) {
-                        val id = StillingerTable.insert(stillingRow)
-                        stillingRow.arbeidsgiver?.let { row ->
-                            ArbeidsgivereTable.insert(
-                                parentId = id,
-                                row = row
-                            )
-                        }
-                        stillingRow.kategorier.forEach { row ->
-                            KategorierTable.insert(
-                                parentId = id,
-                                row = row
-                            )
-                        }
-                        stillingRow.klassifiseringer.forEach { row ->
-                            KlassifiseringerTable.insert(
-                                parentId = id,
-                                row = row
-                            )
-                        }
-                        stillingRow.beliggenheter.forEach { row ->
-                            BeliggenheterTable.insert(
-                                parentId = id,
-                                row = row
-                            )
-                        }
-                        stillingRow.egenskaper.forEach { row ->
-                            EgenskaperTable.insert(
-                                parentId = id,
-                                row = row
-                            )
-                        }
-                    } else {
-                        logger.warn("Stilling med samme UUID er allerede mottatt, ignorerer melding mens vi tester!")
-                    }
+                    antallProsessert++
+                    antallLagret += handleMessage(message)
                 }.onFailure { cause ->
                     logger.error("Feil ved mottak av melding", cause)
                 }.getOrThrow()
             }
+        Span.current().addEvent(
+            "meldinger_mottatt",
+            Attributes.of(
+                stringKey("antall_meldinger_totalt"), antallTotal.toString(),
+                stringKey("antall_meldinger_prosessert"), antallProsessert.toString(),
+                stringKey("antall_meldinger_lagret"), antallLagret.toString(),
+            )
+        )
+    }
+
+    @WithSpan
+    fun handleMessage(message: Message<UUID, Ad>): Int {
+        val uuid = message.key
+        val stillingRow = message.asStillingRow()
+        val existingId = StillingerTable.selectIdByUUID(uuid)
+        if (existingId == null) {
+            val id = StillingerTable.insert(stillingRow)
+            stillingRow.arbeidsgiver?.let { row ->
+                ArbeidsgivereTable.insert(
+                    parentId = id,
+                    row = row
+                )
+            }
+            stillingRow.kategorier.forEach { row ->
+                KategorierTable.insert(
+                    parentId = id,
+                    row = row
+                )
+            }
+            stillingRow.klassifiseringer.forEach { row ->
+                KlassifiseringerTable.insert(
+                    parentId = id,
+                    row = row
+                )
+            }
+            stillingRow.beliggenheter.forEach { row ->
+                BeliggenheterTable.insert(
+                    parentId = id,
+                    row = row
+                )
+            }
+            stillingRow.egenskaper.forEach { row ->
+                EgenskaperTable.insert(
+                    parentId = id,
+                    row = row
+                )
+            }
+            return 1
+        } else {
+            logger.warn("Stilling med samme UUID er allerede mottatt, ignorerer melding mens vi tester!")
+            return 0
+        }
     }
 }

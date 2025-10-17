@@ -14,3 +14,4 @@
 * [pam-ad-broapplikasjoner](https://github.com/navikt/pam-ad-broapplikasjoner)
 * [arbeidsplassen-search-api](https://github.com/navikt/arbeidsplassen-search-api)
 * [arbeidsplassen-topics](https://github.com/navikt/arbeidsplassen-topics)
+* [arbeidsplassen-occupations](https://arbeidsplassen-api.nav.no/stillingsimport/api/v1/categories/pyrk/occupations)
