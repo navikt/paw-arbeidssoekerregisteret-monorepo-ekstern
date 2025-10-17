@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.jdbc.update
 object EgenskaperTable : LongIdTable("egenskaper") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val key = varchar("key", 50)
-    val value = varchar("value", 1000)
+    val value = text("value")
 }
 
 fun EgenskaperTable.insert(
