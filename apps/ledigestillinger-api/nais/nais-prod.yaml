@@ -16,6 +16,13 @@ spec:
       memory: 640Mi
   tokenx:
     enabled: true
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      claims:
+        extra:
+          - NAVident
   kafka:
     pool: nav-prod
   replicas:
@@ -43,7 +50,7 @@ spec:
   gcp:
     sqlInstances:
       - type: POSTGRES_17
-        tier: db-f1-micro
+        tier: db-custom-1-6144
         databases:
           - name: ledigestillinger
 
