@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
-  title: "BrukerprofilerI"
-  description: "Noe greier"
+  title: "Brukerprofiler"
+  description: "API for å stillingssøk i Arbeidssøkerregisteret"
   version: "0.1.0"
 servers:
   - url: "https://brukerpofiler-arbeidssoekerregisteret.intern.dev.nav.no"
@@ -59,7 +59,7 @@ paths:
                   $ref: "#/components/schemas/Fylke"
   /api/v1/kodeverk/styrk08 :
     get:
-      description: "Hent alle fylker og deres kommuner"
+      description: "Hent hele STYRK-08 treet"
       responses:
         "200":
           description: "OK"
@@ -188,7 +188,7 @@ components:
           $ref: "#/components/schemas/Styrk"
         children:
           type: "array"
-          description: Empty if leaf node, level 4
+          description: Tom dersom dette er et blad i treet (styrk kode på nivå 4).
           items:
             $ref: "#/components/schemas/StyrkTreNode"
       required:
@@ -196,6 +196,7 @@ components:
         - "children"
     ReiseveiSoek:
       type: "object"
+      description: "Denne søketypen er ikke støttet ennå, og blir kanskje aldri støttet."
       properties:
         soekType:
           type: "string"

@@ -26,6 +26,7 @@ fun lagreSoek(brukerId: Long, tidspunkt: Instant, soek: Stillingssoek) {
         it[SoekTable.type] = soek.soekType.name
         it[SoekTable.soek] = soekObjectMapper.writeValueAsString(soek)
         it[SoekTable.opprettet] = tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+        it[SoekTable.sistKjoet] = null
     }
 }
 
@@ -39,6 +40,7 @@ fun hentSoek(brukerId: Long): List<LagretStillingsoek> {
                 id = row[SoekTable.id],
                 brukerId = row[SoekTable.brukerId],
                 opprettet = row[SoekTable.opprettet],
+                sistKjoet = row[SoekTable.sistKjoet],
                 soek = soek
             )
         }
