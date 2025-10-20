@@ -5,6 +5,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
+import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
@@ -17,6 +18,9 @@ import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
+import no.nav.paw.security.texas.TEXAS_CONFIG
+import no.nav.paw.security.texas.TexasClient
+import no.nav.paw.security.texas.TexasClientConfig
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.lagreProfilering
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
@@ -57,6 +61,8 @@ fun main() {
     val dataSource = initDatabase(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val webClients = initWebClient()
     val brukerprofilTjeneste = BrukerprofilTjeneste(webClients.pdlClient)
+    val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
+    val texasClient = TexasClient(texasConfig, createHttpClient())
     val appContext = ApplicationContext(
         consumer = consumer,
         dataSource = dataSource,

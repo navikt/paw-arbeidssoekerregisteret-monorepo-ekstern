@@ -19,6 +19,8 @@ spec:
       value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
     - name: PDL_TEMA
       value: "OPP"
+    - name: TARGET_APP
+      value: "api://dev-gcp.paw.api-ledigestillinger/.default"
   resources:
     limits:
       memory: 640Mi

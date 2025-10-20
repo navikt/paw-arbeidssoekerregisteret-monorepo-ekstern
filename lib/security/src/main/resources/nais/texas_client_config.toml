@@ -1,0 +1,2 @@
+endpoint = "${NAIS_TOKEN_EXCHANGE_ENDPOINT}"
+target = "${TARGET_APP}"
