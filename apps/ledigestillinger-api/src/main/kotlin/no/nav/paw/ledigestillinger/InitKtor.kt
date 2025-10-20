@@ -6,9 +6,7 @@ import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
-import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.swagger.swaggerUI
-import io.ktor.server.request.path
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -27,6 +25,7 @@ import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.context.ApplicationContext
 import no.nav.paw.ledigestillinger.plugin.CleanAwareFlywayPlugin
 import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
+import no.nav.paw.ledigestillinger.plugin.installLogginPlugin
 import no.nav.paw.ledigestillinger.plugin.installWebPlugins
 import no.nav.paw.ledigestillinger.route.stillingRoutes
 import no.nav.paw.ledigestillinger.serde.AdAvroDeserializer
@@ -36,7 +35,6 @@ import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.apache.kafka.common.serialization.UUIDDeserializer
-import org.slf4j.event.Level
 import java.util.*
 import javax.sql.DataSource
 
@@ -79,13 +77,9 @@ fun Application.configureKtorServer(
     dataSource: DataSource,
     pamStillingerKafkaConsumer: DataConsumer<Message<UUID, Ad>, UUID, Ad>,
 ) {
+    installWebPlugins()
     installContentNegotiationPlugin()
-    install(CallLogging) {
-        level = Level.TRACE
-        filter { call ->
-            !call.request.path().contains("internal")
-        }
-    }
+    installLogginPlugin()
     installErrorHandlingPlugin()
     installWebAppMetricsPlugin(
         meterRegistry = meterRegistry,
@@ -100,6 +94,5 @@ fun Application.configureKtorServer(
         this.cleanBeforeMigrate = true
     }
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
-    installWebPlugins()
 }
 
