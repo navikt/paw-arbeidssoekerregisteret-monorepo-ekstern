@@ -109,11 +109,11 @@ components:
     StillingStatus:
       type: "string"
       enum:
-        - "ACTIVE"
-        - "INACTIVE"
-        - "STOPPED"
-        - "DELETED"
-        - "REJECTED"
+        - "AKTIV"
+        - "INAKTIV"
+        - "STOPPET"
+        - "SLETTET"
+        - "AVVIST"
   securitySchemes:
     BearerAuth:
       scheme: bearer

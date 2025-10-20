@@ -5,16 +5,14 @@ import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 
 fun Span.meldingerMottattEvent(
-    antallTotal: Number,
-    antallProsessert: Number,
+    antallMottatt: Number,
     antallLagret: Number
 ): Span = apply {
     addEvent(
         "meldinger_mottatt",
         Attributes.of(
-            stringKey("antall_meldinger_totalt"), antallTotal.toString(),
-            stringKey("antall_meldinger_prosessert"), antallProsessert.toString(),
-            stringKey("antall_meldinger_lagret"), antallLagret.toString(),
+            stringKey("mottatt"), antallMottatt.toString(),
+            stringKey("lagret"), antallLagret.toString(),
         )
     )
 }

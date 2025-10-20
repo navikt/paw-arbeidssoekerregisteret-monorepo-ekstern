@@ -42,7 +42,15 @@ fun StillingerTable.selectRowByUUID(
     uuid: UUID
 ): StillingRow? = selectAll()
     .where { StillingerTable.uuid eq uuid }
-    .map { it.asStillingRow() }
+    .map {
+        it.asStillingRow(
+            arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
+            kategorier = KategorierTable::selectRowsByParentId,
+            klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
+            beliggenheter = BeliggenheterTable::selectRowsByParentId,
+            egenskaper = EgenskaperTable::selectRowsByParentId
+        )
+    }
     .singleOrNull()
 
 fun StillingerTable.insert(

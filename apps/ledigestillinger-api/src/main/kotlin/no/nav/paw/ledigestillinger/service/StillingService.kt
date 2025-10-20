@@ -19,6 +19,7 @@ import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.model.dao.insert
 import no.nav.paw.ledigestillinger.model.dao.selectIdByUUID
 import no.nav.paw.ledigestillinger.model.dao.selectRowByUUID
+import no.nav.paw.ledigestillinger.model.dao.updateById
 import no.nav.paw.ledigestillinger.util.fromIsoString
 import no.nav.paw.ledigestillinger.util.meldingerMottattCounter
 import no.nav.paw.ledigestillinger.util.meldingerMottattEvent
@@ -46,8 +47,7 @@ class StillingService(
 
     @WithSpan
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
-        val antallTotal = messages.count()
-        var antallProsessert = 0
+        val antallMottatt = messages.count()
         var antallLagret = 0
         messages
             .onEach { message -> meterRegistry.meldingerMottattCounter(message.value.status) }
@@ -57,18 +57,18 @@ class StillingService(
             .onEach { message -> logger.debug("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}") }
             .forEach { message ->
                 runCatching {
-                    antallProsessert++
-                    antallLagret += handleMessage(message)
+                    antallLagret++
+                    handleMessage(message)
                 }.onFailure { cause ->
                     logger.error("Feil ved mottak av melding", cause)
                 }.getOrThrow()
             }
-        Span.current().meldingerMottattEvent(antallTotal, antallProsessert, antallLagret)
-        meterRegistry.meldingerMottattGauge(antallTotal, antallProsessert, antallLagret)
+        Span.current().meldingerMottattEvent(antallMottatt, antallLagret)
+        meterRegistry.meldingerMottattGauge(antallMottatt, antallLagret)
     }
 
     @WithSpan
-    fun handleMessage(message: Message<UUID, Ad>): Int {
+    fun handleMessage(message: Message<UUID, Ad>) {
         val uuid = message.key
         val stillingRow = message.asStillingRow()
         val existingId = StillingerTable.selectIdByUUID(uuid)
@@ -104,10 +104,11 @@ class StillingService(
                     row = row
                 )
             }
-            return 1
         } else {
-            logger.warn("Stilling med samme UUID er allerede mottatt, ignorerer melding mens vi tester!")
-            return 0
+            StillingerTable.updateById(
+                id = existingId,
+                row = stillingRow
+            )
         }
     }
 }

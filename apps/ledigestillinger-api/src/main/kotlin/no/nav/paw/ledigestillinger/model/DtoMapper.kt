@@ -14,9 +14,9 @@ fun StillingRow.asDto(): Stilling = Stilling(
 )
 
 fun StillingStatus.asDto(): no.nav.paw.ledigestillinger.api.models.StillingStatus = when (this) {
-    StillingStatus.ACTIVE -> no.nav.paw.ledigestillinger.api.models.StillingStatus.ACTIVE
-    StillingStatus.INACTIVE -> no.nav.paw.ledigestillinger.api.models.StillingStatus.INACTIVE
-    StillingStatus.STOPPED -> no.nav.paw.ledigestillinger.api.models.StillingStatus.STOPPED
-    StillingStatus.DELETED -> no.nav.paw.ledigestillinger.api.models.StillingStatus.DELETED
-    StillingStatus.REJECTED -> no.nav.paw.ledigestillinger.api.models.StillingStatus.REJECTED
+    StillingStatus.ACTIVE -> no.nav.paw.ledigestillinger.api.models.StillingStatus.AKTIV
+    StillingStatus.INACTIVE -> no.nav.paw.ledigestillinger.api.models.StillingStatus.INAKTIV
+    StillingStatus.STOPPED -> no.nav.paw.ledigestillinger.api.models.StillingStatus.STOPPET
+    StillingStatus.DELETED -> no.nav.paw.ledigestillinger.api.models.StillingStatus.SLETTET
+    StillingStatus.REJECTED -> no.nav.paw.ledigestillinger.api.models.StillingStatus.AVVIST
 }

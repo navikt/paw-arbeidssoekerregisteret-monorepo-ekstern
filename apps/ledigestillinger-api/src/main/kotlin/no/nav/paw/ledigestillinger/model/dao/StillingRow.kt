@@ -31,27 +31,36 @@ data class StillingRow(
     val egenskaper: Iterable<EgenskapRow>
 )
 
-fun ResultRow.asStillingRow(): StillingRow = StillingRow(
-    id = this[StillingerTable.id].value,
-    uuid = this[StillingerTable.uuid],
-    adnr = this[StillingerTable.adnr],
-    tittel = this[StillingerTable.tittel],
-    status = this[StillingerTable.status],
-    visning = this[StillingerTable.visning],
-    kilde = this[StillingerTable.kilde],
-    medium = this[StillingerTable.medium],
-    referanse = this[StillingerTable.referanse],
-    arbeidsgiverNavn = this[StillingerTable.arbeidsgiverNavn],
-    opprettetTimestamp = this[StillingerTable.opprettetTimestamp],
-    endretTimestamp = this[StillingerTable.endretTimestamp],
-    publisertTimestamp = this[StillingerTable.publisertTimestamp],
-    utloeperTimestamp = this[StillingerTable.utloeperTimestamp],
-    messageTimestamp = this[StillingerTable.messageTimestamp],
-    insertTimestamp = this[StillingerTable.insertTimestamp],
-    updatedTimestamp = this[StillingerTable.updatedTimestamp],
-    arbeidsgiver = null, // TODO: Fiks
-    kategorier = emptyList(), // TODO: Fiks
-    klassifiseringer = emptyList(), // TODO: Fiks
-    beliggenheter = emptyList(), // TODO: Fiks
-    egenskaper = emptyList() // TODO: Fiks
-)
+fun ResultRow.asStillingRow(
+    arbeidsgiver: (Long) -> ArbeidsgiverRow?,
+    kategorier: (Long) -> Iterable<KategoriRow>,
+    klassifiseringer: (Long) -> Iterable<KlassifiseringRow>,
+    beliggenheter: (Long) -> Iterable<BeliggenhetRow>,
+    egenskaper: (Long) -> Iterable<EgenskapRow>
+): StillingRow {
+    val id = this[StillingerTable.id].value
+    return StillingRow(
+        id = id,
+        uuid = this[StillingerTable.uuid],
+        adnr = this[StillingerTable.adnr],
+        tittel = this[StillingerTable.tittel],
+        status = this[StillingerTable.status],
+        visning = this[StillingerTable.visning],
+        kilde = this[StillingerTable.kilde],
+        medium = this[StillingerTable.medium],
+        referanse = this[StillingerTable.referanse],
+        arbeidsgiverNavn = this[StillingerTable.arbeidsgiverNavn],
+        opprettetTimestamp = this[StillingerTable.opprettetTimestamp],
+        endretTimestamp = this[StillingerTable.endretTimestamp],
+        publisertTimestamp = this[StillingerTable.publisertTimestamp],
+        utloeperTimestamp = this[StillingerTable.utloeperTimestamp],
+        messageTimestamp = this[StillingerTable.messageTimestamp],
+        insertTimestamp = this[StillingerTable.insertTimestamp],
+        updatedTimestamp = this[StillingerTable.updatedTimestamp],
+        arbeidsgiver = arbeidsgiver(id),
+        kategorier = kategorier(id),
+        klassifiseringer = klassifiseringer(id),
+        beliggenheter = beliggenheter(id),
+        egenskaper = egenskaper(id)
+    )
+}

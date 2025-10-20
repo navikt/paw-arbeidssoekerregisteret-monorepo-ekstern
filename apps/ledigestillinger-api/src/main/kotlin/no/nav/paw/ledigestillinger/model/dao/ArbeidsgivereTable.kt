@@ -3,6 +3,7 @@ package no.nav.paw.ledigestillinger.model.dao
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 
 object ArbeidsgivereTable : LongIdTable("arbeidsgivere") {
@@ -13,6 +14,13 @@ object ArbeidsgivereTable : LongIdTable("arbeidsgivere") {
     val navn = varchar("navn", 255)
     val offentligNavn = varchar("offentlig_navn", 255)
 }
+
+fun ArbeidsgivereTable.selectRowByParentId(
+    parentId: Long
+): ArbeidsgiverRow? = selectAll()
+    .where { ArbeidsgivereTable.parentId eq parentId }
+    .map { it.asArbeidsgiverRow() }
+    .singleOrNull()
 
 fun ArbeidsgivereTable.insert(
     parentId: Long,

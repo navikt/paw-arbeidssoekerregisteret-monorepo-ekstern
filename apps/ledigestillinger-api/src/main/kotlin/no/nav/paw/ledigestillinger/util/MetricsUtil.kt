@@ -6,12 +6,10 @@ import io.micrometer.core.instrument.Tags
 import no.nav.pam.stilling.ext.avro.AdStatus
 
 fun MeterRegistry.meldingerMottattGauge(
-    antallTotal: Number,
-    antallProsessert: Number,
+    antallMottatt: Number,
     antallLagret: Number
 ) {
-    meldingerMottattGauge("totalt", antallTotal)
-    meldingerMottattGauge("prosessert", antallProsessert)
+    meldingerMottattGauge("mottatt", antallMottatt)
     meldingerMottattGauge("lagret", antallLagret)
 }
 

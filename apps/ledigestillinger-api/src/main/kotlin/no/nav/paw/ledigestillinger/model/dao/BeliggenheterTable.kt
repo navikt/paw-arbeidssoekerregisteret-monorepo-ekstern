@@ -3,6 +3,7 @@ package no.nav.paw.ledigestillinger.model.dao
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 
 object BeliggenheterTable : LongIdTable("beliggenheter") {
@@ -16,6 +17,12 @@ object BeliggenheterTable : LongIdTable("beliggenheter") {
     val fylkeskode = varchar("fylkeskode", 20).nullable()
     val land = varchar("land", 100)
 }
+
+fun BeliggenheterTable.selectRowsByParentId(
+    parentId: Long
+): List<BeliggenhetRow> = selectAll()
+    .where { BeliggenheterTable.parentId eq parentId }
+    .map { it.asBeliggenhetRow() }
 
 fun BeliggenheterTable.insert(
     parentId: Long,
