@@ -27,6 +27,8 @@ import no.nav.paw.ledigestillinger.util.meldingerMottattEvent
 import no.nav.paw.ledigestillinger.util.meldingerMottattGauge
 import no.nav.paw.logging.logger.buildLogger
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Duration
+import java.time.Instant
 import java.util.*
 
 class StillingService(
@@ -62,11 +64,7 @@ class StillingService(
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
         var antallMottatt = 0
         var antallLagret = 0
-        logger.info(
-            "Håndterer {} meldinger fra topic={}",
-            antallMottatt,
-            applicationConfig.pamStillingerKafkaConsumer.topic
-        )
+        val start = Instant.now()
         messages
             .onEach { message ->
                 antallMottatt++
@@ -88,6 +86,14 @@ class StillingService(
                     logger.error("Feil ved mottak av melding", cause)
                 }.getOrThrow()
             }
+        val slutt = Instant.now()
+        val elapsed = Duration.between(start, slutt)
+        logger.info(
+            "Håndterte {} meldinger på {} fra topic={}",
+            antallMottatt,
+            elapsed,
+            applicationConfig.pamStillingerKafkaConsumer.topic
+        )
         Span.current().meldingerMottattEvent(antallMottatt, antallLagret)
         meterRegistry.meldingerMottattGauge(antallMottatt, antallLagret)
     }
