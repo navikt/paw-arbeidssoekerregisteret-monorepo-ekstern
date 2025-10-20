@@ -14,17 +14,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/FinnStillingRequest"
+              $ref: "#/components/schemas/FinnStillingerRequest"
         required: true
       responses:
         '200':
-          description: Liste med stillinger
+          description: Inneholder liste med stillinger
           content:
             application/json:
               schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Stilling"
+                $ref: "#/components/schemas/FinnStillingerResponse"
         '304':
           description: Feed page is empty, or its contents have not changed since
             last time
@@ -69,15 +67,33 @@ paths:
         - BearerAuth: [ ]
 components:
   schemas:
-    FinnStillingRequest:
+    FinnStillingerRequest:
       type: object
       additionalProperties: false
       properties:
-        uuid:
-          type: string
-          format: uuid
+        soekeord:
+          type: array
+          items:
+            type: string
+        kategorier:
+          type: array
+          items:
+            type: string
+        fylker:
+          type: array
+          items:
+            type: string
       required:
-        - uuid
+        - kategorier
+        - fylker
+    FinnStillingerResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        stillinger:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stilling'
     Stilling:
       type: object
       additionalProperties: false

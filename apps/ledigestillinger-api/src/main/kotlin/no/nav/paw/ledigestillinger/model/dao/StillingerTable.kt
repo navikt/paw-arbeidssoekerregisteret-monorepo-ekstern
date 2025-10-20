@@ -2,8 +2,11 @@ package no.nav.paw.ledigestillinger.model.dao
 
 import no.nav.paw.ledigestillinger.model.StillingStatus
 import no.nav.paw.ledigestillinger.model.VisningGrad
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.select
@@ -52,6 +55,24 @@ fun StillingerTable.selectRowByUUID(
         )
     }
     .singleOrNull()
+
+fun StillingerTable.selectRowsByKategorierAndFylker(
+    soekeord: Collection<String>, // TODO
+    kategorier: Collection<String>,
+    fylker: Collection<String>
+): List<StillingRow> = join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
+    .join(BeliggenheterTable, JoinType.LEFT, StillingerTable.id, BeliggenheterTable.parentId)
+    .selectAll()
+    .where { (KategorierTable.kode inList kategorier) and (BeliggenheterTable.fylke inList fylker) }
+    .map {
+        it.asStillingRow(
+            arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
+            kategorier = KategorierTable::selectRowsByParentId,
+            klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
+            beliggenheter = BeliggenheterTable::selectRowsByParentId,
+            egenskaper = EgenskaperTable::selectRowsByParentId
+        )
+    }
 
 fun StillingerTable.insert(
     row: StillingRow
