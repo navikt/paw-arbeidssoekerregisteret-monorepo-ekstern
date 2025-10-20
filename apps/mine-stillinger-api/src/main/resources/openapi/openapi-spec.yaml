@@ -246,17 +246,17 @@ components:
         resultat:
           type: "array"
           items:
-            $ref: "#/components/schemas/Stilling"
+            $ref: "#/components/schemas/JobbAnnonse"
       required:
         - "soek"
         - "stillinger"
         - "resultat"
-    Stilling:
+    JobbAnnonse:
       type: "object"
       properties:
         tittel:
           type: "string"
-          example: "Utvikler"
+          example: "Vi du jobbe som utvikler hos oss?"
         stillingbeskrivelse:
           type: "string"
           example: "Backendutikler/Java"
@@ -265,16 +265,49 @@ components:
           format: "date-time"
           example: "2025-10-17T10:30:00Z"
         soeknadsfrist:
-          type: "string"
-          format: "date-time"
-          example: "2025-11-17T23:59:59Z"
+          type: "object"
+          $ref: "#/components/schemas/Soeknadsfrist"
         land:
           type: "string"
           example: "Norge"
         kommune:
           type: "string"
           example: "Oslo"
+        sektor:
+          type: "string"
+          $ref: "#/components/schemas/Sektor"
+        selskap:
+          type: "string"
+          example: "Snedige Løsninger AS"
       required:
         - "tittel"
         - "publisert"
+        - "sektor"
+        - "selskap"
+        - "soeknadsfrist"
         - "land"
+    Soeknadsfrist:
+      type: "object"
+      properties:
+        raw:
+          type: "string"
+          description: "Tekst fra datasettet for egenskapen søknadsfrist"
+          example: "Her kan det stå hva som helst dersom fristType er Ukjent"
+        fristType:
+          type: string
+          description: "Hvilken type frist er det"
+          enum:
+            - Ukjent
+            - Snarest
+            - Dato
+        dato:
+          type: string
+          format: date
+          example: "2025-11-25"
+          description: "Søknadsfrist, bare med dersom 'fristType' er Dato"
+    Sektor:
+      type: "string"
+      enum:
+        - "Offentlig"
+        - "Privat"
+        - "Ukjent"
