@@ -60,14 +60,26 @@ class StillingService(
 
     @WithSpan
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
-        val antallMottatt = messages.count()
+        var antallMottatt = 0
         var antallLagret = 0
+        logger.info(
+            "Håndterer {} meldinger fra topic={}",
+            antallMottatt,
+            applicationConfig.pamStillingerKafkaConsumer.topic
+        )
         messages
-            .onEach { message -> meterRegistry.meldingerMottattCounter(message.value.status) }
-            .filter { message ->
-                message.value.published.fromIsoString().isAfter(applicationConfig.velgStillingerNyereEnn)
+            .onEach { message ->
+                antallMottatt++
+                logger.trace("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
+                meterRegistry.meldingerMottattCounter(message.value.status)
             }
-            .onEach { message -> logger.debug("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}") }
+            .filter { message ->
+                val publishedTimestamp = message.value.published.fromIsoString()
+                publishedTimestamp.isAfter(applicationConfig.velgStillingerNyereEnn)
+            }
+            .onEach { message ->
+                logger.trace("Prosesserer melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
+            }
             .forEach { message ->
                 runCatching {
                     antallLagret++

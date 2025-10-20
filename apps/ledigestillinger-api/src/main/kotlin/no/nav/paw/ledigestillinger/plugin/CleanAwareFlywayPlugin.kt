@@ -34,10 +34,11 @@ val CleanAwareFlywayPlugin: ApplicationPlugin<CleanAwareFlywayPluginConfig> =
             .load()
 
         on(MonitoringEvent(DataSourceReady)) { application ->
-            application.log.info("Running database migration")
             if (cleanBeforeMigrate) {
+                application.log.info("Sletter database før migrering")
                 flyway.clean()
             }
+            application.log.info("Kjører migrering av database")
             flyway.migrate()
             application.monitor.raise(FlywayMigrationCompleted, application)
         }

@@ -1,0 +1,12 @@
+### POST Request
+POST {{baseUrl}}/api/v1/stillinger
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "soekeord": [],
+    "kategorier": [],
+    "fylker": []
+}
+
+###
