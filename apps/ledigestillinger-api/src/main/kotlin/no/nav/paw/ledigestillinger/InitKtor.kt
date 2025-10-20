@@ -7,6 +7,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.calllogging.CallLogging
+import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.path
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
@@ -26,6 +27,8 @@ import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.context.ApplicationContext
 import no.nav.paw.ledigestillinger.plugin.CleanAwareFlywayPlugin
 import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
+import no.nav.paw.ledigestillinger.plugin.installWebPlugins
+import no.nav.paw.ledigestillinger.route.stillingRoutes
 import no.nav.paw.ledigestillinger.serde.AdAvroDeserializer
 import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
 import no.nav.paw.metrics.route.metricsRoutes
@@ -62,6 +65,8 @@ fun <A> initEmbeddedKtorServer(
                 readinessRoute(healthChecks)
                 startupRoute(healthChecks)
                 metricsRoutes(meterRegistry)
+                swaggerUI(path = "docs", swaggerFile = "openapi/documentation.yaml")
+                stillingRoutes(stillingService)
             }
         }
     }
@@ -95,5 +100,6 @@ fun Application.configureKtorServer(
         this.cleanBeforeMigrate = true
     }
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
+    installWebPlugins()
 }
 

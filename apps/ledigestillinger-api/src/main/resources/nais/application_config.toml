@@ -1,3 +1,5 @@
+velgStillingerNyereEnn = "2024-01-01T00:00:00Z"
+
 [pamStillingerKafkaConsumer]
 version = 1
 topic = "teampam.stilling-ekstern-1"

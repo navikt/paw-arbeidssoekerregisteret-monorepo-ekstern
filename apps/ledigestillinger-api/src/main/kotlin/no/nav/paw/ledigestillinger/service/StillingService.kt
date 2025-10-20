@@ -1,13 +1,14 @@
 package no.nav.paw.ledigestillinger.service
 
-import io.opentelemetry.api.common.AttributeKey.stringKey
-import io.opentelemetry.api.common.Attributes
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.pam.stilling.ext.avro.Ad
-import no.nav.pam.stilling.ext.avro.AdStatus
 import no.nav.paw.hwm.Message
+import no.nav.paw.ledigestillinger.api.models.Stilling
 import no.nav.paw.ledigestillinger.config.ApplicationConfig
+import no.nav.paw.ledigestillinger.exception.StillingIkkeFunnetException
+import no.nav.paw.ledigestillinger.model.asDto
 import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgivereTable
 import no.nav.paw.ledigestillinger.model.dao.BeliggenheterTable
@@ -17,15 +18,31 @@ import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.model.dao.insert
 import no.nav.paw.ledigestillinger.model.dao.selectIdByUUID
+import no.nav.paw.ledigestillinger.model.dao.selectRowByUUID
 import no.nav.paw.ledigestillinger.util.fromIsoString
+import no.nav.paw.ledigestillinger.util.meldingerMottattCounter
+import no.nav.paw.ledigestillinger.util.meldingerMottattEvent
+import no.nav.paw.ledigestillinger.util.meldingerMottattGauge
 import no.nav.paw.logging.logger.buildLogger
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
 class StillingService(
-    private val applicationConfig: ApplicationConfig
+    private val applicationConfig: ApplicationConfig,
+    private val meterRegistry: PrometheusMeterRegistry
 ) {
     private val logger = buildLogger
+
+    init {
+        logger.info(
+            "Starter konsumering av stillinger som er publisert etter {}",
+            applicationConfig.velgStillingerNyereEnn
+        )
+    }
+
+    fun hentStilling(uuid: UUID): Stilling = transaction {
+        StillingerTable.selectRowByUUID(uuid)?.asDto() ?: throw StillingIkkeFunnetException()
+    }
 
     @WithSpan
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
@@ -33,9 +50,7 @@ class StillingService(
         var antallProsessert = 0
         var antallLagret = 0
         messages
-            .filter { message ->
-                message.value.status == AdStatus.ACTIVE
-            }
+            .onEach { message -> meterRegistry.meldingerMottattCounter(message.value.status) }
             .filter { message ->
                 message.value.published.fromIsoString().isAfter(applicationConfig.velgStillingerNyereEnn)
             }
@@ -48,14 +63,8 @@ class StillingService(
                     logger.error("Feil ved mottak av melding", cause)
                 }.getOrThrow()
             }
-        Span.current().addEvent(
-            "meldinger_mottatt",
-            Attributes.of(
-                stringKey("antall_meldinger_totalt"), antallTotal.toString(),
-                stringKey("antall_meldinger_prosessert"), antallProsessert.toString(),
-                stringKey("antall_meldinger_lagret"), antallLagret.toString(),
-            )
-        )
+        Span.current().meldingerMottattEvent(antallTotal, antallProsessert, antallLagret)
+        meterRegistry.meldingerMottattGauge(antallTotal, antallProsessert, antallLagret)
     }
 
     @WithSpan

@@ -115,7 +115,7 @@ tasks.named("compileKotlin") {
     dependsOn("openApiValidate", "openApiGenerate")
 }
 
-val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/api.yaml"
+val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
 
 openApiValidate {
     inputSpec = openApiDocFile
@@ -125,7 +125,7 @@ openApiGenerate {
     generatorName = "kotlin"
     inputSpec = openApiDocFile
     outputDir = "${layout.buildDirectory.get()}/generated/"
-    packageName = "no.nav.paw.ledigestillinger.feed"
+    packageName = "no.nav.paw.ledigestillinger.api"
     configOptions = mapOf(
         "serializationLibrary" to "jackson",
         "enumPropertyNaming" to "original",

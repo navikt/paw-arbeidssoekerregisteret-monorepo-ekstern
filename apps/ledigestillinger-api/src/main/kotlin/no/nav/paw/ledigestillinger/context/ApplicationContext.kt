@@ -33,7 +33,7 @@ data class ApplicationContext(
     val meterRegistry: PrometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
     val meterBinderList: List<MeterBinder> = emptyList(),
     val kafkaFactory: KafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG)),
-    val stillingService: StillingService = StillingService(applicationConfig)
+    val stillingService: StillingService = StillingService(applicationConfig, meterRegistry)
 ) {
     fun <K : Any, V : Any> createHwmKafkaConsumer(
         config: KafkaConsumerConfig,

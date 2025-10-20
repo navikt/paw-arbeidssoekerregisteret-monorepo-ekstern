@@ -5,27 +5,26 @@ info:
   description: API for å hente stillinger
 paths:
   "/api/v1/stillinger":
-    get:
+    post:
       tags:
         - Stillinger
       description: Finn stillinger
       operationId: finnStillinger
-      parameters:
-        - name: last
-          in: query
-          description: Flag for requesting the last (newest) page of the feed
-          required: false
-          deprecated: false
-          allowEmptyValue: true
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinnStillingRequest"
+        required: true
       responses:
         '200':
-          description: Feed page
+          description: Liste med stillinger
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/Feed"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Stilling"
         '304':
           description: Feed page is empty, or its contents have not changed since
             last time
@@ -36,14 +35,14 @@ paths:
       deprecated: false
       security:
         - BearerAuth: [ ]
-  "/api/v1/stillinger/{stillingId}":
+  "/api/v1/stillinger/{uuid}":
     get:
       tags:
         - Stillinger
       description: Hent stilling
       operationId: getStilling
       parameters:
-        - name: stillingId
+        - name: uuid
           in: path
           description: Unit UUID for stillingen
           required: true
@@ -53,11 +52,11 @@ paths:
             type: string
       responses:
         '200':
-          description: The specified feed page
+          description: Stilling
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/Feed"
+                "$ref": "#/components/schemas/Stilling"
         '304':
           description: Feed page is empty, or its contents have not changed since
             last time
@@ -70,36 +69,51 @@ paths:
         - BearerAuth: [ ]
 components:
   schemas:
-    Feed:
+    FinnStillingRequest:
       type: object
       additionalProperties: false
       properties:
-        version:
+        uuid:
           type: string
-        title:
-          type: string
-        home_page_url:
-          type: string
-        feed_url:
-          type: string
-        description:
-          type: string
-        next_url:
-          type: string
-          nullable: true
-        id:
-          type: string
-        next_id:
-          type: string
-          nullable: true
+          format: uuid
       required:
-        - version
-        - title
-        - home_page_url
-        - feed_url
-        - description
-        - id
-        - items
+        - uuid
+    Stilling:
+      type: object
+      additionalProperties: false
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        adnr:
+          type: string
+        tittel:
+          type: string
+        status:
+          $ref: '#/components/schemas/StillingStatus'
+        arbeidsgiverNavn:
+          type: string
+        publisertTimestamp:
+          type: "string"
+          format: "date-time"
+          example: "2021-09-29T11:20:33.444Z"
+        utloeperTimestamp:
+          type: "string"
+          format: "date-time"
+          example: "2021-09-29T11:20:33.444Z"
+      required:
+        - uuid
+        - tittel
+        - status
+        - publisertTimestamp
+    StillingStatus:
+      type: "string"
+      enum:
+        - "ACTIVE"
+        - "INACTIVE"
+        - "STOPPED"
+        - "DELETED"
+        - "REJECTED"
   securitySchemes:
     BearerAuth:
       scheme: bearer
