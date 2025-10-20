@@ -6,9 +6,8 @@ import org.jetbrains.exposed.v1.javatime.timestamp
 object BrukerTable : Table("bruker") {
     val id = long("id").autoIncrement()
     val identitetsnummer = varchar("identitetsnummer", 11)
-    val tjenestenErAktiv = bool("tjenesten_er_aktiv")
+    val tjenestestatus = varchar("tjenestestatus", 50)
     val harBruktTjenesten = bool("har_brukt_tjenesten")
-    val erIkkeInteressert = bool("er_ikke_interessert")
     val kanTilbysTjenesten = varchar("kan_tilbys_tjenesten", 10)
     val kanTilbysTjenestenTimestamp = timestamp("kan_tilbys_tjenesten_timestamp")
     val arbeidssoekerperiodeId = uuid("arbeidssoekerperiode_id")

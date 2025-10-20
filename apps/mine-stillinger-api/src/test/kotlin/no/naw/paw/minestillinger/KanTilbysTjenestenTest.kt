@@ -8,6 +8,7 @@ import no.naw.paw.minestillinger.domain.KanTilbysTjenesten
 import no.naw.paw.minestillinger.domain.Profilering
 import no.naw.paw.minestillinger.domain.ProfileringResultat
 import no.naw.paw.minestillinger.domain.ProfileringResultat.ANTATT_BEHOV_FOR_VEILEDNING
+import no.naw.paw.minestillinger.domain.TjenesteStatus
 import java.time.Instant
 import java.util.UUID
 
@@ -22,12 +23,11 @@ data class TestCase(
 val arbeidssoekerperiodeId = UUID.randomUUID()
 val brukerProfil = BrukerProfil(
     id = 1L, identitetsnummer = Identitetsnummer("12345678901"),
-    tjenestenErAktiv = true,
     kanTilbysTjenesten = KanTilbysTjenesten.JA,
     kanTilbysTjenestenTimestamp = Instant.now(),
     harBruktTjenesten = true,
     arbeidssoekerperiodeId = arbeidssoekerperiodeId,
-    erIkkeInteressert = false,
+    tjenestestatus = TjenesteStatus.INAKTIV,
     arbeidssoekerperiodeAvsluttet = null
 )
 val profilering = Profilering(

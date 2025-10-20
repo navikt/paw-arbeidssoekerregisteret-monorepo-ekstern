@@ -9,6 +9,7 @@ import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.domain.KanTilbysTjenesten
+import no.naw.paw.minestillinger.domain.TjenesteStatus
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
@@ -41,9 +42,8 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
                 bruker.identitetsnummer.verdi shouldBe periode.identitetsnummer
                 bruker.arbeidssoekerperiodeId shouldBe periode.id
                 bruker.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
-                bruker.tjenestenErAktiv shouldBe false
                 bruker.harBruktTjenesten shouldBe false
-                bruker.erIkkeInteressert shouldBe false
+                bruker.tjenestestatus shouldBe TjenesteStatus.INAKTIV
                 bruker.arbeidssoekerperiodeAvsluttet.shouldBeNull()
             }
         }
@@ -60,10 +60,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             brukerFraDb.shouldNotBeNull()
             brukerFraDb.identitetsnummer.verdi shouldBe periodeAvsluttet.identitetsnummer
             brukerFraDb.arbeidssoekerperiodeId shouldBe periodeAvsluttet.id
-            brukerFraDb.tjenestenErAktiv shouldBe false
             brukerFraDb.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
-            brukerFraDb.harBruktTjenesten shouldBe false
-            brukerFraDb.erIkkeInteressert shouldBe false
             brukerFraDb.arbeidssoekerperiodeAvsluttet shouldBe periodeAvsluttet.avsluttet.tidspunkt
         }
     }
@@ -86,37 +83,25 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             brukerFraDb.kanTilbysTjenesten shouldBe kanTilbysTjenesten
         }
     }
-    "Sjekk at vi kan oppdatere tjenestenErAktiv" {
-        transaction {
-            opprettOgOppdaterBruker(periode)
-        }
-        val erTjenestenAktiv = true
-        transaction {
-            val kunneOppdatereBrukerprofil = setTjenestenErAktiv(
-                identitetsnummer = periode.identitetsnummer.asIdentitetsnummer(),
-                erTjenestenAktiv = erTjenestenAktiv,
-            )
-            kunneOppdatereBrukerprofil shouldBe true
-            val brukerFraDb = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
-            brukerFraDb.shouldNotBeNull()
-            brukerFraDb.tjenestenErAktiv shouldBe erTjenestenAktiv
-        }
-    }
 
-    "Sjekk at vi kan oppdatere erIkkeInteressert" {
+    "Sjekk at vi kan oppdatere tjenestestatus" {
         transaction {
             opprettOgOppdaterBruker(periode)
         }
-        val erIkkeInteressert = true
+        val brukerprofil = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
+        brukerprofil.shouldNotBeNull()
+        brukerprofil.tjenestestatus shouldBe TjenesteStatus.INAKTIV
+
+        val tjenestestatus = TjenesteStatus.AKTIV
         transaction {
-            val kunneOppdatereBrukerprofil = setErIkkeInteressert(
+            val kunneOppdatereBrukerprofil = setTjenestatus(
                 identitetsnummer = periode.identitetsnummer.asIdentitetsnummer(),
-                erIkkeInteressert = erIkkeInteressert,
+                nyTjenestestatus = tjenestestatus
             )
             kunneOppdatereBrukerprofil shouldBe true
             val brukerFraDb = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
             brukerFraDb.shouldNotBeNull()
-            brukerFraDb.erIkkeInteressert shouldBe erIkkeInteressert
+            brukerFraDb.tjenestestatus shouldBe tjenestestatus
         }
     }
 })

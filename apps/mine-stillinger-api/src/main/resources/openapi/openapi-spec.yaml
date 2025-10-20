@@ -7,36 +7,24 @@ servers:
   - url: "https://brukerpofiler-arbeidssoekerregisteret.intern.dev.nav.no"
     description: "Development"
 paths:
-  /api/v1/brukerprofil/erTjenestenLedigeStillingerAktiv/{aktiv} :
+  /api/v1/brukerprofil/tjenestestatus/{tjenestestatus}:
     put:
       description: "Sett om tjenesten ledige stillinger er aktiv for en gitt bruker"
       parameters:
-        - name: "aktiv"
+        - name: "tjenestestatus"
           in: "path"
           required: true
           schema:
-            type: "boolean"
+            $ref: "#/components/schemas/Tjenestestatus"
       responses:
         "204":
           description: "No Content"
         "404":
           description: "Not Found"
+        "400":
+          description: "Bad Request"
         "403":
-          description: "Forbidden - brukeren kan ikke tilbys tjenesten ledige stillinger"
-  /api/v1/brukerprofil/erIkkeInteressert/{erIkkeInteressert} :
-    put:
-      description: "Sett om en bruker er ikke interessert i ledige stillinger"
-      parameters:
-        - name: "erIkkeInteressert"
-          in: "path"
-          required: true
-          schema:
-            type: "boolean"
-      responses:
-        "204":
-          description: "No Content"
-        "404":
-          description: "Not Found"
+          description: "Forbidden - Brukeren kan ikke tilbys tjenesten ledige stillinger"
   /api/v1/brukerprofil/ :
     get:
       description: "Hent brukerprofil for en gitt bruker"
@@ -87,6 +75,14 @@ paths:
 
 components:
   schemas:
+    Tjenestestatus:
+      description: "Status for tjenesten ledige stillinger ved status KAN_IKKE_LEVERES er det ikke mulig å aktivere tjenesten for brukeren."
+      type: "string"
+      enum:
+        - "AKTIV"
+        - "INAKTIV"
+        - "OPT_OUT"
+        - "KAN_IKKE_LEVERES"
     Brukerprofil:
       type: "object"
       properties:
@@ -94,24 +90,15 @@ components:
           type: "string"
           example: "12345678901"
           format: "identitetsnummer"
-        kanTilbysTjenestenLedigeStillinger:
-          type: "boolean"
-          example: true
-        erTjenestenLedigeStillingerAktiv:
-          type: "boolean"
-          example: true
+        tjenestestatus:
+          $ref: "#/components/schemas/Tjenestestatus"
         stillingssoek:
           type: "array"
           items:
             $ref: "#/components/schemas/Stillingssoek"
-        erIkkeInteressert:
-          type: "boolean"
-          example: false
       required:
         - "identitetsnummer"
-        - "kanTilbysTjenestenLedigeStillinger"
-        - "erTjenestenLedigeStillingerAktiv"
-        - "erIkkeInteressert"
+        - "tjenestestatus"
     Stillingssoek:
       oneOf:
         - $ref: "#/components/schemas/StedSoek"

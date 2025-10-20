@@ -6,7 +6,6 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.client.request.put
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -21,6 +20,7 @@ import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
+import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
@@ -68,21 +68,8 @@ class BrukerprofilRouteTest : FreeSpec({
             response.status shouldBe HttpStatusCode.OK
             response.body<ApiBrukerprofil>() should { profil ->
                 profil.identitetsnummer shouldBe testIdent.verdi
-                profil.erIkkeInteressert shouldBe false
-                profil.erTjenestenLedigeStillingerAktiv shouldBe false
+                profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
             }
-            val responseSetAktiv = testClient().put("$ER_TJENESTEN_AKTIV_PATH/true") {
-                bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
-                contentType(Application.Json)
-            }
-            responseSetAktiv.validateAgainstOpenApiSpec()
-            responseSetAktiv.status shouldBe HttpStatusCode.NoContent
-            val responseSetIkkeIntr = testClient().put("$ER_IKKE_INTERESSERT_PATH/true") {
-                bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
-                contentType(Application.Json)
-            }
-            responseSetIkkeIntr.validateAgainstOpenApiSpec()
-            responseSetIkkeIntr.status shouldBe HttpStatusCode.NoContent
             val brukerProfilEtterOppdatering = testClient().get(BRUKERPROFIL_PATH) {
                 bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                 contentType(Application.Json)
@@ -91,8 +78,7 @@ class BrukerprofilRouteTest : FreeSpec({
             brukerProfilEtterOppdatering.status shouldBe HttpStatusCode.OK
             brukerProfilEtterOppdatering.body<ApiBrukerprofil>() should { profil ->
                 profil.identitetsnummer shouldBe testIdent.verdi
-                profil.erIkkeInteressert shouldBe true
-                profil.erTjenestenLedigeStillingerAktiv shouldBe true
+
             }
         }
     }
