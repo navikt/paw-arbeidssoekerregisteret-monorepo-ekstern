@@ -25,6 +25,8 @@ import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
+import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
+import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 

@@ -13,6 +13,7 @@ import no.nav.paw.model.Identitetsnummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.vo.StyrkTreNode
 import no.naw.paw.minestillinger.domain.Fylke
+import no.naw.paw.minestillinger.route.kodeverk
 
 class KodeverkRouteTest : FreeSpec({
     val oauthServer = MockOAuth2Server()

@@ -1,4 +1,4 @@
-package no.naw.paw.minestillinger
+package no.naw.paw.minestillinger.route
 
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route

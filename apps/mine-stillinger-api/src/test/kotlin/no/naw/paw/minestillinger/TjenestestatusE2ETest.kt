@@ -22,6 +22,8 @@ import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.setTjenestatus
 import no.naw.paw.minestillinger.domain.TjenesteStatus
+import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
+import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
@@ -102,7 +104,7 @@ class TjenestestatusE2ETest : FreeSpec({
                 }
                 routing { brukerprofilRoute(brukerprofilTjeneste) }
 
-                val response = testClient().put("$BRUKERPROFIL_PATH/tjenestestatus/${testcase.nyTjenesteStatus.name}") {
+                val response = testClient().put("${BRUKERPROFIL_PATH}/tjenestestatus/${testcase.nyTjenesteStatus.name}") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testcase.identitetsnummer))
                     contentType(Application.Json)
                 }

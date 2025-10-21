@@ -1,4 +1,4 @@
-package no.naw.paw.minestillinger
+package no.naw.paw.minestillinger.route
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
@@ -12,6 +12,7 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
+import no.naw.paw.minestillinger.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.api.ApiStillingssoek
 import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.toApiTjenesteStatus
