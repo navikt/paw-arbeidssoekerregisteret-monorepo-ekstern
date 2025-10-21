@@ -1,4 +1,4 @@
-package no.naw.paw.minestillinger.client
+package no.naw.paw.minestillinger
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -14,7 +14,10 @@ import no.nav.paw.error.model.ErrorType
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 
-data class LedigeStillingerClientConfig(val baseUrl: String)
+data class LedigeStillingerClientConfig(
+    val baseUrl: String,
+    val ledigeStillingerScope: String
+)
 
 const val LEDIGE_STILLINGER_PATH = "/api/v1/stillinger"
 
@@ -26,23 +29,20 @@ class FinnStillingerClient(
     suspend fun hentLedigeStillinger(finnStillingerRequest: FinnStillingerRequest): FinnStillingerResponse {
         val response = httpClient.post(config.baseUrl + LEDIGE_STILLINGER_PATH) {
             contentType(Application.Json)
-            bearerAuth("TODO")
+            bearerAuth(tokenProvider(config.ledigeStillingerScope))
             setBody(finnStillingerRequest)
         }
 
         return when {
             response.status.isSuccess() -> response.body<FinnStillingerResponse>()
-            else -> {
-                TODO("Implementer meeeg")
-            }
+            else -> throw StillingerClientException(response.status)
         }
     }
 }
 
-/*
 class StillingerClientException(override val status: HttpStatusCode) : ClientResponseException(
     status = status,
     message = "Feil ved henting av ledige stillinger",
     type = ErrorType.domain("stillinger").error("henting_feilet").build(),
-    cause =
-)*/
+    cause = null
+)
