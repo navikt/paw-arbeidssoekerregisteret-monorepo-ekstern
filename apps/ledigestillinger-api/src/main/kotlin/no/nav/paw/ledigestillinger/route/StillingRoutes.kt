@@ -26,6 +26,7 @@ fun Route.stillingRoutes(
                 call.respond<Stilling>(stilling)
             }
             post<FinnStillingerRequest>("/") { request ->
+                request.verify()
                 val stillinger = stillingService.finnStillinger(
                     soekeord = request.soekeord,
                     kategorier = request.kategorier,
@@ -36,4 +37,9 @@ fun Route.stillingRoutes(
             }
         }
     }
+}
+
+private fun FinnStillingerRequest.verify() {
+    if (paging.page < 1) throw RequestParamMissingException("Negativt page-nummer")
+    if (paging.pageSize < 1) throw RequestParamMissingException("Negativt page-size-nummer")
 }

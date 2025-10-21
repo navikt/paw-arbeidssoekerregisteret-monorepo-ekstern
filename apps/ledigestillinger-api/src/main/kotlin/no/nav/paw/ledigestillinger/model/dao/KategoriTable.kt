@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.jdbc.update
 object KategorierTable : LongIdTable("kategorier") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val kode = varchar("kode", 255)
+    val normalisertKode = varchar("normalisert_kode", 255)
     val navn = varchar("navn", 255)
 }
 
@@ -24,16 +25,6 @@ fun KategorierTable.insert(
 ): Long = insertAndGetId {
     it[this.parentId] = parentId
     it[this.kode] = row.kode
+    it[this.normalisertKode] = row.normalisertKode
     it[this.navn] = row.navn
 }.value
-
-fun KategorierTable.updateByParentId(
-    parentId: Long,
-    row: KategoriRow
-): Int = update(
-    where = { KategorierTable.parentId eq parentId }
-) {
-    it[this.parentId] = parentId
-    it[this.kode] = row.kode
-    it[this.navn] = row.navn
-}

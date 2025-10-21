@@ -4,7 +4,6 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.update
 
 object ArbeidsgivereTable : LongIdTable("arbeidsgivere") {
     val parentId = long("parent_id").references(StillingerTable.id)
@@ -33,16 +32,3 @@ fun ArbeidsgivereTable.insert(
     it[this.navn] = row.navn
     it[this.offentligNavn] = row.offentligNavn
 }.value
-
-fun ArbeidsgivereTable.updateByParentId(
-    parentId: Long,
-    row: ArbeidsgiverRow
-): Int = update(
-    where = { ArbeidsgivereTable.parentId eq parentId }
-) {
-    it[this.orgForm] = row.orgForm
-    it[this.orgNr] = row.orgNr
-    it[this.parentOrgNr] = row.parentOrgNr
-    it[this.navn] = row.navn
-    it[this.offentligNavn] = row.offentligNavn
-}

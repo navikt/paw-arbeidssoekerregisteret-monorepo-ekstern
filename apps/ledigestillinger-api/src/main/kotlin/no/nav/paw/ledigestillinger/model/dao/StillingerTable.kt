@@ -3,8 +3,9 @@ package no.nav.paw.ledigestillinger.model.dao
 import no.nav.paw.ledigestillinger.api.models.Paging
 import no.nav.paw.ledigestillinger.model.StillingStatus
 import no.nav.paw.ledigestillinger.model.VisningGrad
-import no.nav.paw.ledigestillinger.model.asSortOrder
 import no.nav.paw.ledigestillinger.model.offset
+import no.nav.paw.ledigestillinger.model.order
+import no.nav.paw.ledigestillinger.model.size
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
@@ -21,7 +22,7 @@ import java.util.*
 object StillingerTable : LongIdTable("stillinger") {
     val uuid = uuid("uuid")
     val adnr = varchar("adnr", 50).nullable()
-    val tittel = varchar("tittel", 255)
+    val tittel = varchar("tittel", 1000)
     val status = enumerationByName<StillingStatus>("status", 20)
     val visning = enumerationByName<VisningGrad>("visning", 20)
     val kilde = varchar("kilde", 255)
@@ -68,8 +69,8 @@ fun StillingerTable.selectRowsByKategorierAndFylker(
     .join(BeliggenheterTable, JoinType.LEFT, StillingerTable.id, BeliggenheterTable.parentId)
     .selectAll()
     .where { (KategorierTable.kode inList kategorier) and (BeliggenheterTable.fylke inList fylker) }
-    .orderBy(StillingerTable.id, paging.sortOrder.asSortOrder())
-    .limit(paging.pageSize).offset(paging.offset())
+    .orderBy(StillingerTable.id, paging.order())
+    .limit(paging.size()).offset(paging.offset())
     .map {
         it.asStillingRow(
             arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,

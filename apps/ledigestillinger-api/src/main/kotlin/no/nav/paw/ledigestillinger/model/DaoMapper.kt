@@ -78,6 +78,7 @@ fun StyrkCategory.asKategoriRow(): KategoriRow = KategoriRow(
     id = -1,
     parentId = -1,
     kode = this.styrkCode,
+    normalisertKode = this.styrkCode.asNormalisertKode(),
     navn = this.name
 )
 
@@ -114,4 +115,24 @@ fun SortOrder.asSortOrder(): org.jetbrains.exposed.v1.core.SortOrder = when (thi
     SortOrder.DESC -> org.jetbrains.exposed.v1.core.SortOrder.DESC
 }
 
-fun Paging.offset(): Long = (page - 1) * pageSize.toLong()
+fun Paging.order(): org.jetbrains.exposed.v1.core.SortOrder = when (this.sortOrder) {
+    SortOrder.ASC -> org.jetbrains.exposed.v1.core.SortOrder.ASC
+    SortOrder.DESC -> org.jetbrains.exposed.v1.core.SortOrder.DESC
+}
+
+fun Paging.size(): Int {
+    return if (this.pageSize < 1) 10 else this.pageSize
+}
+
+fun Paging.offset(): Long {
+    return if (page < 1) 0 else (page - 1) * size().toLong()
+}
+
+fun String.asNormalisertKode(): String {
+    val match = Regex("^(\\d+)(?:\\..*)?$").find(this)
+    return if (match == null || match.groupValues.isEmpty()) {
+        this
+    } else {
+        match.groupValues[1]
+    }
+}

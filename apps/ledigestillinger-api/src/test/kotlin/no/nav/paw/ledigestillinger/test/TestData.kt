@@ -10,11 +10,19 @@ import no.nav.pam.stilling.ext.avro.Location
 import no.nav.pam.stilling.ext.avro.PrivacyChannel
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.pam.stilling.ext.avro.StyrkCategory
+import no.nav.paw.hwm.Message
+import no.nav.paw.hwm.toMessage
 import no.nav.paw.ledigestillinger.util.toLocalDateTimeString
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import java.time.LocalDateTime
 import java.util.*
 
 object TestData {
+    fun messages(): List<Message<UUID, Ad>> = listOf(record().toMessage())
+
+    fun record(): ConsumerRecord<UUID, Ad> = ad()
+        .let { ConsumerRecord("teampam.stilling-ekstern-1", 0, 0L, it.first, it.second) }
+
     fun ad(): Pair<UUID, Ad> {
         val uuid = UUID.randomUUID()
         val it = Ad()

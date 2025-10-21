@@ -4,7 +4,6 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.update
 
 object BeliggenheterTable : LongIdTable("beliggenheter") {
     val parentId = long("parent_id").references(StillingerTable.id)
@@ -38,19 +37,3 @@ fun BeliggenheterTable.insert(
     it[this.fylkeskode] = row.fylkeskode
     it[this.land] = row.land
 }.value
-
-fun BeliggenheterTable.updateByParentId(
-    parentId: Long,
-    row: BeliggenhetRow
-): Int = update(
-    where = { BeliggenheterTable.parentId eq parentId }
-) {
-    it[this.adresse] = row.adresse
-    it[this.postkode] = row.postkode
-    it[this.poststed] = row.poststed
-    it[this.kommune] = row.kommune
-    it[this.kommunekode] = row.kommunekode
-    it[this.fylke] = row.fylke
-    it[this.fylkeskode] = row.fylkeskode
-    it[this.land] = row.land
-}

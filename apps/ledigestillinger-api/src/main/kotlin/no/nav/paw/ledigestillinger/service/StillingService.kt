@@ -1,6 +1,6 @@
 package no.nav.paw.ledigestillinger.service
 
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.pam.stilling.ext.avro.Ad
@@ -34,7 +34,7 @@ import java.util.*
 
 class StillingService(
     private val applicationConfig: ApplicationConfig,
-    private val meterRegistry: PrometheusMeterRegistry
+    private val meterRegistry: MeterRegistry
 ) {
     private val logger = buildLogger
 

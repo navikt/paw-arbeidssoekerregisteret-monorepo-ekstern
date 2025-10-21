@@ -1,22 +1,22 @@
 CREATE TABLE stillinger
 (
     id                  BIGSERIAL PRIMARY KEY,
-    uuid                UUID         NOT NULL,
+    uuid                UUID          NOT NULL,
     adnr                VARCHAR(50),
-    tittel              VARCHAR(255) NOT NULL,
-    status              VARCHAR(20)  NOT NULL,
-    visning             VARCHAR(20)  NOT NULL,
-    kilde               VARCHAR(255) NOT NULL,
-    medium              VARCHAR(255) NOT NULL,
-    referanse           VARCHAR(255) NOT NULL,
+    tittel              VARCHAR(1000) NOT NULL,
+    status              VARCHAR(20)   NOT NULL,
+    visning             VARCHAR(20)   NOT NULL,
+    kilde               VARCHAR(255)  NOT NULL,
+    medium              VARCHAR(255)  NOT NULL,
+    referanse           VARCHAR(255)  NOT NULL,
     arbeidsgiver_navn   VARCHAR(255),
-    opprettet_timestamp TIMESTAMP(6) NOT NULL,
-    endret_timestamp    TIMESTAMP(6) NOT NULL,
-    publisert_timestamp TIMESTAMP(6) NOT NULL,
+    opprettet_timestamp TIMESTAMP(6)  NOT NULL,
+    endret_timestamp    TIMESTAMP(6)  NOT NULL,
+    publisert_timestamp TIMESTAMP(6)  NOT NULL,
     utloeper_timestamp  TIMESTAMP(6),
-    message_timestamp   TIMESTAMP(6) NOT NULL, -- Tidspunkt melding ble sendt
-    inserted_timestamp  TIMESTAMP(6) NOT NULL, -- Tidspunkt rad ble opprettet
-    updated_timestamp   TIMESTAMP(6),          -- Tidspunkt rad ble endret
+    message_timestamp   TIMESTAMP(6)  NOT NULL, -- Tidspunkt melding ble sendt
+    inserted_timestamp  TIMESTAMP(6)  NOT NULL, -- Tidspunkt rad ble opprettet
+    updated_timestamp   TIMESTAMP(6),           -- Tidspunkt rad ble endret
     UNIQUE (uuid)
 );
 
@@ -34,10 +34,11 @@ CREATE TABLE arbeidsgivere
 
 CREATE TABLE kategorier
 (
-    id        BIGSERIAL PRIMARY KEY,
-    parent_id BIGINT       NOT NULL,
-    kode      VARCHAR(255)  NOT NULL,
-    navn      VARCHAR(255) NOT NULL,
+    id               BIGSERIAL PRIMARY KEY,
+    parent_id        BIGINT       NOT NULL,
+    kode             VARCHAR(255) NOT NULL,
+    normalisert_kode VARCHAR(255) NOT NULL,
+    navn             VARCHAR(255) NOT NULL,
     FOREIGN KEY (parent_id) REFERENCES stillinger (id)
 );
 
@@ -45,8 +46,8 @@ CREATE TABLE klassifiseringer
 (
     id        BIGSERIAL PRIMARY KEY,
     parent_id BIGINT       NOT NULL,
-    type      VARCHAR(255)  NOT NULL,
-    kode      VARCHAR(255)  NOT NULL,
+    type      VARCHAR(255) NOT NULL,
+    kode      VARCHAR(255) NOT NULL,
     navn      VARCHAR(255) NOT NULL,
     FOREIGN KEY (parent_id) REFERENCES stillinger (id)
 );
