@@ -107,13 +107,23 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/StillingStatus'
-        arbeidsgiverNavn:
+        jobbtittel:
           type: string
-        publisertTimestamp:
+        ansettelsesform:
+          type: string
+        ansettelsesprosent:
+          type: string
+        stillingsantall:
+          type: string
+        arbeidsgiver:
+          type: string
+        soeknadsfrist:
+          type: string
+        publisert:
           type: "string"
           format: "date-time"
           example: "2021-09-29T11:20:33.444Z"
-        utloeperTimestamp:
+        utloeper:
           type: "string"
           format: "date-time"
           example: "2021-09-29T11:20:33.444Z"
@@ -121,7 +131,7 @@ components:
         - uuid
         - tittel
         - status
-        - publisertTimestamp
+        - publisert
     StillingStatus:
       type: "string"
       enum:

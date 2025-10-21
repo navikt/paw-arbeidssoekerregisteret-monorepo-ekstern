@@ -8,9 +8,13 @@ fun StillingRow.asDto(): Stilling = Stilling(
     adnr = adnr,
     tittel = tittel,
     status = status.asDto(),
-    arbeidsgiverNavn = arbeidsgiverNavn,
-    publisertTimestamp = publisertTimestamp,
-    utloeperTimestamp = utloeperTimestamp,
+    jobbtittel = egenskaper.find { it.key == "jobtitle" }?.value,
+    ansettelsesform = egenskaper.find { it.key == "engagementtype" }?.value,
+    ansettelsesprosent = egenskaper.find { it.key == "extent" }?.value,
+    stillingsantall = egenskaper.find { it.key == "positioncount" }?.value,
+    arbeidsgiver = arbeidsgiverNavn,
+    publisert = publisertTimestamp,
+    utloeper = utloeperTimestamp,
 )
 
 fun StillingStatus.asDto(): no.nav.paw.ledigestillinger.api.models.StillingStatus = when (this) {

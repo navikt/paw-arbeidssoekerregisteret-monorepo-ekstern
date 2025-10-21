@@ -30,6 +30,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import kotlin.time.toKotlinDuration
 
 class StillingService(
     private val applicationConfig: ApplicationConfig,
@@ -91,7 +92,7 @@ class StillingService(
         logger.info(
             "Håndterte {} meldinger på {} fra topic={}",
             antallMottatt,
-            elapsed,
+            elapsed.toKotlinDuration().toIsoString(),
             applicationConfig.pamStillingerKafkaConsumer.topic
         )
         Span.current().meldingerMottattEvent(antallMottatt, antallLagret)

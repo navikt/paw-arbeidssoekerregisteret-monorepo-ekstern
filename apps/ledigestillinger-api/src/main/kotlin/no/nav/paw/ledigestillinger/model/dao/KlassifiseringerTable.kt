@@ -8,8 +8,8 @@ import org.jetbrains.exposed.v1.jdbc.update
 
 object KlassifiseringerTable : LongIdTable("klassifiseringer") {
     val parentId = long("parent_id").references(StillingerTable.id)
-    val type = varchar("type", 20)
-    val kode = varchar("kode", 20)
+    val type = varchar("type", 50)
+    val kode = varchar("kode", 50)
     val navn = varchar("navn", 255)
 }
 

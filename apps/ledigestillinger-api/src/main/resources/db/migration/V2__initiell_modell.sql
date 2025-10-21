@@ -45,7 +45,7 @@ CREATE TABLE klassifiseringer
 (
     id        BIGSERIAL PRIMARY KEY,
     parent_id BIGINT       NOT NULL,
-    type      VARCHAR(20)  NOT NULL,
+    type      VARCHAR(50)  NOT NULL,
     kode      VARCHAR(50)  NOT NULL,
     navn      VARCHAR(255) NOT NULL,
     FOREIGN KEY (parent_id) REFERENCES stillinger (id)

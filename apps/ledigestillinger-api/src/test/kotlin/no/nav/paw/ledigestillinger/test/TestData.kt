@@ -35,7 +35,7 @@ object TestData {
         it.categories = listOf(category())
         it.classifications = listOf(classification())
         it.locations = listOf(location())
-        it.properties = listOf(property())
+        it.properties = properties()
         it.classifications = listOf(classification())
         return uuid to it
     }
@@ -90,10 +90,28 @@ object TestData {
         return it
     }
 
-    fun property(): Property {
-        val it = Property()
-        it.key = "sector"
-        it.value = "offentlig"
-        return it
+    fun properties(): List<Property> {
+        return listOf(
+            Property().apply {
+                key = "extent"
+                value = "Heltid"
+            },
+            Property().apply {
+                key = "jobtitle"
+                value = "Bedriftsrådgiver"
+            },
+            Property().apply {
+                key = "applicationdue"
+                value = "Søknader behandles fortløpende"
+            },
+            Property().apply {
+                key = "engagementtype"
+                value = "Fast"
+            },
+            Property().apply {
+                key = "sector"
+                value = "Privat"
+            }
+        )
     }
 }
