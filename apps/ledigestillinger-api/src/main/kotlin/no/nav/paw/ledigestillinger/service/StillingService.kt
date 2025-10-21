@@ -21,16 +21,13 @@ import no.nav.paw.ledigestillinger.model.dao.selectIdByUUID
 import no.nav.paw.ledigestillinger.model.dao.selectRowByUUID
 import no.nav.paw.ledigestillinger.model.dao.selectRowsByKategorierAndFylker
 import no.nav.paw.ledigestillinger.model.dao.updateById
-import no.nav.paw.ledigestillinger.util.fromIsoString
+import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import no.nav.paw.ledigestillinger.util.meldingerMottattCounter
 import no.nav.paw.ledigestillinger.util.meldingerMottattEvent
 import no.nav.paw.ledigestillinger.util.meldingerMottattGauge
 import no.nav.paw.logging.logger.buildLogger
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.Duration
-import java.time.Instant
 import java.util.*
-import kotlin.time.toKotlinDuration
 
 class StillingService(
     private val applicationConfig: ApplicationConfig,
@@ -65,7 +62,7 @@ class StillingService(
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
         var antallMottatt = 0
         var antallLagret = 0
-        val start = Instant.now()
+        val start = System.currentTimeMillis()
         messages
             .onEach { message ->
                 antallMottatt++
@@ -73,7 +70,7 @@ class StillingService(
                 meterRegistry.meldingerMottattCounter(message.value.status)
             }
             .filter { message ->
-                val publishedTimestamp = message.value.published.fromIsoString()
+                val publishedTimestamp = message.value.published.fromLocalDateTimeString()
                 publishedTimestamp.isAfter(applicationConfig.velgStillingerNyereEnn)
             }
             .onEach { message ->
@@ -87,15 +84,15 @@ class StillingService(
                     logger.error("Feil ved mottak av melding", cause)
                 }.getOrThrow()
             }
-        val slutt = Instant.now()
-        val elapsed = Duration.between(start, slutt)
+        val slutt = System.currentTimeMillis()
+        val millisekunder = slutt - start
         logger.info(
-            "Håndterte {} meldinger på {} fra topic={}",
+            "Håndterte {} meldinger på {}ms fra topic={}",
             antallMottatt,
-            elapsed.toKotlinDuration().toIsoString(),
+            millisekunder,
             applicationConfig.pamStillingerKafkaConsumer.topic
         )
-        Span.current().meldingerMottattEvent(antallMottatt, antallLagret)
+        Span.current().meldingerMottattEvent(antallMottatt, antallLagret, millisekunder)
         meterRegistry.meldingerMottattGauge(antallMottatt, antallLagret)
     }
 

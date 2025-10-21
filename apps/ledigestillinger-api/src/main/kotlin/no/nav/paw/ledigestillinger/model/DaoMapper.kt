@@ -15,7 +15,7 @@ import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
 import no.nav.paw.ledigestillinger.model.dao.KategoriRow
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringRow
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
-import no.nav.paw.ledigestillinger.util.fromIsoString
+import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import java.time.Instant
 import java.util.*
 
@@ -32,10 +32,10 @@ fun Message<UUID, Ad>.asStillingRow(): StillingRow {
         medium = value.medium,
         referanse = value.reference,
         arbeidsgiverNavn = value.businessName,
-        opprettetTimestamp = value.created.fromIsoString(),
-        endretTimestamp = value.updated.fromIsoString(),
-        publisertTimestamp = value.published.fromIsoString(),
-        utloeperTimestamp = value.expires?.fromIsoString(),
+        opprettetTimestamp = value.created.fromLocalDateTimeString(),
+        endretTimestamp = value.updated.fromLocalDateTimeString(),
+        publisertTimestamp = value.published.fromLocalDateTimeString(),
+        utloeperTimestamp = value.expires?.fromLocalDateTimeString(),
         messageTimestamp = this.timestamp,
         insertTimestamp = Instant.now(),
         updatedTimestamp = Instant.now(),

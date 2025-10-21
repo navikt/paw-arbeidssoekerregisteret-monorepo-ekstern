@@ -10,7 +10,7 @@ import no.nav.pam.stilling.ext.avro.Location
 import no.nav.pam.stilling.ext.avro.PrivacyChannel
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.pam.stilling.ext.avro.StyrkCategory
-import no.nav.paw.ledigestillinger.util.toIsoString
+import no.nav.paw.ledigestillinger.util.toLocalDateTimeString
 import java.time.LocalDateTime
 import java.util.*
 
@@ -27,9 +27,9 @@ object TestData {
         it.medium = "FINN"
         it.reference = "https://www.finn.no/stillinger/12345678"
         it.businessName = "Testbedrift"
-        it.created = LocalDateTime.now().toIsoString()
-        it.updated = LocalDateTime.now().toIsoString()
-        it.published = LocalDateTime.now().toIsoString()
+        it.created = LocalDateTime.now().toLocalDateTimeString()
+        it.updated = LocalDateTime.now().toLocalDateTimeString()
+        it.published = LocalDateTime.now().toLocalDateTimeString()
         it.administration = administration()
         it.employer = company()
         it.categories = listOf(category())

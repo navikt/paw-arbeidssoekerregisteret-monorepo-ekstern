@@ -78,14 +78,26 @@ components:
         kategorier:
           type: array
           items:
-            type: string
+            "$ref": "#/components/schemas/Kategori"
         fylker:
           type: array
           items:
-            type: string
+            "$ref": "#/components/schemas/Fylke"
+        page:
+          type: integer
+          format: int32
+          default: 1
+          example: 1
+        pageSize:
+          type: integer
+          format: int32
+          default: 10
+          example: 10
       required:
         - kategorier
         - fylker
+        - page
+        - pageSize
     FinnStillingerResponse:
       type: object
       additionalProperties: false
@@ -140,6 +152,34 @@ components:
         - "STOPPET"
         - "SLETTET"
         - "AVVIST"
+    Kategori:
+      type: "object"
+      properties:
+        kode:
+          type: "string"
+          example: "0101"
+      required:
+        - "kode"
+    Fylke:
+      type: "object"
+      properties:
+        fylkesnummer:
+          type: "string"
+          example: "91"
+        kommuner:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Kommune"
+      required:
+        - "kommuner"
+    Kommune:
+      type: "object"
+      properties:
+        kommunenummer:
+          type: "string"
+          example: "9107"
+      required:
+        - "kommunenummer"
   securitySchemes:
     BearerAuth:
       scheme: bearer

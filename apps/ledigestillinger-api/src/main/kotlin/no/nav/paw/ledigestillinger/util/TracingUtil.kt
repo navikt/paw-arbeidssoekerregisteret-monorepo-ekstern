@@ -6,13 +6,15 @@ import io.opentelemetry.api.trace.Span
 
 fun Span.meldingerMottattEvent(
     antallMottatt: Number,
-    antallLagret: Number
+    antallLagret: Number,
+    millisekunder: Number
 ): Span = apply {
     addEvent(
         "meldinger_mottatt",
         Attributes.of(
             stringKey("mottatt"), antallMottatt.toString(),
             stringKey("lagret"), antallLagret.toString(),
+            stringKey("millisekunder"), millisekunder.toString(),
         )
     )
 }
