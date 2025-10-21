@@ -23,7 +23,7 @@ suspend fun PdlClient.harBeskyttetAdresse(identitetsnummer: Identitetsnummer): B
             adressebeskyttelse.all { it.gradering == AdressebeskyttelseGradering.UGRADERT }
 }
 
-suspend fun PdlClient.hasBeskyttetAdresse(identitetsnummer: List<Identitetsnummer>): List<AdressebeskyttelseResultat> =
+suspend fun PdlClient.harBeskyttetAdresseBulk(identitetsnummer: List<Identitetsnummer>): List<AdressebeskyttelseResultat> =
     hentAdressebeskyttelse(identitetsnummer.map { it.verdi }, null, BEHANDLINGSNUMMER)
         ?.map { personResultat ->
             val ident = Identitetsnummer(personResultat.ident)
