@@ -5,6 +5,9 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.pam.stilling.ext.avro.Ad
 import no.nav.paw.hwm.Message
+import no.nav.paw.ledigestillinger.api.models.Fylke
+import no.nav.paw.ledigestillinger.api.models.Kategori
+import no.nav.paw.ledigestillinger.api.models.Paging
 import no.nav.paw.ledigestillinger.api.models.Stilling
 import no.nav.paw.ledigestillinger.config.ApplicationConfig
 import no.nav.paw.ledigestillinger.exception.StillingIkkeFunnetException
@@ -48,13 +51,15 @@ class StillingService(
 
     fun finnStillinger(
         soekeord: Collection<String>,
-        kategorier: Collection<String>,
-        fylker: Collection<String>
+        kategorier: Collection<Kategori>,
+        fylker: Collection<Fylke>,
+        paging: Paging = Paging()
     ): List<Stilling> = transaction {
         StillingerTable.selectRowsByKategorierAndFylker(
             soekeord = soekeord,
-            kategorier = kategorier,
-            fylker = fylker
+            kategorier = kategorier.map { it.kode },
+            fylker = fylker.mapNotNull { it.fylkesnummer },
+            paging = paging
         ).map { it.asDto() }
     }
 

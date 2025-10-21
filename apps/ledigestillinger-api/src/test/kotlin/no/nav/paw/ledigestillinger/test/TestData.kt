@@ -32,11 +32,10 @@ object TestData {
         it.published = LocalDateTime.now().toLocalDateTimeString()
         it.administration = administration()
         it.employer = company()
-        it.categories = listOf(category())
-        it.classifications = listOf(classification())
-        it.locations = listOf(location())
+        it.categories = categories()
+        it.classifications = classifications()
+        it.locations = locations()
         it.properties = properties()
-        it.classifications = listOf(classification())
         return uuid to it
     }
 
@@ -60,34 +59,40 @@ object TestData {
         return it
     }
 
-    fun category(): StyrkCategory {
-        val it = StyrkCategory()
-        it.styrkCode = "9999"
-        it.name = "Testyrke"
-        return it
+    fun categories(): List<StyrkCategory> {
+        return listOf(
+            StyrkCategory().apply {
+                styrkCode = "9999"
+                name = "Testyrke"
+            }
+        )
     }
 
-    fun classification(): Classification {
-        val it = Classification()
-        it.categoryType = "STYRK08"
-        it.code = "9999"
-        it.name = "Testyrke"
-        it.score = 1.0
-        it.janzzParentId = "9999"
-        return it
+    fun classifications(): List<Classification> {
+        return listOf(
+            Classification().apply {
+                categoryType = "STYRK08"
+                code = "9999"
+                name = "Testyrke"
+                score = 1.0
+                janzzParentId = "9999"
+            }
+        )
     }
 
-    fun location(): Location {
-        val it = Location()
-        it.address = "Storgata 1"
-        it.postalCode = "9000"
-        it.city = "Tromsø"
-        it.municipal = "Tromsø"
-        it.municipalCode = "5501"
-        it.county = "Troms"
-        it.countyCode = "55"
-        it.country = "Norge"
-        return it
+    fun locations(): List<Location> {
+        return listOf(
+            Location().apply {
+                address = "Storgata 1"
+                postalCode = "9000"
+                city = "Tromsø"
+                municipal = "Tromsø"
+                municipalCode = "5501"
+                county = "Troms"
+                countyCode = "55"
+                country = "Norge"
+            }
+        )
     }
 
     fun properties(): List<Property> {

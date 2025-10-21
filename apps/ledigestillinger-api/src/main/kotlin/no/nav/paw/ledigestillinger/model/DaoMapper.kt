@@ -9,6 +9,8 @@ import no.nav.pam.stilling.ext.avro.PrivacyChannel
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.pam.stilling.ext.avro.StyrkCategory
 import no.nav.paw.hwm.Message
+import no.nav.paw.ledigestillinger.api.models.Paging
+import no.nav.paw.ledigestillinger.api.models.SortOrder
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgiverRow
 import no.nav.paw.ledigestillinger.model.dao.BeliggenhetRow
 import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
@@ -106,3 +108,10 @@ fun Property.asEgenskapRow(): EgenskapRow = EgenskapRow(
     key = this.key,
     value = this.value
 )
+
+fun SortOrder.asSortOrder(): org.jetbrains.exposed.v1.core.SortOrder = when (this) {
+    SortOrder.ASC -> org.jetbrains.exposed.v1.core.SortOrder.ASC
+    SortOrder.DESC -> org.jetbrains.exposed.v1.core.SortOrder.DESC
+}
+
+fun Paging.offset(): Long = (page - 1) * pageSize.toLong()

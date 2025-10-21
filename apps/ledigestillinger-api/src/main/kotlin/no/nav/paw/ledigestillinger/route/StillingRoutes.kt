@@ -27,9 +27,10 @@ fun Route.stillingRoutes(
             }
             post<FinnStillingerRequest>("/") { request ->
                 val stillinger = stillingService.finnStillinger(
-                    soekeord = request.soekeord ?: emptyList(),
-                    kategorier = request.kategorier.map { it.kode },
-                    fylker = request.fylker.mapNotNull { it.fylkesnummer }
+                    soekeord = request.soekeord,
+                    kategorier = request.kategorier,
+                    fylker = request.fylker,
+                    paging = request.paging
                 )
                 call.respond<FinnStillingerResponse>(FinnStillingerResponse(stillinger))
             }

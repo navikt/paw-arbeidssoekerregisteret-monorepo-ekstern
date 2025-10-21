@@ -5,17 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class FinnStillingerRequest(
 
     @get:JsonProperty("soekeord")
-    val soekeord: kotlin.collections.List<kotlin.String>? = null,
-
+    val soekeord: List<String>,
     @get:JsonProperty("kategorier")
-    val kategorier: kotlin.collections.List<Kategori>,
-
+    val kategorier: List<Kategori>,
     @get:JsonProperty("fylker")
-    val fylker: kotlin.collections.List<Fylke>,
-
-    @get:JsonProperty("page")
-    val page: kotlin.Int = 1,
-
-    @get:JsonProperty("pageSize")
-    val pageSize: kotlin.Int = 10
+    val fylker: List<Fylke>,
+    @get:JsonProperty("paging")
+    val paging: Paging
 )

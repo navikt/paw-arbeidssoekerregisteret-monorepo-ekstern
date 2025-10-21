@@ -18,18 +18,5 @@ enum class StillingStatus(val value: String) {
 
     @JsonProperty(value = "AVVIST")
     AVVIST("AVVIST");
-
-    override fun toString(): String = value
-
-    companion object {
-        fun encode(data: Any?): String? = if (data is StillingStatus) "$data" else null
-
-        fun decode(data: Any?): StillingStatus? = data?.let {
-            val normalizedData = "$it".lowercase()
-            values().firstOrNull { value ->
-                it == value || normalizedData == "$value".lowercase()
-            }
-        }
-    }
 }
 

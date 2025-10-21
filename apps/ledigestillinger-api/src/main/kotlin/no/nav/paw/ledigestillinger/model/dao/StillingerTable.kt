@@ -1,7 +1,10 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.api.models.Paging
 import no.nav.paw.ledigestillinger.model.StillingStatus
 import no.nav.paw.ledigestillinger.model.VisningGrad
+import no.nav.paw.ledigestillinger.model.asSortOrder
+import no.nav.paw.ledigestillinger.model.offset
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
@@ -59,11 +62,14 @@ fun StillingerTable.selectRowByUUID(
 fun StillingerTable.selectRowsByKategorierAndFylker(
     soekeord: Collection<String>, // TODO
     kategorier: Collection<String>,
-    fylker: Collection<String>
+    fylker: Collection<String>,
+    paging: Paging = Paging()
 ): List<StillingRow> = join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
     .join(BeliggenheterTable, JoinType.LEFT, StillingerTable.id, BeliggenheterTable.parentId)
     .selectAll()
     .where { (KategorierTable.kode inList kategorier) and (BeliggenheterTable.fylke inList fylker) }
+    .orderBy(StillingerTable.id, paging.sortOrder.asSortOrder())
+    .limit(paging.pageSize).offset(paging.offset())
     .map {
         it.asStillingRow(
             arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,

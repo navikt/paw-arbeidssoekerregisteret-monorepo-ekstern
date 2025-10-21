@@ -83,21 +83,13 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/Fylke"
-        page:
-          type: integer
-          format: int32
-          default: 1
-          example: 1
-        pageSize:
-          type: integer
-          format: int32
-          default: 10
-          example: 10
+        paging:
+          "$ref": "#/components/schemas/Paging"
       required:
+        - soekeord
         - kategorier
         - fylker
-        - page
-        - pageSize
+        - paging
     FinnStillingerResponse:
       type: object
       additionalProperties: false
@@ -106,6 +98,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Stilling'
+      required:
+        - stillinger
     Stilling:
       type: object
       additionalProperties: false
@@ -132,11 +126,11 @@ components:
         soeknadsfrist:
           type: string
         publisert:
-          type: "string"
+          type: string
           format: "date-time"
           example: "2021-09-29T11:20:33.444Z"
         utloeper:
-          type: "string"
+          type: string
           format: "date-time"
           example: "2021-09-29T11:20:33.444Z"
       required:
@@ -145,7 +139,7 @@ components:
         - status
         - publisert
     StillingStatus:
-      type: "string"
+      type: string
       enum:
         - "AKTIV"
         - "INAKTIV"
@@ -153,33 +147,75 @@ components:
         - "SLETTET"
         - "AVVIST"
     Kategori:
-      type: "object"
+      type: object
       properties:
         kode:
-          type: "string"
+          type: string
           example: "0101"
       required:
-        - "kode"
+        - kode
     Fylke:
-      type: "object"
+      type: object
       properties:
         fylkesnummer:
-          type: "string"
+          type: string
           example: "91"
         kommuner:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/Kommune"
       required:
-        - "kommuner"
+        - kommuner
     Kommune:
-      type: "object"
+      type: object
       properties:
         kommunenummer:
-          type: "string"
+          type: string
           example: "9107"
       required:
-        - "kommunenummer"
+        - kommunenummer
+    Soeknadsfrist:
+      type: object
+      properties:
+        raw:
+          type: string
+          description: "Tekst fra datasettet for egenskapen søknadsfrist"
+          example: "Her kan det stå hva som helst dersom fristType er Ukjent"
+        fristType:
+          type: string
+          description: "Hvilken type frist er det"
+          enum:
+            - Ukjent
+            - Snarest
+            - Dato
+        dato:
+          type: string
+          format: date
+          example: "2025-11-25"
+          description: "Søknadsfrist, bare med dersom 'fristType' er Dato"
+    Paging:
+      type: object
+      properties:
+        page:
+          type: integer
+          default: 1
+          example: 1
+        pageSize:
+          type: integer
+          default: 10
+          example: 10
+        sortOrder:
+          $ref: "#/components/schemas/SortOrder"
+      required:
+        - page
+        - pageSize
+        - sortOrder
+    SortOrder:
+      type: string
+      enum:
+        - ASC
+        - DESC
+      default: ASC
   securitySchemes:
     BearerAuth:
       scheme: bearer

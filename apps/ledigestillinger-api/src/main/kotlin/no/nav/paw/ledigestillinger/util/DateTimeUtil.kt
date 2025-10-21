@@ -20,35 +20,31 @@ fun String.fromLocalDateTimeString(): Instant = localDateTimeFormatter
 fun LocalDateTime.toLocalDateTimeString(): String = localDateTimeFormatter
     .format(this.truncatedTo(ChronoUnit.MILLIS))
 
-fun String.fromUnformattedString(): Instant? = listOf(
+fun String.fromUnformattedString(): LocalDate? = listOf(
     humanDateOrNull(),
     localDateOrNull(),
     localDateTimeOrNull(),
     zonedDateTimeOrNull()
 ).singleOrNull()
 
-private fun String.humanDateOrNull(): Instant? = runCatching {
+private fun String.humanDateOrNull(): LocalDate? = runCatching {
     humanDateFormatter
         .parse(this, LocalDate::from)
-        .atStartOfDay()
-        .toInstant(ZoneOffset.UTC)
 }.getOrNull()
 
-private fun String.localDateOrNull(): Instant? = runCatching {
+private fun String.localDateOrNull(): LocalDate? = runCatching {
     localDateFormatter
         .parse(this, LocalDate::from)
-        .atStartOfDay()
-        .toInstant(ZoneOffset.UTC)
 }.getOrNull()
 
-private fun String.localDateTimeOrNull(): Instant? = runCatching {
+private fun String.localDateTimeOrNull(): LocalDate? = runCatching {
     localDateTimeFormatter
         .parse(this, LocalDateTime::from)
-        .toInstant(ZoneOffset.UTC)
+        .toLocalDate()
 }.getOrNull()
 
-private fun String.zonedDateTimeOrNull(): Instant? = runCatching {
+private fun String.zonedDateTimeOrNull(): LocalDate? = runCatching {
     zonedDateTimeFormatter
         .parse(this, ZonedDateTime::from)
-        .toInstant()
+        .toLocalDate()
 }.getOrNull()
