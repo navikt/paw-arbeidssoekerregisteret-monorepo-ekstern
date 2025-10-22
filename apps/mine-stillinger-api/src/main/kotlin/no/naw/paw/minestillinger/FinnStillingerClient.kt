@@ -19,7 +19,7 @@ data class LedigeStillingerClientConfig(
     val ledigeStillingerScope: String
 )
 
-const val LEDIGE_STILLINGER_PATH = "/api/v1/stillinger"
+const val FINN_LEDIGE_STILLINGER_PATH = "/api/v1/stillinger"
 
 class FinnStillingerClient(
     private val config: LedigeStillingerClientConfig,
@@ -27,7 +27,7 @@ class FinnStillingerClient(
     private val httpClient: HttpClient,
 ) {
     suspend fun finnLedigeStillinger(finnStillingerRequest: FinnStillingerRequest): FinnStillingerResponse {
-        val response = httpClient.post(config.baseUrl + LEDIGE_STILLINGER_PATH) {
+        val response = httpClient.post(config.baseUrl + FINN_LEDIGE_STILLINGER_PATH) {
             contentType(Application.Json)
             bearerAuth(tokenProvider(config.ledigeStillingerScope))
             setBody(finnStillingerRequest)
