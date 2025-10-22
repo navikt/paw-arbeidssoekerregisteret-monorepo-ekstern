@@ -8,6 +8,8 @@ import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.health.HealthCheck
+import no.nav.paw.health.HealthChecks
+import no.nav.paw.health.healthChecksOf
 import no.nav.paw.hwm.DataConsumer
 import no.nav.paw.hwm.HwmTopicConfig
 import no.nav.paw.hwm.Message
@@ -29,11 +31,11 @@ data class ApplicationContext(
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG),
     val databaseConfig: DatabaseConfig = loadNaisOrLocalConfiguration(DATABASE_CONFIG),
     val dataSource: DataSource = createHikariDataSource(databaseConfig),
-    val healthCheckList: MutableList<HealthCheck> = mutableListOf(),
     val meterRegistry: PrometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
     val meterBinderList: List<MeterBinder> = emptyList(),
     val kafkaFactory: KafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG)),
-    val stillingService: StillingService = StillingService(applicationConfig, meterRegistry)
+    val stillingService: StillingService = StillingService(applicationConfig, meterRegistry),
+    private val healthCheckList: MutableList<HealthCheck> = mutableListOf()
 ) {
     fun <K : Any, V : Any> createHwmKafkaConsumer(
         config: KafkaConsumerConfig,
@@ -57,4 +59,6 @@ data class ApplicationContext(
             )
         ).also { healthCheckList.add(it) }
     }
+
+    fun createHealthChecks(): HealthChecks = healthChecksOf(*healthCheckList.toTypedArray())
 }

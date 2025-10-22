@@ -16,7 +16,6 @@ import no.nav.paw.error.plugin.installErrorHandlingPlugin
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
 import no.nav.paw.health.StartupCheck
-import no.nav.paw.health.healthChecksOf
 import no.nav.paw.health.livenessRoute
 import no.nav.paw.health.readinessRoute
 import no.nav.paw.health.startupRoute
@@ -43,13 +42,13 @@ fun <A> initEmbeddedKtorServer(
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> where
         A : LivenessCheck, A : ReadinessCheck, A : StartupCheck {
     with(applicationContext) {
-        val healthChecks = healthChecksOf(*healthCheckList.toTypedArray())
-        val pamStillingerKafkaConsumer = applicationContext.createHwmKafkaConsumer(
+        val pamStillingerKafkaConsumer = createHwmKafkaConsumer(
             config = applicationContext.applicationConfig.pamStillingerKafkaConsumer,
             keyDeserializer = UUIDDeserializer::class,
             valueDeserializer = AdAvroDeserializer::class,
             consumeFunction = stillingService::handleMessages
         )
+        val healthChecks = createHealthChecks()
         return embeddedServer(Netty, port = 8080) {
             configureKtorServer(
                 securityConfig = securityConfig,
@@ -91,7 +90,7 @@ fun Application.configureKtorServer(
     }
     install(CleanAwareFlywayPlugin) {
         this.dataSource = dataSource
-        this.cleanBeforeMigrate = true
+        this.cleanBeforeMigrate = false
     }
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
 }

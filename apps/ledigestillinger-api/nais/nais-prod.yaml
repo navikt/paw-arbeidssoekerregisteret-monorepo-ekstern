@@ -12,7 +12,7 @@ spec:
     limits:
       memory: 640Mi
     requests:
-      cpu: 100m
+      cpu: 200m
       memory: 640Mi
   tokenx:
     enabled: true
