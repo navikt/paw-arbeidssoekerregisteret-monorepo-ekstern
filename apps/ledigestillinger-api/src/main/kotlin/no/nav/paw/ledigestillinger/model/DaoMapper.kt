@@ -12,10 +12,10 @@ import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.api.models.Paging
 import no.nav.paw.ledigestillinger.api.models.SortOrder
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgiverRow
-import no.nav.paw.ledigestillinger.model.dao.BeliggenhetRow
 import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
 import no.nav.paw.ledigestillinger.model.dao.KategoriRow
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringRow
+import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import java.time.Instant
@@ -44,7 +44,7 @@ fun Message<UUID, Ad>.asStillingRow(): StillingRow {
         arbeidsgiver = value.employer?.asArbeidsgiverRow(),
         kategorier = value.categories?.map { it.asKategoriRow() } ?: listOf(),
         klassifiseringer = value.classifications?.map { it.asKlassifiseringRow() } ?: listOf(),
-        beliggenheter = value.locations?.map { it.asBeliggenhetRow() } ?: listOf(),
+        lokasjoner = value.locations?.map { it.asLokasjonRow() } ?: listOf(),
         egenskaper = value.properties?.map { it.asEgenskapRow() } ?: listOf()
     )
 }
@@ -90,7 +90,7 @@ fun Classification.asKlassifiseringRow(): KlassifiseringRow = KlassifiseringRow(
     navn = this.name
 )
 
-fun Location.asBeliggenhetRow(): BeliggenhetRow = BeliggenhetRow(
+fun Location.asLokasjonRow(): LokasjonRow = LokasjonRow(
     id = -1,
     parentId = -1,
     adresse = this.address,
@@ -109,11 +109,6 @@ fun Property.asEgenskapRow(): EgenskapRow = EgenskapRow(
     key = this.key,
     value = this.value
 )
-
-fun SortOrder.asSortOrder(): org.jetbrains.exposed.v1.core.SortOrder = when (this) {
-    SortOrder.ASC -> org.jetbrains.exposed.v1.core.SortOrder.ASC
-    SortOrder.DESC -> org.jetbrains.exposed.v1.core.SortOrder.DESC
-}
 
 fun Paging.order(): org.jetbrains.exposed.v1.core.SortOrder = when (this.sortOrder) {
     SortOrder.ASC -> org.jetbrains.exposed.v1.core.SortOrder.ASC

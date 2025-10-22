@@ -8,8 +8,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 object ArbeidsgivereTable : LongIdTable("arbeidsgivere") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val orgForm = varchar("org_form", 20)
-    val orgNr = varchar("org_nr", 20)
-    val parentOrgNr = varchar("parent_org_nr", 20)
+    val orgNr = varchar("org_nr", 20).nullable()
+    val parentOrgNr = varchar("parent_org_nr", 20).nullable()
     val navn = varchar("navn", 255)
     val offentligNavn = varchar("offentlig_navn", 255)
 }

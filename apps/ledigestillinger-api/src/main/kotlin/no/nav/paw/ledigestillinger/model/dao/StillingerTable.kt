@@ -54,7 +54,7 @@ fun StillingerTable.selectRowByUUID(
             arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
             kategorier = KategorierTable::selectRowsByParentId,
             klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
-            beliggenheter = BeliggenheterTable::selectRowsByParentId,
+            lokasjoner = LokasjonerTable::selectRowsByParentId,
             egenskaper = EgenskaperTable::selectRowsByParentId
         )
     }
@@ -66,9 +66,9 @@ fun StillingerTable.selectRowsByKategorierAndFylker(
     fylker: Collection<String>,
     paging: Paging = Paging()
 ): List<StillingRow> = join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
-    .join(BeliggenheterTable, JoinType.LEFT, StillingerTable.id, BeliggenheterTable.parentId)
+    .join(LokasjonerTable, JoinType.LEFT, StillingerTable.id, LokasjonerTable.parentId)
     .selectAll()
-    .where { (KategorierTable.kode inList kategorier) and (BeliggenheterTable.fylke inList fylker) }
+    .where { (KategorierTable.kode inList kategorier) and (LokasjonerTable.fylke inList fylker) }
     .orderBy(StillingerTable.id, paging.order())
     .limit(paging.size()).offset(paging.offset())
     .map {
@@ -76,7 +76,7 @@ fun StillingerTable.selectRowsByKategorierAndFylker(
             arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
             kategorier = KategorierTable::selectRowsByParentId,
             klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
-            beliggenheter = BeliggenheterTable::selectRowsByParentId,
+            lokasjoner = LokasjonerTable::selectRowsByParentId,
             egenskaper = EgenskaperTable::selectRowsByParentId
         )
     }

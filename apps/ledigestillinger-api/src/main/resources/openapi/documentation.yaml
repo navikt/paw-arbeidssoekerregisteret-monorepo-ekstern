@@ -78,7 +78,7 @@ components:
         kategorier:
           type: array
           items:
-            "$ref": "#/components/schemas/Kategori"
+            type: string
         fylker:
           type: array
           items:
@@ -123,6 +123,14 @@ components:
           type: string
         arbeidsgiver:
           type: string
+        kategorier:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Kategori"
+        lokasjoner:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Lokasjon"
         soeknadsfrist:
           type: string
         publisert:
@@ -138,28 +146,34 @@ components:
         - tittel
         - status
         - publisert
+        - kategorier
+        - lokasjoner
     StillingStatus:
       type: string
       enum:
-        - "AKTIV"
-        - "INAKTIV"
-        - "STOPPET"
-        - "SLETTET"
-        - "AVVIST"
+        - AKTIV
+        - INAKTIV
+        - STOPPET
+        - SLETTET
+        - AVVIST
     Kategori:
       type: object
       properties:
         kode:
           type: string
-          example: "0101"
+        normalisertKode:
+          type: string
+        navn:
+          type: string
       required:
         - kode
+        - normalisertKode
+        - navn
     Fylke:
       type: object
       properties:
         fylkesnummer:
           type: string
-          example: "91"
         kommuner:
           type: array
           items:
@@ -171,9 +185,27 @@ components:
       properties:
         kommunenummer:
           type: string
-          example: "9107"
       required:
         - kommunenummer
+    Lokasjon:
+      type: object
+      properties:
+        postkode:
+          type: string
+        poststed:
+          type: string
+        kommune:
+          type: string
+        kommunenummer:
+          type: string
+        fylke:
+          type: string
+        fylkesnummer:
+          type: string
+        land:
+          type: string
+      required:
+        - land
     Soeknadsfrist:
       type: object
       properties:
@@ -185,14 +217,14 @@ components:
           type: string
           description: "Hvilken type frist er det"
           enum:
-            - Ukjent
-            - Snarest
-            - Dato
+            - UKJENT
+            - SNAREST
+            - DATO
         dato:
           type: string
           format: date
           example: "2025-11-25"
-          description: "Søknadsfrist, bare med dersom 'fristType' er Dato"
+          description: "Søknadsfrist, bare med dersom 'fristType' er DATO"
     Paging:
       type: object
       properties:

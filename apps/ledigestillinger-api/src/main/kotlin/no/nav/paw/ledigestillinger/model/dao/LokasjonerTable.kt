@@ -5,7 +5,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
-object BeliggenheterTable : LongIdTable("beliggenheter") {
+object LokasjonerTable : LongIdTable("lokasjoner") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val adresse = varchar("adresse", 255).nullable()
     val postkode = varchar("postkode", 10).nullable()
@@ -17,15 +17,15 @@ object BeliggenheterTable : LongIdTable("beliggenheter") {
     val land = varchar("land", 100)
 }
 
-fun BeliggenheterTable.selectRowsByParentId(
+fun LokasjonerTable.selectRowsByParentId(
     parentId: Long
-): List<BeliggenhetRow> = selectAll()
-    .where { BeliggenheterTable.parentId eq parentId }
-    .map { it.asBeliggenhetRow() }
+): List<LokasjonRow> = selectAll()
+    .where { LokasjonerTable.parentId eq parentId }
+    .map { it.asLokasjonRow() }
 
-fun BeliggenheterTable.insert(
+fun LokasjonerTable.insert(
     parentId: Long,
-    row: BeliggenhetRow
+    row: LokasjonRow
 ): Long = insertAndGetId {
     it[this.parentId] = parentId
     it[this.adresse] = row.adresse

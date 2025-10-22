@@ -6,7 +6,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.pam.stilling.ext.avro.Ad
 import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.api.models.Fylke
-import no.nav.paw.ledigestillinger.api.models.Kategori
 import no.nav.paw.ledigestillinger.api.models.Paging
 import no.nav.paw.ledigestillinger.api.models.Stilling
 import no.nav.paw.ledigestillinger.config.ApplicationConfig
@@ -14,10 +13,10 @@ import no.nav.paw.ledigestillinger.exception.StillingIkkeFunnetException
 import no.nav.paw.ledigestillinger.model.asDto
 import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgivereTable
-import no.nav.paw.ledigestillinger.model.dao.BeliggenheterTable
 import no.nav.paw.ledigestillinger.model.dao.EgenskaperTable
 import no.nav.paw.ledigestillinger.model.dao.KategorierTable
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
+import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.model.dao.insert
 import no.nav.paw.ledigestillinger.model.dao.selectIdByUUID
@@ -51,13 +50,13 @@ class StillingService(
 
     fun finnStillinger(
         soekeord: Collection<String>,
-        kategorier: Collection<Kategori>,
+        kategorier: Collection<String>,
         fylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
         StillingerTable.selectRowsByKategorierAndFylker(
             soekeord = soekeord,
-            kategorier = kategorier.map { it.kode },
+            kategorier = kategorier,
             fylker = fylker.mapNotNull { it.fylkesnummer },
             paging = paging
         ).map { it.asDto() }
@@ -126,8 +125,8 @@ class StillingService(
                     row = row
                 )
             }
-            stillingRow.beliggenheter.forEach { row ->
-                BeliggenheterTable.insert(
+            stillingRow.lokasjoner.forEach { row ->
+                LokasjonerTable.insert(
                     parentId = id,
                     row = row
                 )

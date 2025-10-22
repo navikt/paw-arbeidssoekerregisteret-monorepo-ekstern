@@ -7,7 +7,7 @@ data class FinnStillingerRequest(
     @get:JsonProperty("soekeord")
     val soekeord: List<String>,
     @get:JsonProperty("kategorier")
-    val kategorier: List<Kategori>,
+    val kategorier: List<String>,
     @get:JsonProperty("fylker")
     val fylker: List<Fylke>,
     @get:JsonProperty("paging")

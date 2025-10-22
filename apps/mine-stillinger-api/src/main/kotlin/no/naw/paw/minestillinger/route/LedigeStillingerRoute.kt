@@ -8,7 +8,6 @@ import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
-import no.naw.paw.ledigestillinger.model.Kategori
 import no.naw.paw.ledigestillinger.model.Kommune
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.SortOrder
@@ -33,7 +32,7 @@ fun Route.ledigeStillingerRoute(ledigeStillingerClient: FinnStillingerClient) {
                     val søk = stedSøk.soek as StedSoek
                     FinnStillingerRequest(
                         soekeord = søk.soekeord,
-                        kategorier = søk.styrk08.map(::Kategori),
+                        kategorier = søk.styrk08,
                         fylker = søk.fylker.map { fylke ->
                             no.naw.paw.ledigestillinger.model.Fylke(
                                 fylkesnummer = fylke.fylkesnummer,
@@ -46,7 +45,7 @@ fun Route.ledigeStillingerRoute(ledigeStillingerClient: FinnStillingerClient) {
                     )
                 }
                 if (request != null) {
-                    val response = ledigeStillingerClient.hentLedigeStillinger(request)
+                    val response = ledigeStillingerClient.finnLedigeStillinger(request)
                     response.stillinger?.map { stilling ->
                         JobbAnnonse(
                             tittel = stilling.tittel,

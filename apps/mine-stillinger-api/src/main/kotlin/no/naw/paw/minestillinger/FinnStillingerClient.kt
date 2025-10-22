@@ -26,7 +26,7 @@ class FinnStillingerClient(
     private val tokenProvider: (String) -> String,
     private val httpClient: HttpClient,
 ) {
-    suspend fun hentLedigeStillinger(finnStillingerRequest: FinnStillingerRequest): FinnStillingerResponse {
+    suspend fun finnLedigeStillinger(finnStillingerRequest: FinnStillingerRequest): FinnStillingerResponse {
         val response = httpClient.post(config.baseUrl + LEDIGE_STILLINGER_PATH) {
             contentType(Application.Json)
             bearerAuth(tokenProvider(config.ledigeStillingerScope))

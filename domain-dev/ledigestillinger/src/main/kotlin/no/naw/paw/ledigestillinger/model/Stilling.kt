@@ -12,6 +12,10 @@ data class Stilling(
     val tittel: String,
     @get:JsonProperty("status")
     val status: StillingStatus,
+    @get:JsonProperty("kategorier")
+    val kategorier: List<Kategori>,
+    @get:JsonProperty("lokasjoner")
+    val lokasjoner: List<Lokasjon>,
     @get:JsonProperty("publisert")
     val publisert: Instant,
     @get:JsonProperty("adnr")

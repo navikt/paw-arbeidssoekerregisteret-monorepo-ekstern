@@ -27,7 +27,7 @@ data class StillingRow(
     val arbeidsgiver: ArbeidsgiverRow?,
     val kategorier: Iterable<KategoriRow>,
     val klassifiseringer: Iterable<KlassifiseringRow>,
-    val beliggenheter: Iterable<BeliggenhetRow>,
+    val lokasjoner: Iterable<LokasjonRow>,
     val egenskaper: Iterable<EgenskapRow>
 )
 
@@ -35,7 +35,7 @@ fun ResultRow.asStillingRow(
     arbeidsgiver: (Long) -> ArbeidsgiverRow?,
     kategorier: (Long) -> Iterable<KategoriRow>,
     klassifiseringer: (Long) -> Iterable<KlassifiseringRow>,
-    beliggenheter: (Long) -> Iterable<BeliggenhetRow>,
+    lokasjoner: (Long) -> Iterable<LokasjonRow>,
     egenskaper: (Long) -> Iterable<EgenskapRow>
 ): StillingRow {
     val id = this[StillingerTable.id].value
@@ -60,7 +60,7 @@ fun ResultRow.asStillingRow(
         arbeidsgiver = arbeidsgiver(id),
         kategorier = kategorier(id),
         klassifiseringer = klassifiseringer(id),
-        beliggenheter = beliggenheter(id),
+        lokasjoner = lokasjoner(id),
         egenskaper = egenskaper(id)
     )
 }

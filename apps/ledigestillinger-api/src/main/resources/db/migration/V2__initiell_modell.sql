@@ -24,8 +24,8 @@ CREATE TABLE arbeidsgivere
 (
     id             BIGSERIAL PRIMARY KEY,
     parent_id      BIGINT      NOT NULL,
-    org_form       VARCHAR(20) NOT NULL,
-    org_nr         VARCHAR(20) NOT NULL,
+    org_form       VARCHAR(20),
+    org_nr         VARCHAR(20),
     parent_org_nr  VARCHAR(20) NOT NULL,
     navn           VARCHAR(255),
     offentlig_navn VARCHAR(255),
@@ -52,7 +52,7 @@ CREATE TABLE klassifiseringer
     FOREIGN KEY (parent_id) REFERENCES stillinger (id)
 );
 
-CREATE TABLE beliggenheter
+CREATE TABLE lokasjoner
 (
     id          BIGSERIAL PRIMARY KEY,
     parent_id   BIGINT       NOT NULL,
