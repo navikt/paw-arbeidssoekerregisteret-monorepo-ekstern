@@ -123,6 +123,8 @@ components:
           type: string
         arbeidsgiver:
           type: string
+        sektor:
+          "$ref": "#/components/schemas/Sektor"
         kategorier:
           type: array
           items:
@@ -132,7 +134,7 @@ components:
           items:
             "$ref": "#/components/schemas/Lokasjon"
         soeknadsfrist:
-          type: string
+          "$ref": "#/components/schemas/Soeknadsfrist"
         publisert:
           type: string
           format: "date-time"
@@ -145,9 +147,11 @@ components:
         - uuid
         - tittel
         - status
-        - publisert
+        - sektor
         - kategorier
         - lokasjoner
+        - soeknadsfrist
+        - publisert
     StillingStatus:
       type: string
       enum:
@@ -180,6 +184,12 @@ components:
             $ref: "#/components/schemas/Kommune"
       required:
         - kommuner
+    Sektor:
+      type: string
+      enum:
+        - OFFENTLIG
+        - PRIVAT
+        - UKJENT
     Kommune:
       type: object
       properties:
@@ -214,17 +224,19 @@ components:
           description: "Tekst fra datasettet for egenskapen søknadsfrist"
           example: "Her kan det stå hva som helst dersom fristType er Ukjent"
         fristType:
-          type: string
-          description: "Hvilken type frist er det"
-          enum:
-            - UKJENT
-            - SNAREST
-            - DATO
+          $ref: "#/components/schemas/SoeknadsfristType"
         dato:
           type: string
           format: date
           example: "2025-11-25"
           description: "Søknadsfrist, bare med dersom 'fristType' er DATO"
+    SoeknadsfristType:
+      type: string
+      description: "Hvilken type frist er det"
+      enum:
+        - UKJENT
+        - SNAREST
+        - DATO
     Paging:
       type: object
       properties:
