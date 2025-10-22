@@ -113,30 +113,22 @@ class StillingService(
                     row = row
                 )
             }
-            stillingRow.kategorier.forEach { row ->
-                KategorierTable.insert(
-                    parentId = id,
-                    row = row
-                )
-            }
-            stillingRow.klassifiseringer.forEach { row ->
-                KlassifiseringerTable.insert(
-                    parentId = id,
-                    row = row
-                )
-            }
-            stillingRow.lokasjoner.forEach { row ->
-                LokasjonerTable.insert(
-                    parentId = id,
-                    row = row
-                )
-            }
-            stillingRow.egenskaper.forEach { row ->
-                EgenskaperTable.insert(
-                    parentId = id,
-                    row = row
-                )
-            }
+            KategorierTable.insert(
+                parentId = id,
+                rows = stillingRow.kategorier
+            )
+            KlassifiseringerTable.insert(
+                parentId = id,
+                rows = stillingRow.klassifiseringer
+            )
+            LokasjonerTable.insert(
+                parentId = id,
+                rows = stillingRow.lokasjoner
+            )
+            EgenskaperTable.insert(
+                parentId = id,
+                rows = stillingRow.egenskaper
+            )
         } else {
             StillingerTable.updateById(
                 id = existingId,

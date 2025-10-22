@@ -33,7 +33,7 @@ fun Message<UUID, Ad>.asStillingRow(): StillingRow {
         kilde = value.source,
         medium = value.medium,
         referanse = value.reference,
-        arbeidsgiverNavn = value.businessName,
+        arbeidsgivernavn = value.businessName,
         opprettetTimestamp = value.created.fromLocalDateTimeString(),
         endretTimestamp = value.updated.fromLocalDateTimeString(),
         publisertTimestamp = value.published.fromLocalDateTimeString(),

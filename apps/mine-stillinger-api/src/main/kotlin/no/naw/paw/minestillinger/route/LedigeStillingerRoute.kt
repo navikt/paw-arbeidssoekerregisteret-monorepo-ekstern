@@ -55,7 +55,7 @@ fun Route.ledigeStillingerRoute(ledigeStillingerClient: FinnStillingerClient) {
                             land = TODO(),
                             kommune = TODO(),
                             sektor = TODO(),
-                            selskap = stilling.arbeidsgiver ?: "Ukjent"
+                            selskap = stilling.arbeidsgivernavn ?: "Ukjent"
 
                         )
                     }

@@ -2,7 +2,7 @@ package no.nav.paw.ledigestillinger.model.dao
 
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object KlassifiseringerTable : LongIdTable("klassifiseringer") {
@@ -20,10 +20,10 @@ fun KlassifiseringerTable.selectRowsByParentId(
 
 fun KlassifiseringerTable.insert(
     parentId: Long,
-    row: KlassifiseringRow
-): Long = insertAndGetId {
-    it[this.parentId] = parentId
-    it[this.type] = row.type
-    it[this.kode] = row.kode
-    it[this.navn] = row.navn
-}.value
+    rows: Iterable<KlassifiseringRow>
+) = batchInsert(rows) { row ->
+    this[KlassifiseringerTable.parentId] = parentId
+    this[KlassifiseringerTable.type] = row.type
+    this[KlassifiseringerTable.kode] = row.kode
+    this[KlassifiseringerTable.navn] = row.navn
+}

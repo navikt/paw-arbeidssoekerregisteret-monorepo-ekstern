@@ -1,12 +1,18 @@
 package no.nav.paw.ledigestillinger.model
 
+import no.nav.paw.ledigestillinger.api.models.Arbeidsgiver
+import no.nav.paw.ledigestillinger.api.models.Egenskap
 import no.nav.paw.ledigestillinger.api.models.Kategori
+import no.nav.paw.ledigestillinger.api.models.Klassifisering
 import no.nav.paw.ledigestillinger.api.models.Lokasjon
 import no.nav.paw.ledigestillinger.api.models.Sektor
 import no.nav.paw.ledigestillinger.api.models.Soeknadsfrist
 import no.nav.paw.ledigestillinger.api.models.SoeknadsfristType
 import no.nav.paw.ledigestillinger.api.models.Stilling
+import no.nav.paw.ledigestillinger.model.dao.ArbeidsgiverRow
+import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
 import no.nav.paw.ledigestillinger.model.dao.KategoriRow
+import no.nav.paw.ledigestillinger.model.dao.KlassifiseringRow
 import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.util.fromUnformattedString
@@ -20,7 +26,7 @@ fun StillingRow.asDto(): Stilling = Stilling(
     ansettelsesform = egenskaper.find { it.key == "engagementtype" }?.value,
     ansettelsesprosent = egenskaper.find { it.key == "extent" }?.value,
     stillingsantall = egenskaper.find { it.key == "positioncount" }?.value,
-    arbeidsgiver = arbeidsgiverNavn,
+    arbeidsgivernavn = arbeidsgivernavn,
     sektor = egenskaper.find { it.key == "sector" }?.value?.asSektor() ?: Sektor.UKJENT,
     kategorier = kategorier.map { it.asDto() },
     lokasjoner = lokasjoner.map { it.asDto() },
@@ -38,6 +44,14 @@ fun StillingStatus.asDto(): no.nav.paw.ledigestillinger.api.models.StillingStatu
     StillingStatus.REJECTED -> no.nav.paw.ledigestillinger.api.models.StillingStatus.AVVIST
 }
 
+fun ArbeidsgiverRow.asDto(): Arbeidsgiver = Arbeidsgiver(
+    orgForm = this.orgForm,
+    orgNr = this.orgNr,
+    parentOrgNr = this.parentOrgNr,
+    navn = this.navn,
+    offentligNavn = this.offentligNavn
+)
+
 fun String.asSektor(): Sektor = when {
     this.lowercase().contains("privat") -> Sektor.PRIVAT
     this.lowercase().contains("offentlig") -> Sektor.OFFENTLIG
@@ -50,6 +64,12 @@ fun KategoriRow.asDto(): Kategori = Kategori(
     navn = navn
 )
 
+fun KlassifiseringRow.asDto(): Klassifisering = Klassifisering(
+    type = this.type,
+    kode = this.kode,
+    navn = this.navn
+)
+
 fun LokasjonRow.asDto(): Lokasjon = Lokasjon(
     poststed = poststed,
     postkode = postkode,
@@ -58,6 +78,11 @@ fun LokasjonRow.asDto(): Lokasjon = Lokasjon(
     fylke = fylke,
     fylkesnummer = fylkeskode,
     land = land
+)
+
+fun EgenskapRow.asDto(): Egenskap = Egenskap(
+    key = key,
+    value = value
 )
 
 fun String.asSoeknadsfrist(): Soeknadsfrist = when {

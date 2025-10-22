@@ -2,7 +2,7 @@ package no.nav.paw.ledigestillinger.model.dao
 
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object LokasjonerTable : LongIdTable("lokasjoner") {
@@ -25,15 +25,15 @@ fun LokasjonerTable.selectRowsByParentId(
 
 fun LokasjonerTable.insert(
     parentId: Long,
-    row: LokasjonRow
-): Long = insertAndGetId {
-    it[this.parentId] = parentId
-    it[this.adresse] = row.adresse
-    it[this.postkode] = row.postkode
-    it[this.poststed] = row.poststed
-    it[this.kommune] = row.kommune
-    it[this.kommunekode] = row.kommunekode
-    it[this.fylke] = row.fylke
-    it[this.fylkeskode] = row.fylkeskode
-    it[this.land] = row.land
-}.value
+    rows: Iterable<LokasjonRow>
+) = batchInsert(rows) { row ->
+    this[LokasjonerTable.parentId] = parentId
+    this[LokasjonerTable.adresse] = row.adresse
+    this[LokasjonerTable.postkode] = row.postkode
+    this[LokasjonerTable.poststed] = row.poststed
+    this[LokasjonerTable.kommune] = row.kommune
+    this[LokasjonerTable.kommunekode] = row.kommunekode
+    this[LokasjonerTable.fylke] = row.fylke
+    this[LokasjonerTable.fylkeskode] = row.fylkeskode
+    this[LokasjonerTable.land] = row.land
+}

@@ -24,9 +24,9 @@ CREATE TABLE arbeidsgivere
 (
     id             BIGSERIAL PRIMARY KEY,
     parent_id      BIGINT      NOT NULL,
-    org_form       VARCHAR(20),
+    org_form       VARCHAR(20) NOT NULL,
     org_nr         VARCHAR(20),
-    parent_org_nr  VARCHAR(20) NOT NULL,
+    parent_org_nr  VARCHAR(20),
     navn           VARCHAR(255),
     offentlig_navn VARCHAR(255),
     FOREIGN KEY (parent_id) REFERENCES stillinger (id)

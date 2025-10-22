@@ -2,11 +2,12 @@ package no.naw.paw.ledigestillinger.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
+import java.util.*
 
 data class Stilling(
 
     @get:JsonProperty("uuid")
-    val uuid: java.util.UUID,
+    val uuid: UUID,
 
     @get:JsonProperty("tittel")
     val tittel: String,
@@ -44,8 +45,11 @@ data class Stilling(
     @get:JsonProperty("stillingsantall")
     val stillingsantall: String? = null,
 
+    @get:JsonProperty("arbeidsgivernavn")
+    val arbeidsgivernavn: String? = null,
+
     @get:JsonProperty("arbeidsgiver")
-    val arbeidsgiver: String? = null,
+    val arbeidsgiver: Arbeidsgiver? = null,
 
     @get:JsonProperty("utloeper")
     val utloeper: Instant? = null

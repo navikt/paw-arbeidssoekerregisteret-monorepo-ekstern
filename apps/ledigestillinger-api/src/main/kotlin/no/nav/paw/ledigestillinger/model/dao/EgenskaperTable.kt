@@ -2,7 +2,7 @@ package no.nav.paw.ledigestillinger.model.dao
 
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object EgenskaperTable : LongIdTable("egenskaper") {
@@ -19,9 +19,9 @@ fun EgenskaperTable.selectRowsByParentId(
 
 fun EgenskaperTable.insert(
     parentId: Long,
-    row: EgenskapRow
-): Long = insertAndGetId {
-    it[this.parentId] = parentId
-    it[this.key] = row.key
-    it[this.value] = row.value
-}.value
+    rows: Iterable<EgenskapRow>
+) = batchInsert(rows) { row ->
+    this[EgenskaperTable.parentId] = parentId
+    this[EgenskaperTable.key] = row.key
+    this[EgenskaperTable.value] = row.value
+}

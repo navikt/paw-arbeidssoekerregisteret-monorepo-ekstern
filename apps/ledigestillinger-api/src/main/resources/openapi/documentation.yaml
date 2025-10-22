@@ -121,8 +121,10 @@ components:
           type: string
         stillingsantall:
           type: string
-        arbeidsgiver:
+        arbeidsgivernavn:
           type: string
+        arbeidsgiver:
+          "$ref": "#/components/schemas/Arbeidsgiver"
         sektor:
           "$ref": "#/components/schemas/Sektor"
         kategorier:
@@ -160,6 +162,23 @@ components:
         - STOPPET
         - SLETTET
         - AVVIST
+    Arbeidsgiver:
+      type: object
+      properties:
+        orgForm:
+          type: string
+        orgNr:
+          type: string
+        parentOrgNr:
+          type: string
+        navn:
+          type: string
+        offentligNavn:
+          type: string
+      required:
+        - orgForm
+        - navn
+        - offentligNavn
     Kategori:
       type: object
       properties:
@@ -172,6 +191,19 @@ components:
       required:
         - kode
         - normalisertKode
+        - navn
+    Klassifisering:
+      type: object
+      properties:
+        type:
+          type: string
+        kode:
+          type: string
+        navn:
+          type: string
+      required:
+        - type
+        - kode
         - navn
     Fylke:
       type: object
@@ -216,6 +248,16 @@ components:
           type: string
       required:
         - land
+    Egenskap:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+        - key
+        - value
     Soeknadsfrist:
       type: object
       properties:

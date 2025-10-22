@@ -28,7 +28,7 @@ object StillingerTable : LongIdTable("stillinger") {
     val kilde = varchar("kilde", 255)
     val medium = varchar("medium", 255)
     val referanse = varchar("referanse", 255)
-    val arbeidsgiverNavn = varchar("arbeidsgiver_navn", 255).nullable()
+    val arbeidsgivernavn = varchar("arbeidsgiver_navn", 255).nullable()
     val opprettetTimestamp = timestamp("opprettet_timestamp")
     val endretTimestamp = timestamp("endret_timestamp")
     val publisertTimestamp = timestamp("publisert_timestamp")
@@ -61,7 +61,7 @@ fun StillingerTable.selectRowByUUID(
     .singleOrNull()
 
 fun StillingerTable.selectRowsByKategorierAndFylker(
-    soekeord: Collection<String>, // TODO
+    soekeord: Collection<String>, // TODO Benytt søkeord
     kategorier: Collection<String>,
     fylker: Collection<String>,
     paging: Paging = Paging()
@@ -92,7 +92,7 @@ fun StillingerTable.insert(
     it[this.kilde] = row.kilde
     it[this.medium] = row.medium
     it[this.referanse] = row.referanse
-    it[this.arbeidsgiverNavn] = row.arbeidsgiverNavn
+    it[this.arbeidsgivernavn] = row.arbeidsgivernavn
     it[this.opprettetTimestamp] = row.opprettetTimestamp
     it[this.endretTimestamp] = row.endretTimestamp
     it[this.publisertTimestamp] = row.publisertTimestamp
@@ -114,7 +114,7 @@ fun StillingerTable.updateById(
     it[this.kilde] = row.kilde
     it[this.medium] = row.medium
     it[this.referanse] = row.referanse
-    it[this.arbeidsgiverNavn] = row.arbeidsgiverNavn
+    it[this.arbeidsgivernavn] = row.arbeidsgivernavn
     it[this.opprettetTimestamp] = row.opprettetTimestamp
     it[this.endretTimestamp] = row.endretTimestamp
     it[this.publisertTimestamp] = row.publisertTimestamp

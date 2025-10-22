@@ -18,7 +18,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 object TestData {
-    fun messages(): List<Message<UUID, Ad>> = listOf(record().toMessage())
+    fun message(): Message<UUID, Ad> = record().toMessage()
 
     fun record(): ConsumerRecord<UUID, Ad> = ad()
         .let { ConsumerRecord("teampam.stilling-ekstern-1", 0, 0L, it.first, it.second) }
