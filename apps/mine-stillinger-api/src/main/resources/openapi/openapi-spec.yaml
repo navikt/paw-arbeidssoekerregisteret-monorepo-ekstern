@@ -35,9 +35,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Brukerprofil"
+  /api/v1/brukerprofil/stillingssoek:
+    put:
+      description: "Oppdater stillingssøk for en gitt bruker"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/Stillingssoek"
+      responses:
+        "204":
+          description: "No Content"
+        "404":
+          description: "Not Found"
+        "400":
+          description: "Bad Request"
   /api/v1/ledigestillinger :
     get:
-      description: "Hent brukerprofil for en gitt bruker"
+      description: "Hent ledige stillinger for en gitt bruker"
       responses:
         "200":
           description: "OK"
@@ -235,8 +253,8 @@ components:
           items:
             $ref: "#/components/schemas/JobbAnnonse"
       required:
+        - "sistKjoert"
         - "soek"
-        - "stillinger"
         - "resultat"
     JobbAnnonse:
       type: "object"
