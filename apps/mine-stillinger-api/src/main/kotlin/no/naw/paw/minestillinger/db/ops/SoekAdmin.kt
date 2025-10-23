@@ -18,6 +18,32 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.reflect.KClass
 
+
+interface SøkAdminOps {
+    fun lagreSoek(brukerId: BrukerId, tidspunkt: Instant, soek: Stillingssoek): Unit
+    fun hentSoek(brukerId: BrukerId): List<LagretStillingsoek>
+    fun slettAlleSoekForBruker(brukerId: BrukerId): Int
+    fun slettSoek(brukerId: BrukerId, soekId: Long): Int
+}
+
+object ExposedSøkAdminOps : SøkAdminOps {
+    override fun lagreSoek(
+        brukerId: BrukerId,
+        tidspunkt: Instant,
+        soek: Stillingssoek
+    ) = no.naw.paw.minestillinger.db.ops.lagreSoek(brukerId, tidspunkt, soek)
+
+    override fun hentSoek(brukerId: BrukerId): List<LagretStillingsoek> =
+        no.naw.paw.minestillinger.db.ops.hentSoek(brukerId)
+
+    override fun slettAlleSoekForBruker(brukerId: BrukerId): Int =
+        no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker(brukerId)
+
+    override fun slettSoek(brukerId: BrukerId, soekId: Long): Int =
+        no.naw.paw.minestillinger.db.ops.slettSoek(brukerId, soekId)
+
+}
+
 private val soekObjectMapper: ObjectMapper = ObjectMapper()
     .registerKotlinModule()
 

@@ -32,7 +32,7 @@ fun ListeMedFlagg.tjenestestatus(): TjenesteStatus {
     }
 }
 
-fun ListeMedFlagg.beregnOppdateringAvFlagg(nyTjenestestatus: TjenesteStatus): OppdateringAvFlagg {
+fun ListeMedFlagg.beregnOppdateringAvFlaggFraAPI(nyTjenestestatus: TjenesteStatus): OppdateringAvFlagg {
     val gjeldendeStatus = tjenestestatus()
     if (nyTjenestestatus == TjenesteStatus.KAN_IKKE_LEVERES) oppdateringIkkeTillatt("Kan ikke sette tjenestestatus til KAN_IKKE_LEVERES manuelt")
     if (gjeldendeStatus == TjenesteStatus.KAN_IKKE_LEVERES) oppdateringIkkeTillatt("Kan ikke oppdatere tjenestestatus fra KAN_IKKE_LEVERES")
