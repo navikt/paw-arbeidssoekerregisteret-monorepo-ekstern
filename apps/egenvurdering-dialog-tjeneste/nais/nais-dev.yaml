@@ -1,3 +1,17 @@
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: egenvurdering-dialog-tjeneste
+  namespace: paw
+spec:
+  cluster:
+    majorVersion: "17"
+    resources:
+      cpu: 100m
+      diskSize: 2Gi
+      memory: 2G
+---
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
@@ -51,12 +65,7 @@ spec:
   kafka:
     pool: nav-dev
   postgres:
-    cluster:
-      majorVersion: "17"
-      resources:
-        cpu: 100m
-        diskSize: 2Gi
-        memory: 2G
+    clusterName: egenvurdering-dialog-tjeneste
   accessPolicy:
     outbound:
       rules:
