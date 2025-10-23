@@ -51,6 +51,10 @@ spec:
     inbound:
       rules:
         - application: paw-dev-proxy
+        - application: tokenx-token-generator
+          namespace: nais
+        - application: azure-token-generator
+          namespace: nais
   gcp:
     sqlInstances:
       - type: POSTGRES_17
