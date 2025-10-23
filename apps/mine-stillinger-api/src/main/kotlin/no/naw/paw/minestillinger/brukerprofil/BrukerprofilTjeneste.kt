@@ -2,6 +2,8 @@ package no.naw.paw.minestillinger.brukerprofil
 
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
@@ -10,8 +12,10 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.erFremdelesGyldig
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
@@ -41,10 +45,10 @@ class BrukerprofilTjeneste(
             .let(::ListeMedFlagg)
             .let { flagg ->
                 val gradertAdresseGyldig = flagg[HarGradertAdresseFlaggtype]
-                    .erGyldig(
+                    ?.erFremdelesGyldig(
                         tidspunkt = tidspunkt,
-                        gyldighetsperiode = GRADERT_ADRESSE_GYLDIGHETS_PERIODE
-                    )
+                        gydlighetsperiode = GRADERT_ADRESSE_GYLDIGHETS_PERIODE
+                    ) ?: false
                 if (gradertAdresseGyldig) {
                     flagg
                 } else {
@@ -92,7 +96,7 @@ class BrukerprofilTjeneste(
         )
     }
 
-    fun oppdaterFlagg(brukerId: BrukerId, oppdatering: OppdateringAvStatus) {
+    fun oppdaterFlagg(brukerId: BrukerId, oppdatering: OppdateringAvFlagg) {
         skrivFlagg(brukerId, ListeMedFlagg(oppdatering.nyeOgOppdaterteFlagg))
         if (oppdatering.søkSkalSlettes) {
             slettAlleSøk(brukerId)
@@ -103,18 +107,14 @@ class BrukerprofilTjeneste(
 fun oppdaterMedGradertAdresse(
     tidspunkt: Instant,
     gjeldeneFlagg: ListeMedFlagg
-): OppdateringAvStatus {
+): OppdateringAvFlagg {
     val nyeEllerOppdaterteFlagg = listOfNotNull(
         HarGradertAdresseFlagg(true, tidspunkt),
         if (gjeldeneFlagg[TjenestenErAktivFlaggtype]?.verdi == true) TjenestenErAktivFlagg(false, tidspunkt) else null
     )
-    return OppdateringAvStatus(
+    return OppdateringAvFlagg(
         nyeOgOppdaterteFlagg = nyeEllerOppdaterteFlagg,
         søkSkalSlettes = true
     )
 }
 
-data class OppdateringAvStatus(
-    val nyeOgOppdaterteFlagg: List<Flagg>,
-    val søkSkalSlettes: Boolean
-)

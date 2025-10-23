@@ -28,7 +28,7 @@ import no.naw.paw.minestillinger.api.vo.ApiKommune
 import no.naw.paw.minestillinger.api.vo.ApiStillingssoekType
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
-import no.naw.paw.minestillinger.brukerprofil.harBeskyttetAdresse
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
 import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg

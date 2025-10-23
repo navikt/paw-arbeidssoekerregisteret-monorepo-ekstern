@@ -11,6 +11,10 @@ class ListeMedFlagg(flagg: Collection<Flagg>): Collection<Flagg> by flagg {
     @Suppress("UNCHECKED_CAST")
     operator fun <A: Flagg> get(navn: Flaggtype<A>): A? = map[navn] as A?
 
+    fun <A: Flagg> isTrue(navn: Flaggtype<A>): Boolean = this[navn]?.verdi == true
+
+    fun <A: Flagg> isFalse(navn: Flaggtype<A>): Boolean = !isTrue(navn)
+
     operator fun plus(other: Flagg): ListeMedFlagg {
         return ListeMedFlagg(map.values.plus(other).toSet())
     }
@@ -18,6 +22,7 @@ class ListeMedFlagg(flagg: Collection<Flagg>): Collection<Flagg> by flagg {
     operator fun minus(other: Flaggtype<*>): ListeMedFlagg {
         return ListeMedFlagg(map.values.filter { it.type != other }.toSet())
     }
+
     fun addOrUpdate(vararg others: Flagg): ListeMedFlagg {
         val navn = others.map<Flagg, Flaggtype<*>> { it.type }.toSet()
         return ListeMedFlagg(

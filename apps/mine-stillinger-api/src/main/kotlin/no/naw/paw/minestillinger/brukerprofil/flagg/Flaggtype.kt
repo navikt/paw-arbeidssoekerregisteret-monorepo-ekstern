@@ -1,5 +1,7 @@
 package no.naw.paw.minestillinger.brukerprofil.flagg
 
+import java.time.Duration
+import java.time.Duration.between
 import java.time.Instant
 
 
@@ -13,3 +15,13 @@ sealed interface Flagg {
     val verdi: Boolean
     val tidspunkt: Instant
 }
+
+fun Flagg.erFremdelesGyldig(
+    tidspunkt: Instant,
+    gydlighetsperiode: Duration
+): Boolean = between(this.tidspunkt, tidspunkt) < gydlighetsperiode
+
+fun Flagg.harUtløpt(
+    tidspunkt: Instant,
+    gydlighetsperiode: Duration
+): Boolean = !erFremdelesGyldig(tidspunkt, gydlighetsperiode)

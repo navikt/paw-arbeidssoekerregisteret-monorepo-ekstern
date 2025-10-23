@@ -21,7 +21,7 @@ import no.naw.paw.minestillinger.api.ApiStillingssoek
 import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.toApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
-import no.naw.paw.minestillinger.brukerprofil.OppdateringAvStatus
+import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
 import no.naw.paw.minestillinger.brukerprofil.kanTilbysTjenesten
 import no.naw.paw.minestillinger.db.ops.hentSoek
 import no.naw.paw.minestillinger.db.ops.lagreSoek
@@ -106,7 +106,7 @@ fun Route.brukerprofilRoute(
                                     )
                                 )
                             }
-                            OppdateringAvStatus(
+                            OppdateringAvFlagg(
                                 nyeOgOppdaterteFlagg = listOf(
                                     TjenestenErAktivFlagg(true, Instant.now()),
                                     OptOutFlag(false, Instant.now())
@@ -115,12 +115,12 @@ fun Route.brukerprofilRoute(
                             )
                         }
 
-                        TjenesteStatus.INAKTIV -> OppdateringAvStatus(
+                        TjenesteStatus.INAKTIV -> OppdateringAvFlagg(
                             nyeOgOppdaterteFlagg = listOf(TjenestenErAktivFlagg(false, Instant.now())),
                             søkSkalSlettes = false
                         )
 
-                        TjenesteStatus.OPT_OUT -> OppdateringAvStatus(
+                        TjenesteStatus.OPT_OUT -> OppdateringAvFlagg(
                             nyeOgOppdaterteFlagg = listOf(OptOutFlag(true, Instant.now())),
                             søkSkalSlettes = true
                         )
