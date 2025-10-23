@@ -27,10 +27,17 @@ import no.naw.paw.minestillinger.api.vo.ApiFylke
 import no.naw.paw.minestillinger.api.vo.ApiKommune
 import no.naw.paw.minestillinger.api.vo.ApiStillingssoekType
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
+import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.harBeskyttetAdresse
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
+import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
+import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
+import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
+import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
+import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.domain.ReiseveiSoek
 import no.naw.paw.minestillinger.domain.StillingssoekType
 import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
@@ -49,7 +56,14 @@ class BrukerprofilRouteTest : FreeSpec({
     }
     afterSpec { oauthServer.shutdown() }
     val pdlClient: PdlClient = mockk()
-    val brukerprofilTjeneste = BrukerprofilTjeneste(pdlClient)
+    val brukerprofilTjeneste = BrukerprofilTjeneste(
+        pdlClient = pdlClient,
+        hentBrukerprofilUtenFlagg = ::hentBrukerProfilUtenFlagg,
+        skrivFlagg = ::skrivFlaggTilDB,
+        hentFlagg = ::lesFlaggFraDB,
+        hentProfilering = ::hentProfileringOrNull,
+        slettAlleSøk = ::slettAlleSoekForBruker
+    )
 
     "Happy path" {
         testApplication {

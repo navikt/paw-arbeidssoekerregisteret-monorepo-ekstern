@@ -21,10 +21,34 @@ paths:
           description: "No Content"
         "404":
           description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
         "400":
           description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
         "403":
           description: "Forbidden - Brukeren kan ikke tilbys tjenesten ledige stillinger"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "503":
+          description: "Service Unavailable"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /api/v1/brukerprofil/ :
     get:
       description: "Hent brukerprofil for en gitt bruker"
@@ -35,6 +59,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Brukerprofil"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "403":
+          description: "Forbidden - Brukeren kan ikke tilbys tjenesten ledige stillinger"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "503":
+          description: "Service Unavailable"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /api/v1/brukerprofil/stillingssoek:
     put:
       description: "Oppdater stillingssøk for en gitt bruker"
@@ -64,7 +118,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/LedigeStillinger"
         "404":
-          description: "Bruker har ikke tjenesten aktiv eller har ingen søk konfigurert"
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "403":
+          description: "Forbidden - Brukeren kan ikke tilbys tjenesten ledige stillinger"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "503":
+          description: "Service Unavailable"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
 
   /api/v1/kodeverk/fylker :
     get:
@@ -78,6 +160,7 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/Fylke"
+
   /api/v1/kodeverk/styrk08 :
     get:
       description: "Hent hele STYRK-08 treet"
@@ -316,3 +399,39 @@ components:
         - "Offentlig"
         - "Privat"
         - "Ukjent"
+    ProblemDetails:
+      type: object
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        type:
+          type: "string"
+          format: "uri"
+        status:
+          type: "integer"
+        title:
+          type: "string"
+        detail:
+          type: "string"
+        instance:
+          type: "string"
+        timestamp:
+          type: "string"
+          format: "date-time"
+      required:
+        - id
+        - type
+        - status
+        - title
+        - detail
+        - instance
+        - timestamp
+      example:
+        id: "3cd944fb-6187-41a8-91b2-b172f2baf890"
+        type: "urn:paw:default:ukjent-feil"
+        status: 500
+        title: "Internal Server Error"
+        detail: "Ukjent feil"
+        instance: "/api/v2/info"
+        timestamp: "2021-01-01T12:00:00.000Z"

@@ -21,9 +21,15 @@ import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.texas.TEXAS_CONFIG
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.TexasClientConfig
+import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.db.initDatabase
+import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
+import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
 import no.naw.paw.minestillinger.db.ops.lagreProfilering
+import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
+import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
+import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -60,7 +66,14 @@ fun main() {
     )
     val dataSource = initDatabase(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val webClients = initWebClient()
-    val brukerprofilTjeneste = BrukerprofilTjeneste(webClients.pdlClient)
+    val brukerprofilTjeneste = BrukerprofilTjeneste(
+        pdlClient = webClients.pdlClient,
+        hentBrukerprofilUtenFlagg = ::hentBrukerProfilUtenFlagg,
+        skrivFlagg = ::skrivFlaggTilDB,
+        hentFlagg = ::lesFlaggFraDB,
+        hentProfilering = ::hentProfileringOrNull,
+        slettAlleSøk = ::slettAlleSoekForBruker,
+    )
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())
     val appContext = ApplicationContext(

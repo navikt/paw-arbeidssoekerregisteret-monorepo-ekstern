@@ -3,12 +3,19 @@ package no.naw.paw.minestillinger
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import no.nav.paw.model.Identitetsnummer
+import no.naw.paw.minestillinger.brukerprofil.kanTilbysTjenesten
+import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
-import no.naw.paw.minestillinger.domain.KanTilbysTjenesten
+import no.naw.paw.minestillinger.domain.ErITestGruppen
+import no.naw.paw.minestillinger.domain.FlaggVerdi
+import no.naw.paw.minestillinger.domain.HarBruktTjenesten
+import no.naw.paw.minestillinger.domain.HarGodeMuligheter
+import no.naw.paw.minestillinger.domain.HarGradertAdresse
+import no.naw.paw.minestillinger.domain.PeriodeId
 import no.naw.paw.minestillinger.domain.Profilering
 import no.naw.paw.minestillinger.domain.ProfileringResultat
 import no.naw.paw.minestillinger.domain.ProfileringResultat.ANTATT_BEHOV_FOR_VEILEDNING
-import no.naw.paw.minestillinger.domain.TjenesteStatus
+import no.naw.paw.minestillinger.domain.ingenFlagg
 import java.time.Instant
 import java.util.UUID
 
@@ -20,15 +27,13 @@ data class TestCase(
     val forventetResultat: Boolean,
 )
 
-val arbeidssoekerperiodeId = UUID.randomUUID()
+val arbeidssoekerperiodeId = PeriodeId(UUID.randomUUID())
 val brukerProfil = BrukerProfil(
-    id = 1L, identitetsnummer = Identitetsnummer("12345678901"),
-    kanTilbysTjenesten = KanTilbysTjenesten.JA,
-    kanTilbysTjenestenTimestamp = Instant.now(),
-    harBruktTjenesten = true,
+    id = BrukerId(1L),
+    identitetsnummer = Identitetsnummer("12345678901"),
     arbeidssoekerperiodeId = arbeidssoekerperiodeId,
-    tjenestestatus = TjenesteStatus.INAKTIV,
-    arbeidssoekerperiodeAvsluttet = null
+    arbeidssoekerperiodeAvsluttet = null,
+    flaggListe = ingenFlagg()
 )
 val profilering = Profilering(
     id = 1L,
@@ -40,50 +45,61 @@ val profilering = Profilering(
 val testCases = listOf(
     TestCase(
         beskrivelse = "Er ikke med i testgruppe. Skal returnere false",
-        brukerProfil = brukerProfil.copy(identitetsnummer = Identitetsnummer("23245678901")),
+        brukerProfil = brukerProfil.medFlagg(
+            ErITestGruppen(false, Instant.now()),
+            HarGodeMuligheter(true, Instant.now()),
+            HarGradertAdresse(false, Instant.now())
+        ),
         profilering = profilering,
         erAdressebeskyttet = { false },
         forventetResultat = false,
     ),
     TestCase(
         beskrivelse = "Alt er fint og flott. Skal returnere true",
-        brukerProfil = brukerProfil,
+        brukerProfil = brukerProfil.medFlagg(
+            HarGodeMuligheter(true, Instant.now()),
+            HarGradertAdresse(false, Instant.now()),
+            ErITestGruppen(true, Instant.now())
+        ),
         profilering = profilering,
         erAdressebeskyttet = { false },
         forventetResultat = true,
     ),
     TestCase(
         beskrivelse = "Alt er flott, men har gradert adresse. Skal returnere false",
-        brukerProfil = brukerProfil,
+        brukerProfil = brukerProfil.medFlagg(
+            HarBruktTjenesten(true, Instant.now()),
+            HarGodeMuligheter(true, Instant.now()),
+            HarGradertAdresse(true, Instant.now()),
+            ErITestGruppen(true, Instant.now())
+        ),
         profilering = profilering,
         erAdressebeskyttet = { true },
         forventetResultat = false,
     ),
     TestCase(
         beskrivelse = "Har brukt tjenesten før har presends over profileringsresultat. Skal returnere true",
-        brukerProfil = brukerProfil.copy(harBruktTjenesten = true),
+        brukerProfil = brukerProfil.medFlagg(
+            HarBruktTjenesten(true, Instant.now()),
+            HarGodeMuligheter(false, Instant.now()),
+            ErITestGruppen(true, Instant.now()),
+        ),
         profilering = profilering.copy(profileringResultat = ANTATT_BEHOV_FOR_VEILEDNING),
         erAdressebeskyttet = { false },
         forventetResultat = true,
-    ),
-    TestCase(
-        beskrivelse = "Har brukt tjenesten før har presends over profileringsresultat. Skal returnere false",
-        brukerProfil = brukerProfil.copy(harBruktTjenesten = false),
-        profilering = profilering.copy(profileringResultat = ANTATT_BEHOV_FOR_VEILEDNING),
-        erAdressebeskyttet = { false },
-        forventetResultat = false,
     )
 )
 
 class KanTilbysTjenestenTest : FreeSpec({
     testCases.forEach { testCase ->
         testCase.beskrivelse {
-            val resultat = kanTilbysTjenesten(
-                brukerProfil = testCase.brukerProfil,
-                profilering = testCase.profilering,
-                harBeskyttetAdresse = testCase.erAdressebeskyttet,
-            )
+            val resultat = kanTilbysTjenesten(testCase.brukerProfil)
             resultat shouldBe testCase.forventetResultat
         }
     }
 })
+
+
+fun BrukerProfil.medFlagg(vararg flaggVerdi: FlaggVerdi): BrukerProfil = this.copy(
+    flaggListe = this.flaggListe.addOrUpdate(*flaggVerdi)
+)

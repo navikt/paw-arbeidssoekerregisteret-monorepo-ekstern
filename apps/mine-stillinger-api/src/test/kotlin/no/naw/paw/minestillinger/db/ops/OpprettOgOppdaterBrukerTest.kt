@@ -37,13 +37,10 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
                 }
             }
             "Vi kan lese bruker fra databasen" {
-                val bruker = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
+                val bruker = hentBrukerProfilUtenFlagg(periode.identitetsnummer.asIdentitetsnummer())
                 bruker.shouldNotBeNull()
                 bruker.identitetsnummer.verdi shouldBe periode.identitetsnummer
                 bruker.arbeidssoekerperiodeId shouldBe periode.id
-                bruker.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
-                bruker.harBruktTjenesten shouldBe false
-                bruker.tjenestestatus shouldBe TjenesteStatus.INAKTIV
                 bruker.arbeidssoekerperiodeAvsluttet.shouldBeNull()
             }
         }
@@ -56,52 +53,11 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
         )
         transaction {
             opprettOgOppdaterBruker(periodeAvsluttet)
-            val brukerFraDb = hentBrukerProfil(periodeAvsluttet.identitetsnummer.asIdentitetsnummer())
+            val brukerFraDb = hentBrukerProfilUtenFlagg(periodeAvsluttet.identitetsnummer.asIdentitetsnummer())
             brukerFraDb.shouldNotBeNull()
             brukerFraDb.identitetsnummer.verdi shouldBe periodeAvsluttet.identitetsnummer
             brukerFraDb.arbeidssoekerperiodeId shouldBe periodeAvsluttet.id
-            brukerFraDb.kanTilbysTjenesten shouldBe KanTilbysTjenesten.UKJENT
             brukerFraDb.arbeidssoekerperiodeAvsluttet shouldBe periodeAvsluttet.avsluttet.tidspunkt
-        }
-    }
-
-    "Sjekk at vi kan oppdatere kanTilbysTjenesten" {
-        transaction {
-            opprettOgOppdaterBruker(periode)
-        }
-        val nå = Instant.now()
-        val kanTilbysTjenesten = KanTilbysTjenesten.JA
-        transaction {
-            val kunneOppdatereBrukerprofil = setKanTilbysTjenesten(
-                identitetsnummer = periode.identitetsnummer.asIdentitetsnummer(),
-                tidspunkt = nå,
-                kanTilbysTjenesten = kanTilbysTjenesten
-            )
-            kunneOppdatereBrukerprofil shouldBe true
-            val brukerFraDb = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
-            brukerFraDb.shouldNotBeNull()
-            brukerFraDb.kanTilbysTjenesten shouldBe kanTilbysTjenesten
-        }
-    }
-
-    "Sjekk at vi kan oppdatere tjenestestatus" {
-        transaction {
-            opprettOgOppdaterBruker(periode)
-        }
-        val brukerprofil = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
-        brukerprofil.shouldNotBeNull()
-        brukerprofil.tjenestestatus shouldBe TjenesteStatus.INAKTIV
-
-        val tjenestestatus = TjenesteStatus.AKTIV
-        transaction {
-            val kunneOppdatereBrukerprofil = setTjenestatus(
-                identitetsnummer = periode.identitetsnummer.asIdentitetsnummer(),
-                nyTjenestestatus = tjenestestatus
-            )
-            kunneOppdatereBrukerprofil shouldBe true
-            val brukerFraDb = hentBrukerProfil(periode.identitetsnummer.asIdentitetsnummer())
-            brukerFraDb.shouldNotBeNull()
-            brukerFraDb.tjenestestatus shouldBe tjenestestatus
         }
     }
 })

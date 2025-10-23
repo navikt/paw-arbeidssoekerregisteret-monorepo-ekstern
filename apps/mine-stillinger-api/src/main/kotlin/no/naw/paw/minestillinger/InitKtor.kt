@@ -27,6 +27,7 @@ import no.nav.paw.health.startupRoute
 import no.nav.paw.security.authentication.config.AuthProvider
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
+import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.kodeverk
 import org.slf4j.event.Level

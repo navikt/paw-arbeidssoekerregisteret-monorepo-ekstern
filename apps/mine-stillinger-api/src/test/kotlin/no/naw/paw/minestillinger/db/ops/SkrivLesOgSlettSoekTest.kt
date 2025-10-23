@@ -6,6 +6,7 @@ import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.minestillinger.db.initDatabase
+import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.Fylke
 import no.naw.paw.minestillinger.domain.Kommune
 import no.naw.paw.minestillinger.domain.stedSoek
@@ -30,7 +31,7 @@ class SkrivLesOgSlettSoekTest : FreeSpec({
             }
         }
         val brukerId = transaction {
-            requireNotNull(hentBrukerProfil(Identitetsnummer(periode.identitetsnummer))) {
+            requireNotNull(hentBrukerProfilUtenFlagg(Identitetsnummer(periode.identitetsnummer))) {
                 "Bruker som skulle ha blitt opprettet i forrige steg finnes ikke"
             }.id
         }

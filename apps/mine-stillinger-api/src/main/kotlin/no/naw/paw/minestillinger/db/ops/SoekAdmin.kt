@@ -3,6 +3,7 @@ package no.naw.paw.minestillinger.db.ops
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.naw.paw.minestillinger.db.SoekTable
+import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.ReiseveiSoek
 import no.naw.paw.minestillinger.domain.StedSoek
@@ -20,9 +21,9 @@ import kotlin.reflect.KClass
 private val soekObjectMapper: ObjectMapper = ObjectMapper()
     .registerKotlinModule()
 
-fun lagreSoek(brukerId: Long, tidspunkt: Instant, soek: Stillingssoek) {
+fun lagreSoek(brukerId: BrukerId, tidspunkt: Instant, soek: Stillingssoek) {
     SoekTable.insert {
-        it[SoekTable.brukerId] = brukerId
+        it[SoekTable.brukerId] = brukerId.verdi
         it[SoekTable.type] = soek.soekType.name
         it[SoekTable.soek] = soekObjectMapper.writeValueAsString(soek)
         it[SoekTable.opprettet] = tidspunkt.truncatedTo(ChronoUnit.MILLIS)
@@ -30,9 +31,9 @@ fun lagreSoek(brukerId: Long, tidspunkt: Instant, soek: Stillingssoek) {
     }
 }
 
-fun hentSoek(brukerId: Long): List<LagretStillingsoek> {
+fun hentSoek(brukerId: BrukerId): List<LagretStillingsoek> {
     return SoekTable.selectAll()
-        .where { SoekTable.brukerId eq brukerId }
+        .where { SoekTable.brukerId eq brukerId.verdi }
         .map { row ->
             val soekeType = StillingssoekType.valueOf(row[SoekTable.type])
             val soek = soekObjectMapper.readValue(row[SoekTable.soek], soekeType.toClass().java)
@@ -51,10 +52,10 @@ fun StillingssoekType.toClass(): KClass<out Stillingssoek> = when (this) {
     StillingssoekType.REISEVEI_SOEK_V1 -> ReiseveiSoek::class
 }
 
-fun slettAlleSoekForBruker(brukerId: Long): Int {
-    return SoekTable.deleteWhere { SoekTable.brukerId eq brukerId }
+fun slettAlleSoekForBruker(brukerId: BrukerId): Int {
+    return SoekTable.deleteWhere { SoekTable.brukerId eq brukerId.verdi }
 }
 
-fun slettSoek(brukerId: Long, soekId: Long): Int {
-    return SoekTable.deleteWhere { (SoekTable.brukerId eq brukerId) and (SoekTable.id eq soekId) }
+fun slettSoek(brukerId: BrukerId, soekId: Long): Int {
+    return SoekTable.deleteWhere { (SoekTable.brukerId eq brukerId.verdi) and (SoekTable.id eq soekId) }
 }

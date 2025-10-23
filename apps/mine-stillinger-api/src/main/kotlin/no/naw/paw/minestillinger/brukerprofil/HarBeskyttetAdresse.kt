@@ -1,4 +1,4 @@
-package no.naw.paw.minestillinger
+package no.naw.paw.minestillinger.brukerprofil
 
 import io.opentelemetry.api.common.AttributeKey.longKey
 import io.opentelemetry.api.common.Attributes

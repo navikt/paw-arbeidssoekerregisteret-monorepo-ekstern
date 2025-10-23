@@ -3,31 +3,28 @@ package no.naw.paw.minestillinger.db.ops
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.model.asIdentitetsnummer
 import no.naw.paw.minestillinger.db.BrukerTable
-import no.naw.paw.minestillinger.domain.BrukerProfil
-import no.naw.paw.minestillinger.domain.KanTilbysTjenesten
-import no.naw.paw.minestillinger.domain.TjenesteStatus
+import no.naw.paw.minestillinger.domain.BrukerId
+import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
+import no.naw.paw.minestillinger.domain.PeriodeId
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-fun hentBrukerProfil(identitetsnummer: Identitetsnummer): BrukerProfil? =
+fun hentBrukerProfilUtenFlagg(identitetsnummer: Identitetsnummer): BrukerProfilerUtenFlagg? =
     transaction {
         BrukerTable.selectAll().where {
             BrukerTable.identitetsnummer eq identitetsnummer.verdi
         }
-            .map(::brukerprofil)
+            .map(::brukerprofilUtenFlagg)
             .firstOrNull()
     }
 
-fun brukerprofil(row: ResultRow): BrukerProfil =
-    BrukerProfil(
-        id = row[BrukerTable.id],
+fun brukerprofilUtenFlagg(row: ResultRow): BrukerProfilerUtenFlagg {
+    return BrukerProfilerUtenFlagg(
+        id = BrukerId(row[BrukerTable.id]),
         identitetsnummer = row[BrukerTable.identitetsnummer].asIdentitetsnummer(),
-        harBruktTjenesten = row[BrukerTable.harBruktTjenesten],
-        arbeidssoekerperiodeId = row[BrukerTable.arbeidssoekerperiodeId],
-        kanTilbysTjenesten = KanTilbysTjenesten.valueOf(row[BrukerTable.kanTilbysTjenesten]),
-        kanTilbysTjenestenTimestamp = row[BrukerTable.kanTilbysTjenestenTimestamp],
-        tjenestestatus = row[BrukerTable.tjenestestatus].let { TjenesteStatus.valueOf(it) },
+        arbeidssoekerperiodeId = PeriodeId(row[BrukerTable.arbeidssoekerperiodeId]),
         arbeidssoekerperiodeAvsluttet = row[BrukerTable.arbeidssoekerperiodeAvsluttet]
     )
+}

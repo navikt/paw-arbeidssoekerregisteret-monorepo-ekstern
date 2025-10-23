@@ -1,11 +1,7 @@
 create table bruker
 (
     id                             bigserial primary key,
-    identitetsnummer               varchar(11)  not null,
-    kan_tilbys_tjenesten           varchar(10)  not null,
-    kan_tilbys_tjenesten_timestamp timestamp(3) not null,
-    har_brukt_tjenesten            boolean      not null,
-    tjenestestatus                 varchar(20)  not null,
+    identitetsnummer               varchar(11) not null,
     arbeidssoekerperiode_id        UUID,
     arbeidssoekerperiode_avsluttet timestamp(3),
     unique (identitetsnummer),
@@ -22,3 +18,13 @@ create table profilering
     unique (periode_id),
     unique (profilering_tidspunkt)
 );
+
+create table bruker_flagg
+(
+    id        bigserial primary key,
+    bruker_id bigint       not null references bruker (id) on delete cascade,
+    navn      varchar(100) not null,
+    verdi     boolean      not null,
+    tidspunkt timestamp(3) not null,
+    unique (bruker_id, navn)
+)

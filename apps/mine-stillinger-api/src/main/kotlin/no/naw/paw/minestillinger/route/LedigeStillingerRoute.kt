@@ -4,6 +4,7 @@ import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
@@ -13,11 +14,14 @@ import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.SortOrder
 import no.naw.paw.minestillinger.FinnStillingerClient
 import no.naw.paw.minestillinger.api.JobbAnnonse
-import no.naw.paw.minestillinger.db.ops.hentBrukerProfil
 import no.naw.paw.minestillinger.db.ops.hentSoek
+import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.StedSoek
 
-fun Route.ledigeStillingerRoute(ledigeStillingerClient: FinnStillingerClient) {
+fun Route.ledigeStillingerRoute(
+    ledigeStillingerClient: FinnStillingerClient,
+    hentBrukerId: (Identitetsnummer) -> BrukerId?
+) {
     route("/api/v1/ledigestillinger") {
         autentisering(TokenX) {
             get {
@@ -25,8 +29,8 @@ fun Route.ledigeStillingerRoute(ledigeStillingerClient: FinnStillingerClient) {
                     .hentSluttbrukerEllerNull()
                     ?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-                val profil = hentBrukerProfil(identitetsnummer)
-                val soek = profil?.let { profil -> hentSoek(profil.id) }
+                val brukerId = hentBrukerId(identitetsnummer)
+                val soek = brukerId?.let { id -> hentSoek(id) }
                     ?.firstOrNull { it.soek is StedSoek}
                 val request = soek?.let { stedSøk ->
                     val søk = stedSøk.soek as StedSoek

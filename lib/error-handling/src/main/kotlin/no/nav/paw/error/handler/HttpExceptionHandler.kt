@@ -9,6 +9,7 @@ import io.ktor.server.request.RequestAlreadyConsumedException
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import no.nav.paw.error.exception.ClientResponseException
+import no.nav.paw.error.exception.ProblemDetailsException
 import no.nav.paw.error.exception.ServerResponseException
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.ProblemDetailsBuilder
@@ -96,7 +97,7 @@ fun resolveProblemDetails(
                 .instance(request.uri)
                 .build()
         }
-
+        is ProblemDetailsException -> return throwable.details
         else -> {
             return ProblemDetailsBuilder.builder()
                 .detail("Forespørsel feilet med ukjent feil")

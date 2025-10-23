@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class Profilering(
     val id: Long,
-    val periodeId: UUID,
+    val periodeId: PeriodeId,
     val profileringId: UUID,
     val profileringTidspunkt: Instant,
     val profileringResultat: ProfileringResultat

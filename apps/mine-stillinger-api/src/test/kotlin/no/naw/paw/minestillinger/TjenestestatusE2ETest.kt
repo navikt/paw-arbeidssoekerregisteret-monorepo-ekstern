@@ -1,7 +1,9 @@
 package no.naw.paw.minestillinger
 
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.put
 import io.ktor.http.ContentType.Application
@@ -11,21 +13,35 @@ import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.mockk
+import no.nav.paw.error.plugin.ErrorHandlingPlugin
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
+import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
+import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
+import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
+import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
-import no.naw.paw.minestillinger.db.ops.setTjenestatus
+import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
+import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
+import no.naw.paw.minestillinger.domain.ErITestGruppen
+import no.naw.paw.minestillinger.domain.FlaggListe
+import no.naw.paw.minestillinger.domain.HarGodeMuligheter
+import no.naw.paw.minestillinger.domain.HarGradertAdresse
+import no.naw.paw.minestillinger.domain.OptOut
 import no.naw.paw.minestillinger.domain.TjenesteStatus
+import no.naw.paw.minestillinger.domain.TjenestenErAktiv
+import no.naw.paw.minestillinger.domain.flaggListeOf
 import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Instant.now
 
 data class TjenestestatusTestCase(
     val identitetsnummer: Identitetsnummer,
@@ -35,7 +51,7 @@ data class TjenestestatusTestCase(
 ) {
     override fun toString() =
         "Endring av tjenestestatus fra $gjeldendeTjenestestatus til $nyTjenesteStatus " +
-                "for bruker $identitetsnummer forventer HTTP status $forventetHttpStatusKode"
+                "for bruker ${identitetsnummer.verdi} forventer HTTP status $forventetHttpStatusKode"
 }
 
 val testcases = listOf(
@@ -46,25 +62,25 @@ val testcases = listOf(
         forventetHttpStatusKode = HttpStatusCode.NoContent,
     ),
     TjenestestatusTestCase(
-        identitetsnummer = Identitetsnummer("12345678901"),
+        identitetsnummer = Identitetsnummer("12345678902"),
         gjeldendeTjenestestatus = TjenesteStatus.INAKTIV,
         nyTjenesteStatus = ApiTjenesteStatus.AKTIV,
         forventetHttpStatusKode = HttpStatusCode.NoContent,
     ),
     TjenestestatusTestCase(
-        identitetsnummer = Identitetsnummer("12345678901"),
+        identitetsnummer = Identitetsnummer("12345678903"),
         gjeldendeTjenestestatus = TjenesteStatus.AKTIV,
         nyTjenesteStatus = ApiTjenesteStatus.OPT_OUT,
         forventetHttpStatusKode = HttpStatusCode.NoContent,
     ),
     TjenestestatusTestCase(
-        identitetsnummer = Identitetsnummer("12345678902"),
+        identitetsnummer = Identitetsnummer("12345678904"),
         gjeldendeTjenestestatus = TjenesteStatus.KAN_IKKE_LEVERES,
         nyTjenesteStatus = ApiTjenesteStatus.AKTIV,
         forventetHttpStatusKode = HttpStatusCode.Forbidden,
     ),
     TjenestestatusTestCase(
-        identitetsnummer = Identitetsnummer("12345678902"),
+        identitetsnummer = Identitetsnummer("12345678905"),
         gjeldendeTjenestestatus = TjenesteStatus.KAN_IKKE_LEVERES,
         nyTjenesteStatus = ApiTjenesteStatus.INAKTIV,
         forventetHttpStatusKode = HttpStatusCode.Forbidden,
@@ -82,15 +98,51 @@ class TjenestestatusE2ETest : FreeSpec({
     }
     afterSpec { oauthServer.shutdown() }
     val pdlClient: PdlClient = mockk()
-    val brukerprofilTjeneste = BrukerprofilTjeneste(pdlClient)
+    val brukerprofilTjeneste = BrukerprofilTjeneste(
+        pdlClient = pdlClient,
+        hentBrukerprofilUtenFlagg = ::hentBrukerProfilUtenFlagg,
+        skrivFlagg = ::skrivFlaggTilDB,
+        hentFlagg = ::lesFlaggFraDB,
+        hentProfilering = ::hentProfileringOrNull,
+        slettAlleSøk = ::slettAlleSoekForBruker
+    )
 
     testcases.forEach { testcase ->
         transaction {
             opprettOgOppdaterBruker(PeriodeFactory.create().build(identitetsnummer = testcase.identitetsnummer.verdi))
-            setTjenestatus(
-                identitetsnummer = testcase.identitetsnummer,
-                nyTjenestestatus = testcase.gjeldendeTjenestestatus,
-            )
+            val brukerId = brukerprofilTjeneste.hentBrukerprofilUtenFlagg(testcase.identitetsnummer)?.id!!
+            when (testcase.gjeldendeTjenestestatus) {
+                TjenesteStatus.AKTIV -> skrivFlaggTilDB(
+                    brukerId, flaggListeOf(
+                        TjenestenErAktiv(true, now()),
+                        HarGodeMuligheter(true, now()),
+                        HarGradertAdresse(false, now())
+                    )
+                )
+                TjenesteStatus.INAKTIV -> skrivFlaggTilDB(
+                    brukerId, flaggListeOf(
+                        TjenestenErAktiv(false, now()),
+                        HarGodeMuligheter(true, now()),
+                        HarGradertAdresse(false, now()),
+                        ErITestGruppen(true, now())
+                    )
+                )
+                TjenesteStatus.OPT_OUT -> skrivFlaggTilDB(
+                    brukerId, flaggListeOf(
+                        TjenestenErAktiv(false, now()),
+                        HarGodeMuligheter(true, now()),
+                        OptOut(true, now()),
+                        HarGradertAdresse(false, now())
+                    )
+                )
+                TjenesteStatus.KAN_IKKE_LEVERES -> skrivFlaggTilDB(
+                    brukerId, flaggListeOf(
+                        TjenestenErAktiv(false, now()),
+                        HarGodeMuligheter(true, now()),
+                        HarGradertAdresse(true, now())
+                    )
+                )
+            }
         }
 
         "$testcase" {
@@ -104,12 +156,15 @@ class TjenestestatusE2ETest : FreeSpec({
                 }
                 routing { brukerprofilRoute(brukerprofilTjeneste) }
 
-                val response = testClient().put("${BRUKERPROFIL_PATH}/tjenestestatus/${testcase.nyTjenesteStatus.name}") {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = testcase.identitetsnummer))
-                    contentType(Application.Json)
-                }
+                val response =
+                    testClient().put("${BRUKERPROFIL_PATH}/tjenestestatus/${testcase.nyTjenesteStatus.name}") {
+                        bearerAuth(oauthServer.sluttbrukerToken(id = testcase.identitetsnummer))
+                        contentType(Application.Json)
+                    }
                 response.validateAgainstOpenApiSpec()
-                response.status shouldBe testcase.forventetHttpStatusKode
+                withClue(response.body<String>()) {
+                    response.status shouldBe testcase.forventetHttpStatusKode
+                }
             }
         }
     }

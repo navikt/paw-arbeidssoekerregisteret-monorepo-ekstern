@@ -6,6 +6,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.paw.test.data.periode.createProfilering
 import no.naw.paw.minestillinger.db.initDatabase
+import no.naw.paw.minestillinger.domain.PeriodeId
 import no.naw.paw.minestillinger.domain.interntFormat
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -26,7 +27,7 @@ class LagreOgHentProfileringTest : FreeSpec({
             }
         }
         "Vi kan hente profilering ${profilering.id} for periode ${profilering.periodeId} fra databasen" {
-            hentProfileringOrNull(profilering.periodeId) should { profileringFraDb ->
+            hentProfileringOrNull(PeriodeId(profilering.periodeId)) should { profileringFraDb ->
                 profileringFraDb.shouldNotBeNull()
                 profileringFraDb.profileringId shouldBe profilering.id
                 profileringFraDb.periodeId shouldBe profilering.periodeId
@@ -35,7 +36,7 @@ class LagreOgHentProfileringTest : FreeSpec({
             }
         }
         "Vi får null når vi prøver å hente profilering med ukjent periodeId" {
-            hentProfileringOrNull(UUID.randomUUID()) shouldBe null
+            hentProfileringOrNull(PeriodeId(UUID.randomUUID())) shouldBe null
         }
     }
 })
