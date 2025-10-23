@@ -127,7 +127,7 @@ components:
         stillingsprosent:
           "$ref": "#/components/schemas/Stillingsprosent"
         stillingsantall:
-          "$ref": "#/components/schemas/Antall"
+          type: integer
         sektor:
           "$ref": "#/components/schemas/Sektor"
         soeknadsfrist:
@@ -155,7 +155,6 @@ components:
         - tittel
         - status
         - stillingsprosent
-        - stillingsantall
         - sektor
         - soeknadsfrist
         - oppstartsfrist
@@ -273,26 +272,6 @@ components:
       required:
         - key
         - value
-    Antall:
-      type: object
-      properties:
-        verdi:
-          type: string
-          description: "Tekst fra datasettet for egenskapen"
-          example: "Her kan det stå hva som helst dersom type er UKJENT"
-        type:
-          $ref: "#/components/schemas/AntallType"
-        antall:
-          type: integer
-          example: 1
-          description: "Antall, bare med dersom 'type' er ANTALL"
-      required:
-        - type
-    AntallType:
-      type: string
-      enum:
-        - ANTALL
-        - UKJENT
     Frist:
       type: object
       properties:
@@ -314,6 +293,7 @@ components:
       enum:
         - DATO
         - SNAREST
+        - FORTLOEPENDE
         - UKJENT
     Stillingsprosent:
       type: string

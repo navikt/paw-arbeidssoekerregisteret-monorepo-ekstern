@@ -52,7 +52,7 @@ data class Stilling(
     val ansettelsesform: String? = null,
 
     @get:JsonProperty("stillingsantall")
-    val stillingsantall: Antall,
+    val stillingsantall: Int? = null,
 
     @get:JsonProperty("utloeper")
     val utloeper: Instant? = null

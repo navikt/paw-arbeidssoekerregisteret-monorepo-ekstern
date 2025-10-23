@@ -6,8 +6,6 @@ import no.nav.pam.stilling.ext.avro.Company
 import no.nav.pam.stilling.ext.avro.Location
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.pam.stilling.ext.avro.StyrkCategory
-import no.nav.paw.ledigestillinger.api.models.Antall
-import no.nav.paw.ledigestillinger.api.models.AntallType
 import no.nav.paw.ledigestillinger.api.models.Arbeidsgiver
 import no.nav.paw.ledigestillinger.api.models.Egenskap
 import no.nav.paw.ledigestillinger.api.models.Frist
@@ -36,7 +34,7 @@ fun StillingRow.asDto(): Stilling = Stilling(
     stillingstittel = stillingstittel,
     ansettelsesform = ansettelsesform,
     stillingsprosent = stillingsprosent?.asStillingsprosent() ?: Stillingsprosent.UKJENT,
-    stillingsantall = stillingsantall?.asAntall() ?: Antall(type = AntallType.UKJENT, verdi = stillingsantall),
+    stillingsantall = stillingsantall?.asAntall(),
     sektor = sektor?.asSektor() ?: Sektor.UKJENT,
     soeknadsfrist = soeknadsfrist?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = soeknadsfrist),
     oppstartsfrist = oppstartsfrist?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = oppstartsfrist),
@@ -60,9 +58,9 @@ fun String.asStillingsprosent(): Stillingsprosent = when {
     else -> Stillingsprosent.UKJENT
 }
 
-fun String.asAntall(): Antall = when {
-    this.trim().matches(Regex("[0-9]+")) -> Antall(type = AntallType.ANTALL, this, this.toInt())
-    else -> Antall(type = AntallType.UKJENT, verdi = this)
+fun String.asAntall(): Int? = when {
+    this.trim().matches(Regex("[0-9]+")) -> this.toInt()
+    else -> null
 }
 
 fun String.asSektor(): Sektor = when {
@@ -99,16 +97,31 @@ fun EgenskapRow.asDto(): Egenskap = Egenskap(
 )
 
 fun String.asFrist(): Frist = when {
-    this.lowercase().contains("snar") -> Frist(
+    this.lowercase().matches(Regex(".*(snart|snarest).*")) -> Frist(
         verdi = this,
         type = FristType.SNAREST
     )
 
-    this.matches(Regex("^[0-9]+.*")) -> Frist(
+    this.lowercase().matches(Regex(".*(fortløpende).*")) -> Frist(
         verdi = this,
-        type = FristType.DATO,
-        dato = this.fromUnformattedString()
+        type = FristType.FORTLOEPENDE
     )
+
+    this.trim().matches(Regex("[0-9]+.*")) -> {
+        val dato = this.trim().fromUnformattedString()
+        if (dato == null) {
+            Frist(
+                verdi = this,
+                type = FristType.UKJENT
+            )
+        } else {
+            Frist(
+                verdi = this,
+                type = FristType.DATO,
+                dato = this.trim().fromUnformattedString()
+            )
+        }
+    }
 
     else -> Frist(
         verdi = this,
@@ -133,7 +146,7 @@ fun Ad.asDto(): Stilling {
         stillingstittel = jobtitle,
         ansettelsesform = engagementtype,
         stillingsprosent = extent?.asStillingsprosent() ?: Stillingsprosent.UKJENT,
-        stillingsantall = positioncount?.asAntall() ?: Antall(type = AntallType.UKJENT, verdi = positioncount),
+        stillingsantall = positioncount?.asAntall(),
         sektor = this.properties?.find { it.key == "sector" }?.value?.asSektor() ?: Sektor.UKJENT,
         soeknadsfrist = applicationdue?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = applicationdue),
         oppstartsfrist = starttime?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = starttime),
