@@ -5,6 +5,7 @@ import io.ktor.server.plugins.NotFoundException
 import no.nav.paw.model.Identitetsnummer
 import no.naw.paw.minestillinger.api.ApiStillingssoek
 import no.naw.paw.minestillinger.api.domain
+import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.Stillingssoek
@@ -12,6 +13,16 @@ import no.naw.paw.minestillinger.domain.api
 import no.naw.paw.minestillinger.domain.toTjenesteStatus
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 
+suspend fun BrukerprofilTjeneste.hentBrukerprofil(
+    hentSøk: (BrukerId) -> List<Stillingssoek>,
+    identitetsnummer: Identitetsnummer
+): ApiBrukerprofil {
+    return suspendedTransactionAsync {
+        val brukerprofil = hentBrukerProfil(identitetsnummer) ?: brukerIkkeFunnet()
+        val søk = hentSøk(brukerprofil.id).map { søk -> søk.api() }
+        brukerprofil.api().copy(stillingssoek = søk)
+    }.await()
+}
 
 suspend fun BrukerprofilTjeneste.setTjenestatestatus(
     identitetsnummer: Identitetsnummer,

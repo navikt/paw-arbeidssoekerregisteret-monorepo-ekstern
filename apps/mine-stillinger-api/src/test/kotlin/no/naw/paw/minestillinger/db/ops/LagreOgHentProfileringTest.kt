@@ -30,7 +30,7 @@ class LagreOgHentProfileringTest : FreeSpec({
             hentProfileringOrNull(PeriodeId(profilering.periodeId)) should { profileringFraDb ->
                 profileringFraDb.shouldNotBeNull()
                 profileringFraDb.profileringId shouldBe profilering.id
-                profileringFraDb.periodeId shouldBe profilering.periodeId
+                profileringFraDb.periodeId.verdi shouldBe profilering.periodeId
                 profileringFraDb.profileringTidspunkt shouldBe profilering.sendtInnAv.tidspunkt
                 profileringFraDb.profileringResultat shouldBe profilering.profilertTil.interntFormat()
             }

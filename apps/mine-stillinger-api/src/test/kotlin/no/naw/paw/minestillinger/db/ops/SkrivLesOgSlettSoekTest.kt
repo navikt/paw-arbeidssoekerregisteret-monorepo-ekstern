@@ -74,7 +74,7 @@ class SkrivLesOgSlettSoekTest : FreeSpec({
                 }
                 hentetSoek.size shouldBe 1
                 val lagretSoek = hentetSoek[0]
-                lagretSoek.brukerId shouldBe brukerId
+                lagretSoek.brukerId shouldBe brukerId.verdi
                 lagretSoek.opprettet shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
                 lagretSoek.soek shouldBe soek
             }

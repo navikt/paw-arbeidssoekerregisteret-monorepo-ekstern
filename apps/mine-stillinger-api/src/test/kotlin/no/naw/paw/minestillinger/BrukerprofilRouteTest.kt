@@ -30,6 +30,7 @@ import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.db.initDatabase
+import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
 import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
 import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
@@ -80,7 +81,10 @@ class BrukerprofilRouteTest : FreeSpec({
             }
             mockkStatic(PdlClient::harBeskyttetAdresse)
             coEvery { pdlClient.harBeskyttetAdresse(Identitetsnummer(periode.identitetsnummer)) } returns false
-            routing { brukerprofilRoute(brukerprofilTjeneste) }
+            routing { brukerprofilRoute(
+                brukerprofilTjeneste = brukerprofilTjeneste,
+                søkeAdminOps = ExposedSøkAdminOps
+            ) }
 
             val testIdent = Identitetsnummer(periode.identitetsnummer)
 
@@ -121,7 +125,10 @@ class BrukerprofilRouteTest : FreeSpec({
                     authProviders = listOf(oauthServer.tokenXAuthProvider)
                 )
             }
-            routing { brukerprofilRoute(brukerprofilTjeneste) }
+            routing { brukerprofilRoute(
+                brukerprofilTjeneste = brukerprofilTjeneste,
+                søkeAdminOps = ExposedSøkAdminOps
+            ) }
             val response = testClient().put("$BRUKERPROFIL_PATH/stillingssoek") {
                 bearerAuth(oauthServer.sluttbrukerToken(id = Identitetsnummer(periode.identitetsnummer)))
                 contentType(Application.Json)

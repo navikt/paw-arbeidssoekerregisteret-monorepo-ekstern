@@ -40,7 +40,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
                 val bruker = hentBrukerProfilUtenFlagg(periode.identitetsnummer.asIdentitetsnummer())
                 bruker.shouldNotBeNull()
                 bruker.identitetsnummer.verdi shouldBe periode.identitetsnummer
-                bruker.arbeidssoekerperiodeId shouldBe periode.id
+                bruker.arbeidssoekerperiodeId.verdi shouldBe periode.id
                 bruker.arbeidssoekerperiodeAvsluttet.shouldBeNull()
             }
         }
@@ -56,7 +56,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             val brukerFraDb = hentBrukerProfilUtenFlagg(periodeAvsluttet.identitetsnummer.asIdentitetsnummer())
             brukerFraDb.shouldNotBeNull()
             brukerFraDb.identitetsnummer.verdi shouldBe periodeAvsluttet.identitetsnummer
-            brukerFraDb.arbeidssoekerperiodeId shouldBe periodeAvsluttet.id
+            brukerFraDb.arbeidssoekerperiodeId.verdi shouldBe periodeAvsluttet.id
             brukerFraDb.arbeidssoekerperiodeAvsluttet shouldBe periodeAvsluttet.avsluttet.tidspunkt
         }
     }

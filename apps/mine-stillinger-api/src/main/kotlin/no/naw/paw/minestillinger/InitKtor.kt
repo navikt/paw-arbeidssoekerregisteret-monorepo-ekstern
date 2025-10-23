@@ -28,6 +28,7 @@ import no.nav.paw.security.authentication.config.AuthProvider
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.kodeverk
 import org.slf4j.event.Level
@@ -52,7 +53,10 @@ fun <A> initEmbeddedKtorServer(
             livenessRoute(healthIndicator)
             readinessRoute(healthIndicator)
             startupRoute(healthIndicator)
-            brukerprofilRoute(brukerprofilTjeneste)
+            brukerprofilRoute(
+                brukerprofilTjeneste = brukerprofilTjeneste,
+                søkeAdminOps = ExposedSøkAdminOps
+            )
             kodeverk()
             swaggerUI("/docs/api", "openapi/openapi-spec.yaml")
             get("/internal/metrics") {

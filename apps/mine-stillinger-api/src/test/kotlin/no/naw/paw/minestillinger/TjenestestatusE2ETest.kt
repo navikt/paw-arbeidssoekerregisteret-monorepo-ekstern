@@ -13,9 +13,11 @@ import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.mockk
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.PeriodeFactory
+import no.nav.paw.test.data.periode.createProfilering
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
@@ -35,6 +37,9 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlag
 import no.naw.paw.minestillinger.domain.TjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.flaggListeOf
+import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
+import no.naw.paw.minestillinger.db.ops.lagreProfilering
+import no.naw.paw.minestillinger.domain.ProfileringResultat
 import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -46,6 +51,7 @@ data class TjenestestatusTestCase(
     val gjeldendeTjenestestatus: TjenesteStatus,
     val nyTjenesteStatus: ApiTjenesteStatus,
     val forventetHttpStatusKode: HttpStatusCode,
+    val profilertTil: ProfileringResultat? = ProfileringResultat.ANTATT_GODE_MULIGHETER
 ) {
     override fun toString() =
         "Endring av tjenestestatus fra $gjeldendeTjenestestatus til $nyTjenesteStatus " +
@@ -108,7 +114,16 @@ class TjenestestatusE2ETest : FreeSpec({
     testcases.forEach { testcase ->
         transaction {
             opprettOgOppdaterBruker(PeriodeFactory.create().build(identitetsnummer = testcase.identitetsnummer.verdi))
-            val brukerId = brukerprofilTjeneste.hentBrukerprofilUtenFlagg(testcase.identitetsnummer)?.id!!
+            val profil = brukerprofilTjeneste.hentBrukerprofilUtenFlagg(testcase.identitetsnummer)!!
+            val brukerId = profil.id
+            if (testcase.profilertTil == ProfileringResultat.ANTATT_GODE_MULIGHETER) {
+                lagreProfilering(
+                    createProfilering(
+                        periodeId = profil.arbeidssoekerperiodeId.verdi,
+                        profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+                    )
+                )
+            }
             when (testcase.gjeldendeTjenestestatus) {
                 TjenesteStatus.AKTIV -> skrivFlaggTilDB(
                     brukerId, flaggListeOf(
@@ -117,14 +132,15 @@ class TjenestestatusE2ETest : FreeSpec({
                         HarGradertAdresseFlagg(false, now())
                     )
                 )
+
                 TjenesteStatus.INAKTIV -> skrivFlaggTilDB(
                     brukerId, flaggListeOf(
                         TjenestenErAktivFlagg(false, now()),
-                        HarGodeMuligheterFlagg(true, now()),
                         HarGradertAdresseFlagg(false, now()),
                         ErITestGruppenFlagg(true, now())
                     )
                 )
+
                 TjenesteStatus.OPT_OUT -> skrivFlaggTilDB(
                     brukerId, flaggListeOf(
                         TjenestenErAktivFlagg(false, now()),
@@ -133,6 +149,7 @@ class TjenestestatusE2ETest : FreeSpec({
                         HarGradertAdresseFlagg(false, now())
                     )
                 )
+
                 TjenesteStatus.KAN_IKKE_LEVERES -> skrivFlaggTilDB(
                     brukerId, flaggListeOf(
                         TjenestenErAktivFlagg(false, now()),
@@ -152,7 +169,12 @@ class TjenestestatusE2ETest : FreeSpec({
                         authProviders = listOf(oauthServer.tokenXAuthProvider)
                     )
                 }
-                routing { brukerprofilRoute(brukerprofilTjeneste) }
+                routing {
+                    brukerprofilRoute(
+                        brukerprofilTjeneste = brukerprofilTjeneste,
+                        søkeAdminOps = ExposedSøkAdminOps
+                    )
+                }
 
                 val response =
                     testClient().put("${BRUKERPROFIL_PATH}/tjenestestatus/${testcase.nyTjenesteStatus.name}") {
