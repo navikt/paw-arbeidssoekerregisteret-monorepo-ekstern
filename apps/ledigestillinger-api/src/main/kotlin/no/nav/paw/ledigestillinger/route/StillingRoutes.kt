@@ -8,6 +8,7 @@ import io.ktor.server.routing.route
 import no.nav.paw.ledigestillinger.api.models.FinnStillingerRequest
 import no.nav.paw.ledigestillinger.api.models.FinnStillingerResponse
 import no.nav.paw.ledigestillinger.api.models.Stilling
+import no.nav.paw.ledigestillinger.exception.MalformedRequestException
 import no.nav.paw.ledigestillinger.exception.RequestParamMissingException
 import no.nav.paw.ledigestillinger.service.StillingService
 import no.nav.paw.security.authentication.model.TokenX
@@ -27,6 +28,7 @@ fun Route.stillingRoutes(
             }
             post<FinnStillingerRequest> { request ->
                 request.verify()
+
                 val stillinger = stillingService.finnStillinger(
                     soekeord = request.soekeord,
                     kategorier = request.kategorier,
@@ -40,6 +42,6 @@ fun Route.stillingRoutes(
 }
 
 private fun FinnStillingerRequest.verify() {
-    if (paging.page < 1) throw RequestParamMissingException("Page må være et positivt tall")
-    if (paging.pageSize < 1) throw RequestParamMissingException("Page size må være et positivt tall")
+    if (paging.page < 1) throw MalformedRequestException("Page må være et positivt tall")
+    if (paging.pageSize < 1) throw MalformedRequestException("Page size må være et positivt tall")
 }

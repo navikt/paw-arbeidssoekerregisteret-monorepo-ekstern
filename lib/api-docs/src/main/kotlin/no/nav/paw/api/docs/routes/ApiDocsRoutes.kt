@@ -4,7 +4,7 @@ import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.routing.Route
 
 fun Route.apiDocsRoutes(
-    path: String = "docs",
+    path: String = "api/docs",
     swaggerFile: String = "openapi/documentation.yaml"
 ) {
     swaggerUI(path, swaggerFile)
