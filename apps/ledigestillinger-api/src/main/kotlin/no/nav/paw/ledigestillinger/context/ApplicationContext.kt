@@ -60,5 +60,5 @@ data class ApplicationContext(
         ).also { healthCheckList.add(it) }
     }
 
-    fun createHealthChecks(): HealthChecks = healthChecksOf(*healthCheckList.toTypedArray())
+    val healthChecks get(): HealthChecks = healthChecksOf(*healthCheckList.toTypedArray())
 }

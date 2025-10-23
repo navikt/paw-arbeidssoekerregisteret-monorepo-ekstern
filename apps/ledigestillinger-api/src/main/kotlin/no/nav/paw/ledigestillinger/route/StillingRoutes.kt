@@ -25,7 +25,7 @@ fun Route.stillingRoutes(
                 val stilling = stillingService.hentStilling(uuid)
                 call.respond<Stilling>(stilling)
             }
-            post<FinnStillingerRequest>("/") { request ->
+            post<FinnStillingerRequest> { request ->
                 request.verify()
                 val stillinger = stillingService.finnStillinger(
                     soekeord = request.soekeord,
@@ -40,6 +40,6 @@ fun Route.stillingRoutes(
 }
 
 private fun FinnStillingerRequest.verify() {
-    if (paging.page < 1) throw RequestParamMissingException("Negativt page-nummer")
-    if (paging.pageSize < 1) throw RequestParamMissingException("Negativt page-size-nummer")
+    if (paging.page < 1) throw RequestParamMissingException("Page må være et positivt tall")
+    if (paging.pageSize < 1) throw RequestParamMissingException("Page size må være et positivt tall")
 }

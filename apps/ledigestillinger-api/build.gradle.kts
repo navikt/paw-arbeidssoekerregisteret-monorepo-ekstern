@@ -69,12 +69,15 @@ dependencies {
     implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Test
+    testImplementation(project(":test:test-data-factory"))
     testImplementation(libs.atlassian.oai.swaggerRequestValidator.core)
     testImplementation(libs.ktor.server.test.host)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.nav.security.mock.oauth2.server)
     testImplementation(libs.testcontainers.postgresql)
-    testImplementation(project(":test:test-data-factory"))
 }
 
 java {

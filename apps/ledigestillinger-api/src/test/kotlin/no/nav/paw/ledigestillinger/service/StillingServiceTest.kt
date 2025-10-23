@@ -20,7 +20,7 @@ class StillingServiceTest : FreeSpec({
             tearDown()
         }
 
-        "Skal motta stillinger fra kafka og lagre dem i databasen" {
+        "Skal motta stillinger fra Kafka og lagre dem i databasen" {
             // GIVEN
             val message = TestData.message()
 

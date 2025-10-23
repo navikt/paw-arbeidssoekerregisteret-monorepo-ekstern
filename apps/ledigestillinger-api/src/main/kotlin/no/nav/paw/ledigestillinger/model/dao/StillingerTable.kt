@@ -1,5 +1,6 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.api.models.Fylke
 import no.nav.paw.ledigestillinger.api.models.Paging
 import no.nav.paw.ledigestillinger.model.StillingStatus
 import no.nav.paw.ledigestillinger.model.VisningGrad
@@ -61,25 +62,28 @@ fun StillingerTable.selectRowByUUID(
     .singleOrNull()
 
 fun StillingerTable.selectRowsByKategorierAndFylker(
-    soekeord: Collection<String>, // TODO Benytt søkeord
-    kategorier: Collection<String>,
-    fylker: Collection<String>,
+    soekeord: Collection<String>, // TODO Benytt søkeord?
+    kategorier: Collection<String>, // TODO Hva om ingen kategorier?
+    fylker: Collection<Fylke>, // TODO Hva om ingen fylker?
     paging: Paging = Paging()
-): List<StillingRow> = join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
-    .join(LokasjonerTable, JoinType.LEFT, StillingerTable.id, LokasjonerTable.parentId)
-    .selectAll()
-    .where { (KategorierTable.kode inList kategorier) and (LokasjonerTable.fylke inList fylker) }
-    .orderBy(StillingerTable.id, paging.order())
-    .limit(paging.size()).offset(paging.offset())
-    .map {
-        it.asStillingRow(
-            arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
-            kategorier = KategorierTable::selectRowsByParentId,
-            klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
-            lokasjoner = LokasjonerTable::selectRowsByParentId,
-            egenskaper = EgenskaperTable::selectRowsByParentId
-        )
-    }
+): List<StillingRow> {
+    val fylkesnummer = fylker.mapNotNull { it.fylkesnummer }
+    return join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
+        .join(LokasjonerTable, JoinType.LEFT, StillingerTable.id, LokasjonerTable.parentId)
+        .selectAll()
+        .where { (KategorierTable.normalisertKode inList kategorier) and (LokasjonerTable.fylkeskode inList fylkesnummer) }
+        .orderBy(StillingerTable.id, paging.order())
+        .limit(paging.size()).offset(paging.offset())
+        .map {
+            it.asStillingRow(
+                arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
+                kategorier = KategorierTable::selectRowsByParentId,
+                klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
+                lokasjoner = LokasjonerTable::selectRowsByParentId,
+                egenskaper = EgenskaperTable::selectRowsByParentId
+            )
+        }
+}
 
 fun StillingerTable.insert(
     row: StillingRow

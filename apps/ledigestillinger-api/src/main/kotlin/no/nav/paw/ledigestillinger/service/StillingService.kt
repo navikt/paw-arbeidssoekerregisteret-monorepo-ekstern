@@ -17,6 +17,7 @@ import no.nav.paw.ledigestillinger.model.dao.EgenskaperTable
 import no.nav.paw.ledigestillinger.model.dao.KategorierTable
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
 import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
+import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.model.dao.insert
 import no.nav.paw.ledigestillinger.model.dao.selectIdByUUID
@@ -57,54 +58,14 @@ class StillingService(
         StillingerTable.selectRowsByKategorierAndFylker(
             soekeord = soekeord,
             kategorier = kategorier,
-            fylker = fylker.mapNotNull { it.fylkesnummer },
+            fylker = fylker,
             paging = paging
         ).map { it.asDto() }
     }
 
     @WithSpan
-    fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
-        var antallMottatt = 0
-        var antallLagret = 0
-        val start = System.currentTimeMillis()
-        messages
-            .onEach { message ->
-                antallMottatt++
-                logger.trace("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
-                meterRegistry.meldingerMottattCounter(message.value.status)
-            }
-            .filter { message ->
-                val publishedTimestamp = message.value.published.fromLocalDateTimeString()
-                publishedTimestamp.isAfter(applicationConfig.velgStillingerNyereEnn)
-            }
-            .onEach { message ->
-                logger.trace("Prosesserer melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
-            }
-            .forEach { message ->
-                runCatching {
-                    antallLagret++
-                    handleMessage(message)
-                }.onFailure { cause ->
-                    logger.error("Feil ved mottak av melding", cause)
-                }.getOrThrow()
-            }
-        val slutt = System.currentTimeMillis()
-        val millisekunder = slutt - start
-        logger.info(
-            "Håndterte {} meldinger på {}ms fra topic={}",
-            antallMottatt,
-            millisekunder,
-            applicationConfig.pamStillingerKafkaConsumer.topic
-        )
-        Span.current().meldingerMottattEvent(antallMottatt, antallLagret, millisekunder)
-        meterRegistry.meldingerMottattGauge(antallMottatt, antallLagret)
-    }
-
-    @WithSpan
-    fun handleMessage(message: Message<UUID, Ad>) {
-        val uuid = message.key
-        val stillingRow = message.asStillingRow()
-        val existingId = StillingerTable.selectIdByUUID(uuid)
+    fun lagreStilling(stillingRow: StillingRow) {
+        val existingId = StillingerTable.selectIdByUUID(stillingRow.uuid)
         if (existingId == null) {
             val id = StillingerTable.insert(stillingRow)
             stillingRow.arbeidsgiver?.let { row ->
@@ -135,5 +96,44 @@ class StillingService(
                 row = stillingRow
             )
         }
+    }
+
+    @WithSpan
+    fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
+        var antallMottatt = 0
+        var antallLagret = 0
+        val start = System.currentTimeMillis()
+        messages
+            .onEach { message ->
+                antallMottatt++
+                logger.trace("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
+                meterRegistry.meldingerMottattCounter(message.value.status)
+            }
+            .filter { message ->
+                val publishedTimestamp = message.value.published.fromLocalDateTimeString()
+                publishedTimestamp.isAfter(applicationConfig.velgStillingerNyereEnn)
+            }
+            .onEach { message ->
+                logger.trace("Prosesserer melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
+            }
+            .forEach { message ->
+                runCatching {
+                    val stillingRow = message.asStillingRow()
+                    lagreStilling(stillingRow)
+                    antallLagret++
+                }.onFailure { cause ->
+                    logger.error("Feil ved mottak av melding", cause)
+                }.getOrThrow()
+            }
+        val slutt = System.currentTimeMillis()
+        val millisekunder = slutt - start
+        logger.info(
+            "Håndterte {} meldinger på {}ms fra topic={}",
+            antallMottatt,
+            millisekunder,
+            applicationConfig.pamStillingerKafkaConsumer.topic
+        )
+        Span.current().meldingerMottattEvent(antallMottatt, antallLagret, millisekunder)
+        meterRegistry.meldingerMottattGauge(antallMottatt, antallLagret)
     }
 }

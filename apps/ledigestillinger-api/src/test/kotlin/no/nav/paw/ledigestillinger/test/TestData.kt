@@ -17,61 +17,125 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import java.time.LocalDateTime
 import java.util.*
 
+@Suppress("ConstPropertyName")
 object TestData {
-    fun message(): Message<UUID, Ad> = record().toMessage()
+    const val fnr1: String = "01017012345"
 
-    fun record(): ConsumerRecord<UUID, Ad> = ad()
-        .let { ConsumerRecord("teampam.stilling-ekstern-1", 0, 0L, it.first, it.second) }
+    val uuid1_1: UUID = UUID.fromString("725f5241-583d-47d5-90f8-42bb3cd1c013")
+    val uuid1_2: UUID = UUID.fromString("d62bd67a-7641-4f6a-bca5-869dd9361a04")
+    val uuid2_1: UUID = UUID.fromString("ce4f105e-16d9-410f-8aee-56136a61607e")
+    val uuid2_2: UUID = UUID.fromString("cc2d73a9-e0e5-4caa-8c91-aa4b8365b85e")
 
-    fun ad(): Pair<UUID, Ad> {
-        val uuid = UUID.randomUUID()
-        val it = Ad()
-        it.uuid = uuid.toString()
-        it.adnr = "ABCD1234"
-        it.title = "Test stilling"
-        it.status = AdStatus.ACTIVE
-        it.privacy = PrivacyChannel.SHOW_ALL
-        it.source = "FINN"
-        it.medium = "FINN"
-        it.reference = "https://www.finn.no/stillinger/12345678"
-        it.businessName = "Testbedrift"
-        it.created = LocalDateTime.now().toLocalDateTimeString()
-        it.updated = LocalDateTime.now().toLocalDateTimeString()
-        it.published = LocalDateTime.now().toLocalDateTimeString()
-        it.administration = administration()
-        it.employer = company()
-        it.categories = categories()
-        it.classifications = classifications()
-        it.locations = locations()
-        it.properties = properties()
-        return uuid to it
+    val message1_1: Message<UUID, Ad> = message(
+        uuid = uuid1_1,
+        styrkCode = "1010",
+        countyCode = "55",
+        municipalCode = "5501"
+    )
+    val message1_2: Message<UUID, Ad> = message(
+        uuid = uuid1_2,
+        styrkCode = "1011",
+        countyCode = "56",
+        municipalCode = "5601"
+    )
+    val message2_1: Message<UUID, Ad> = message(
+        uuid = uuid2_1,
+        styrkCode = "2010",
+        countyCode = "57",
+        municipalCode = "5701"
+    )
+    val message2_2: Message<UUID, Ad> = message(
+        uuid = uuid2_2,
+        styrkCode = "2011",
+        countyCode = "57",
+        municipalCode = "5702"
+    )
+
+    fun message(
+        uuid: UUID = UUID.randomUUID(),
+        styrkCode: String = "9999",
+        municipalCode: String = "5501",
+        countyCode: String = "55"
+    ): Message<UUID, Ad> = record(
+        uuid = uuid,
+        styrkCode = styrkCode,
+        municipalCode = municipalCode,
+        countyCode = countyCode
+    ).toMessage()
+
+    fun record(
+        uuid: UUID = UUID.randomUUID(),
+        styrkCode: String = "9999",
+        municipalCode: String = "5501",
+        countyCode: String = "55"
+    ): ConsumerRecord<UUID, Ad> = ad(
+        uuid = uuid,
+        styrkCode = styrkCode,
+        municipalCode = municipalCode,
+        countyCode = countyCode
+    ).let { ConsumerRecord("teampam.stilling-ekstern-1", 0, 0L, it.first, it.second) }
+
+    fun ad(
+        uuid: UUID = UUID.randomUUID(),
+        styrkCode: String = "9999",
+        municipalCode: String = "5501",
+        countyCode: String = "55"
+    ): Pair<UUID, Ad> {
+        val ad = Ad().apply {
+            this.uuid = uuid.toString()
+            this.adnr = "ABCD1234"
+            this.title = "Test stilling"
+            this.status = AdStatus.ACTIVE
+            this.privacy = PrivacyChannel.SHOW_ALL
+            this.source = "FINN"
+            this.medium = "FINN"
+            this.reference = "https://www.finn.no/stillinger/12345678"
+            this.businessName = "Testbedrift"
+            this.created = LocalDateTime.now().toLocalDateTimeString()
+            this.updated = LocalDateTime.now().toLocalDateTimeString()
+            this.published = LocalDateTime.now().toLocalDateTimeString()
+            this.administration = administration()
+            this.employer = company()
+            this.categories = categories(
+                styrkCode = styrkCode
+            )
+            this.classifications = classifications()
+            this.locations = locations(
+                municipalCode = municipalCode,
+                countyCode = countyCode
+            )
+            this.properties = properties()
+        }
+        return uuid to ad
     }
 
     fun administration(): Administration {
-        val it = Administration()
-        it.status = AdministrationStatus.DONE
-        it.remarks = emptyList()
-        it.comments = "Testkommentar"
-        it.reportee = "Testveileder"
-        it.navIdent = "NAV1234"
-        return it
+        return Administration().apply {
+            this.status = AdministrationStatus.DONE
+            this.remarks = emptyList()
+            this.comments = "Testkommentar"
+            this.reportee = "Testveileder"
+            this.navIdent = "NAV1234"
+        }
     }
 
     fun company(): Company {
-        val it = Company()
-        it.name = "Testbedrift"
-        it.publicName = "Testbedrift"
-        it.orgnr = "999999999"
-        it.parentOrgnr = "999999998"
-        it.orgform = "BEDR"
-        return it
+        return Company().apply {
+            this.name = "Testbedrift"
+            this.publicName = "Testbedrift"
+            this.orgnr = "999999999"
+            this.parentOrgnr = "999999998"
+            this.orgform = "BEDR"
+        }
     }
 
-    fun categories(): List<StyrkCategory> {
+    fun categories(
+        styrkCode: String = "9999"
+    ): List<StyrkCategory> {
         return listOf(
             StyrkCategory().apply {
-                styrkCode = "9999"
-                name = "Testyrke"
+                this.styrkCode = styrkCode
+                this.name = "Testyrke"
             }
         )
     }
@@ -79,26 +143,29 @@ object TestData {
     fun classifications(): List<Classification> {
         return listOf(
             Classification().apply {
-                categoryType = "STYRK08"
-                code = "9999"
-                name = "Testyrke"
-                score = 1.0
-                janzzParentId = "9999"
+                this.categoryType = "STYRK08"
+                this.code = "9999"
+                this.name = "Testyrke"
+                this.score = 1.0
+                this.janzzParentId = "9999"
             }
         )
     }
 
-    fun locations(): List<Location> {
+    fun locations(
+        municipalCode: String = "5501",
+        countyCode: String = "55"
+    ): List<Location> {
         return listOf(
             Location().apply {
-                address = "Storgata 1"
-                postalCode = "9000"
-                city = "Tromsø"
-                municipal = "Tromsø"
-                municipalCode = "5501"
-                county = "Troms"
-                countyCode = "55"
-                country = "Norge"
+                this.address = "Storgata 1"
+                this.postalCode = "9000"
+                this.city = "Tromsø"
+                this.municipal = "Tromsø"
+                this.municipalCode = municipalCode
+                this.county = "Troms"
+                this.countyCode = countyCode
+                this.country = "Norge"
             }
         )
     }
@@ -106,24 +173,24 @@ object TestData {
     fun properties(): List<Property> {
         return listOf(
             Property().apply {
-                key = "extent"
-                value = "Heltid"
+                this.key = "extent"
+                this.value = "Heltid"
             },
             Property().apply {
-                key = "jobtitle"
-                value = "Bedriftsrådgiver"
+                this.key = "jobtitle"
+                this.value = "Bedriftsrådgiver"
             },
             Property().apply {
-                key = "applicationdue"
-                value = "Søknader behandles fortløpende"
+                this.key = "applicationdue"
+                this.value = "Søknader behandles fortløpende"
             },
             Property().apply {
-                key = "engagementtype"
-                value = "Fast"
+                this.key = "engagementtype"
+                this.value = "Fast"
             },
             Property().apply {
-                key = "sector"
-                value = "Privat"
+                this.key = "sector"
+                this.value = "Privat"
             }
         )
     }
