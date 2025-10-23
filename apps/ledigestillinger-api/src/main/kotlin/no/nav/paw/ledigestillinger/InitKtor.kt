@@ -80,7 +80,7 @@ fun Application.configureKtorServer(
     }
     install(CleanAwareFlywayPlugin) {
         this.dataSource = dataSource
-        this.cleanBeforeMigrate = true
+        this.cleanBeforeMigrate = false
     }
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
 }

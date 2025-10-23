@@ -5,8 +5,20 @@ Authorization: Bearer {{$auth.token("tokenx")}}
 
 {
     "soekeord": [],
-    "kategorier": [],
-    "fylker": []
+    "kategorier": [
+        "9999"
+    ],
+    "fylker": [
+        {
+            "fylkesnummer": "55",
+            "kommuner": []
+        }
+    ],
+    "paging": {
+        "page": 1,
+        "pageSize": 10,
+        "sortOrder": "ASC"
+    }
 }
 
 ###

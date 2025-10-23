@@ -31,7 +31,7 @@ fun Route.ledigeStillingerRoute(
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
                 val brukerId = hentBrukerId(identitetsnummer)
                 val soek = brukerId?.let { id -> hentSoek(id) }
-                    ?.firstOrNull { it.soek is StedSoek}
+                    ?.firstOrNull { it.soek is StedSoek }
                 val request = soek?.let { stedSøk ->
                     val søk = stedSøk.soek as StedSoek
                     FinnStillingerRequest(
@@ -53,7 +53,7 @@ fun Route.ledigeStillingerRoute(
                     response.stillinger?.map { stilling ->
                         JobbAnnonse(
                             tittel = stilling.tittel,
-                            stillingbeskrivelse = stilling.jobbtittel,
+                            stillingbeskrivelse = stilling.stillingstittel,
                             publisert = stilling.publisert,
                             soeknadsfrist = TODO(),
                             land = TODO(),
