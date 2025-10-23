@@ -1,6 +1,5 @@
 package no.naw.paw.minestillinger.route
 
-import io.ktor.client.request.request
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.uri
@@ -13,7 +12,6 @@ import io.ktor.server.routing.route
 import no.nav.paw.error.exception.ProblemDetailsException
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
-import no.nav.paw.hwm.getAllHwms
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
@@ -29,10 +27,10 @@ import no.naw.paw.minestillinger.db.ops.hentSoek
 import no.naw.paw.minestillinger.db.ops.lagreSoek
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.domain.BrukerProfil
-import no.naw.paw.minestillinger.domain.OptOut
+import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlag
 import no.naw.paw.minestillinger.domain.Stillingssoek
 import no.naw.paw.minestillinger.domain.TjenesteStatus
-import no.naw.paw.minestillinger.domain.TjenestenErAktiv
+import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.domain.api
 import no.naw.paw.minestillinger.domain.feilVedForsøkPåÅSetteKanIkkeLeveres
 import no.naw.paw.minestillinger.domain.toTjenesteStatus
@@ -110,20 +108,20 @@ fun Route.brukerprofilRoute(
                             }
                             OppdateringAvStatus(
                                 nyeOgOppdaterteFlagg = listOf(
-                                    TjenestenErAktiv(true, Instant.now()),
-                                    OptOut(false, Instant.now())
+                                    TjenestenErAktivFlagg(true, Instant.now()),
+                                    OptOutFlag(false, Instant.now())
                                 ),
                                 søkSkalSlettes = false
                             )
                         }
 
                         TjenesteStatus.INAKTIV -> OppdateringAvStatus(
-                            nyeOgOppdaterteFlagg = listOf(TjenestenErAktiv(false, Instant.now())),
+                            nyeOgOppdaterteFlagg = listOf(TjenestenErAktivFlagg(false, Instant.now())),
                             søkSkalSlettes = false
                         )
 
                         TjenesteStatus.OPT_OUT -> OppdateringAvStatus(
-                            nyeOgOppdaterteFlagg = listOf(OptOut(true, Instant.now())),
+                            nyeOgOppdaterteFlagg = listOf(OptOutFlag(true, Instant.now())),
                             søkSkalSlettes = true
                         )
 

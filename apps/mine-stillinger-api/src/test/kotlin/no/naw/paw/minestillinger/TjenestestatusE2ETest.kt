@@ -13,7 +13,6 @@ import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.mockk
-import no.nav.paw.error.plugin.ErrorHandlingPlugin
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.PeriodeFactory
@@ -29,14 +28,13 @@ import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
-import no.naw.paw.minestillinger.domain.ErITestGruppen
-import no.naw.paw.minestillinger.domain.FlaggListe
-import no.naw.paw.minestillinger.domain.HarGodeMuligheter
-import no.naw.paw.minestillinger.domain.HarGradertAdresse
-import no.naw.paw.minestillinger.domain.OptOut
+import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlag
 import no.naw.paw.minestillinger.domain.TjenesteStatus
-import no.naw.paw.minestillinger.domain.TjenestenErAktiv
-import no.naw.paw.minestillinger.domain.flaggListeOf
+import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.flaggListeOf
 import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -114,32 +112,32 @@ class TjenestestatusE2ETest : FreeSpec({
             when (testcase.gjeldendeTjenestestatus) {
                 TjenesteStatus.AKTIV -> skrivFlaggTilDB(
                     brukerId, flaggListeOf(
-                        TjenestenErAktiv(true, now()),
-                        HarGodeMuligheter(true, now()),
-                        HarGradertAdresse(false, now())
+                        TjenestenErAktivFlagg(true, now()),
+                        HarGodeMuligheterFlagg(true, now()),
+                        HarGradertAdresseFlagg(false, now())
                     )
                 )
                 TjenesteStatus.INAKTIV -> skrivFlaggTilDB(
                     brukerId, flaggListeOf(
-                        TjenestenErAktiv(false, now()),
-                        HarGodeMuligheter(true, now()),
-                        HarGradertAdresse(false, now()),
-                        ErITestGruppen(true, now())
+                        TjenestenErAktivFlagg(false, now()),
+                        HarGodeMuligheterFlagg(true, now()),
+                        HarGradertAdresseFlagg(false, now()),
+                        ErITestGruppenFlagg(true, now())
                     )
                 )
                 TjenesteStatus.OPT_OUT -> skrivFlaggTilDB(
                     brukerId, flaggListeOf(
-                        TjenestenErAktiv(false, now()),
-                        HarGodeMuligheter(true, now()),
-                        OptOut(true, now()),
-                        HarGradertAdresse(false, now())
+                        TjenestenErAktivFlagg(false, now()),
+                        HarGodeMuligheterFlagg(true, now()),
+                        OptOutFlag(true, now()),
+                        HarGradertAdresseFlagg(false, now())
                     )
                 )
                 TjenesteStatus.KAN_IKKE_LEVERES -> skrivFlaggTilDB(
                     brukerId, flaggListeOf(
-                        TjenestenErAktiv(false, now()),
-                        HarGodeMuligheter(true, now()),
-                        HarGradertAdresse(true, now())
+                        TjenestenErAktivFlagg(false, now()),
+                        HarGodeMuligheterFlagg(true, now()),
+                        HarGradertAdresseFlagg(true, now())
                     )
                 )
             }

@@ -6,16 +6,16 @@ import no.nav.paw.model.Identitetsnummer
 import no.naw.paw.minestillinger.brukerprofil.kanTilbysTjenesten
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
-import no.naw.paw.minestillinger.domain.ErITestGruppen
-import no.naw.paw.minestillinger.domain.FlaggVerdi
-import no.naw.paw.minestillinger.domain.HarBruktTjenesten
-import no.naw.paw.minestillinger.domain.HarGodeMuligheter
-import no.naw.paw.minestillinger.domain.HarGradertAdresse
+import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
 import no.naw.paw.minestillinger.domain.PeriodeId
 import no.naw.paw.minestillinger.domain.Profilering
 import no.naw.paw.minestillinger.domain.ProfileringResultat
 import no.naw.paw.minestillinger.domain.ProfileringResultat.ANTATT_BEHOV_FOR_VEILEDNING
-import no.naw.paw.minestillinger.domain.ingenFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.ingenFlagg
 import java.time.Instant
 import java.util.UUID
 
@@ -33,7 +33,7 @@ val brukerProfil = BrukerProfil(
     identitetsnummer = Identitetsnummer("12345678901"),
     arbeidssoekerperiodeId = arbeidssoekerperiodeId,
     arbeidssoekerperiodeAvsluttet = null,
-    flaggListe = ingenFlagg()
+    listeMedFlagg = ingenFlagg()
 )
 val profilering = Profilering(
     id = 1L,
@@ -46,9 +46,9 @@ val testCases = listOf(
     TestCase(
         beskrivelse = "Er ikke med i testgruppe. Skal returnere false",
         brukerProfil = brukerProfil.medFlagg(
-            ErITestGruppen(false, Instant.now()),
-            HarGodeMuligheter(true, Instant.now()),
-            HarGradertAdresse(false, Instant.now())
+            ErITestGruppenFlagg(false, Instant.now()),
+            HarGodeMuligheterFlagg(true, Instant.now()),
+            HarGradertAdresseFlagg(false, Instant.now())
         ),
         profilering = profilering,
         erAdressebeskyttet = { false },
@@ -57,9 +57,9 @@ val testCases = listOf(
     TestCase(
         beskrivelse = "Alt er fint og flott. Skal returnere true",
         brukerProfil = brukerProfil.medFlagg(
-            HarGodeMuligheter(true, Instant.now()),
-            HarGradertAdresse(false, Instant.now()),
-            ErITestGruppen(true, Instant.now())
+            HarGodeMuligheterFlagg(true, Instant.now()),
+            HarGradertAdresseFlagg(false, Instant.now()),
+            ErITestGruppenFlagg(true, Instant.now())
         ),
         profilering = profilering,
         erAdressebeskyttet = { false },
@@ -68,10 +68,10 @@ val testCases = listOf(
     TestCase(
         beskrivelse = "Alt er flott, men har gradert adresse. Skal returnere false",
         brukerProfil = brukerProfil.medFlagg(
-            HarBruktTjenesten(true, Instant.now()),
-            HarGodeMuligheter(true, Instant.now()),
-            HarGradertAdresse(true, Instant.now()),
-            ErITestGruppen(true, Instant.now())
+            HarBruktTjenestenFlagg(true, Instant.now()),
+            HarGodeMuligheterFlagg(true, Instant.now()),
+            HarGradertAdresseFlagg(true, Instant.now()),
+            ErITestGruppenFlagg(true, Instant.now())
         ),
         profilering = profilering,
         erAdressebeskyttet = { true },
@@ -80,9 +80,9 @@ val testCases = listOf(
     TestCase(
         beskrivelse = "Har brukt tjenesten før har presends over profileringsresultat. Skal returnere true",
         brukerProfil = brukerProfil.medFlagg(
-            HarBruktTjenesten(true, Instant.now()),
-            HarGodeMuligheter(false, Instant.now()),
-            ErITestGruppen(true, Instant.now()),
+            HarBruktTjenestenFlagg(true, Instant.now()),
+            HarGodeMuligheterFlagg(false, Instant.now()),
+            ErITestGruppenFlagg(true, Instant.now()),
         ),
         profilering = profilering.copy(profileringResultat = ANTATT_BEHOV_FOR_VEILEDNING),
         erAdressebeskyttet = { false },
@@ -100,6 +100,6 @@ class KanTilbysTjenestenTest : FreeSpec({
 })
 
 
-fun BrukerProfil.medFlagg(vararg flaggVerdi: FlaggVerdi): BrukerProfil = this.copy(
-    flaggListe = this.flaggListe.addOrUpdate(*flaggVerdi)
+fun BrukerProfil.medFlagg(vararg flagg: Flagg): BrukerProfil = this.copy(
+    listeMedFlagg = this.listeMedFlagg.addOrUpdate(*flagg)
 )

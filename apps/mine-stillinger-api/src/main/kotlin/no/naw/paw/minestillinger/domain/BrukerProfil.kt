@@ -3,6 +3,14 @@ package no.naw.paw.minestillinger.domain
 import no.nav.paw.model.Identitetsnummer
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
+import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import java.time.Instant
 
 data class BrukerProfilerUtenFlagg(
@@ -12,13 +20,13 @@ data class BrukerProfilerUtenFlagg(
     val arbeidssoekerperiodeAvsluttet: Instant?
 )
 
-fun BrukerProfilerUtenFlagg.medFlagg(flaggListe: FlaggListe): BrukerProfil {
+fun BrukerProfilerUtenFlagg.medFlagg(listeMedFlagg: ListeMedFlagg): BrukerProfil {
     return BrukerProfil(
         id = id,
         identitetsnummer = identitetsnummer,
         arbeidssoekerperiodeId = arbeidssoekerperiodeId,
         arbeidssoekerperiodeAvsluttet = arbeidssoekerperiodeAvsluttet,
-        flaggListe = flaggListe
+        listeMedFlagg = listeMedFlagg
     )
 }
 
@@ -27,17 +35,17 @@ data class BrukerProfil(
     val identitetsnummer: Identitetsnummer,
     val arbeidssoekerperiodeId: PeriodeId,
     val arbeidssoekerperiodeAvsluttet: Instant?,
-    val flaggListe: FlaggListe
+    val listeMedFlagg: ListeMedFlagg
 ) {
-    val harBruktTjenesten: Boolean = flaggListe[HarBruktTjenestenFlagg]?.verdi ?: false
-    val optOut: Boolean = flaggListe[OptOutFlagg]?.verdi ?: false
-    val harGradertAdresse: Boolean = flaggListe[HarGradertAdresseFlagg]?.verdi ?: false
-    val tjenestenErAktiv: Boolean = flaggListe[TjenestenErAktivFlagg]?.verdi ?: false
-    val harGodeMuligheter: Boolean = flaggListe[HarGodeMuligheterFlagg]?.verdi ?: false
-    val erITestGruppen: Boolean = flaggListe[ErITestGruppenFlagg]?.verdi ?: false
+    val harBruktTjenesten: Boolean = listeMedFlagg[HarBruktTjenestenFlaggtype]?.verdi ?: false
+    val optOut: Boolean = listeMedFlagg[OptOutFlaggtype]?.verdi ?: false
+    val harGradertAdresse: Boolean = listeMedFlagg[HarGradertAdresseFlaggtype]?.verdi ?: false
+    val tjenestenErAktiv: Boolean = listeMedFlagg[TjenestenErAktivFlaggtype]?.verdi ?: false
+    val harGodeMuligheter: Boolean = listeMedFlagg[HarGodeMuligheterFlaggtype]?.verdi ?: false
+    val erITestGruppen: Boolean = listeMedFlagg[ErITestGruppenFlaggtype]?.verdi ?: false
 
-    inline fun <reified A: FlaggVerdi> flagg(): FlaggVerdi? {
-        return flaggListe.filterIsInstance<A>().firstOrNull()
+    inline fun <reified A: Flagg> flagg(): Flagg? {
+        return listeMedFlagg.filterIsInstance<A>().firstOrNull()
     }
 }
 
