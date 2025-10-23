@@ -11,6 +11,8 @@ import no.nav.pam.stilling.ext.avro.StyrkCategory
 import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.api.models.Paging
 import no.nav.paw.ledigestillinger.api.models.SortOrder
+import no.nav.paw.ledigestillinger.api.models.StillingStatus
+import no.nav.paw.ledigestillinger.api.models.VisningGrad
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgiverRow
 import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
 import no.nav.paw.ledigestillinger.model.dao.KategoriRow
@@ -34,6 +36,13 @@ fun Message<UUID, Ad>.asStillingRow(): StillingRow {
         medium = value.medium,
         referanse = value.reference,
         arbeidsgivernavn = value.businessName,
+        stillingstittel = value.properties?.find { it.key == "jobtitle" }?.value,
+        ansettelsesform = value.properties?.find { it.key == "engagementtype" }?.value,
+        stillingsprosent = value.properties?.find { it.key == "extent" }?.value,
+        stillingsantall = value.properties?.find { it.key == "positioncount" }?.value,
+        sektor = value.properties?.find { it.key == "sector" }?.value,
+        soeknadsfrist = value.properties?.find { it.key == "applicationdue" }?.value,
+        oppstartsfrist = value.properties?.find { it.key == "starttime" }?.value,
         opprettetTimestamp = value.created.fromLocalDateTimeString(),
         endretTimestamp = value.updated.fromLocalDateTimeString(),
         publisertTimestamp = value.published.fromLocalDateTimeString(),
@@ -50,18 +59,18 @@ fun Message<UUID, Ad>.asStillingRow(): StillingRow {
 }
 
 fun AdStatus.asStillingStatus(): StillingStatus = when (this) {
-    AdStatus.ACTIVE -> StillingStatus.ACTIVE
-    AdStatus.STOPPED -> StillingStatus.STOPPED
-    AdStatus.REJECTED -> StillingStatus.REJECTED
-    AdStatus.INACTIVE -> StillingStatus.INACTIVE
-    AdStatus.DELETED -> StillingStatus.DELETED
+    AdStatus.ACTIVE -> StillingStatus.AKTIV
+    AdStatus.STOPPED -> StillingStatus.STOPPET
+    AdStatus.REJECTED -> StillingStatus.AVVIST
+    AdStatus.INACTIVE -> StillingStatus.INAKTIV
+    AdStatus.DELETED -> StillingStatus.SLETTET
 }
 
 fun PrivacyChannel.asVisningGrad(): VisningGrad = when (this) {
-    PrivacyChannel.SHOW_ALL -> VisningGrad.SHOW_ALL
-    PrivacyChannel.INTERNAL_NOT_SHOWN -> VisningGrad.INTERNAL_NOT_SHOWN
-    PrivacyChannel.DONT_SHOW_EMPLOYER -> VisningGrad.DONT_SHOW_EMPLOYER
-    PrivacyChannel.DONT_SHOW_AUTHOR -> VisningGrad.DONT_SHOW_AUTHOR
+    PrivacyChannel.SHOW_ALL -> VisningGrad.UBEGRENSET
+    PrivacyChannel.INTERNAL_NOT_SHOWN -> VisningGrad.BEGRENSET_INTERNT
+    PrivacyChannel.DONT_SHOW_EMPLOYER -> VisningGrad.BEGRENSET_ARBEIDSGIVER
+    PrivacyChannel.DONT_SHOW_AUTHOR -> VisningGrad.BEGRENSET_KILDE
 }
 
 fun Company.asArbeidsgiverRow(): ArbeidsgiverRow = ArbeidsgiverRow(

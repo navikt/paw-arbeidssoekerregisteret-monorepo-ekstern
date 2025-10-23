@@ -3,16 +3,6 @@ package no.nav.paw.ledigestillinger.model
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import no.nav.pam.stilling.ext.avro.Ad
-import no.nav.pam.stilling.ext.avro.Classification
-import no.nav.pam.stilling.ext.avro.Company
-import no.nav.pam.stilling.ext.avro.Location
-import no.nav.pam.stilling.ext.avro.Property
-import no.nav.pam.stilling.ext.avro.StyrkCategory
-import no.nav.paw.ledigestillinger.api.models.Arbeidsgiver
-import no.nav.paw.ledigestillinger.api.models.Egenskap
-import no.nav.paw.ledigestillinger.api.models.Kategori
-import no.nav.paw.ledigestillinger.api.models.Klassifisering
-import no.nav.paw.ledigestillinger.api.models.Lokasjon
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.util.toLocalDateTimeString
 import java.time.ZoneOffset
@@ -27,6 +17,13 @@ infix fun StillingRow.shouldBeEqualTo(other: Ad) {
     medium shouldBe other.medium
     referanse shouldBe other.reference
     arbeidsgivernavn shouldBe other.businessName
+    stillingstittel shouldBe other.properties?.find { it.key == "jobtitle" }?.value
+    ansettelsesform shouldBe other.properties?.find { it.key == "engagementtype" }?.value
+    stillingsprosent shouldBe other.properties?.find { it.key == "extent" }?.value
+    stillingsantall shouldBe other.properties?.find { it.key == "positioncount" }?.value
+    sektor shouldBe other.properties?.find { it.key == "sector" }?.value
+    soeknadsfrist shouldBe other.properties?.find { it.key == "applicationdue" }?.value
+    oppstartsfrist shouldBe other.properties?.find { it.key == "starttime" }?.value
     opprettetTimestamp.atZone(ZoneOffset.UTC).toLocalDateTime()
         .toLocalDateTimeString() shouldBe other.created
     endretTimestamp.atZone(ZoneOffset.UTC).toLocalDateTime()
@@ -39,38 +36,3 @@ infix fun StillingRow.shouldBeEqualTo(other: Ad) {
     lokasjoner.map { it.asDto() } shouldContainOnly other.locations.map { it.asDto() }
     egenskaper.map { it.asDto() } shouldContainOnly other.properties.map { it.asDto() }
 }
-
-fun Company.asDto(): Arbeidsgiver = Arbeidsgiver(
-    orgForm = this.orgform,
-    orgNr = this.orgnr,
-    parentOrgNr = this.parentOrgnr,
-    navn = this.name,
-    offentligNavn = this.publicName
-)
-
-fun StyrkCategory.asDto(): Kategori = Kategori(
-    kode = this.styrkCode,
-    normalisertKode = this.styrkCode.asNormalisertKode(),
-    navn = this.name
-)
-
-fun Classification.asDto(): Klassifisering = Klassifisering(
-    type = this.categoryType,
-    kode = this.code,
-    navn = this.name
-)
-
-fun Location.asDto(): Lokasjon = Lokasjon(
-    poststed = this.city,
-    postkode = this.postalCode,
-    kommune = this.municipal,
-    kommunenummer = this.municipalCode,
-    fylke = this.county,
-    fylkesnummer = this.countyCode,
-    land = this.country
-)
-
-fun Property.asDto(): Egenskap = Egenskap(
-    key = this.key,
-    value = this.value
-)

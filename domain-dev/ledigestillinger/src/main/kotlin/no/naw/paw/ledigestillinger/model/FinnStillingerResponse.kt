@@ -5,5 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class FinnStillingerResponse(
 
     @get:JsonProperty("stillinger")
-    val stillinger: List<Stilling>
+    val stillinger: List<Stilling>,
+    @get:JsonProperty("paging")
+    val paging: Paging
 )

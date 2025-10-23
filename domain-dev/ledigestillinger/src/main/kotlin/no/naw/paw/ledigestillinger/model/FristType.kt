@@ -2,7 +2,8 @@ package no.naw.paw.ledigestillinger.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-enum class SoeknadsfristType(val value: String) {
+enum class FristType(val value: kotlin.String) {
+
     @JsonProperty(value = "UKJENT")
     UKJENT("UKJENT"),
 

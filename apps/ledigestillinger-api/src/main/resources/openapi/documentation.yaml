@@ -98,8 +98,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Stilling'
+        paging:
+          "$ref": "#/components/schemas/Paging"
       required:
         - stillinger
+        - paging
     Stilling:
       type: object
       additionalProperties: false
@@ -113,20 +116,24 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/StillingStatus'
-        jobbtittel:
-          type: string
-        ansettelsesform:
-          type: string
-        ansettelsesprosent:
-          type: string
-        stillingsantall:
-          type: string
         arbeidsgivernavn:
           type: string
         arbeidsgiver:
           "$ref": "#/components/schemas/Arbeidsgiver"
+        stillingstittel:
+          type: string
+        ansettelsesform:
+          type: string
+        stillingsprosent:
+          "$ref": "#/components/schemas/Stillingsprosent"
+        stillingsantall:
+          "$ref": "#/components/schemas/Antall"
         sektor:
           "$ref": "#/components/schemas/Sektor"
+        soeknadsfrist:
+          "$ref": "#/components/schemas/Frist"
+        oppstartsfrist:
+          "$ref": "#/components/schemas/Frist"
         kategorier:
           type: array
           items:
@@ -135,8 +142,6 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/Lokasjon"
-        soeknadsfrist:
-          "$ref": "#/components/schemas/Soeknadsfrist"
         publisert:
           type: string
           format: "date-time"
@@ -149,10 +154,13 @@ components:
         - uuid
         - tittel
         - status
+        - stillingsprosent
+        - stillingsantall
         - sektor
+        - soeknadsfrist
+        - oppstartsfrist
         - kategorier
         - lokasjoner
-        - soeknadsfrist
         - publisert
     StillingStatus:
       type: string
@@ -162,6 +170,13 @@ components:
         - STOPPET
         - SLETTET
         - AVVIST
+    VisningGrad:
+      type: string
+      enum:
+        - UBEGRENSET
+        - BEGRENSET_INTERNT
+        - BEGRENSET_ARBEIDSGIVER
+        - BEGRENSET_KILDE
     Arbeidsgiver:
       type: object
       properties:
@@ -258,27 +273,54 @@ components:
       required:
         - key
         - value
-    Soeknadsfrist:
+    Antall:
       type: object
       properties:
-        raw:
+        verdi:
           type: string
-          description: "Tekst fra datasettet for egenskapen søknadsfrist"
-          example: "Her kan det stå hva som helst dersom fristType er Ukjent"
-        fristType:
-          $ref: "#/components/schemas/SoeknadsfristType"
+          description: "Tekst fra datasettet for egenskapen"
+          example: "Her kan det stå hva som helst dersom type er UKJENT"
+        type:
+          $ref: "#/components/schemas/AntallType"
+        antall:
+          type: integer
+          example: 1
+          description: "Antall, bare med dersom 'type' er ANTALL"
+      required:
+        - type
+    AntallType:
+      type: string
+      enum:
+        - ANTALL
+        - UKJENT
+    Frist:
+      type: object
+      properties:
+        verdi:
+          type: string
+          description: "Tekst fra datasettet for egenskapen"
+          example: "Her kan det stå hva som helst dersom type er UKJENT"
+        type:
+          $ref: "#/components/schemas/FristType"
         dato:
           type: string
           format: date
           example: "2025-11-25"
-          description: "Søknadsfrist, bare med dersom 'fristType' er DATO"
-    SoeknadsfristType:
+          description: "Frist, bare med dersom 'type' er DATO"
+      required:
+        - type
+    FristType:
       type: string
-      description: "Hvilken type frist er det"
       enum:
-        - UKJENT
-        - SNAREST
         - DATO
+        - SNAREST
+        - UKJENT
+    Stillingsprosent:
+      type: string
+      enum:
+        - HELTID
+        - DELTID
+        - UKJENT
     Paging:
       type: object
       properties:

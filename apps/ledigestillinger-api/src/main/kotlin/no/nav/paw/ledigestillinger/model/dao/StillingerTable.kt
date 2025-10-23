@@ -2,8 +2,8 @@ package no.nav.paw.ledigestillinger.model.dao
 
 import no.nav.paw.ledigestillinger.api.models.Fylke
 import no.nav.paw.ledigestillinger.api.models.Paging
-import no.nav.paw.ledigestillinger.model.StillingStatus
-import no.nav.paw.ledigestillinger.model.VisningGrad
+import no.nav.paw.ledigestillinger.api.models.StillingStatus
+import no.nav.paw.ledigestillinger.api.models.VisningGrad
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
@@ -29,7 +29,14 @@ object StillingerTable : LongIdTable("stillinger") {
     val kilde = varchar("kilde", 255)
     val medium = varchar("medium", 255)
     val referanse = varchar("referanse", 255)
-    val arbeidsgivernavn = varchar("arbeidsgiver_navn", 255).nullable()
+    val arbeidsgivernavn = varchar("arbeidsgivernavn", 255).nullable()
+    val stillingstittel = varchar("stillingstittel", 255).nullable()
+    val ansettelsesform = varchar("ansettelsesform", 255).nullable()
+    val stillingsprosent = varchar("stillingsprosent", 255).nullable()
+    val stillingsantall = varchar("stillingsantall", 255).nullable()
+    val sektor = varchar("sektor", 255).nullable()
+    val soeknadsfrist = varchar("soeknadsfrist", 255).nullable()
+    val oppstartsfrist = varchar("oppstartsfrist", 255).nullable()
     val opprettetTimestamp = timestamp("opprettet_timestamp")
     val endretTimestamp = timestamp("endret_timestamp")
     val publisertTimestamp = timestamp("publisert_timestamp")
@@ -97,6 +104,13 @@ fun StillingerTable.insert(
     it[this.medium] = row.medium
     it[this.referanse] = row.referanse
     it[this.arbeidsgivernavn] = row.arbeidsgivernavn
+    it[this.stillingstittel] = row.stillingstittel
+    it[this.ansettelsesform] = row.ansettelsesform
+    it[this.stillingsprosent] = row.stillingsprosent
+    it[this.stillingsantall] = row.stillingsantall
+    it[this.sektor] = row.sektor
+    it[this.soeknadsfrist] = row.soeknadsfrist
+    it[this.oppstartsfrist] = row.oppstartsfrist
     it[this.opprettetTimestamp] = row.opprettetTimestamp
     it[this.endretTimestamp] = row.endretTimestamp
     it[this.publisertTimestamp] = row.publisertTimestamp
@@ -119,6 +133,13 @@ fun StillingerTable.updateById(
     it[this.medium] = row.medium
     it[this.referanse] = row.referanse
     it[this.arbeidsgivernavn] = row.arbeidsgivernavn
+    it[this.stillingstittel] = row.stillingstittel
+    it[this.ansettelsesform] = row.ansettelsesform
+    it[this.stillingsprosent] = row.stillingsprosent
+    it[this.stillingsantall] = row.stillingsantall
+    it[this.sektor] = row.sektor
+    it[this.soeknadsfrist] = row.soeknadsfrist
+    it[this.oppstartsfrist] = row.oppstartsfrist
     it[this.opprettetTimestamp] = row.opprettetTimestamp
     it[this.endretTimestamp] = row.endretTimestamp
     it[this.publisertTimestamp] = row.publisertTimestamp

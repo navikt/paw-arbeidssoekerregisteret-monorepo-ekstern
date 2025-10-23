@@ -35,7 +35,12 @@ fun Route.stillingRoutes(
                     fylker = request.fylker,
                     paging = request.paging
                 )
-                call.respond<FinnStillingerResponse>(FinnStillingerResponse(stillinger))
+                val response = FinnStillingerResponse(
+                    stillinger = stillinger,
+                    paging = request.paging
+                )
+
+                call.respond<FinnStillingerResponse>(response)
             }
         }
     }

@@ -15,8 +15,17 @@ data class Stilling(
     @get:JsonProperty("status")
     val status: StillingStatus,
 
+    @get:JsonProperty("stillingsprosent")
+    val stillingsprosent: Stillingsprosent,
+
     @get:JsonProperty("sektor")
     val sektor: Sektor,
+
+    @get:JsonProperty("soeknadsfrist")
+    val soeknadsfrist: Frist,
+
+    @get:JsonProperty("oppstartsfrist")
+    val oppstartsfrist: Frist,
 
     @get:JsonProperty("kategorier")
     val kategorier: List<Kategori>,
@@ -24,32 +33,26 @@ data class Stilling(
     @get:JsonProperty("lokasjoner")
     val lokasjoner: List<Lokasjon>,
 
-    @get:JsonProperty("soeknadsfrist")
-    val soeknadsfrist: Soeknadsfrist,
-
     @get:JsonProperty("publisert")
     val publisert: Instant,
 
     @get:JsonProperty("adnr")
     val adnr: String? = null,
 
-    @get:JsonProperty("jobbtittel")
-    val jobbtittel: String? = null,
-
-    @get:JsonProperty("ansettelsesform")
-    val ansettelsesform: String? = null,
-
-    @get:JsonProperty("ansettelsesprosent")
-    val ansettelsesprosent: String? = null,
-
-    @get:JsonProperty("stillingsantall")
-    val stillingsantall: String? = null,
-
     @get:JsonProperty("arbeidsgivernavn")
     val arbeidsgivernavn: String? = null,
 
     @get:JsonProperty("arbeidsgiver")
     val arbeidsgiver: Arbeidsgiver? = null,
+
+    @get:JsonProperty("stillingstittel")
+    val stillingstittel: String? = null,
+
+    @get:JsonProperty("ansettelsesform")
+    val ansettelsesform: String? = null,
+
+    @get:JsonProperty("stillingsantall")
+    val stillingsantall: Antall,
 
     @get:JsonProperty("utloeper")
     val utloeper: Instant? = null

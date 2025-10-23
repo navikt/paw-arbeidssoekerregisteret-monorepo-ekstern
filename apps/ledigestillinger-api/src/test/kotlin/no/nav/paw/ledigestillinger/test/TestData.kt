@@ -173,24 +173,32 @@ object TestData {
     fun properties(): List<Property> {
         return listOf(
             Property().apply {
-                this.key = "extent"
-                this.value = "Heltid"
-            },
-            Property().apply {
                 this.key = "jobtitle"
                 this.value = "Bedriftsrådgiver"
-            },
-            Property().apply {
-                this.key = "applicationdue"
-                this.value = "Søknader behandles fortløpende"
             },
             Property().apply {
                 this.key = "engagementtype"
                 this.value = "Fast"
             },
             Property().apply {
+                this.key = "extent"
+                this.value = "Heltid"
+            },
+            Property().apply {
+                this.key = "positioncount"
+                this.value = "1"
+            },
+            Property().apply {
                 this.key = "sector"
                 this.value = "Privat"
+            },
+            Property().apply {
+                this.key = "applicationdue"
+                this.value = "Søknader behandles fortløpende"
+            },
+            Property().apply {
+                this.key = "starttime"
+                this.value = "2025-11-11"
             }
         )
     }

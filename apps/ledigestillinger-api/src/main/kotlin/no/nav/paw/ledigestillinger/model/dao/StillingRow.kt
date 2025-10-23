@@ -1,7 +1,7 @@
 package no.nav.paw.ledigestillinger.model.dao
 
-import no.nav.paw.ledigestillinger.model.StillingStatus
-import no.nav.paw.ledigestillinger.model.VisningGrad
+import no.nav.paw.ledigestillinger.api.models.StillingStatus
+import no.nav.paw.ledigestillinger.api.models.VisningGrad
 import org.jetbrains.exposed.v1.core.ResultRow
 import java.time.Instant
 import java.util.*
@@ -17,6 +17,13 @@ data class StillingRow(
     val medium: String,
     val referanse: String,
     val arbeidsgivernavn: String?,
+    val stillingstittel: String?,
+    val ansettelsesform: String?,
+    val stillingsprosent: String?,
+    val stillingsantall: String?,
+    val sektor: String?,
+    val soeknadsfrist: String?,
+    val oppstartsfrist: String?,
     val opprettetTimestamp: Instant,
     val endretTimestamp: Instant,
     val publisertTimestamp: Instant,
@@ -50,6 +57,13 @@ fun ResultRow.asStillingRow(
         medium = this[StillingerTable.medium],
         referanse = this[StillingerTable.referanse],
         arbeidsgivernavn = this[StillingerTable.arbeidsgivernavn],
+        stillingstittel = this[StillingerTable.stillingstittel],
+        ansettelsesform = this[StillingerTable.ansettelsesform],
+        stillingsprosent = this[StillingerTable.stillingsprosent],
+        stillingsantall = this[StillingerTable.stillingsantall],
+        sektor = this[StillingerTable.sektor],
+        soeknadsfrist = this[StillingerTable.soeknadsfrist],
+        oppstartsfrist = this[StillingerTable.oppstartsfrist],
         opprettetTimestamp = this[StillingerTable.opprettetTimestamp],
         endretTimestamp = this[StillingerTable.endretTimestamp],
         publisertTimestamp = this[StillingerTable.publisertTimestamp],
