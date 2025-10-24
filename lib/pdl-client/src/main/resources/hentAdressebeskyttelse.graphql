@@ -1,4 +1,4 @@
-query($ident: ID!, $historisk: Boolean) {
+query($ident: ID!) {
     hentPerson(ident: $ident) {
         adressebeskyttelse {
             gradering
