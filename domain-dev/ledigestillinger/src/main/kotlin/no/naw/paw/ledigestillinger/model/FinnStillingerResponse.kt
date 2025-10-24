@@ -7,5 +7,5 @@ data class FinnStillingerResponse(
     @get:JsonProperty("stillinger")
     val stillinger: List<Stilling>,
     @get:JsonProperty("paging")
-    val paging: Paging
+    val paging: PagingResponse
 )

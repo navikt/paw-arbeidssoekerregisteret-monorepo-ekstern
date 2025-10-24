@@ -53,6 +53,7 @@ spec:
     inbound:
       rules:
         - application: paw-dev-proxy
+        - application: paw-arbeidssoekerregisteret-api-mine-stillinger
         - application: tokenx-token-generator
           namespace: nais
         - application: azure-token-generator

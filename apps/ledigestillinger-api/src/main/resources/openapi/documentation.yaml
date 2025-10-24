@@ -127,7 +127,7 @@ components:
           items:
             $ref: '#/components/schemas/Stilling'
         paging:
-          $ref: "#/components/schemas/Paging"
+          $ref: "#/components/schemas/PagingResponse"
       required:
         - stillinger
         - paging
@@ -350,6 +350,28 @@ components:
       required:
         - page
         - pageSize
+        - sortOrder
+    PagingResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          default: 1
+          example: 1
+        pageSize:
+          type: integer
+          default: 10
+          example: 10
+        hitSize:
+          type: integer
+          default: 10
+          example: 10
+        sortOrder:
+          $ref: "#/components/schemas/SortOrder"
+      required:
+        - page
+        - pageSize
+        - hitSize
         - sortOrder
     SortOrder:
       type: string

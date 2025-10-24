@@ -6,7 +6,7 @@ metadata:
   labels:
     team: paw
 spec:
-  image: {{ image }}
+  image: { { image } }
   port: 8080
   resources:
     limits:
@@ -47,6 +47,10 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: "java"
+  accessPolicy:
+    inbound:
+      rules:
+        - application: paw-arbeidssoekerregisteret-api-mine-stillinger
   gcp:
     sqlInstances:
       - type: POSTGRES_17

@@ -13,6 +13,8 @@ import no.nav.paw.ledigestillinger.api.models.FristType
 import no.nav.paw.ledigestillinger.api.models.Kategori
 import no.nav.paw.ledigestillinger.api.models.Klassifisering
 import no.nav.paw.ledigestillinger.api.models.Lokasjon
+import no.nav.paw.ledigestillinger.api.models.Paging
+import no.nav.paw.ledigestillinger.api.models.PagingResponse
 import no.nav.paw.ledigestillinger.api.models.Sektor
 import no.nav.paw.ledigestillinger.api.models.Stilling
 import no.nav.paw.ledigestillinger.api.models.Stillingsprosent
@@ -191,4 +193,11 @@ fun Location.asDto(): Lokasjon = Lokasjon(
 fun Property.asDto(): Egenskap = Egenskap(
     key = this.key,
     value = this.value
+)
+
+fun Paging.asReponsePaging(hitSize: Int): PagingResponse = PagingResponse(
+    page = this.page,
+    pageSize = this.pageSize,
+    hitSize = hitSize,
+    sortOrder = this.sortOrder
 )

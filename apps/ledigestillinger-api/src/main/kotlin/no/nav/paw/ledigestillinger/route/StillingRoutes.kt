@@ -10,6 +10,7 @@ import no.nav.paw.ledigestillinger.api.models.FinnStillingerResponse
 import no.nav.paw.ledigestillinger.api.models.Stilling
 import no.nav.paw.ledigestillinger.exception.MalformedRequestException
 import no.nav.paw.ledigestillinger.exception.RequestParamMissingException
+import no.nav.paw.ledigestillinger.model.asReponsePaging
 import no.nav.paw.ledigestillinger.service.StillingService
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.plugin.autentisering
@@ -38,7 +39,7 @@ fun Route.stillingRoutes(
                 )
                 val response = FinnStillingerResponse(
                     stillinger = stillinger,
-                    paging = request.paging
+                    paging = request.paging.asReponsePaging(hitSize = stillinger.size)
                 )
 
                 call.respond<FinnStillingerResponse>(response)
