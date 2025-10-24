@@ -78,16 +78,20 @@ fun StillingerTable.selectRowsByKategorierAndFylker(
     return join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
         .join(LokasjonerTable, JoinType.LEFT, StillingerTable.id, LokasjonerTable.parentId)
         .selectAll()
-        .where { (KategorierTable.normalisertKode inList kategorier) and (LokasjonerTable.fylkeskode inList fylkesnummer) }
+        .where {
+            (KategorierTable.normalisertKode inList kategorier) and
+                    (LokasjonerTable.fylkeskode inList fylkesnummer) and
+                    (StillingerTable.status eq StillingStatus.AKTIV)
+        }
         .orderBy(StillingerTable.id, paging.order())
         .limit(paging.size()).offset(paging.offset())
         .map {
             it.asStillingRow(
                 arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
                 kategorier = KategorierTable::selectRowsByParentId,
-                klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
+                klassifiseringer = { emptyList() }, // TODO fjernet for å spare select KlassifiseringerTable::selectRowsByParentId,
                 lokasjoner = LokasjonerTable::selectRowsByParentId,
-                egenskaper = EgenskaperTable::selectRowsByParentId
+                egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
             )
         }
 }
