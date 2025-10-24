@@ -72,6 +72,8 @@ spec:
         - application: azure-token-generator
           namespace: nais
     outbound:
+      rules:
+        - application: paw-arbeidssoekerregisteret-api-ledigestillinger
       external:
         - host: pdl-api.dev-fss-pub.nais.io
   gcp:
