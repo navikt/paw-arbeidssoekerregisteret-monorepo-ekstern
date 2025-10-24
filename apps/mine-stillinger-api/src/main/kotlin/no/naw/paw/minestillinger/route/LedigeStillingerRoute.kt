@@ -31,6 +31,7 @@ import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.api
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun Route.ledigeStillingerRoute(
     ledigeStillingerClient: FinnStillingerClient,
@@ -44,12 +45,14 @@ fun Route.ledigeStillingerRoute(
                     .hentSluttbrukerEllerNull()
                     ?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-                val brukerId = hentBrukerId(identitetsnummer)
-                val soek = brukerId?.let { id -> hentLagretSøk(id) }
-                    ?.firstOrNull { it.soek is StedSoek }
-                val request = soek?.let { stedSøk ->
-                    val søk = stedSøk.soek as StedSoek
-                    genererRequest(søk)
+                val request = transaction {
+                    val brukerId = hentBrukerId(identitetsnummer)
+                    val soek = brukerId?.let { id -> hentLagretSøk(id) }
+                        ?.firstOrNull { it.soek is StedSoek }
+                    soek?.let { stedSøk ->
+                        val søk = stedSøk.soek as StedSoek
+                        genererRequest(søk)
+                    }
                 }
                 if (request != null) {
                     val response = ledigeStillingerClient.finnLedigeStillinger(call.securityContext().accessToken, request)
