@@ -1,6 +1,8 @@
 package no.naw.paw.minestillinger
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
@@ -35,6 +37,8 @@ fun initWebClient(): WebClients {
         install(ContentNegotiation) {
             jackson {
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                registerKotlinModule()
+                registerModule(JavaTimeModule())
             }
         }
     }
