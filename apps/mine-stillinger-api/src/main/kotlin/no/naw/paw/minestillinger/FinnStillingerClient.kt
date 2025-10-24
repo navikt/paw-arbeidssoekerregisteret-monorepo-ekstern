@@ -16,7 +16,7 @@ import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 
 data class LedigeStillingerClientConfig(
     val baseUrl: String,
-    val ledigeStillingerScope: String
+    val target: String
 )
 
 const val FINN_LEDIGE_STILLINGER_PATH = "/api/v1/stillinger"
@@ -29,7 +29,7 @@ class FinnStillingerClient(
     suspend fun finnLedigeStillinger(finnStillingerRequest: FinnStillingerRequest): FinnStillingerResponse {
         val response = httpClient.post(config.baseUrl + FINN_LEDIGE_STILLINGER_PATH) {
             contentType(Application.Json)
-            bearerAuth(tokenProvider(config.ledigeStillingerScope))
+            bearerAuth(tokenProvider(config.target))
             setBody(finnStillingerRequest)
         }
 

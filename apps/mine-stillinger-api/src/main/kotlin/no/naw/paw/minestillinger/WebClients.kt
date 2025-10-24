@@ -15,6 +15,10 @@ import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.client.kafkaKeysClient
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.pdl.factory.createPdlClient
+import no.nav.paw.security.texas.TEXAS_CONFIG
+import no.nav.paw.security.texas.TexasClient
+import no.nav.security.token.support.client.core.http.OAuth2HttpClient
+import no.nav.security.token.support.client.core.oauth2.TokenExchangeClient
 
 class WebClients(
     val kafkaClient: KafkaKeysClient,
@@ -34,6 +38,10 @@ fun initWebClient(): WebClients {
             }
         }
     }
+    val texasClient = TexasClient(
+        httpClient = httpClient,
+        config = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
+    )
     val finnStillingerClient = FinnStillingerClient(
         config =TODO("Config som faktisk er for TokenX exchange"),
         tokenProvider = TODO("TokenX exchange"),
