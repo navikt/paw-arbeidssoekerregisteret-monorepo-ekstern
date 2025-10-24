@@ -19,8 +19,10 @@ spec:
       value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
     - name: PDL_TEMA
       value: "OPP"
-    - name: TARGET_APP
-      value: "api://dev-gcp.paw.api-ledigestillinger/.default"
+    - name: LEDIGE_STILLINGER_BASE_URL
+      value: "http://paw-arbeidssoekerregisteret-api-ledigestillinger"
+    - name: LEDIGE_STILLINGER_TARGET
+      value: "dev-gcp.paw.paw-arbeidssoekerregisteret-api-ledigestillinger"
   resources:
     limits:
       memory: 640Mi
