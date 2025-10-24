@@ -20,11 +20,7 @@ suspend fun PdlClient.harBeskyttetAdresse(identitetsnummer: Identitetsnummer): B
     if (adressebeskyttelse.size > 1) {
         buildApplicationLogger.warn("Person har flere adressebeskyttelser")
     }
-    return adressebeskyttelse.isEmpty() ||
-            adressebeskyttelse.all {
-                appLogger.info("Gradering: '${it.gradering}'")
-                it.gradering == AdressebeskyttelseGradering.UGRADERT
-            }
+    return adressebeskyttelse.any { it.gradering != AdressebeskyttelseGradering.UGRADERT }
 }
 
 suspend fun PdlClient.harBeskyttetAdresseBulk(identitetsnummer: List<Identitetsnummer>): List<AdressebeskyttelseResultat> =
