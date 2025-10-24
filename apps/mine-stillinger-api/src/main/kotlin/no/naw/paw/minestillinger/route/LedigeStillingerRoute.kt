@@ -31,6 +31,7 @@ import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.api
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun Route.ledigeStillingerRoute(
@@ -45,22 +46,22 @@ fun Route.ledigeStillingerRoute(
                     .hentSluttbrukerEllerNull()
                     ?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-                val request = transaction {
+                val søkOgRequest = suspendedTransactionAsync {
                     val brukerId = hentBrukerId(identitetsnummer)
                     val soek = brukerId?.let { id -> hentLagretSøk(id) }
                         ?.firstOrNull { it.soek is StedSoek }
                     soek?.let { stedSøk ->
                         val søk = stedSøk.soek as StedSoek
-                        genererRequest(søk)
+                        stedSøk to genererRequest(søk)
                     }
-                }
-                if (request != null) {
-                    val response = ledigeStillingerClient.finnLedigeStillinger(call.securityContext().accessToken, request)
+                }.await()
+                if (søkOgRequest?.second != null) {
+                    val response = ledigeStillingerClient.finnLedigeStillinger(call.securityContext().accessToken, søkOgRequest.second)
                     val jobbAnonnser = response.stillinger.map(::jobbAnnonse)
                     val svar = MineStillingerResponse(
-                        soek = soek!!.soek.api(),
+                        soek = søkOgRequest.first.soek.api(),
                         resultat = jobbAnonnser,
-                        sistKjoert = soek.sistKjoet
+                        sistKjoert = søkOgRequest.first.sistKjoet
                     )
                     call.respond(svar)
                 } else {
