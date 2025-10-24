@@ -13,7 +13,6 @@ suspend fun PdlClient.hentAdressebeskyttelse(
     behandlingsnummer: String,
 ): List<Adressebeskyttelse>? {
     val query = HentAdressebeskyttelse(HentAdressebeskyttelse.Variables(ident = ident))
-    logger.debug("Henter adressebeskyttelse fra PDL")
     val response = execute(
         query = query,
         callId = null,
@@ -29,7 +28,6 @@ suspend fun PdlClient.hentAdressebeskyttelse(
         }
     }
 
-    logger.debug("Hentet opphold fra PDL")
     return response.data?.hentPerson?.adressebeskyttelse
 }
 suspend fun PdlClient.hentAdressebeskyttelse(
@@ -38,7 +36,6 @@ suspend fun PdlClient.hentAdressebeskyttelse(
     behandlingsnummer: String
 ): List <HentPersonBolkResult>? {
     val query = HentAdressebeskyttelseBolk(HentAdressebeskyttelseBolk.Variables(identer = identer))
-    logger.debug("Henter adressebeskyttelse fra PDL")
     val response = execute(
         query = query,
         callId = null,
@@ -46,13 +43,11 @@ suspend fun PdlClient.hentAdressebeskyttelse(
         behandlingsnummer = behandlingsnummer
     )
     response.errors?.let {
-        logger.debug("Hent adressebeskyttelse fra PDL feilet med: {}", it)
         if (response.hasNotFoundError()) {
             throw PdlPersonIkkeFunnetException("Person ikke funnet i PDL", it)
         } else {
             throw PdlUkjentFeilException("Kall til PDL feilet", it)
         }
-        logger.debug("Hentet opphold fra PDL")
     }
     return response.data?.hentPersonBolk
 }
