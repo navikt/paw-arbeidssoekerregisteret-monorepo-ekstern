@@ -47,10 +47,10 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: "java"
-  accessPolicy:
-    inbound:
-      rules:
-        - application: paw-arbeidssoekerregisteret-api-mine-stillinger
+#  accessPolicy:
+#    inbound:
+#      rules:
+#        - application: paw-arbeidssoekerregisteret-api-mine-stillinger
   gcp:
     sqlInstances:
       - type: POSTGRES_17

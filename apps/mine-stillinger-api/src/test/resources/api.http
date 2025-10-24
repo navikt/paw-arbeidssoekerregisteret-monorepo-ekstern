@@ -1,0 +1,37 @@
+### GET Brukerprofil
+GET https://mine-stillinger-arbeidssoekerregisteret.intern.dev.nav.no/api/v1/brukerprofil
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### PUT Tjenestestatus
+PUT https://mine-stillinger-arbeidssoekerregisteret.intern.dev.nav.no/api/v1/brukerprofil/tjenestestatus/AKTIV
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### PUT Stillingssøk
+PUT https://mine-stillinger-arbeidssoekerregisteret.intern.dev.nav.no/api/v1/brukerprofil/stillingssoek
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+[
+    {
+        "soekType": "STED_SOEK_V1",
+        "fylker": [
+            {
+                "navn": "Oslo",
+                "fylkesnummer": "03",
+                "kommuner": []
+            }
+        ],
+        "soekeord": [],
+        "styrk08Kode": [
+            "2310"
+        ]
+    }
+]
+
+### POST Stillinger
+GET {{baseUrl}}/api/v1/ledigestillinger
+Accept: application/json
+Authorization: Bearer {{accessToken}}
