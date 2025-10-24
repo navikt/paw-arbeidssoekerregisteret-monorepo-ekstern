@@ -7,7 +7,9 @@ import no.nav.paw.ledigestillinger.api.models.VisningGrad
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
+import no.nav.paw.logging.logger.buildNamedLogger
 import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
@@ -19,6 +21,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 import java.util.*
+
+private val logger = buildNamedLogger("database")
 
 object StillingerTable : LongIdTable("stillinger") {
     val uuid = uuid("uuid")
@@ -70,19 +74,60 @@ fun StillingerTable.selectRowByUUID(
 
 fun StillingerTable.selectRowsByKategorierAndFylker(
     soekeord: Collection<String>, // TODO Benytt søkeord?
-    kategorier: Collection<String>, // TODO Hva om ingen kategorier?
-    fylker: Collection<Fylke>, // TODO Hva om ingen fylker?
+    kategorier: Collection<String>,
+    fylker: Collection<Fylke>,
     paging: Paging = Paging()
 ): List<StillingRow> {
     val fylkesnummer = fylker.mapNotNull { it.fylkesnummer }
+    val kommunenummer = fylker.flatMap { it.kommuner }.map { it.kommunenummer }
+
+    val kategorierQuery: Op<Boolean> = KategorierTable.normalisertKode inList kategorier
+    val fylkerQuery: Op<Boolean> = LokasjonerTable.fylkeskode inList fylkesnummer
+    val kommunerQuery: Op<Boolean> = LokasjonerTable.kommunekode inList kommunenummer
+    val aktivQuery: Op<Boolean> = StillingerTable.status eq StillingStatus.AKTIV
+
+    val combinedQuery: Op<Boolean> = if (kategorier.isEmpty()) {
+        if (fylkesnummer.isEmpty()) {
+            if (kommunenummer.isEmpty()) {
+                logger.debug("Query på aktive stillinger uten kategorier, fylker eller kommuner")
+                aktivQuery
+            } else {
+                logger.debug("Query på aktive stillinger med kommuner, men uten kategorier eller fylker")
+                kommunerQuery and aktivQuery
+            }
+        } else {
+            if (kommunenummer.isEmpty()) {
+                logger.debug("Query på aktive stillinger med fylker, men uten kategorier eller kommuner")
+                fylkerQuery and aktivQuery
+            } else {
+                logger.debug("Query på aktive stillinger med fylker og kommuner, men uten kategorier")
+                fylkerQuery and kommunerQuery and aktivQuery
+            }
+        }
+    } else {
+        if (fylkesnummer.isEmpty()) {
+            if (kommunenummer.isEmpty()) {
+                logger.debug("Query på aktive stillinger med kategorier, men uten fylker eller kommuner")
+                kategorierQuery and aktivQuery
+            } else {
+                logger.debug("Query på aktive stillinger med kategorier og kommuner, men uten fylker")
+                kategorierQuery and kommunerQuery and aktivQuery
+            }
+        } else {
+            if (kommunenummer.isEmpty()) {
+                logger.debug("Query på aktive stillinger med kategorier og fylker, men uten kommuner")
+                kategorierQuery and fylkerQuery and aktivQuery
+            } else {
+                logger.debug("Query på aktive stillinger med kategorier, fylker og kommuner")
+                kategorierQuery and fylkerQuery and kommunerQuery and aktivQuery
+            }
+        }
+    }
+
     return join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
         .join(LokasjonerTable, JoinType.LEFT, StillingerTable.id, LokasjonerTable.parentId)
         .selectAll()
-        .where {
-            (KategorierTable.normalisertKode inList kategorier) and
-                    (LokasjonerTable.fylkeskode inList fylkesnummer) and
-                    (StillingerTable.status eq StillingStatus.AKTIV)
-        }
+        .where { combinedQuery }
         .orderBy(StillingerTable.id, paging.order())
         .limit(paging.size()).offset(paging.offset())
         .map {

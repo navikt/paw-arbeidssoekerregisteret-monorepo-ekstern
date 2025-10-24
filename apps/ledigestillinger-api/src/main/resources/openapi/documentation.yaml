@@ -17,19 +17,26 @@ paths:
               $ref: "#/components/schemas/FinnStillingerRequest"
         required: true
       responses:
-        '200':
+        "200":
           description: Inneholder liste med stillinger
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/FinnStillingerResponse"
-        '304':
-          description: Feed page is empty, or its contents have not changed since
-            last time
-        '400':
-          description: Invalid input in the request
-        '404':
-          description: Could not find page
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
+                type: "urn:paw:http:kunne-ikke-tolke-forespoersel"
+                status: 400
+                title: "Bad Request"
+                detail: "Kunne ikke tolke forespørsel"
+                instance: "/api/v1/stillinger"
+                timestamp: "2021-01-01T12:00:00.000Z"
       deprecated: false
       security:
         - BearerAuth: [ ]
@@ -49,19 +56,40 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Stilling
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/Stilling"
-        '304':
-          description: Feed page is empty, or its contents have not changed since
-            last time
-        '400':
-          description: Invalid input in the request
-        '404':
-          description: Could not find page
+                $ref: "#/components/schemas/Stilling"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
+                type: "urn:paw:http:kunne-ikke-tolke-forespoersel"
+                status: 400
+                title: "Bad Request"
+                detail: "Kunne ikke tolke forespørsel"
+                instance: "/api/v1/stillinger/5a431182-f342-417d-b552-aa574a1063c7"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "86b35435-d70b-4bea-a1e4-77e6c288e255"
+                type: "urn:paw:stillinger:ikke-funnet"
+                status: 404
+                title: "Not Found"
+                detail: "Stilling ikke funnet"
+                instance: "/api/v1/stillinger/74a3b46e-7e77-4c6b-90e9-e8d021e704a2"
+                timestamp: "2021-01-01T12:00:00.000Z"
       deprecated: false
       security:
         - BearerAuth: [ ]
@@ -82,9 +110,9 @@ components:
         fylker:
           type: array
           items:
-            "$ref": "#/components/schemas/Fylke"
+            $ref: "#/components/schemas/Fylke"
         paging:
-          "$ref": "#/components/schemas/Paging"
+          $ref: "#/components/schemas/Paging"
       required:
         - soekeord
         - kategorier
@@ -99,7 +127,7 @@ components:
           items:
             $ref: '#/components/schemas/Stilling'
         paging:
-          "$ref": "#/components/schemas/Paging"
+          $ref: "#/components/schemas/Paging"
       required:
         - stillinger
         - paging
@@ -119,29 +147,32 @@ components:
         arbeidsgivernavn:
           type: string
         arbeidsgiver:
-          "$ref": "#/components/schemas/Arbeidsgiver"
+          nullable: true
+          oneOf:
+            - type: 'null'
+            - $ref: "#/components/schemas/Arbeidsgiver"
         stillingstittel:
           type: string
         ansettelsesform:
           type: string
         stillingsprosent:
-          "$ref": "#/components/schemas/Stillingsprosent"
+          $ref: "#/components/schemas/Stillingsprosent"
         stillingsantall:
           type: integer
         sektor:
-          "$ref": "#/components/schemas/Sektor"
+          $ref: "#/components/schemas/Sektor"
         soeknadsfrist:
-          "$ref": "#/components/schemas/Frist"
+          $ref: "#/components/schemas/Frist"
         oppstartsfrist:
-          "$ref": "#/components/schemas/Frist"
+          $ref: "#/components/schemas/Frist"
         kategorier:
           type: array
           items:
-            "$ref": "#/components/schemas/Kategori"
+            $ref: "#/components/schemas/Kategori"
         lokasjoner:
           type: array
           items:
-            "$ref": "#/components/schemas/Lokasjon"
+            $ref: "#/components/schemas/Lokasjon"
         publisert:
           type: string
           format: "date-time"
@@ -149,6 +180,7 @@ components:
         utloeper:
           type: string
           format: "date-time"
+          nullable: true
           example: "2021-09-29T11:20:33.444Z"
       required:
         - uuid
@@ -284,6 +316,7 @@ components:
         dato:
           type: string
           format: date
+          nullable: true
           example: "2025-11-25"
           description: "Frist, bare med dersom 'type' er DATO"
       required:
@@ -324,6 +357,42 @@ components:
         - ASC
         - DESC
       default: ASC
+    ProblemDetails:
+      type: object
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        type:
+          type: "string"
+          format: "uri"
+        status:
+          type: "integer"
+        title:
+          type: "string"
+        detail:
+          type: "string"
+        instance:
+          type: "string"
+        timestamp:
+          type: "string"
+          format: "date-time"
+      required:
+        - id
+        - type
+        - status
+        - title
+        - detail
+        - instance
+        - timestamp
+      example:
+        id: "3cd944fb-6187-41a8-91b2-b172f2baf890"
+        type: "urn:paw:default:ukjent-feil"
+        status: 500
+        title: "Internal Server Error"
+        detail: "Ukjent feil"
+        instance: "/api/v1/stillinger"
+        timestamp: "2021-01-01T12:00:00.000Z"
   securitySchemes:
     BearerAuth:
       scheme: bearer

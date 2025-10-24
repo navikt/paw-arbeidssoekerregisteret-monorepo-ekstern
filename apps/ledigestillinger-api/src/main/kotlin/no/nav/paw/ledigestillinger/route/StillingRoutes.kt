@@ -26,6 +26,7 @@ fun Route.stillingRoutes(
                 val stilling = stillingService.hentStilling(uuid)
                 call.respond<Stilling>(stilling)
             }
+
             post<FinnStillingerRequest> { request ->
                 request.verify()
 

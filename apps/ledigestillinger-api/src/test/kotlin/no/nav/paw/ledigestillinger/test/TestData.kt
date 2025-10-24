@@ -25,30 +25,44 @@ object TestData {
     val uuid1_2: UUID = UUID.fromString("d62bd67a-7641-4f6a-bca5-869dd9361a04")
     val uuid2_1: UUID = UUID.fromString("ce4f105e-16d9-410f-8aee-56136a61607e")
     val uuid2_2: UUID = UUID.fromString("cc2d73a9-e0e5-4caa-8c91-aa4b8365b85e")
+    val uuid2_3: UUID = UUID.fromString("f83ae2de-52d7-458b-9e25-cbf53c144c77")
+    val uuid2_4: UUID = UUID.fromString("c48fff95-e047-45a0-b14f-b58075d50897")
 
     val message1_1: Message<UUID, Ad> = message(
         uuid = uuid1_1,
-        styrkCode = "1010",
+        styrkCode = "1011",
         countyCode = "55",
         municipalCode = "5501"
     )
     val message1_2: Message<UUID, Ad> = message(
         uuid = uuid1_2,
-        styrkCode = "1011",
+        styrkCode = "1012",
         countyCode = "56",
         municipalCode = "5601"
     )
     val message2_1: Message<UUID, Ad> = message(
         uuid = uuid2_1,
-        styrkCode = "2010",
+        styrkCode = "2011",
         countyCode = "57",
         municipalCode = "5701"
     )
     val message2_2: Message<UUID, Ad> = message(
         uuid = uuid2_2,
-        styrkCode = "2011",
+        styrkCode = "2012",
         countyCode = "57",
         municipalCode = "5702"
+    )
+    val message2_3: Message<UUID, Ad> = message(
+        uuid = uuid2_3,
+        styrkCode = "2013",
+        countyCode = "57",
+        municipalCode = "5703"
+    )
+    val message2_4: Message<UUID, Ad> = message(
+        uuid = uuid2_4,
+        styrkCode = "2014",
+        countyCode = "57",
+        municipalCode = "5704"
     )
 
     fun message(

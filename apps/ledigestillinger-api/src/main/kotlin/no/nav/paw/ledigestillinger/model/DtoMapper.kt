@@ -31,6 +31,7 @@ fun StillingRow.asDto(): Stilling = Stilling(
     tittel = tittel,
     status = status,
     arbeidsgivernavn = arbeidsgivernavn,
+    arbeidsgiver = arbeidsgiver?.asDto(),
     stillingstittel = stillingstittel,
     ansettelsesform = ansettelsesform,
     stillingsprosent = stillingsprosent?.asStillingsprosent() ?: Stillingsprosent.UKJENT,
@@ -152,8 +153,8 @@ fun Ad.asDto(): Stilling {
         oppstartsfrist = starttime?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = starttime),
         kategorier = this.categories.map { it.asDto() },
         lokasjoner = this.locations.map { it.asDto() },
-        utloeper = this.expires.fromLocalDateTimeString(),
-        publisert = this.published.fromLocalDateTimeString()
+        publisert = this.published.fromLocalDateTimeString(),
+        utloeper = this.expires?.fromLocalDateTimeString()
     )
 }
 

@@ -1,6 +1,7 @@
 package no.nav.paw.ledigestillinger.route
 
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -19,6 +20,7 @@ import no.nav.paw.ledigestillinger.model.asDto
 import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData
+import no.nav.paw.ledigestillinger.test.validateAgainstOpenApiSpec
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
@@ -60,6 +62,7 @@ class StillingRoutesTest : FreeSpec({
                     }
 
                     // THEN
+                    response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.OK
                     val body = response.body<Stilling>()
                     body shouldBe stillingRow.asDto()
@@ -76,6 +79,7 @@ class StillingRoutesTest : FreeSpec({
                     }
 
                     // THEN
+                    response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.NotFound
                     val body = response.body<ProblemDetails>()
                     body.status shouldBe HttpStatusCode.NotFound
@@ -94,7 +98,7 @@ class StillingRoutesTest : FreeSpec({
                     // GIVEN
                     val request = FinnStillingerRequest(
                         soekeord = emptyList(),
-                        kategorier = listOf("2010", "2011"),
+                        kategorier = listOf("2011", "2012"),
                         fylker = listOf(
                             Fylke(
                                 fylkesnummer = "57",
@@ -111,6 +115,7 @@ class StillingRoutesTest : FreeSpec({
                     }
 
                     // THEN
+                    response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.OK
                     val body = response.body<FinnStillingerResponse>()
                     body.stillinger shouldHaveSize 2
@@ -122,7 +127,7 @@ class StillingRoutesTest : FreeSpec({
                     stilling2 shouldBe TestData.message2_2.asStillingRow().asDto()
                 }
 
-                "Skal ikke finne stillinger med tomt søk" {
+                "Skal finne alle stillinger med tomt søk" {
                     // GIVEN
                     val request = FinnStillingerRequest(
                         soekeord = emptyList(),
@@ -138,9 +143,16 @@ class StillingRoutesTest : FreeSpec({
                     }
 
                     // THEN
+                    response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.OK
                     val body = response.body<FinnStillingerResponse>()
-                    body.stillinger shouldBe emptyList()
+                    body.stillinger shouldHaveSize 4
+                    body.stillinger shouldContainOnly listOf(
+                        TestData.message1_1.value.asDto(),
+                        TestData.message1_2.value.asDto(),
+                        TestData.message2_1.value.asDto(),
+                        TestData.message2_2.value.asDto()
+                    )
                 }
             }
         }

@@ -1,5 +1,11 @@
+### GET Request
+GET {{baseUrl}}/api/v1/stillinger/74a3b46e-7e77-4c6b-90e9-e8d021e704a2
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
 ### POST Request
 POST {{baseUrl}}/api/v1/stillinger
+Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{$auth.token("tokenx")}}
 
