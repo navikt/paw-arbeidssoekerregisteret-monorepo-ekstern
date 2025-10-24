@@ -5,11 +5,12 @@ import java.time.Instant
 import java.time.LocalDate
 
 data class ApiLedigeStillinger(
-    val soek: List<ApiStillingssoek>,
-    val resultat: List<JobbAnnonse>
+    val soek: ApiStillingssoek,
+    val frorrigeSoek: Instant?,
+    val resultat: List<ApiJobbAnnonse>
 )
 
-data class JobbAnnonse(
+data class ApiJobbAnnonse(
     val tittel: String,
     val stillingbeskrivelse: String?,
     val publisert: Instant,
@@ -28,7 +29,7 @@ data class Soeknadsfrist(
 )
 
 enum class SoeknadsfristType {
-    Ukjent, Snarest, Dato
+    Ukjent, Snarest, Dato, Fortloepende;
 }
 
 enum class Sektor {

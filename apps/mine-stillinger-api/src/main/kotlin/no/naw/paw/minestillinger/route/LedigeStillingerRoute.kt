@@ -1,26 +1,41 @@
 package no.naw.paw.minestillinger.route
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.request.path
+import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import no.nav.paw.error.model.ErrorType
+import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
+import no.naw.paw.ledigestillinger.model.Frist
+import no.naw.paw.ledigestillinger.model.FristType
+import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.Kommune
 import no.naw.paw.ledigestillinger.model.Paging
+import no.naw.paw.ledigestillinger.model.Sektor
 import no.naw.paw.ledigestillinger.model.SortOrder
+import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.minestillinger.FinnStillingerClient
-import no.naw.paw.minestillinger.api.JobbAnnonse
-import no.naw.paw.minestillinger.db.ops.hentSoek
+import no.naw.paw.minestillinger.api.ApiJobbAnnonse
+import no.naw.paw.minestillinger.api.MineStillingerResponse
+import no.naw.paw.minestillinger.api.Soeknadsfrist
+import no.naw.paw.minestillinger.api.SoeknadsfristType
 import no.naw.paw.minestillinger.domain.BrukerId
+import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
+import no.naw.paw.minestillinger.domain.api
 
 fun Route.ledigeStillingerRoute(
     ledigeStillingerClient: FinnStillingerClient,
-    hentBrukerId: (Identitetsnummer) -> BrukerId?
+    hentBrukerId: suspend (Identitetsnummer) -> BrukerId?,
+    hentLagretSøk: (BrukerId) -> List<LagretStillingsoek>
 ) {
     route("/api/v1/ledigestillinger") {
         autentisering(TokenX) {
@@ -30,42 +45,76 @@ fun Route.ledigeStillingerRoute(
                     ?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
                 val brukerId = hentBrukerId(identitetsnummer)
-                val soek = brukerId?.let { id -> hentSoek(id) }
+                val soek = brukerId?.let { id -> hentLagretSøk(id) }
                     ?.firstOrNull { it.soek is StedSoek }
                 val request = soek?.let { stedSøk ->
                     val søk = stedSøk.soek as StedSoek
-                    FinnStillingerRequest(
-                        soekeord = søk.soekeord,
-                        kategorier = søk.styrk08,
-                        fylker = søk.fylker.map { fylke ->
-                            no.naw.paw.ledigestillinger.model.Fylke(
-                                fylkesnummer = fylke.fylkesnummer,
-                                kommuner = fylke.kommuner.map { kommune ->
-                                    Kommune(kommunenummer = kommune.kommunenummer)
-                                }
-                            )
-                        },
-                        paging = Paging(page = 1, pageSize = 30, sortOrder = SortOrder.ASC)
-                    )
+                    genererRequest(søk)
                 }
                 if (request != null) {
                     val response = ledigeStillingerClient.finnLedigeStillinger(request)
-                    response.stillinger?.map { stilling ->
-                        JobbAnnonse(
-                            tittel = stilling.tittel,
-                            stillingbeskrivelse = stilling.stillingstittel,
-                            publisert = stilling.publisert,
-                            soeknadsfrist = TODO(),
-                            land = TODO(),
-                            kommune = TODO(),
-                            sektor = TODO(),
-                            selskap = stilling.arbeidsgivernavn ?: "Ukjent"
-
+                    val jobbAnonnser = response.stillinger.map(::jobbAnnonse)
+                    val svar = MineStillingerResponse(
+                        soek = soek!!.soek.api(),
+                        resultat = jobbAnonnser,
+                        sistKjoert = soek.sistKjoet
+                    )
+                    call.respond(svar)
+                } else {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        ProblemDetails(
+                            title = "Ingen lagrede søk funnet",
+                            detail = "Det ble ikke funnet noen lagrede søk for brukeren.",
+                            instance = call.request.path(),
+                            status = HttpStatusCode.NotFound
                         )
-                    }
-
+                    )
                 }
             }
         }
     }
 }
+
+private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(
+    tittel = stilling.tittel,
+    stillingbeskrivelse = stilling.stillingstittel,
+    publisert = stilling.publisert,
+    soeknadsfrist = soeknadsfrist(stilling.soeknadsfrist),
+    land = stilling.lokasjoner.map { it.land }.joinToString(", "),
+    kommune = stilling.lokasjoner.mapNotNull { it.kommune }.joinToString(", ").takeIf(String::isNotBlank),
+    sektor = when (stilling.sektor) {
+        Sektor.OFFENTLIG -> no.naw.paw.minestillinger.api.Sektor.Offentlig
+        Sektor.PRIVAT -> no.naw.paw.minestillinger.api.Sektor.Privat
+        Sektor.UKJENT -> no.naw.paw.minestillinger.api.Sektor.Ukjent
+    },
+    selskap = stilling.arbeidsgivernavn ?: "Ukjent"
+)
+
+fun soeknadsfrist(frist: Frist): Soeknadsfrist {
+    val type = when(frist.type) {
+        FristType.SNAREST -> SoeknadsfristType.Snarest
+        FristType.FORTLOEPENDE -> SoeknadsfristType.Fortloepende
+        FristType.DATO -> SoeknadsfristType.Dato
+        FristType.UKJENT -> SoeknadsfristType.Ukjent
+    }
+    return Soeknadsfrist(
+        raw = frist.verdi ?: "Ukjent",
+        type = type,
+        dato = frist.dato
+    )
+}
+
+fun genererRequest(søk: StedSoek): FinnStillingerRequest = FinnStillingerRequest(
+    soekeord = søk.soekeord,
+    kategorier = søk.styrk08,
+    fylker = søk.fylker.map { fylke ->
+        Fylke(
+            fylkesnummer = fylke.fylkesnummer,
+            kommuner = fylke.kommuner.map { kommune ->
+                Kommune(kommunenummer = kommune.kommunenummer)
+            }
+        )
+    },
+    paging = Paging(page = 1, pageSize = 30, sortOrder = SortOrder.ASC)
+)

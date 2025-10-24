@@ -29,13 +29,6 @@ spec:
       memory: 640Mi
   tokenx:
     enabled: true
-  azure:
-    application:
-      enabled: true
-      allowAllUsers: true
-      claims:
-        extra:
-          - NAVident
   kafka:
     pool: nav-dev
   replicas:

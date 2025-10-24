@@ -18,7 +18,8 @@ import no.nav.paw.pdl.factory.createPdlClient
 
 class WebClients(
     val kafkaClient: KafkaKeysClient,
-    val pdlClient: PdlClient
+    val pdlClient: PdlClient,
+    val finnStillingerClient: FinnStillingerClient
 )
 
 fun initWebClient(): WebClients {
@@ -33,6 +34,11 @@ fun initWebClient(): WebClients {
             }
         }
     }
+    val finnStillingerClient = FinnStillingerClient(
+        config =TODO("Config som faktisk er for TokenX exchange"),
+        tokenProvider = TODO("TokenX exchange"),
+        httpClient = httpClient
+    )
     val kafkaKeyConfig: KafkaKeyConfig = loadNaisOrLocalConfiguration(KAFKA_KEY_GENERATOR_CLIENT_CONFIG)
     val idClient = kafkaKeysClient(
         httpClient = httpClient,
@@ -45,6 +51,7 @@ fun initWebClient(): WebClients {
     )
     return WebClients(
         kafkaClient = idClient,
-        pdlClient = pdlClient
+        pdlClient = pdlClient,
+        finnStillingerClient = finnStillingerClient
     )
 }

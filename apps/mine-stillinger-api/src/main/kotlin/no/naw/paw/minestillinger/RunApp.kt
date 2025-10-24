@@ -11,7 +11,8 @@ fun runApp(applicationContext: ApplicationContext): Unit {
         meterBinders = listOf(),
         healthIndicator = applicationContext.healthChecks,
         authProviders = applicationContext.securityConfig.authProviders,
-        brukerprofilTjeneste = applicationContext.brukerprofilTjeneste
+        brukerprofilTjeneste = applicationContext.brukerprofilTjeneste,
+        finnStillingerClient = applicationContext.finnStillingerClient
     )
     Runtime.getRuntime().addShutdownHook(Thread {
         appLogger.info("Applikasjonen avsluttes...")

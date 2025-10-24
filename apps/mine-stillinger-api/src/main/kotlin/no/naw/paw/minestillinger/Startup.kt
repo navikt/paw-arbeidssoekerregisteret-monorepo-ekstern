@@ -87,7 +87,8 @@ fun main() {
         ),
         idClient = webClients.kafkaClient,
         pdlClient = webClients.pdlClient,
-        brukerprofilTjeneste = brukerprofilTjeneste
+        brukerprofilTjeneste = brukerprofilTjeneste,
+        finnStillingerClient = webClients.finnStillingerClient,
     )
     runApp(appContext)
 }

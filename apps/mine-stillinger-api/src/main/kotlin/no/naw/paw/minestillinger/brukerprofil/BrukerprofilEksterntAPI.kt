@@ -8,6 +8,7 @@ import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.domain.BrukerId
+import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.Stillingssoek
 import no.naw.paw.minestillinger.domain.api
 import no.naw.paw.minestillinger.domain.toTjenesteStatus
@@ -44,6 +45,16 @@ suspend fun BrukerprofilTjeneste.hentSøk(
     return suspendedTransactionAsync {
         val brukerprofil = hentBrukerProfil(identitetsnummer) ?: brukerIkkeFunnet()
         hentSøk(brukerprofil.id).map { søk -> søk.api() }
+    }.await()
+}
+
+suspend fun BrukerprofilTjeneste.hentLagretSøk(
+    hentSøk: (BrukerId) -> List<LagretStillingsoek>,
+    identitetsnummer: Identitetsnummer
+): List<LagretStillingsoek> {
+    return suspendedTransactionAsync {
+        val brukerprofil = hentBrukerProfil(identitetsnummer) ?: brukerIkkeFunnet()
+        hentSøk(brukerprofil.id)
     }.await()
 }
 

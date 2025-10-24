@@ -31,6 +31,7 @@ import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.kodeverk
+import no.naw.paw.minestillinger.route.ledigeStillingerRoute
 import org.slf4j.event.Level
 import java.time.Duration
 
@@ -40,6 +41,7 @@ fun <A> initEmbeddedKtorServer(
     healthIndicator: A,
     authProviders: List<AuthProvider>,
     brukerprofilTjeneste: BrukerprofilTjeneste,
+    finnStillingerClient: FinnStillingerClient
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> where
         A : LivenessCheck, A : ReadinessCheck, A : StartupCheck {
 
@@ -56,6 +58,11 @@ fun <A> initEmbeddedKtorServer(
             brukerprofilRoute(
                 brukerprofilTjeneste = brukerprofilTjeneste,
                 søkeAdminOps = ExposedSøkAdminOps
+            )
+            ledigeStillingerRoute(
+                ledigeStillingerClient = finnStillingerClient,
+                hentBrukerId = { identitetsnummer -> brukerprofilTjeneste.hentBrukerProfil(identitetsnummer)?.id },
+                hentLagretSøk = ExposedSøkAdminOps::hentSoek
             )
             kodeverk()
             swaggerUI("/docs/api", "openapi/openapi-spec.yaml")

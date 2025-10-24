@@ -19,6 +19,7 @@ data class ApplicationContext(
     val healthChecks: HealthChecks,
     val idClient: KafkaKeysClient,
     val pdlClient: PdlClient,
+    val finnStillingerClient: FinnStillingerClient,
     val brukerprofilTjeneste: BrukerprofilTjeneste
 )
 
