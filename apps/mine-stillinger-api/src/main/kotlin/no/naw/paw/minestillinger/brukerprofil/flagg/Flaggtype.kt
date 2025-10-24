@@ -14,6 +14,10 @@ sealed interface Flagg {
     val type: Flaggtype<*>
     val verdi: Boolean
     val tidspunkt: Instant
+
+    fun debug(): String {
+        return "Flagg(type=${type.type}, verdi=$verdi, tidspunkt=$tidspunkt)"
+    }
 }
 
 fun Flagg.erFremdelesGyldig(

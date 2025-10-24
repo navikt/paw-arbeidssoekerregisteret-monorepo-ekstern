@@ -1,7 +1,9 @@
 package no.naw.paw.minestillinger.brukerprofil
 
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
+import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
@@ -71,6 +73,7 @@ class BrukerprofilTjeneste(
         val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
         val erITestGruppenFlagg = genererErITestGruppenFlagg(identitetsnummer)
         val alleFlagg = flagg.addOrUpdate(erITestGruppenFlagg, profileringsFlagg)
+        appLogger.info("Flagg: ${alleFlagg.map { it.debug() }.joinToString(", ")}")
         return brukerProfilerUtenFlagg.medFlagg(alleFlagg)
     }
 
