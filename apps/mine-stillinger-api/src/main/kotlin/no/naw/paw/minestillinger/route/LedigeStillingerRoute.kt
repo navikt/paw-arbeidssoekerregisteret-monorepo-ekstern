@@ -52,7 +52,7 @@ fun Route.ledigeStillingerRoute(
                     genererRequest(søk)
                 }
                 if (request != null) {
-                    val response = ledigeStillingerClient.finnLedigeStillinger(request)
+                    val response = ledigeStillingerClient.finnLedigeStillinger(call.securityContext().accessToken, request)
                     val jobbAnonnser = response.stillinger.map(::jobbAnnonse)
                     val svar = MineStillingerResponse(
                         soek = soek!!.soek.api(),

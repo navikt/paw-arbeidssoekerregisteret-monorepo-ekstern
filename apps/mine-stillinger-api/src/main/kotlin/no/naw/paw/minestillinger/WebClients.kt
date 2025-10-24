@@ -43,8 +43,8 @@ fun initWebClient(): WebClients {
         config = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     )
     val finnStillingerClient = FinnStillingerClient(
-        config =TODO("Config som faktisk er for TokenX exchange"),
-        tokenProvider = TODO("TokenX exchange"),
+        config =loadNaisOrLocalConfiguration("finn_ledige_stillinger.toml"),
+        texasClient = texasClient,
         httpClient = httpClient
     )
     val kafkaKeyConfig: KafkaKeyConfig = loadNaisOrLocalConfiguration(KAFKA_KEY_GENERATOR_CLIENT_CONFIG)

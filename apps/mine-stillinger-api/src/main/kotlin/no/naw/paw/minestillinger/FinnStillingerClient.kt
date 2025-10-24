@@ -11,6 +11,10 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import no.nav.paw.error.exception.ClientResponseException
 import no.nav.paw.error.model.ErrorType
+import no.nav.paw.security.authentication.model.Sluttbruker
+import no.nav.paw.security.authentication.token.AccessToken
+import no.nav.paw.security.texas.TexasClient
+import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 
@@ -23,13 +27,19 @@ const val FINN_LEDIGE_STILLINGER_PATH = "/api/v1/stillinger"
 
 class FinnStillingerClient(
     private val config: LedigeStillingerClientConfig,
-    private val tokenProvider: (String) -> String,
+    private val texasClient: TexasClient,
     private val httpClient: HttpClient,
 ) {
-    suspend fun finnLedigeStillinger(finnStillingerRequest: FinnStillingerRequest): FinnStillingerResponse {
+    suspend fun finnLedigeStillinger(token: AccessToken, finnStillingerRequest: FinnStillingerRequest): FinnStillingerResponse {
+        val newToken = texasClient.exchangeOnBehalfOfBrukerToken(
+            OnBehalfOfBrukerRequest(
+                userToken = token.jwt,
+                target = config.target
+            )
+        ).accessToken
         val response = httpClient.post(config.baseUrl + FINN_LEDIGE_STILLINGER_PATH) {
             contentType(Application.Json)
-            bearerAuth(tokenProvider(config.target))
+            bearerAuth(newToken)
             setBody(finnStillingerRequest)
         }
 
