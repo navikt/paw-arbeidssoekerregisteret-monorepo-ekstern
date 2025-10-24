@@ -49,7 +49,7 @@ class DialogServiceTest : FreeSpec({
             )
         }
         val client = VeilarbdialogClient(
-            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake"),
+            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", target = "veilarbdialog.fake"),
             texasClient = mockk(relaxed = true),
             httpClient = testClient(engine)
         )
@@ -87,7 +87,7 @@ class DialogServiceTest : FreeSpec({
             )
         }
         val client = VeilarbdialogClient(
-            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake"),
+            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", target = "veilarbdialog.fake" ),
             texasClient = mockk(relaxed = true),
             httpClient = testClient(engine)
         )
@@ -123,7 +123,7 @@ class DialogServiceTest : FreeSpec({
             )
         }
         val client = VeilarbdialogClient(
-            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake"),
+            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", target = "veilarbdialog.fake"),
             texasClient = mockk(relaxed = true),
             httpClient = testClient(engine)
         )
@@ -161,7 +161,7 @@ class DialogServiceTest : FreeSpec({
             )
         }
         val client = VeilarbdialogClient(
-            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake"),
+            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", target = "veilarbdialog.fake"),
             texasClient = mockk(relaxed = true),
             httpClient = testClient(engine)
         )

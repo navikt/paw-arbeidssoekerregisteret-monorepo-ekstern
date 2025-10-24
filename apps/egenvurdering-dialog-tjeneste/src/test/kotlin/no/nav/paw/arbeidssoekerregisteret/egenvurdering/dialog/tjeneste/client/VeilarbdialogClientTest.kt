@@ -25,7 +25,7 @@ import no.nav.paw.security.texas.m2m.MachineToMachineTokenResponse
 
 class VeilarbdialogClientTest : FreeSpec({
     val dialogTestEndepunkt = "http://veilarbdialog.dab/veilarbdialog"
-    val testConfig = VeilarbdialogClientConfig(url = dialogTestEndepunkt)
+    val testConfig = VeilarbdialogClientConfig(url = dialogTestEndepunkt, target = "veilarbdialog.fake")
 
     val token = "test-m2m-token"
 
@@ -43,7 +43,7 @@ class VeilarbdialogClientTest : FreeSpec({
         }
 
         val texasClientMock = mockk<TexasClient>()
-        coEvery { texasClientMock.getMachineToMachineToken() } returns MachineToMachineTokenResponse(accessToken = token)
+        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns MachineToMachineTokenResponse(accessToken = token)
 
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,
@@ -89,7 +89,7 @@ class VeilarbdialogClientTest : FreeSpec({
         }
 
         val texasClientMock = mockk<TexasClient>()
-        coEvery { texasClientMock.getMachineToMachineToken() } returns MachineToMachineTokenResponse(token)
+        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns MachineToMachineTokenResponse(token)
 
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,
@@ -121,7 +121,7 @@ class VeilarbdialogClientTest : FreeSpec({
         }
 
         val texasClientMock = mockk<TexasClient>()
-        coEvery { texasClientMock.getMachineToMachineToken() } returns MachineToMachineTokenResponse(token)
+        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns MachineToMachineTokenResponse(token)
 
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,

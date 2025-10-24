@@ -37,8 +37,7 @@ class TexasClientTest : FreeSpec({
 
         val texasClient = TexasClient(
             config = TexasClientConfig(
-                endpoint = texasTestEndpoint,
-                target = "target-app"
+                endpoint = texasTestEndpoint
             ),
             httpClient = testClient(mockEngine)
         )
@@ -66,7 +65,7 @@ class TexasClientTest : FreeSpec({
         }
 
         val texasClient = TexasClient(
-            config = TexasClientConfig(endpoint = texasTestEndpoint, target),
+            config = TexasClientConfig(endpoint = texasTestEndpoint),
             httpClient = testClient(mockEngine)
         )
 
@@ -90,7 +89,7 @@ class TexasClientTest : FreeSpec({
         }
 
         val texasClient = TexasClient(
-            config = TexasClientConfig(endpoint = texasTestEndpoint, target),
+            config = TexasClientConfig(endpoint = texasTestEndpoint),
             httpClient = testClient(mockEngine)
         )
 
@@ -121,12 +120,12 @@ class TexasClientTest : FreeSpec({
         }
 
         val texasClient = TexasClient(
-            config = TexasClientConfig(endpoint = texasTestEndpoint, target = "target-app"),
+            config = TexasClientConfig(endpoint = texasTestEndpoint),
             httpClient = testClient(mockEngine)
         )
 
         runBlocking {
-            val response = texasClient.getMachineToMachineToken()
+            val response = texasClient.getMachineToMachineToken("target-app")
             response.accessToken shouldBe expectedToken
         }
     }
@@ -141,13 +140,13 @@ class TexasClientTest : FreeSpec({
         }
 
         val texasClient = TexasClient(
-            config = TexasClientConfig(endpoint = texasTestEndpoint, target = "target-app"),
+            config = TexasClientConfig(endpoint = texasTestEndpoint),
             httpClient = testClient(mockEngine)
         )
 
         runBlocking {
             shouldThrow<MachineToMachineTokenException> {
-                texasClient.getMachineToMachineToken()
+                texasClient.getMachineToMachineToken("target-app")
             }.message shouldContain "Statuskode: 401"
         }
     }

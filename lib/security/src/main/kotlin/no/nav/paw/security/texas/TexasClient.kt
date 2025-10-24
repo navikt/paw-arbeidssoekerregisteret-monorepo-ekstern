@@ -23,13 +23,13 @@ class TexasClient(
 
     suspend fun exchangeOnBehalfOfAnsattToken(request: OnBehalfOfAnsattRequest) = exchangeToken(request)
 
-    suspend fun getMachineToMachineToken(): MachineToMachineTokenResponse {
+    suspend fun getMachineToMachineToken(target: String): MachineToMachineTokenResponse {
         val response = httpClient.post(config.endpoint) {
             contentType(Application.Json)
             setBody(
                 MachineToMachineTokenRequest(
                     identityProvider = AZURE_AD.value,
-                    target = config.target,
+                    target = target,
                 )
             )
         }

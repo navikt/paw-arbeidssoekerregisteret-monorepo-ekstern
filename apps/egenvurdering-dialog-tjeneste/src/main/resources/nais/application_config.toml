@@ -5,7 +5,7 @@ egenvurderingTopic = "${KAFKA_PAW_EGENVURDERING_TOPIC}"
 
 [veilarbdialogClientConfig]
 url = "${DIALOG_TJENESTE_URL}"
+target = "${DIALOG_TJENESTE_API_TARGET}"
 
 [texasClientConfig]
 endpoint = "${NAIS_TOKEN_ENDPOINT}"
-target = "${DIALOG_TJENESTE_API_TARGET}"

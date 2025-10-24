@@ -16,5 +16,8 @@ data class KafkaTopologyConfig(
     val egenvurderingTopic: String,
 )
 
-data class VeilarbdialogClientConfig(val url: String)
+data class VeilarbdialogClientConfig(
+    val url: String,
+    val target: String
+)
 
