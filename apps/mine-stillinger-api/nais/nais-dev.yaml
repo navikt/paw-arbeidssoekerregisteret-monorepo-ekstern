@@ -71,6 +71,9 @@ spec:
           namespace: nais
         - application: azure-token-generator
           namespace: nais
+    outbound:
+      external:
+        - host: pdl-api.dev-fss-pub.nais.io
   gcp:
     sqlInstances:
       - type: POSTGRES_18
