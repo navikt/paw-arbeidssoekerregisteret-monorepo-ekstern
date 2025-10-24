@@ -8,6 +8,7 @@ import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.pdl.client.hentAdressebeskyttelse
 import no.nav.paw.pdl.graphql.generated.enums.AdressebeskyttelseGradering
+import no.naw.paw.minestillinger.appLogger
 
 const val BEHANDLINGSNUMMER = "B452"
 
@@ -20,7 +21,10 @@ suspend fun PdlClient.harBeskyttetAdresse(identitetsnummer: Identitetsnummer): B
         buildApplicationLogger.warn("Person har flere adressebeskyttelser")
     }
     return adressebeskyttelse.isEmpty() ||
-            adressebeskyttelse.all { it.gradering == AdressebeskyttelseGradering.UGRADERT }
+            adressebeskyttelse.all {
+                appLogger.info("Gradering: '${it.gradering}'")
+                it.gradering == AdressebeskyttelseGradering.UGRADERT
+            }
 }
 
 suspend fun PdlClient.harBeskyttetAdresseBulk(identitetsnummer: List<Identitetsnummer>): List<AdressebeskyttelseResultat> =
