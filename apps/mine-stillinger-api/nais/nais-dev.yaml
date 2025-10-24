@@ -22,7 +22,7 @@ spec:
     - name: LEDIGE_STILLINGER_BASE_URL
       value: "http://paw-arbeidssoekerregisteret-api-ledigestillinger"
     - name: LEDIGE_STILLINGER_TARGET
-      value: "dev-gcp.paw.paw-arbeidssoekerregisteret-api-ledigestillinger"
+      value: "dev-gcp:paw:paw-arbeidssoekerregisteret-api-ledigestillinger"
   resources:
     limits:
       memory: 640Mi
