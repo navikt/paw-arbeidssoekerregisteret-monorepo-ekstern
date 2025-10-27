@@ -26,6 +26,7 @@ import no.naw.paw.minestillinger.api.ApiJobbAnnonse
 import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.api.Soeknadsfrist
 import no.naw.paw.minestillinger.api.SoeknadsfristType
+import no.naw.paw.minestillinger.api.vo.ApiSortOrder
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
@@ -52,9 +53,10 @@ fun Route.ledigeStillingerRoute(
                         val søk = stedSøk.soek as StedSoek
                         val page = call.request.queryParameters["page"]?.toInt() ?: 1
                         val pageSize = call.request.queryParameters["pageSize"]?.toInt() ?: 10
+                        val sort = call.request.queryParameters["sort"]?.let(ApiSortOrder::valueOf) ?: ApiSortOrder.DESC
                         if (page < 1) throw BadRequestException("Parameter 'page' må være 1 eller større")
                         if (pageSize !in 1..100) throw BadRequestException("Parameter 'pageSize' må være mellom 1 og 100")
-                        stedSøk to genererRequest(søk = søk, page=page, pageSize=pageSize)
+                        stedSøk to genererRequest(søk = søk, page=page, pageSize=pageSize, sort=sort)
                     }
                 }.await()
                 if (søkOgRequest?.second != null) {
@@ -114,7 +116,8 @@ fun soeknadsfrist(frist: Frist): Soeknadsfrist {
 fun genererRequest(
     søk: StedSoek,
     page: Int,
-    pageSize: Int
+    pageSize: Int,
+    sort: ApiSortOrder
 ): FinnStillingerRequest = FinnStillingerRequest(
     soekeord = søk.soekeord,
     kategorier = søk.styrk08,
@@ -126,5 +129,8 @@ fun genererRequest(
             }
         )
     },
-    paging = Paging(page = page, pageSize = pageSize, sortOrder = SortOrder.ASC)
+    paging = Paging(page = page, pageSize = pageSize, sortOrder = when(sort) {
+        ApiSortOrder.ASC -> SortOrder.ASC
+        ApiSortOrder.DESC -> SortOrder.DESC
+    })
 )

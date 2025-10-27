@@ -130,6 +130,17 @@ paths:
             maximum: 100
             example: 20
           description: "Antall resultater per side for paginering av resultater"
+        - name: "sort"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            enum:
+              - "ASC"
+              - "DESC"
+            default: "DESC"
+            example: "ASC"
+            description: "Sorteringsrekkefølge for resultatene, DESC for nyeste først, ASC for eldste først"
       responses:
         "200":
           description: "OK"
