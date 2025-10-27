@@ -128,7 +128,7 @@ fun StillingerTable.selectRowsByKategorierAndFylker(
         .join(LokasjonerTable, JoinType.LEFT, StillingerTable.id, LokasjonerTable.parentId)
         .selectAll()
         .where { combinedQuery }
-        .orderBy(StillingerTable.id, paging.order())
+        .orderBy(StillingerTable.publisertTimestamp, paging.order())
         .limit(paging.size()).offset(paging.offset())
         .map {
             it.asStillingRow(

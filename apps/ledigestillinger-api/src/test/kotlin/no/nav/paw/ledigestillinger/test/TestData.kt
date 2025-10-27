@@ -32,68 +32,79 @@ object TestData {
         uuid = uuid1_1,
         styrkCode = "1011",
         countyCode = "55",
-        municipalCode = "5501"
+        municipalCode = "5501",
+        published = LocalDateTime.now().plusDays(1)
     )
     val message1_2: Message<UUID, Ad> = message(
         uuid = uuid1_2,
         styrkCode = "1012",
         countyCode = "56",
-        municipalCode = "5601"
+        municipalCode = "5601",
+        published = LocalDateTime.now().plusDays(2)
     )
     val message2_1: Message<UUID, Ad> = message(
         uuid = uuid2_1,
         styrkCode = "2011",
         countyCode = "57",
-        municipalCode = "5701"
+        municipalCode = "5701",
+        published = LocalDateTime.now().plusDays(1)
     )
     val message2_2: Message<UUID, Ad> = message(
         uuid = uuid2_2,
         styrkCode = "2012",
         countyCode = "57",
-        municipalCode = "5702"
+        municipalCode = "5702",
+        published = LocalDateTime.now().plusDays(2)
     )
     val message2_3: Message<UUID, Ad> = message(
         uuid = uuid2_3,
         styrkCode = "2013",
         countyCode = "57",
-        municipalCode = "5703"
+        municipalCode = "5703",
+        published = LocalDateTime.now().plusDays(3)
     )
     val message2_4: Message<UUID, Ad> = message(
         uuid = uuid2_4,
         styrkCode = "2014",
         countyCode = "57",
-        municipalCode = "5704"
+        municipalCode = "5704",
+        published = LocalDateTime.now().plusDays(4)
     )
 
     fun message(
         uuid: UUID = UUID.randomUUID(),
         styrkCode: String = "9999",
         municipalCode: String = "5501",
-        countyCode: String = "55"
+        countyCode: String = "55",
+        published: LocalDateTime = LocalDateTime.now()
     ): Message<UUID, Ad> = record(
         uuid = uuid,
         styrkCode = styrkCode,
         municipalCode = municipalCode,
-        countyCode = countyCode
+        countyCode = countyCode,
+        published = published
     ).toMessage()
 
     fun record(
         uuid: UUID = UUID.randomUUID(),
         styrkCode: String = "9999",
         municipalCode: String = "5501",
-        countyCode: String = "55"
+        countyCode: String = "55",
+        published: LocalDateTime = LocalDateTime.now()
     ): ConsumerRecord<UUID, Ad> = ad(
         uuid = uuid,
         styrkCode = styrkCode,
         municipalCode = municipalCode,
-        countyCode = countyCode
+        countyCode = countyCode,
+        published = published
     ).let { ConsumerRecord("teampam.stilling-ekstern-1", 0, 0L, it.first, it.second) }
 
     fun ad(
         uuid: UUID = UUID.randomUUID(),
         styrkCode: String = "9999",
         municipalCode: String = "5501",
-        countyCode: String = "55"
+        countyCode: String = "55",
+        published: LocalDateTime = LocalDateTime.now()
     ): Pair<UUID, Ad> {
         val ad = Ad().apply {
             this.uuid = uuid.toString()
@@ -107,7 +118,7 @@ object TestData {
             this.businessName = "Testbedrift"
             this.created = LocalDateTime.now().toLocalDateTimeString()
             this.updated = LocalDateTime.now().toLocalDateTimeString()
-            this.published = LocalDateTime.now().toLocalDateTimeString()
+            this.published = published.toLocalDateTimeString()
             this.administration = administration()
             this.employer = company()
             this.categories = categories(

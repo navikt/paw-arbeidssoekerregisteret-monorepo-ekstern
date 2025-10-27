@@ -26,11 +26,11 @@ Authorization: Bearer {{$auth.token("tokenx")}}
   "body": {
     "soekeord": [],
     "kategorier": [
-      "9999"
+      "2310"
     ],
     "fylker": [
       {
-        "fylkesnummer": "55",
+        "fylkesnummer": "03",
         "kommuner": []
       }
     ],
