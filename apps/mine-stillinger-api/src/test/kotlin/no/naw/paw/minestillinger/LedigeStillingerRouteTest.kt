@@ -4,9 +4,6 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.client.request.put
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -26,46 +23,30 @@ import no.naw.paw.ledigestillinger.model.Frist
 import no.naw.paw.ledigestillinger.model.FristType
 import no.naw.paw.ledigestillinger.model.Kategori
 import no.naw.paw.ledigestillinger.model.Lokasjon
-import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.PagingResponse
 import no.naw.paw.ledigestillinger.model.Sektor
 import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import no.naw.paw.ledigestillinger.model.Stillingsprosent
-import no.naw.paw.minestillinger.api.ApiStedSoek
-import no.naw.paw.minestillinger.api.vo.ApiFylke
-import no.naw.paw.minestillinger.api.vo.ApiKommune
-import no.naw.paw.minestillinger.api.vo.ApiStillingssoekType
-import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.db.initDatabase
-import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
-import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
-import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
-import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
-import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
-import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.Fylke
 import no.naw.paw.minestillinger.domain.Kommune
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
-import no.naw.paw.minestillinger.domain.ReiseveiSoek
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.StillingssoekType
-import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.MINE_LEDIGE_STILLINGER_PATH
-import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.ledigeStillingerRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.time.temporal.ChronoUnit.DAYS
-import java.util.UUID
+import java.util.*
 
 class LedigeStillingerRouteTest : FreeSpec({
     val oauthServer = MockOAuth2Server()
@@ -154,7 +135,11 @@ val finnStillingerResponse = FinnStillingerResponse(
             adnr = "Jaha ja",
             arbeidsgivernavn = "Rusty Bucket Bay",
             arbeidsgiver = Arbeidsgiver(
-                orgForm = "AS", navn = "Rusty Bucket Bay Inc", offentligNavn = "Rusty Bucket Bay", orgNr = "123123123", parentOrgNr = "12313"
+                orgForm = "AS",
+                navn = "Rusty Bucket Bay Inc",
+                offentligNavn = "Rusty Bucket Bay",
+                orgNr = "123123123",
+                parentOrgNr = "12313"
 
             ),
             stillingstittel = "Rusten Utvikler",
