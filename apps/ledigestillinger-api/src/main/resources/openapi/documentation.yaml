@@ -378,7 +378,7 @@ components:
       enum:
         - ASC
         - DESC
-      default: ASC
+      default: DESC
     ProblemDetails:
       type: object
       properties:

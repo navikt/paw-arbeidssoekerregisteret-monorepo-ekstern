@@ -3,11 +3,11 @@
 POST {{devProxyBaseUrl}}/api/v1/proxy
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer Token
+Authorization: Bearer {{$auth.token("tokenx")}}
 
 {
-    "method": "POST",
-    "url": "http://paw-kafka-key-generator/api/v1/record-key",
+    "method": "GET",
+    "url": "{{baseUrl}}/api/v1/stillinger/74a3b46e-7e77-4c6b-90e9-e8d021e704a2",
     "body": {
         "ident": "06498504726"
     }
@@ -18,42 +18,26 @@ Authorization: Bearer Token
 POST {{devProxyBaseUrl}}/api/v1/proxy
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer Token
+Authorization: Bearer {{$auth.token("tokenx")}}
 
 {
-    "method": "POST",
-    "url": "http://paw-kafka-key-generator/api/v2/hent",
-    "body": {
-        "ident": "07498504726"
+  "method": "POST",
+  "url": "{{baseUrl}}/api/v1/stillinger",
+  "body": {
+    "soekeord": [],
+    "kategorier": [
+      "9999"
+    ],
+    "fylker": [
+      {
+        "fylkesnummer": "55",
+        "kommuner": []
+      }
+    ],
+    "paging": {
+      "page": 1,
+      "pageSize": 10,
+      "sortOrder": "ASC"
     }
-}
-
-### POST /api/v2/hentEllerOpprett
-
-POST {{devProxyBaseUrl}}/api/v1/proxy
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer Token
-
-{
-    "method": "POST",
-    "url": "http://paw-kafka-key-generator/api/v2/hentEllerOpprett",
-    "body": {
-        "ident": "06498504726"
-    }
-}
-
-### POST /api/v2/identiteter
-
-POST {{devProxyBaseUrl}}/api/v1/proxy
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer Token
-
-{
-    "method": "POST",
-    "url": "http://paw-kafka-key-generator/api/v2/identiteter",
-    "body": {
-        "identitet": "06498504726"
-    }
+  }
 }

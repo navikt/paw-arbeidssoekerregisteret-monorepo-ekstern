@@ -9,5 +9,5 @@ data class Paging(
     @get:JsonProperty("pageSize")
     val pageSize: Int = 10,
     @get:JsonProperty("sortOrder")
-    val sortOrder: SortOrder = SortOrder.ASC
+    val sortOrder: SortOrder = SortOrder.DESC
 )

@@ -11,6 +11,6 @@ data class PagingResponse(
     @get:JsonProperty("hitSize")
     val hitSize: Int = 10,
     @get:JsonProperty("sortOrder")
-    val sortOrder: SortOrder = SortOrder.ASC
+    val sortOrder: SortOrder = SortOrder.DESC
 
 )
