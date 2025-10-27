@@ -7,7 +7,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
-import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.TokenX
@@ -32,7 +31,6 @@ import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.api
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun Route.ledigeStillingerRoute(
     ledigeStillingerClient: FinnStillingerClient,
@@ -52,7 +50,11 @@ fun Route.ledigeStillingerRoute(
                         ?.firstOrNull { it.soek is StedSoek }
                     soek?.let { stedSøk ->
                         val søk = stedSøk.soek as StedSoek
-                        stedSøk to genererRequest(søk)
+                        val page = call.request.queryParameters["page"]?.toInt() ?: 1
+                        val pageSize = call.request.queryParameters["pageSize"]?.toInt() ?: 10
+                        if (page < 1) throw BadRequestException("Parameter 'page' må være 1 eller større")
+                        if (pageSize !in 1..100) throw BadRequestException("Parameter 'pageSize' må være mellom 1 og 100")
+                        stedSøk to genererRequest(søk = søk, page=page, pageSize=pageSize)
                     }
                 }.await()
                 if (søkOgRequest?.second != null) {
@@ -109,7 +111,11 @@ fun soeknadsfrist(frist: Frist): Soeknadsfrist {
     )
 }
 
-fun genererRequest(søk: StedSoek): FinnStillingerRequest = FinnStillingerRequest(
+fun genererRequest(
+    søk: StedSoek,
+    page: Int,
+    pageSize: Int
+): FinnStillingerRequest = FinnStillingerRequest(
     soekeord = søk.soekeord,
     kategorier = søk.styrk08,
     fylker = søk.fylker.map { fylke ->
@@ -120,5 +126,5 @@ fun genererRequest(søk: StedSoek): FinnStillingerRequest = FinnStillingerReques
             }
         )
     },
-    paging = Paging(page = 1, pageSize = 30, sortOrder = SortOrder.ASC)
+    paging = Paging(page = page, pageSize = pageSize, sortOrder = SortOrder.ASC)
 )

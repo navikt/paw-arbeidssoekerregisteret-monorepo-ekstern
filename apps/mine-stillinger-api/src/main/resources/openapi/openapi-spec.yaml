@@ -110,6 +110,26 @@ paths:
   /api/v1/ledigestillinger :
     get:
       description: "Hent ledige stillinger for en gitt bruker"
+      parameters:
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            default: 1
+            minimum: 1
+            example: 2
+          description: "Sideindeks for paginering av resultater, starter på 1"
+        - name: "pageSize"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            default: 10
+            minimum: 1
+            maximum: 100
+            example: 20
+          description: "Antall resultater per side for paginering av resultater"
       responses:
         "200":
           description: "OK"
