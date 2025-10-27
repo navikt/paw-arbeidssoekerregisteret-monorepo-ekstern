@@ -33,12 +33,14 @@ import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.api
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 
+const val MINE_LEDIGE_STILLINGER_PATH = "/api/v1/ledigestillinger"
+
 fun Route.ledigeStillingerRoute(
     ledigeStillingerClient: FinnStillingerClient,
     hentBrukerId: suspend (Identitetsnummer) -> BrukerId?,
-    hentLagretSøk: (BrukerId) -> List<LagretStillingsoek>
+    hentLagretSøk: (BrukerId) -> List<LagretStillingsoek>,
 ) {
-    route("/api/v1/ledigestillinger") {
+    route(MINE_LEDIGE_STILLINGER_PATH) {
         autentisering(TokenX) {
             get {
                 val identitetsnummer = call.securityContext()
@@ -56,11 +58,14 @@ fun Route.ledigeStillingerRoute(
                         val sort = call.request.queryParameters["sort"]?.let(ApiSortOrder::valueOf) ?: ApiSortOrder.DESC
                         if (page < 1) throw BadRequestException("Parameter 'page' må være 1 eller større")
                         if (pageSize !in 1..100) throw BadRequestException("Parameter 'pageSize' må være mellom 1 og 100")
-                        stedSøk to genererRequest(søk = søk, page=page, pageSize=pageSize, sort=sort)
+                        stedSøk to genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort)
                     }
                 }.await()
                 if (søkOgRequest?.second != null) {
-                    val response = ledigeStillingerClient.finnLedigeStillinger(call.securityContext().accessToken, søkOgRequest.second)
+                    val response = ledigeStillingerClient.finnLedigeStillinger(
+                        call.securityContext().accessToken,
+                        søkOgRequest.second
+                    )
                     val jobbAnonnser = response.stillinger.map(::jobbAnnonse)
                     val svar = MineStillingerResponse(
                         soek = søkOgRequest.first.soek.api(),
@@ -89,8 +94,8 @@ private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(
     stillingbeskrivelse = stilling.stillingstittel,
     publisert = stilling.publisert,
     soeknadsfrist = soeknadsfrist(stilling.soeknadsfrist),
-    land = stilling.lokasjoner.map { it.land }.joinToString(", "),
-    kommune = stilling.lokasjoner.mapNotNull { it.kommune }.joinToString(", ").takeIf(String::isNotBlank),
+    land = stilling.lokasjoner.map { it.land }.distinct().joinToString(", "),
+    kommune = stilling.lokasjoner.mapNotNull { it.kommune }.distinct().joinToString(", ").takeIf(String::isNotBlank),
     sektor = when (stilling.sektor) {
         Sektor.OFFENTLIG -> no.naw.paw.minestillinger.api.Sektor.Offentlig
         Sektor.PRIVAT -> no.naw.paw.minestillinger.api.Sektor.Privat
@@ -100,7 +105,7 @@ private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(
 )
 
 fun soeknadsfrist(frist: Frist): Soeknadsfrist {
-    val type = when(frist.type) {
+    val type = when (frist.type) {
         FristType.SNAREST -> SoeknadsfristType.Snarest
         FristType.FORTLOEPENDE -> SoeknadsfristType.Fortloepende
         FristType.DATO -> SoeknadsfristType.Dato
@@ -117,7 +122,7 @@ fun genererRequest(
     søk: StedSoek,
     page: Int,
     pageSize: Int,
-    sort: ApiSortOrder
+    sort: ApiSortOrder,
 ): FinnStillingerRequest = FinnStillingerRequest(
     soekeord = søk.soekeord,
     kategorier = søk.styrk08,
@@ -129,8 +134,10 @@ fun genererRequest(
             }
         )
     },
-    paging = Paging(page = page, pageSize = pageSize, sortOrder = when(sort) {
-        ApiSortOrder.ASC -> SortOrder.ASC
-        ApiSortOrder.DESC -> SortOrder.DESC
-    })
+    paging = Paging(
+        page = page, pageSize = pageSize, sortOrder = when (sort) {
+            ApiSortOrder.ASC -> SortOrder.ASC
+            ApiSortOrder.DESC -> SortOrder.DESC
+        }
+    )
 )
