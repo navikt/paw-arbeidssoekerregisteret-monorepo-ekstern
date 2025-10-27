@@ -108,7 +108,8 @@ class TjenestestatusE2ETest : FreeSpec({
         skrivFlagg = ::skrivFlaggTilDB,
         hentFlagg = ::lesFlaggFraDB,
         hentProfilering = ::hentProfileringOrNull,
-        slettAlleSøk = ::slettAlleSoekForBruker
+        slettAlleSøk = ::slettAlleSoekForBruker,
+        abTestingRegex = Regex("""\d([0248])\d{9}"""),
     )
 
     testcases.forEach { testcase ->

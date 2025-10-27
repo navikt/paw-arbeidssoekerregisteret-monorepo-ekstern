@@ -1,6 +1,5 @@
 package no.naw.paw.minestillinger.brukerprofil
 
-import io.opentelemetry.api.trace.Span
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.naw.paw.minestillinger.appLogger
@@ -8,12 +7,12 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_G
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlaggtype
-import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
@@ -34,6 +33,7 @@ class BrukerprofilTjeneste(
     val hentFlagg: (BrukerId) -> List<Flagg>,
     val hentProfilering: (PeriodeId) -> Profilering?,
     val slettAlleSøk: (BrukerId) -> Unit,
+    val abTestingRegex: Regex,
 ) {
     private val flaggIkkeLagretDirekte = setOf(
         HarGodeMuligheterFlaggtype,
@@ -71,7 +71,7 @@ class BrukerprofilTjeneste(
                 }
             }
         val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
-        val erITestGruppenFlagg = genererErITestGruppenFlagg(identitetsnummer)
+        val erITestGruppenFlagg = genererErITestGruppenFlagg(abTestingRegex, identitetsnummer)
         val alleFlagg = flagg.addOrUpdate(erITestGruppenFlagg, profileringsFlagg)
         appLogger.info("Flagg: ${alleFlagg.map { it.debug() }.joinToString(", ")}")
         return brukerProfilerUtenFlagg.medFlagg(alleFlagg)
@@ -92,9 +92,9 @@ class BrukerprofilTjeneste(
             } ?: HarGodeMuligheterFlaggtype.flagg(verdi = false, tidspunkt = Instant.EPOCH)
     }
 
-    fun genererErITestGruppenFlagg(identitetsnummer: Identitetsnummer): ErITestGruppenFlagg {
+    fun genererErITestGruppenFlagg(regex: Regex, identitetsnummer: Identitetsnummer): ErITestGruppenFlagg {
         return ErITestGruppenFlagg(
-            verdi = sjekkABTestingGruppe(identitetsnummer),
+            verdi = sjekkABTestingGruppe(regex, identitetsnummer),
             tidspunkt = Instant.now()
         )
     }
@@ -109,7 +109,7 @@ class BrukerprofilTjeneste(
 
 fun oppdaterMedGradertAdresse(
     tidspunkt: Instant,
-    gjeldeneFlagg: ListeMedFlagg
+    gjeldeneFlagg: ListeMedFlagg,
 ): OppdateringAvFlagg {
     val nyeEllerOppdaterteFlagg = listOfNotNull(
         HarGradertAdresseFlagg(true, tidspunkt),

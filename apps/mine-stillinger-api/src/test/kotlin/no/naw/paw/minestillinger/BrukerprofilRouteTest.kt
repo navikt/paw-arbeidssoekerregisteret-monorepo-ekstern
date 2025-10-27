@@ -63,7 +63,8 @@ class BrukerprofilRouteTest : FreeSpec({
         skrivFlagg = ::skrivFlaggTilDB,
         hentFlagg = ::lesFlaggFraDB,
         hentProfilering = ::hentProfileringOrNull,
-        slettAlleSøk = ::slettAlleSoekForBruker
+        slettAlleSøk = ::slettAlleSoekForBruker,
+        abTestingRegex = Regex(""),
     )
 
     "Happy path" {

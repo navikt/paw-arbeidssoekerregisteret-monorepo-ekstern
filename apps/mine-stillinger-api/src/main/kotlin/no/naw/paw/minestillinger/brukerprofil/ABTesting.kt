@@ -2,8 +2,7 @@ package no.naw.paw.minestillinger.brukerprofil
 
 import no.nav.paw.model.Identitetsnummer
 
-fun sjekkABTestingGruppe(identitetsnummer: Identitetsnummer): Boolean {
-    val andreSiffer = identitetsnummer.verdi[1].digitToInt()
-    return andreSiffer % 2 == 0
+fun sjekkABTestingGruppe(regex: Regex, identitetsnummer: Identitetsnummer): Boolean {
+    return regex.matches(identitetsnummer.verdi)
 }
 
