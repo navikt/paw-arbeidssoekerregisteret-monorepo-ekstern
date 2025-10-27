@@ -10,6 +10,6 @@ object HarGradertAdresseFlaggtype: Flaggtype<HarGradertAdresseFlagg> {
 data class HarGradertAdresseFlagg(
     override val verdi: Boolean,
     override val tidspunkt: Instant
-): Flagg {
+): LagretFlagg {
     override val type = HarGradertAdresseFlaggtype
 }

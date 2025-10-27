@@ -10,6 +10,6 @@ object HarBruktTjenestenFlaggtype: Flaggtype<HarBruktTjenestenFlagg> {
 data class HarBruktTjenestenFlagg(
     override val verdi: Boolean,
     override val tidspunkt: Instant
-): Flagg {
+): LagretFlagg {
     override val type = HarBruktTjenestenFlaggtype
 }

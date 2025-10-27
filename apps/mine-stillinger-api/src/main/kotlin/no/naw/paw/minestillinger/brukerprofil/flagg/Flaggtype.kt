@@ -20,6 +20,11 @@ sealed interface Flagg {
     }
 }
 
+/**
+ * Markerer at flagget lagres direkte i databasen, andre typer flagg er utledet fra annen data.
+ */
+sealed interface LagretFlagg: Flagg
+
 fun Flagg.erFremdelesGyldig(
     tidspunkt: Instant,
     gydlighetsperiode: Duration

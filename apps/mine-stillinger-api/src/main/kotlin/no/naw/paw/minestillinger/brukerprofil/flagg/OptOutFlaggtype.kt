@@ -10,6 +10,6 @@ object OptOutFlaggtype: Flaggtype<OptOutFlag> {
 data class OptOutFlag(
     override val verdi: Boolean,
     override val tidspunkt: Instant
-): Flagg {
+): LagretFlagg {
     override val type = OptOutFlaggtype
 }
