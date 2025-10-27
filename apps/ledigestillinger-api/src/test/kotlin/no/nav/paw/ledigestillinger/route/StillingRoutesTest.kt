@@ -120,11 +120,11 @@ class StillingRoutesTest : FreeSpec({
                     val body = response.body<FinnStillingerResponse>()
                     body.stillinger shouldHaveSize 2
                     val stilling1 = body.stillinger[0]
-                    stilling1.uuid shouldBe TestData.uuid2_1
-                    stilling1 shouldBe TestData.message2_1.asStillingRow().asDto()
+                    stilling1.uuid shouldBe TestData.uuid2_2
+                    stilling1 shouldBe TestData.message2_2.asStillingRow().asDto()
                     val stilling2 = body.stillinger[1]
-                    stilling2.uuid shouldBe TestData.uuid2_2
-                    stilling2 shouldBe TestData.message2_2.asStillingRow().asDto()
+                    stilling2.uuid shouldBe TestData.uuid2_1
+                    stilling2 shouldBe TestData.message2_1.asStillingRow().asDto()
                 }
 
                 "Skal finne alle stillinger med tomt søk" {
