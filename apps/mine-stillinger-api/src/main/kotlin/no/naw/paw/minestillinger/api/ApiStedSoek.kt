@@ -11,12 +11,12 @@ data class ApiStedSoek(
     override val soekType: ApiStillingssoekType,
     val fylker: List<ApiFylke>,
     override val soekeord: List<String>,
-    val styrk08Kode: List<String>
+    val styrk08: List<String>
 ): ApiStillingssoek, ApiHarSoekeord
 
 fun ApiStedSoek.domain() = StedSoek(
     soekType = soekType.domain(),
     fylker = fylker.map { it.domain() },
     soekeord = soekeord,
-    styrk08 = styrk08Kode
+    styrk08 = styrk08
 )

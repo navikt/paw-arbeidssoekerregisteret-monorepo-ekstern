@@ -25,13 +25,13 @@ fun ApiStedSoek.domain() = StedSoek(
     soekType = soekType.domain(),
     fylker = fylker.map(ApiFylke::domain),
     soekeord = soekeord,
-    styrk08 = styrk08Kode
+    styrk08 = styrk08
 )
 
 fun StedSoek.api(): ApiStedSoek = ApiStedSoek(
     soekType = soekType.api(),
     fylker = fylker.map(Fylke::api),
     soekeord = soekeord,
-    styrk08Kode = styrk08
+    styrk08 = styrk08
 )
 

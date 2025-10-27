@@ -146,7 +146,7 @@ class BrukerprofilRouteTest : FreeSpec({
                                 )
                             ),
                             soekeord = listOf("Tryllekunstner"),
-                            styrk08Kode = listOf("3471")
+                            styrk08 = listOf("3471")
                         ),
                         ReiseveiSoek(
                             soekType = StillingssoekType.REISEVEI_SOEK_V1,
