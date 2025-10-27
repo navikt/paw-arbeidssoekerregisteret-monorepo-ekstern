@@ -1,7 +1,7 @@
 package no.naw.paw.minestillinger.brukerprofil.flagg
 
 data class OppdateringAvFlagg(
-    val nyeOgOppdaterteFlagg: List<Flagg>,
+    val nyeOgOppdaterteFlagg: List<LagretFlagg>,
     val søkSkalSlettes: Boolean
 )
 

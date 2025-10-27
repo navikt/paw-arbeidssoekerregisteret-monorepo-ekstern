@@ -6,12 +6,12 @@ import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
-import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
@@ -29,16 +29,12 @@ import java.time.Instant
 class BrukerprofilTjeneste(
     val pdlClient: PdlClient,
     val hentBrukerprofilUtenFlagg: (Identitetsnummer) -> BrukerProfilerUtenFlagg?,
-    val skrivFlagg: (BrukerId, ListeMedFlagg) -> Unit,
+    val skrivFlagg: (BrukerId, Iterable<LagretFlagg>) -> Unit,
     val hentFlagg: (BrukerId) -> List<Flagg>,
     val hentProfilering: (PeriodeId) -> Profilering?,
     val slettAlleSøk: (BrukerId) -> Unit,
     val abTestingRegex: Regex,
 ) {
-    private val flaggIkkeLagretDirekte = setOf(
-        HarGodeMuligheterFlaggtype,
-        ErITestGruppenFlaggtype
-    )
 
     suspend fun hentBrukerProfil(identitetsnummer: Identitetsnummer): BrukerProfil? {
         val tidspunkt = Instant.now()
@@ -79,8 +75,7 @@ class BrukerprofilTjeneste(
 
     fun oppdaterFlagg(brukerId: BrukerId, listeMedFlagg: ListeMedFlagg) {
         val skalLagres = listeMedFlagg
-            .filterNot { flagg -> flagg.type in flaggIkkeLagretDirekte }
-            .let(::ListeMedFlagg)
+            .filterIsInstance<LagretFlagg>()
         skrivFlagg(brukerId, skalLagres)
     }
 
@@ -100,7 +95,7 @@ class BrukerprofilTjeneste(
     }
 
     fun oppdaterFlagg(brukerId: BrukerId, oppdatering: OppdateringAvFlagg) {
-        skrivFlagg(brukerId, ListeMedFlagg(oppdatering.nyeOgOppdaterteFlagg))
+        skrivFlagg(brukerId, oppdatering.nyeOgOppdaterteFlagg)
         if (oppdatering.søkSkalSlettes) {
             slettAlleSøk(brukerId)
         }

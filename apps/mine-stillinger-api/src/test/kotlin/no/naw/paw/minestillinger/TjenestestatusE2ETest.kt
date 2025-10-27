@@ -127,34 +127,30 @@ class TjenestestatusE2ETest : FreeSpec({
             }
             when (testcase.gjeldendeTjenestestatus) {
                 TjenesteStatus.AKTIV -> skrivFlaggTilDB(
-                    brukerId, flaggListeOf(
+                    brukerId, listOf(
                         TjenestenErAktivFlagg(true, now()),
-                        HarGodeMuligheterFlagg(true, now()),
                         HarGradertAdresseFlagg(false, now())
                     )
                 )
 
                 TjenesteStatus.INAKTIV -> skrivFlaggTilDB(
-                    brukerId, flaggListeOf(
+                    brukerId, listOf(
                         TjenestenErAktivFlagg(false, now()),
-                        HarGradertAdresseFlagg(false, now()),
-                        ErITestGruppenFlagg(true, now())
+                        HarGradertAdresseFlagg(false, now())
                     )
                 )
 
                 TjenesteStatus.OPT_OUT -> skrivFlaggTilDB(
-                    brukerId, flaggListeOf(
+                    brukerId, listOf(
                         TjenestenErAktivFlagg(false, now()),
-                        HarGodeMuligheterFlagg(true, now()),
                         OptOutFlag(true, now()),
                         HarGradertAdresseFlagg(false, now())
                     )
                 )
 
                 TjenesteStatus.KAN_IKKE_LEVERES -> skrivFlaggTilDB(
-                    brukerId, flaggListeOf(
+                    brukerId, listOf(
                         TjenestenErAktivFlagg(false, now()),
-                        HarGodeMuligheterFlagg(true, now()),
                         HarGradertAdresseFlagg(true, now())
                     )
                 )

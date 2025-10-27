@@ -24,23 +24,16 @@ fun opprettOgOppdaterBruker(periode: Periode) {
     )[BrukerTable.id].let { brukerId ->
         BrukerId(brukerId)
     }
-    val gjeldeneFlagg = ListeMedFlagg(lesFlaggFraDB(brukerId))
     val flagg = if (avsluttet == null) {
-        gjeldeneFlagg
-            .addOrIgnore(
-                HarGradertAdresseFlagg(
-                    verdi = false,
-                    tidspunkt = Instant.EPOCH
-                )
-            )
+        HarGradertAdresseFlagg(
+            verdi = false,
+            tidspunkt = Instant.EPOCH
+        )
     } else {
-        gjeldeneFlagg
-            .addOrUpdate(
-                TjenestenErAktivFlagg(
-                    verdi = false,
-                    tidspunkt = avsluttet.tidspunkt
-                )
-            )
+        TjenestenErAktivFlagg(
+            verdi = false,
+            tidspunkt = avsluttet.tidspunkt
+        )
     }
-    skrivFlaggTilDB(brukerId, flagg)
+    skrivFlaggTilDB(brukerId, listOf(flagg))
 }
