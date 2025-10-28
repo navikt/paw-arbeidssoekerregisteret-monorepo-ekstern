@@ -1,4 +1,4 @@
-### POST /api/v1/record-key
+### POST /api/v1/stillinger/{uuid}
 
 POST {{devProxyBaseUrl}}/api/v1/proxy
 Accept: application/json
@@ -13,7 +13,7 @@ Authorization: Bearer {{$auth.token("tokenx")}}
     }
 }
 
-### POST /api/v2/hent
+### POST /api/v1/stillinger
 
 POST {{devProxyBaseUrl}}/api/v1/proxy
 Accept: application/json
@@ -25,15 +25,8 @@ Authorization: Bearer {{$auth.token("tokenx")}}
   "url": "{{baseUrl}}/api/v1/stillinger",
   "body": {
     "soekeord": [],
-    "kategorier": [
-      "2310"
-    ],
-    "fylker": [
-      {
-        "fylkesnummer": "03",
-        "kommuner": []
-      }
-    ],
+    "kategorier": [],
+    "fylker": [],
     "paging": {
       "page": 1,
       "pageSize": 10,

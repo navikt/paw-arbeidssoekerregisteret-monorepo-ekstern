@@ -1,13 +1,13 @@
 package no.nav.paw.ledigestillinger.model.dao
 
-import no.nav.paw.ledigestillinger.api.models.Fylke
-import no.nav.paw.ledigestillinger.api.models.Paging
-import no.nav.paw.ledigestillinger.api.models.StillingStatus
-import no.nav.paw.ledigestillinger.api.models.VisningGrad
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
 import no.nav.paw.logging.logger.buildNamedLogger
+import no.naw.paw.ledigestillinger.model.Fylke
+import no.naw.paw.ledigestillinger.model.Paging
+import no.naw.paw.ledigestillinger.model.StillingStatus
+import no.naw.paw.ledigestillinger.model.VisningGrad
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and

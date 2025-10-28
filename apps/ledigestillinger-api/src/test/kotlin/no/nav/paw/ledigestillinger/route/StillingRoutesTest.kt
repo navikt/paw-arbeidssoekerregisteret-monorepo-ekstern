@@ -10,17 +10,18 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.http.HttpStatusCode
 import no.nav.paw.error.model.ProblemDetails
-import no.nav.paw.ledigestillinger.api.models.FinnStillingerRequest
-import no.nav.paw.ledigestillinger.api.models.FinnStillingerResponse
-import no.nav.paw.ledigestillinger.api.models.Fylke
-import no.nav.paw.ledigestillinger.api.models.Paging
-import no.nav.paw.ledigestillinger.api.models.Stilling
 import no.nav.paw.ledigestillinger.exception.STILLING_IKKE_FUNNET_ERROR_TYPE
 import no.nav.paw.ledigestillinger.model.asDto
 import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData
 import no.nav.paw.ledigestillinger.test.validateAgainstOpenApiSpec
+import no.naw.paw.ledigestillinger.model.FinnStillingerByEgenskaperRequest
+import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
+import no.naw.paw.ledigestillinger.model.FinnStillingerType
+import no.naw.paw.ledigestillinger.model.Fylke
+import no.naw.paw.ledigestillinger.model.Paging
+import no.naw.paw.ledigestillinger.model.Stilling
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
@@ -96,7 +97,8 @@ class StillingRoutesTest : FreeSpec({
 
                 "Skal finne stillinger med søk på kategori og fylke" {
                     // GIVEN
-                    val request = FinnStillingerRequest(
+                    val request = FinnStillingerByEgenskaperRequest(
+                        type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
                         kategorier = listOf("2011", "2012"),
                         fylker = listOf(
@@ -129,7 +131,8 @@ class StillingRoutesTest : FreeSpec({
 
                 "Skal finne alle stillinger med tomt søk" {
                     // GIVEN
-                    val request = FinnStillingerRequest(
+                    val request = FinnStillingerByEgenskaperRequest(
+                        type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
                         kategorier = emptyList(),
                         fylker = emptyList(),

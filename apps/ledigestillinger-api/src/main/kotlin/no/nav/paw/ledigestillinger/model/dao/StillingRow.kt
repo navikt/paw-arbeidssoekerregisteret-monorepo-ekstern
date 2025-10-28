@@ -1,7 +1,7 @@
 package no.nav.paw.ledigestillinger.model.dao
 
-import no.nav.paw.ledigestillinger.api.models.StillingStatus
-import no.nav.paw.ledigestillinger.api.models.VisningGrad
+import no.naw.paw.ledigestillinger.model.StillingStatus
+import no.naw.paw.ledigestillinger.model.VisningGrad
 import org.jetbrains.exposed.v1.core.ResultRow
 import java.time.Instant
 import java.util.*

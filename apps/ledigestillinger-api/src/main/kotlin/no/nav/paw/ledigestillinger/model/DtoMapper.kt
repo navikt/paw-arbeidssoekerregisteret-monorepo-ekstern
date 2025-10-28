@@ -6,18 +6,8 @@ import no.nav.pam.stilling.ext.avro.Company
 import no.nav.pam.stilling.ext.avro.Location
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.pam.stilling.ext.avro.StyrkCategory
-import no.nav.paw.ledigestillinger.api.models.Arbeidsgiver
 import no.nav.paw.ledigestillinger.api.models.Egenskap
-import no.nav.paw.ledigestillinger.api.models.Frist
-import no.nav.paw.ledigestillinger.api.models.FristType
-import no.nav.paw.ledigestillinger.api.models.Kategori
 import no.nav.paw.ledigestillinger.api.models.Klassifisering
-import no.nav.paw.ledigestillinger.api.models.Lokasjon
-import no.nav.paw.ledigestillinger.api.models.Paging
-import no.nav.paw.ledigestillinger.api.models.PagingResponse
-import no.nav.paw.ledigestillinger.api.models.Sektor
-import no.nav.paw.ledigestillinger.api.models.Stilling
-import no.nav.paw.ledigestillinger.api.models.Stillingsprosent
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgiverRow
 import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
 import no.nav.paw.ledigestillinger.model.dao.KategoriRow
@@ -26,6 +16,16 @@ import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import no.nav.paw.ledigestillinger.util.fromUnformattedString
+import no.naw.paw.ledigestillinger.model.Arbeidsgiver
+import no.naw.paw.ledigestillinger.model.Frist
+import no.naw.paw.ledigestillinger.model.FristType
+import no.naw.paw.ledigestillinger.model.Kategori
+import no.naw.paw.ledigestillinger.model.Lokasjon
+import no.naw.paw.ledigestillinger.model.Paging
+import no.naw.paw.ledigestillinger.model.PagingResponse
+import no.naw.paw.ledigestillinger.model.Sektor
+import no.naw.paw.ledigestillinger.model.Stilling
+import no.naw.paw.ledigestillinger.model.Stillingsprosent
 
 fun StillingRow.asDto(): Stilling = Stilling(
     uuid = uuid,
@@ -195,7 +195,7 @@ fun Property.asDto(): Egenskap = Egenskap(
     value = this.value
 )
 
-fun Paging.asReponsePaging(hitSize: Int): PagingResponse = PagingResponse(
+fun Paging.asResponse(hitSize: Int): PagingResponse = PagingResponse(
     page = this.page,
     pageSize = this.pageSize,
     hitSize = hitSize,

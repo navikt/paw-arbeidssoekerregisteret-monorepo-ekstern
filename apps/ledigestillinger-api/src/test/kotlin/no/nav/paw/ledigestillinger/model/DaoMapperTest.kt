@@ -2,7 +2,7 @@ package no.nav.paw.ledigestillinger.model
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.ledigestillinger.api.models.Paging
+import no.naw.paw.ledigestillinger.model.Paging
 
 class DaoMapperTest : FreeSpec({
     "Skal teste paginering" {

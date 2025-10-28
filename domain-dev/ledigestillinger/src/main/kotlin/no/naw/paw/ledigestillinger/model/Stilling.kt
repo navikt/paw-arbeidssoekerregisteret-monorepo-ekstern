@@ -9,14 +9,32 @@ data class Stilling(
     @get:JsonProperty("uuid")
     val uuid: UUID,
 
+    @get:JsonProperty("adnr")
+    val adnr: String? = null,
+
     @get:JsonProperty("tittel")
     val tittel: String,
 
     @get:JsonProperty("status")
     val status: StillingStatus,
 
+    @get:JsonProperty("arbeidsgivernavn")
+    val arbeidsgivernavn: String? = null,
+
+    @get:JsonProperty("arbeidsgiver")
+    val arbeidsgiver: Arbeidsgiver? = null,
+
+    @get:JsonProperty("stillingstittel")
+    val stillingstittel: String? = null,
+
+    @get:JsonProperty("ansettelsesform")
+    val ansettelsesform: String? = null,
+
     @get:JsonProperty("stillingsprosent")
     val stillingsprosent: Stillingsprosent,
+
+    @get:JsonProperty("stillingsantall")
+    val stillingsantall: Int? = null,
 
     @get:JsonProperty("sektor")
     val sektor: Sektor,
@@ -35,24 +53,6 @@ data class Stilling(
 
     @get:JsonProperty("publisert")
     val publisert: Instant,
-
-    @get:JsonProperty("adnr")
-    val adnr: String? = null,
-
-    @get:JsonProperty("arbeidsgivernavn")
-    val arbeidsgivernavn: String? = null,
-
-    @get:JsonProperty("arbeidsgiver")
-    val arbeidsgiver: Arbeidsgiver? = null,
-
-    @get:JsonProperty("stillingstittel")
-    val stillingstittel: String? = null,
-
-    @get:JsonProperty("ansettelsesform")
-    val ansettelsesform: String? = null,
-
-    @get:JsonProperty("stillingsantall")
-    val stillingsantall: Int? = null,
 
     @get:JsonProperty("utloeper")
     val utloeper: Instant? = null

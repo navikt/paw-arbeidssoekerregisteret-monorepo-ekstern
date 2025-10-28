@@ -96,9 +96,20 @@ paths:
 components:
   schemas:
     FinnStillingerRequest:
+      oneOf:
+        - $ref: "#/components/schemas/FinnStillingerByEgenskaperRequest"
+        - $ref: "#/components/schemas/FinnStillingerByUuidListeRequest"
+      discriminator:
+        propertyName: type
+        mapping:
+          BY_EGENSKAPER: '#/components/schemas/FinnStillingerByEgenskaperRequest'
+          BY_UUID_LISTE: '#/components/schemas/FinnStillingerByUuidListeRequest'
+    FinnStillingerByEgenskaperRequest:
       type: object
       additionalProperties: false
       properties:
+        type:
+          $ref: '#/components/schemas/FinnStillingerType'
         soekeord:
           type: array
           items:
@@ -114,10 +125,30 @@ components:
         paging:
           $ref: "#/components/schemas/Paging"
       required:
+        - type
         - soekeord
         - kategorier
         - fylker
         - paging
+    FinnStillingerByUuidListeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          $ref: '#/components/schemas/FinnStillingerType'
+        uuidListe:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - type
+        - uuidListe
+    FinnStillingerType:
+      type: string
+      enum:
+        - BY_EGENSKAPER
+        - BY_UUID_LISTE
     FinnStillingerResponse:
       type: object
       additionalProperties: false

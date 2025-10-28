@@ -4,14 +4,14 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.paw.ledigestillinger.api.models.Fylke
-import no.nav.paw.ledigestillinger.api.models.Kommune
 import no.nav.paw.ledigestillinger.model.asDto
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.model.shouldBeEqualTo
 import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData
 import no.nav.paw.ledigestillinger.test.selectRows
+import no.naw.paw.ledigestillinger.model.Fylke
+import no.naw.paw.ledigestillinger.model.Kommune
 
 class StillingServiceTest : FreeSpec({
     with(TestContext.buildWithDatabase()) {

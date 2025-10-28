@@ -5,9 +5,6 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.pam.stilling.ext.avro.Ad
 import no.nav.paw.hwm.Message
-import no.nav.paw.ledigestillinger.api.models.Fylke
-import no.nav.paw.ledigestillinger.api.models.Paging
-import no.nav.paw.ledigestillinger.api.models.Stilling
 import no.nav.paw.ledigestillinger.config.ApplicationConfig
 import no.nav.paw.ledigestillinger.exception.StillingIkkeFunnetException
 import no.nav.paw.ledigestillinger.model.asDto
@@ -29,6 +26,9 @@ import no.nav.paw.ledigestillinger.util.meldingerMottattCounter
 import no.nav.paw.ledigestillinger.util.meldingerMottattEvent
 import no.nav.paw.ledigestillinger.util.meldingerMottattGauge
 import no.nav.paw.logging.logger.buildLogger
+import no.naw.paw.ledigestillinger.model.Fylke
+import no.naw.paw.ledigestillinger.model.Paging
+import no.naw.paw.ledigestillinger.model.Stilling
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 

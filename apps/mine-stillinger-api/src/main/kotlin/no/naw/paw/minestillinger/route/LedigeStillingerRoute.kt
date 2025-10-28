@@ -12,7 +12,9 @@ import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
+import no.naw.paw.ledigestillinger.model.FinnStillingerByEgenskaperRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
+import no.naw.paw.ledigestillinger.model.FinnStillingerType
 import no.naw.paw.ledigestillinger.model.Frist
 import no.naw.paw.ledigestillinger.model.FristType
 import no.naw.paw.ledigestillinger.model.Fylke
@@ -124,7 +126,8 @@ fun genererRequest(
     page: Int,
     pageSize: Int,
     sort: ApiSortOrder,
-): FinnStillingerRequest = FinnStillingerRequest(
+): FinnStillingerRequest = FinnStillingerByEgenskaperRequest(
+    type = FinnStillingerType.BY_EGENSKAPER,
     soekeord = søk.soekeord,
     kategorier = søk.styrk08,
     fylker = søk.fylker.map { fylke ->

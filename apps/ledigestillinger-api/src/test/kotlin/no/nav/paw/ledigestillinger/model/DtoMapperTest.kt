@@ -2,8 +2,8 @@ package no.nav.paw.ledigestillinger.model
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.ledigestillinger.api.models.Frist
-import no.nav.paw.ledigestillinger.api.models.FristType
+import no.naw.paw.ledigestillinger.model.Frist
+import no.naw.paw.ledigestillinger.model.FristType
 import java.time.LocalDate
 
 class DtoMapperTest : FreeSpec({
