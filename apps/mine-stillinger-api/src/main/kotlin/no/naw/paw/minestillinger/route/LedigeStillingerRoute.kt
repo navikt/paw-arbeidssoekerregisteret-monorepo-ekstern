@@ -101,7 +101,8 @@ private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(
         Sektor.PRIVAT -> no.naw.paw.minestillinger.api.Sektor.Privat
         Sektor.UKJENT -> no.naw.paw.minestillinger.api.Sektor.Ukjent
     },
-    selskap = stilling.arbeidsgivernavn ?: "Ukjent"
+    selskap = stilling.arbeidsgivernavn ?: "Ukjent",
+    arbeidsplassenNoId = stilling.uuid
 )
 
 fun soeknadsfrist(frist: Frist): Soeknadsfrist {

@@ -373,6 +373,10 @@ components:
     JobbAnnonse:
       type: "object"
       properties:
+        arbeidsplassenNoId:
+          type: "string"
+          format: "uuid"
+          description: "Arbeidsplassen.no sin unike ID for stillingsannonsen"
         tittel:
           type: "string"
           example: "Vi du jobbe som utvikler hos oss?"

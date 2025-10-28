@@ -3,6 +3,7 @@ package no.naw.paw.minestillinger.api
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
 import java.time.LocalDate
+import java.util.UUID
 
 data class ApiLedigeStillinger(
     val soek: ApiStillingssoek,
@@ -11,6 +12,7 @@ data class ApiLedigeStillinger(
 )
 
 data class ApiJobbAnnonse(
+    val arbeidsplassenNoId: UUID,
     val tittel: String,
     val stillingbeskrivelse: String?,
     val publisert: Instant,

@@ -1,7 +1,12 @@
 package no.naw.paw.minestillinger
 
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldBeEqualIgnoringCase
+import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.ContentType.Application
@@ -28,6 +33,7 @@ import no.naw.paw.ledigestillinger.model.Sektor
 import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import no.naw.paw.ledigestillinger.model.Stillingsprosent
+import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
@@ -92,6 +98,18 @@ class LedigeStillingerRouteTest : FreeSpec({
                 contentType(Application.Json)
             }
             response.validateAgainstOpenApiSpec()
+            response.body<MineStillingerResponse>() should { response ->
+                val kilde = finnStillingerResponse.stillinger.associateBy { it.uuid }
+                response.resultat.forEach { stilling ->
+                    val forventet = withClue("Stilling med UUID ${stilling.arbeidsplassenNoId} skulle ikke vært her, den er ikke i kilden") { kilde[stilling.arbeidsplassenNoId].shouldNotBeNull() }
+                    stilling.tittel shouldBe forventet.tittel
+                    stilling.selskap shouldBe forventet.arbeidsgivernavn
+                    stilling.sektor.name shouldBeEqualIgnoringCase forventet.sektor.name
+                    stilling.soeknadsfrist.raw shouldBe forventet.soeknadsfrist.verdi
+                    stilling.soeknadsfrist.type.name shouldBeEqualIgnoringCase forventet.soeknadsfrist.type.name
+                    stilling.soeknadsfrist.dato shouldBe forventet.soeknadsfrist.dato
+                }
+            }
             response.status shouldBe HttpStatusCode.OK
         }
     }

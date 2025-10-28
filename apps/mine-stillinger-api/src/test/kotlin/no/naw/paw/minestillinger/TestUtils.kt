@@ -1,6 +1,7 @@
 package no.naw.paw.minestillinger
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.nimbusds.jwt.SignedJWT
 import io.kotest.assertions.withClue
@@ -63,6 +64,7 @@ fun ApplicationTestBuilder.testClient(): HttpClient = createClient {
     install(ContentNegotiation) {
         jackson {
             registerKotlinModule()
+            registerModule(JavaTimeModule())
             disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         }
     }
