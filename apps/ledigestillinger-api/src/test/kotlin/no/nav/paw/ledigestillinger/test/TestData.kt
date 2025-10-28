@@ -23,88 +23,96 @@ object TestData {
 
     val uuid1_1: UUID = UUID.fromString("725f5241-583d-47d5-90f8-42bb3cd1c013")
     val uuid1_2: UUID = UUID.fromString("d62bd67a-7641-4f6a-bca5-869dd9361a04")
-    val uuid2_1: UUID = UUID.fromString("ce4f105e-16d9-410f-8aee-56136a61607e")
+    val uuid2_1: UUID = UUID.fromString("e43a888e-1ffc-48d2-805b-c77080cd3913")
     val uuid2_2: UUID = UUID.fromString("cc2d73a9-e0e5-4caa-8c91-aa4b8365b85e")
-    val uuid2_3: UUID = UUID.fromString("f83ae2de-52d7-458b-9e25-cbf53c144c77")
-    val uuid2_4: UUID = UUID.fromString("c48fff95-e047-45a0-b14f-b58075d50897")
+    val uuid3_1: UUID = UUID.fromString("53df2194-5597-4ae0-a773-cd25b6056d3f")
+    val uuid3_2: UUID = UUID.fromString("5d7774af-8b39-4607-9db4-bdd731478c14")
+    val uuid4_1: UUID = UUID.fromString("ce4f105e-16d9-410f-8aee-56136a61607e")
+    val uuid4_2: UUID = UUID.fromString("590c18b4-a0e1-40f3-afd6-0709d9cb9c2c")
 
     val message1_1: Message<UUID, Ad> = message(
         uuid = uuid1_1,
-        styrkCode = "1011",
-        countyCode = "55",
-        municipalCode = "5501",
-        published = LocalDateTime.now().plusDays(1)
+        published = LocalDateTime.now().plusDays(1),
+        categories = categories(styrkCode = "1011"),
+        locations = locations(municipalCode = "1011", countyCode = "10")
     )
     val message1_2: Message<UUID, Ad> = message(
         uuid = uuid1_2,
-        styrkCode = "1012",
-        countyCode = "56",
-        municipalCode = "5601",
-        published = LocalDateTime.now().plusDays(2)
+        published = LocalDateTime.now().plusDays(2),
+        categories = categories(styrkCode = "1012"),
+        locations = locations(municipalCode = "1012", countyCode = "10")
     )
     val message2_1: Message<UUID, Ad> = message(
         uuid = uuid2_1,
-        styrkCode = "2011",
-        countyCode = "57",
-        municipalCode = "5701",
-        published = LocalDateTime.now().plusDays(1)
+        published = LocalDateTime.now().plusDays(1),
+        categories = categories(styrkCode = "2011"),
+        locations = locations(municipalCode = "2011", countyCode = "20")
     )
     val message2_2: Message<UUID, Ad> = message(
         uuid = uuid2_2,
-        styrkCode = "2012",
-        countyCode = "57",
-        municipalCode = "5702",
-        published = LocalDateTime.now().plusDays(2)
+        published = LocalDateTime.now().plusDays(2),
+        categories = categories(styrkCode = "2012"),
+        locations = locations(municipalCode = "2012", countyCode = "20")
     )
-    val message2_3: Message<UUID, Ad> = message(
-        uuid = uuid2_3,
-        styrkCode = "2013",
-        countyCode = "57",
-        municipalCode = "5703",
-        published = LocalDateTime.now().plusDays(3)
+    val message3_1: Message<UUID, Ad> = message(
+        uuid = uuid3_1,
+        published = LocalDateTime.now().plusDays(3),
+        categories = categories(styrkCode = "3011"),
+        locations = locations(municipalCode = "3011", countyCode = "30")
     )
-    val message2_4: Message<UUID, Ad> = message(
-        uuid = uuid2_4,
-        styrkCode = "2014",
-        countyCode = "57",
-        municipalCode = "5704",
-        published = LocalDateTime.now().plusDays(4)
+    val message3_2: Message<UUID, Ad> = message(
+        uuid = uuid3_2,
+        published = LocalDateTime.now().plusDays(3),
+        categories = categories(styrkCode = "3012"),
+        locations = locations(municipalCode = "3012", countyCode = "30")
+    )
+    val message4_1: Message<UUID, Ad> = message(
+        uuid = uuid4_1,
+        published = LocalDateTime.now().plusDays(1),
+        classifications = classifications(categoryType = "STYRK08", code = "4011"),
+        locations = locations(municipalCode = "4011", countyCode = "40")
+    )
+    val message4_2: Message<UUID, Ad> = message(
+        uuid = uuid4_2,
+        published = LocalDateTime.now().plusDays(2),
+        categories = categories(styrkCode = "4012"),
+        locations = locations(municipalCode = "4012", countyCode = "40")
     )
 
     fun message(
         uuid: UUID = UUID.randomUUID(),
-        styrkCode: String = "9999",
-        municipalCode: String = "5501",
-        countyCode: String = "55",
-        published: LocalDateTime = LocalDateTime.now()
+        published: LocalDateTime = LocalDateTime.now(),
+        categories: List<StyrkCategory> = emptyList(),
+        classifications: List<Classification> = emptyList(),
+        locations: List<Location> = emptyList()
     ): Message<UUID, Ad> = record(
         uuid = uuid,
-        styrkCode = styrkCode,
-        municipalCode = municipalCode,
-        countyCode = countyCode,
-        published = published
+        published = published,
+        categories = categories,
+        classifications = classifications,
+        locations = locations
     ).toMessage()
 
     fun record(
         uuid: UUID = UUID.randomUUID(),
-        styrkCode: String = "9999",
-        municipalCode: String = "5501",
-        countyCode: String = "55",
-        published: LocalDateTime = LocalDateTime.now()
+        published: LocalDateTime = LocalDateTime.now(),
+        categories: List<StyrkCategory> = emptyList(),
+        classifications: List<Classification> = emptyList(),
+        locations: List<Location> = emptyList()
     ): ConsumerRecord<UUID, Ad> = ad(
         uuid = uuid,
-        styrkCode = styrkCode,
-        municipalCode = municipalCode,
-        countyCode = countyCode,
-        published = published
+        published = published,
+        categories = categories,
+        classifications = classifications,
+        locations = locations
     ).let { ConsumerRecord("teampam.stilling-ekstern-1", 0, 0L, it.first, it.second) }
 
     fun ad(
         uuid: UUID = UUID.randomUUID(),
-        styrkCode: String = "9999",
-        municipalCode: String = "5501",
-        countyCode: String = "55",
-        published: LocalDateTime = LocalDateTime.now()
+        published: LocalDateTime = LocalDateTime.now(),
+        categories: List<StyrkCategory> = emptyList(),
+        classifications: List<Classification> = emptyList(),
+        locations: List<Location> = emptyList()
     ): Pair<UUID, Ad> {
         val ad = Ad().apply {
             this.uuid = uuid.toString()
@@ -121,14 +129,9 @@ object TestData {
             this.published = published.toLocalDateTimeString()
             this.administration = administration()
             this.employer = company()
-            this.categories = categories(
-                styrkCode = styrkCode
-            )
-            this.classifications = classifications()
-            this.locations = locations(
-                municipalCode = municipalCode,
-                countyCode = countyCode
-            )
+            this.categories = categories
+            this.classifications = classifications
+            this.locations = locations
             this.properties = properties()
         }
         return uuid to ad
@@ -165,11 +168,14 @@ object TestData {
         )
     }
 
-    fun classifications(): List<Classification> {
+    fun classifications(
+        categoryType: String = "STYRK08",
+        code: String = "9999"
+    ): List<Classification> {
         return listOf(
             Classification().apply {
-                this.categoryType = "STYRK08"
-                this.code = "9999"
+                this.categoryType = categoryType
+                this.code = code
                 this.name = "Testyrke"
                 this.score = 1.0
                 this.janzzParentId = "9999"

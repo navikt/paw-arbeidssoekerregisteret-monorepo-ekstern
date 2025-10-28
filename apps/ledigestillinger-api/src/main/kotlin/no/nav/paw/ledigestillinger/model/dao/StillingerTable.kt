@@ -1,5 +1,6 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.api.models.KlassifiseringType
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
@@ -14,6 +15,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.select
@@ -79,12 +81,17 @@ fun StillingerTable.selectRowsByKategorierAndFylker(
     paging: Paging = Paging()
 ): List<StillingRow> {
     val fylkesnummer = fylker.mapNotNull { it.fylkesnummer }
-    val kommunenummer = fylker.flatMap { it.kommuner }.map { it.kommunenummer }
+    val kommunenummer = fylker
+        .flatMap { it.kommuner }
+        .map { it.kommunenummer } // TODO: Kommunenummer må relateres til tilhørende fylke
 
-    val kategorierQuery: Op<Boolean> = KategorierTable.normalisertKode inList kategorier
-    val fylkerQuery: Op<Boolean> = LokasjonerTable.fylkeskode inList fylkesnummer
-    val kommunerQuery: Op<Boolean> = LokasjonerTable.kommunekode inList kommunenummer
-    val aktivQuery: Op<Boolean> = StillingerTable.status eq StillingStatus.AKTIV
+    val kategoriQuery: Op<Boolean> = (KategorierTable.normalisertKode inList kategorier)
+    val klassifiseringQuery: Op<Boolean> =
+        ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList kategorier))
+    val styrkQuery = (kategoriQuery or klassifiseringQuery)
+    val fylkeQuery: Op<Boolean> = (LokasjonerTable.fylkeskode inList fylkesnummer)
+    val kommuneQuery: Op<Boolean> = (LokasjonerTable.kommunekode inList kommunenummer)
+    val aktivQuery: Op<Boolean> = (StillingerTable.status eq StillingStatus.AKTIV)
 
     val combinedQuery: Op<Boolean> = if (kategorier.isEmpty()) {
         if (fylkesnummer.isEmpty()) {
@@ -93,38 +100,39 @@ fun StillingerTable.selectRowsByKategorierAndFylker(
                 aktivQuery
             } else {
                 logger.debug("Query på aktive stillinger med kommuner, men uten kategorier eller fylker")
-                kommunerQuery and aktivQuery
+                aktivQuery and kommuneQuery
             }
         } else {
             if (kommunenummer.isEmpty()) {
                 logger.debug("Query på aktive stillinger med fylker, men uten kategorier eller kommuner")
-                fylkerQuery and aktivQuery
+                aktivQuery and fylkeQuery
             } else {
                 logger.debug("Query på aktive stillinger med fylker og kommuner, men uten kategorier")
-                fylkerQuery and kommunerQuery and aktivQuery
+                aktivQuery and fylkeQuery and kommuneQuery
             }
         }
     } else {
         if (fylkesnummer.isEmpty()) {
             if (kommunenummer.isEmpty()) {
                 logger.debug("Query på aktive stillinger med kategorier, men uten fylker eller kommuner")
-                kategorierQuery and aktivQuery
+                aktivQuery and styrkQuery
             } else {
                 logger.debug("Query på aktive stillinger med kategorier og kommuner, men uten fylker")
-                kategorierQuery and kommunerQuery and aktivQuery
+                aktivQuery and styrkQuery and kommuneQuery
             }
         } else {
             if (kommunenummer.isEmpty()) {
                 logger.debug("Query på aktive stillinger med kategorier og fylker, men uten kommuner")
-                kategorierQuery and fylkerQuery and aktivQuery
+                aktivQuery and styrkQuery and fylkeQuery
             } else {
                 logger.debug("Query på aktive stillinger med kategorier, fylker og kommuner")
-                kategorierQuery and fylkerQuery and kommunerQuery and aktivQuery
+                aktivQuery and styrkQuery and fylkeQuery and kommuneQuery
             }
         }
     }
 
     return join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
+        .join(KlassifiseringerTable, JoinType.LEFT, StillingerTable.id, KlassifiseringerTable.parentId)
         .join(LokasjonerTable, JoinType.LEFT, StillingerTable.id, LokasjonerTable.parentId)
         .selectAll()
         .where { combinedQuery }

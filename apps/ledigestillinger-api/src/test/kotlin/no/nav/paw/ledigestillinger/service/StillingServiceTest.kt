@@ -11,7 +11,6 @@ import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData
 import no.nav.paw.ledigestillinger.test.selectRows
 import no.naw.paw.ledigestillinger.model.Fylke
-import no.naw.paw.ledigestillinger.model.Kommune
 
 class StillingServiceTest : FreeSpec({
     with(TestContext.buildWithDatabase()) {
@@ -31,8 +30,10 @@ class StillingServiceTest : FreeSpec({
                 TestData.message1_2,
                 TestData.message2_1,
                 TestData.message2_2,
-                TestData.message2_3,
-                TestData.message2_4
+                TestData.message3_1,
+                TestData.message3_2,
+                TestData.message4_1,
+                TestData.message4_2
             )
 
             // WHEN
@@ -40,13 +41,15 @@ class StillingServiceTest : FreeSpec({
 
             // THEN
             val rows = StillingerTable.selectRows()
-            rows shouldHaveSize 6
+            rows shouldHaveSize 8
             val row1 = rows[0]
             val row2 = rows[1]
             val row3 = rows[2]
             val row4 = rows[3]
             val row5 = rows[4]
             val row6 = rows[5]
+            val row7 = rows[6]
+            val row8 = rows[7]
             row1.uuid shouldBe TestData.message1_1.key
             row1 shouldBeEqualTo TestData.message1_1.value
             row2.uuid shouldBe TestData.message1_2.key
@@ -55,35 +58,36 @@ class StillingServiceTest : FreeSpec({
             row3 shouldBeEqualTo TestData.message2_1.value
             row4.uuid shouldBe TestData.message2_2.key
             row4 shouldBeEqualTo TestData.message2_2.value
-            row5.uuid shouldBe TestData.message2_3.key
-            row5 shouldBeEqualTo TestData.message2_3.value
-            row6.uuid shouldBe TestData.message2_4.key
-            row6 shouldBeEqualTo TestData.message2_4.value
+            row5.uuid shouldBe TestData.message3_1.key
+            row5 shouldBeEqualTo TestData.message3_1.value
+            row6.uuid shouldBe TestData.message3_2.key
+            row6 shouldBeEqualTo TestData.message3_2.value
+            row7.uuid shouldBe TestData.message4_1.key
+            row7 shouldBeEqualTo TestData.message4_1.value
+            row8.uuid shouldBe TestData.message4_2.key
+            row8 shouldBeEqualTo TestData.message4_2.value
 
             // WHEN
             val stillinger = stillingService.finnStillinger(
                 soekeord = emptyList(),
                 fylker = listOf(
                     Fylke(
-                        fylkesnummer = "57",
-                        kommuner = listOf(
-                            Kommune(
-                                kommunenummer = "5701"
-                            ),
-                            Kommune(
-                                kommunenummer = "5704"
-                            )
-                        )
+                        fylkesnummer = "10",
+                        kommuner = emptyList()
+                    ),
+                    Fylke(
+                        fylkesnummer = "30",
+                        kommuner = emptyList()
                     )
                 ),
-                kategorier = listOf("2011", "2012", "2014")
+                kategorier = listOf("1012", "3011")
             )
 
             // THEN
             stillinger shouldHaveSize 2
             stillinger shouldContainOnly listOf(
-                TestData.message2_1.value.asDto(),
-                TestData.message2_4.value.asDto()
+                TestData.message1_2.value.asDto(),
+                TestData.message3_1.value.asDto()
             )
         }
     }

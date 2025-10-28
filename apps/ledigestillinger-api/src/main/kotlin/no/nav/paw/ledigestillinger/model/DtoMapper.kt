@@ -175,7 +175,7 @@ fun StyrkCategory.asDto(): Kategori = Kategori(
 )
 
 fun Classification.asDto(): Klassifisering = Klassifisering(
-    type = this.categoryType,
+    type = this.categoryType.asKlassifiseringType(),
     kode = this.code,
     navn = this.name
 )

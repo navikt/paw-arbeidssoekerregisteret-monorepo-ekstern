@@ -9,6 +9,7 @@ import no.nav.pam.stilling.ext.avro.PrivacyChannel
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.pam.stilling.ext.avro.StyrkCategory
 import no.nav.paw.hwm.Message
+import no.nav.paw.ledigestillinger.api.models.KlassifiseringType
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgiverRow
 import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
 import no.nav.paw.ledigestillinger.model.dao.KategoriRow
@@ -94,7 +95,7 @@ fun StyrkCategory.asKategoriRow(): KategoriRow = KategoriRow(
 fun Classification.asKlassifiseringRow(): KlassifiseringRow = KlassifiseringRow(
     id = -1,
     parentId = -1,
-    type = this.categoryType,
+    type = this.categoryType.asKlassifiseringType(),
     kode = this.code,
     navn = this.name
 )
@@ -130,6 +131,14 @@ fun Paging.size(): Int {
 
 fun Paging.offset(): Long {
     return if (page < 1) 0 else (page - 1) * size().toLong()
+}
+
+fun String.asKlassifiseringType(): KlassifiseringType = when (this) {
+    "ESCO" -> KlassifiseringType.ESCO
+    "JANZZ" -> KlassifiseringType.JANZZ
+    "STYRK08" -> KlassifiseringType.STYRK08
+    "STYRK08NAV" -> KlassifiseringType.STYRK08NAV
+    else -> throw IllegalArgumentException("Ukjent type: $this")
 }
 
 fun String.asNormalisertKode(): String {

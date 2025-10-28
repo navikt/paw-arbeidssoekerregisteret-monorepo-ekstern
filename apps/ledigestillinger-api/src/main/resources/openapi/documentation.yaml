@@ -273,7 +273,7 @@ components:
       type: object
       properties:
         type:
-          type: string
+          $ref: "#/components/schemas/KlassifiseringType"
         kode:
           type: string
         navn:
@@ -282,6 +282,13 @@ components:
         - type
         - kode
         - navn
+    KlassifiseringType:
+      type: string
+      enum:
+        - ESCO
+        - JANZZ
+        - STYRK08
+        - STYRK08NAV
     Fylke:
       type: object
       properties:

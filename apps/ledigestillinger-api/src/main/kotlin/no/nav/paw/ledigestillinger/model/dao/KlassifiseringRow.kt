@@ -1,11 +1,12 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.api.models.KlassifiseringType
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class KlassifiseringRow(
     val id: Long,
     val parentId: Long,
-    val type: String,
+    val type: KlassifiseringType,
     val kode: String,
     val navn: String
 )

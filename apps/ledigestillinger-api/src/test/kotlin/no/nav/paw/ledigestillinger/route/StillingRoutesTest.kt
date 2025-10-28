@@ -38,6 +38,10 @@ class StillingRoutesTest : FreeSpec({
                 stillingService.lagreStilling(TestData.message1_2.asStillingRow())
                 stillingService.lagreStilling(TestData.message2_1.asStillingRow())
                 stillingService.lagreStilling(TestData.message2_2.asStillingRow())
+                stillingService.lagreStilling(TestData.message3_1.asStillingRow())
+                stillingService.lagreStilling(TestData.message3_2.asStillingRow())
+                stillingService.lagreStilling(TestData.message4_1.asStillingRow())
+                stillingService.lagreStilling(TestData.message4_2.asStillingRow())
             }
         }
 
@@ -90,7 +94,7 @@ class StillingRoutesTest : FreeSpec({
             }
         }
 
-        "Test suite for finn stillinger" - {
+        "Test suite for finn stillinger på egenskaper" - {
             securedTestApplication {
                 val client = buildTestClient()
                 val token = mockOAuth2Server.issueTokenXToken()
@@ -100,10 +104,41 @@ class StillingRoutesTest : FreeSpec({
                     val request = FinnStillingerByEgenskaperRequest(
                         type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
-                        kategorier = listOf("2011", "2012"),
+                        kategorier = listOf("2012"),
                         fylker = listOf(
                             Fylke(
-                                fylkesnummer = "57",
+                                fylkesnummer = "20",
+                                kommuner = emptyList()
+                            )
+                        ),
+                        paging = Paging(1, 10)
+                    )
+
+                    // WHEN
+                    val response = client.post("/api/v1/stillinger") {
+                        bearerAuth(token.serialize())
+                        setJsonBody(request)
+                    }
+
+                    // THEN
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    val body = response.body<FinnStillingerResponse>()
+                    body.stillinger shouldHaveSize 1
+                    body.stillinger shouldContainOnly listOf(
+                        TestData.message2_2.value.asDto()
+                    )
+                }
+
+                "Skal finne stillinger med søk på fylke" {
+                    // GIVEN
+                    val request = FinnStillingerByEgenskaperRequest(
+                        type = FinnStillingerType.BY_EGENSKAPER,
+                        soekeord = emptyList(),
+                        kategorier = emptyList(),
+                        fylker = listOf(
+                            Fylke(
+                                fylkesnummer = "30",
                                 kommuner = emptyList()
                             )
                         ),
@@ -121,12 +156,37 @@ class StillingRoutesTest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     val body = response.body<FinnStillingerResponse>()
                     body.stillinger shouldHaveSize 2
-                    val stilling1 = body.stillinger[0]
-                    stilling1.uuid shouldBe TestData.uuid2_2
-                    stilling1 shouldBe TestData.message2_2.asStillingRow().asDto()
-                    val stilling2 = body.stillinger[1]
-                    stilling2.uuid shouldBe TestData.uuid2_1
-                    stilling2 shouldBe TestData.message2_1.asStillingRow().asDto()
+                    body.stillinger shouldContainOnly listOf(
+                        TestData.message3_1.value.asDto(),
+                        TestData.message3_2.value.asDto()
+                    )
+                }
+
+                "Skal finne stillinger med søk på kategori" {
+                    // GIVEN
+                    val request = FinnStillingerByEgenskaperRequest(
+                        type = FinnStillingerType.BY_EGENSKAPER,
+                        soekeord = emptyList(),
+                        kategorier = listOf("4011", "4012"),
+                        fylker = emptyList(),
+                        paging = Paging(1, 10)
+                    )
+
+                    // WHEN
+                    val response = client.post("/api/v1/stillinger") {
+                        bearerAuth(token.serialize())
+                        setJsonBody(request)
+                    }
+
+                    // THEN
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    val body = response.body<FinnStillingerResponse>()
+                    body.stillinger shouldHaveSize 2
+                    body.stillinger shouldContainOnly listOf(
+                        TestData.message4_1.value.asDto(),
+                        TestData.message4_2.value.asDto()
+                    )
                 }
 
                 "Skal finne alle stillinger med tomt søk" {
@@ -149,12 +209,16 @@ class StillingRoutesTest : FreeSpec({
                     response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.OK
                     val body = response.body<FinnStillingerResponse>()
-                    body.stillinger shouldHaveSize 4
+                    body.stillinger shouldHaveSize 8
                     body.stillinger shouldContainOnly listOf(
                         TestData.message1_1.value.asDto(),
                         TestData.message1_2.value.asDto(),
                         TestData.message2_1.value.asDto(),
-                        TestData.message2_2.value.asDto()
+                        TestData.message2_2.value.asDto(),
+                        TestData.message3_1.value.asDto(),
+                        TestData.message3_2.value.asDto(),
+                        TestData.message4_1.value.asDto(),
+                        TestData.message4_2.value.asDto()
                     )
                 }
             }
