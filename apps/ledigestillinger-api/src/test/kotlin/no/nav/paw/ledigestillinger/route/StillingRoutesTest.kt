@@ -21,6 +21,7 @@ import no.naw.paw.ledigestillinger.model.FinnStillingerByUuidListeRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 import no.naw.paw.ledigestillinger.model.FinnStillingerType
 import no.naw.paw.ledigestillinger.model.Fylke
+import no.naw.paw.ledigestillinger.model.Kommune
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.Stilling
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -159,6 +160,41 @@ class StillingRoutesTest : FreeSpec({
                     body.stillinger shouldHaveSize 2
                     body.stillinger shouldContainOnly listOf(
                         TestData.message3_1.value.asDto(),
+                        TestData.message3_2.value.asDto()
+                    )
+                }
+
+                "Skal finne stillinger med søk på fylke og kommune" {
+                    // GIVEN
+                    val request = FinnStillingerByEgenskaperRequest(
+                        type = FinnStillingerType.BY_EGENSKAPER,
+                        soekeord = emptyList(),
+                        kategorier = emptyList(),
+                        fylker = listOf(
+                            Fylke(
+                                fylkesnummer = "30",
+                                kommuner = listOf(
+                                    Kommune(
+                                        kommunenummer = "3012"
+                                    )
+                                )
+                            )
+                        ),
+                        paging = Paging(1, 10)
+                    )
+
+                    // WHEN
+                    val response = client.post("/api/v1/stillinger") {
+                        bearerAuth(token.serialize())
+                        setJsonBody(request)
+                    }
+
+                    // THEN
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    val body = response.body<FinnStillingerResponse>()
+                    body.stillinger shouldHaveSize 1
+                    body.stillinger shouldContainOnly listOf(
                         TestData.message3_2.value.asDto()
                     )
                 }

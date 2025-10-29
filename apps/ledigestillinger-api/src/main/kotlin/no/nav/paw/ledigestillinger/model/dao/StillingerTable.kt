@@ -89,61 +89,38 @@ fun StillingerTable.selectRowsByUUIDList(
     }
 
 fun StillingerTable.selectRowsByKategorierAndFylker(
-    soekeord: Collection<String>, // TODO Benytt søkeord?
+    soekeord: Collection<String>,
     kategorier: Collection<String>,
     fylker: Collection<Fylke>,
     paging: Paging = Paging()
 ): List<StillingRow> {
-    val fylkesnummer = fylker.mapNotNull { it.fylkesnummer }
-    val kommunenummer = fylker
-        .flatMap { it.kommuner }
-        .map { it.kommunenummer } // TODO: Kommunenummer må relateres til tilhørende fylke
-
-    val kategoriQuery: Op<Boolean> = (KategorierTable.normalisertKode inList kategorier)
-    val klassifiseringQuery: Op<Boolean> =
-        ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList kategorier))
-    val styrkQuery = (kategoriQuery or klassifiseringQuery)
-    val fylkeQuery: Op<Boolean> = (LokasjonerTable.fylkeskode inList fylkesnummer)
-    val kommuneQuery: Op<Boolean> = (LokasjonerTable.kommunekode inList kommunenummer)
     val aktivQuery: Op<Boolean> = (StillingerTable.status eq StillingStatus.AKTIV)
-
-    val combinedQuery: Op<Boolean> = if (kategorier.isEmpty()) {
-        if (fylkesnummer.isEmpty()) {
-            if (kommunenummer.isEmpty()) {
-                logger.debug("Query på aktive stillinger uten kategorier, fylker eller kommuner")
-                aktivQuery
-            } else {
-                logger.debug("Query på aktive stillinger med kommuner, men uten kategorier eller fylker")
-                aktivQuery and kommuneQuery
-            }
-        } else {
-            if (kommunenummer.isEmpty()) {
-                logger.debug("Query på aktive stillinger med fylker, men uten kategorier eller kommuner")
-                aktivQuery and fylkeQuery
-            } else {
-                logger.debug("Query på aktive stillinger med fylker og kommuner, men uten kategorier")
-                aktivQuery and fylkeQuery and kommuneQuery
-            }
-        }
+    val soekeordQuery: Op<Boolean> = if (soekeord.isEmpty()) {
+        Op.TRUE
     } else {
-        if (fylkesnummer.isEmpty()) {
-            if (kommunenummer.isEmpty()) {
-                logger.debug("Query på aktive stillinger med kategorier, men uten fylker eller kommuner")
-                aktivQuery and styrkQuery
-            } else {
-                logger.debug("Query på aktive stillinger med kategorier og kommuner, men uten fylker")
-                aktivQuery and styrkQuery and kommuneQuery
-            }
-        } else {
-            if (kommunenummer.isEmpty()) {
-                logger.debug("Query på aktive stillinger med kategorier og fylker, men uten kommuner")
-                aktivQuery and styrkQuery and fylkeQuery
-            } else {
-                logger.debug("Query på aktive stillinger med kategorier, fylker og kommuner")
-                aktivQuery and styrkQuery and fylkeQuery and kommuneQuery
-            }
-        }
+        Op.TRUE // TODO Benytt søkeord?
     }
+    val kategoriQuery: Op<Boolean> = if (kategorier.isEmpty()) {
+        Op.TRUE
+    } else {
+        (KategorierTable.normalisertKode inList kategorier)
+    }
+    val klassifiseringQuery: Op<Boolean> = if (kategorier.isEmpty()) {
+        Op.TRUE
+    } else {
+        ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList kategorier))
+    }
+    val styrkQuery = (kategoriQuery or klassifiseringQuery)
+    val lokasjonQuery: Op<Boolean> = fylker.map { fylke ->
+        if (fylke.kommuner.isEmpty()) {
+            LokasjonerTable.fylkeskode eq fylke.fylkesnummer
+        } else {
+            val kommunenummer = fylke.kommuner.map { it.kommunenummer }
+            LokasjonerTable.fylkeskode eq fylke.fylkesnummer and (LokasjonerTable.kommunekode inList kommunenummer)
+        }
+    }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
+
+    val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery
 
     return join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
         .join(KlassifiseringerTable, JoinType.LEFT, StillingerTable.id, KlassifiseringerTable.parentId)
