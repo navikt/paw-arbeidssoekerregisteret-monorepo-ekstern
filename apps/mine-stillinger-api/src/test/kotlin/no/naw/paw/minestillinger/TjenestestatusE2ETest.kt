@@ -110,6 +110,7 @@ class TjenestestatusE2ETest : FreeSpec({
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
         abTestingRegex = Regex("""\d([0248])\d{9}"""),
+        clock = SystemClock
     )
 
     testcases.forEach { testcase ->
@@ -169,7 +170,8 @@ class TjenestestatusE2ETest : FreeSpec({
                 routing {
                     brukerprofilRoute(
                         brukerprofilTjeneste = brukerprofilTjeneste,
-                        søkeAdminOps = ExposedSøkAdminOps
+                        søkeAdminOps = ExposedSøkAdminOps,
+                        clock = SystemClock
                     )
                 }
 

@@ -12,7 +12,8 @@ fun runApp(applicationContext: ApplicationContext): Unit {
         healthIndicator = applicationContext.healthChecks,
         authProviders = applicationContext.securityConfig.authProviders,
         brukerprofilTjeneste = applicationContext.brukerprofilTjeneste,
-        finnStillingerClient = applicationContext.finnStillingerClient
+        finnStillingerClient = applicationContext.finnStillingerClient,
+        clock = applicationContext.clock
     )
     Runtime.getRuntime().addShutdownHook(Thread {
         appLogger.info("Applikasjonen avsluttes...")

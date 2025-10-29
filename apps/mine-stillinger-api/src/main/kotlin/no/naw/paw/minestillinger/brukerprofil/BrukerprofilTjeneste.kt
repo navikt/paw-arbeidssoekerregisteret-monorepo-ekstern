@@ -2,6 +2,7 @@ package no.naw.paw.minestillinger.brukerprofil
 
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
+import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
@@ -34,10 +35,11 @@ class BrukerprofilTjeneste(
     val hentProfilering: (PeriodeId) -> Profilering?,
     val slettAlleSøk: (BrukerId) -> Unit,
     val abTestingRegex: Regex,
+    val clock: Clock
 ) {
 
     suspend fun hentBrukerProfil(identitetsnummer: Identitetsnummer): BrukerProfil? {
-        val tidspunkt = Instant.now()
+        val tidspunkt = clock.now()
         val brukerProfilerUtenFlagg = hentBrukerprofilUtenFlagg(identitetsnummer) ?: return null
         val flagg = hentFlagg(brukerProfilerUtenFlagg.id)
             .let(::ListeMedFlagg)
@@ -73,12 +75,6 @@ class BrukerprofilTjeneste(
         return brukerProfilerUtenFlagg.medFlagg(alleFlagg)
     }
 
-    fun oppdaterFlagg(brukerId: BrukerId, listeMedFlagg: ListeMedFlagg) {
-        val skalLagres = listeMedFlagg
-            .filterIsInstance<LagretFlagg>()
-        skrivFlagg(brukerId, skalLagres)
-    }
-
     fun genererProfileringsFlagg(periodeId: PeriodeId): HarGodeMuligheterFlagg {
         return hentProfilering(periodeId)
             ?.let { profilering ->
@@ -90,7 +86,7 @@ class BrukerprofilTjeneste(
     fun genererErITestGruppenFlagg(regex: Regex, identitetsnummer: Identitetsnummer): ErITestGruppenFlagg {
         return ErITestGruppenFlagg(
             verdi = sjekkABTestingGruppe(regex, identitetsnummer),
-            tidspunkt = Instant.now()
+            tidspunkt = clock.now()
         )
     }
 

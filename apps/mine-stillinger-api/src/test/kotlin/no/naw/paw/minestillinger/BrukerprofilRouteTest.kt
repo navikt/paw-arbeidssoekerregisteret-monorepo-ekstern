@@ -65,6 +65,7 @@ class BrukerprofilRouteTest : FreeSpec({
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
         abTestingRegex = Regex(""),
+        clock = SystemClock
     )
 
     "Happy path" {
@@ -84,7 +85,8 @@ class BrukerprofilRouteTest : FreeSpec({
             coEvery { pdlClient.harBeskyttetAdresse(Identitetsnummer(periode.identitetsnummer)) } returns false
             routing { brukerprofilRoute(
                 brukerprofilTjeneste = brukerprofilTjeneste,
-                søkeAdminOps = ExposedSøkAdminOps
+                søkeAdminOps = ExposedSøkAdminOps,
+                clock = SystemClock
             ) }
 
             val testIdent = Identitetsnummer(periode.identitetsnummer)
@@ -128,7 +130,8 @@ class BrukerprofilRouteTest : FreeSpec({
             }
             routing { brukerprofilRoute(
                 brukerprofilTjeneste = brukerprofilTjeneste,
-                søkeAdminOps = ExposedSøkAdminOps
+                søkeAdminOps = ExposedSøkAdminOps,
+                clock = SystemClock
             ) }
             val response = testClient().put("$BRUKERPROFIL_PATH/stillingssoek") {
                 bearerAuth(oauthServer.sluttbrukerToken(id = Identitetsnummer(periode.identitetsnummer)))

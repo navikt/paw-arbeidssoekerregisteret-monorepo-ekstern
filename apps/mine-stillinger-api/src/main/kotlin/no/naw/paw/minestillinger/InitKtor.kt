@@ -41,7 +41,8 @@ fun <A> initEmbeddedKtorServer(
     healthIndicator: A,
     authProviders: List<AuthProvider>,
     brukerprofilTjeneste: BrukerprofilTjeneste,
-    finnStillingerClient: FinnStillingerClient
+    finnStillingerClient: FinnStillingerClient,
+    clock: Clock
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> where
         A : LivenessCheck, A : ReadinessCheck, A : StartupCheck {
 
@@ -57,7 +58,8 @@ fun <A> initEmbeddedKtorServer(
             startupRoute(healthIndicator)
             brukerprofilRoute(
                 brukerprofilTjeneste = brukerprofilTjeneste,
-                søkeAdminOps = ExposedSøkAdminOps
+                søkeAdminOps = ExposedSøkAdminOps,
+                clock = clock
             )
             ledigeStillingerRoute(
                 ledigeStillingerClient = finnStillingerClient,

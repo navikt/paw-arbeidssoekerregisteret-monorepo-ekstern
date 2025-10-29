@@ -40,6 +40,7 @@ val appLogger = LoggerFactory.getLogger("brukerprofiler_api")
 
 fun main() {
     appLogger.info("Starter brukerprofiler-api...")
+    val clock = SystemClock
     val topicNames = standardTopicNames(currentRuntimeEnvironment)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG)
@@ -73,7 +74,8 @@ fun main() {
         hentFlagg = ::lesFlaggFraDB,
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
-        abTestingRegex = requireNotNull(System.getenv("AB_TESTING_REGEX")?.toRegex()) { "AB_TESTING_REGEX env variabel må være satt" }
+        abTestingRegex = requireNotNull(System.getenv("AB_TESTING_REGEX")?.toRegex()) { "AB_TESTING_REGEX env variabel må være satt" },
+        clock = clock
     )
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())
@@ -90,6 +92,7 @@ fun main() {
         pdlClient = webClients.pdlClient,
         brukerprofilTjeneste = brukerprofilTjeneste,
         finnStillingerClient = webClients.finnStillingerClient,
+        clock = clock
     )
     runApp(appContext)
 }

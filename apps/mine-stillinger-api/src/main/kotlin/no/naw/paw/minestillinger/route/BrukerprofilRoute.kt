@@ -16,6 +16,7 @@ import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
+import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.api.ApiStillingssoek
 import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.toApiTjenesteStatus
@@ -36,7 +37,8 @@ private val logger = getLogger(BRUKERPROFIL_PATH)
 
 fun Route.brukerprofilRoute(
     brukerprofilTjeneste: BrukerprofilTjeneste,
-    søkeAdminOps: SøkAdminOps
+    søkeAdminOps: SøkAdminOps,
+    clock: Clock
 ) {
     route(BRUKERPROFIL_PATH) {
         autentisering(TokenX) {
@@ -70,7 +72,7 @@ fun Route.brukerprofilRoute(
                         HttpStatusCode.NotFound
                     } else {
                         søkeAdminOps.slettAlleSoekForBruker(brukerId)
-                        val tidspunkt = Instant.now()
+                        val tidspunkt = clock.now()
                         stillingssoek.forEach { soek ->
                             søkeAdminOps.lagreSoek(brukerId, tidspunkt, soek.domain())
                         }

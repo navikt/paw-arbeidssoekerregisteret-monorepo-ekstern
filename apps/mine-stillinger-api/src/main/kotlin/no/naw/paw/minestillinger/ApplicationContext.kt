@@ -20,6 +20,7 @@ data class ApplicationContext(
     val idClient: KafkaKeysClient,
     val pdlClient: PdlClient,
     val finnStillingerClient: FinnStillingerClient,
-    val brukerprofilTjeneste: BrukerprofilTjeneste
+    val brukerprofilTjeneste: BrukerprofilTjeneste,
+    val clock: Clock
 )
 
