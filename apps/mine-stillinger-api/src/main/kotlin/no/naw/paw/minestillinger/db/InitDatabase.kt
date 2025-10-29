@@ -11,12 +11,17 @@ import org.jetbrains.exposed.v1.jdbc.Database
 
 fun initDatabase(databaseConfig: DatabaseConfig): HikariDataSource {
     val dataSource = createHikariDataSource(databaseConfig)
+    val disableClean = false
     Database.connect(dataSource)
     Flyway.configure()
         .dataSource(dataSource)
         .baselineOnMigrate(true)
         .locations("db/migration")
+        .cleanDisabled(disableClean)
         .load()
-        .migrate()
+        .also {
+            it.clean()
+            it.migrate()
+        }
     return dataSource
 }

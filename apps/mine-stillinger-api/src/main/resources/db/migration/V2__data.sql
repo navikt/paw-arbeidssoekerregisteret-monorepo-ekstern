@@ -15,8 +15,7 @@ create table profilering
     profilering_id        UUID         not null,
     profilering_tidspunkt timestamp(3) not null,
     profilering_resultat  varchar(255) not null,
-    unique (periode_id),
-    unique (profilering_tidspunkt)
+    unique (periode_id)
 );
 
 create table bruker_flagg
