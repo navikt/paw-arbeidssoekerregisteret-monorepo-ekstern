@@ -20,6 +20,7 @@ import no.nav.paw.ledigestillinger.model.dao.insert
 import no.nav.paw.ledigestillinger.model.dao.selectIdByUUID
 import no.nav.paw.ledigestillinger.model.dao.selectRowByUUID
 import no.nav.paw.ledigestillinger.model.dao.selectRowsByKategorierAndFylker
+import no.nav.paw.ledigestillinger.model.dao.selectRowsByUUIDList
 import no.nav.paw.ledigestillinger.model.dao.updateById
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import no.nav.paw.ledigestillinger.util.meldingerMottattCounter
@@ -49,7 +50,7 @@ class StillingService(
         StillingerTable.selectRowByUUID(uuid)?.asDto() ?: throw StillingIkkeFunnetException()
     }
 
-    fun finnStillinger(
+    fun finnStillingerByEgenskaper(
         soekeord: Collection<String>,
         kategorier: Collection<String>,
         fylker: Collection<Fylke>,
@@ -61,6 +62,12 @@ class StillingService(
             fylker = fylker,
             paging = paging
         ).map { it.asDto() }
+    }
+
+    fun finnStillingerByUuidListe(
+        uuidListe: Collection<UUID>
+    ): List<Stilling> = transaction {
+        StillingerTable.selectRowsByUUIDList(uuidListe).map { it.asDto() }
     }
 
     @WithSpan

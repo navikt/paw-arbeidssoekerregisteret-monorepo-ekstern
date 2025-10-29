@@ -17,6 +17,7 @@ import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData
 import no.nav.paw.ledigestillinger.test.validateAgainstOpenApiSpec
 import no.naw.paw.ledigestillinger.model.FinnStillingerByEgenskaperRequest
+import no.naw.paw.ledigestillinger.model.FinnStillingerByUuidListeRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 import no.naw.paw.ledigestillinger.model.FinnStillingerType
 import no.naw.paw.ledigestillinger.model.Fylke
@@ -94,7 +95,7 @@ class StillingRoutesTest : FreeSpec({
             }
         }
 
-        "Test suite for finn stillinger på egenskaper" - {
+        "Test suite for finn stillinger for egenskaper" - {
             securedTestApplication {
                 val client = buildTestClient()
                 val token = mockOAuth2Server.issueTokenXToken()
@@ -218,6 +219,38 @@ class StillingRoutesTest : FreeSpec({
                         TestData.message3_1.value.asDto(),
                         TestData.message3_2.value.asDto(),
                         TestData.message4_1.value.asDto(),
+                        TestData.message4_2.value.asDto()
+                    )
+                }
+            }
+        }
+
+        "Test suite for finn stillinger for uuid-liste" - {
+            securedTestApplication {
+                val client = buildTestClient()
+                val token = mockOAuth2Server.issueTokenXToken()
+
+                "Skal finne stillinger for uuid-liste" {
+                    // GIVEN
+                    val request = FinnStillingerByUuidListeRequest(
+                        type = FinnStillingerType.BY_UUID_LISTE,
+                        uuidListe = listOf(TestData.uuid1_2, TestData.uuid3_1, TestData.uuid4_2, UUID.randomUUID())
+                    )
+
+                    // WHEN
+                    val response = client.post("/api/v1/stillinger") {
+                        bearerAuth(token.serialize())
+                        setJsonBody(request)
+                    }
+
+                    // THEN
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    val body = response.body<FinnStillingerResponse>()
+                    body.stillinger shouldHaveSize 3
+                    body.stillinger shouldContainOnly listOf(
+                        TestData.message1_2.value.asDto(),
+                        TestData.message3_1.value.asDto(),
                         TestData.message4_2.value.asDto()
                     )
                 }

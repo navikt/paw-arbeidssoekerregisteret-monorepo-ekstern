@@ -1,13 +1,10 @@
 package no.nav.paw.ledigestillinger.route
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.paw.error.exception.ServerResponseException
-import no.nav.paw.error.model.ErrorType
 import no.nav.paw.ledigestillinger.exception.MalformedRequestException
 import no.nav.paw.ledigestillinger.exception.RequestParamMissingException
 import no.nav.paw.ledigestillinger.model.asResponse
@@ -18,6 +15,7 @@ import no.naw.paw.ledigestillinger.model.FinnStillingerByEgenskaperRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerByUuidListeRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
+import no.naw.paw.ledigestillinger.model.PagingResponse
 import no.naw.paw.ledigestillinger.model.Stilling
 import java.util.*
 
@@ -37,7 +35,7 @@ fun Route.stillingRoutes(
                 when (request) {
                     is FinnStillingerByEgenskaperRequest -> {
                         request.verify()
-                        val stillinger = stillingService.finnStillinger(
+                        val stillinger = stillingService.finnStillingerByEgenskaper(
                             soekeord = request.soekeord,
                             kategorier = request.kategorier,
                             fylker = request.fylker,
@@ -52,11 +50,17 @@ fun Route.stillingRoutes(
                     }
 
                     is FinnStillingerByUuidListeRequest -> {
-                        throw ServerResponseException(
-                            status = HttpStatusCode.NotImplemented,
-                            type = ErrorType.domain("stillinger").error("not-implemented").build(),
-                            message = "Not yet implemented"
+                        val stillinger = stillingService.finnStillingerByUuidListe(request.uuidListe)
+                        val response = FinnStillingerResponse(
+                            stillinger = stillinger,
+                            paging = PagingResponse(
+                                page = 1,
+                                pageSize = request.uuidListe.size,
+                                hitSize = stillinger.size
+                            )
                         )
+
+                        call.respond<FinnStillingerResponse>(response)
                     }
                 }
             }

@@ -67,12 +67,26 @@ fun StillingerTable.selectRowByUUID(
         it.asStillingRow(
             arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
             kategorier = KategorierTable::selectRowsByParentId,
-            klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
+            klassifiseringer = { emptyList() }, // TODO fjernet for å spare select KlassifiseringerTable::selectRowsByParentId,
             lokasjoner = LokasjonerTable::selectRowsByParentId,
-            egenskaper = EgenskaperTable::selectRowsByParentId
+            egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
         )
     }
     .singleOrNull()
+
+fun StillingerTable.selectRowsByUUIDList(
+    uuidList: Collection<UUID>
+): List<StillingRow> = selectAll()
+    .where { StillingerTable.uuid inList uuidList }
+    .map {
+        it.asStillingRow(
+            arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
+            kategorier = KategorierTable::selectRowsByParentId,
+            klassifiseringer = { emptyList() }, // TODO fjernet for å spare select KlassifiseringerTable::selectRowsByParentId,
+            lokasjoner = LokasjonerTable::selectRowsByParentId,
+            egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
+        )
+    }
 
 fun StillingerTable.selectRowsByKategorierAndFylker(
     soekeord: Collection<String>, // TODO Benytt søkeord?

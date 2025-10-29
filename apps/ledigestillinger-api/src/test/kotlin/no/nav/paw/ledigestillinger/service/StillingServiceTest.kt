@@ -68,7 +68,7 @@ class StillingServiceTest : FreeSpec({
             row8 shouldBeEqualTo TestData.message4_2.value
 
             // WHEN
-            val stillinger = stillingService.finnStillinger(
+            val stillinger = stillingService.finnStillingerByEgenskaper(
                 soekeord = emptyList(),
                 fylker = listOf(
                     Fylke(
