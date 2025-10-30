@@ -54,7 +54,10 @@ class BrukerprofilTjeneste(
                 } else {
                     val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(identitetsnummer)
                     val oppdatering = OppdateringAvFlagg(
-                        nyeOgOppdaterteFlagg = listOf(HarGradertAdresseFlagg(harGradertAdresseNå, tidspunkt)),
+                        nyeOgOppdaterteFlagg = listOfNotNull(
+                            HarGradertAdresseFlagg(harGradertAdresseNå, tidspunkt),
+                            if (harGradertAdresseNå) TjenestenErAktivFlagg(verdi = false, tidspunkt = tidspunkt) else null
+                        ),
                         søkSkalSlettes = harGradertAdresseNå
                     )
                     oppdaterFlagg(brukerId = brukerProfilerUtenFlagg.id, oppdatering = oppdatering)

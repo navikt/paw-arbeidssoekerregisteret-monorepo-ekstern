@@ -486,6 +486,37 @@ class Livssyklustest : FreeSpec({
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
+            "Bruker får gradert adresse" - {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                forwardTimeByHours(36)
+                coEvery { pdlClient.harBeskyttetAdresse(testIdent) } returns true
+                "Vi kan ikke levere tjenesten og søket er slettet" {
+                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    val response = testClient.get(BRUKERPROFIL_PATH) {
+                        bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                        contentType(Application.Json)
+                    }
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe testIdent.verdi
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.stillingssoek.shouldHaveSize(0)
+                    }
+                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                }
+                "Bruker kan ikke aktivere tjenesten" {
+                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    val aktiverResponse = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
+                        bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                        contentType(Application.Json)
+                    }
+                    aktiverResponse.validateAgainstOpenApiSpec()
+                    aktiverResponse.status shouldBe HttpStatusCode.Forbidden
+                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
         }
 
     }
