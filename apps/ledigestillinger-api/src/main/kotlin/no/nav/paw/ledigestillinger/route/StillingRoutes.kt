@@ -33,6 +33,20 @@ fun Route.stillingRoutes(
 
             post<FinnStillingerRequest> { request ->
                 when (request) {
+                    is FinnStillingerByUuidListeRequest -> {
+                        val stillinger = stillingService.finnStillingerByUuidListe(request.uuidListe)
+                        val response = FinnStillingerResponse(
+                            stillinger = stillinger,
+                            paging = PagingResponse(
+                                page = 1,
+                                pageSize = request.uuidListe.size,
+                                hitSize = stillinger.size
+                            )
+                        )
+
+                        call.respond<FinnStillingerResponse>(response)
+                    }
+
                     is FinnStillingerByEgenskaperRequest -> {
                         request.verify()
                         val stillinger = stillingService.finnStillingerByEgenskaper(
@@ -44,20 +58,6 @@ fun Route.stillingRoutes(
                         val response = FinnStillingerResponse(
                             stillinger = stillinger,
                             paging = request.paging.asResponse(hitSize = stillinger.size)
-                        )
-
-                        call.respond<FinnStillingerResponse>(response)
-                    }
-
-                    is FinnStillingerByUuidListeRequest -> {
-                        val stillinger = stillingService.finnStillingerByUuidListe(request.uuidListe)
-                        val response = FinnStillingerResponse(
-                            stillinger = stillinger,
-                            paging = PagingResponse(
-                                page = 1,
-                                pageSize = request.uuidListe.size,
-                                hitSize = stillinger.size
-                            )
                         )
 
                         call.respond<FinnStillingerResponse>(response)

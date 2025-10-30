@@ -22,6 +22,10 @@ import no.nav.paw.ledigestillinger.model.dao.selectRowByUUID
 import no.nav.paw.ledigestillinger.model.dao.selectRowsByKategorierAndFylker
 import no.nav.paw.ledigestillinger.model.dao.selectRowsByUUIDList
 import no.nav.paw.ledigestillinger.model.dao.updateById
+import no.nav.paw.ledigestillinger.util.finnStillingerByEgenskaperEvent
+import no.nav.paw.ledigestillinger.util.finnStillingerByEgenskaperGauge
+import no.nav.paw.ledigestillinger.util.finnStillingerByUuidListeEvent
+import no.nav.paw.ledigestillinger.util.finnStillingerByUuidListeGauge
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import no.nav.paw.ledigestillinger.util.meldingerMottattCounter
 import no.nav.paw.ledigestillinger.util.meldingerMottattEvent
@@ -46,28 +50,45 @@ class StillingService(
         )
     }
 
+    @WithSpan
     fun hentStilling(uuid: UUID): Stilling = transaction {
         StillingerTable.selectRowByUUID(uuid)?.asDto() ?: throw StillingIkkeFunnetException()
     }
 
+    @WithSpan
+    fun finnStillingerByUuidListe(
+        uuidListe: Collection<UUID>
+    ): List<Stilling> = transaction {
+        Span.current().finnStillingerByUuidListeEvent(antallUuider = uuidListe.size)
+        meterRegistry.finnStillingerByUuidListeGauge(antallUuider = uuidListe.size)
+        StillingerTable.selectRowsByUUIDList(uuidListe).map { it.asDto() }
+    }
+
+    @WithSpan
     fun finnStillingerByEgenskaper(
         soekeord: Collection<String>,
         kategorier: Collection<String>,
         fylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
+        Span.current().finnStillingerByEgenskaperEvent(
+            antallSoekeord = soekeord.size,
+            antallKategorier = kategorier.size,
+            antallFylker = fylker.size,
+            antallKommuner = fylker.sumOf { it.kommuner.size }
+        )
+        meterRegistry.finnStillingerByEgenskaperGauge(
+            antallSoekeord = soekeord.size,
+            antallKategorier = kategorier.size,
+            antallFylker = fylker.size,
+            antallKommuner = fylker.sumOf { it.kommuner.size }
+        )
         StillingerTable.selectRowsByKategorierAndFylker(
             soekeord = soekeord,
             kategorier = kategorier,
             fylker = fylker,
             paging = paging
         ).map { it.asDto() }
-    }
-
-    fun finnStillingerByUuidListe(
-        uuidListe: Collection<UUID>
-    ): List<Stilling> = transaction {
-        StillingerTable.selectRowsByUUIDList(uuidListe).map { it.asDto() }
     }
 
     @WithSpan

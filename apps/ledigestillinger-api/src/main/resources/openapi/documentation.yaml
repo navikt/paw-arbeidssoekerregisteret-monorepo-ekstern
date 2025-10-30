@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.0.4
 info:
   version: v1
   title: Ledigestillinger API
@@ -175,6 +175,8 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/StillingStatus'
+        visning:
+          $ref: '#/components/schemas/VisningGrad'
         arbeidsgivernavn:
           type: string
         arbeidsgiver:
@@ -196,14 +198,6 @@ components:
           $ref: "#/components/schemas/Frist"
         oppstartsfrist:
           $ref: "#/components/schemas/Frist"
-        kategorier:
-          type: array
-          items:
-            $ref: "#/components/schemas/Kategori"
-        lokasjoner:
-          type: array
-          items:
-            $ref: "#/components/schemas/Lokasjon"
         publisert:
           type: string
           format: "date-time"
@@ -213,6 +207,14 @@ components:
           format: "date-time"
           nullable: true
           example: "2021-09-29T11:20:33.444Z"
+        kategorier:
+          type: array
+          items:
+            $ref: "#/components/schemas/Kategori"
+        lokasjoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lokasjon"
       required:
         - uuid
         - tittel
@@ -221,9 +223,9 @@ components:
         - sektor
         - soeknadsfrist
         - oppstartsfrist
+        - publisert
         - kategorier
         - lokasjoner
-        - publisert
     StillingStatus:
       type: string
       enum:
@@ -269,26 +271,6 @@ components:
         - kode
         - normalisertKode
         - navn
-    Klassifisering:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/KlassifiseringType"
-        kode:
-          type: string
-        navn:
-          type: string
-      required:
-        - type
-        - kode
-        - navn
-    KlassifiseringType:
-      type: string
-      enum:
-        - ESCO
-        - JANZZ
-        - STYRK08
-        - STYRK08NAV
     Fylke:
       type: object
       properties:
@@ -332,16 +314,6 @@ components:
           type: string
       required:
         - land
-    Egenskap:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
-      required:
-        - key
-        - value
     Frist:
       type: object
       properties:

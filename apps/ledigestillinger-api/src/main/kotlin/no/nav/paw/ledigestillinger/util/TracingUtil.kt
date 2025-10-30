@@ -18,3 +18,31 @@ fun Span.meldingerMottattEvent(
         )
     )
 }
+
+fun Span.finnStillingerByUuidListeEvent(
+    antallUuider: Number,
+): Span = apply {
+    addEvent(
+        "finn_stillinger_by_egenskaper",
+        Attributes.of(
+            stringKey("uuidListe"), antallUuider.toString()
+        )
+    )
+}
+
+fun Span.finnStillingerByEgenskaperEvent(
+    antallSoekeord: Number,
+    antallKategorier: Number,
+    antallFylker: Number,
+    antallKommuner: Number
+): Span = apply {
+    addEvent(
+        "finn_stillinger_by_egenskaper",
+        Attributes.of(
+            stringKey("soekeord"), antallSoekeord.toString(),
+            stringKey("kategorier"), antallKategorier.toString(),
+            stringKey("fylker"), antallFylker.toString(),
+            stringKey("kommuner"), antallKommuner.toString(),
+        )
+    )
+}

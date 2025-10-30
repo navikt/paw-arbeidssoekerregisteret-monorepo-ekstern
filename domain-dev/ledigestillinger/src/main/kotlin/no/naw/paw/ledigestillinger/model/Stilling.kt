@@ -18,6 +18,9 @@ data class Stilling(
     @get:JsonProperty("status")
     val status: StillingStatus,
 
+    @get:JsonProperty("visning")
+    val visning: VisningGrad? = null,
+
     @get:JsonProperty("arbeidsgivernavn")
     val arbeidsgivernavn: String? = null,
 
@@ -45,15 +48,15 @@ data class Stilling(
     @get:JsonProperty("oppstartsfrist")
     val oppstartsfrist: Frist,
 
-    @get:JsonProperty("kategorier")
-    val kategorier: List<Kategori>,
-
-    @get:JsonProperty("lokasjoner")
-    val lokasjoner: List<Lokasjon>,
-
     @get:JsonProperty("publisert")
     val publisert: Instant,
 
     @get:JsonProperty("utloeper")
-    val utloeper: Instant? = null
+    val utloeper: Instant? = null,
+
+    @get:JsonProperty("kategorier")
+    val kategorier: List<Kategori>,
+
+    @get:JsonProperty("lokasjoner")
+    val lokasjoner: List<Lokasjon>
 )

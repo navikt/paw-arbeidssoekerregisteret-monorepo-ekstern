@@ -7,8 +7,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object KategorierTable : LongIdTable("kategorier") {
     val parentId = long("parent_id").references(StillingerTable.id)
-    val kode = varchar("kode", 255)
-    val normalisertKode = varchar("normalisert_kode", 255)
+    val kode = varchar("kode", 20)
+    val normalisertKode = varchar("normalisert_kode", 20)
     val navn = varchar("navn", 255)
 }
 

@@ -94,6 +94,7 @@ fun StillingerTable.selectRowsByKategorierAndFylker(
     fylker: Collection<Fylke>,
     paging: Paging = Paging()
 ): List<StillingRow> {
+    logger.debug("Finner stillinger med kategorier: {} og fylker: {}", kategorier, fylker)
     val aktivQuery: Op<Boolean> = (StillingerTable.status eq StillingStatus.AKTIV)
     val soekeordQuery: Op<Boolean> = if (soekeord.isEmpty()) {
         Op.TRUE

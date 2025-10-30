@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object KlassifiseringerTable : LongIdTable("klassifiseringer") {
     val parentId = long("parent_id").references(StillingerTable.id)
-    val type = enumerationByName<KlassifiseringType>("type", 255)
+    val type = enumerationByName<KlassifiseringType>("type", 20)
     val kode = varchar("kode", 255)
     val navn = varchar("navn", 255)
 }
