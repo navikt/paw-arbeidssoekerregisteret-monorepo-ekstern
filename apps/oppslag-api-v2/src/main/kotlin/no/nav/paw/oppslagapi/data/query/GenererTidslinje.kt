@@ -7,13 +7,19 @@ import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
+import java.time.Duration.between
+import java.time.Instant
 import java.util.*
 
 fun genererTidslinje(rader: List<Pair<UUID, List<Row<out Any>>>>): List<Tidslinje> {
     val startMap = rader.associate { (periodeId, rader) ->
+        val førsteRegistrerte = rader.minBy { it.timestamp }
         periodeId to (rader.firstOrNull { it.type == periode_startet_v1 }
-            ?: throw IllegalStateException("Periode uten start hendelse: $periodeId")
-                )
+            ?: throw PeriodeUtenStartHendelseException(
+                hendelseType = førsteRegistrerte.type,
+                hendelseAlder = between(førsteRegistrerte.timestamp, Instant.now())
+            )
+        )
     }
     val avsluttetMap = rader.associate { (periodeId, rader) ->
         periodeId to rader.firstOrNull { it.type == periode_avsluttet_v1 }
