@@ -52,20 +52,13 @@ class BrukerprofilTjeneste(
                 if (gradertAdresseGyldig) {
                     flagg
                 } else {
-                    val harBeskyttetAdresseNå = pdlClient.harBeskyttetAdresse(identitetsnummer)
-                    if (harBeskyttetAdresseNå) {
-                        oppdaterMedGradertAdresse(
-                            tidspunkt = tidspunkt,
-                            gjeldeneFlagg = flagg
-                        ).let { oppdatering ->
-                            if (oppdatering.søkSkalSlettes) {
-                                slettAlleSøk(brukerProfilerUtenFlagg.id)
-                            }
-                            flagg.addOrUpdate(*oppdatering.nyeOgOppdaterteFlagg.toTypedArray())
-                        }
-                    } else {
-                        flagg.addOrUpdate(HarGradertAdresseFlagg(false, tidspunkt))
-                    }
+                    val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(identitetsnummer)
+                    val oppdatering = OppdateringAvFlagg(
+                        nyeOgOppdaterteFlagg = listOf(HarGradertAdresseFlagg(harGradertAdresseNå, tidspunkt)),
+                        søkSkalSlettes = harGradertAdresseNå
+                    )
+                    oppdaterFlagg(brukerId = brukerProfilerUtenFlagg.id, oppdatering = oppdatering)
+                    flagg.addOrUpdate(*oppdatering.nyeOgOppdaterteFlagg.toTypedArray())
                 }
             }
         val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
@@ -78,7 +71,7 @@ class BrukerprofilTjeneste(
     fun genererProfileringsFlagg(periodeId: PeriodeId): HarGodeMuligheterFlagg {
         return hentProfilering(periodeId)
             ?.let { profilering ->
-                val godeMuligheter = profilering?.profileringResultat == ProfileringResultat.ANTATT_GODE_MULIGHETER
+                val godeMuligheter = profilering.profileringResultat == ProfileringResultat.ANTATT_GODE_MULIGHETER
                 HarGodeMuligheterFlaggtype.flagg(verdi = godeMuligheter, tidspunkt = profilering.profileringTidspunkt)
             } ?: HarGodeMuligheterFlaggtype.flagg(verdi = false, tidspunkt = Instant.EPOCH)
     }
@@ -95,6 +88,7 @@ class BrukerprofilTjeneste(
         if (oppdatering.søkSkalSlettes) {
             slettAlleSøk(brukerId)
         }
+        appLogger.info("Oppdaterte flagg: $oppdatering")
     }
 }
 

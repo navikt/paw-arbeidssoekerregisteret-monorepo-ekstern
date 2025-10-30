@@ -2,6 +2,7 @@ package no.naw.paw.minestillinger
 
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.engine.test.logging.info
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -23,9 +24,11 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.PeriodeFactory
+import no.nav.paw.test.data.periode.createProfilering
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.ApiStedSoek
 import no.naw.paw.minestillinger.api.ApiStillingssoek
@@ -41,16 +44,20 @@ import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
 import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
 import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
+import no.naw.paw.minestillinger.db.ops.lagreProfilering
 import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
+import no.naw.paw.minestillinger.domain.TjenesteStatus
+import no.naw.paw.minestillinger.domain.TjenesteStatus.INAKTIV
 import no.naw.paw.minestillinger.domain.TjenesteStatus.KAN_IKKE_LEVERES
 import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -82,7 +89,7 @@ class Livssyklustest : FreeSpec({
         hentFlagg = ::lesFlaggFraDB,
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
-        abTestingRegex = Regex(""),
+        abTestingRegex = Regex("\\d([02468])\\d{9}"),
         clock = clock
     )
     "Full test av av livessyklus for brukerprofil" - {
@@ -95,7 +102,7 @@ class Livssyklustest : FreeSpec({
                 )
             }
             val testClient = testClient()
-            val periode = PeriodeFactory.create().build()
+            val periode = PeriodeFactory.create().build(identitetsnummer = "12111111111")
             currentTime.set(periode.startet.tidspunkt)
             val testIdent = Identitetsnummer(periode.identitetsnummer)
             mockkStatic(PdlClient::harBeskyttetAdresse)
@@ -109,20 +116,64 @@ class Livssyklustest : FreeSpec({
                 )
             }
 
-            "Når ingen brukerprofil er opprettet får vi 404" {
+            "Når ingen bruker er opprettet får vi 404" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                     contentType(Application.Json)
                 }
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.NotFound
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
-            transaction {
-                opprettOgOppdaterBruker(periode)
+            "Etter at brukerprofilen er opprettet får vi 200 OK med ${KAN_IKKE_LEVERES} (ikke 'antatt gode muligheter' grunnet manglende profilering)" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                transaction {
+                    opprettOgOppdaterBruker(periode)
+                }
+                val response = testClient.get(BRUKERPROFIL_PATH) {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                response.status shouldBe HttpStatusCode.OK
+                response.body<ApiBrukerprofil>() should { profil ->
+                    profil.identitetsnummer shouldBe testIdent.verdi
+                    profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                    profil.stillingssoek.shouldBeEmpty()
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
-            "Når brukerprofilen er opprettet får vi 200 OK med inaktiv tjenestestatus" {
+            "Når bruker er profilert til behov for veiledning får vi 200 OK med $KAN_IKKE_LEVERES" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                transaction {
+                    lagreProfilering(
+                        createProfilering(periodeId = periode.id, profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING)
+                    )
+                }
+                val response = testClient.get(BRUKERPROFIL_PATH) {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                response.status shouldBe HttpStatusCode.OK
+                response.body<ApiBrukerprofil>() should { profil ->
+                    profil.identitetsnummer shouldBe testIdent.verdi
+                    profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                    profil.stillingssoek.shouldBeEmpty()
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
+
+            "Når brukeren erprofilert til antatt gode muligheter får vi 200 OK med $INAKTIV" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                transaction {
+                    lagreProfilering(
+                        createProfilering(periodeId = periode.id, profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER)
+                    )
+                }
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                     contentType(Application.Json)
@@ -134,9 +185,12 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                     profil.stillingssoek.shouldBeEmpty()
                 }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
-            "Når brukerprofilen har gradert adresse får vi 200 OK med ${KAN_IKKE_LEVERES} tjenestestatus" {
+            "Når bruker har fått gradert adresse får vi 200 OK med ${KAN_IKKE_LEVERES}" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                forwardTimeByHours(36)
                 coEvery { pdlClient.harBeskyttetAdresse(testIdent) } returns true
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
@@ -149,18 +203,22 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                     profil.stillingssoek.shouldBeEmpty()
                 }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Når vi prøver å starte tjenesten får vi 403 forbidden" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                     contentType(Application.Json)
                 }
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.Forbidden
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Nå vi prøver å lagre et søk får vi 403 forbidden" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                     contentType(Application.Json)
@@ -188,8 +246,10 @@ class Livssyklustest : FreeSpec({
                 }
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.Forbidden
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
-            "Når gradert adresse fjernes får vi 204 NO Content med INAKTIV tjenestestatus" {
+            "Når gradert adresse er fjernet får vi 200 OK med $INAKTIV" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 forwardTimeByHours(36)
                 coEvery { pdlClient.harBeskyttetAdresse(testIdent) } returns false
                 val response = testClient.get(BRUKERPROFIL_PATH) {
@@ -203,8 +263,11 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                     profil.stillingssoek.shouldBeEmpty()
                 }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
+
             "Vi kan nå aktivere tjenesten" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                     contentType(Application.Json)
@@ -213,8 +276,11 @@ class Livssyklustest : FreeSpec({
                 withClue(response.bodyAsText()) {
                     response.status shouldBe HttpStatusCode.NoContent
                 }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
+
             "Vi kan nå lagre et søk" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                     contentType(Application.Json)
@@ -242,8 +308,11 @@ class Livssyklustest : FreeSpec({
                 }
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.NoContent
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
-            "Brukerprofilen skal nå inneholde et søk" {
+
+            "Brukerprofilen skal nå inneholde søket vi lagret" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
                     contentType(Application.Json)
@@ -252,7 +321,7 @@ class Livssyklustest : FreeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe testIdent.verdi
-                    profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
+                    profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                     profil.stillingssoek.shouldHaveSize(1)
                     profil.stillingssoek.firstOrNull() should { søk ->
                         søk.shouldNotBeNull()
@@ -269,6 +338,7 @@ class Livssyklustest : FreeSpec({
                         }
                     }
                 }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
         }
     }

@@ -58,6 +58,7 @@ fun BrukerProfil.api(): ApiBrukerprofil {
             optOut -> ApiTjenesteStatus.OPT_OUT
             harGradertAdresse -> ApiTjenesteStatus.KAN_IKKE_LEVERES
             erITestGruppen && harGodeMuligheter -> ApiTjenesteStatus.INAKTIV
+            !harBruktTjenesten && !harGodeMuligheter -> ApiTjenesteStatus.KAN_IKKE_LEVERES
             else -> ApiTjenesteStatus.INAKTIV
         },
         stillingssoek = emptyList()

@@ -17,11 +17,13 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
 suspend fun BrukerprofilTjeneste.hentBrukerprofil(
     hentSøk: (BrukerId) -> List<Stillingssoek>,
     identitetsnummer: Identitetsnummer
-): ApiBrukerprofil {
+): ApiBrukerprofil? {
     return suspendedTransactionAsync {
-        val brukerprofil = hentBrukerProfil(identitetsnummer) ?: brukerIkkeFunnet()
-        val søk = hentSøk(brukerprofil.id).map { søk -> søk.api() }
-        brukerprofil.api().copy(stillingssoek = søk)
+        hentBrukerProfil(identitetsnummer)
+            ?.let { brukerprofil ->
+                val søk = hentSøk(brukerprofil.id).map { søk -> søk.api() }
+                brukerprofil.api().copy(stillingssoek = søk)
+            }
     }.await()
 }
 

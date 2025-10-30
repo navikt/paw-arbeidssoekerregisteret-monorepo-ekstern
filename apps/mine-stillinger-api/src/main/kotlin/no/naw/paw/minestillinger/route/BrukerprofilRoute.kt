@@ -43,11 +43,15 @@ fun Route.brukerprofilRoute(
             get("") {
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-                val apiBrukerprofil = brukerprofilTjeneste.hentBrukerprofil(
+                val response = brukerprofilTjeneste.hentBrukerprofil(
                     hentSøk = { brukerId -> søkeAdminOps.hentSoek(brukerId).map { it.soek } },
                     identitetsnummer = identitetsnummer,
+                )?.let(::Data) ?: mineStillingerProblemDetails(
+                    error = Error.BRUKERPROFIL_IKKE_FUNNET,
+                    detail = "Brukerprofil ikke funnet",
+                    instance = call.request.uri
                 )
-                call.respond(apiBrukerprofil)
+                call.respondWith(response)
             }
             put("/tjenestestatus/{tjenestestatus}") {
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
