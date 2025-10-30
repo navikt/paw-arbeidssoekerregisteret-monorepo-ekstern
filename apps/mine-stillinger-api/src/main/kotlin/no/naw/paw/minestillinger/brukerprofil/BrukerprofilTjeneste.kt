@@ -91,18 +91,3 @@ class BrukerprofilTjeneste(
         appLogger.info("Oppdaterte flagg: $oppdatering")
     }
 }
-
-fun oppdaterMedGradertAdresse(
-    tidspunkt: Instant,
-    gjeldeneFlagg: ListeMedFlagg,
-): OppdateringAvFlagg {
-    val nyeEllerOppdaterteFlagg = listOfNotNull(
-        HarGradertAdresseFlagg(true, tidspunkt),
-        if (gjeldeneFlagg[TjenestenErAktivFlaggtype]?.verdi == true) TjenestenErAktivFlagg(false, tidspunkt) else null
-    )
-    return OppdateringAvFlagg(
-        nyeOgOppdaterteFlagg = nyeEllerOppdaterteFlagg,
-        søkSkalSlettes = true
-    )
-}
-

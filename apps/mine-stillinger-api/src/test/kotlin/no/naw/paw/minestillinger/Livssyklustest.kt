@@ -150,7 +150,10 @@ class Livssyklustest : FreeSpec({
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 transaction {
                     lagreProfilering(
-                        createProfilering(periodeId = periode.id, profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING)
+                        createProfilering(
+                            periodeId = periode.id,
+                            profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+                        )
                     )
                 }
                 val response = testClient.get(BRUKERPROFIL_PATH) {
@@ -340,6 +343,150 @@ class Livssyklustest : FreeSpec({
                 }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
+
+            "Tjenesten forblir aktiv selv om bruker profileres til antatt behov for veiledning" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                transaction {
+                    lagreProfilering(
+                        createProfilering(
+                            periodeId = periode.id,
+                            profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+                        )
+                    )
+                }
+                val response = testClient.get(BRUKERPROFIL_PATH) {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                response.status shouldBe HttpStatusCode.OK
+                response.body<ApiBrukerprofil>() should { profil ->
+                    profil.identitetsnummer shouldBe testIdent.verdi
+                    profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
+                    profil.stillingssoek.shouldHaveSize(1)
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
+
+            "Vi kan fremdeles lagre et nytt søk" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                    setBody(
+                        listOf(
+                            ApiStedSoek(
+                                soekType = ApiStillingssoekType.STED_SOEK_V1,
+                                fylker = listOf(
+                                    ApiFylke(
+                                        navn = "Vestland",
+                                        fylkesnummer = "41",
+                                        kommuner = listOf(
+                                            ApiKommune(
+                                                navn = "Askøy",
+                                                kommunenummer = "4102"
+                                            )
+                                        )
+                                    )
+                                ),
+                                soekeord = emptyList(),
+                                styrk08 = emptyList(
+                                )
+                            )
+                        )
+                    )
+                }
+                response.validateAgainstOpenApiSpec()
+                response.status shouldBe HttpStatusCode.NoContent
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
+
+            "Det er det nye søket som er lagret på profilen" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                val response = testClient.get(BRUKERPROFIL_PATH) {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                response.status shouldBe HttpStatusCode.OK
+                response.body<ApiBrukerprofil>() should { profil ->
+                    profil.identitetsnummer shouldBe testIdent.verdi
+                    profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
+                    profil.stillingssoek.shouldHaveSize(1)
+                    profil.stillingssoek.firstOrNull() should { søk ->
+                        søk.shouldNotBeNull()
+                        søk.shouldBeInstanceOf<ApiStedSoek>()
+                        søk.fylker.firstOrNull() should { fylke ->
+                            fylke.shouldNotBeNull()
+                            fylke.fylkesnummer shouldBe "41"
+                            fylke.navn shouldBe "Vestland"
+                            fylke.kommuner.firstOrNull() should { kommune ->
+                                kommune.shouldNotBeNull()
+                                kommune.kommunenummer shouldBe "4102"
+                                kommune.navn shouldBe "Askøy"
+                            }
+                        }
+                    }
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
+
+            "Vi kan deaktivere tjenesten" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/INAKTIV") {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                withClue(response.bodyAsText()) {
+                    response.status shouldBe HttpStatusCode.NoContent
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
+
+            "Tjenesten er nå inaktiv" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                val response = testClient.get(BRUKERPROFIL_PATH) {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                response.status shouldBe HttpStatusCode.OK
+                response.body<ApiBrukerprofil>() should { profil ->
+                    profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
+
+            "Vi kan aktivere tjenesten igjen selv om bruker er profilert til antatt behov for veiledning" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                withClue(response.bodyAsText()) {
+                    response.status shouldBe HttpStatusCode.NoContent
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
+
+            "Tjenesten er aktiv igjen" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                val response = testClient.get(BRUKERPROFIL_PATH) {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                response.status shouldBe HttpStatusCode.OK
+                response.body<ApiBrukerprofil>() should { profil ->
+                    profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
+                    profil.stillingssoek.size shouldBe 1
+                }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
+
         }
+
     }
-})
+    })

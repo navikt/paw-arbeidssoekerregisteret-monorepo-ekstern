@@ -40,7 +40,9 @@ fun ListeMedFlagg.beregnOppdateringAvFlaggFraAPI(nyTjenestestatus: TjenesteStatu
     return when (gjeldendeStatus to nyTjenestestatus) {
         TjenesteStatus.AKTIV to TjenesteStatus.AKTIV -> ingenOppdateringAvFlagg
         TjenesteStatus.AKTIV to TjenesteStatus.INAKTIV -> OppdateringAvFlagg(
-            nyeOgOppdaterteFlagg = listOf(TjenestenErAktivFlaggtype.flagg(verdi = false, tidspunkt = tidspunkt)),
+            nyeOgOppdaterteFlagg = listOf(
+                TjenestenErAktivFlaggtype.flagg(verdi = false, tidspunkt = tidspunkt),
+            ),
             søkSkalSlettes = false
         )
 
@@ -53,7 +55,10 @@ fun ListeMedFlagg.beregnOppdateringAvFlaggFraAPI(nyTjenestestatus: TjenesteStatu
         )
 
         TjenesteStatus.INAKTIV to TjenesteStatus.AKTIV -> OppdateringAvFlagg(
-            nyeOgOppdaterteFlagg = listOf(TjenestenErAktivFlaggtype.flagg(verdi = true, tidspunkt = tidspunkt)),
+            nyeOgOppdaterteFlagg = listOf(
+                TjenestenErAktivFlaggtype.flagg(verdi = true, tidspunkt = tidspunkt),
+                HarBruktTjenestenFlaggtype.flagg(verdi = true, tidspunkt = tidspunkt)
+            ),
             søkSkalSlettes = false
         )
 
