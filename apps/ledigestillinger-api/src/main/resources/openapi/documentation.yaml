@@ -271,6 +271,26 @@ components:
         - kode
         - normalisertKode
         - navn
+    Klassifisering:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/KlassifiseringType"
+        kode:
+          type: string
+        navn:
+          type: string
+      required:
+        - type
+        - kode
+        - navn
+    KlassifiseringType:
+      type: string
+      enum:
+        - ESCO
+        - JANZZ
+        - STYRK08
+        - STYRK08NAV
     Fylke:
       type: object
       properties:
@@ -344,6 +364,16 @@ components:
         - HELTID
         - DELTID
         - UKJENT
+    Egenskap:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+        - key
+        - value
     Paging:
       type: object
       properties:

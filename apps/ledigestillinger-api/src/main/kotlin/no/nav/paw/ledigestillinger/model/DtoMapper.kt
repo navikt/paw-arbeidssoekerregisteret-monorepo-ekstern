@@ -6,8 +6,6 @@ import no.nav.pam.stilling.ext.avro.Company
 import no.nav.pam.stilling.ext.avro.Location
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.pam.stilling.ext.avro.StyrkCategory
-import no.nav.paw.ledigestillinger.api.models.Egenskap
-import no.nav.paw.ledigestillinger.api.models.Klassifisering
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgiverRow
 import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
 import no.nav.paw.ledigestillinger.model.dao.KategoriRow
@@ -17,9 +15,11 @@ import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import no.nav.paw.ledigestillinger.util.fromUnformattedString
 import no.naw.paw.ledigestillinger.model.Arbeidsgiver
+import no.naw.paw.ledigestillinger.model.Egenskap
 import no.naw.paw.ledigestillinger.model.Frist
 import no.naw.paw.ledigestillinger.model.FristType
 import no.naw.paw.ledigestillinger.model.Kategori
+import no.naw.paw.ledigestillinger.model.Klassifisering
 import no.naw.paw.ledigestillinger.model.Lokasjon
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.PagingResponse

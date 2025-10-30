@@ -9,7 +9,6 @@ import no.nav.pam.stilling.ext.avro.PrivacyChannel
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.pam.stilling.ext.avro.StyrkCategory
 import no.nav.paw.hwm.Message
-import no.nav.paw.ledigestillinger.api.models.KlassifiseringType
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgiverRow
 import no.nav.paw.ledigestillinger.model.dao.EgenskapRow
 import no.nav.paw.ledigestillinger.model.dao.KategoriRow
@@ -17,6 +16,7 @@ import no.nav.paw.ledigestillinger.model.dao.KlassifiseringRow
 import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
+import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.SortOrder
 import no.naw.paw.ledigestillinger.model.StillingStatus

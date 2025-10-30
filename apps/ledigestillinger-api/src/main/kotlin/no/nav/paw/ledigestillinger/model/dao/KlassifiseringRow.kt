@@ -1,6 +1,6 @@
 package no.nav.paw.ledigestillinger.model.dao
 
-import no.nav.paw.ledigestillinger.api.models.KlassifiseringType
+import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class KlassifiseringRow(

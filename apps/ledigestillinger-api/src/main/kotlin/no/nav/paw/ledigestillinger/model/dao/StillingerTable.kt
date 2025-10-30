@@ -1,11 +1,11 @@
 package no.nav.paw.ledigestillinger.model.dao
 
-import no.nav.paw.ledigestillinger.api.models.KlassifiseringType
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
 import no.nav.paw.logging.logger.buildNamedLogger
 import no.naw.paw.ledigestillinger.model.Fylke
+import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import no.naw.paw.ledigestillinger.model.VisningGrad
