@@ -13,11 +13,11 @@ import java.util.*
 
 fun genererTidslinje(rader: List<Pair<UUID, List<Row<out Any>>>>): List<Tidslinje> {
     val startMap = rader.associate { (periodeId, rader) ->
-        val førsteRegistrerte = rader.minBy { it.timestamp }
+        val førsteRegistrerte = rader.minByOrNull { it.timestamp }
         periodeId to (rader.firstOrNull { it.type == periode_startet_v1 }
             ?: throw PeriodeUtenStartHendelseException(
-                hendelseType = førsteRegistrerte.type,
-                hendelseAlder = between(førsteRegistrerte.timestamp, Instant.now())
+                hendelseType = førsteRegistrerte?.type ?: "ukjent",
+                hendelseAlder = between(førsteRegistrerte?.timestamp ?: Instant.EPOCH, Instant.now())
             )
         )
     }
