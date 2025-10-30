@@ -7,6 +7,7 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsBytes
+import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
@@ -31,7 +32,7 @@ suspend fun HttpResponse.validateAgainstOpenApiSpec(): HttpResponse {
         },
         simpleResponse
     )
-    withClue(resultat) { resultat.hasErrors() shouldBe false }
+    withClue("http_status=${status}\nbody=${bodyAsText()}\nvalidering=$resultat") { resultat.hasErrors() shouldBe false }
     return this
 }
 

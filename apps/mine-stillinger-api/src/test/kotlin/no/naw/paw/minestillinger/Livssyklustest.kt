@@ -1,5 +1,6 @@
 package no.naw.paw.minestillinger
 
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -12,6 +13,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -195,11 +197,21 @@ class Livssyklustest : FreeSpec({
                     contentType(Application.Json)
                 }
                 response.validateAgainstOpenApiSpec()
-                response.status shouldBe HttpStatusCode.NoContent
+                response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe testIdent.verdi
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                     profil.stillingssoek.shouldBeEmpty()
+                }
+            }
+            "Vi kan nå aktivere tjenesten" {
+                val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = testIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                withClue(response.bodyAsText()) {
+                    response.status shouldBe HttpStatusCode.NoContent
                 }
             }
             "Vi kan nå lagre et søk" {
