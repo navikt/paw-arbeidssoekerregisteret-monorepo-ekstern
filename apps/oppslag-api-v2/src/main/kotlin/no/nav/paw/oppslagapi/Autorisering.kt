@@ -77,16 +77,18 @@ class AutorisasjonsTjeneste(
             val brukerIdent = when (bruker) {
                 is NavAnsatt -> bruker.ident
                 is Sluttbruker -> bruker.ident.verdi
-                else -> "Anonym"
+                else -> null
             }
-            oenskerTilgangTil.forEach { sluttbruker ->
-                auditLogger.audit(
-                    melding = handling,
-                    aktorIdent = brukerIdent,
-                    sluttbrukerIdent = sluttbruker.verdi,
-                    event = CefMessageEvent.ACCESS,
-                    runtimeEnvironment = currentRuntimeEnvironment
-                )
+            if (brukerIdent != null) {
+                oenskerTilgangTil.forEach { sluttbruker ->
+                    auditLogger.audit(
+                        melding = handling,
+                        aktorIdent = brukerIdent,
+                        sluttbrukerIdent = sluttbruker.verdi,
+                        event = CefMessageEvent.ACCESS,
+                        runtimeEnvironment = currentRuntimeEnvironment
+                    )
+                }
             }
             function()
         }
