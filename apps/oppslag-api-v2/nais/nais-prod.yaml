@@ -117,3 +117,4 @@ spec:
             value: "true"
           - name: pgaudit.log
             value: "write"
+        diskSize: 13
