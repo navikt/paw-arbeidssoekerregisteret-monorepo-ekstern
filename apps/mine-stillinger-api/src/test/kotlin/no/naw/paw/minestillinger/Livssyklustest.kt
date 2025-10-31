@@ -122,29 +122,33 @@ class Livssyklustest : FreeSpec({
                 )
             }
 
-            "Rolf som ikke er i testgruppen får tjenestestatus $KAN_IKKE_LEVERES" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
-                transaction {
-                    opprettOgOppdaterBruker(rolfPeriode)
-                    lagreProfilering(
-                        createProfilering(
-                            periodeId = rolfPeriode.id,
-                            profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+            "Rolf som ikke er i testgruppen" - {
+                "får tjenestestatus $KAN_IKKE_LEVERES" {
+                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    transaction {
+                        opprettOgOppdaterBruker(rolfPeriode)
+                        lagreProfilering(
+                            createProfilering(
+                                periodeId = rolfPeriode.id,
+                                profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+                            )
                         )
-                    )
+                    }
+                    val response = testClient.get(BRUKERPROFIL_PATH) {
+                        bearerAuth(oauthServer.sluttbrukerToken(id = rolfIdent))
+                        contentType(Application.Json)
+                    }
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe rolfIdent.verdi
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.stillingssoek.shouldBeEmpty()
+                    }
                 }
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = rolfIdent))
-                    contentType(Application.Json)
+                "pdl blir aldri kalt" {
+                    coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(Identitetsnummer(rolfPeriode.identitetsnummer)) }
                 }
-                response.validateAgainstOpenApiSpec()
-                response.status shouldBe HttpStatusCode.OK
-                response.body<ApiBrukerprofil>() should { profil ->
-                    profil.identitetsnummer shouldBe rolfIdent.verdi
-                    profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
-                    profil.stillingssoek.shouldBeEmpty()
-                }
-                coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(Identitetsnummer(rolfPeriode.identitetsnummer)) }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
             "Når Kari er registert som arbeidssøker antatt gode muligheter kan tjenesten aktiveres" {
@@ -637,7 +641,7 @@ class Livssyklustest : FreeSpec({
                 }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
-            "Nå Kari ikke lenger er arbeidssøker endres tjenestestatus til $INAKTIV, men søket beholdes" {
+            "Når Kari ikke lenger er arbeidssøker endres tjenestestatus til $INAKTIV, men søket beholdes" {
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 transaction {
                     opprettOgOppdaterBruker(
