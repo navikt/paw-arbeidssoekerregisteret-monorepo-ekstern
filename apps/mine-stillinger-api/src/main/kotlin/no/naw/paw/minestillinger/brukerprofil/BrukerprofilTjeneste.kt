@@ -41,6 +41,8 @@ class BrukerprofilTjeneste(
     suspend fun hentBrukerProfil(identitetsnummer: Identitetsnummer): BrukerProfil? {
         val tidspunkt = clock.now()
         val brukerProfilerUtenFlagg = hentBrukerprofilUtenFlagg(identitetsnummer) ?: return null
+        val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
+        val erITestGruppenFlagg = genererErITestGruppenFlagg(abTestingRegex, identitetsnummer)
         val flagg = hentFlagg(brukerProfilerUtenFlagg.id)
             .let(::ListeMedFlagg)
             .let { flagg ->
@@ -49,7 +51,7 @@ class BrukerprofilTjeneste(
                         tidspunkt = tidspunkt,
                         gydlighetsperiode = GRADERT_ADRESSE_GYLDIGHETS_PERIODE
                     ) ?: false
-                if (gradertAdresseGyldig) {
+                if (gradertAdresseGyldig || !erITestGruppenFlagg.verdi) {
                     flagg
                 } else {
                     val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(identitetsnummer)
@@ -64,8 +66,6 @@ class BrukerprofilTjeneste(
                     flagg.addOrUpdate(*oppdatering.nyeOgOppdaterteFlagg.toTypedArray())
                 }
             }
-        val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
-        val erITestGruppenFlagg = genererErITestGruppenFlagg(abTestingRegex, identitetsnummer)
         val alleFlagg = flagg.addOrUpdate(erITestGruppenFlagg, profileringsFlagg)
         appLogger.info("Flagg: ${alleFlagg.map { it.debug() }.joinToString(", ")}")
         return brukerProfilerUtenFlagg.medFlagg(alleFlagg)
