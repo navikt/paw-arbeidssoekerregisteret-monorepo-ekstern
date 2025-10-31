@@ -15,25 +15,25 @@ object LokasjonerTable : LongIdTable("lokasjoner") {
     val fylke = varchar("fylke", 100).nullable()
     val fylkeskode = varchar("fylkeskode", 20).nullable()
     val land = varchar("land", 100)
-}
 
-fun LokasjonerTable.selectRowsByParentId(
-    parentId: Long
-): List<LokasjonRow> = selectAll()
-    .where { LokasjonerTable.parentId eq parentId }
-    .map { it.asLokasjonRow() }
+    fun selectRowsByParentId(
+        parentId: Long
+    ): List<LokasjonRow> = selectAll()
+        .where { LokasjonerTable.parentId eq parentId }
+        .map { it.asLokasjonRow() }
 
-fun LokasjonerTable.insert(
-    parentId: Long,
-    rows: Iterable<LokasjonRow>
-) = batchInsert(rows) { row ->
-    this[LokasjonerTable.parentId] = parentId
-    this[LokasjonerTable.adresse] = row.adresse
-    this[LokasjonerTable.postkode] = row.postkode
-    this[LokasjonerTable.poststed] = row.poststed
-    this[LokasjonerTable.kommune] = row.kommune
-    this[LokasjonerTable.kommunekode] = row.kommunekode
-    this[LokasjonerTable.fylke] = row.fylke
-    this[LokasjonerTable.fylkeskode] = row.fylkeskode
-    this[LokasjonerTable.land] = row.land
+    fun insert(
+        parentId: Long,
+        rows: Iterable<LokasjonRow>
+    ) = batchInsert(rows) { row ->
+        this[LokasjonerTable.parentId] = parentId
+        this[adresse] = row.adresse
+        this[postkode] = row.postkode
+        this[poststed] = row.poststed
+        this[kommune] = row.kommune
+        this[kommunekode] = row.kommunekode
+        this[fylke] = row.fylke
+        this[fylkeskode] = row.fylkeskode
+        this[land] = row.land
+    }
 }

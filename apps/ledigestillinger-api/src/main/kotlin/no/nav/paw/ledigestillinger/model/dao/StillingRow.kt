@@ -1,6 +1,7 @@
 package no.nav.paw.ledigestillinger.model.dao
 
 import no.naw.paw.ledigestillinger.model.StillingStatus
+import no.naw.paw.ledigestillinger.model.StyrkKode
 import no.naw.paw.ledigestillinger.model.VisningGrad
 import org.jetbrains.exposed.v1.core.ResultRow
 import java.time.Instant

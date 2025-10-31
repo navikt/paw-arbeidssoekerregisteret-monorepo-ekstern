@@ -26,13 +26,13 @@ import no.naw.paw.ledigestillinger.model.Arbeidsgiver
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 import no.naw.paw.ledigestillinger.model.Frist
 import no.naw.paw.ledigestillinger.model.FristType
-import no.naw.paw.ledigestillinger.model.Kategori
 import no.naw.paw.ledigestillinger.model.Lokasjon
 import no.naw.paw.ledigestillinger.model.PagingResponse
 import no.naw.paw.ledigestillinger.model.Sektor
 import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import no.naw.paw.ledigestillinger.model.Stillingsprosent
+import no.naw.paw.ledigestillinger.model.StyrkKode
 import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.db.initDatabase
@@ -101,7 +101,8 @@ class LedigeStillingerRouteTest : FreeSpec({
             response.body<MineStillingerResponse>() should { response ->
                 val kilde = finnStillingerResponse.stillinger.associateBy { it.uuid }
                 response.resultat.forEach { stilling ->
-                    val forventet = withClue("Stilling med UUID ${stilling.arbeidsplassenNoId} skulle ikke vært her, den er ikke i kilden") { kilde[stilling.arbeidsplassenNoId].shouldNotBeNull() }
+                    val forventet =
+                        withClue("Stilling med UUID ${stilling.arbeidsplassenNoId} skulle ikke vært her, den er ikke i kilden") { kilde[stilling.arbeidsplassenNoId].shouldNotBeNull() }
                     stilling.tittel shouldBe forventet.tittel
                     stilling.selskap shouldBe forventet.arbeidsgivernavn
                     stilling.sektor.name shouldBeEqualIgnoringCase forventet.sektor.name
@@ -125,9 +126,9 @@ val finnStillingerResponse = FinnStillingerResponse(
             sektor = Sektor.OFFENTLIG,
             soeknadsfrist = Frist(type = FristType.DATO, verdi = "${LocalDate.now()}", dato = LocalDate.now()),
             oppstartsfrist = Frist(type = FristType.SNAREST, verdi = "Snarest", dato = null),
-            kategorier = listOf(
-                Kategori(kode = "0341.11", normalisertKode = "0341", navn = "Rust utvikler"),
-                Kategori(kode = "0341.12", normalisertKode = "0341", navn = "Rusten utvikler")
+            styrkkoder = listOf(
+                StyrkKode(kode = "0341", navn = "Rust utvikler"),
+                StyrkKode(kode = "0342", navn = "JavaScript utvikler")
             ),
             lokasjoner = listOf(
                 Lokasjon(

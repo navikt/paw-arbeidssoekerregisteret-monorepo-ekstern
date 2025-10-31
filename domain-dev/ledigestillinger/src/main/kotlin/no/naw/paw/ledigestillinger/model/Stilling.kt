@@ -54,8 +54,8 @@ data class Stilling(
     @get:JsonProperty("utloeper")
     val utloeper: Instant? = null,
 
-    @get:JsonProperty("kategorier")
-    val kategorier: List<Kategori>,
+    @get:JsonProperty("styrkkoder")
+    val styrkkoder: List<StyrkKode>,
 
     @get:JsonProperty("lokasjoner")
     val lokasjoner: List<Lokasjon>

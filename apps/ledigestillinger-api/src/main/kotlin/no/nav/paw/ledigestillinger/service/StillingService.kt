@@ -16,12 +16,6 @@ import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
 import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
-import no.nav.paw.ledigestillinger.model.dao.insert
-import no.nav.paw.ledigestillinger.model.dao.selectIdByUUID
-import no.nav.paw.ledigestillinger.model.dao.selectRowByUUID
-import no.nav.paw.ledigestillinger.model.dao.selectRowsByKategorierAndFylker
-import no.nav.paw.ledigestillinger.model.dao.selectRowsByUUIDList
-import no.nav.paw.ledigestillinger.model.dao.updateById
 import no.nav.paw.ledigestillinger.util.finnStillingerByEgenskaperEvent
 import no.nav.paw.ledigestillinger.util.finnStillingerByEgenskaperGauge
 import no.nav.paw.ledigestillinger.util.finnStillingerByUuidListeEvent
@@ -52,16 +46,20 @@ class StillingService(
 
     @WithSpan
     fun hentStilling(uuid: UUID): Stilling = transaction {
-        StillingerTable.selectRowByUUID(uuid)?.asDto() ?: throw StillingIkkeFunnetException()
+        logger.info("Henter stilling")
+        val row = StillingerTable.selectRowByUUID(uuid)
+        row?.asDto() ?: throw StillingIkkeFunnetException()
     }
 
     @WithSpan
     fun finnStillingerByUuidListe(
         uuidListe: Collection<UUID>
     ): List<Stilling> = transaction {
+        logger.info("Finner stillinger for UUID-liste")
         Span.current().finnStillingerByUuidListeEvent(antallUuider = uuidListe.size)
         meterRegistry.finnStillingerByUuidListeGauge(antallUuider = uuidListe.size)
-        StillingerTable.selectRowsByUUIDList(uuidListe).map { it.asDto() }
+        val rows = StillingerTable.selectRowsByUUIDList(uuidListe)
+        rows.map { it.asDto() }
     }
 
     @WithSpan
@@ -71,6 +69,7 @@ class StillingService(
         fylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
+        logger.info("Finner stillinger for egeneskaper")
         Span.current().finnStillingerByEgenskaperEvent(
             antallSoekeord = soekeord.size,
             antallKategorier = kategorier.size,
@@ -83,16 +82,18 @@ class StillingService(
             antallFylker = fylker.size,
             antallKommuner = fylker.sumOf { it.kommuner.size }
         )
-        StillingerTable.selectRowsByKategorierAndFylker(
+        val rows = StillingerTable.selectRowsByKategorierAndFylker(
             soekeord = soekeord,
             kategorier = kategorier,
             fylker = fylker,
             paging = paging
-        ).map { it.asDto() }
+        )
+        rows.map { it.asDto() }
     }
 
     @WithSpan
     fun lagreStilling(stillingRow: StillingRow) {
+        logger.debug("Lagrer stilling")
         val existingId = StillingerTable.selectIdByUUID(stillingRow.uuid)
         if (existingId == null) {
             val id = StillingerTable.insert(stillingRow)

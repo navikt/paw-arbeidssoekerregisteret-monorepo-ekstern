@@ -207,10 +207,10 @@ components:
           format: "date-time"
           nullable: true
           example: "2021-09-29T11:20:33.444Z"
-        kategorier:
+        styrkkoder:
           type: array
           items:
-            $ref: "#/components/schemas/Kategori"
+            $ref: "#/components/schemas/StyrkKode"
         lokasjoner:
           type: array
           items:
@@ -224,7 +224,7 @@ components:
         - soeknadsfrist
         - oppstartsfrist
         - publisert
-        - kategorier
+        - styrkkoder
         - lokasjoner
     StillingStatus:
       type: string
@@ -258,18 +258,25 @@ components:
         - orgForm
         - navn
         - offentligNavn
-    Kategori:
+    StyrkKode:
       type: object
       properties:
         kode:
-          type: string
-        normalisertKode:
           type: string
         navn:
           type: string
       required:
         - kode
-        - normalisertKode
+        - navn
+    Kategori:
+      type: object
+      properties:
+        kode:
+          type: string
+        navn:
+          type: string
+      required:
+        - kode
         - navn
     Klassifisering:
       type: object

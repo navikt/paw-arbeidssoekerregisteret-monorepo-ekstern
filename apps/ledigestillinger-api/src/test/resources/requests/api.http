@@ -10,20 +10,14 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("tokenx")}}
 
 {
+    "type": "BY_EGENSKAPER",
     "soekeord": [],
-    "kategorier": [
-        "9999"
-    ],
-    "fylker": [
-        {
-            "fylkesnummer": "55",
-            "kommuner": []
-        }
-    ],
+    "kategorier": [],
+    "fylker": [],
     "paging": {
         "page": 1,
-        "pageSize": 10,
-        "sortOrder": "ASC"
+        "pageSize": 50,
+        "sortOrder": "DESC"
     }
 }
 

@@ -20,32 +20,37 @@ import no.naw.paw.ledigestillinger.model.Frist
 import no.naw.paw.ledigestillinger.model.FristType
 import no.naw.paw.ledigestillinger.model.Kategori
 import no.naw.paw.ledigestillinger.model.Klassifisering
+import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import no.naw.paw.ledigestillinger.model.Lokasjon
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.PagingResponse
 import no.naw.paw.ledigestillinger.model.Sektor
 import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.ledigestillinger.model.Stillingsprosent
+import no.naw.paw.ledigestillinger.model.StyrkKode
 
 fun StillingRow.asDto(): Stilling = Stilling(
-    uuid = uuid,
-    adnr = adnr,
-    tittel = tittel,
-    status = status,
-    visning = visning,
-    arbeidsgivernavn = arbeidsgivernavn,
-    arbeidsgiver = arbeidsgiver?.asDto(),
-    stillingstittel = stillingstittel,
-    ansettelsesform = ansettelsesform,
-    stillingsprosent = stillingsprosent?.asStillingsprosent() ?: Stillingsprosent.UKJENT,
-    stillingsantall = stillingsantall?.asAntall(),
-    sektor = sektor?.asSektor() ?: Sektor.UKJENT,
-    soeknadsfrist = soeknadsfrist?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = soeknadsfrist),
-    oppstartsfrist = oppstartsfrist?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = oppstartsfrist),
-    kategorier = kategorier.map { it.asDto() },
-    lokasjoner = lokasjoner.map { it.asDto() },
-    publisert = publisertTimestamp,
-    utloeper = utloeperTimestamp,
+    uuid = this.uuid,
+    adnr = this.adnr,
+    tittel = this.tittel,
+    status = this.status,
+    visning = this.visning,
+    arbeidsgivernavn = this.arbeidsgivernavn,
+    arbeidsgiver = this.arbeidsgiver?.asDto(),
+    stillingstittel = this.stillingstittel,
+    ansettelsesform = this.ansettelsesform,
+    stillingsprosent = this.stillingsprosent?.asStillingsprosent() ?: Stillingsprosent.UKJENT,
+    stillingsantall = this.stillingsantall?.asAntall(),
+    sektor = this.sektor?.asSektor() ?: Sektor.UKJENT,
+    soeknadsfrist = this.soeknadsfrist?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = this.soeknadsfrist),
+    oppstartsfrist = this.oppstartsfrist?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = this.oppstartsfrist),
+    styrkkoder = (this.kategorier.map { it.asStyrkDto() } + this.klassifiseringer
+        .filter { it.type == KlassifiseringType.STYRK08 }
+        .map { it.asStyrkDto() })
+        .distinctBy { it.kode },
+    lokasjoner = this.lokasjoner.map { it.asDto() },
+    publisert = this.publisertTimestamp,
+    utloeper = this.utloeperTimestamp,
 )
 
 fun ArbeidsgiverRow.asDto(): Arbeidsgiver = Arbeidsgiver(
@@ -74,9 +79,13 @@ fun String.asSektor(): Sektor = when {
 }
 
 fun KategoriRow.asDto(): Kategori = Kategori(
-    kode = kode,
-    normalisertKode = normalisertKode,
-    navn = navn
+    kode = this.normalisertKode,
+    navn = this.navn
+)
+
+fun KategoriRow.asStyrkDto(): StyrkKode = StyrkKode(
+    kode = this.normalisertKode,
+    navn = this.navn
 )
 
 fun KlassifiseringRow.asDto(): Klassifisering = Klassifisering(
@@ -85,19 +94,24 @@ fun KlassifiseringRow.asDto(): Klassifisering = Klassifisering(
     navn = this.navn
 )
 
+fun KlassifiseringRow.asStyrkDto(): StyrkKode = StyrkKode(
+    kode = this.kode,
+    navn = this.navn
+)
+
 fun LokasjonRow.asDto(): Lokasjon = Lokasjon(
-    poststed = poststed,
-    postkode = postkode,
-    kommune = kommune,
-    kommunenummer = kommunekode,
-    fylke = fylke,
-    fylkesnummer = fylkeskode,
-    land = land
+    poststed = this.poststed,
+    postkode = this.postkode,
+    kommune = this.kommune,
+    kommunenummer = this.kommunekode,
+    fylke = this.fylke,
+    fylkesnummer = this.fylkeskode,
+    land = this.land
 )
 
 fun EgenskapRow.asDto(): Egenskap = Egenskap(
-    key = key,
-    value = value
+    key = this.key,
+    value = this.value
 )
 
 fun String.asFrist(): Frist = when {
@@ -155,7 +169,9 @@ fun Ad.asDto(): Stilling {
         sektor = this.properties?.find { it.key == "sector" }?.value?.asSektor() ?: Sektor.UKJENT,
         soeknadsfrist = applicationdue?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = applicationdue),
         oppstartsfrist = starttime?.asFrist() ?: Frist(type = FristType.UKJENT, verdi = starttime),
-        kategorier = this.categories.map { it.asDto() },
+        styrkkoder = (this.categories.map { it.asStyrkDto() } + this.classifications
+            .filter { it.categoryType.asKlassifiseringType() == KlassifiseringType.STYRK08 }
+            .map { it.asStyrkDto() }).distinctBy { it.kode },
         lokasjoner = this.locations.map { it.asDto() },
         publisert = this.published.fromLocalDateTimeString(),
         utloeper = this.expires?.fromLocalDateTimeString()
@@ -171,14 +187,23 @@ fun Company.asDto(): Arbeidsgiver = Arbeidsgiver(
 )
 
 fun StyrkCategory.asDto(): Kategori = Kategori(
-    kode = this.styrkCode,
-    normalisertKode = this.styrkCode.asNormalisertKode(),
+    kode = this.styrkCode.asNormalisertKode(),
+    navn = this.name
+)
+
+fun StyrkCategory.asStyrkDto(): StyrkKode = StyrkKode(
+    kode = this.styrkCode.asNormalisertKode(),
     navn = this.name
 )
 
 fun Classification.asDto(): Klassifisering = Klassifisering(
     type = this.categoryType.asKlassifiseringType(),
     kode = this.code,
+    navn = this.name
+)
+
+fun Classification.asStyrkDto(): StyrkKode = StyrkKode(
+    kode = this.code.asNormalisertKode(),
     navn = this.name
 )
 

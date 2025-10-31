@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.paw.ledigestillinger.model.asDto
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
-import no.nav.paw.ledigestillinger.model.shouldBeEqualTo
 import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData
 import no.nav.paw.ledigestillinger.test.selectRows
@@ -51,21 +50,21 @@ class StillingServiceTest : FreeSpec({
             val row7 = rows[6]
             val row8 = rows[7]
             row1.uuid shouldBe TestData.message1_1.key
-            row1 shouldBeEqualTo TestData.message1_1.value
+            row1.asDto() shouldBe TestData.message1_1.value.asDto()
             row2.uuid shouldBe TestData.message1_2.key
-            row2 shouldBeEqualTo TestData.message1_2.value
+            row2.asDto() shouldBe TestData.message1_2.value.asDto()
             row3.uuid shouldBe TestData.message2_1.key
-            row3 shouldBeEqualTo TestData.message2_1.value
+            row3.asDto() shouldBe TestData.message2_1.value.asDto()
             row4.uuid shouldBe TestData.message2_2.key
-            row4 shouldBeEqualTo TestData.message2_2.value
+            row4.asDto() shouldBe TestData.message2_2.value.asDto()
             row5.uuid shouldBe TestData.message3_1.key
-            row5 shouldBeEqualTo TestData.message3_1.value
+            row5.asDto() shouldBe TestData.message3_1.value.asDto()
             row6.uuid shouldBe TestData.message3_2.key
-            row6 shouldBeEqualTo TestData.message3_2.value
+            row6.asDto() shouldBe TestData.message3_2.value.asDto()
             row7.uuid shouldBe TestData.message4_1.key
-            row7 shouldBeEqualTo TestData.message4_1.value
+            row7.asDto() shouldBe TestData.message4_1.value.asDto()
             row8.uuid shouldBe TestData.message4_2.key
-            row8 shouldBeEqualTo TestData.message4_2.value
+            row8.asDto() shouldBe TestData.message4_2.value.asDto()
 
             // WHEN
             val stillinger = stillingService.finnStillingerByEgenskaper(

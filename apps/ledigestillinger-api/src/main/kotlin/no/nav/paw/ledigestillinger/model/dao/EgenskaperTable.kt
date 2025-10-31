@@ -9,19 +9,19 @@ object EgenskaperTable : LongIdTable("egenskaper") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val key = varchar("key", 50)
     val value = text("value")
-}
 
-fun EgenskaperTable.selectRowsByParentId(
-    parentId: Long
-): List<EgenskapRow> = selectAll()
-    .where { EgenskaperTable.parentId eq parentId }
-    .map { it.asEgenskapRow() }
+    fun selectRowsByParentId(
+        parentId: Long
+    ): List<EgenskapRow> = selectAll()
+        .where { EgenskaperTable.parentId eq parentId }
+        .map { it.asEgenskapRow() }
 
-fun EgenskaperTable.insert(
-    parentId: Long,
-    rows: Iterable<EgenskapRow>
-) = batchInsert(rows) { row ->
-    this[EgenskaperTable.parentId] = parentId
-    this[EgenskaperTable.key] = row.key
-    this[EgenskaperTable.value] = row.value
+    fun insert(
+        parentId: Long,
+        rows: Iterable<EgenskapRow>
+    ) = batchInsert(rows) { row ->
+        this[EgenskaperTable.parentId] = parentId
+        this[key] = row.key
+        this[value] = row.value
+    }
 }

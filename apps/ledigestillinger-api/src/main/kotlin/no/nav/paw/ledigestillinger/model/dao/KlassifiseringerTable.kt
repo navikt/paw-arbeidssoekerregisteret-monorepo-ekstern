@@ -11,20 +11,20 @@ object KlassifiseringerTable : LongIdTable("klassifiseringer") {
     val type = enumerationByName<KlassifiseringType>("type", 20)
     val kode = varchar("kode", 255)
     val navn = varchar("navn", 255)
-}
 
-fun KlassifiseringerTable.selectRowsByParentId(
-    parentId: Long
-): List<KlassifiseringRow> = selectAll()
-    .where { KlassifiseringerTable.parentId eq parentId }
-    .map { it.asKlassifiseringRow() }
+    fun selectRowsByParentId(
+        parentId: Long
+    ): List<KlassifiseringRow> = selectAll()
+        .where { KlassifiseringerTable.parentId eq parentId }
+        .map { it.asKlassifiseringRow() }
 
-fun KlassifiseringerTable.insert(
-    parentId: Long,
-    rows: Iterable<KlassifiseringRow>
-) = batchInsert(rows) { row ->
-    this[KlassifiseringerTable.parentId] = parentId
-    this[KlassifiseringerTable.type] = row.type
-    this[KlassifiseringerTable.kode] = row.kode
-    this[KlassifiseringerTable.navn] = row.navn
+    fun insert(
+        parentId: Long,
+        rows: Iterable<KlassifiseringRow>
+    ) = batchInsert(rows) { row ->
+        this[KlassifiseringerTable.parentId] = parentId
+        this[KlassifiseringerTable.type] = row.type
+        this[kode] = row.kode
+        this[navn] = row.navn
+    }
 }

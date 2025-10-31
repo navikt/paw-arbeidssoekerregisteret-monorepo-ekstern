@@ -2,6 +2,7 @@ package no.nav.paw.ledigestillinger.model
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import no.nav.paw.ledigestillinger.test.TestData
 import no.naw.paw.ledigestillinger.model.Frist
 import no.naw.paw.ledigestillinger.model.FristType
 import java.time.LocalDate
@@ -37,5 +38,16 @@ class DtoMapperTest : FreeSpec({
             verdi = "2025-04-04T13:14:15Z",
             dato = LocalDate.of(2025, 4, 4)
         )
+    }
+
+    "Skal mappe DAO til DTO" {
+        TestData.message1_1.asStillingRow().asDto() shouldBe TestData.message1_1.value.asDto()
+        TestData.message1_2.asStillingRow().asDto() shouldBe TestData.message1_2.value.asDto()
+        TestData.message2_1.asStillingRow().asDto() shouldBe TestData.message2_1.value.asDto()
+        TestData.message2_2.asStillingRow().asDto() shouldBe TestData.message2_2.value.asDto()
+        TestData.message3_1.asStillingRow().asDto() shouldBe TestData.message3_1.value.asDto()
+        TestData.message3_2.asStillingRow().asDto() shouldBe TestData.message3_2.value.asDto()
+        TestData.message4_1.asStillingRow().asDto() shouldBe TestData.message4_1.value.asDto()
+        TestData.message4_2.asStillingRow().asDto() shouldBe TestData.message4_2.value.asDto()
     }
 })

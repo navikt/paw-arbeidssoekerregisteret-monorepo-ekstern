@@ -10,20 +10,20 @@ object KategorierTable : LongIdTable("kategorier") {
     val kode = varchar("kode", 20)
     val normalisertKode = varchar("normalisert_kode", 20)
     val navn = varchar("navn", 255)
-}
 
-fun KategorierTable.selectRowsByParentId(
-    parentId: Long
-): List<KategoriRow> = selectAll()
-    .where { KategorierTable.parentId eq parentId }
-    .map { it.asKategoriRow() }
+    fun selectRowsByParentId(
+        parentId: Long
+    ): List<KategoriRow> = selectAll()
+        .where { KategorierTable.parentId eq parentId }
+        .map { it.asKategoriRow() }
 
-fun KategorierTable.insert(
-    parentId: Long,
-    rows: Iterable<KategoriRow>
-) = batchInsert(rows) { row ->
-    this[KategorierTable.parentId] = parentId
-    this[KategorierTable.kode] = row.kode
-    this[KategorierTable.normalisertKode] = row.normalisertKode
-    this[KategorierTable.navn] = row.navn
+    fun insert(
+        parentId: Long,
+        rows: Iterable<KategoriRow>
+    ) = batchInsert(rows) { row ->
+        this[KategorierTable.parentId] = parentId
+        this[kode] = row.kode
+        this[normalisertKode] = row.normalisertKode
+        this[navn] = row.navn
+    }
 }

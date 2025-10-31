@@ -50,149 +50,149 @@ object StillingerTable : LongIdTable("stillinger") {
     val messageTimestamp = timestamp("message_timestamp")
     val insertTimestamp = timestamp("inserted_timestamp")
     val updatedTimestamp = timestamp("updated_timestamp").nullable()
-}
 
-fun StillingerTable.selectIdByUUID(
-    uuid: UUID
-): Long? = select(StillingerTable.id)
-    .where { StillingerTable.uuid eq uuid }
-    .map { it[StillingerTable.id].value }
-    .singleOrNull()
+    fun selectIdByUUID(
+        uuid: UUID
+    ): Long? = select(id)
+        .where { StillingerTable.uuid eq uuid }
+        .map { it[id].value }
+        .singleOrNull()
 
-fun StillingerTable.selectRowByUUID(
-    uuid: UUID
-): StillingRow? = selectAll()
-    .where { StillingerTable.uuid eq uuid }
-    .map {
-        it.asStillingRow(
-            arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
-            kategorier = KategorierTable::selectRowsByParentId,
-            klassifiseringer = { emptyList() }, // TODO fjernet for å spare select KlassifiseringerTable::selectRowsByParentId,
-            lokasjoner = LokasjonerTable::selectRowsByParentId,
-            egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
-        )
-    }
-    .singleOrNull()
-
-fun StillingerTable.selectRowsByUUIDList(
-    uuidList: Collection<UUID>
-): List<StillingRow> = selectAll()
-    .where { StillingerTable.uuid inList uuidList }
-    .map {
-        it.asStillingRow(
-            arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
-            kategorier = KategorierTable::selectRowsByParentId,
-            klassifiseringer = { emptyList() }, // TODO fjernet for å spare select KlassifiseringerTable::selectRowsByParentId,
-            lokasjoner = LokasjonerTable::selectRowsByParentId,
-            egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
-        )
-    }
-
-fun StillingerTable.selectRowsByKategorierAndFylker(
-    soekeord: Collection<String>,
-    kategorier: Collection<String>,
-    fylker: Collection<Fylke>,
-    paging: Paging = Paging()
-): List<StillingRow> {
-    logger.debug("Finner stillinger med kategorier: {} og fylker: {}", kategorier, fylker)
-    val aktivQuery: Op<Boolean> = (StillingerTable.status eq StillingStatus.AKTIV)
-    val soekeordQuery: Op<Boolean> = if (soekeord.isEmpty()) {
-        Op.TRUE
-    } else {
-        Op.TRUE // TODO Benytt søkeord?
-    }
-    val kategoriQuery: Op<Boolean> = if (kategorier.isEmpty()) {
-        Op.TRUE
-    } else {
-        (KategorierTable.normalisertKode inList kategorier)
-    }
-    val klassifiseringQuery: Op<Boolean> = if (kategorier.isEmpty()) {
-        Op.TRUE
-    } else {
-        ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList kategorier))
-    }
-    val styrkQuery = (kategoriQuery or klassifiseringQuery)
-    val lokasjonQuery: Op<Boolean> = fylker.map { fylke ->
-        if (fylke.kommuner.isEmpty()) {
-            LokasjonerTable.fylkeskode eq fylke.fylkesnummer
-        } else {
-            val kommunenummer = fylke.kommuner.map { it.kommunenummer }
-            LokasjonerTable.fylkeskode eq fylke.fylkesnummer and (LokasjonerTable.kommunekode inList kommunenummer)
-        }
-    }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
-
-    val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery
-
-    return join(KategorierTable, JoinType.LEFT, StillingerTable.id, KategorierTable.parentId)
-        .join(KlassifiseringerTable, JoinType.LEFT, StillingerTable.id, KlassifiseringerTable.parentId)
-        .join(LokasjonerTable, JoinType.LEFT, StillingerTable.id, LokasjonerTable.parentId)
-        .selectAll()
-        .where { combinedQuery }
-        .orderBy(StillingerTable.publisertTimestamp, paging.order())
-        .limit(paging.size()).offset(paging.offset())
+    fun selectRowByUUID(
+        uuid: UUID
+    ): StillingRow? = selectAll()
+        .where { StillingerTable.uuid eq uuid }
         .map {
             it.asStillingRow(
                 arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
                 kategorier = KategorierTable::selectRowsByParentId,
-                klassifiseringer = { emptyList() }, // TODO fjernet for å spare select KlassifiseringerTable::selectRowsByParentId,
+                klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
                 lokasjoner = LokasjonerTable::selectRowsByParentId,
                 egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
             )
         }
-}
+        .singleOrNull()
 
-fun StillingerTable.insert(
-    row: StillingRow
-): Long = insertAndGetId {
-    it[this.uuid] = row.uuid
-    it[this.adnr] = row.adnr
-    it[this.tittel] = row.tittel
-    it[this.status] = row.status
-    it[this.visning] = row.visning
-    it[this.kilde] = row.kilde
-    it[this.medium] = row.medium
-    it[this.referanse] = row.referanse
-    it[this.arbeidsgivernavn] = row.arbeidsgivernavn
-    it[this.stillingstittel] = row.stillingstittel
-    it[this.ansettelsesform] = row.ansettelsesform
-    it[this.stillingsprosent] = row.stillingsprosent
-    it[this.stillingsantall] = row.stillingsantall
-    it[this.sektor] = row.sektor
-    it[this.soeknadsfrist] = row.soeknadsfrist
-    it[this.oppstartsfrist] = row.oppstartsfrist
-    it[this.opprettetTimestamp] = row.opprettetTimestamp
-    it[this.endretTimestamp] = row.endretTimestamp
-    it[this.publisertTimestamp] = row.publisertTimestamp
-    it[this.utloeperTimestamp] = row.utloeperTimestamp
-    it[this.messageTimestamp] = row.messageTimestamp
-    it[this.insertTimestamp] = Instant.now()
-}.value
+    fun selectRowsByUUIDList(
+        uuidList: Collection<UUID>
+    ): List<StillingRow> = selectAll()
+        .where { uuid inList uuidList }
+        .map {
+            it.asStillingRow(
+                arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
+                kategorier = KategorierTable::selectRowsByParentId,
+                klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
+                lokasjoner = LokasjonerTable::selectRowsByParentId,
+                egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
+            )
+        }
 
-fun StillingerTable.updateById(
-    id: Long,
-    row: StillingRow
-): Int = update(
-    where = { StillingerTable.id eq id }
-) {
-    it[this.adnr] = row.adnr
-    it[this.tittel] = row.tittel
-    it[this.status] = row.status
-    it[this.visning] = row.visning
-    it[this.kilde] = row.kilde
-    it[this.medium] = row.medium
-    it[this.referanse] = row.referanse
-    it[this.arbeidsgivernavn] = row.arbeidsgivernavn
-    it[this.stillingstittel] = row.stillingstittel
-    it[this.ansettelsesform] = row.ansettelsesform
-    it[this.stillingsprosent] = row.stillingsprosent
-    it[this.stillingsantall] = row.stillingsantall
-    it[this.sektor] = row.sektor
-    it[this.soeknadsfrist] = row.soeknadsfrist
-    it[this.oppstartsfrist] = row.oppstartsfrist
-    it[this.opprettetTimestamp] = row.opprettetTimestamp
-    it[this.endretTimestamp] = row.endretTimestamp
-    it[this.publisertTimestamp] = row.publisertTimestamp
-    it[this.utloeperTimestamp] = row.utloeperTimestamp
-    it[this.messageTimestamp] = row.messageTimestamp
-    it[this.updatedTimestamp] = Instant.now()
+    fun selectRowsByKategorierAndFylker(
+        soekeord: Collection<String>,
+        kategorier: Collection<String>,
+        fylker: Collection<Fylke>,
+        paging: Paging = Paging()
+    ): List<StillingRow> {
+        logger.debug("Finner stillinger med kategorier: {} og fylker: {}", kategorier, fylker)
+        val aktivQuery: Op<Boolean> = (status eq StillingStatus.AKTIV)
+        val soekeordQuery: Op<Boolean> = if (soekeord.isEmpty()) {
+            Op.TRUE
+        } else {
+            Op.TRUE // TODO Benytt søkeord?
+        }
+        val kategoriQuery: Op<Boolean> = if (kategorier.isEmpty()) {
+            Op.TRUE
+        } else {
+            (KategorierTable.normalisertKode inList kategorier)
+        }
+        val klassifiseringQuery: Op<Boolean> = if (kategorier.isEmpty()) {
+            Op.TRUE
+        } else {
+            ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList kategorier))
+        }
+        val styrkQuery = (kategoriQuery or klassifiseringQuery)
+        val lokasjonQuery: Op<Boolean> = fylker.map { fylke ->
+            if (fylke.kommuner.isEmpty()) {
+                LokasjonerTable.fylkeskode eq fylke.fylkesnummer
+            } else {
+                val kommunenummer = fylke.kommuner.map { it.kommunenummer }
+                LokasjonerTable.fylkeskode eq fylke.fylkesnummer and (LokasjonerTable.kommunekode inList kommunenummer)
+            }
+        }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
+
+        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery
+
+        return join(KategorierTable, JoinType.LEFT, id, KategorierTable.parentId)
+            .join(KlassifiseringerTable, JoinType.LEFT, id, KlassifiseringerTable.parentId)
+            .join(LokasjonerTable, JoinType.LEFT, id, LokasjonerTable.parentId)
+            .selectAll()
+            .where { combinedQuery }
+            .orderBy(publisertTimestamp, paging.order())
+            .limit(paging.size()).offset(paging.offset())
+            .map {
+                it.asStillingRow(
+                    arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
+                    kategorier = KategorierTable::selectRowsByParentId,
+                    klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
+                    lokasjoner = LokasjonerTable::selectRowsByParentId,
+                    egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
+                )
+            }
+    }
+
+    fun insert(
+        row: StillingRow
+    ): Long = insertAndGetId {
+        it[uuid] = row.uuid
+        it[adnr] = row.adnr
+        it[tittel] = row.tittel
+        it[status] = row.status
+        it[visning] = row.visning
+        it[kilde] = row.kilde
+        it[medium] = row.medium
+        it[referanse] = row.referanse
+        it[arbeidsgivernavn] = row.arbeidsgivernavn
+        it[stillingstittel] = row.stillingstittel
+        it[ansettelsesform] = row.ansettelsesform
+        it[stillingsprosent] = row.stillingsprosent
+        it[stillingsantall] = row.stillingsantall
+        it[sektor] = row.sektor
+        it[soeknadsfrist] = row.soeknadsfrist
+        it[oppstartsfrist] = row.oppstartsfrist
+        it[opprettetTimestamp] = row.opprettetTimestamp
+        it[endretTimestamp] = row.endretTimestamp
+        it[publisertTimestamp] = row.publisertTimestamp
+        it[utloeperTimestamp] = row.utloeperTimestamp
+        it[messageTimestamp] = row.messageTimestamp
+        it[insertTimestamp] = Instant.now()
+    }.value
+
+    fun updateById(
+        id: Long,
+        row: StillingRow
+    ): Int = update(
+        where = { StillingerTable.id eq id }
+    ) {
+        it[adnr] = row.adnr
+        it[tittel] = row.tittel
+        it[status] = row.status
+        it[visning] = row.visning
+        it[kilde] = row.kilde
+        it[medium] = row.medium
+        it[referanse] = row.referanse
+        it[arbeidsgivernavn] = row.arbeidsgivernavn
+        it[stillingstittel] = row.stillingstittel
+        it[ansettelsesform] = row.ansettelsesform
+        it[stillingsprosent] = row.stillingsprosent
+        it[stillingsantall] = row.stillingsantall
+        it[sektor] = row.sektor
+        it[soeknadsfrist] = row.soeknadsfrist
+        it[oppstartsfrist] = row.oppstartsfrist
+        it[opprettetTimestamp] = row.opprettetTimestamp
+        it[endretTimestamp] = row.endretTimestamp
+        it[publisertTimestamp] = row.publisertTimestamp
+        it[utloeperTimestamp] = row.utloeperTimestamp
+        it[messageTimestamp] = row.messageTimestamp
+        it[updatedTimestamp] = Instant.now()
+    }
 }

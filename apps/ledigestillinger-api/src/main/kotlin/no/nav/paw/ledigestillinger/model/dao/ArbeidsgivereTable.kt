@@ -12,23 +12,23 @@ object ArbeidsgivereTable : LongIdTable("arbeidsgivere") {
     val parentOrgNr = varchar("parent_org_nr", 20).nullable()
     val navn = varchar("navn", 255)
     val offentligNavn = varchar("offentlig_navn", 255)
+
+    fun selectRowByParentId(
+        parentId: Long
+    ): ArbeidsgiverRow? = selectAll()
+        .where { ArbeidsgivereTable.parentId eq parentId }
+        .map { it.asArbeidsgiverRow() }
+        .singleOrNull()
+
+    fun insert(
+        parentId: Long,
+        row: ArbeidsgiverRow
+    ): Long = insertAndGetId {
+        it[ArbeidsgivereTable.parentId] = parentId
+        it[orgForm] = row.orgForm
+        it[orgNr] = row.orgNr
+        it[parentOrgNr] = row.parentOrgNr
+        it[navn] = row.navn
+        it[offentligNavn] = row.offentligNavn
+    }.value
 }
-
-fun ArbeidsgivereTable.selectRowByParentId(
-    parentId: Long
-): ArbeidsgiverRow? = selectAll()
-    .where { ArbeidsgivereTable.parentId eq parentId }
-    .map { it.asArbeidsgiverRow() }
-    .singleOrNull()
-
-fun ArbeidsgivereTable.insert(
-    parentId: Long,
-    row: ArbeidsgiverRow
-): Long = insertAndGetId {
-    it[this.parentId] = parentId
-    it[this.orgForm] = row.orgForm
-    it[this.orgNr] = row.orgNr
-    it[this.parentOrgNr] = row.parentOrgNr
-    it[this.navn] = row.navn
-    it[this.offentligNavn] = row.offentligNavn
-}.value

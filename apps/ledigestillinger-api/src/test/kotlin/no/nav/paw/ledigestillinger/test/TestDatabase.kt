@@ -10,8 +10,6 @@ import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.model.dao.asStillingRow
-import no.nav.paw.ledigestillinger.model.dao.selectRowByParentId
-import no.nav.paw.ledigestillinger.model.dao.selectRowsByParentId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.testcontainers.containers.PostgreSQLContainer

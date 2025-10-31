@@ -26,9 +26,15 @@ fun main() {
             valueSerializer = AdAvroSerializer::class
         )
 
-        val ad1 = TestData.ad()
         val records: List<ProducerRecord<UUID, Ad>> = listOf(
-            ProducerRecord(topic, ad1.first, ad1.second),
+            TestData.message1_1.asProducerRecord(),
+            TestData.message1_2.asProducerRecord(),
+            TestData.message2_1.asProducerRecord(),
+            TestData.message2_2.asProducerRecord(),
+            TestData.message3_1.asProducerRecord(),
+            TestData.message3_2.asProducerRecord(),
+            TestData.message4_1.asProducerRecord(),
+            TestData.message4_2.asProducerRecord(),
         )
 
         try {

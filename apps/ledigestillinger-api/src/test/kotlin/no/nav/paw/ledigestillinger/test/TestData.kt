@@ -13,7 +13,9 @@ import no.nav.pam.stilling.ext.avro.StyrkCategory
 import no.nav.paw.hwm.Message
 import no.nav.paw.hwm.toMessage
 import no.nav.paw.ledigestillinger.util.toLocalDateTimeString
+import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.LocalDateTime
 import java.util.*
 
@@ -29,64 +31,82 @@ object TestData {
     val uuid3_2: UUID = UUID.fromString("5d7774af-8b39-4607-9db4-bdd731478c14")
     val uuid4_1: UUID = UUID.fromString("ce4f105e-16d9-410f-8aee-56136a61607e")
     val uuid4_2: UUID = UUID.fromString("590c18b4-a0e1-40f3-afd6-0709d9cb9c2c")
+    val adnr1_1: String = "ABCD1011"
+    val adnr1_2: String = "ABCD1012"
+    val adnr2_1: String = "ABCD2011"
+    val adnr2_2: String = "ABCD2012"
+    val adnr3_1: String = "ABCD3011"
+    val adnr3_2: String = "ABCD3012"
+    val adnr4_1: String = "ABCD4011"
+    val adnr4_2: String = "ABCD4012"
 
     val message1_1: Message<UUID, Ad> = message(
         uuid = uuid1_1,
-        published = LocalDateTime.now().plusDays(1),
+        adnr = adnr1_1,
+        published = LocalDateTime.now().minusDays(8),
         categories = categories(styrkCode = "1011"),
         locations = locations(municipalCode = "1011", countyCode = "10")
     )
     val message1_2: Message<UUID, Ad> = message(
         uuid = uuid1_2,
-        published = LocalDateTime.now().plusDays(2),
+        adnr = adnr1_2,
+        published = LocalDateTime.now().minusDays(7),
         categories = categories(styrkCode = "1012"),
         locations = locations(municipalCode = "1012", countyCode = "10")
     )
     val message2_1: Message<UUID, Ad> = message(
         uuid = uuid2_1,
-        published = LocalDateTime.now().plusDays(1),
+        adnr = adnr2_1,
+        published = LocalDateTime.now().minusDays(6),
         categories = categories(styrkCode = "2011"),
         locations = locations(municipalCode = "2011", countyCode = "20")
     )
     val message2_2: Message<UUID, Ad> = message(
         uuid = uuid2_2,
-        published = LocalDateTime.now().plusDays(2),
+        adnr = adnr2_2,
+        published = LocalDateTime.now().minusDays(5),
         categories = categories(styrkCode = "2012"),
         locations = locations(municipalCode = "2012", countyCode = "20")
     )
     val message3_1: Message<UUID, Ad> = message(
         uuid = uuid3_1,
-        published = LocalDateTime.now().plusDays(3),
+        adnr = adnr3_1,
+        published = LocalDateTime.now().minusDays(4),
         categories = categories(styrkCode = "3011"),
         locations = locations(municipalCode = "3011", countyCode = "30")
     )
     val message3_2: Message<UUID, Ad> = message(
         uuid = uuid3_2,
-        published = LocalDateTime.now().plusDays(3),
+        adnr = adnr3_2,
+        published = LocalDateTime.now().minusDays(3),
         categories = categories(styrkCode = "3012"),
         locations = locations(municipalCode = "3012", countyCode = "30")
     )
     val message4_1: Message<UUID, Ad> = message(
         uuid = uuid4_1,
-        published = LocalDateTime.now().plusDays(1),
-        classifications = classifications(categoryType = "STYRK08", code = "4011"),
+        adnr = adnr4_1,
+        published = LocalDateTime.now().minusDays(2),
+        classifications = classifications(categoryType = KlassifiseringType.STYRK08, code = "4011"),
         locations = locations(municipalCode = "4011", countyCode = "40")
     )
     val message4_2: Message<UUID, Ad> = message(
         uuid = uuid4_2,
-        published = LocalDateTime.now().plusDays(2),
+        adnr = adnr4_2,
+        published = LocalDateTime.now().minusDays(1),
         categories = categories(styrkCode = "4012"),
         locations = locations(municipalCode = "4012", countyCode = "40")
     )
 
     fun message(
         uuid: UUID = UUID.randomUUID(),
+        adnr: String = "ABCD1234",
         published: LocalDateTime = LocalDateTime.now(),
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList()
     ): Message<UUID, Ad> = record(
         uuid = uuid,
+        adnr = adnr,
         published = published,
         categories = categories,
         classifications = classifications,
@@ -95,20 +115,24 @@ object TestData {
 
     fun record(
         uuid: UUID = UUID.randomUUID(),
+        adnr: String = "ABCD1234",
         published: LocalDateTime = LocalDateTime.now(),
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
-        locations: List<Location> = emptyList()
+        locations: List<Location> = emptyList(),
+        topic: String = "teampam.stilling-ekstern-1"
     ): ConsumerRecord<UUID, Ad> = ad(
         uuid = uuid,
+        adnr = adnr,
         published = published,
         categories = categories,
         classifications = classifications,
         locations = locations
-    ).let { ConsumerRecord("teampam.stilling-ekstern-1", 0, 0L, it.first, it.second) }
+    ).let { ConsumerRecord(topic, 0, 0L, it.first, it.second) }
 
     fun ad(
         uuid: UUID = UUID.randomUUID(),
+        adnr: String = "ABCD1234",
         published: LocalDateTime = LocalDateTime.now(),
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
@@ -116,7 +140,7 @@ object TestData {
     ): Pair<UUID, Ad> {
         val ad = Ad().apply {
             this.uuid = uuid.toString()
-            this.adnr = "ABCD1234"
+            this.adnr = adnr
             this.title = "Test stilling"
             this.status = AdStatus.ACTIVE
             this.privacy = PrivacyChannel.SHOW_ALL
@@ -169,12 +193,12 @@ object TestData {
     }
 
     fun classifications(
-        categoryType: String = "STYRK08",
+        categoryType: KlassifiseringType = KlassifiseringType.STYRK08,
         code: String = "9999"
     ): List<Classification> {
         return listOf(
             Classification().apply {
-                this.categoryType = categoryType
+                this.categoryType = categoryType.name
                 this.code = code
                 this.name = "Testyrke"
                 this.score = 1.0
@@ -234,3 +258,5 @@ object TestData {
         )
     }
 }
+
+fun <K, V> Message<K, V>.asProducerRecord(): ProducerRecord<K, V> = ProducerRecord(topic, key, value)
