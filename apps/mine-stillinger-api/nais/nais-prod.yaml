@@ -68,11 +68,6 @@ spec:
     inbound:
       rules:
         - application: arbeidssoekerregisteret-for-personbruker
-        - application: paw-dev-proxy
-        - application: tokenx-token-generator
-          namespace: nais
-        - application: azure-token-generator
-          namespace: nais
     outbound:
       rules:
         - application: paw-arbeidssoekerregisteret-api-ledigestillinger
