@@ -1,16 +1,13 @@
 package no.naw.paw.minestillinger.db.ops
 
-import no.naw.paw.minestillinger.appLogger
-import no.naw.paw.minestillinger.db.BrukerFlaggTable
-import no.naw.paw.minestillinger.domain.BrukerId
-import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.flaggType
+import no.naw.paw.minestillinger.db.BrukerFlaggTable
+import no.naw.paw.minestillinger.domain.BrukerId
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.slf4j.LoggerFactory
 
 fun skrivFlaggTilDB(brukerId: BrukerId, listeMedFlagg: Iterable<LagretFlagg>) {
     BrukerFlaggTable.batchUpsert(
