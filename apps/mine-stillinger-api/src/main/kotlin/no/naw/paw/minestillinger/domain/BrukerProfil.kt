@@ -59,6 +59,7 @@ fun BrukerProfil.api(): ApiBrukerprofil {
             harGradertAdresse -> ApiTjenesteStatus.KAN_IKKE_LEVERES
             erITestGruppen && harGodeMuligheter -> ApiTjenesteStatus.INAKTIV
             !harBruktTjenesten && !harGodeMuligheter -> ApiTjenesteStatus.KAN_IKKE_LEVERES
+            !erITestGruppen -> ApiTjenesteStatus.KAN_IKKE_LEVERES
             else -> ApiTjenesteStatus.INAKTIV
         },
         stillingssoek = emptyList()

@@ -21,6 +21,8 @@ import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.coVerifyCount
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
@@ -102,12 +104,15 @@ class Livssyklustest : FreeSpec({
             val testClient = testClient()
             val olaPeriode = PeriodeFactory.create().build(identitetsnummer = "12111111111")
             val kariPeriode = PeriodeFactory.create().build(identitetsnummer = "14111111111")
+            val rolfPeriode = PeriodeFactory.create().build(identitetsnummer = "13111111111")
             currentTime.set(olaPeriode.startet.tidspunkt)
             val olaIdent = Identitetsnummer(olaPeriode.identitetsnummer)
             val kariIdent = Identitetsnummer(kariPeriode.identitetsnummer)
+            val rolfIdent = Identitetsnummer(rolfPeriode.identitetsnummer)
             mockkStatic(PdlClient::harBeskyttetAdresse)
             coEvery { pdlClient.harBeskyttetAdresse(Identitetsnummer(olaPeriode.identitetsnummer)) } returns false
             coEvery { pdlClient.harBeskyttetAdresse(Identitetsnummer(kariPeriode.identitetsnummer)) } returns false
+            coEvery { pdlClient.harBeskyttetAdresse(Identitetsnummer(rolfPeriode.identitetsnummer)) } returns false
 
             routing {
                 brukerprofilRoute(
@@ -117,6 +122,31 @@ class Livssyklustest : FreeSpec({
                 )
             }
 
+            "Rolf som ikke er i testgruppen får tjenestestatus $KAN_IKKE_LEVERES" {
+                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                transaction {
+                    opprettOgOppdaterBruker(rolfPeriode)
+                    lagreProfilering(
+                        createProfilering(
+                            periodeId = rolfPeriode.id,
+                            profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+                        )
+                    )
+                }
+                val response = testClient.get(BRUKERPROFIL_PATH) {
+                    bearerAuth(oauthServer.sluttbrukerToken(id = rolfIdent))
+                    contentType(Application.Json)
+                }
+                response.validateAgainstOpenApiSpec()
+                response.status shouldBe HttpStatusCode.OK
+                response.body<ApiBrukerprofil>() should { profil ->
+                    profil.identitetsnummer shouldBe rolfIdent.verdi
+                    profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                    profil.stillingssoek.shouldBeEmpty()
+                }
+                coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(Identitetsnummer(rolfPeriode.identitetsnummer)) }
+                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+            }
             "Når Kari er registert som arbeidssøker antatt gode muligheter kan tjenesten aktiveres" {
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 transaction {
