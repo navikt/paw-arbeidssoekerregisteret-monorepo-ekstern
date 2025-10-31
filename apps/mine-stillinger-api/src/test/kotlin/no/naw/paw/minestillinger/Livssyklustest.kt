@@ -22,7 +22,6 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.coVerifyCount
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
@@ -51,6 +50,9 @@ import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
+import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
+import no.naw.paw.minestillinger.domain.TjenesteStatus
+import no.naw.paw.minestillinger.domain.TjenesteStatus.AKTIV
 import no.naw.paw.minestillinger.domain.TjenesteStatus.INAKTIV
 import no.naw.paw.minestillinger.domain.TjenesteStatus.KAN_IKKE_LEVERES
 import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
@@ -58,6 +60,7 @@ import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -103,6 +106,7 @@ class Livssyklustest : FreeSpec({
             }
             val testClient = testClient()
             val olaPeriode = PeriodeFactory.create().build(identitetsnummer = "12111111111")
+            val olaPeriode2 = PeriodeFactory.create().build(identitetsnummer = olaPeriode.identitetsnummer)
             val kariPeriode = PeriodeFactory.create().build(identitetsnummer = "14111111111")
             val rolfPeriode = PeriodeFactory.create().build(identitetsnummer = "13111111111")
             currentTime.set(olaPeriode.startet.tidspunkt)
@@ -147,7 +151,7 @@ class Livssyklustest : FreeSpec({
                     }
                 }
                 "pdl blir aldri kalt" {
-                    coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(Identitetsnummer(rolfPeriode.identitetsnummer)) }
+                    coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(rolfIdent) }
                 }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
@@ -170,6 +174,7 @@ class Livssyklustest : FreeSpec({
                 withClue(aktiverResponse.bodyAsText()) {
                     aktiverResponse.status shouldBe HttpStatusCode.NoContent
                 }
+                coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(kariIdent) }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
@@ -202,6 +207,7 @@ class Livssyklustest : FreeSpec({
                 }
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.NoContent
+                coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(kariIdent) }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
@@ -213,6 +219,7 @@ class Livssyklustest : FreeSpec({
                 }
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.NotFound
+                coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
@@ -232,6 +239,7 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                     profil.stillingssoek.shouldBeEmpty()
                 }
+                coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
@@ -256,6 +264,7 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                     profil.stillingssoek.shouldBeEmpty()
                 }
+                coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
@@ -277,11 +286,12 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                     profil.stillingssoek.shouldBeEmpty()
                 }
+                coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Etter at Ola har fått gradert adresse" - {
-                "er tjenestestatus ${KAN_IKKE_LEVERES}" {
+                "er tjenestestatus ${INAKTIV}" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
@@ -293,9 +303,10 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.verdi
-                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldBeEmpty()
                     }
+                    coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
                     LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
                 }
 
@@ -307,6 +318,24 @@ class Livssyklustest : FreeSpec({
                     }
                     response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.Forbidden
+                    coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "etter forsøk på å starte skal tjenestestatus være endret til $KAN_IKKE_LEVERES" {
+                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    val response = testClient.get(BRUKERPROFIL_PATH) {
+                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
+                        contentType(Application.Json)
+                    }
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe olaIdent.verdi
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.stillingssoek.shouldBeEmpty()
+                    }
+                    coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
                     LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
                 }
 
@@ -339,10 +368,59 @@ class Livssyklustest : FreeSpec({
                     }
                     response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.Forbidden
+                    coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
                     LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
                 }
             }
             "Når Ola ikke lenger har gradert adresse" - {
+                "er tjenestestatus fortsatt $KAN_IKKE_LEVERES" {
+                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    forwardTimeByHours(36)
+                    coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns false
+                    val response = testClient.get(BRUKERPROFIL_PATH) {
+                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
+                        contentType(Application.Json)
+                    }
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe olaIdent.verdi
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.stillingssoek.shouldBeEmpty()
+                    }
+                    coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                }
+                "arbeidssøkerperioden avsluttes og det går mer enn X dager" - {
+                    "perioden avsluttes" {
+                        transaction {
+                            opprettOgOppdaterBruker(
+                                PeriodeFactory.create().build(
+                                    id = olaPeriode.id,
+                                    identitetsnummer = olaPeriode.identitetsnummer,
+                                    startet = olaPeriode.startet,
+                                    avsluttet = MetadataFactory.create().build(
+                                        tidspunkt = clock.now() - Duration.ofMinutes(1)
+                                    )
+                                )
+                            )
+                        }
+                    }
+                    "opprydnings script kjører" {
+                        slettHvorPeriodeAvsluttetFør(clock.now()) shouldBe 1
+                    }
+                }
+                "ola registrerer seg på nytt som arbeidssøker og blir profilert til antatt gode muligheter" {
+                    transaction {
+                        opprettOgOppdaterBruker(olaPeriode2)
+                        lagreProfilering(
+                            createProfilering(
+                                periodeId = olaPeriode2.id,
+                                profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+                            )
+                        )
+                    }
+                }
                 "er tjenestatus $INAKTIV" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
@@ -442,7 +520,7 @@ class Livssyklustest : FreeSpec({
                 transaction {
                     lagreProfilering(
                         createProfilering(
-                            periodeId = olaPeriode.id,
+                            periodeId = olaPeriode2.id,
                             profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
                         )
                     )
@@ -583,7 +661,32 @@ class Livssyklustest : FreeSpec({
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 forwardTimeByHours(36)
                 coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
-                "Tjenestestatus er $KAN_IKKE_LEVERES og søket er slettet" {
+                "Tjenestestatus er ${AKTIV}" {
+                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    val response = testClient.get(BRUKERPROFIL_PATH) {
+                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
+                        contentType(Application.Json)
+                    }
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe olaIdent.verdi
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
+                        profil.stillingssoek.shouldHaveSize(1)
+                    }
+                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                }
+                "Forsøk på å aktivere tjenesten gir 403 forbidden" {
+                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    val aktiverResponse = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
+                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
+                        contentType(Application.Json)
+                    }
+                    aktiverResponse.validateAgainstOpenApiSpec()
+                    aktiverResponse.status shouldBe HttpStatusCode.Forbidden
+                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                }
+                "Tjenestestatus er endret til $KAN_IKKE_LEVERES og søket er slettet" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     val response = testClient.get(BRUKERPROFIL_PATH) {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
@@ -596,16 +699,6 @@ class Livssyklustest : FreeSpec({
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                         profil.stillingssoek.shouldHaveSize(0)
                     }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
-                }
-                "Forsøk på å aktivere tjenesten gir 403 forbidden" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
-                    val aktiverResponse = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    aktiverResponse.validateAgainstOpenApiSpec()
-                    aktiverResponse.status shouldBe HttpStatusCode.Forbidden
                     LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
                 }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")

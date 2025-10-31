@@ -2,8 +2,10 @@ package no.naw.paw.minestillinger.brukerprofil
 
 import io.ktor.http.HttpStatusCode
 import no.nav.paw.error.exception.ProblemDetailsException
+import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
+import no.nav.paw.error.model.Response
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
@@ -15,6 +17,7 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.ingenOppdateringAvFlagg
 import no.naw.paw.minestillinger.domain.TjenesteStatus
+import java.time.Instant
 import java.time.Instant.now
 import java.util.*
 
@@ -32,11 +35,11 @@ fun ListeMedFlagg.tjenestestatus(): TjenesteStatus {
     }
 }
 
-fun ListeMedFlagg.beregnOppdateringAvFlaggFraAPI(nyTjenestestatus: TjenesteStatus): OppdateringAvFlagg {
-    val gjeldendeStatus = tjenestestatus()
-    if (nyTjenestestatus == TjenesteStatus.KAN_IKKE_LEVERES) oppdateringIkkeTillatt("Kan ikke sette tjenestestatus til KAN_IKKE_LEVERES manuelt")
-    if (gjeldendeStatus == TjenesteStatus.KAN_IKKE_LEVERES) oppdateringIkkeTillatt("Kan ikke oppdatere tjenestestatus fra KAN_IKKE_LEVERES")
-    val tidspunkt = now()
+fun beregnOppdateringAvFlaggFraAPI(
+    tidspunkt: Instant,
+    gjeldendeStatus: TjenesteStatus,
+    nyTjenestestatus: TjenesteStatus
+): OppdateringAvFlagg {
     return when (gjeldendeStatus to nyTjenestestatus) {
         TjenesteStatus.AKTIV to TjenesteStatus.AKTIV -> ingenOppdateringAvFlagg
         TjenesteStatus.AKTIV to TjenesteStatus.INAKTIV -> OppdateringAvFlagg(
@@ -90,16 +93,16 @@ fun ListeMedFlagg.beregnOppdateringAvFlaggFraAPI(nyTjenestestatus: TjenesteStatu
     }
 }
 
-private fun oppdateringIkkeTillatt(detail: String) {
-    throw ProblemDetailsException(
-        ProblemDetails(
-            id = UUID.randomUUID(),
-            type = ErrorType.default().error("oppdatering-ikke-tillatt").domain("mine-stillinger").build(),
-            title = "Oppdatering av tjenestestatus ikke tillatt",
-            detail = detail,
-            status = HttpStatusCode.Forbidden,
-            instance = "api_kan_sette_tjenestestatus"
-        )
+fun OppdateringAvFlagg.response(): Data<OppdateringAvFlagg> = Data(this)
+
+fun oppdateringIkkeTillatt(detail: String): ProblemDetails {
+    return ProblemDetails(
+        id = UUID.randomUUID(),
+        type = ErrorType.default().error("oppdatering-ikke-tillatt").domain("mine-stillinger").build(),
+        title = "Oppdatering av tjenestestatus ikke tillatt",
+        detail = detail,
+        status = HttpStatusCode.Forbidden,
+        instance = "api_kan_sette_tjenestestatus"
     )
 }
 

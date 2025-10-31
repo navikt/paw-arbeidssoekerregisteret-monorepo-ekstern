@@ -40,41 +40,13 @@ class BrukerprofilTjeneste(
     val clock: Clock
 ) {
 
-    suspend fun hentBrukerProfil(identitetsnummer: Identitetsnummer): BrukerProfil? {
-        val tidspunkt = clock.now()
+    fun hentBrukerProfil(identitetsnummer: Identitetsnummer): BrukerProfil? {
         val brukerProfilerUtenFlagg = hentBrukerprofilUtenFlagg(identitetsnummer) ?: return null
         val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
         val erITestGruppenFlagg = genererErITestGruppenFlagg(abTestingRegex, identitetsnummer)
         val flaggFraDatabasen = hentFlagg(brukerProfilerUtenFlagg.id)
         val gjeldeneFlagg = ListeMedFlagg(flaggFraDatabasen) + erITestGruppenFlagg + profileringsFlagg
-        val graderingsFlagg = gjeldeneFlagg[HarGradertAdresseFlaggtype]
-        val gjeldeneTjenestestatusUtenGradering = graderingsFlagg?.let { flagg -> gjeldeneFlagg - flagg.type }
-            ?.tjenestestatus() ?: gjeldeneFlagg.tjenestestatus()
-        if (gjeldeneTjenestestatusUtenGradering == TjenesteStatus.KAN_IKKE_LEVERES) {
-            return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
-        } else {
-            if (graderingsFlagg == null) return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
-            if (graderingsFlagg.tidspunkt == Instant.EPOCH) return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
-            if (graderingsFlagg.erFremdelesGyldig(tidspunkt, GRADERT_ADRESSE_GYLDIGHETS_PERIODE)) {
-                brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
-            }
-
-            val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(identitetsnummer)
-            val oppdatering = OppdateringAvFlagg(
-                nyeOgOppdaterteFlagg = listOfNotNull(
-                    HarGradertAdresseFlagg(harGradertAdresseNå, tidspunkt),
-                    if (harGradertAdresseNå) TjenestenErAktivFlagg(
-                        verdi = false,
-                        tidspunkt = tidspunkt
-                    ) else null
-                ),
-                søkSkalSlettes = harGradertAdresseNå
-            )
-            oppdaterFlagg(brukerId = brukerProfilerUtenFlagg.id, oppdatering = oppdatering)
-            val oppdarteListeMedFlagg = gjeldeneFlagg
-                .addOrUpdate(*oppdatering.nyeOgOppdaterteFlagg.toTypedArray())
-            return brukerProfilerUtenFlagg.medFlagg(oppdarteListeMedFlagg)
-        }
+        return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
     }
 
     suspend fun hentAddresseBeskyttelseFlagg(

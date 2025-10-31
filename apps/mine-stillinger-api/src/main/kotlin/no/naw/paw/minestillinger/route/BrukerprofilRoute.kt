@@ -22,6 +22,7 @@ import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.toApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.hentBrukerprofil
+import no.naw.paw.minestillinger.brukerprofil.oppdaterProfilMedGradertAdresseDersomAktuelt
 import no.naw.paw.minestillinger.brukerprofil.setTjenestatestatus
 import no.naw.paw.minestillinger.brukerprofil.tjenestestatus
 import no.naw.paw.minestillinger.db.ops.SøkAdminOps
@@ -58,11 +59,11 @@ fun Route.brukerprofilRoute(
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
                 val tjenesteStatusParam = call.parameters["tjenestestatus"]
                     .toApiTjenesteStatus()
-                brukerprofilTjeneste.setTjenestatestatus(
+                val resultat = brukerprofilTjeneste.setTjenestatestatus(
                     identitetsnummer = identitetsnummer,
                     tjenesteStatus = tjenesteStatusParam
                 )
-                call.respond(HttpStatusCode.NoContent)
+                call.respondWith(resultat)
             }
 
             put<List<ApiStillingssoek>>("/stillingssoek") { stillingssoek ->
@@ -70,6 +71,7 @@ fun Route.brukerprofilRoute(
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
                 val respose: Response<Unit> = suspendedTransactionAsync {
                     val profil = brukerprofilTjeneste.hentBrukerProfil(identitetsnummer)
+                        ?.let{ brukerprofilTjeneste.oppdaterProfilMedGradertAdresseDersomAktuelt(it)}
                     val brukerId = profil?.id
                     if (brukerId == null) {
                         mineStillingerProblemDetails(

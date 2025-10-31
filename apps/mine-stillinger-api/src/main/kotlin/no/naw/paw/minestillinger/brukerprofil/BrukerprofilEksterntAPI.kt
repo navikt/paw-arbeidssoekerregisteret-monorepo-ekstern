@@ -2,6 +2,8 @@ package no.naw.paw.minestillinger.brukerprofil
 
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
+import no.nav.paw.error.model.Data
+import no.nav.paw.error.model.Response
 import no.nav.paw.model.Identitetsnummer
 import no.naw.paw.minestillinger.api.ApiStillingssoek
 import no.naw.paw.minestillinger.api.domain
@@ -10,12 +12,14 @@ import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.domain.BrukerId
+import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.Stillingssoek
 import no.naw.paw.minestillinger.domain.TjenesteStatus
 import no.naw.paw.minestillinger.domain.api
 import no.naw.paw.minestillinger.domain.toTjenesteStatus
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import java.time.Instant.now
 import kotlin.time.Duration
 
 suspend fun BrukerprofilTjeneste.hentBrukerprofil(
@@ -24,17 +28,6 @@ suspend fun BrukerprofilTjeneste.hentBrukerprofil(
 ): ApiBrukerprofil? {
     return suspendedTransactionAsync {
         hentBrukerProfil(identitetsnummer)
-            ?.let { profil ->
-                if (profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.KAN_IKKE_LEVERES &&
-                    profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.OPT_OUT
-                ) {
-                    hentAddresseBeskyttelseFlagg(
-                        brukerProfil = profil,
-                        tidspunkt = clock.now(),
-                        maxAlder = GRADERT_ADRESSE_GYLDIGHETS_PERIODE
-                    )
-                } else profil
-            }
             ?.let { brukerprofil ->
                 val søk = hentSøk(brukerprofil.id).map { søk -> søk.api() }
                 brukerprofil.api().copy(stillingssoek = søk)
@@ -45,16 +38,46 @@ suspend fun BrukerprofilTjeneste.hentBrukerprofil(
         }
 }
 
+suspend fun BrukerprofilTjeneste.oppdaterProfilMedGradertAdresseDersomAktuelt(profil: BrukerProfil): BrukerProfil =
+    if (profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.KAN_IKKE_LEVERES &&
+        profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.OPT_OUT
+    ) {
+        hentAddresseBeskyttelseFlagg(
+            brukerProfil = profil,
+            tidspunkt = clock.now(),
+            maxAlder = GRADERT_ADRESSE_GYLDIGHETS_PERIODE
+        )
+    } else profil
+
 suspend fun BrukerprofilTjeneste.setTjenestatestatus(
     identitetsnummer: Identitetsnummer,
     tjenesteStatus: ApiTjenesteStatus
-) {
-    suspendedTransactionAsync {
-        val brukerprofil = hentBrukerProfil(identitetsnummer) ?: brukerIkkeFunnet()
+): Response<Unit> {
+    return suspendedTransactionAsync {
+        val brukerprofil = hentBrukerProfil(identitetsnummer)
+            ?.let { profil ->
+                if(tjenesteStatus == ApiTjenesteStatus.AKTIV) {
+                    oppdaterProfilMedGradertAdresseDersomAktuelt(profil)
+                } else profil
+            }
+            ?: brukerIkkeFunnet()
         val domainStatus = tjenesteStatus.toTjenesteStatus()
-        val oppdateringer = brukerprofil.listeMedFlagg
-            .beregnOppdateringAvFlaggFraAPI(domainStatus)
-        oppdaterFlagg(brukerprofil.id, oppdateringer)
+        val listMedFlag = brukerprofil.listeMedFlagg
+        val gjeldendeStatus = listMedFlag.tjenestestatus()
+        when {
+            domainStatus == TjenesteStatus.KAN_IKKE_LEVERES -> oppdateringIkkeTillatt("Kan ikke sette tjenestestatus til KAN_IKKE_LEVERES manuelt")
+            gjeldendeStatus == TjenesteStatus.KAN_IKKE_LEVERES -> oppdateringIkkeTillatt("Kan ikke oppdatere tjenestestatus fra KAN_IKKE_LEVERES")
+            else -> {
+                val tidspunkt = clock.now()
+                val oppdateringer = beregnOppdateringAvFlaggFraAPI(
+                    tidspunkt = tidspunkt,
+                    gjeldendeStatus = gjeldendeStatus,
+                    nyTjenestestatus = domainStatus
+                )
+                oppdaterFlagg(brukerprofil.id, oppdateringer)
+                Data(Unit)
+            }
+        }
     }.await()
 }
 

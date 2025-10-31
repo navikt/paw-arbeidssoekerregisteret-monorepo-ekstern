@@ -7,9 +7,14 @@ import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
 import no.naw.paw.minestillinger.domain.PeriodeId
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Instant
 
 fun hentBrukerProfilUtenFlagg(identitetsnummer: Identitetsnummer): BrukerProfilerUtenFlagg? =
     transaction {
@@ -27,4 +32,13 @@ fun brukerprofilUtenFlagg(row: ResultRow): BrukerProfilerUtenFlagg {
         arbeidssoekerperiodeId = PeriodeId(row[BrukerTable.arbeidssoekerperiodeId]),
         arbeidssoekerperiodeAvsluttet = row[BrukerTable.arbeidssoekerperiodeAvsluttet]
     )
+}
+
+fun slettHvorPeriodeAvsluttetFør(tidspunkt: Instant): Int {
+    return transaction {
+        BrukerTable.deleteWhere {
+            BrukerTable.arbeidssoekerperiodeAvsluttet.isNotNull() and
+                    (BrukerTable.arbeidssoekerperiodeAvsluttet less tidspunkt)
+        }
+    }
 }
