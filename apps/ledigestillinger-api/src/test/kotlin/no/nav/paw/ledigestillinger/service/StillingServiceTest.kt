@@ -4,12 +4,18 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.pam.stilling.ext.avro.Ad
+import no.nav.pam.stilling.ext.avro.AdStatus
+import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.model.asDto
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData
 import no.nav.paw.ledigestillinger.test.selectRows
 import no.naw.paw.ledigestillinger.model.Fylke
+import java.time.Duration
+import java.time.LocalDateTime
+import java.util.*
 
 class StillingServiceTest : FreeSpec({
     with(TestContext.buildWithDatabase()) {
@@ -88,6 +94,47 @@ class StillingServiceTest : FreeSpec({
                 TestData.message1_2.value.asDto(),
                 TestData.message3_1.value.asDto()
             )
+        }
+
+        "Skal slette stillinger som ikke er aktive og aldre enn X".config(enabled = false) {
+            // GIVEN
+            val medUtloeperEldreEnn = Duration.ofDays(30)
+            val messages: List<Message<UUID, Ad>> = AdStatus.entries.flatMap { status ->
+                listOf(
+                    TestData.message(
+                        status = status,
+                        published = LocalDateTime.now().minusDays(medUtloeperEldreEnn.toDays() + 100),
+                        expires = null
+                    ),
+                    TestData.message(
+                        status = status,
+                        published = LocalDateTime.now().minusDays(medUtloeperEldreEnn.toDays() + 100),
+                        expires = LocalDateTime.now().minusDays(medUtloeperEldreEnn.toDays() + 20)
+                    ),
+                    TestData.message(
+                        status = status,
+                        published = LocalDateTime.now().minusDays(medUtloeperEldreEnn.toDays() + 100),
+                        expires = LocalDateTime.now().minusDays(medUtloeperEldreEnn.toDays() + 40)
+                    )
+                )
+            }
+
+            // WHEN
+            stillingService.handleMessages(messages.asSequence())
+            val rows1 = StillingerTable.selectRows()
+
+            // THEN
+            rows1 shouldHaveSize 15
+            rows1.map { it.asDto() } shouldContainOnly messages.map { it.value.asDto() }
+
+            // WHEN
+            val rowsAffected = stillingService.slettStillinger(medUtloeperEldreEnn)
+            val rows2 = StillingerTable.selectRows()
+
+            // THEN
+            rowsAffected shouldBe 7
+            rows2 shouldHaveSize 15
+            rows2.map { it.asDto() } shouldContainOnly messages.map { it.value.asDto() }
         }
     }
 })

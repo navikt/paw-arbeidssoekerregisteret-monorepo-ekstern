@@ -14,9 +14,12 @@ import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -57,6 +60,19 @@ object StillingerTable : LongIdTable("stillinger") {
         .where { StillingerTable.uuid eq uuid }
         .map { it[id].value }
         .singleOrNull()
+
+    fun selectIdListByStatus(
+        status: StillingStatus
+    ): List<Long> = select(id)
+        .where { StillingerTable.status eq status }
+        .map { it[id].value }
+
+    fun selectIdListByStatusListAndUtloeperGraterThan(
+        statusList: Collection<StillingStatus>,
+        utloeperTimestampCutoff: Instant
+    ): List<Long> = select(id)
+        .where { status inList statusList and utloeperTimestamp.isNotNull() and (utloeperTimestamp greater utloeperTimestampCutoff) }
+        .map { it[id].value }
 
     fun selectRowByUUID(
         uuid: UUID
@@ -195,4 +211,8 @@ object StillingerTable : LongIdTable("stillinger") {
         it[messageTimestamp] = row.messageTimestamp
         it[updatedTimestamp] = Instant.now()
     }
+
+    fun deleteByIdList(
+        idList: Collection<Long>
+    ): Int = deleteWhere { id inList idList }
 }

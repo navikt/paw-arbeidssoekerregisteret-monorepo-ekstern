@@ -28,7 +28,10 @@ import no.nav.paw.logging.logger.buildLogger
 import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.Stilling
+import no.naw.paw.ledigestillinger.model.StillingStatus
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Duration
+import java.time.Instant
 import java.util.*
 
 class StillingService(
@@ -125,6 +128,18 @@ class StillingService(
                 row = stillingRow
             )
         }
+    }
+
+    fun slettStillinger(medUtloeperEldreEnn: Duration): Int = transaction {
+        val utloeperTimestampCutoff = Instant.now().minus(medUtloeperEldreEnn)
+        logger.info("Sletter stillinger med utløp eldre enn {}", utloeperTimestampCutoff)
+        val slettetIdList = StillingerTable.selectIdListByStatus(status = StillingStatus.SLETTET)
+        val idList = slettetIdList + StillingerTable.selectIdListByStatusListAndUtloeperGraterThan(
+            statusList = listOf(StillingStatus.AVVIST, StillingStatus.INAKTIV, StillingStatus.STOPPET),
+            utloeperTimestampCutoff = utloeperTimestampCutoff
+        )
+        StillingerTable.deleteByIdList(idList)
+            .also { rowsAffected -> logger.info("Slettet {} stillinger", rowsAffected) }
     }
 
     @WithSpan

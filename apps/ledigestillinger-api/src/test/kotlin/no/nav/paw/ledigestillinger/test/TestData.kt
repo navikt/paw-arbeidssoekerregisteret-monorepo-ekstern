@@ -100,14 +100,18 @@ object TestData {
     fun message(
         uuid: UUID = UUID.randomUUID(),
         adnr: String = "ABCD1234",
+        status: AdStatus = AdStatus.ACTIVE,
         published: LocalDateTime = LocalDateTime.now(),
+        expires: LocalDateTime? = null,
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList()
     ): Message<UUID, Ad> = record(
         uuid = uuid,
         adnr = adnr,
+        status = status,
         published = published,
+        expires = expires,
         categories = categories,
         classifications = classifications,
         locations = locations
@@ -116,7 +120,9 @@ object TestData {
     fun record(
         uuid: UUID = UUID.randomUUID(),
         adnr: String = "ABCD1234",
+        status: AdStatus = AdStatus.ACTIVE,
         published: LocalDateTime = LocalDateTime.now(),
+        expires: LocalDateTime? = null,
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList(),
@@ -124,7 +130,9 @@ object TestData {
     ): ConsumerRecord<UUID, Ad> = ad(
         uuid = uuid,
         adnr = adnr,
+        status = status,
         published = published,
+        expires = expires,
         categories = categories,
         classifications = classifications,
         locations = locations
@@ -133,7 +141,9 @@ object TestData {
     fun ad(
         uuid: UUID = UUID.randomUUID(),
         adnr: String = "ABCD1234",
+        status: AdStatus = AdStatus.ACTIVE,
         published: LocalDateTime = LocalDateTime.now(),
+        expires: LocalDateTime? = null,
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList()
@@ -142,7 +152,7 @@ object TestData {
             this.uuid = uuid.toString()
             this.adnr = adnr
             this.title = "Test stilling"
-            this.status = AdStatus.ACTIVE
+            this.status = status
             this.privacy = PrivacyChannel.SHOW_ALL
             this.source = "FINN"
             this.medium = "FINN"
@@ -151,6 +161,7 @@ object TestData {
             this.created = LocalDateTime.now().toLocalDateTimeString()
             this.updated = LocalDateTime.now().toLocalDateTimeString()
             this.published = published.toLocalDateTimeString()
+            this.expires = expires?.toLocalDateTimeString()
             this.administration = administration()
             this.employer = company()
             this.categories = categories

@@ -36,7 +36,7 @@ CREATE TABLE arbeidsgivere
     parent_org_nr  VARCHAR(20),
     navn           VARCHAR(255),
     offentlig_navn VARCHAR(255),
-    FOREIGN KEY (parent_id) REFERENCES stillinger (id)
+    FOREIGN KEY (parent_id) REFERENCES stillinger (id) ON DELETE CASCADE
 );
 
 CREATE TABLE kategorier
@@ -46,7 +46,7 @@ CREATE TABLE kategorier
     kode             VARCHAR(255) NOT NULL,
     normalisert_kode VARCHAR(255) NOT NULL,
     navn             VARCHAR(255) NOT NULL,
-    FOREIGN KEY (parent_id) REFERENCES stillinger (id)
+    FOREIGN KEY (parent_id) REFERENCES stillinger (id) ON DELETE CASCADE
 );
 
 CREATE TABLE klassifiseringer
@@ -56,7 +56,7 @@ CREATE TABLE klassifiseringer
     type      VARCHAR(255) NOT NULL,
     kode      VARCHAR(255) NOT NULL,
     navn      VARCHAR(255) NOT NULL,
-    FOREIGN KEY (parent_id) REFERENCES stillinger (id)
+    FOREIGN KEY (parent_id) REFERENCES stillinger (id) ON DELETE CASCADE
 );
 
 CREATE TABLE lokasjoner
@@ -71,7 +71,7 @@ CREATE TABLE lokasjoner
     fylke       VARCHAR(100),
     fylkeskode  VARCHAR(20),
     land        VARCHAR(100) NOT NULL,
-    FOREIGN KEY (parent_id) REFERENCES stillinger (id)
+    FOREIGN KEY (parent_id) REFERENCES stillinger (id) ON DELETE CASCADE
 );
 
 CREATE TABLE egenskaper
@@ -80,5 +80,5 @@ CREATE TABLE egenskaper
     parent_id BIGINT NOT NULL,
     key       VARCHAR(50),
     value     TEXT,
-    FOREIGN KEY (parent_id) REFERENCES stillinger (id)
+    FOREIGN KEY (parent_id) REFERENCES stillinger (id) ON DELETE CASCADE
 );
