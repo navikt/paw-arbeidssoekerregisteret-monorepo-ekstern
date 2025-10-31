@@ -3,7 +3,6 @@ package no.naw.paw.minestillinger.brukerprofil
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.naw.paw.minestillinger.Clock
-import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
@@ -16,15 +15,18 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
-import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.erFremdelesGyldig
+import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
 import no.naw.paw.minestillinger.domain.PeriodeId
 import no.naw.paw.minestillinger.domain.Profilering
 import no.naw.paw.minestillinger.domain.ProfileringResultat
+import no.naw.paw.minestillinger.domain.TjenesteStatus
 import no.naw.paw.minestillinger.domain.medFlagg
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Duration
 import java.time.Instant
 
 class BrukerprofilTjeneste(
@@ -43,31 +45,61 @@ class BrukerprofilTjeneste(
         val brukerProfilerUtenFlagg = hentBrukerprofilUtenFlagg(identitetsnummer) ?: return null
         val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
         val erITestGruppenFlagg = genererErITestGruppenFlagg(abTestingRegex, identitetsnummer)
-        val flagg = hentFlagg(brukerProfilerUtenFlagg.id)
-            .let(::ListeMedFlagg)
-            .let { flagg ->
-                val gradertAdresseGyldig = flagg[HarGradertAdresseFlaggtype]
-                    ?.erFremdelesGyldig(
-                        tidspunkt = tidspunkt,
-                        gydlighetsperiode = GRADERT_ADRESSE_GYLDIGHETS_PERIODE
-                    ) ?: false
-                if (gradertAdresseGyldig || !erITestGruppenFlagg.verdi) {
-                    flagg
-                } else {
-                    val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(identitetsnummer)
-                    val oppdatering = OppdateringAvFlagg(
-                        nyeOgOppdaterteFlagg = listOfNotNull(
-                            HarGradertAdresseFlagg(harGradertAdresseNå, tidspunkt),
-                            if (harGradertAdresseNå) TjenestenErAktivFlagg(verdi = false, tidspunkt = tidspunkt) else null
-                        ),
+        val flaggFraDatabasen = hentFlagg(brukerProfilerUtenFlagg.id)
+        val gjeldeneFlagg = ListeMedFlagg(flaggFraDatabasen) + erITestGruppenFlagg + profileringsFlagg
+        val graderingsFlagg = gjeldeneFlagg[HarGradertAdresseFlaggtype]
+        val gjeldeneTjenestestatusUtenGradering = graderingsFlagg?.let { flagg -> gjeldeneFlagg - flagg.type }
+            ?.tjenestestatus() ?: gjeldeneFlagg.tjenestestatus()
+        if (gjeldeneTjenestestatusUtenGradering == TjenesteStatus.KAN_IKKE_LEVERES) {
+            return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
+        } else {
+            if (graderingsFlagg == null) return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
+            if (graderingsFlagg.tidspunkt == Instant.EPOCH) return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
+            if (graderingsFlagg.erFremdelesGyldig(tidspunkt, GRADERT_ADRESSE_GYLDIGHETS_PERIODE)) {
+                brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
+            }
+
+            val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(identitetsnummer)
+            val oppdatering = OppdateringAvFlagg(
+                nyeOgOppdaterteFlagg = listOfNotNull(
+                    HarGradertAdresseFlagg(harGradertAdresseNå, tidspunkt),
+                    if (harGradertAdresseNå) TjenestenErAktivFlagg(
+                        verdi = false,
+                        tidspunkt = tidspunkt
+                    ) else null
+                ),
+                søkSkalSlettes = harGradertAdresseNå
+            )
+            oppdaterFlagg(brukerId = brukerProfilerUtenFlagg.id, oppdatering = oppdatering)
+            val oppdarteListeMedFlagg = gjeldeneFlagg
+                .addOrUpdate(*oppdatering.nyeOgOppdaterteFlagg.toTypedArray())
+            return brukerProfilerUtenFlagg.medFlagg(oppdarteListeMedFlagg)
+        }
+    }
+
+    suspend fun hentAddresseBeskyttelseFlagg(
+        brukerProfil: BrukerProfil,
+        tidspunkt: Instant,
+        maxAlder: Duration
+    ): BrukerProfil {
+        return brukerProfil.listeMedFlagg[HarGradertAdresseFlaggtype].let { flagg ->
+            if (flagg?.erFremdelesGyldig(tidspunkt, maxAlder) ?: false) {
+                brukerProfil
+            } else {
+                val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(brukerProfil.identitetsnummer)
+                val gradertAdresseFlagg = HarGradertAdresseFlagg(
+                    verdi = harGradertAdresseNå,
+                    tidspunkt = tidspunkt
+                )
+                oppdaterFlagg(
+                    brukerProfil.id, OppdateringAvFlagg(
+                        nyeOgOppdaterteFlagg = listOf(gradertAdresseFlagg),
                         søkSkalSlettes = harGradertAdresseNå
                     )
-                    oppdaterFlagg(brukerId = brukerProfilerUtenFlagg.id, oppdatering = oppdatering)
-                    flagg.addOrUpdate(*oppdatering.nyeOgOppdaterteFlagg.toTypedArray())
-                }
+                )
+                brukerProfil.copy(listeMedFlagg = brukerProfil.listeMedFlagg.addOrUpdate(gradertAdresseFlagg))
             }
-        val alleFlagg = flagg.addOrUpdate(erITestGruppenFlagg, profileringsFlagg)
-        return brukerProfilerUtenFlagg.medFlagg(alleFlagg)
+        }
     }
 
     fun genererProfileringsFlagg(periodeId: PeriodeId): HarGodeMuligheterFlagg {

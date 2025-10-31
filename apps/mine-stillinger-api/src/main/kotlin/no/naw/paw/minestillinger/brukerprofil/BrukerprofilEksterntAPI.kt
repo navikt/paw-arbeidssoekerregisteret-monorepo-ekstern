@@ -8,12 +8,15 @@ import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.appLogger
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.Stillingssoek
+import no.naw.paw.minestillinger.domain.TjenesteStatus
 import no.naw.paw.minestillinger.domain.api
 import no.naw.paw.minestillinger.domain.toTjenesteStatus
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import kotlin.time.Duration
 
 suspend fun BrukerprofilTjeneste.hentBrukerprofil(
     hentSøk: (BrukerId) -> List<Stillingssoek>,
@@ -21,13 +24,25 @@ suspend fun BrukerprofilTjeneste.hentBrukerprofil(
 ): ApiBrukerprofil? {
     return suspendedTransactionAsync {
         hentBrukerProfil(identitetsnummer)
+            ?.let { profil ->
+                if (profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.KAN_IKKE_LEVERES &&
+                    profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.OPT_OUT
+                ) {
+                    hentAddresseBeskyttelseFlagg(
+                        brukerProfil = profil,
+                        tidspunkt = clock.now(),
+                        maxAlder = GRADERT_ADRESSE_GYLDIGHETS_PERIODE
+                    )
+                } else profil
+            }
             ?.let { brukerprofil ->
                 val søk = hentSøk(brukerprofil.id).map { søk -> søk.api() }
                 brukerprofil.api().copy(stillingssoek = søk)
             }
-    }.await().also { apiBrukerprofil ->
-        appLogger.trace("Returnerer brukerprofil: tjenestestatus=${apiBrukerprofil?.tjenestestatus}, antallSøk=${apiBrukerprofil?.stillingssoek?.size}")
-    }
+    }.await()
+        .also { apiBrukerprofil ->
+            appLogger.trace("Returnerer brukerprofil: tjenestestatus=${apiBrukerprofil?.tjenestestatus}, antallSøk=${apiBrukerprofil?.stillingssoek?.size}")
+        }
 }
 
 suspend fun BrukerprofilTjeneste.setTjenestatestatus(

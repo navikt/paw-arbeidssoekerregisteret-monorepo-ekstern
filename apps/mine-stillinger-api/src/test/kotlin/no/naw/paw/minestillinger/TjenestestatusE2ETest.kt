@@ -44,6 +44,7 @@ import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Instant
 import java.time.Instant.now
 
 data class TjenestestatusTestCase(
@@ -130,14 +131,14 @@ class TjenestestatusE2ETest : FreeSpec({
                 TjenesteStatus.AKTIV -> skrivFlaggTilDB(
                     brukerId, listOf(
                         TjenestenErAktivFlagg(true, now()),
-                        HarGradertAdresseFlagg(false, now())
+                        HarGradertAdresseFlagg(false, Instant.EPOCH)
                     )
                 )
 
                 TjenesteStatus.INAKTIV -> skrivFlaggTilDB(
                     brukerId, listOf(
                         TjenestenErAktivFlagg(false, now()),
-                        HarGradertAdresseFlagg(false, now())
+                        HarGradertAdresseFlagg(false, Instant.EPOCH)
                     )
                 )
 
@@ -145,14 +146,14 @@ class TjenestestatusE2ETest : FreeSpec({
                     brukerId, listOf(
                         TjenestenErAktivFlagg(false, now()),
                         OptOutFlag(true, now()),
-                        HarGradertAdresseFlagg(false, now())
+                        HarGradertAdresseFlagg(false, Instant.EPOCH)
                     )
                 )
 
                 TjenesteStatus.KAN_IKKE_LEVERES -> skrivFlaggTilDB(
                     brukerId, listOf(
                         TjenestenErAktivFlagg(false, now()),
-                        HarGradertAdresseFlagg(true, now())
+                        HarGradertAdresseFlagg(true, Instant.EPOCH)
                     )
                 )
             }
