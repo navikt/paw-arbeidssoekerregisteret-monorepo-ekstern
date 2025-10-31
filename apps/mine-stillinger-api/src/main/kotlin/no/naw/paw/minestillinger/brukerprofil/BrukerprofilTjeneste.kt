@@ -67,7 +67,6 @@ class BrukerprofilTjeneste(
                 }
             }
         val alleFlagg = flagg.addOrUpdate(erITestGruppenFlagg, profileringsFlagg)
-        appLogger.info("Flagg: ${alleFlagg.map { it.debug() }.joinToString(", ")}")
         return brukerProfilerUtenFlagg.medFlagg(alleFlagg)
     }
 
@@ -91,6 +90,5 @@ class BrukerprofilTjeneste(
         if (oppdatering.søkSkalSlettes) {
             slettAlleSøk(brukerId)
         }
-        appLogger.info("Oppdaterte flagg: $oppdatering")
     }
 }

@@ -35,7 +35,7 @@
             </root>
         </then>
     </if>
-    <logger name="brukerprofiler_api" level="INFO"/>
+    <logger name="brukerprofiler_api" level="TRACE"/>
     <logger name="org.apache.kafka" level="WARN"/>
     <logger name="io.confluent.kafka" level="WARN"/>
     <logger name="no.nav.paw" level="DEBUG"/>

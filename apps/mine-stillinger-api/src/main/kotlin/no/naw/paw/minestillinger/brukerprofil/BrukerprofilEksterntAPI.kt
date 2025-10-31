@@ -7,6 +7,7 @@ import no.naw.paw.minestillinger.api.ApiStillingssoek
 import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
+import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.Stillingssoek
@@ -24,7 +25,9 @@ suspend fun BrukerprofilTjeneste.hentBrukerprofil(
                 val søk = hentSøk(brukerprofil.id).map { søk -> søk.api() }
                 brukerprofil.api().copy(stillingssoek = søk)
             }
-    }.await()
+    }.await().also { apiBrukerprofil ->
+        appLogger.trace("Returnerer brukerprofil: tjenestestatus=${apiBrukerprofil?.tjenestestatus}, antallSøk=${apiBrukerprofil?.stillingssoek?.size}")
+    }
 }
 
 suspend fun BrukerprofilTjeneste.setTjenestatestatus(

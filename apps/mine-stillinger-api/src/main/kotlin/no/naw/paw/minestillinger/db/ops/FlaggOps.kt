@@ -22,9 +22,6 @@ fun skrivFlaggTilDB(brukerId: BrukerId, listeMedFlagg: Iterable<LagretFlagg>) {
         this[BrukerFlaggTable.navn] = row.type.type
         this[BrukerFlaggTable.verdi] = row.verdi
         this[BrukerFlaggTable.tidspunkt] = row.tidspunkt
-    }.also { rows ->
-        appLogger.info("Skrev flagg til DB, antall rader: ${rows.size}, input: $listeMedFlagg")
-        appLogger.info("Flagg i db etter oppdatering: ${lesFlaggFraDB(brukerId)}")
     }
 }
 
