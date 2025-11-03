@@ -4,7 +4,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.services.MetricsService
-import no.nav.paw.database.plugin.FlywayMigrationCompleted
+import no.nav.paw.database.event.FlywayMigrationCompleted
 import no.nav.paw.scheduling.plugin.ScheduledTaskPlugin
 
 fun Application.configureScheduledTask(

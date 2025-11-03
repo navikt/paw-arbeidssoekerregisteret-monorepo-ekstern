@@ -112,36 +112,15 @@ tasks.withType(Jar::class) {
 }
 
 tasks.named("compileTestKotlin") {
-    dependsOn("openApiValidate", "openApiGenerate")
+    dependsOn("openApiValidate")
 }
 
 tasks.named("compileKotlin") {
-    dependsOn("openApiValidate", "openApiGenerate")
+    dependsOn("openApiValidate")
 }
 
 val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
 
 openApiValidate {
     inputSpec = openApiDocFile
-}
-
-openApiGenerate {
-    generatorName = "kotlin"
-    inputSpec = openApiDocFile
-    outputDir = "${layout.buildDirectory.get()}/generated/"
-    packageName = "no.nav.paw.ledigestillinger.api"
-    configOptions = mapOf(
-        "serializationLibrary" to "jackson",
-        "enumPropertyNaming" to "original",
-    )
-    globalProperties = mapOf(
-        "apis" to "none",
-        "models" to ""
-    )
-    typeMappings = mapOf(
-        "DateTime" to "Instant"
-    )
-    importMappings = mapOf(
-        "Instant" to "java.time.Instant"
-    )
 }

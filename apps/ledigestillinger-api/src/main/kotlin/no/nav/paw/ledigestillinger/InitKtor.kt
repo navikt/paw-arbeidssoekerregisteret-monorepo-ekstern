@@ -1,7 +1,6 @@
 package no.nav.paw.ledigestillinger
 
 import io.ktor.server.application.Application
-import io.ktor.server.application.install
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -9,7 +8,7 @@ import io.ktor.server.netty.NettyApplicationEngine
 import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.pam.stilling.ext.avro.Ad
-import no.nav.paw.database.plugin.DataSourcePlugin
+import no.nav.paw.database.plugin.installDatabasePlugins
 import no.nav.paw.error.plugin.installErrorHandlingPlugin
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
@@ -17,7 +16,6 @@ import no.nav.paw.health.StartupCheck
 import no.nav.paw.hwm.DataConsumer
 import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.context.ApplicationContext
-import no.nav.paw.ledigestillinger.plugin.CleanAwareFlywayPlugin
 import no.nav.paw.ledigestillinger.plugin.configureRouting
 import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
 import no.nav.paw.ledigestillinger.plugin.installLogginPlugin
@@ -75,13 +73,7 @@ fun Application.configureKtorServer(
         additionalMeterBinders = meterBinders
     )
     installAuthenticationPlugin(securityConfig.authProviders)
-    install(DataSourcePlugin) {
-        this.dataSource = dataSource
-    }
-    install(CleanAwareFlywayPlugin) {
-        this.dataSource = dataSource
-        this.cleanBeforeMigrate = false
-    }
+    installDatabasePlugins(dataSource)
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
 }
 

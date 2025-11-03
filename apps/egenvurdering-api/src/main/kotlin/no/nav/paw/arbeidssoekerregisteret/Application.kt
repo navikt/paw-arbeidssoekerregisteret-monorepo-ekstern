@@ -19,7 +19,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
-import no.nav.paw.database.plugin.installDatabasePlugin
+import no.nav.paw.database.plugin.installDatabasePlugins
 import no.nav.paw.hwm.updateHwm
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -55,7 +55,7 @@ fun Application.module(applicationContext: ApplicationContext) {
     configureHTTP()
     configureLogging()
     configureMetrics(applicationContext)
-    installDatabasePlugin(applicationContext.datasource)
+    installDatabasePlugins(applicationContext.datasource)
     configureAuthentication(applicationContext)
     configureRouting(applicationContext)
     configureKafka(applicationContext) { records ->

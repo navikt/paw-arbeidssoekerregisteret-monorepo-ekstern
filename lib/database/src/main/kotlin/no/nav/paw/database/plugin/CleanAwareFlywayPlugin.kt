@@ -1,12 +1,12 @@
-package no.nav.paw.ledigestillinger.plugin
+package no.nav.paw.database.plugin
 
 import io.ktor.server.application.ApplicationPlugin
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
-import no.nav.paw.database.plugin.DataSourceReady
-import no.nav.paw.database.plugin.FlywayMigrationCompleted
-import no.nav.paw.ledigestillinger.plugin.CleanAwareFlywayPluginConfig.Companion.PLUGIN_NAME
+import no.nav.paw.database.event.DataSourceReady
+import no.nav.paw.database.event.FlywayMigrationCompleted
+import no.nav.paw.database.plugin.CleanAwareFlywayPluginConfig.Companion.PLUGIN_NAME
 import org.flywaydb.core.Flyway
 import javax.sql.DataSource
 
@@ -20,6 +20,7 @@ class CleanAwareFlywayPluginConfig {
     }
 }
 
+@Suppress("DuplicatedCode")
 val CleanAwareFlywayPlugin: ApplicationPlugin<CleanAwareFlywayPluginConfig> =
     createApplicationPlugin(PLUGIN_NAME, ::CleanAwareFlywayPluginConfig) {
         application.log.info("Installerer {}", PLUGIN_NAME)

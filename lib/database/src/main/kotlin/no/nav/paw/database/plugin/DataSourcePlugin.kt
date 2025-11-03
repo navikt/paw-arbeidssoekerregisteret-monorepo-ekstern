@@ -1,18 +1,14 @@
 package no.nav.paw.database.plugin
 
-import io.ktor.events.EventDefinition
-import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationPlugin
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
+import no.nav.paw.database.event.DataSourceReady
 import org.jetbrains.exposed.v1.jdbc.Database
-
 import javax.sql.DataSource
-
-val DataSourceReady: EventDefinition<Application> = EventDefinition()
 
 class DataSourcePluginConfig {
     var dataSource: DataSource? = null
