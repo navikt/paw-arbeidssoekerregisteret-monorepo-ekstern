@@ -97,6 +97,10 @@ spec:
           namespace: teamdagpenger
         - application: dp-rapportering
           namespace: teamdagpenger
+        - application: dp-soknadsdialog
+          namespace: teamdagpenger
+        - application: dp-mine-dagpenger-frontend
+          namespace: teamdagpenger
     outbound:
       rules:
         - application: paw-tilgangskontroll
