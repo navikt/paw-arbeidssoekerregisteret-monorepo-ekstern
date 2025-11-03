@@ -47,7 +47,6 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
         val successFunction = pluginConfig.successFunction ?: kafkaConsumer::defaultSuccessFunction
         val errorFunction = pluginConfig.errorFunction ?: ::defaultErrorFunction
         val pollTimeout = pluginConfig.pollTimeout ?: Duration.ofMillis(100)
-        val closeTimeout = pluginConfig.closeTimeout ?: Duration.ofSeconds(1)
         val rebalanceListener = pluginConfig.rebalanceListener ?: NoopConsumerRebalanceListener()
         val coroutineDispatcher = pluginConfig.coroutineDispatcher ?: Dispatchers.IO
         val shutdownFlag = pluginConfig.shutdownFlag ?: AtomicBoolean(false)
@@ -74,7 +73,7 @@ fun <K, V> KafkaConsumerPlugin(pluginInstance: Any): ApplicationPlugin<KafkaCons
                 } finally {
                     consumeJob?.cancel()
                     kafkaConsumer.unsubscribe()
-                    kafkaConsumer.close(closeTimeout)
+                    kafkaConsumer.close()
                     logger.info("Stoppet {} Kafka Consumer", pluginInstance)
                 }
             }
