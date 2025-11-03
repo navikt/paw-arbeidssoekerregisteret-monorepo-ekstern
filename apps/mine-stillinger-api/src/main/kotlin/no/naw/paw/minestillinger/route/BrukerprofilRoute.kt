@@ -1,9 +1,7 @@
 package no.naw.paw.minestillinger.route
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.uri
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.put
@@ -21,12 +19,10 @@ import no.naw.paw.minestillinger.api.ApiStillingssoek
 import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.toApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
-import no.naw.paw.minestillinger.brukerprofil.hentBrukerprofil
-import no.naw.paw.minestillinger.brukerprofil.oppdaterProfilMedGradertAdresseDersomAktuelt
+import no.naw.paw.minestillinger.brukerprofil.brukerIkkeFunnet
+import no.naw.paw.minestillinger.brukerprofil.hentApiBrukerprofil
 import no.naw.paw.minestillinger.brukerprofil.setTjenestatestatus
-import no.naw.paw.minestillinger.brukerprofil.tjenestestatus
 import no.naw.paw.minestillinger.db.ops.SøkAdminOps
-import no.naw.paw.minestillinger.domain.TjenesteStatus
 import no.naw.paw.minestillinger.mineStillingerProblemDetails
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.slf4j.LoggerFactory.getLogger
@@ -44,7 +40,7 @@ fun Route.brukerprofilRoute(
             get("") {
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-                val response = brukerprofilTjeneste.hentBrukerprofil(
+                val response = brukerprofilTjeneste.hentApiBrukerprofil(
                     hentSøk = { brukerId -> søkeAdminOps.hentSoek(brukerId).map { it.soek } },
                     identitetsnummer = identitetsnummer,
                 )?.let(::Data) ?: mineStillingerProblemDetails(
@@ -70,17 +66,12 @@ fun Route.brukerprofilRoute(
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
                 val respose: Response<Unit> = suspendedTransactionAsync {
-                    val profil = brukerprofilTjeneste.hentBrukerProfil(identitetsnummer)
-                        ?.let{ brukerprofilTjeneste.oppdaterProfilMedGradertAdresseDersomAktuelt(it)}
+                    val profil = brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(identitetsnummer)
                     val brukerId = profil?.id
                     if (brukerId == null) {
-                        mineStillingerProblemDetails(
-                            error = Error.BRUKERPROFIL_IKKE_FUNNET,
-                            detail = "Brukerprofil ikke funnet",
-                            instance = call.request.uri
-                        )
+                        brukerIkkeFunnet()
                     } else {
-                        if (profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.AKTIV) {
+                        if (!profil.tjenestenErAktiv) {
                             mineStillingerProblemDetails(
                                 error = Error.TJENESTEN_ER_IKKE_AKTIV,
                                 detail = "Kan ikke oppdatere stillingssøk når tjenesten ikke er aktiv for brukeren.",
@@ -103,4 +94,3 @@ fun Route.brukerprofilRoute(
 }
 
 fun SecurityContext.hentSluttbrukerEllerNull(): Sluttbruker? = (this.bruker as? Sluttbruker)
-

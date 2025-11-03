@@ -7,6 +7,6 @@ private val navnMap: Map<String, Flaggtype<*>> = Flaggtype::class
 
 fun flaggType(navn: String): Flaggtype<*>? = navnMap[navn]
 
-fun ingenFlagg(): ListeMedFlagg = ListeMedFlagg(emptySet())
+fun ingenFlagg(): ListeMedFlagg = ListeMedFlagg.listeMedFlagg(emptySet())
 
-fun flaggListeOf(vararg flagg: Flagg): ListeMedFlagg = ListeMedFlagg(flagg.toSet())
+fun flaggListeOf(vararg flagg: Flagg): ListeMedFlagg = ListeMedFlagg.listeMedFlagg(flagg.toSet())

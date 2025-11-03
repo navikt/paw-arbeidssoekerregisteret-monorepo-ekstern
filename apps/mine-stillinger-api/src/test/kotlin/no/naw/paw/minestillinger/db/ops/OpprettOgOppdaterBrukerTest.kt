@@ -8,11 +8,8 @@ import no.nav.paw.model.asIdentitetsnummer
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.minestillinger.db.initDatabase
-import no.naw.paw.minestillinger.domain.KanTilbysTjenesten
-import no.naw.paw.minestillinger.domain.TjenesteStatus
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.Instant
 
 class OpprettOgOppdaterBrukerTest : FreeSpec({
     val postgres = postgreSQLContainer()

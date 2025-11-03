@@ -39,6 +39,8 @@ import no.naw.paw.minestillinger.api.vo.ApiStillingssoekType
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
@@ -51,10 +53,6 @@ import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
-import no.naw.paw.minestillinger.domain.TjenesteStatus
-import no.naw.paw.minestillinger.domain.TjenesteStatus.AKTIV
-import no.naw.paw.minestillinger.domain.TjenesteStatus.INAKTIV
-import no.naw.paw.minestillinger.domain.TjenesteStatus.KAN_IKKE_LEVERES
 import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -120,21 +118,18 @@ class Livssyklustest : FreeSpec({
 
             routing {
                 brukerprofilRoute(
-                    brukerprofilTjeneste = brukerprofilTjeneste,
-                    søkeAdminOps = ExposedSøkAdminOps,
-                    clock = clock
+                    brukerprofilTjeneste = brukerprofilTjeneste, søkeAdminOps = ExposedSøkAdminOps, clock = clock
                 )
             }
 
             "Rolf som ikke er i testgruppen" - {
-                "får tjenestestatus $KAN_IKKE_LEVERES" {
+                "får tjenestestatus ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     transaction {
                         opprettOgOppdaterBruker(rolfPeriode)
                         lagreProfilering(
                             createProfilering(
-                                periodeId = rolfPeriode.id,
-                                profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+                                periodeId = rolfPeriode.id, profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
                             )
                         )
                     }
@@ -161,8 +156,7 @@ class Livssyklustest : FreeSpec({
                     opprettOgOppdaterBruker(kariPeriode)
                     lagreProfilering(
                         createProfilering(
-                            periodeId = kariPeriode.id,
-                            profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+                            periodeId = kariPeriode.id, profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
                         )
                     )
                 }
@@ -186,21 +180,15 @@ class Livssyklustest : FreeSpec({
                     setBody(
                         listOf(
                             ApiStedSoek(
-                                soekType = ApiStillingssoekType.STED_SOEK_V1,
-                                fylker = listOf(
+                                soekType = ApiStillingssoekType.STED_SOEK_V1, fylker = listOf(
                                     ApiFylke(
-                                        navn = "Viken",
-                                        fylkesnummer = "30",
-                                        kommuner = listOf(
+                                        navn = "Viken", fylkesnummer = "30", kommuner = listOf(
                                             ApiKommune(
-                                                navn = "Drammen",
-                                                kommunenummer = "3005"
+                                                navn = "Drammen", kommunenummer = "3005"
                                             )
                                         )
                                     )
-                                ),
-                                soekeord = emptyList(),
-                                styrk08 = emptyList()
+                                ), soekeord = emptyList(), styrk08 = emptyList()
                             )
                         )
                     )
@@ -223,7 +211,7 @@ class Livssyklustest : FreeSpec({
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
-            "Rett etter at Ola har registrert seg som arbeidssøker finnes profilen med tjenestatestaatus ${KAN_IKKE_LEVERES} (ikke 'antatt gode muligheter' grunnet manglende profilering)" {
+            "Rett etter at Ola har registrert seg som arbeidssøker finnes profilen med tjenestatestaatus ${ApiTjenesteStatus.KAN_IKKE_LEVERES} (ikke 'antatt gode muligheter' grunnet manglende profilering)" {
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 transaction {
                     opprettOgOppdaterBruker(olaPeriode)
@@ -243,13 +231,12 @@ class Livssyklustest : FreeSpec({
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
-            "Etter at Ola er profilert til behov for veiledning er tjenestestatus fremdeles $KAN_IKKE_LEVERES" {
+            "Etter at Ola er profilert til behov for veiledning er tjenestestatus fremdeles ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 transaction {
                     lagreProfilering(
                         createProfilering(
-                            periodeId = olaPeriode.id,
-                            profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+                            periodeId = olaPeriode.id, profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
                         )
                     )
                 }
@@ -268,7 +255,7 @@ class Livssyklustest : FreeSpec({
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
-            "Når Ola blir profilert til antatt gode muligheter endes tjenestestatus til $INAKTIV" {
+            "Når Ola blir profilert til antatt gode muligheter endes tjenestestatus til ${ApiTjenesteStatus.INAKTIV}" {
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 transaction {
                     lagreProfilering(
@@ -291,7 +278,7 @@ class Livssyklustest : FreeSpec({
             }
 
             "Etter at Ola har fått gradert adresse" - {
-                "er tjenestestatus ${INAKTIV}" {
+                "er tjenestestatus ${ApiTjenesteStatus.INAKTIV}" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
@@ -322,7 +309,7 @@ class Livssyklustest : FreeSpec({
                     LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
                 }
 
-                "etter forsøk på å starte skal tjenestestatus være endret til $KAN_IKKE_LEVERES" {
+                "etter forsøk på å starte skal tjenestestatus være endret til ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     val response = testClient.get(BRUKERPROFIL_PATH) {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
@@ -347,21 +334,15 @@ class Livssyklustest : FreeSpec({
                         setBody(
                             listOf(
                                 ApiStedSoek(
-                                    soekType = ApiStillingssoekType.STED_SOEK_V1,
-                                    fylker = listOf(
+                                    soekType = ApiStillingssoekType.STED_SOEK_V1, fylker = listOf(
                                         ApiFylke(
-                                            navn = "Vestland",
-                                            fylkesnummer = "46",
-                                            kommuner = listOf(
+                                            navn = "Vestland", fylkesnummer = "46", kommuner = listOf(
                                                 ApiKommune(
-                                                    navn = "Bergen",
-                                                    kommunenummer = "4601"
+                                                    navn = "Bergen", kommunenummer = "4601"
                                                 )
                                             )
                                         )
-                                    ),
-                                    soekeord = emptyList(),
-                                    styrk08 = emptyList()
+                                    ), soekeord = emptyList(), styrk08 = emptyList()
                                 )
                             )
                         )
@@ -373,7 +354,7 @@ class Livssyklustest : FreeSpec({
                 }
             }
             "Når Ola ikke lenger har gradert adresse" - {
-                "er tjenestestatus fortsatt $KAN_IKKE_LEVERES" {
+                "er tjenestestatus fortsatt ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns false
@@ -415,13 +396,12 @@ class Livssyklustest : FreeSpec({
                         opprettOgOppdaterBruker(olaPeriode2)
                         lagreProfilering(
                             createProfilering(
-                                periodeId = olaPeriode2.id,
-                                profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+                                periodeId = olaPeriode2.id, profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
                             )
                         )
                     }
                 }
-                "er tjenestatus $INAKTIV" {
+                "er tjenestatus ${ApiTjenesteStatus.INAKTIV}" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns false
@@ -460,21 +440,15 @@ class Livssyklustest : FreeSpec({
                         setBody(
                             listOf(
                                 ApiStedSoek(
-                                    soekType = ApiStillingssoekType.STED_SOEK_V1,
-                                    fylker = listOf(
+                                    soekType = ApiStillingssoekType.STED_SOEK_V1, fylker = listOf(
                                         ApiFylke(
-                                            navn = "Vestland",
-                                            fylkesnummer = "46",
-                                            kommuner = listOf(
+                                            navn = "Vestland", fylkesnummer = "46", kommuner = listOf(
                                                 ApiKommune(
-                                                    navn = "Bergen",
-                                                    kommunenummer = "4601"
+                                                    navn = "Bergen", kommunenummer = "4601"
                                                 )
                                             )
                                         )
-                                    ),
-                                    soekeord = emptyList(),
-                                    styrk08 = emptyList()
+                                    ), soekeord = emptyList(), styrk08 = emptyList()
                                 )
                             )
                         )
@@ -520,8 +494,7 @@ class Livssyklustest : FreeSpec({
                 transaction {
                     lagreProfilering(
                         createProfilering(
-                            periodeId = olaPeriode2.id,
-                            profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+                            periodeId = olaPeriode2.id, profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
                         )
                     )
                 }
@@ -547,21 +520,15 @@ class Livssyklustest : FreeSpec({
                     setBody(
                         listOf(
                             ApiStedSoek(
-                                soekType = ApiStillingssoekType.STED_SOEK_V1,
-                                fylker = listOf(
+                                soekType = ApiStillingssoekType.STED_SOEK_V1, fylker = listOf(
                                     ApiFylke(
-                                        navn = "Vestland",
-                                        fylkesnummer = "41",
-                                        kommuner = listOf(
+                                        navn = "Vestland", fylkesnummer = "41", kommuner = listOf(
                                             ApiKommune(
-                                                navn = "Askøy",
-                                                kommunenummer = "4102"
+                                                navn = "Askøy", kommunenummer = "4102"
                                             )
                                         )
                                     )
-                                ),
-                                soekeord = emptyList(),
-                                styrk08 = emptyList(
+                                ), soekeord = emptyList(), styrk08 = emptyList(
                                 )
                             )
                         )
@@ -615,7 +582,7 @@ class Livssyklustest : FreeSpec({
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
 
-            "Ola har nå tjenestestatus $INAKTIV selv om han er profilert til antatt behov for veiledning" {
+            "Ola har nå tjenestestatus ${ApiTjenesteStatus.INAKTIV} selv om han er profilert til antatt behov for veiledning" {
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
@@ -661,7 +628,7 @@ class Livssyklustest : FreeSpec({
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 forwardTimeByHours(36)
                 coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
-                "Tjenestestatus er ${AKTIV}" {
+                "Tjenestestatus er ${ApiTjenesteStatus.AKTIV}" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     val response = testClient.get(BRUKERPROFIL_PATH) {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
@@ -686,7 +653,20 @@ class Livssyklustest : FreeSpec({
                     aktiverResponse.status shouldBe HttpStatusCode.Forbidden
                     LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
                 }
-                "Tjenestestatus er endret til $KAN_IKKE_LEVERES og søket er slettet" {
+                "Ola sin profil er nå oppdatert i db" {
+                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    transaction {
+                        hentBrukerProfilUtenFlagg(olaIdent).let { it?.id!! }
+                            .let { id -> lesFlaggFraDB(id) } should { flagg ->
+                            withClue(flagg.toString()) {
+                                flagg.filterIsInstance<HarGradertAdresseFlagg>().first().verdi shouldBe true
+                                flagg.filterIsInstance<TjenestenErAktivFlagg>().first().verdi shouldBe false
+                            }
+                        }
+                    }
+                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                }
+                "Tjenestestatus er endret til ${ApiTjenesteStatus.KAN_IKKE_LEVERES} og søket er slettet" {
                     LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                     val response = testClient.get(BRUKERPROFIL_PATH) {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
@@ -734,7 +714,7 @@ class Livssyklustest : FreeSpec({
                 }
                 LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
             }
-            "Når Kari ikke lenger er arbeidssøker endres tjenestestatus til $INAKTIV, men søket beholdes" {
+            "Når Kari ikke lenger er arbeidssøker endres tjenestestatus til ${ApiTjenesteStatus.INAKTIV}, men søket beholdes" {
                 LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
                 transaction {
                     opprettOgOppdaterBruker(

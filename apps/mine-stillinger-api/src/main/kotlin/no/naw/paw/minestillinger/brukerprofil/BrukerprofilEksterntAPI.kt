@@ -1,33 +1,32 @@
 package no.naw.paw.minestillinger.brukerprofil
 
-import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.plugins.NotFoundException
 import no.nav.paw.error.model.Data
+import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
+import no.nav.paw.error.model.flatMap
+import no.nav.paw.error.model.map
 import no.nav.paw.model.Identitetsnummer
-import no.naw.paw.minestillinger.api.ApiStillingssoek
-import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
-import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.Stillingssoek
-import no.naw.paw.minestillinger.domain.TjenesteStatus
 import no.naw.paw.minestillinger.domain.api
-import no.naw.paw.minestillinger.domain.toTjenesteStatus
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
-import java.time.Instant.now
-import kotlin.time.Duration
 
-suspend fun BrukerprofilTjeneste.hentBrukerprofil(
+suspend fun BrukerprofilTjeneste.hentApiBrukerprofil(
     hentSøk: (BrukerId) -> List<Stillingssoek>,
     identitetsnummer: Identitetsnummer
 ): ApiBrukerprofil? {
     return suspendedTransactionAsync {
-        hentBrukerProfil(identitetsnummer)
+        hentLokalBrukerProfilEllerNull(identitetsnummer)
             ?.let { brukerprofil ->
                 val søk = hentSøk(brukerprofil.id).map { søk -> søk.api() }
                 brukerprofil.api().copy(stillingssoek = søk)
@@ -38,85 +37,98 @@ suspend fun BrukerprofilTjeneste.hentBrukerprofil(
         }
 }
 
-suspend fun BrukerprofilTjeneste.oppdaterProfilMedGradertAdresseDersomAktuelt(profil: BrukerProfil): BrukerProfil =
-    if (profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.KAN_IKKE_LEVERES &&
-        profil.listeMedFlagg.tjenestestatus() != TjenesteStatus.OPT_OUT
-    ) {
-        hentAddresseBeskyttelseFlagg(
-            brukerProfil = profil,
-            tidspunkt = clock.now(),
-            maxAlder = GRADERT_ADRESSE_GYLDIGHETS_PERIODE
-        )
-    } else profil
 
 suspend fun BrukerprofilTjeneste.setTjenestatestatus(
     identitetsnummer: Identitetsnummer,
     tjenesteStatus: ApiTjenesteStatus
 ): Response<Unit> {
     return suspendedTransactionAsync {
-        val brukerprofil = hentBrukerProfil(identitetsnummer)
-            ?.let { profil ->
-                if(tjenesteStatus == ApiTjenesteStatus.AKTIV) {
-                    oppdaterProfilMedGradertAdresseDersomAktuelt(profil)
-                } else profil
+        hentLokalBrukerprofil(identitetsnummer)
+            .coFlatMap { brukerProfil ->
+                when (tjenesteStatus) {
+                    ApiTjenesteStatus.AKTIV -> aktiverTjenesten(brukerProfil)
+                    ApiTjenesteStatus.INAKTIV -> deaktiverTjenesten(brukerProfil)
+                    ApiTjenesteStatus.OPT_OUT -> optOutAvTjenesten(brukerProfil)
+                    ApiTjenesteStatus.KAN_IKKE_LEVERES -> oppdateringIkkeTillatt("Kan ikke sette tjenestestatus til KAN_IKKE_LEVERES manuelt.")
+                }
             }
-            ?: brukerIkkeFunnet()
-        val domainStatus = tjenesteStatus.toTjenesteStatus()
-        val listMedFlag = brukerprofil.listeMedFlagg
-        val gjeldendeStatus = listMedFlag.tjenestestatus()
-        when {
-            domainStatus == TjenesteStatus.KAN_IKKE_LEVERES -> oppdateringIkkeTillatt("Kan ikke sette tjenestestatus til KAN_IKKE_LEVERES manuelt")
-            gjeldendeStatus == TjenesteStatus.KAN_IKKE_LEVERES -> oppdateringIkkeTillatt("Kan ikke oppdatere tjenestestatus fra KAN_IKKE_LEVERES")
-            else -> {
-                val tidspunkt = clock.now()
-                val oppdateringer = beregnOppdateringAvFlaggFraAPI(
-                    tidspunkt = tidspunkt,
-                    gjeldendeStatus = gjeldendeStatus,
-                    nyTjenestestatus = domainStatus
-                )
-                oppdaterFlagg(brukerprofil.id, oppdateringer)
-                Data(Unit)
-            }
-        }
     }.await()
 }
 
-suspend fun BrukerprofilTjeneste.hentSøk(
-    hentSøk: (BrukerId) -> List<Stillingssoek>,
-    identitetsnummer: Identitetsnummer
-): List<ApiStillingssoek> {
-    return suspendedTransactionAsync {
-        val brukerprofil = hentBrukerProfil(identitetsnummer) ?: brukerIkkeFunnet()
-        hentSøk(brukerprofil.id).map { søk -> søk.api() }
-    }.await()
-}
-
-suspend fun BrukerprofilTjeneste.hentLagretSøk(
-    hentSøk: (BrukerId) -> List<LagretStillingsoek>,
-    identitetsnummer: Identitetsnummer
-): List<LagretStillingsoek> {
-    return suspendedTransactionAsync {
-        val brukerprofil = hentBrukerProfil(identitetsnummer) ?: brukerIkkeFunnet()
-        hentSøk(brukerprofil.id)
-    }.await()
-}
-
-suspend fun BrukerprofilTjeneste.lagreSøk(
-    lagreSøk: (BrukerId, List<Stillingssoek>) -> Unit,
-    identitetsnummer: Identitetsnummer,
-    søk: List<ApiStillingssoek>
-) {
-    suspendedTransactionAsync {
-        val brukerprofil = hentBrukerProfil(identitetsnummer) ?: brukerIkkeFunnet()
-        if (!brukerprofil.tjenestenErAktiv) {
-            throw BadRequestException("Kan ikke lagre søk for en bruker med inaktiv tjenestestatus")
-        }
-        lagreSøk(brukerprofil.id, søk.map { it.domain() })
-    }.await()
-}
-
-fun brukerIkkeFunnet(): Nothing {
-    throw NotFoundException(
-        "Brukerprofil ikke funnet for gitt identitetsnummer"
+fun BrukerprofilTjeneste.optOutAvTjenesten(brukerProfil: BrukerProfil): Response<Unit> {
+    val tidspunkt = clock.now()
+    val gjeldeneFlagg = brukerProfil.listeMedFlagg
+    val oppdaterteFlagg = gjeldeneFlagg.addOrUpdate(
+        OptOutFlaggtype.flagg(true, tidspunkt),
+        TjenestenErAktivFlaggtype.flagg(false, tidspunkt),
     )
+    val oppdatering = OppdateringAvFlagg(
+        nyeOgOppdaterteFlagg = oppdaterteFlagg.flaggSomMåOppdateres.toList(),
+        søkSkalSlettes = true
+    )
+    oppdaterFlagg(brukerProfil.id, oppdatering)
+    return Data(Unit)
+}
+
+fun BrukerprofilTjeneste.deaktiverTjenesten(brukerProfil: BrukerProfil): Response<Unit> {
+    val tidspunkt = clock.now()
+    val gjeldeneFlagg = brukerProfil.listeMedFlagg
+    val oppdaterteFlagg = gjeldeneFlagg.addOrUpdate(
+        TjenestenErAktivFlaggtype.flagg(false, tidspunkt),
+    )
+    val oppdatering = OppdateringAvFlagg(
+        nyeOgOppdaterteFlagg = oppdaterteFlagg.flaggSomMåOppdateres.toList(),
+        søkSkalSlettes = false
+    )
+    oppdaterFlagg(brukerProfil.id, oppdatering)
+    return Data(Unit)
+}
+
+suspend fun BrukerprofilTjeneste.aktiverTjenesten(
+    brukerProfil: BrukerProfil
+): Response<Unit> {
+    val tidspunkt = clock.now()
+    return when (brukerProfil.tjenestenKanAktiveres(tidspunkt, GRADERT_ADRESSE_GYLDIGHETS_PERIODE)) {
+        TjenestenKanAktiveresResultat.JA -> Data(brukerProfil)
+        TjenestenKanAktiveresResultat.NEI -> oppdateringIkkeTillatt("Kan ikke aktivere tjenesten for denne brukeren.")
+        TjenestenKanAktiveresResultat.ADRESSE_GRADERING_MÅ_SJEKKES -> Data(
+            oppdaterAdresseGradering(
+                brukerProfil,
+                tidspunkt
+            )
+        )
+    }.flatMap { profil ->
+        when (profil.tjenestenKanAktiveres(tidspunkt, GRADERT_ADRESSE_GYLDIGHETS_PERIODE)) {
+            TjenestenKanAktiveresResultat.JA -> Data(profil)
+            TjenestenKanAktiveresResultat.NEI -> oppdateringIkkeTillatt("Kan ikke aktivere tjenesten for denne brukeren.")
+            TjenestenKanAktiveresResultat.ADRESSE_GRADERING_MÅ_SJEKKES -> internFeil("Resultat='ADRESSE_GRADERING_MÅ_SJEKKES', selv rett etter oppdatering av adressegradering.")
+        }
+    }.map { profil ->
+        val gjeldeneFlagg = profil.listeMedFlagg
+        val oppdaterteFlagg = gjeldeneFlagg.addOrUpdate(
+            HarBruktTjenestenFlaggtype.flagg(true, tidspunkt),
+            TjenestenErAktivFlaggtype.flagg(true, tidspunkt),
+            OptOutFlaggtype.flagg(false, tidspunkt),
+        )
+        val oppdatering = OppdateringAvFlagg(
+            nyeOgOppdaterteFlagg = oppdaterteFlagg.flaggSomMåOppdateres.toList(),
+            søkSkalSlettes = false
+        )
+        oppdaterFlagg(profil.id, oppdatering)
+    }
+}
+
+
+suspend fun <A, B> Response<A>.coMap(transform: suspend (A) -> B): Response<B> {
+    return when (this) {
+        is Data -> Data(transform(this.data))
+        is ProblemDetails -> this
+    }
+}
+
+suspend fun <A, B> Response<A>.coFlatMap(transform: suspend (A) -> Response<B>): Response<B> {
+    return when (this) {
+        is Data -> transform(this.data)
+        is ProblemDetails -> this
+    }
 }

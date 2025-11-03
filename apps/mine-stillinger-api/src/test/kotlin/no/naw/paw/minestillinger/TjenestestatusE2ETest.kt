@@ -21,24 +21,22 @@ import no.nav.paw.test.data.periode.createProfilering
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlag
+import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.initDatabase
+import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
 import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
 import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
+import no.naw.paw.minestillinger.db.ops.lagreProfilering
 import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
-import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
-import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlag
-import no.naw.paw.minestillinger.domain.TjenesteStatus
-import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
-import no.naw.paw.minestillinger.brukerprofil.flagg.flaggListeOf
-import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
-import no.naw.paw.minestillinger.db.ops.lagreProfilering
 import no.naw.paw.minestillinger.domain.ProfileringResultat
 import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
@@ -49,46 +47,71 @@ import java.time.Instant.now
 
 data class TjenestestatusTestCase(
     val identitetsnummer: Identitetsnummer,
-    val gjeldendeTjenestestatus: TjenesteStatus,
+    val gjeldendeFlagg: ListeMedFlagg,
     val nyTjenesteStatus: ApiTjenesteStatus,
     val forventetHttpStatusKode: HttpStatusCode,
     val profilertTil: ProfileringResultat? = ProfileringResultat.ANTATT_GODE_MULIGHETER
 ) {
     override fun toString() =
-        "Endring av tjenestestatus fra $gjeldendeTjenestestatus til $nyTjenesteStatus " +
+        "Endring av tjenestestatus fra ${gjeldendeFlagg.map { it } } til $nyTjenesteStatus " +
                 "for bruker ${identitetsnummer.verdi} forventer HTTP status $forventetHttpStatusKode"
 }
 
 val testcases = listOf(
     TjenestestatusTestCase(
         identitetsnummer = Identitetsnummer("12345678901"),
-        gjeldendeTjenestestatus = TjenesteStatus.AKTIV,
+        gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
+            listOf(
+                TjenestenErAktivFlagg(true, now()),
+                HarGradertAdresseFlagg(false, now())
+            )
+        ),
         nyTjenesteStatus = ApiTjenesteStatus.INAKTIV,
         forventetHttpStatusKode = HttpStatusCode.NoContent,
     ),
     TjenestestatusTestCase(
         identitetsnummer = Identitetsnummer("12345678902"),
-        gjeldendeTjenestestatus = TjenesteStatus.INAKTIV,
+        gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
+            listOf(
+                TjenestenErAktivFlagg(true, now()),
+                HarGradertAdresseFlagg(false, now())
+            )
+        ),
         nyTjenesteStatus = ApiTjenesteStatus.AKTIV,
         forventetHttpStatusKode = HttpStatusCode.NoContent,
     ),
     TjenestestatusTestCase(
         identitetsnummer = Identitetsnummer("12345678903"),
-        gjeldendeTjenestestatus = TjenesteStatus.AKTIV,
+        gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
+            listOf(
+                TjenestenErAktivFlagg(true, now()),
+                HarGradertAdresseFlagg(false, now())
+            )
+        ),
         nyTjenesteStatus = ApiTjenesteStatus.OPT_OUT,
         forventetHttpStatusKode = HttpStatusCode.NoContent,
     ),
     TjenestestatusTestCase(
         identitetsnummer = Identitetsnummer("12345678904"),
-        gjeldendeTjenestestatus = TjenesteStatus.KAN_IKKE_LEVERES,
+        gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
+            listOf(
+                TjenestenErAktivFlagg(false, now()),
+                HarGradertAdresseFlagg(true, now())
+            )
+        ),
         nyTjenesteStatus = ApiTjenesteStatus.AKTIV,
         forventetHttpStatusKode = HttpStatusCode.Forbidden,
     ),
     TjenestestatusTestCase(
         identitetsnummer = Identitetsnummer("12345678905"),
-        gjeldendeTjenestestatus = TjenesteStatus.KAN_IKKE_LEVERES,
+        gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
+            listOf(
+                TjenestenErAktivFlagg(false, now()),
+                HarGradertAdresseFlagg(true, now())
+            )
+        ),
         nyTjenesteStatus = ApiTjenesteStatus.INAKTIV,
-        forventetHttpStatusKode = HttpStatusCode.Forbidden,
+        forventetHttpStatusKode = HttpStatusCode.NoContent,
     ),
 )
 
@@ -127,36 +150,7 @@ class TjenestestatusE2ETest : FreeSpec({
                     )
                 )
             }
-            when (testcase.gjeldendeTjenestestatus) {
-                TjenesteStatus.AKTIV -> skrivFlaggTilDB(
-                    brukerId, listOf(
-                        TjenestenErAktivFlagg(true, now()),
-                        HarGradertAdresseFlagg(false, Instant.EPOCH)
-                    )
-                )
-
-                TjenesteStatus.INAKTIV -> skrivFlaggTilDB(
-                    brukerId, listOf(
-                        TjenestenErAktivFlagg(false, now()),
-                        HarGradertAdresseFlagg(false, Instant.EPOCH)
-                    )
-                )
-
-                TjenesteStatus.OPT_OUT -> skrivFlaggTilDB(
-                    brukerId, listOf(
-                        TjenestenErAktivFlagg(false, now()),
-                        OptOutFlag(true, now()),
-                        HarGradertAdresseFlagg(false, Instant.EPOCH)
-                    )
-                )
-
-                TjenesteStatus.KAN_IKKE_LEVERES -> skrivFlaggTilDB(
-                    brukerId, listOf(
-                        TjenestenErAktivFlagg(false, now()),
-                        HarGradertAdresseFlagg(true, Instant.EPOCH)
-                    )
-                )
-            }
+            skrivFlaggTilDB(brukerId, testcase.gjeldendeFlagg.filterIsInstance<LagretFlagg>())
         }
 
         "$testcase" {

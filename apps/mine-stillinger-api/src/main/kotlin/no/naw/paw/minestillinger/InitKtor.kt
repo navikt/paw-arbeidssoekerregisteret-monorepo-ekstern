@@ -63,7 +63,7 @@ fun <A> initEmbeddedKtorServer(
             )
             ledigeStillingerRoute(
                 ledigeStillingerClient = finnStillingerClient,
-                hentBrukerId = { identitetsnummer -> brukerprofilTjeneste.hentBrukerProfil(identitetsnummer)?.id },
+                hentBrukerId = { identitetsnummer -> brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(identitetsnummer)?.id },
                 hentLagretSøk = ExposedSøkAdminOps::hentSoek
             )
             kodeverk()
