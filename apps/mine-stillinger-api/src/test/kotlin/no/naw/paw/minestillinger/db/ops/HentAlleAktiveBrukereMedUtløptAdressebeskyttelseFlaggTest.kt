@@ -8,6 +8,7 @@ import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.initDatabase
+import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -68,7 +69,7 @@ class HentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlaggTest : FreeSpec({
         }
 
         "Rolf og Turi skal returneres som aktive brukere med utløpt adressebeskyttelse-flagg" {
-            val brukereReturnert = synchronizedList(mutableListOf<BrukerProfilerUtenFlagg>())
+            val brukereReturnert = synchronizedList(mutableListOf<BrukerProfil>())
             fun selectTråd(): Thread = Thread {
                 transaction {
                     val brukere = hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(

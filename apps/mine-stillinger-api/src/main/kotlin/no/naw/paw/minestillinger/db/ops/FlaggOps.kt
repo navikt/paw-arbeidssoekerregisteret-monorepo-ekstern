@@ -3,12 +3,15 @@ package no.naw.paw.minestillinger.db.ops
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetAdresseFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.flaggType
 import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.domain.BrukerId
+import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
+import no.naw.paw.minestillinger.domain.medFlagg
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -46,7 +49,7 @@ fun lesFlaggFraDB(brukerId: BrukerId): List<Flagg> {
 
 fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
     alleFraFørDetteErUtløpt: Instant
-): List<BrukerProfilerUtenFlagg> {
+): List<BrukerProfil> {
     return transaction {
         val aktivFlagg = BrukerFlaggTable.alias("aktiv_flagg")
         val adresseFlagg = BrukerFlaggTable.alias("adresse_flagg")
@@ -69,7 +72,9 @@ fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
                 (adresseFlagg[BrukerFlaggTable.tidspunkt] less alleFraFørDetteErUtløpt)
             }
             .map { row ->
-                brukerprofilUtenFlagg(row)
+                brukerprofilUtenFlagg(row).medFlagg(
+                    ListeMedFlagg.listeMedFlagg(lesFlaggFraDB(BrukerId(row[BrukerTable.id])))
+                )
             }
     }
 }

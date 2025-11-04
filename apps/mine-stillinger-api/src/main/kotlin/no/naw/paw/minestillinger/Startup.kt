@@ -22,6 +22,9 @@ import no.nav.paw.security.texas.TEXAS_CONFIG
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.TexasClientConfig
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
 import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
@@ -34,6 +37,7 @@ import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.time.Duration
 import java.util.*
 
 val appLogger = LoggerFactory.getLogger("brukerprofiler_api")
@@ -77,6 +81,13 @@ fun main() {
         abTestingRegex = requireNotNull(System.getenv("AB_TESTING_REGEX")?.toRegex()) { "AB_TESTING_REGEX env variabel må være satt" },
         clock = clock
     )
+    val adresseBeskyttelseOppdatering = BeskyttetAddresseDagligOppdatering(
+        pdlFunction = webClients.pdlClient::harBeskyttetAdresseBulk,
+        adresseBeskyttelseGyldighetsperiode = ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE,
+        clock = clock,
+        brukerprofilTjeneste = brukerprofilTjeneste,
+        interval = Duration.ofSeconds(15),
+    )
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())
     val appContext = ApplicationContext(
@@ -86,7 +97,8 @@ fun main() {
         securityConfig = securityConfig,
         healthChecks = healthChecksOf(
             consumer,
-            DatasourceLivenessProbe(dataSource)
+            DatasourceLivenessProbe(dataSource),
+            adresseBeskyttelseOppdatering
         ),
         idClient = webClients.kafkaClient,
         pdlClient = webClients.pdlClient,
