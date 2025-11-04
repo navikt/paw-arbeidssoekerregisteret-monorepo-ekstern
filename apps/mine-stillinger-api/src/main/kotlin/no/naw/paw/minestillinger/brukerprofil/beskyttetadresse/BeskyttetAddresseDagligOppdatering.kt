@@ -2,10 +2,10 @@ package no.naw.paw.minestillinger.brukerprofil.beskyttetadresse
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.delay
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
 import no.nav.paw.health.StartupCheck
-import no.nav.paw.model.Identitetsnummer
 import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste

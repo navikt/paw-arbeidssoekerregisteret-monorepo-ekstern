@@ -27,7 +27,7 @@ import no.nav.paw.kafkakeygenerator.model.Identitet
 import no.nav.paw.kafkakeygenerator.model.IdentitetType
 import no.nav.paw.kafkakeygenerator.model.IdentiteterResponse
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Claims
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker

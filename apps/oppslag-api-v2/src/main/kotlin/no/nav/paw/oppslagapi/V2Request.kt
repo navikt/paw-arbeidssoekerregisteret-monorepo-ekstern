@@ -1,6 +1,6 @@
 package no.nav.paw.oppslagapi
 
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 
 sealed interface V2BaseRequest

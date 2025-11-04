@@ -12,6 +12,8 @@ plugins {
 
 include(
     // domain
+    "domain:error",
+    "domain:felles",
     "domain:main-avro-schema",
     "domain:arena-avro-schema",
     "domain:bekreftelsesmelding-avro-schema",
@@ -32,15 +34,14 @@ include(
     "lib:security",
     "lib:http-client-utils",
     "lib:kafka",
+    "lib:kafka-hwm",
     "lib:kafka-streams",
     "lib:kafka-key-generator-client",
     "lib:pdl-client",
     "lib:aareg-client",
     "lib:tilgangskontroll-client",
-    "lib:common-model",
     "lib:topics",
     "lib:api-oppslag-client",
-    "lib:hwm",
     // test
     "test:test-data-factory",
     // apps

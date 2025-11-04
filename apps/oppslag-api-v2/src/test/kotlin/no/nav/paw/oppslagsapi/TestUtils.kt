@@ -19,10 +19,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.append
 import io.ktor.http.contentType
-import io.ktor.http.headers
 import io.ktor.http.toURI
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PerioderRequest
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory

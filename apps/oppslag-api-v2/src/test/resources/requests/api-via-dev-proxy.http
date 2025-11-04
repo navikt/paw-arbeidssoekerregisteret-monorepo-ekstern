@@ -1,0 +1,36 @@
+### POST /api/v1/stillinger/{uuid}
+
+POST {{devProxyBaseUrl}}/api/v1/proxy
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "method": "GET",
+    "url": "{{baseUrl}}/api/v1/stillinger/74a3b46e-7e77-4c6b-90e9-e8d021e704a2",
+    "body": {
+        "ident": "06498504726"
+    }
+}
+
+### POST /api/v1/stillinger
+
+POST {{devProxyBaseUrl}}/api/v1/proxy
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+  "method": "POST",
+  "url": "{{baseUrl}}/api/v1/stillinger",
+  "body": {
+    "soekeord": [],
+    "kategorier": [],
+    "fylker": [],
+    "paging": {
+      "page": 1,
+      "pageSize": 10,
+      "sortOrder": "ASC"
+    }
+  }
+}

@@ -81,6 +81,7 @@ class HwmRebalanceListener(
                             longKey("offset"), seekTo
                         )
                     )
+                    logger.info("Seeking to offset {} for {}:{}", seekTo, partition.topic(), partition.partition())
                     consumer.seek(partition, seekTo)
                 }
             }

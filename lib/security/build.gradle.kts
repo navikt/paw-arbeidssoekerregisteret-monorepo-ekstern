@@ -3,14 +3,15 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":lib:error-handling"))
-    implementation(project(":lib:common-model"))
+    api(project(":domain:error"))
+    implementation(project(":domain:felles"))
     implementation(libs.ktor.server.auth)
     implementation(libs.logback.classic)
     implementation(libs.nav.security.token.validation.ktor)
     implementation(libs.ktor.serialization.jackson)
 
     //Test
+    testImplementation(project(":lib:error-handling"))
     testImplementation(project(":lib:http-client-utils"))
     testImplementation(project(":lib:pdl-client"))
     testImplementation(libs.ktor.client.mock)

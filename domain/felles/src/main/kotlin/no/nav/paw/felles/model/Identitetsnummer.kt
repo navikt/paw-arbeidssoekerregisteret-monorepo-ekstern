@@ -1,4 +1,4 @@
-package no.nav.paw.model
+package no.nav.paw.felles.model
 
 @JvmInline
 value class Identitetsnummer(val verdi: String) {

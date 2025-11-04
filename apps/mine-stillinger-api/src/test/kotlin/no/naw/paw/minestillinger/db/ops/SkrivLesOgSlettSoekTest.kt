@@ -2,11 +2,10 @@ package no.naw.paw.minestillinger.db.ops
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.minestillinger.db.initDatabase
-import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.Fylke
 import no.naw.paw.minestillinger.domain.Kommune
 import no.naw.paw.minestillinger.domain.stedSoek

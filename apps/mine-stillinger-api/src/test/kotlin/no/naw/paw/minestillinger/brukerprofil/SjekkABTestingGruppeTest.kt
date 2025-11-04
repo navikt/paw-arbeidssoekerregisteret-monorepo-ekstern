@@ -2,7 +2,7 @@ package no.naw.paw.minestillinger.brukerprofil
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 
 
 class SjekkABTestingGruppeTest : FreeSpec({

@@ -5,7 +5,7 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.security.authentication.model.Bruker
 import no.naw.paw.minestillinger.Clock

@@ -4,11 +4,10 @@ import io.opentelemetry.api.common.AttributeKey.longKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import no.nav.paw.logging.logger.buildApplicationLogger
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.pdl.client.hentAdressebeskyttelse
 import no.nav.paw.pdl.graphql.generated.enums.AdressebeskyttelseGradering
-import no.naw.paw.minestillinger.appLogger
 
 const val BEHANDLINGSNUMMER = "B452"
 

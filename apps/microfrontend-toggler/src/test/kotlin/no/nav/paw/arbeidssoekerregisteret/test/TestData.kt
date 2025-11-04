@@ -3,7 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.test
 import no.nav.common.types.identer.AktorId
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.test.data.periode.BrukerFactory
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory

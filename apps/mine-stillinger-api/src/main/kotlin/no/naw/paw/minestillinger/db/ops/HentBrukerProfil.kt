@@ -1,7 +1,7 @@
 package no.naw.paw.minestillinger.db.ops
 
-import no.nav.paw.model.Identitetsnummer
-import no.nav.paw.model.asIdentitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.felles.model.asIdentitetsnummer
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg

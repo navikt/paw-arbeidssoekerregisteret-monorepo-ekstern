@@ -6,9 +6,9 @@ plugins {
 val jvmMajorVersion: String by project
 
 dependencies {
+    api(project(":domain:error"))
     implementation(project(":lib:logging"))
     implementation(project(":lib:hoplite-config"))
-    implementation(project(":lib:error-handling"))
     implementation(project(":lib:http-client-utils"))
 
     implementation(libs.ktor.client.cio)

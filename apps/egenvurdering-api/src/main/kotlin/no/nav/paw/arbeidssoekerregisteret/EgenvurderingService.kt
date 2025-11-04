@@ -20,7 +20,7 @@ import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.kafkakeygenerator.model.IdentitetType.FOLKEREGISTERIDENT
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.sikkerhetsnivaa
 import org.apache.kafka.clients.producer.Producer

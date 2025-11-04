@@ -3,7 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.repository
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import java.time.Instant
 import java.util.*
 

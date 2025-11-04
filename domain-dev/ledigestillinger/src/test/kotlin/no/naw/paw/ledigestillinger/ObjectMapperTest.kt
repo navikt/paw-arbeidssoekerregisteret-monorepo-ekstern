@@ -2,10 +2,14 @@ package no.naw.paw.ledigestillinger
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 
-data class B (
+val testLogger: Logger = LoggerFactory.getLogger("no.nav.paw.logger.test")
+
+data class B(
     val enBoolean: Boolean,
     val enInt: Int,
     val enDuration: Duration
@@ -20,7 +24,7 @@ data class A(
     val enNullableB: B?
 )
 
-class ObjectMapperTest: FreeSpec({
+class ObjectMapperTest : FreeSpec({
     "Verifiser at ikke noe går tapt (feks nano-sekunder i Duration og Instant)" {
         val duration = Duration.ofNanos(658743657843L)
         val a = A(
@@ -38,8 +42,8 @@ class ObjectMapperTest: FreeSpec({
 
         val json = ledigeStillingerApiObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(a)
         val a2 = ledigeStillingerApiObjectMapper.readValue(json, A::class.java)
-        println(json)
-        println(a2)
+        testLogger.info(json)
+        testLogger.info(a2.toString())
         a2 shouldBe a
     }
 })

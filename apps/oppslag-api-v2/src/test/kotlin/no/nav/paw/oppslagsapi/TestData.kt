@@ -7,13 +7,14 @@ import no.nav.paw.kafkakeygenerator.model.Info
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysInfoResponse
 import no.nav.paw.kafkakeygenerator.model.PdlData
 import no.nav.paw.kafkakeygenerator.model.PdlId
-import no.nav.paw.model.Identitetsnummer
-import no.nav.paw.model.NavIdent
+import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.felles.model.NavIdent
 import no.nav.paw.tilgangskontroll.client.Tilgang
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-val testLogger = LoggerFactory.getLogger("testlogger")
+val testLogger: Logger = LoggerFactory.getLogger("no.nav.paw.logger.test")
 
 val person1 = listOf(Identitetsnummer("12345678901"), Identitetsnummer("09876543211"))
 val person2 = listOf(Identitetsnummer("12345678902"))

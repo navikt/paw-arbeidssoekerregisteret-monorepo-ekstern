@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    api(project(":domain:error"))
     compileOnly(libs.ktor.server.cors)
     compileOnly(libs.ktor.server.status.pages)
     compileOnly(libs.ktor.serialization.jackson)

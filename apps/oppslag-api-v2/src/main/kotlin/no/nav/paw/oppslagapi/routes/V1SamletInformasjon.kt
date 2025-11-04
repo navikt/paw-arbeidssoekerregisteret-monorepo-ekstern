@@ -8,7 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.SamletInformasjo
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.map
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
 import no.nav.paw.oppslagapi.respondWith

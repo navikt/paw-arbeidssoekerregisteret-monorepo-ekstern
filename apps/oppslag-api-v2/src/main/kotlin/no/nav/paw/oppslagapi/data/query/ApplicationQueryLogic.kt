@@ -6,7 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.security.authentication.model.SecurityContext
 import java.util.*
