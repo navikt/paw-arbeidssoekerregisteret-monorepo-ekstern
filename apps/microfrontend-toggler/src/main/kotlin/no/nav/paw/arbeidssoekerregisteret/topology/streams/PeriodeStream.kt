@@ -29,7 +29,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallSendteToggles
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.kafka.processor.Punctuation
 import no.nav.paw.kafka.processor.genericProcess
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
+import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced

@@ -1,4 +1,5 @@
 # Stillinger API
+API for å hente stillinger som er hentet fra `teampam.stilling-ekstern-1`-topicet til Arbeidsplassen.
 
 ## Arbeidsplassen
 

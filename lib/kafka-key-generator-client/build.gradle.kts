@@ -6,6 +6,7 @@ val jvmMajorVersion: String by project
 val jvmVersion = JavaVersion.valueOf("VERSION_$jvmMajorVersion")
 
 dependencies {
+    implementation(project(":lib:logging"))
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:http-client-utils"))
     implementation(libs.ktor.serialization.jackson)

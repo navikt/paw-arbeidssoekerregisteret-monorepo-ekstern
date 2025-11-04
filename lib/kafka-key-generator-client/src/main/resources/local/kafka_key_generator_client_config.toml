@@ -1,4 +1,2 @@
-url = "MOCK"
-infoUrl = "MOCK"
-identiteterUrl = "MOCK"
+url = "mock://paw-kafka-key-generator"
 scope = "api://<cluster>.<namespace>.<outbound-app-name>/.default"

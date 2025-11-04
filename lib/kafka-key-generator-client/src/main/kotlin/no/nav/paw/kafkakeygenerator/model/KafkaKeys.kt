@@ -1,4 +1,17 @@
-package no.nav.paw.kafkakeygenerator.client
+package no.nav.paw.kafkakeygenerator.model
+
+data class KafkaKeysRequest(
+    val ident: String,
+)
+
+data class KafkaKeysResponse(
+    val id: Long,
+    val key: Long,
+)
+
+data class KafkaKeysInfoResponse(
+    val info: Info,
+)
 
 data class Info(
     val identitetsnummer: String,

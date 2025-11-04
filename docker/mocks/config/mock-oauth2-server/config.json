@@ -80,6 +80,18 @@
                 },
                 {
                     "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-oppslag-v2-idporten-loa-high",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-oppslag-v2",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-oppslag-v2"
+                        ],
+                        "pid": "01017012345",
+                        "acr": "idporten-loa-high"
+                    }
+                },
+                {
+                    "requestParam": "client_id",
                     "match": "paw-arbeidssoekerregisteret-api-brukerprofiler",
                     "claims": {
                         "sub": "admin@paw-arbeidssoekerregisteret-api-brukerprofiler",
@@ -140,6 +152,33 @@
                         "sub": "admin@paw-arbeidssoekerregisteret-api-oppslag",
                         "aud": [
                             "paw-arbeidssoekerregisteret-api-oppslag"
+                        ],
+                        "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
+                        "roles": [
+                            "access_as_application"
+                        ]
+                    }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-oppslag-v2-azure",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-oppslag-v2",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-oppslag-v2"
+                        ],
+                        "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
+                        "name": "Nav Navesen",
+                        "NAVident": "12345"
+                    }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-oppslag-v2-azure-m2m",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-oppslag-v2",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-oppslag-v2"
                         ],
                         "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
                         "roles": [

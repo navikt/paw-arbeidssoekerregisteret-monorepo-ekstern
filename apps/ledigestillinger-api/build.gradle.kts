@@ -91,14 +91,6 @@ application {
     mainClass.set("no.nav.paw.ledigestillinger.ApplicationKt")
 }
 
-sourceSets {
-    main {
-        kotlin {
-            srcDir("${layout.buildDirectory.get()}/generated/src/main/kotlin")
-        }
-    }
-}
-
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }

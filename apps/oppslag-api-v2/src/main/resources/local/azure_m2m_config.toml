@@ -1,0 +1,2 @@
+clientId = "paw-arbeidssoekerregisteret-api-oppslag-v2-azure-m2m"
+tokenEndpointUrl = "http://localhost:8081/default/token"

@@ -15,7 +15,7 @@ import no.nav.paw.arbeidssoekerregisteret.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.test.shouldBeEqualTo
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildPeriodeStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
+import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.TopologyTestDriver

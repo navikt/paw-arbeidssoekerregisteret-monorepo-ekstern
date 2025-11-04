@@ -22,11 +22,11 @@ import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
 import no.nav.paw.arbeidssoekerregisteret.repository.ProfileringRow
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
-import no.nav.paw.kafkakeygenerator.client.Identitet
-import no.nav.paw.kafkakeygenerator.client.IdentitetType
-import no.nav.paw.kafkakeygenerator.client.IdentiteterResponse
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
+import no.nav.paw.kafkakeygenerator.model.Identitet
+import no.nav.paw.kafkakeygenerator.model.IdentitetType
+import no.nav.paw.kafkakeygenerator.model.IdentiteterResponse
+import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Claims
 import no.nav.paw.security.authentication.model.SecurityContext
@@ -98,7 +98,11 @@ class EgenvurderingServiceTest : FreeSpec({
         )
 
         every {
-            egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(Identitetsnummer(alternativIdent))
+            egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(
+                Identitetsnummer(
+                    alternativIdent
+                )
+            )
         } returns NyesteProfilering(
             id = profileringId,
             profilertTil = "ANTATT_GODE_MULIGHETER",

@@ -2,11 +2,11 @@ package no.nav.paw.oppslagsapi
 
 import io.mockk.coEvery
 import no.nav.paw.error.model.Data
-import no.nav.paw.kafkakeygenerator.client.Info
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysInfoResponse
-import no.nav.paw.kafkakeygenerator.client.PdlData
-import no.nav.paw.kafkakeygenerator.client.PdlId
+import no.nav.paw.kafkakeygenerator.model.Info
+import no.nav.paw.kafkakeygenerator.model.KafkaKeysInfoResponse
+import no.nav.paw.kafkakeygenerator.model.PdlData
+import no.nav.paw.kafkakeygenerator.model.PdlId
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.model.NavIdent
 import no.nav.paw.tilgangskontroll.client.Tilgang
