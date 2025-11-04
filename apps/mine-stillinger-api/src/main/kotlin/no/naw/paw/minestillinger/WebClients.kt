@@ -11,16 +11,12 @@ import no.nav.paw.client.config.AzureAdM2MConfig
 import no.nav.paw.client.factory.createAzureAdM2MTokenClient
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
-import no.nav.paw.kafkakeygenerator.client.KAFKA_KEY_GENERATOR_CLIENT_CONFIG
-import no.nav.paw.kafkakeygenerator.client.KafkaKeyConfig
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.kafkakeygenerator.client.kafkaKeysClient
+import no.nav.paw.kafkakeygenerator.factory.createKafkaKeyGeneratorClient
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.pdl.factory.createPdlClient
 import no.nav.paw.security.texas.TEXAS_CONFIG
 import no.nav.paw.security.texas.TexasClient
-import no.nav.security.token.support.client.core.http.OAuth2HttpClient
-import no.nav.security.token.support.client.core.oauth2.TokenExchangeClient
 
 class WebClients(
     val kafkaClient: KafkaKeysClient,
@@ -47,15 +43,13 @@ fun initWebClient(): WebClients {
         config = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     )
     val finnStillingerClient = FinnStillingerClient(
-        config =loadNaisOrLocalConfiguration("finn_ledige_stillinger.toml"),
+        config = loadNaisOrLocalConfiguration("finn_ledige_stillinger.toml"),
         texasClient = texasClient,
         httpClient = httpClient
     )
-    val kafkaKeyConfig: KafkaKeyConfig = loadNaisOrLocalConfiguration(KAFKA_KEY_GENERATOR_CLIENT_CONFIG)
-    val idClient = kafkaKeysClient(
+    val idClient = createKafkaKeyGeneratorClient(
         httpClient = httpClient,
-        konfigurasjon = kafkaKeyConfig,
-        m2mTokenFactory = { m2mTokenClient.createMachineToMachineToken(kafkaKeyConfig.scope) }
+        tokenClient = m2mTokenClient,
     )
     val pdlClient = createPdlClient(
         httpClient = httpClient,

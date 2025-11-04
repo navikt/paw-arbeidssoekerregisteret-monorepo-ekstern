@@ -18,13 +18,12 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.client.factory.configureJackson
+import no.nav.paw.kafkakeygenerator.model.IdentitetType
+import no.nav.paw.kafkakeygenerator.model.KonfliktType
 
 class KafkaKeysClientTest : FreeSpec({
 
     val baseUrl = "https://kafkakeygen"
-    val identiteterUrl = "$baseUrl/api/v2/identiteter"
-    val infoUrl = "$baseUrl/api/v2/info"
-    val hentEllerOpprettUrl = "$baseUrl/api/v2/hentEllerOpprett"
     val testToken = "token"
 
     "Hent identer fra /api/v2/identiteter og returnerer IdentitetResponse" {
@@ -57,7 +56,7 @@ class KafkaKeysClientTest : FreeSpec({
 
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
-            request.url.toString() shouldBe identiteterUrl
+            request.url.toString() shouldBe "$baseUrl/api/v2/identiteter"
             request.headers[HttpHeaders.Authorization] shouldBe "Bearer $testToken"
 
             respond(
@@ -69,9 +68,7 @@ class KafkaKeysClientTest : FreeSpec({
 
         val kafkaKeysClient = StandardKafkaKeysClient(
             httpClient = testClient(mockEngine),
-            kafkaKeysUrl = hentEllerOpprettUrl,
-            kafkaKeysInfoUrl = infoUrl,
-            kafkaKeysIdentiteterUrl = identiteterUrl,
+            baseUrl = baseUrl,
             getAccessToken = { testToken }
         )
 
@@ -110,9 +107,7 @@ class KafkaKeysClientTest : FreeSpec({
 
         val client = StandardKafkaKeysClient(
             httpClient = testClient(engine),
-            kafkaKeysUrl = hentEllerOpprettUrl,
-            kafkaKeysInfoUrl = infoUrl,
-            kafkaKeysIdentiteterUrl = identiteterUrl,
+            baseUrl = baseUrl,
             getAccessToken = { testToken }
         )
 
@@ -120,7 +115,7 @@ class KafkaKeysClientTest : FreeSpec({
             val response = client.getIdentiteter(
                 identitetsnummer = "01017012345",
                 visKonflikter = true,
-                hentPdl = true
+                hentFraPdl = true
             )
             response.identiteter.shouldBe(emptyList())
             response.konflikter.shouldBe(emptyList())
@@ -151,9 +146,7 @@ class KafkaKeysClientTest : FreeSpec({
 
         val kafkaKeysClient = StandardKafkaKeysClient(
             httpClient = testClient(engine),
-            kafkaKeysUrl = hentEllerOpprettUrl,
-            kafkaKeysInfoUrl = infoUrl,
-            kafkaKeysIdentiteterUrl = identiteterUrl,
+            baseUrl = baseUrl,
             getAccessToken = { "token" }
         )
 

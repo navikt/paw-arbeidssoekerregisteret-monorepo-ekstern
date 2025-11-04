@@ -1,0 +1,5 @@
+host = "localhost"
+port = 5432
+username = "oppslag_api"
+password = "Paw1234"
+database = "arbeidssoekerregisteretapioppslag"

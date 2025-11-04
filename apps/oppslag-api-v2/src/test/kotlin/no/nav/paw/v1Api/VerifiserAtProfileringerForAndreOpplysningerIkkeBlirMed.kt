@@ -17,7 +17,7 @@ import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.kafkakeygenerator.client.inMemoryKafkaKeysMock
+import no.nav.paw.kafkakeygenerator.factory.mockKafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
@@ -53,7 +53,7 @@ import java.util.*
 
 class VerifiserAtProfileringerForAndreOpplysningerIkkeBlirMed : FreeSpec({
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk()
-    val kafkaKeysClientMock: KafkaKeysClient = inMemoryKafkaKeysMock()
+    val kafkaKeysClientMock: KafkaKeysClient = mockKafkaKeysClient()
     val databaseQuerySupportMock: DatabaseQuerySupport = mockk()
     val autorisasjonsTjeneste = AutorisasjonsTjeneste(
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,

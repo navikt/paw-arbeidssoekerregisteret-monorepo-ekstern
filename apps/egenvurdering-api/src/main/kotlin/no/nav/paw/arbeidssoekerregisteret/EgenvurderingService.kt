@@ -18,7 +18,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
-import no.nav.paw.kafkakeygenerator.client.IdentitetType.FOLKEREGISTERIDENT
+import no.nav.paw.kafkakeygenerator.model.IdentitetType.FOLKEREGISTERIDENT
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.SecurityContext

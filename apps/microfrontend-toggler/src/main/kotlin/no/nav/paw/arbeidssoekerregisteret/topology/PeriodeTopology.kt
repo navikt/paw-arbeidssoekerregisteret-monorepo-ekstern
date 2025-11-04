@@ -5,7 +5,7 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildBeriket14aVedtakStream
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildPeriodeStream
 import no.nav.paw.arbeidssoekerregisteret.utils.buildPeriodeInfoSerde
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysResponse
+import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
