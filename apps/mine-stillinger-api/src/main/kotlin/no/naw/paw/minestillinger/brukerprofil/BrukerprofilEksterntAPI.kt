@@ -9,9 +9,8 @@ import no.nav.paw.model.Identitetsnummer
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.appLogger
-import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.GRADERT_ADRESSE_GYLDIGHETS_PERIODE
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
@@ -88,20 +87,20 @@ suspend fun BrukerprofilTjeneste.aktiverTjenesten(
     brukerProfil: BrukerProfil
 ): Response<Unit> {
     val tidspunkt = clock.now()
-    return when (brukerProfil.tjenestenKanAktiveres(tidspunkt, GRADERT_ADRESSE_GYLDIGHETS_PERIODE)) {
-        TjenestenKanAktiveresResultat.JA -> Data(brukerProfil)
-        TjenestenKanAktiveresResultat.NEI -> oppdateringIkkeTillatt("Kan ikke aktivere tjenesten for denne brukeren.")
-        TjenestenKanAktiveresResultat.ADRESSE_GRADERING_MÅ_SJEKKES -> Data(
+    return when (brukerProfil.tjenestenKanAktiveres(tidspunkt, ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE)) {
+        TjenestenKanAktiveresResultat.Ja -> Data(brukerProfil)
+        TjenestenKanAktiveresResultat.Nei -> oppdateringIkkeTillatt("Kan ikke aktivere tjenesten for denne brukeren.")
+        TjenestenKanAktiveresResultat.AdressebeskyttelseMåSjekkes -> Data(
             oppdaterAdresseGradering(
                 brukerProfil,
                 tidspunkt
             )
         )
     }.flatMap { profil ->
-        when (profil.tjenestenKanAktiveres(tidspunkt, GRADERT_ADRESSE_GYLDIGHETS_PERIODE)) {
-            TjenestenKanAktiveresResultat.JA -> Data(profil)
-            TjenestenKanAktiveresResultat.NEI -> oppdateringIkkeTillatt("Kan ikke aktivere tjenesten for denne brukeren.")
-            TjenestenKanAktiveresResultat.ADRESSE_GRADERING_MÅ_SJEKKES -> internFeil("Resultat='ADRESSE_GRADERING_MÅ_SJEKKES', selv rett etter oppdatering av adressegradering.")
+        when (profil.tjenestenKanAktiveres(tidspunkt, ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE)) {
+            TjenestenKanAktiveresResultat.Ja -> Data(profil)
+            TjenestenKanAktiveresResultat.Nei -> oppdateringIkkeTillatt("Kan ikke aktivere tjenesten for denne brukeren.")
+            TjenestenKanAktiveresResultat.AdressebeskyttelseMåSjekkes -> internFeil("Resultat='ADRESSE_GRADERING_MÅ_SJEKKES', selv rett etter oppdatering av adressegradering.")
         }
     }.map { profil ->
         val gjeldeneFlagg = profil.listeMedFlagg

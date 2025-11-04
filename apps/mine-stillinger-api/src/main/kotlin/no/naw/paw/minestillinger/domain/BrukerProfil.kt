@@ -8,7 +8,7 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetAdresseFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import java.time.Instant
@@ -39,7 +39,7 @@ data class BrukerProfil(
 ) {
     val harBruktTjenesten: Boolean = listeMedFlagg[HarBruktTjenestenFlaggtype]?.verdi ?: false
     val optOut: Boolean = listeMedFlagg[OptOutFlaggtype]?.verdi ?: false
-    val harGradertAdresse: Boolean = listeMedFlagg[HarGradertAdresseFlaggtype]?.verdi ?: false
+    val harGradertAdresse: Boolean = listeMedFlagg[HarBeskyttetAdresseFlaggtype]?.verdi ?: false
     val tjenestenErAktiv: Boolean = listeMedFlagg[TjenestenErAktivFlaggtype]?.verdi ?: false
     val harGodeMuligheter: Boolean = listeMedFlagg[HarGodeMuligheterFlaggtype]?.verdi ?: false
     val erITestGruppen: Boolean = listeMedFlagg[ErITestGruppenFlaggtype]?.verdi ?: false

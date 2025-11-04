@@ -21,10 +21,9 @@ import no.nav.paw.test.data.periode.createProfilering
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
-import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlag
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
@@ -42,7 +41,6 @@ import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.Instant
 import java.time.Instant.now
 
 data class TjenestestatusTestCase(
@@ -63,7 +61,7 @@ val testcases = listOf(
         gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
             listOf(
                 TjenestenErAktivFlagg(true, now()),
-                HarGradertAdresseFlagg(false, now())
+                HarBeskyttetadresseFlagg(false, now())
             )
         ),
         nyTjenesteStatus = ApiTjenesteStatus.INAKTIV,
@@ -74,7 +72,7 @@ val testcases = listOf(
         gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
             listOf(
                 TjenestenErAktivFlagg(true, now()),
-                HarGradertAdresseFlagg(false, now())
+                HarBeskyttetadresseFlagg(false, now())
             )
         ),
         nyTjenesteStatus = ApiTjenesteStatus.AKTIV,
@@ -85,7 +83,7 @@ val testcases = listOf(
         gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
             listOf(
                 TjenestenErAktivFlagg(true, now()),
-                HarGradertAdresseFlagg(false, now())
+                HarBeskyttetadresseFlagg(false, now())
             )
         ),
         nyTjenesteStatus = ApiTjenesteStatus.OPT_OUT,
@@ -96,7 +94,7 @@ val testcases = listOf(
         gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
             listOf(
                 TjenestenErAktivFlagg(false, now()),
-                HarGradertAdresseFlagg(true, now())
+                HarBeskyttetadresseFlagg(true, now())
             )
         ),
         nyTjenesteStatus = ApiTjenesteStatus.AKTIV,
@@ -107,7 +105,7 @@ val testcases = listOf(
         gjeldendeFlagg = ListeMedFlagg.listeMedFlagg(
             listOf(
                 TjenestenErAktivFlagg(false, now()),
-                HarGradertAdresseFlagg(true, now())
+                HarBeskyttetadresseFlagg(true, now())
             )
         ),
         nyTjenesteStatus = ApiTjenesteStatus.INAKTIV,

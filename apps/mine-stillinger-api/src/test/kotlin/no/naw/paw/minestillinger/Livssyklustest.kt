@@ -39,7 +39,7 @@ import no.naw.paw.minestillinger.api.vo.ApiStillingssoekType
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
@@ -659,7 +659,7 @@ class Livssyklustest : FreeSpec({
                         hentBrukerProfilUtenFlagg(olaIdent).let { it?.id!! }
                             .let { id -> lesFlaggFraDB(id) } should { flagg ->
                             withClue(flagg.toString()) {
-                                flagg.filterIsInstance<HarGradertAdresseFlagg>().first().verdi shouldBe true
+                                flagg.filterIsInstance<HarBeskyttetadresseFlagg>().first().verdi shouldBe true
                                 flagg.filterIsInstance<TjenestenErAktivFlagg>().first().verdi shouldBe false
                             }
                         }

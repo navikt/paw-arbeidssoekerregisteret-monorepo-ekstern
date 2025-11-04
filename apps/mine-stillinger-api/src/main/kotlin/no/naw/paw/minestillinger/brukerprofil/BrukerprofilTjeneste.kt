@@ -10,7 +10,7 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarGradertAdresseFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
@@ -54,7 +54,7 @@ class BrukerprofilTjeneste(
         tidspunkt: Instant
     ): BrukerProfil {
         val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(brukerProfil.identitetsnummer)
-        val gradertAdresseFlagg = HarGradertAdresseFlagg(
+        val gradertAdresseFlagg = HarBeskyttetadresseFlagg(
             verdi = harGradertAdresseNå,
             tidspunkt = tidspunkt
         )
