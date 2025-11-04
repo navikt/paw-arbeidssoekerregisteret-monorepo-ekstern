@@ -9,10 +9,12 @@ import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.pdl.factory.createPdlClient
 import no.nav.paw.pdl.client.hentFoedselsdato
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
 
 const val BEHANDLINGSNUMMER = "B452"
+private val personInfotjenesteLogger = LoggerFactory.getLogger("person_infotjeneste_logger")
 
 fun interface PersonInfoTjeneste {
     fun hentPersonInfo(identitetsnummer: String, opplysningsId: UUID): PersonInfo
@@ -43,8 +45,16 @@ fun interface PersonInfoTjeneste {
                             foedselsAar = foedselsdato?.foedselsaar,
                             arbeidsforhold = arbeidsforholdDeferred.await().let { result ->
                                 when (result) {
-                                    is Result.Success -> result.arbeidsforhold
-                                    is Result.Failure -> emptyList()
+                                    is Result.Success -> {
+                                        personInfotjenesteLogger.info("Hentet ${result.arbeidsforhold.size} arbeidsforhold fra Aareg")
+                                        result.arbeidsforhold
+                                    }
+                                    is Result.Failure -> {
+                                        personInfotjenesteLogger.error(
+                                            "Feil ved henting av arbeidsforhold"
+                                        )
+                                        emptyList()
+                                    }
                                 }
                             }
                         )
