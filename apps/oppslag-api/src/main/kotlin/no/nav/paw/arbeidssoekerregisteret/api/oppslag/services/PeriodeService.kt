@@ -21,7 +21,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.perioderKafkaCounter
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.perioderKafkaTrace
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.traceparent
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 

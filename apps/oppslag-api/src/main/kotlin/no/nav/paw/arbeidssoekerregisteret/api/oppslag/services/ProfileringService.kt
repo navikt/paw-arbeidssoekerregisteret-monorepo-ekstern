@@ -12,7 +12,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.profileringerKafkaCo
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.profileringerKafkaTrace
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.traceparent
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 

@@ -22,9 +22,9 @@ fun createKafkaKeyGeneratorClient(
     tokenClient: MachineToMachineTokenClient = createAzureAdM2MTokenClient(
         runtimeEnvironment = currentRuntimeEnvironment,
         azureProviderConfig = loadNaisOrLocalConfiguration<AzureAdM2MConfig>(AZURE_M2M_CONFIG)
-    )
+    ),
+    kafkaKeyConfig: KafkaKeyConfig = loadNaisOrLocalConfiguration(KAFKA_KEY_GENERATOR_CLIENT_CONFIG)
 ): KafkaKeysClient {
-    val kafkaKeyConfig = loadNaisOrLocalConfiguration<KafkaKeyConfig>(KAFKA_KEY_GENERATOR_CLIENT_CONFIG)
     return if (kafkaKeyConfig.url.lowercase().startsWith("mock")) {
         logger.warn("Oppretter mock kafka-key-generator-client")
         mockKafkaKeysClient()

@@ -17,7 +17,7 @@ import io.mockk.mockk
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
 import no.nav.paw.oppslagapi.configureKtorServer
 import no.nav.paw.oppslagapi.configureRoutes

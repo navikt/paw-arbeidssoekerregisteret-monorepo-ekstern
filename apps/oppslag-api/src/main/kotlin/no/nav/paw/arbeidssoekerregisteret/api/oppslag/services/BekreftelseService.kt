@@ -12,7 +12,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.bekreftelserKafkaTra
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.traceparent
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 

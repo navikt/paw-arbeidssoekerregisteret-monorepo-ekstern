@@ -3,7 +3,6 @@ package no.naw.paw.minestillinger.db.ops
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg

@@ -8,6 +8,10 @@ plugins {
 val jvmMajorVersion: String by project
 
 dependencies {
+    implementation(project(":domain:felles"))
+    implementation(project(":domain:error"))
+    implementation(project(":domain:main-avro-schema"))
+    implementation(project(":domain:bekreftelsesmelding-avro-schema"))
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
@@ -18,8 +22,6 @@ dependencies {
     implementation(project(":lib:pdl-client"))
     implementation(project(":lib:tilgangskontroll-client"))
     implementation(project(":lib:health"))
-    implementation(project(":domain:main-avro-schema"))
-    implementation(project(":domain:bekreftelsesmelding-avro-schema"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)

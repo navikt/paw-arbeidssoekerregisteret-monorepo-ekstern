@@ -15,8 +15,8 @@ import io.ktor.http.isSuccess
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
-import no.nav.paw.model.NavIdent
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.NavIdent
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.tilgangskontroll.server.models.TilgangskontrollRequestV1
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.map

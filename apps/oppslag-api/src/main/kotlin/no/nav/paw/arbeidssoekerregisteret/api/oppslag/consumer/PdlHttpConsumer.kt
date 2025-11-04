@@ -5,7 +5,7 @@ import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.pdl.client.hentIdenter
 import no.nav.paw.pdl.graphql.generated.hentidenter.IdentInformasjon
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import java.util.*
 
 const val PDL_BEHANDLINGSNUMMER = "B452"

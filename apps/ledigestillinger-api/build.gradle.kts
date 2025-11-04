@@ -8,6 +8,10 @@ plugins {
 val jvmMajorVersion: String by project
 
 dependencies {
+    implementation(project(":domain:felles"))
+    implementation(project(":domain:error"))
+    implementation(project(":domain-dev:ledigestillinger"))
+    implementation(project(":domain-dev:arbeidsplassen-stillinger-avro-schema"))
     implementation(project(":lib:topics"))
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:database"))
@@ -18,10 +22,8 @@ dependencies {
     implementation(project(":lib:logging"))
     implementation(project(":lib:metrics"))
     implementation(project(":lib:health"))
-    implementation(project(":lib:hwm"))
     implementation(project(":lib:kafka"))
-    implementation(project(":domain-dev:ledigestillinger"))
-    implementation(project(":domain-dev:arbeidsplassen-stillinger-avro-schema"))
+    implementation(project(":lib:kafka-hwm"))
 
     // Server
     implementation(libs.bundles.ktor.server.instrumented)

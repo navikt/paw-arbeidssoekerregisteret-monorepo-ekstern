@@ -4,8 +4,8 @@ import io.ktor.server.plugins.BadRequestException
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.database.PeriodeTable
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.toLocalDateTime
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.model.Identitetsnummer
-import no.nav.paw.model.asIdentitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.felles.model.asIdentitetsnummer
 import org.jetbrains.exposed.v1.core.ResultRow
 
 import java.time.LocalDate

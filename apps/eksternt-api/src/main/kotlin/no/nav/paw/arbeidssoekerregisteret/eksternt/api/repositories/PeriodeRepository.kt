@@ -6,7 +6,7 @@ import no.nav.paw.arbeidssoekerregisteret.eksternt.api.models.asPeriodeRow
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.buildLogger
 import no.nav.paw.arbeidssoekerregisteret.eksternt.api.utils.toLocalDateTime
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

@@ -4,7 +4,7 @@ import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.opentelemetry.api.trace.Span
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.consumer.toRow
 import no.nav.paw.oppslagsapi.periode
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding

@@ -63,6 +63,7 @@ class DataConsumer(
                     consumer.poll(pollTimeout)
                         .takeIf { !it.isEmpty }
                         ?.let { records ->
+                            appLogger.info("Received {} records", records.count())
                             val eldsteRecordTidspunkt = mutableMapOf<Pair<String, Int>, Long>()
                             transaction {
                                 records

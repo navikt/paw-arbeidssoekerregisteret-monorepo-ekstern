@@ -25,7 +25,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
@@ -57,7 +57,6 @@ import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -124,7 +123,7 @@ class Livssyklustest : FreeSpec({
 
             "Rolf som ikke er i testgruppen" - {
                 "får tjenestestatus ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     transaction {
                         opprettOgOppdaterBruker(rolfPeriode)
                         lagreProfilering(
@@ -148,10 +147,10 @@ class Livssyklustest : FreeSpec({
                 "pdl blir aldri kalt" {
                     coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(rolfIdent) }
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
             "Når Kari er registert som arbeidssøker antatt gode muligheter kan tjenesten aktiveres" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 transaction {
                     opprettOgOppdaterBruker(kariPeriode)
                     lagreProfilering(
@@ -169,11 +168,11 @@ class Livssyklustest : FreeSpec({
                     aktiverResponse.status shouldBe HttpStatusCode.NoContent
                 }
                 coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(kariIdent) }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Kari kan lagre et søk" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = kariIdent))
                     contentType(Application.Json)
@@ -196,11 +195,11 @@ class Livssyklustest : FreeSpec({
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.NoContent
                 coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(kariIdent) }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Når Ola aldri har vært arbeidssøker får han 404 ved henting av brukerprofil" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                     contentType(Application.Json)
@@ -208,11 +207,11 @@ class Livssyklustest : FreeSpec({
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.NotFound
                 coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Rett etter at Ola har registrert seg som arbeidssøker finnes profilen med tjenestatestaatus ${ApiTjenesteStatus.KAN_IKKE_LEVERES} (ikke 'antatt gode muligheter' grunnet manglende profilering)" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 transaction {
                     opprettOgOppdaterBruker(olaPeriode)
                 }
@@ -228,11 +227,11 @@ class Livssyklustest : FreeSpec({
                     profil.stillingssoek.shouldBeEmpty()
                 }
                 coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Etter at Ola er profilert til behov for veiledning er tjenestestatus fremdeles ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 transaction {
                     lagreProfilering(
                         createProfilering(
@@ -252,11 +251,11 @@ class Livssyklustest : FreeSpec({
                     profil.stillingssoek.shouldBeEmpty()
                 }
                 coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Når Ola blir profilert til antatt gode muligheter endes tjenestestatus til ${ApiTjenesteStatus.INAKTIV}" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 transaction {
                     lagreProfilering(
                         createProfilering(periodeId = olaPeriode.id, profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER)
@@ -274,12 +273,12 @@ class Livssyklustest : FreeSpec({
                     profil.stillingssoek.shouldBeEmpty()
                 }
                 coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Etter at Ola har fått gradert adresse" - {
                 "er tjenestestatus ${ApiTjenesteStatus.INAKTIV}" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
                     val response = testClient.get(BRUKERPROFIL_PATH) {
@@ -294,11 +293,11 @@ class Livssyklustest : FreeSpec({
                         profil.stillingssoek.shouldBeEmpty()
                     }
                     coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
                 "forsøk på å starte tjenesten gir 403 forbidden" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
@@ -306,11 +305,11 @@ class Livssyklustest : FreeSpec({
                     response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.Forbidden
                     coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
                 "etter forsøk på å starte skal tjenestestatus være endret til ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.get(BRUKERPROFIL_PATH) {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
@@ -323,11 +322,11 @@ class Livssyklustest : FreeSpec({
                         profil.stillingssoek.shouldBeEmpty()
                     }
                     coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
                 "forsøk på å lagre et søk gir 403 forbidden" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
@@ -350,12 +349,12 @@ class Livssyklustest : FreeSpec({
                     response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.Forbidden
                     coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
             }
             "Når Ola ikke lenger har gradert adresse" - {
                 "er tjenestestatus fortsatt ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns false
                     val response = testClient.get(BRUKERPROFIL_PATH) {
@@ -370,7 +369,7 @@ class Livssyklustest : FreeSpec({
                         profil.stillingssoek.shouldBeEmpty()
                     }
                     coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
                 "arbeidssøkerperioden avsluttes og det går mer enn X dager" - {
                     "perioden avsluttes" {
@@ -402,7 +401,7 @@ class Livssyklustest : FreeSpec({
                     }
                 }
                 "er tjenestatus ${ApiTjenesteStatus.INAKTIV}" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns false
                     val response = testClient.get(BRUKERPROFIL_PATH) {
@@ -416,11 +415,11 @@ class Livssyklustest : FreeSpec({
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldBeEmpty()
                     }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
                 "Tjenesten kan aktiveres igjen" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
@@ -429,11 +428,11 @@ class Livssyklustest : FreeSpec({
                     withClue(response.bodyAsText()) {
                         response.status shouldBe HttpStatusCode.NoContent
                     }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
                 "Søk kan lagres" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
@@ -455,11 +454,11 @@ class Livssyklustest : FreeSpec({
                     }
                     response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.NoContent
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
                 "Brukerprofilen skal nå inneholde søket han lagret" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.get(BRUKERPROFIL_PATH) {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
@@ -485,12 +484,12 @@ class Livssyklustest : FreeSpec({
                             }
                         }
                     }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
             }
 
             "Tjenesten forblir aktiv selv om Ola profileres til antatt behov for veiledning" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 transaction {
                     lagreProfilering(
                         createProfilering(
@@ -509,11 +508,11 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                     profil.stillingssoek.shouldHaveSize(1)
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Ola kan fremdeles lagre et nytt søk" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                     contentType(Application.Json)
@@ -536,11 +535,11 @@ class Livssyklustest : FreeSpec({
                 }
                 response.validateAgainstOpenApiSpec()
                 response.status shouldBe HttpStatusCode.NoContent
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Det er det nye søket som er lagret på profilen til Ola" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                     contentType(Application.Json)
@@ -566,11 +565,11 @@ class Livssyklustest : FreeSpec({
                         }
                     }
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Ola kan deaktivere tjenesten" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/INAKTIV") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                     contentType(Application.Json)
@@ -579,11 +578,11 @@ class Livssyklustest : FreeSpec({
                 withClue(response.bodyAsText()) {
                     response.status shouldBe HttpStatusCode.NoContent
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Ola har nå tjenestestatus ${ApiTjenesteStatus.INAKTIV} selv om han er profilert til antatt behov for veiledning" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                     contentType(Application.Json)
@@ -593,11 +592,11 @@ class Livssyklustest : FreeSpec({
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Ola kan aktivere tjenesten igjen selv om han er profilert til antatt behov for veiledning" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
                     bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                     contentType(Application.Json)
@@ -606,11 +605,11 @@ class Livssyklustest : FreeSpec({
                 withClue(response.bodyAsText()) {
                     response.status shouldBe HttpStatusCode.NoContent
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Tjenesten er aktiv igjen for Ola" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                     contentType(Application.Json)
@@ -621,15 +620,15 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                     profil.stillingssoek.size shouldBe 1
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Ola får gradert adresse" - {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 forwardTimeByHours(36)
                 coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
                 "Tjenestestatus er ${ApiTjenesteStatus.AKTIV}" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.get(BRUKERPROFIL_PATH) {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
@@ -641,20 +640,20 @@ class Livssyklustest : FreeSpec({
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                         profil.stillingssoek.shouldHaveSize(1)
                     }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
                 "Forsøk på å aktivere tjenesten gir 403 forbidden" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val aktiverResponse = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
                     }
                     aktiverResponse.validateAgainstOpenApiSpec()
                     aktiverResponse.status shouldBe HttpStatusCode.Forbidden
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
                 "Ola sin profil er nå oppdatert i db" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     transaction {
                         hentBrukerProfilUtenFlagg(olaIdent).let { it?.id!! }
                             .let { id -> lesFlaggFraDB(id) } should { flagg ->
@@ -664,10 +663,10 @@ class Livssyklustest : FreeSpec({
                             }
                         }
                     }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
                 "Tjenestestatus er endret til ${ApiTjenesteStatus.KAN_IKKE_LEVERES} og søket er slettet" {
-                    LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                    testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.get(BRUKERPROFIL_PATH) {
                         bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
                         contentType(Application.Json)
@@ -679,13 +678,13 @@ class Livssyklustest : FreeSpec({
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                         profil.stillingssoek.shouldHaveSize(0)
                     }
-                    LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Kari er fremdeles aktiv med 1 søk" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 val response = testClient.get(BRUKERPROFIL_PATH) {
                     bearerAuth(oauthServer.sluttbrukerToken(id = kariIdent))
                     contentType(Application.Json)
@@ -712,10 +711,10 @@ class Livssyklustest : FreeSpec({
                     }
 
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
             "Når Kari ikke lenger er arbeidssøker endres tjenestestatus til ${ApiTjenesteStatus.INAKTIV}, men søket beholdes" {
-                LoggerFactory.getLogger("test_logger").info("Starter: ${this.testCase.name.name}")
+                testLogger.info("Starter: ${this.testCase.name.name}")
                 transaction {
                     opprettOgOppdaterBruker(
                         PeriodeFactory.create().build(
@@ -737,7 +736,7 @@ class Livssyklustest : FreeSpec({
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                     profil.stillingssoek.shouldHaveSize(1)
                 }
-                LoggerFactory.getLogger("test_logger").info("Avslutter: ${this.testCase.name.name}")
+                testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
         }
     }

@@ -3,7 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.Paging
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PeriodeRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList

@@ -16,8 +16,8 @@ import no.nav.paw.error.model.onFailure
 import no.nav.paw.error.model.onSuccess
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
-import no.nav.paw.model.Identitetsnummer
-import no.nav.paw.model.NavIdent
+import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.felles.model.NavIdent
 import no.nav.paw.oppslagapi.data.finnAlleIdenterForPerson
 import no.nav.paw.security.authentication.model.Anonym
 import no.nav.paw.security.authentication.model.NavAnsatt

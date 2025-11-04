@@ -15,11 +15,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.config.AuthProvider
 import no.nav.paw.security.authentication.config.AuthProviderRequiredClaims
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+val testLogger: Logger = LoggerFactory.getLogger("no.nav.paw.logger.test")
 
 val MockOAuth2Server.tokenXAuthProvider: AuthProvider
     get() = AuthProvider(

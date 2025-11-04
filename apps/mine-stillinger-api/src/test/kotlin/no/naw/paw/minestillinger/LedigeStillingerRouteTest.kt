@@ -18,7 +18,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.security.mock.oauth2.MockOAuth2Server

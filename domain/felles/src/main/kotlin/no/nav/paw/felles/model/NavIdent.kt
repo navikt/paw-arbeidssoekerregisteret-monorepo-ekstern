@@ -1,4 +1,4 @@
-package no.nav.paw.model
+package no.nav.paw.felles.model
 
 @JvmInline
 value class NavIdent(val verdi: String) {
@@ -6,3 +6,5 @@ value class NavIdent(val verdi: String) {
         return "*".repeat(verdi.length)
     }
 }
+
+fun String.asNavIdent(): NavIdent = NavIdent(this)

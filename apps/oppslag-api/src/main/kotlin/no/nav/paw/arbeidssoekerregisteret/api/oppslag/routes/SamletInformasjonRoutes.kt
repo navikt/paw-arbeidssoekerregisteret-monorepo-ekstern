@@ -17,7 +17,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildApplicationLogg
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.getPaging
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.nav.paw.security.authentication.model.AzureAd
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.bruker

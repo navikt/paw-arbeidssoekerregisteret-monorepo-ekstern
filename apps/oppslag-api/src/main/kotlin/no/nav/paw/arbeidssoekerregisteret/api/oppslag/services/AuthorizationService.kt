@@ -11,9 +11,9 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.repositories.PeriodeReposi
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildLogger
 import no.nav.paw.error.model.getOrThrow
 import no.nav.paw.error.model.map
-import no.nav.paw.model.NavIdent
+import no.nav.paw.felles.model.NavIdent
 import no.nav.paw.pdl.graphql.generated.enums.IdentGruppe
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker

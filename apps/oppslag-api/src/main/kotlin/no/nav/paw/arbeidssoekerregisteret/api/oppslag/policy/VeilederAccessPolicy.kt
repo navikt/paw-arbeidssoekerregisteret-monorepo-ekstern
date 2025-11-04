@@ -4,7 +4,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.audit
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.utils.buildAuditLogger
 import no.nav.paw.config.env.RuntimeEnvironment
 import no.nav.paw.security.authentication.model.Anonym
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authorization.model.AccessDecision

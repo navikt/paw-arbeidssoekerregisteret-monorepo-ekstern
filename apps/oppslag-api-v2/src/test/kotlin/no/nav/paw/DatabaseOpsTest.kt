@@ -16,7 +16,7 @@ import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
 import no.nav.paw.config.env.Local
 import no.nav.paw.database.config.DatabaseConfig
-import no.nav.paw.model.Identitetsnummer
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.writeBatchToDb
 import no.nav.paw.oppslagapi.data.opplysninger_om_arbeidssoeker_v4
