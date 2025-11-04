@@ -8,7 +8,7 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
-fun opprettOgOppdaterBruker(periode: Periode) {
+fun opprettOgOppdaterBruker(periode: Periode): BrukerId {
     val avsluttet = periode.avsluttet
     val brukerId = BrukerTable.upsert(
         keys = arrayOf(BrukerTable.identitetsnummer),
@@ -35,4 +35,5 @@ fun opprettOgOppdaterBruker(periode: Periode) {
         )
     }
     skrivFlaggTilDB(brukerId, listOf(flagg))
+    return brukerId
 }
