@@ -43,8 +43,11 @@ class BeskyttetAddresseDagligOppdatering(
                     val tidspunkt = clock.now()
                     val finnAlleEldreEnn = tidspunkt - adresseBeskyttelseGyldighetsperiode
                     hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(finnAlleEldreEnn)
-                        .map { profil ->
-                            brukerprofilTjeneste.oppdaterAdresseGradering(profil, tidspunkt)
+                        .also { brukere ->
+                            brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
+                                brukerprofiler = brukere,
+                                tidspunkt = clock.now()
+                            )
                         }.count()
                 }.await().also {
                     sisteKjøring.set(clock.now())
