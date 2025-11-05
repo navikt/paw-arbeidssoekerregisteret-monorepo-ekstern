@@ -2,6 +2,9 @@ package no.naw.paw.minestillinger
 
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
@@ -87,7 +90,7 @@ fun main() {
         clock = clock,
         brukerprofilTjeneste = brukerprofilTjeneste,
         interval = Duration.ofSeconds(15),
-    )
+    ).apply { GlobalScope.launch { this@apply.start() } }
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())
     val appContext = ApplicationContext(
