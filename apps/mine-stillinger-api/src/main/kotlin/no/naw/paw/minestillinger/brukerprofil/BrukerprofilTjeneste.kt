@@ -4,8 +4,13 @@ import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
 import no.nav.paw.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
+import no.nav.paw.security.authentication.model.Bruker
 import no.naw.paw.minestillinger.Clock
+import no.naw.paw.minestillinger.appLogger
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseFeil
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
@@ -49,11 +54,44 @@ class BrukerprofilTjeneste(
         return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
     }
 
+    suspend fun oppdaterAdresseGraderingBulk(
+        brukerprofiler: List<BrukerProfil>,
+        tidspunkt: Instant) {
+        if (brukerprofiler.isEmpty()) return
+        val map = brukerprofiler.associateBy(BrukerProfil::identitetsnummer)
+        pdlClient.harBeskyttetAdresseBulk(brukerprofiler.map(BrukerProfil::identitetsnummer))
+            .forEach { beskyttetAdresse ->
+                when (beskyttetAdresse) {
+                    is AdressebeskyttelseFeil -> appLogger.error("Feil ved henting av adressebeskyttelse for brukerId=${map[beskyttetAdresse.identitetsnummer]?.id?.verdi}")
+                    is AdressebeskyttelseVerdi -> {
+                        val brukerProfil = map[beskyttetAdresse.identitetsnummer]
+                        if (brukerProfil != null) {
+                            oppdaterAdresseGradering(
+                                brukerProfil = brukerProfil,
+                                tidspunkt = tidspunkt,
+                                harGradertAdresseNå = beskyttetAdresse.harBeskyttetAdresse
+                            )
+                        } else {
+                            appLogger.warn("Uventet identitsnummer i adressebeskyttelse resultat")
+                        }
+                    }
+                }
+            }
+    }
+
     suspend fun oppdaterAdresseGradering(
         brukerProfil: BrukerProfil,
         tidspunkt: Instant
     ): BrukerProfil {
         val harGradertAdresseNå = pdlClient.harBeskyttetAdresse(brukerProfil.identitetsnummer)
+        return oppdaterAdresseGradering(brukerProfil, tidspunkt, harGradertAdresseNå)
+    }
+
+    fun oppdaterAdresseGradering(
+        brukerProfil: BrukerProfil,
+        tidspunkt: Instant,
+        harGradertAdresseNå: Boolean
+    ): BrukerProfil {
         val gradertAdresseFlagg = HarBeskyttetadresseFlagg(
             verdi = harGradertAdresseNå,
             tidspunkt = tidspunkt
