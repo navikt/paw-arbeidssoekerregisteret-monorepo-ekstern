@@ -30,14 +30,15 @@ class AntallBrukere(
 
     @kotlin.jvm.Synchronized
     fun oppdaterAntallBrukere() {
-        val debugInfoAntallProfiler = BrukerTable.select(BrukerFlaggTable.id).count()
-        val debuigInfoAntallAktivePerioder = BrukerTable.select(BrukerFlaggTable.id)
-            .where { BrukerTable.arbeidssoekerperiodeAvsluttet.isNull() }
-            .count()
-        appLogger.info("debugInfoAntallProfiler: $debugInfoAntallProfiler")
-        appLogger.info("debugInfoAntallAktivePerioder: $debuigInfoAntallAktivePerioder")
         val data =
             transaction {
+                val debugInfoAntallProfiler = BrukerTable.select(BrukerFlaggTable.id).count()
+                val debuigInfoAntallAktivePerioder = BrukerTable.select(BrukerFlaggTable.id)
+                    .where { BrukerTable.arbeidssoekerperiodeAvsluttet.isNull() }
+                    .count()
+                appLogger.info("debugInfoAntallProfiler: $debugInfoAntallProfiler")
+                appLogger.info("debugInfoAntallAktivePerioder: $debuigInfoAntallAktivePerioder")
+
                 BrukerTable
                     .join(
                         otherTable = BrukerFlaggTable,
