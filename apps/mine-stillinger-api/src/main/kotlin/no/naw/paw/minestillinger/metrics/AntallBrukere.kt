@@ -80,6 +80,7 @@ class AntallBrukere(
                         existing
                     } else {
                         val atomicLong = AtomicLong(value)
+                        appLogger.info("Registrerer ny metrikk for nøkkel: $key")
                         meterRegistry.gauge(
                             "paw_mine_stillinger_antall_brukere",
                             listOf(
@@ -90,6 +91,7 @@ class AntallBrukere(
                             atomicLong,
                             { it.get().toDouble() },
                         )
+                        appLogger.info("Regsterering fullført")
                         atomicLong
                     }
                 }
