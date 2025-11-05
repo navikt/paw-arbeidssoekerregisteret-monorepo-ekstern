@@ -89,7 +89,7 @@ fun main() {
         adresseBeskyttelseGyldighetsperiode = ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE,
         clock = clock,
         brukerprofilTjeneste = brukerprofilTjeneste,
-        interval = Duration.ofSeconds(15),
+        interval = Duration.ofMinutes(15),
     ).apply { GlobalScope.launch { this@apply.start() } }
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())

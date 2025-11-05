@@ -55,7 +55,7 @@ class BeskyttetAddresseDagligOppdatering(
                     }.await().also {
                         sisteKjøring.set(clock.now())
                     }
-                    appLogger.info("Brukerprofil oppdatert adressebeskyttelse for $antall brukere")
+                    appLogger.info("Brukerprofil: oppdaterte adressebeskyttelse for $antall brukere")
                     delay(timeMillis = interval.toMillis())
                 }
             }
