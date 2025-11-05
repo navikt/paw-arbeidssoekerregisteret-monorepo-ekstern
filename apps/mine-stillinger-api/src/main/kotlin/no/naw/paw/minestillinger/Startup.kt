@@ -102,7 +102,6 @@ fun main() {
     val job = GlobalScope.launch {
         val slettUbrukt = async { slettUbrukteBrukerprofiler.start() }
         val oppdaterAdr = async { adresseBeskyttelseOppdatering.start() }
-        appLogger.info("Alle jobber startet, venter på at de skal fullføre...")
         oppdaterAdr.join()
         slettUbrukt.join()
         appLogger.info("Alle jobber fullført")
