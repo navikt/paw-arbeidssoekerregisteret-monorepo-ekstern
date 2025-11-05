@@ -97,9 +97,18 @@ fun main() {
         interval = Duration.ofHours(6),
         clock = clock
     )
-    GlobalScope.launch {
+    appLogger.info("Starter bakgrunnsjobber...")
+    val job = GlobalScope.launch {
         slettUbrukteBrukerprofiler.start()
         adresseBeskyttelseOppdatering.start()
+    }
+    appLogger.info("Startet bakgrunnsjobber")
+    job.invokeOnCompletion { cause ->
+        if (cause != null) {
+            appLogger.error("Feil i bakgrunnsjobb", cause)
+        } else {
+            appLogger.info("Bakgrunnsjobb er fullført uten feil")
+        }
     }
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())
