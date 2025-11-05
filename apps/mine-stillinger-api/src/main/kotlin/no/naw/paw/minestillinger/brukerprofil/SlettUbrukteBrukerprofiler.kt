@@ -1,5 +1,6 @@
 package no.naw.paw.minestillinger.brukerprofil
 
+import io.ktor.utils.io.CancellationException
 import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -26,6 +27,7 @@ class SlettUbrukteBrukerprofiler(
     private val skalFortsette = AtomicBoolean(true)
     private val sisteKjøring = AtomicReference(Instant.EPOCH)
     private val harStartet = AtomicBoolean(false)
+    private val jobb = AtomicReference<Deferred<Unit>?>(null)
 
     suspend fun start(): Deferred<Unit> {
         if (!harStartet.compareAndSet(false, true)) {
@@ -45,8 +47,9 @@ class SlettUbrukteBrukerprofiler(
                     appLogger.info("Slettet $antallSlettet ubrukte brukerprofiler")
                     delay(timeMillis = interval.toMillis())
                 }
+                appLogger.info("Jobb for sletting av ubrukte brukerprofiler er stoppet")
             }
-        }
+        }.also { jobb.set(it) }
     }
 
     override fun isAlive(): Boolean {
@@ -62,6 +65,8 @@ class SlettUbrukteBrukerprofiler(
     }
 
     override fun close() {
-        return skalFortsette.set(false)
+        appLogger.info("Stopper jobb sletting av ubrukte brukerprofiler...")
+        skalFortsette.set(false)
+        jobb.get()?.cancel(CancellationException("Stoppet sletting av ubrukte brukerprofiler"))
     }
 }

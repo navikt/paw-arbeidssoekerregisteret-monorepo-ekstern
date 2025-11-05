@@ -98,8 +98,8 @@ fun main() {
         clock = clock
     )
     GlobalScope.launch {
-        adresseBeskyttelseOppdatering.start()
         slettUbrukteBrukerprofiler.start()
+        adresseBeskyttelseOppdatering.start()
     }
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())

@@ -20,6 +20,7 @@ import java.time.Duration.between
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.cancellation.CancellationException
 
 
 class BeskyttetAddresseDagligOppdatering(
@@ -32,6 +33,7 @@ class BeskyttetAddresseDagligOppdatering(
     private val startet = AtomicBoolean(false)
     private val sisteKjøring = AtomicReference<Instant>(Instant.EPOCH)
     private val skalFortsette = AtomicBoolean(true)
+    private val jobb = AtomicReference<Deferred<Unit>?>(null)
 
     suspend fun start(): Deferred<Unit> {
         if (!startet.compareAndSet(false, true)) {
@@ -58,8 +60,9 @@ class BeskyttetAddresseDagligOppdatering(
                     appLogger.info("Brukerprofil: oppdaterte adressebeskyttelse for $antall brukere")
                     delay(timeMillis = interval.toMillis())
                 }
+                appLogger.info("Jobb for oppdatering av beskyttet adresse er stoppet")
             }
-        }
+        }.also { jobb.set(it) }
     }
 
     override fun isAlive(): Boolean {
@@ -75,6 +78,8 @@ class BeskyttetAddresseDagligOppdatering(
     }
 
     override fun close() {
-        return skalFortsette.set(false)
+        appLogger.info("Stopper oppdatering av beskyttet adresse...")
+        skalFortsette.set(false)
+        jobb.get()?.cancel(CancellationException("Stoppet oppdatering av beskyttet adresse"))
     }
 }
