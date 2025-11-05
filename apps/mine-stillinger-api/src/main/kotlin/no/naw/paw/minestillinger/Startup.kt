@@ -38,6 +38,7 @@ import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
+import no.naw.paw.minestillinger.metrics.AntallBrukere
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -99,21 +100,24 @@ fun main() {
         clock = clock
     )
     appLogger.info("Starter bakgrunnsjobber...")
-    val job = GlobalScope.launch {
-        val slettUbrukt = async { slettUbrukteBrukerprofiler.start() }
-        val oppdaterAdr = async { adresseBeskyttelseOppdatering.start() }
-        oppdaterAdr.join()
-        slettUbrukt.join()
+    GlobalScope.launch {
+        val jobber = listOf (
+            "slett_brukerprofiler" to async { slettUbrukteBrukerprofiler.start() },
+            "oppdater_adressebeskyttelse" to async { adresseBeskyttelseOppdatering.start() },
+            "oppdater_metrics" to async { AntallBrukere(prometheusMeterRegistry).startPeriodiskOppdateringAvMetrics() }
+        )
+        jobber.onEach { (beskrivelse, jobb) ->
+            jobb.invokeOnCompletion { throwable ->
+                if (throwable != null) {
+                    appLogger.error("Feil i bakgrunnsjobb: $beskrivelse", throwable)
+                } else {
+                    appLogger.info("Bakgrunnsjobb fullført uten feil: $beskrivelse")
+                }
+            }
+        }.forEach { (_, jobb) -> jobb.await() }
         appLogger.info("Alle jobber fullført")
     }
     appLogger.info("Startet bakgrunnsjobber")
-    job.invokeOnCompletion { cause ->
-        if (cause != null) {
-            appLogger.error("Feil i bakgrunnsjobb", cause)
-        } else {
-            appLogger.info("Bakgrunnsjobb er fullført uten feil")
-        }
-    }
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())
     val appContext = ApplicationContext(
