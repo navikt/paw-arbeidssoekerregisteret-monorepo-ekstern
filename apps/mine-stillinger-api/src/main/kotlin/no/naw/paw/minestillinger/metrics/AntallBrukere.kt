@@ -3,6 +3,7 @@ package no.naw.paw.minestillinger.metrics
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import kotlinx.coroutines.delay
+import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.ProfileringTable
@@ -28,79 +29,82 @@ class AntallBrukere(
 
     @kotlin.jvm.Synchronized
     fun oppdaterAntallBrukere() {
-        val data = transaction {
-            BrukerTable
-                .join(
-                    otherTable = BrukerFlaggTable,
-                    joinType = JoinType.INNER,
-                    onColumn = BrukerTable.id,
-                    otherColumn = BrukerFlaggTable.brukerId
-                )
-                .join(
-                    otherTable = ProfileringTable,
-                    joinType = JoinType.LEFT,
-                    onColumn = BrukerTable.arbeidssoekerperiodeId,
-                    otherColumn = ProfileringTable.periodeId
-                )
-                .select(
-                    BrukerTable.arbeidssoekerperiodeAvsluttet,
-                    BrukerFlaggTable.verdi,
-                    ProfileringTable.profileringResultat,
-                    BrukerTable.id.count()
-                )
-                .groupBy(
-                    BrukerTable.arbeidssoekerperiodeAvsluttet,
-                    BrukerFlaggTable.verdi,
-                    ProfileringTable.profileringResultat
-                ).map { row ->
-                    MetricDataKey(
-                        arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] != null,
-                        tjenestenErAktiv = row[BrukerFlaggTable.verdi] == true,
-                        profileringsResultat = row[ProfileringTable.profileringResultat]
-                            ?.let { ProfileringResultat.valueOf(it) }
-                            ?: ProfileringResultat.UDEFINERT
-                    ).let { key ->
-                        MetricData(
-                            key = key,
-                            antall = row[BrukerTable.id.count()]
-                        )
-                    }
-                }.associateBy { it.key }
+        val data =
+            transaction {
+                BrukerTable
+                    .join(
+                        otherTable = BrukerFlaggTable,
+                        joinType = JoinType.INNER,
+                        onColumn = BrukerTable.id,
+                        otherColumn = BrukerFlaggTable.brukerId,
+                    ).join(
+                        otherTable = ProfileringTable,
+                        joinType = JoinType.LEFT,
+                        onColumn = BrukerTable.arbeidssoekerperiodeId,
+                        otherColumn = ProfileringTable.periodeId,
+                    ).select(
+                        BrukerTable.arbeidssoekerperiodeAvsluttet,
+                        BrukerFlaggTable.verdi,
+                        ProfileringTable.profileringResultat,
+                        BrukerTable.id.count(),
+                    ).groupBy(
+                        BrukerTable.arbeidssoekerperiodeAvsluttet,
+                        BrukerFlaggTable.verdi,
+                        ProfileringTable.profileringResultat,
+                    ).map { row ->
+                        MetricDataKey(
+                            arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] != null,
+                            tjenestenErAktiv = row[BrukerFlaggTable.verdi] == true,
+                            profileringsResultat =
+                                row[ProfileringTable.profileringResultat]
+                                    ?.let { ProfileringResultat.valueOf(it) }
+                                    ?: ProfileringResultat.UDEFINERT,
+                        ).let { key ->
+                            MetricData(
+                                key = key,
+                                antall = row[BrukerTable.id.count()],
+                            )
+                        }
+                    }.associateBy { it.key }
+            }
+        data.forEach { kv ->
+            appLogger.info("Antall brukere - nøkkel: ${kv.key}, antall: ${kv.value.antall}")
         }
         (metricsMap.keys + data.keys)
             .distinct()
             .map { key -> key to (data[key]?.antall ?: 0L) }
             .forEach { (key, value) ->
-            metricsMap.compute(key) { _, existing ->
-                if (existing != null) {
-                    existing.set(value)
-                    existing
-                } else {
-                    val atomicLong = AtomicLong(value)
-                    meterRegistry.gauge(
-                        "paw_mine_stillinger_antall_brukere",
-                        listOf(
-                            Tag.of("arbeidssoekerperioden_er_aktiv", key.arbeidssoekerPeriodenErAktiv.toString()),
-                            Tag.of("tjenesten_er_aktiv", key.tjenestenErAktiv.toString()),
-                            Tag.of("profilerings_resultat", key.profileringsResultat.name)
-                        ),
-                        atomicLong,
-                        { it.get().toDouble() }
-                    )
-                    atomicLong
+                metricsMap.compute(key) { _, existing ->
+                    if (existing != null) {
+                        existing.set(value)
+                        existing
+                    } else {
+                        val atomicLong = AtomicLong(value)
+                        meterRegistry.gauge(
+                            "paw_mine_stillinger_antall_brukere",
+                            listOf(
+                                Tag.of("arbeidssoekerperioden_er_aktiv", key.arbeidssoekerPeriodenErAktiv.toString()),
+                                Tag.of("tjenesten_er_aktiv", key.tjenestenErAktiv.toString()),
+                                Tag.of("profilerings_resultat", key.profileringsResultat.name),
+                            ),
+                            atomicLong,
+                            { it.get().toDouble() },
+                        )
+                        atomicLong
+                    }
                 }
             }
-        }
     }
 }
 
 data class MetricDataKey(
     val arbeidssoekerPeriodenErAktiv: Boolean,
     val tjenestenErAktiv: Boolean,
-    val profileringsResultat: ProfileringResultat
+    val profileringsResultat: ProfileringResultat,
 )
 
 data class MetricData(
     val key: MetricDataKey,
-    val antall: Long
+    val antall: Long,
 )
+
