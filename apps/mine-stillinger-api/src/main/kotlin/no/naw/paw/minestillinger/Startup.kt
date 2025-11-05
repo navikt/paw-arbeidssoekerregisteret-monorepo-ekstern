@@ -25,6 +25,7 @@ import no.nav.paw.security.texas.TEXAS_CONFIG
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.TexasClientConfig
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.SlettUbrukteBrukerprofiler
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
@@ -90,7 +91,16 @@ fun main() {
         clock = clock,
         brukerprofilTjeneste = brukerprofilTjeneste,
         interval = Duration.ofMinutes(15),
-    ).apply { GlobalScope.launch { this@apply.start() } }
+    )
+    val slettUbrukteBrukerprofiler = SlettUbrukteBrukerprofiler(
+        forsinkelseFørSletting = Duration.ofDays(30),
+        interval = Duration.ofHours(6),
+        clock = clock
+    )
+    GlobalScope.launch {
+        adresseBeskyttelseOppdatering.start()
+        slettUbrukteBrukerprofiler.start()
+    }
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())
     val appContext = ApplicationContext(
@@ -101,7 +111,8 @@ fun main() {
         healthChecks = healthChecksOf(
             consumer,
             DatasourceLivenessProbe(dataSource),
-            adresseBeskyttelseOppdatering
+            adresseBeskyttelseOppdatering,
+            slettUbrukteBrukerprofiler
         ),
         idClient = webClients.kafkaClient,
         pdlClient = webClients.pdlClient,
