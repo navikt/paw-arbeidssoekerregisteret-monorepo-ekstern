@@ -10,6 +10,7 @@ import no.naw.paw.minestillinger.db.ProfileringTable
 import no.naw.paw.minestillinger.domain.ProfileringResultat
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.count
+import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
@@ -29,6 +30,12 @@ class AntallBrukere(
 
     @kotlin.jvm.Synchronized
     fun oppdaterAntallBrukere() {
+        val debugInfoAntallProfiler = BrukerTable.select(BrukerFlaggTable.id).count()
+        val debuigInfoAntallAktivePerioder = BrukerTable.select(BrukerFlaggTable.id)
+            .where { BrukerTable.arbeidssoekerperiodeAvsluttet.isNull() }
+            .count()
+        appLogger.info("debugInfoAntallProfiler: $debugInfoAntallProfiler")
+        appLogger.info("debugInfoAntallAktivePerioder: $debuigInfoAntallAktivePerioder")
         val data =
             transaction {
                 BrukerTable
