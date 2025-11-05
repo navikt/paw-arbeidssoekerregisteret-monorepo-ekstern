@@ -1,9 +1,6 @@
 package no.naw.paw.minestillinger.brukerprofil.beskyttetadresse
 
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
@@ -35,35 +32,30 @@ class BeskyttetAddresseDagligOppdatering(
     private val skalFortsette = AtomicBoolean(true)
     private val jobb = AtomicReference<Deferred<Unit>?>(null)
 
-    suspend fun start(): Deferred<Unit> {
+    suspend fun start() {
         if (!startet.compareAndSet(false, true)) {
-            return CompletableDeferred<Unit>().apply {
-                completeExceptionally(
-                    IllegalStateException("Kan ikke starte beskyttet adresse oppdatering flere ganger")
-                )
-            }
+            throw IllegalStateException("Kan ikke starte beskyttet adresse oppdatering flere ganger")
         }
-        return coroutineScope {
-            async {
-                while (skalFortsette.get()) {
-                    appLogger.info("Starter oppdatering av adressebeskyttelse for brukerprofiler")
-                    val antall = suspendedTransactionAsync {
-                        val tidspunkt = clock.now()
-                        val finnAlleEldreEnn = tidspunkt - adresseBeskyttelseGyldighetsperiode
-                        hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(finnAlleEldreEnn)
-                            .map { profil ->
-                                brukerprofilTjeneste.oppdaterAdresseGradering(profil, tidspunkt)
-                            }.count()
-                    }.await().also {
-                        sisteKjøring.set(clock.now())
-                    }
-                    appLogger.info("Brukerprofil: oppdaterte adressebeskyttelse for $antall brukere")
-                    delay(timeMillis = interval.toMillis())
+        while (skalFortsette.get()) {
+            if (between(sisteKjøring.get(), clock.now()) > interval) {
+                appLogger.info("Starter oppdatering av adressebeskyttelse for brukerprofiler")
+                val antall = suspendedTransactionAsync {
+                    val tidspunkt = clock.now()
+                    val finnAlleEldreEnn = tidspunkt - adresseBeskyttelseGyldighetsperiode
+                    hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(finnAlleEldreEnn)
+                        .map { profil ->
+                            brukerprofilTjeneste.oppdaterAdresseGradering(profil, tidspunkt)
+                        }.count()
+                }.await().also {
+                    sisteKjøring.set(clock.now())
                 }
-                appLogger.info("Jobb for oppdatering av beskyttet adresse er stoppet")
+                appLogger.info("Brukerprofil: oppdaterte adressebeskyttelse for $antall brukere")
             }
-        }.also { jobb.set(it) }
+            delay(timeMillis = 1000)
+        }
+        appLogger.info("Jobb for oppdatering av beskyttet adresse er stoppet")
     }
+
 
     override fun isAlive(): Boolean {
         return between(sisteKjøring.get(), clock.now()) < (interval + Duration.ofMinutes(20))

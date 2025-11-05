@@ -3,6 +3,7 @@ package no.naw.paw.minestillinger
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -99,8 +100,12 @@ fun main() {
     )
     appLogger.info("Starter bakgrunnsjobber...")
     val job = GlobalScope.launch {
-        slettUbrukteBrukerprofiler.start()
-        adresseBeskyttelseOppdatering.start()
+        val slettUbrukt = async { slettUbrukteBrukerprofiler.start() }
+        val oppdaterAdr = async { adresseBeskyttelseOppdatering.start() }
+        appLogger.info("Alle jobber startet, venter på at de skal fullføre...")
+        oppdaterAdr.join()
+        slettUbrukt.join()
+        appLogger.info("Alle jobber fullført")
     }
     appLogger.info("Startet bakgrunnsjobber")
     job.invokeOnCompletion { cause ->

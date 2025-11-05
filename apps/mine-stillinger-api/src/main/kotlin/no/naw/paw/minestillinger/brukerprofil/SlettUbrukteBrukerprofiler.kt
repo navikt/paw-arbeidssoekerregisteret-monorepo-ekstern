@@ -1,11 +1,6 @@
 package no.naw.paw.minestillinger.brukerprofil
 
-import io.ktor.utils.io.CancellationException
 import io.ktor.utils.io.core.Closeable
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
@@ -27,29 +22,22 @@ class SlettUbrukteBrukerprofiler(
     private val skalFortsette = AtomicBoolean(true)
     private val sisteKjøring = AtomicReference(Instant.EPOCH)
     private val harStartet = AtomicBoolean(false)
-    private val jobb = AtomicReference<Deferred<Unit>?>(null)
 
-    suspend fun start(): Deferred<Unit> {
+    suspend fun start() {
         if (!harStartet.compareAndSet(false, true)) {
-            return CompletableDeferred<Unit>().apply {
-                completeExceptionally(
-                    IllegalStateException("Kan ikke starte sletting av ubrukte brukerprofiler flere ganger")
-                )
-            }
+            throw IllegalStateException("Kan ikke starte sletting av ubrukte brukerprofiler flere ganger")
         }
-
-        return coroutineScope {
-            async {
-                while (skalFortsette.get()) {
-                    val grense = clock.now() - forsinkelseFørSletting
-                    appLogger.info("Sletter alle profiler med avsluttet periode før $grense")
-                    val antallSlettet = slettHvorPeriodeAvsluttetFør(grense)
-                    appLogger.info("Slettet $antallSlettet ubrukte brukerprofiler")
-                    delay(timeMillis = interval.toMillis())
-                }
-                appLogger.info("Jobb for sletting av ubrukte brukerprofiler er stoppet")
+        while (skalFortsette.get()) {
+            if (between(sisteKjøring.get(), clock.now()) > interval) {
+                val grense = clock.now() - forsinkelseFørSletting
+                appLogger.info("Sletter alle profiler med avsluttet periode før $grense")
+                val antallSlettet = slettHvorPeriodeAvsluttetFør(grense)
+                appLogger.info("Slettet $antallSlettet ubrukte brukerprofiler")
+                sisteKjøring.set(clock.now())
             }
-        }.also { jobb.set(it) }
+            delay(timeMillis = 1000L)
+        }
+        appLogger.info("Jobb for sletting av ubrukte brukerprofiler er stoppet")
     }
 
     override fun isAlive(): Boolean {
@@ -67,6 +55,5 @@ class SlettUbrukteBrukerprofiler(
     override fun close() {
         appLogger.info("Stopper jobb sletting av ubrukte brukerprofiler...")
         skalFortsette.set(false)
-        jobb.get()?.cancel(CancellationException("Stoppet sletting av ubrukte brukerprofiler"))
     }
 }
