@@ -95,7 +95,7 @@ fun main() {
     )
     val slettUbrukteBrukerprofiler = SlettUbrukteBrukerprofiler(
         forsinkelseFørSletting = Duration.ofDays(30),
-        interval = Duration.ofHours(6),
+        interval = Duration.ofMinutes(17),
         clock = clock
     )
     appLogger.info("Starter bakgrunnsjobber...")
