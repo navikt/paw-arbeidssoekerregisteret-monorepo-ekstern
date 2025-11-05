@@ -53,7 +53,7 @@ class AntallBrukere(
                         ProfileringTable.profileringResultat,
                     ).map { row ->
                         MetricDataKey(
-                            arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] != null,
+                            arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] == null,
                             tjenestenErAktiv = row[BrukerFlaggTable.verdi] == true,
                             profileringsResultat =
                                 row[ProfileringTable.profileringResultat]
