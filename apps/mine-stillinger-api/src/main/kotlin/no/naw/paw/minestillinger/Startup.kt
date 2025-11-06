@@ -26,6 +26,7 @@ import no.nav.paw.security.texas.TEXAS_CONFIG
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.TexasClientConfig
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.SlettGamlePropfileringerUtenProfil
 import no.naw.paw.minestillinger.brukerprofil.SlettUbrukteBrukerprofiler
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
@@ -99,12 +100,18 @@ fun main() {
         interval = Duration.ofMinutes(17),
         clock = clock
     )
+    val slettGamlePropfileringerUtenProfil = SlettGamlePropfileringerUtenProfil(
+        forsinkelseFørSletting = Duration.ofDays(7),
+        interval = Duration.ofMinutes(16),
+        clock = clock
+    )
     appLogger.info("Starter bakgrunnsjobber...")
     GlobalScope.launch {
         val jobber = listOf (
             "slett_brukerprofiler" to async { slettUbrukteBrukerprofiler.start() },
             "oppdater_adressebeskyttelse" to async { adresseBeskyttelseOppdatering.start() },
-            "oppdater_metrics" to async { AntallBrukere(prometheusMeterRegistry).startPeriodiskOppdateringAvMetrics() }
+            "oppdater_metrics" to async { AntallBrukere(prometheusMeterRegistry).startPeriodiskOppdateringAvMetrics() },
+            "slette_frittstaende_profileringer" to async { slettUbrukteBrukerprofiler.start()}
         )
         jobber.onEach { (beskrivelse, jobb) ->
             jobb.invokeOnCompletion { throwable ->
