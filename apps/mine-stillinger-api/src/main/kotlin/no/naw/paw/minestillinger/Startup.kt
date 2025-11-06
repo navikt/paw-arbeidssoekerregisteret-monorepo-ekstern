@@ -2,10 +2,6 @@ package no.naw.paw.minestillinger
 
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
@@ -26,11 +22,6 @@ import no.nav.paw.security.texas.TEXAS_CONFIG
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.TexasClientConfig
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
-import no.naw.paw.minestillinger.brukerprofil.SlettGamlePropfileringerUtenProfil
-import no.naw.paw.minestillinger.brukerprofil.SlettUbrukteBrukerprofiler
-import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE
-import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
-import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
 import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
@@ -39,12 +30,10 @@ import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
-import no.naw.paw.minestillinger.metrics.AntallBrukere
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
-import java.time.Duration
 import java.util.*
 
 val appLogger = LoggerFactory.getLogger("brukerprofiler_api")
@@ -89,43 +78,12 @@ fun main() {
         abTestingRegex = requireNotNull(System.getenv("AB_TESTING_REGEX")?.toRegex()) { "AB_TESTING_REGEX env variabel må være satt" },
         clock = clock
     )
-    val adresseBeskyttelseOppdatering = BeskyttetAddresseDagligOppdatering(
-        pdlFunction = webClients.pdlClient::harBeskyttetAdresseBulk,
-        adresseBeskyttelseGyldighetsperiode = ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE,
+    val bakgrunnsprosesser = initBakgrunnsprosesser(
+        webClients = webClients,
         clock = clock,
         brukerprofilTjeneste = brukerprofilTjeneste,
-        interval = Duration.ofMinutes(15),
+        prometheusMeterRegistry = prometheusMeterRegistry
     )
-    val slettUbrukteBrukerprofiler = SlettUbrukteBrukerprofiler(
-        forsinkelseFørSletting = Duration.ofDays(30),
-        interval = Duration.ofMinutes(17),
-        clock = clock
-    )
-    val slettGamlePropfileringerUtenProfil = SlettGamlePropfileringerUtenProfil(
-        forsinkelseFørSletting = Duration.ofDays(7),
-        interval = Duration.ofMinutes(16),
-        clock = clock
-    )
-    appLogger.info("Starter bakgrunnsjobber...")
-    GlobalScope.launch {
-        val jobber = listOf (
-            "slett_brukerprofiler" to async { slettUbrukteBrukerprofiler.start() },
-            "oppdater_adressebeskyttelse" to async { adresseBeskyttelseOppdatering.start() },
-            "oppdater_metrics" to async { AntallBrukere(prometheusMeterRegistry).startPeriodiskOppdateringAvMetrics() },
-            "slette_frittstaende_profileringer" to async { slettGamlePropfileringerUtenProfil.start()}
-        )
-        jobber.onEach { (beskrivelse, jobb) ->
-            jobb.invokeOnCompletion { throwable ->
-                if (throwable != null) {
-                    appLogger.error("Feil i bakgrunnsjobb: $beskrivelse", throwable)
-                } else {
-                    appLogger.info("Bakgrunnsjobb fullført uten feil: $beskrivelse")
-                }
-            }
-        }.forEach { (_, jobb) -> jobb.await() }
-        appLogger.info("Alle jobber fullført")
-    }
-    appLogger.info("Startet bakgrunnsjobber")
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())
     val appContext = ApplicationContext(
@@ -135,11 +93,8 @@ fun main() {
         securityConfig = securityConfig,
         healthChecks = healthChecksOf(
             consumer,
-            DatasourceLivenessProbe(dataSource),
-            adresseBeskyttelseOppdatering,
-            slettUbrukteBrukerprofiler,
-            slettGamlePropfileringerUtenProfil
-        ),
+            DatasourceLivenessProbe(dataSource)
+        ) + bakgrunnsprosesser.helthChecks(),
         idClient = webClients.kafkaClient,
         pdlClient = webClients.pdlClient,
         brukerprofilTjeneste = brukerprofilTjeneste,

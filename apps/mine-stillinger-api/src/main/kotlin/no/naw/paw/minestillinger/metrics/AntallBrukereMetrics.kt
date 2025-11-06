@@ -18,7 +18,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicLong
 
-class AntallBrukere(
+class AntallBrukereMetrics(
     val meterRegistry: MeterRegistry,
 ) {
     private val metricsMap = HashMap<MetricDataKey, AtomicLong>()

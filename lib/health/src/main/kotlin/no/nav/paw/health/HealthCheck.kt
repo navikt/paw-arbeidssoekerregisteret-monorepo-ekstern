@@ -18,6 +18,10 @@ class HealthChecks(vararg healthChecks: HealthCheck) : LivenessCheck, ReadinessC
 
     override fun iterator(): Iterator<HealthCheck> = (alive + ready + started).iterator()
 
+    operator fun plus(healthCheck: HealthCheck): HealthChecks = HealthChecks(*(this.toList().toTypedArray() + healthCheck))
+
+    operator fun plus(healthCheck: Iterable<HealthCheck>): HealthChecks = HealthChecks(
+        *(this.toList() + healthCheck.toList()).toTypedArray())
 }
 
 fun healthChecksOf(vararg healthChecks: HealthCheck) = HealthChecks(*healthChecks)
