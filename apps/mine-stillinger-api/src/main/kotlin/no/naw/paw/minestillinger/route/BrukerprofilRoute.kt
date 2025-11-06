@@ -1,7 +1,6 @@
 package no.naw.paw.minestillinger.route
 
 import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.request.uri
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.put
@@ -14,16 +13,15 @@ import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.naw.paw.minestillinger.Clock
-import no.naw.paw.minestillinger.Error
 import no.naw.paw.minestillinger.api.ApiStillingssoek
 import no.naw.paw.minestillinger.api.domain
 import no.naw.paw.minestillinger.api.vo.toApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
-import no.naw.paw.minestillinger.brukerprofil.brukerIkkeFunnet
+import no.naw.paw.minestillinger.brukerIkkeFunnet
 import no.naw.paw.minestillinger.brukerprofil.hentApiBrukerprofil
 import no.naw.paw.minestillinger.brukerprofil.setTjenestatestatus
+import no.naw.paw.minestillinger.tjenesteIkkeAktiv
 import no.naw.paw.minestillinger.db.ops.SøkAdminOps
-import no.naw.paw.minestillinger.mineStillingerProblemDetails
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.slf4j.LoggerFactory.getLogger
 
@@ -43,11 +41,7 @@ fun Route.brukerprofilRoute(
                 val response = brukerprofilTjeneste.hentApiBrukerprofil(
                     hentSøk = { brukerId -> søkeAdminOps.hentSoek(brukerId).map { it.soek } },
                     identitetsnummer = identitetsnummer,
-                )?.let(::Data) ?: mineStillingerProblemDetails(
-                    error = Error.BRUKERPROFIL_IKKE_FUNNET,
-                    detail = "Brukerprofil ikke funnet",
-                    instance = call.request.uri
-                )
+                )?.let(::Data) ?: brukerIkkeFunnet()
                 call.respondWith(response)
             }
             put("/tjenestestatus/{tjenestestatus}") {
@@ -72,11 +66,7 @@ fun Route.brukerprofilRoute(
                         brukerIkkeFunnet()
                     } else {
                         if (!profil.tjenestenErAktiv) {
-                            mineStillingerProblemDetails(
-                                error = Error.TJENESTEN_ER_IKKE_AKTIV,
-                                detail = "Kan ikke oppdatere stillingssøk når tjenesten ikke er aktiv for brukeren.",
-                                instance = call.request.uri
-                            )
+                            tjenesteIkkeAktiv()
                         } else {
                             søkeAdminOps.slettAlleSoekForBruker(brukerId)
                             val tidspunkt = clock.now()

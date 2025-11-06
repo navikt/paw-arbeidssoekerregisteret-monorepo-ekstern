@@ -21,6 +21,8 @@ import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.Stillingssoek
 import no.naw.paw.minestillinger.domain.api
+import no.naw.paw.minestillinger.internFeil
+import no.naw.paw.minestillinger.oppdateringIkkeTillatt
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 
 suspend fun BrukerprofilTjeneste.hentApiBrukerprofil(

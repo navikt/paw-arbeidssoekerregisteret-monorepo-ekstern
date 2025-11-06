@@ -7,9 +7,9 @@ import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
-import no.nav.paw.security.authentication.model.Bruker
 import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.appLogger
+import no.naw.paw.minestillinger.brukerIkkeFunnet
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseFeil
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
