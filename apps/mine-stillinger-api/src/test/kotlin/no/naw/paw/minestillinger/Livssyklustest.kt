@@ -27,9 +27,6 @@ import no.nav.paw.test.data.periode.createProfilering
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.ApiStedSoek
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
-import no.naw.paw.minestillinger.api.vo.ApiFylke
-import no.naw.paw.minestillinger.api.vo.ApiKommune
-import no.naw.paw.minestillinger.api.vo.ApiStillingssoekType
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
@@ -63,48 +60,6 @@ class Livssyklustest : FreeSpec({
 
     fun forwardTimeByHours(hours: Long) {
         currentTime.updateAndGet { it.plus(hours, ChronoUnit.HOURS) }
-    }
-
-    fun createApiStedSoek(
-        fylkeNavn: String,
-        fylkesnummer: String,
-        kommuneNavn: String,
-        kommunenummer: String
-    ) = ApiStedSoek(
-        soekType = ApiStillingssoekType.STED_SOEK_V1,
-        fylker = listOf(
-            ApiFylke(
-                navn = fylkeNavn,
-                fylkesnummer = fylkesnummer,
-                kommuner = listOf(
-                    ApiKommune(
-                        navn = kommuneNavn,
-                        kommunenummer = kommunenummer
-                    )
-                )
-            )
-        ),
-        soekeord = emptyList(),
-        styrk08 = emptyList()
-    )
-
-    fun assertStedSoek(
-        søk: ApiStedSoek,
-        fylkeNavn: String,
-        fylkesnummer: String,
-        kommuneNavn: String,
-        kommunenummer: String
-    ) {
-        søk.fylker.firstOrNull() should { fylke ->
-            fylke.shouldNotBeNull()
-            fylke.fylkesnummer shouldBe fylkesnummer
-            fylke.navn shouldBe fylkeNavn
-            fylke.kommuner.firstOrNull() should { kommune ->
-                kommune.shouldNotBeNull()
-                kommune.kommunenummer shouldBe kommunenummer
-                kommune.navn shouldBe kommuneNavn
-            }
-        }
     }
 
     val oauthServer = MockOAuth2Server()
