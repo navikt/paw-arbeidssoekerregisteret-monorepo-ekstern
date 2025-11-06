@@ -111,7 +111,7 @@ fun main() {
             "slett_brukerprofiler" to async { slettUbrukteBrukerprofiler.start() },
             "oppdater_adressebeskyttelse" to async { adresseBeskyttelseOppdatering.start() },
             "oppdater_metrics" to async { AntallBrukere(prometheusMeterRegistry).startPeriodiskOppdateringAvMetrics() },
-            "slette_frittstaende_profileringer" to async { slettUbrukteBrukerprofiler.start()}
+            "slette_frittstaende_profileringer" to async { slettGamlePropfileringerUtenProfil.start()}
         )
         jobber.onEach { (beskrivelse, jobb) ->
             jobb.invokeOnCompletion { throwable ->
@@ -136,7 +136,8 @@ fun main() {
             consumer,
             DatasourceLivenessProbe(dataSource),
             adresseBeskyttelseOppdatering,
-            slettUbrukteBrukerprofiler
+            slettUbrukteBrukerprofiler,
+            slettGamlePropfileringerUtenProfil
         ),
         idClient = webClients.kafkaClient,
         pdlClient = webClients.pdlClient,
