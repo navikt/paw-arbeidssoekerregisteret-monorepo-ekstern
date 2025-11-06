@@ -79,6 +79,7 @@ fun main() {
     val dataSource = initDatabase(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val webClients = initWebClient()
     val brukerprofilTjeneste = BrukerprofilTjeneste(
+        meterRegistry = prometheusMeterRegistry,
         pdlClient = webClients.pdlClient,
         hentBrukerprofilUtenFlagg = ::hentBrukerProfilUtenFlagg,
         skrivFlagg = ::skrivFlaggTilDB,
