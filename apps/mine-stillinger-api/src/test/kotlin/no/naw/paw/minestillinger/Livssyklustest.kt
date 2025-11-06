@@ -9,14 +9,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.call.body
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
-import io.ktor.client.request.put
-import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -53,7 +47,6 @@ import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
-import no.naw.paw.minestillinger.route.BRUKERPROFIL_PATH
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -70,6 +63,48 @@ class Livssyklustest : FreeSpec({
 
     fun forwardTimeByHours(hours: Long) {
         currentTime.updateAndGet { it.plus(hours, ChronoUnit.HOURS) }
+    }
+
+    fun createApiStedSoek(
+        fylkeNavn: String,
+        fylkesnummer: String,
+        kommuneNavn: String,
+        kommunenummer: String
+    ) = ApiStedSoek(
+        soekType = ApiStillingssoekType.STED_SOEK_V1,
+        fylker = listOf(
+            ApiFylke(
+                navn = fylkeNavn,
+                fylkesnummer = fylkesnummer,
+                kommuner = listOf(
+                    ApiKommune(
+                        navn = kommuneNavn,
+                        kommunenummer = kommunenummer
+                    )
+                )
+            )
+        ),
+        soekeord = emptyList(),
+        styrk08 = emptyList()
+    )
+
+    fun assertStedSoek(
+        søk: ApiStedSoek,
+        fylkeNavn: String,
+        fylkesnummer: String,
+        kommuneNavn: String,
+        kommunenummer: String
+    ) {
+        søk.fylker.firstOrNull() should { fylke ->
+            fylke.shouldNotBeNull()
+            fylke.fylkesnummer shouldBe fylkesnummer
+            fylke.navn shouldBe fylkeNavn
+            fylke.kommuner.firstOrNull() should { kommune ->
+                kommune.shouldNotBeNull()
+                kommune.kommunenummer shouldBe kommunenummer
+                kommune.navn shouldBe kommuneNavn
+            }
+        }
     }
 
     val oauthServer = MockOAuth2Server()
@@ -102,6 +137,7 @@ class Livssyklustest : FreeSpec({
                 )
             }
             val testClient = testClient()
+            val helper = TestHelper(oauthServer)
             val olaPeriode = PeriodeFactory.create().build(identitetsnummer = "12111111111")
             val olaPeriode2 = PeriodeFactory.create().build(identitetsnummer = olaPeriode.identitetsnummer)
             val kariPeriode = PeriodeFactory.create().build(identitetsnummer = "14111111111")
@@ -121,7 +157,8 @@ class Livssyklustest : FreeSpec({
                 )
             }
 
-            "Rolf som ikke er i testgruppen" - {
+            with(helper) {
+                "Rolf som ikke er i testgruppen" - {
                 "får tjenestestatus ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     transaction {
@@ -132,11 +169,7 @@ class Livssyklustest : FreeSpec({
                             )
                         )
                     }
-                    val response = testClient.get(BRUKERPROFIL_PATH) {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = rolfIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.getBrukerprofil(rolfIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe rolfIdent.verdi
@@ -159,11 +192,7 @@ class Livssyklustest : FreeSpec({
                         )
                     )
                 }
-                val aktiverResponse = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = kariIdent))
-                    contentType(Application.Json)
-                }
-                aktiverResponse.validateAgainstOpenApiSpec()
+                val aktiverResponse = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, kariIdent)
                 withClue(aktiverResponse.bodyAsText()) {
                     aktiverResponse.status shouldBe HttpStatusCode.NoContent
                 }
@@ -173,26 +202,10 @@ class Livssyklustest : FreeSpec({
 
             "Kari kan lagre et søk" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = kariIdent))
-                    contentType(Application.Json)
-                    setBody(
-                        listOf(
-                            ApiStedSoek(
-                                soekType = ApiStillingssoekType.STED_SOEK_V1, fylker = listOf(
-                                    ApiFylke(
-                                        navn = "Viken", fylkesnummer = "30", kommuner = listOf(
-                                            ApiKommune(
-                                                navn = "Drammen", kommunenummer = "3005"
-                                            )
-                                        )
-                                    )
-                                ), soekeord = emptyList(), styrk08 = emptyList()
-                            )
-                        )
-                    )
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.lagreStillingssoek(
+                    listOf(createApiStedSoek("Viken", "30", "Drammen", "3005")),
+                    kariIdent
+                )
                 response.status shouldBe HttpStatusCode.NoContent
                 coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(kariIdent) }
                 testLogger.info("Avslutter: ${this.testCase.name.name}")
@@ -200,11 +213,7 @@ class Livssyklustest : FreeSpec({
 
             "Når Ola aldri har vært arbeidssøker får han 404 ved henting av brukerprofil" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(olaIdent)
                 response.status shouldBe HttpStatusCode.NotFound
                 coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
                 testLogger.info("Avslutter: ${this.testCase.name.name}")
@@ -215,11 +224,7 @@ class Livssyklustest : FreeSpec({
                 transaction {
                     opprettOgOppdaterBruker(olaPeriode)
                 }
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(olaIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe olaIdent.verdi
@@ -239,11 +244,7 @@ class Livssyklustest : FreeSpec({
                         )
                     )
                 }
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(olaIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe olaIdent.verdi
@@ -261,11 +262,7 @@ class Livssyklustest : FreeSpec({
                         createProfilering(periodeId = olaPeriode.id, profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER)
                     )
                 }
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(olaIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe olaIdent.verdi
@@ -281,11 +278,7 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
-                    val response = testClient.get(BRUKERPROFIL_PATH) {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.verdi
@@ -298,11 +291,7 @@ class Livssyklustest : FreeSpec({
 
                 "forsøk på å starte tjenesten gir 403 forbidden" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, olaIdent)
                     response.status shouldBe HttpStatusCode.Forbidden
                     coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
@@ -310,11 +299,7 @@ class Livssyklustest : FreeSpec({
 
                 "etter forsøk på å starte skal tjenestestatus være endret til ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val response = testClient.get(BRUKERPROFIL_PATH) {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.verdi
@@ -327,26 +312,10 @@ class Livssyklustest : FreeSpec({
 
                 "forsøk på å lagre et søk gir 403 forbidden" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                        setBody(
-                            listOf(
-                                ApiStedSoek(
-                                    soekType = ApiStillingssoekType.STED_SOEK_V1, fylker = listOf(
-                                        ApiFylke(
-                                            navn = "Vestland", fylkesnummer = "46", kommuner = listOf(
-                                                ApiKommune(
-                                                    navn = "Bergen", kommunenummer = "4601"
-                                                )
-                                            )
-                                        )
-                                    ), soekeord = emptyList(), styrk08 = emptyList()
-                                )
-                            )
-                        )
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.lagreStillingssoek(
+                        listOf(createApiStedSoek("Vestland", "46", "Bergen", "4601")),
+                        olaIdent
+                    )
                     response.status shouldBe HttpStatusCode.Forbidden
                     coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
@@ -357,11 +326,7 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns false
-                    val response = testClient.get(BRUKERPROFIL_PATH) {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.verdi
@@ -404,11 +369,7 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
                     coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns false
-                    val response = testClient.get(BRUKERPROFIL_PATH) {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.verdi
@@ -420,11 +381,7 @@ class Livssyklustest : FreeSpec({
 
                 "Tjenesten kan aktiveres igjen" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, olaIdent)
                     withClue(response.bodyAsText()) {
                         response.status shouldBe HttpStatusCode.NoContent
                     }
@@ -433,37 +390,17 @@ class Livssyklustest : FreeSpec({
 
                 "Søk kan lagres" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                        setBody(
-                            listOf(
-                                ApiStedSoek(
-                                    soekType = ApiStillingssoekType.STED_SOEK_V1, fylker = listOf(
-                                        ApiFylke(
-                                            navn = "Vestland", fylkesnummer = "46", kommuner = listOf(
-                                                ApiKommune(
-                                                    navn = "Bergen", kommunenummer = "4601"
-                                                )
-                                            )
-                                        )
-                                    ), soekeord = emptyList(), styrk08 = emptyList()
-                                )
-                            )
-                        )
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.lagreStillingssoek(
+                        listOf(createApiStedSoek("Vestland", "46", "Bergen", "4601")),
+                        olaIdent
+                    )
                     response.status shouldBe HttpStatusCode.NoContent
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
                 "Brukerprofilen skal nå inneholde søket han lagret" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val response = testClient.get(BRUKERPROFIL_PATH) {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.verdi
@@ -472,16 +409,7 @@ class Livssyklustest : FreeSpec({
                         profil.stillingssoek.firstOrNull() should { søk ->
                             søk.shouldNotBeNull()
                             søk.shouldBeInstanceOf<ApiStedSoek>()
-                            søk.fylker.firstOrNull() should { fylke ->
-                                fylke.shouldNotBeNull()
-                                fylke.fylkesnummer shouldBe "46"
-                                fylke.navn shouldBe "Vestland"
-                                fylke.kommuner.firstOrNull() should { kommune ->
-                                    kommune.shouldNotBeNull()
-                                    kommune.kommunenummer shouldBe "4601"
-                                    kommune.navn shouldBe "Bergen"
-                                }
-                            }
+                            assertStedSoek(søk, "Vestland", "46", "Bergen", "4601")
                         }
                     }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
@@ -497,11 +425,7 @@ class Livssyklustest : FreeSpec({
                         )
                     )
                 }
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(olaIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe olaIdent.verdi
@@ -513,38 +437,17 @@ class Livssyklustest : FreeSpec({
 
             "Ola kan fremdeles lagre et nytt søk" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.put("$BRUKERPROFIL_PATH/stillingssoek") {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                    setBody(
-                        listOf(
-                            ApiStedSoek(
-                                soekType = ApiStillingssoekType.STED_SOEK_V1, fylker = listOf(
-                                    ApiFylke(
-                                        navn = "Vestland", fylkesnummer = "41", kommuner = listOf(
-                                            ApiKommune(
-                                                navn = "Askøy", kommunenummer = "4102"
-                                            )
-                                        )
-                                    )
-                                ), soekeord = emptyList(), styrk08 = emptyList(
-                                )
-                            )
-                        )
-                    )
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.lagreStillingssoek(
+                    listOf(createApiStedSoek("Vestland", "41", "Askøy", "4102")),
+                    olaIdent
+                )
                 response.status shouldBe HttpStatusCode.NoContent
                 testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
 
             "Det er det nye søket som er lagret på profilen til Ola" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(olaIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe olaIdent.verdi
@@ -553,16 +456,7 @@ class Livssyklustest : FreeSpec({
                     profil.stillingssoek.firstOrNull() should { søk ->
                         søk.shouldNotBeNull()
                         søk.shouldBeInstanceOf<ApiStedSoek>()
-                        søk.fylker.firstOrNull() should { fylke ->
-                            fylke.shouldNotBeNull()
-                            fylke.fylkesnummer shouldBe "41"
-                            fylke.navn shouldBe "Vestland"
-                            fylke.kommuner.firstOrNull() should { kommune ->
-                                kommune.shouldNotBeNull()
-                                kommune.kommunenummer shouldBe "4102"
-                                kommune.navn shouldBe "Askøy"
-                            }
-                        }
+                        assertStedSoek(søk, "Vestland", "41", "Askøy", "4102")
                     }
                 }
                 testLogger.info("Avslutter: ${this.testCase.name.name}")
@@ -570,11 +464,7 @@ class Livssyklustest : FreeSpec({
 
             "Ola kan deaktivere tjenesten" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/INAKTIV") {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.setTjenestestatus(ApiTjenesteStatus.INAKTIV, olaIdent)
                 withClue(response.bodyAsText()) {
                     response.status shouldBe HttpStatusCode.NoContent
                 }
@@ -583,11 +473,7 @@ class Livssyklustest : FreeSpec({
 
             "Ola har nå tjenestestatus ${ApiTjenesteStatus.INAKTIV} selv om han er profilert til antatt behov for veiledning" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(olaIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
@@ -597,11 +483,7 @@ class Livssyklustest : FreeSpec({
 
             "Ola kan aktivere tjenesten igjen selv om han er profilert til antatt behov for veiledning" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, olaIdent)
                 withClue(response.bodyAsText()) {
                     response.status shouldBe HttpStatusCode.NoContent
                 }
@@ -610,11 +492,7 @@ class Livssyklustest : FreeSpec({
 
             "Tjenesten er aktiv igjen for Ola" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(olaIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
@@ -629,11 +507,7 @@ class Livssyklustest : FreeSpec({
                 coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
                 "Tjenestestatus er ${ApiTjenesteStatus.AKTIV}" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val response = testClient.get(BRUKERPROFIL_PATH) {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.verdi
@@ -644,11 +518,7 @@ class Livssyklustest : FreeSpec({
                 }
                 "Forsøk på å aktivere tjenesten gir 403 forbidden" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val aktiverResponse = testClient.put("${BRUKERPROFIL_PATH}/tjenestestatus/AKTIV") {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    aktiverResponse.validateAgainstOpenApiSpec()
+                    val aktiverResponse = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, olaIdent)
                     aktiverResponse.status shouldBe HttpStatusCode.Forbidden
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
@@ -667,11 +537,7 @@ class Livssyklustest : FreeSpec({
                 }
                 "Tjenestestatus er endret til ${ApiTjenesteStatus.KAN_IKKE_LEVERES} og søket er slettet" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    val response = testClient.get(BRUKERPROFIL_PATH) {
-                        bearerAuth(oauthServer.sluttbrukerToken(id = olaIdent))
-                        contentType(Application.Json)
-                    }
-                    response.validateAgainstOpenApiSpec()
+                    val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.verdi
@@ -685,11 +551,7 @@ class Livssyklustest : FreeSpec({
 
             "Kari er fremdeles aktiv med 1 søk" {
                 testLogger.info("Starter: ${this.testCase.name.name}")
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = kariIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(kariIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe kariIdent.verdi
@@ -698,16 +560,7 @@ class Livssyklustest : FreeSpec({
                     profil.stillingssoek.firstOrNull() should { søk ->
                         søk.shouldNotBeNull()
                         søk.shouldBeInstanceOf<ApiStedSoek>()
-                        søk.fylker.firstOrNull() should { fylke ->
-                            fylke.shouldNotBeNull()
-                            fylke.fylkesnummer shouldBe "30"
-                            fylke.navn shouldBe "Viken"
-                            fylke.kommuner.firstOrNull() should { kommune ->
-                                kommune.shouldNotBeNull()
-                                kommune.kommunenummer shouldBe "3005"
-                                kommune.navn shouldBe "Drammen"
-                            }
-                        }
+                        assertStedSoek(søk, "Viken", "30", "Drammen", "3005")
                     }
 
                 }
@@ -725,11 +578,7 @@ class Livssyklustest : FreeSpec({
                         )
                     )
                 }
-                val response = testClient.get(BRUKERPROFIL_PATH) {
-                    bearerAuth(oauthServer.sluttbrukerToken(id = kariIdent))
-                    contentType(Application.Json)
-                }
-                response.validateAgainstOpenApiSpec()
+                val response = testClient.getBrukerprofil(kariIdent)
                 response.status shouldBe HttpStatusCode.OK
                 response.body<ApiBrukerprofil>() should { profil ->
                     profil.identitetsnummer shouldBe kariIdent.verdi
@@ -738,6 +587,7 @@ class Livssyklustest : FreeSpec({
                 }
                 testLogger.info("Avslutter: ${this.testCase.name.name}")
             }
+            } // end with(helper)
         }
     }
 })
