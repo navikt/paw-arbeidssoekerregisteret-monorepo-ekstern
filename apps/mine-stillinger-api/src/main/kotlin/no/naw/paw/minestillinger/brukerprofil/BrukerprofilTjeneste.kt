@@ -1,5 +1,8 @@
 package no.naw.paw.minestillinger.brukerprofil
 
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
 import no.nav.paw.model.Identitetsnummer
@@ -30,6 +33,7 @@ import no.naw.paw.minestillinger.domain.medFlagg
 import java.time.Instant
 
 class BrukerprofilTjeneste(
+    val meterRegistry: MeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
     val pdlClient: PdlClient,
     val hentBrukerprofilUtenFlagg: (Identitetsnummer) -> BrukerProfilerUtenFlagg?,
     val skrivFlagg: (BrukerId, Iterable<LagretFlagg>) -> Unit,

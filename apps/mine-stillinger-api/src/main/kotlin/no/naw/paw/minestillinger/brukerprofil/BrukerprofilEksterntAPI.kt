@@ -1,5 +1,7 @@
 package no.naw.paw.minestillinger.brukerprofil
 
+import io.micrometer.core.instrument.Tag
+import io.micrometer.core.instrument.Tags
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
@@ -10,6 +12,7 @@ import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE
+import no.naw.paw.minestillinger.brukerprofil.flagg.Flaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
@@ -65,6 +68,7 @@ fun BrukerprofilTjeneste.optOutAvTjenesten(brukerProfil: BrukerProfil): Response
         nyeOgOppdaterteFlagg = oppdaterteFlagg.flaggSomMåOppdateres.toList(),
         søkSkalSlettes = true
     )
+    tellEndringFraApi(brukerProfil, oppdatering)
     oppdaterFlagg(brukerProfil.id, oppdatering)
     return Data(Unit)
 }
@@ -79,6 +83,7 @@ fun BrukerprofilTjeneste.deaktiverTjenesten(brukerProfil: BrukerProfil): Respons
         nyeOgOppdaterteFlagg = oppdaterteFlagg.flaggSomMåOppdateres.toList(),
         søkSkalSlettes = false
     )
+    tellEndringFraApi(brukerProfil, oppdatering)
     oppdaterFlagg(brukerProfil.id, oppdatering)
     return Data(Unit)
 }
@@ -113,6 +118,7 @@ suspend fun BrukerprofilTjeneste.aktiverTjenesten(
             nyeOgOppdaterteFlagg = oppdaterteFlagg.flaggSomMåOppdateres.toList(),
             søkSkalSlettes = false
         )
+        tellEndringFraApi(profil, oppdatering)
         oppdaterFlagg(profil.id, oppdatering)
     }
 }
@@ -130,4 +136,34 @@ suspend fun <A, B> Response<A>.coFlatMap(transform: suspend (A) -> Response<B>):
         is Data -> transform(this.data)
         is ProblemDetails -> this
     }
+}
+
+fun BrukerprofilTjeneste.tellEndringFraApi(
+    profil: BrukerProfil,
+    oppdateringAvFlagg: OppdateringAvFlagg
+) {
+    val gjeldeneFlagg = profil.listeMedFlagg
+    oppdateringAvFlagg.nyeOgOppdaterteFlagg.forEach { oppdatertFlagg ->
+        val gjeldeneVerdi = gjeldeneFlagg[oppdatertFlagg.type]?.verdi
+        tellEndringFraApi(
+            flaggtype = oppdatertFlagg.type,
+            nyVerdi = oppdatertFlagg.verdi,
+            gammelVerdi = gjeldeneVerdi
+        )
+    }
+}
+
+fun BrukerprofilTjeneste.tellEndringFraApi(
+    flaggtype: Flaggtype<*>,
+    nyVerdi: Boolean?,
+    gammelVerdi: Boolean?
+) {
+    meterRegistry.counter(
+        "endring_fra_api",
+        Tags.of(
+            Tag.of("flagg", flaggtype.type),
+            Tag.of("ny_verdi", nyVerdi.toString()),
+            Tag.of("gammel_verdi", gammelVerdi.toString())
+        )
+    ).increment()
 }
