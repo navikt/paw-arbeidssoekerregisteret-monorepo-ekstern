@@ -4,12 +4,14 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import kotlinx.coroutines.delay
 import no.naw.paw.minestillinger.appLogger
+import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.ProfileringTable
 import no.naw.paw.minestillinger.domain.ProfileringResultat
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.count
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -55,7 +57,9 @@ class AntallBrukere(
                         BrukerFlaggTable.verdi,
                         ProfileringTable.profileringResultat,
                         BrukerTable.id.count(),
-                    ).groupBy(
+                    ).where {
+                        BrukerFlaggTable.navn eq TjenestenErAktivFlaggtype.type
+                    }.groupBy(
                         BrukerTable.arbeidssoekerperiodeAvsluttet,
                         BrukerFlaggTable.verdi,
                         ProfileringTable.profileringResultat,
