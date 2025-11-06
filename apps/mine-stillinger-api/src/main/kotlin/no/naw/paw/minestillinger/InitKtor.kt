@@ -64,7 +64,9 @@ fun <A> initEmbeddedKtorServer(
             ledigeStillingerRoute(
                 ledigeStillingerClient = finnStillingerClient,
                 hentBrukerId = { identitetsnummer -> brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(identitetsnummer)?.id },
-                hentLagretSøk = ExposedSøkAdminOps::hentSoek
+                hentLagretSøk = ExposedSøkAdminOps::hentSoek,
+                oppdaterSistKjøt = ExposedSøkAdminOps::settSistKjørt,
+                clock = clock
             )
             kodeverk()
             swaggerUI("/docs/api", "openapi/openapi-spec.yaml")

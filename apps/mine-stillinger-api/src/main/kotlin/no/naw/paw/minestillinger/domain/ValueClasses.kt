@@ -7,3 +7,6 @@ value class PeriodeId(val verdi: UUID)
 
 @JvmInline
 value class BrukerId(val verdi: Long)
+
+@JvmInline
+value class SøkId(val verdi: Long)

@@ -474,6 +474,7 @@ components:
         title:
           type: "string"
         detail:
+          nullable: true
           type: "string"
         instance:
           type: "string"

@@ -9,11 +9,13 @@ import no.naw.paw.minestillinger.domain.ReiseveiSoek
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.Stillingssoek
 import no.naw.paw.minestillinger.domain.StillingssoekType
+import no.naw.paw.minestillinger.domain.SøkId
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.reflect.KClass
@@ -23,7 +25,8 @@ interface SøkAdminOps {
     fun lagreSoek(brukerId: BrukerId, tidspunkt: Instant, soek: Stillingssoek): Unit
     fun hentSoek(brukerId: BrukerId): List<LagretStillingsoek>
     fun slettAlleSoekForBruker(brukerId: BrukerId): Int
-    fun slettSoek(brukerId: BrukerId, soekId: Long): Int
+    fun slettSoek(brukerId: BrukerId, soekId: SøkId): Int
+    fun settSistKjørt(søkId: SøkId, tidspunkt: Instant): Boolean
 }
 
 object ExposedSøkAdminOps : SøkAdminOps {
@@ -39,8 +42,13 @@ object ExposedSøkAdminOps : SøkAdminOps {
     override fun slettAlleSoekForBruker(brukerId: BrukerId): Int =
         no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker(brukerId)
 
-    override fun slettSoek(brukerId: BrukerId, soekId: Long): Int =
+    override fun slettSoek(brukerId: BrukerId, soekId: SøkId): Int =
         no.naw.paw.minestillinger.db.ops.slettSoek(brukerId, soekId)
+
+    override fun settSistKjørt(
+        søkId: SøkId,
+        tidspunkt: Instant
+    ): Boolean = settSistKjørt(søkId, tidspunkt)
 
 }
 
@@ -57,6 +65,11 @@ fun lagreSoek(brukerId: BrukerId, tidspunkt: Instant, soek: Stillingssoek) {
     }
 }
 
+fun settSistKjørt(søkId: SøkId, tidspunkt: Instant): Boolean =
+    SoekTable.update({ SoekTable.id eq søkId.verdi }) {
+        it[sistKjoert] = tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+    } == 1
+
 fun hentSoek(brukerId: BrukerId): List<LagretStillingsoek> {
     return SoekTable.selectAll()
         .where { SoekTable.brukerId eq brukerId.verdi }
@@ -64,7 +77,7 @@ fun hentSoek(brukerId: BrukerId): List<LagretStillingsoek> {
             val soekeType = StillingssoekType.valueOf(row[SoekTable.type])
             val soek = soekObjectMapper.readValue(row[SoekTable.soek], soekeType.toClass().java)
             LagretStillingsoek(
-                id = row[SoekTable.id],
+                id = SøkId(row[SoekTable.id]),
                 brukerId = row[SoekTable.brukerId],
                 opprettet = row[SoekTable.opprettet],
                 sistKjoet = row[SoekTable.sistKjoert],
@@ -82,6 +95,6 @@ fun slettAlleSoekForBruker(brukerId: BrukerId): Int {
     return SoekTable.deleteWhere { SoekTable.brukerId eq brukerId.verdi }
 }
 
-fun slettSoek(brukerId: BrukerId, soekId: Long): Int {
-    return SoekTable.deleteWhere { (SoekTable.brukerId eq brukerId.verdi) and (SoekTable.id eq soekId) }
+fun slettSoek(brukerId: BrukerId, soekId: SøkId): Int {
+    return SoekTable.deleteWhere { (SoekTable.brukerId eq brukerId.verdi) and (SoekTable.id eq soekId.verdi) }
 }

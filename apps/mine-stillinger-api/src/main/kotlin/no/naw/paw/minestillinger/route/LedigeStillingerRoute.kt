@@ -23,6 +23,7 @@ import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.Sektor
 import no.naw.paw.ledigestillinger.model.SortOrder
 import no.naw.paw.ledigestillinger.model.Stilling
+import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.FinnStillingerClient
 import no.naw.paw.minestillinger.api.ApiJobbAnnonse
 import no.naw.paw.minestillinger.api.MineStillingerResponse
@@ -32,8 +33,10 @@ import no.naw.paw.minestillinger.api.vo.ApiSortOrder
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
+import no.naw.paw.minestillinger.domain.SøkId
 import no.naw.paw.minestillinger.domain.api
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import java.time.Instant
 
 const val MINE_LEDIGE_STILLINGER_PATH = "/api/v1/ledigestillinger"
 
@@ -41,6 +44,8 @@ fun Route.ledigeStillingerRoute(
     ledigeStillingerClient: FinnStillingerClient,
     hentBrukerId: suspend (Identitetsnummer) -> BrukerId?,
     hentLagretSøk: (BrukerId) -> List<LagretStillingsoek>,
+    oppdaterSistKjøt: (SøkId, Instant) -> Boolean,
+    clock: Clock
 ) {
     route(MINE_LEDIGE_STILLINGER_PATH) {
         autentisering(TokenX) {
@@ -73,6 +78,10 @@ fun Route.ledigeStillingerRoute(
                         soek = søkOgRequest.first.soek.api(),
                         resultat = jobbAnonnser,
                         sistKjoert = søkOgRequest.first.sistKjoet
+                    )
+                    oppdaterSistKjøt(
+                        søkOgRequest.first.id,
+                        clock.now()
                     )
                     call.respond(svar)
                 } else {

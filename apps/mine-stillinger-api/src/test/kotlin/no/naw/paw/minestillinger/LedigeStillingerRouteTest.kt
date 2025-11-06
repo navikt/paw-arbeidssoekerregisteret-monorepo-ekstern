@@ -45,6 +45,7 @@ import no.naw.paw.minestillinger.domain.Kommune
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.StillingssoekType
+import no.naw.paw.minestillinger.domain.SøkId
 import no.naw.paw.minestillinger.route.MINE_LEDIGE_STILLINGER_PATH
 import no.naw.paw.minestillinger.route.ledigeStillingerRoute
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -53,6 +54,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit.DAYS
 import java.util.*
+import java.util.concurrent.atomic.AtomicReference
 
 class LedigeStillingerRouteTest : FreeSpec({
     val oauthServer = MockOAuth2Server()
@@ -83,11 +85,17 @@ class LedigeStillingerRouteTest : FreeSpec({
             mockkStatic(PdlClient::harBeskyttetAdresse)
             coEvery { pdlClient.harBeskyttetAdresse(Identitetsnummer(periode.identitetsnummer)) } returns false
             coEvery { ledigeStillingerClient.finnLedigeStillinger(any(), any()) } returns finnStillingerResponse
+            val tidspunkt = AtomicReference(Instant.now())
+            val clock = object: Clock {
+                override fun now(): Instant = tidspunkt.get()
+            }
             routing {
                 ledigeStillingerRoute(
                     ledigeStillingerClient = ledigeStillingerClient,
                     hentBrukerId = { BrukerId(10) },
                     hentLagretSøk = { lagreSøk },
+                    oppdaterSistKjøt = { _, _ -> true },
+                    clock = clock
                 )
             }
 
@@ -175,7 +183,7 @@ val finnStillingerResponse = FinnStillingerResponse(
 
 val lagreSøk = listOf(
     LagretStillingsoek(
-        id = 1,
+        id = SøkId(1),
         brukerId = 1,
         opprettet = Instant.now(),
         sistKjoet = Instant.now(),

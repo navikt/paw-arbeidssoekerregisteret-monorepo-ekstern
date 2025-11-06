@@ -5,7 +5,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import no.nav.paw.health.HealthCheck
-import no.nav.paw.health.model.HealthIndicator
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.SlettGamlePropfileringerUtenProfil
 import no.naw.paw.minestillinger.brukerprofil.SlettUbrukteBrukerprofiler
