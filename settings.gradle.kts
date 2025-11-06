@@ -41,7 +41,6 @@ include(
     "lib:aareg-client",
     "lib:tilgangskontroll-client",
     "lib:topics",
-    "lib:api-oppslag-client",
     // test
     "test:test-data-factory",
     // apps
