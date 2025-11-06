@@ -26,7 +26,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
 import org.slf4j.LoggerFactory.getLogger
 
 const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
-private val logger = getLogger(BRUKERPROFIL_PATH)
 
 fun Route.brukerprofilRoute(
     brukerprofilTjeneste: BrukerprofilTjeneste,
