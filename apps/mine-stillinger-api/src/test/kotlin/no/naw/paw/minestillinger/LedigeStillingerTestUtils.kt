@@ -29,7 +29,7 @@ fun createFinnStillingerByEgenskaperRequest(
     return FinnStillingerByEgenskaperRequest(
         type = FinnStillingerType.BY_EGENSKAPER,
         soekeord = soekeord,
-        kategorier = kategorier,
+        styrkkoder = kategorier,
         fylker = fylker,
         paging = paging
     )
@@ -37,7 +37,7 @@ fun createFinnStillingerByEgenskaperRequest(
 
 fun lagStilling(request: FinnStillingerByEgenskaperRequest): Stilling {
     val now = Instant.now()
-    val firstKategori = request.kategorier.firstOrNull()
+    val firstKategori = request.styrkkoder.firstOrNull()
 
     return Stilling(
         uuid = UUID.randomUUID(),

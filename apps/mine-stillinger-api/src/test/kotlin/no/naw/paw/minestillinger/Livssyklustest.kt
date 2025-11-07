@@ -217,7 +217,7 @@ class Livssyklustest : FreeSpec({
                 val karisLedigeStillingerRequest = FinnStillingerByEgenskaperRequest(
                     type = FinnStillingerType.BY_EGENSKAPER,
                     soekeord = listOf("Hei AS"),
-                    kategorier = listOf("1234"),
+                    styrkkoder = listOf("1234"),
                     fylker = listOf(
                         Fylke(
                             "30",
