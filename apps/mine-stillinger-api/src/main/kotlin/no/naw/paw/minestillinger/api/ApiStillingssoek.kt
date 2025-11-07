@@ -28,3 +28,4 @@ fun ApiStillingssoek.domain(): Stillingssoek =
         is ApiReiseveiSoek -> this.domain()
         is ApiStedSoek -> this.domain()
     }
+

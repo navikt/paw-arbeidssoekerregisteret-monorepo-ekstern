@@ -8,6 +8,20 @@ import java.util.*
 
 private const val domain = "mine-stillinger"
 
+fun ugyldigVerdiIRequest(
+    felt: String,
+    verdi: String
+): ProblemDetails {
+    return ProblemDetails(
+        id = UUID.randomUUID(),
+        type = ErrorType.default().error("ugyldig-verdi").domain(domain).build(),
+        title = "Oppdatering av tjenestestatus ikke tillatt",
+        detail = "Ugyldig verdi '$verdi' for feltet '$felt'",
+        status = HttpStatusCode.BadRequest,
+        instance = "api"
+    )
+}
+
 fun oppdateringIkkeTillatt(detail: String): ProblemDetails {
     return ProblemDetails(
         id = UUID.randomUUID(),
@@ -38,6 +52,17 @@ fun tjenesteIkkeAktiv(): ProblemDetails {
         detail = null,
         status = HttpStatusCode.Forbidden,
         instance = "tjeneste-ikke-aktiv"
+    )
+}
+
+fun reiseveiSøkIkkeStøttet(): ProblemDetails {
+    return ProblemDetails(
+        id = UUID.randomUUID(),
+        type = ErrorType.default().error("ikke-støttet").domain(domain).build(),
+        title = "Funksjonen er ikke støttet",
+        detail = "Funksjonen 'reisevei-søk' er ikke støttet.",
+        status = HttpStatusCode.NotImplemented,
+        instance = "api"
     )
 }
 

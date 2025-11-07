@@ -6,6 +6,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import no.nav.paw.error.model.Data
+import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -22,6 +23,7 @@ import no.naw.paw.minestillinger.brukerprofil.hentApiBrukerprofil
 import no.naw.paw.minestillinger.brukerprofil.setTjenestatestatus
 import no.naw.paw.minestillinger.tjenesteIkkeAktiv
 import no.naw.paw.minestillinger.db.ops.SøkAdminOps
+import no.naw.paw.minestillinger.validering.valider
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.slf4j.LoggerFactory.getLogger
 
@@ -58,25 +60,31 @@ fun Route.brukerprofilRoute(
             put<List<ApiStillingssoek>>("/stillingssoek") { stillingssoek ->
                 val identitetsnummer = call.securityContext().hentSluttbrukerEllerNull()?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-                val respose: Response<Unit> = suspendedTransactionAsync {
-                    val profil = brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(identitetsnummer)
-                    val brukerId = profil?.id
-                    if (brukerId == null) {
-                        brukerIkkeFunnet()
-                    } else {
-                        if (!profil.tjenestenErAktiv) {
-                            tjenesteIkkeAktiv()
+                val validering = valider(stillingssoek)
+                if (validering is ProblemDetails) {
+                    call.respondWith(validering)
+                    return@put
+                } else {
+                    val respose: Response<Unit> = suspendedTransactionAsync {
+                        val profil = brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(identitetsnummer)
+                        val brukerId = profil?.id
+                        if (brukerId == null) {
+                            brukerIkkeFunnet()
                         } else {
-                            søkeAdminOps.slettAlleSoekForBruker(brukerId)
-                            val tidspunkt = clock.now()
-                            stillingssoek.forEach { soek ->
-                                søkeAdminOps.lagreSoek(brukerId, tidspunkt, soek.domain())
+                            if (!profil.tjenestenErAktiv) {
+                                tjenesteIkkeAktiv()
+                            } else {
+                                søkeAdminOps.slettAlleSoekForBruker(brukerId)
+                                val tidspunkt = clock.now()
+                                stillingssoek.forEach { soek ->
+                                    søkeAdminOps.lagreSoek(brukerId, tidspunkt, soek.domain())
+                                }
+                                Data(Unit)
                             }
-                            Data(Unit)
                         }
-                    }
-                }.await()
-                call.respondWith(respose)
+                    }.await()
+                    call.respondWith(respose)
+                }
             }
         }
     }
