@@ -106,26 +106,26 @@ object StillingerTable : LongIdTable("stillinger") {
 
     fun selectRowsByKategorierAndFylker(
         soekeord: Collection<String>,
-        kategorier: Collection<String>,
+        styrkkoder: Collection<String>,
         fylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<StillingRow> {
-        logger.debug("Finner stillinger med kategorier: {} og fylker: {}", kategorier, fylker)
+        logger.debug("Finner stillinger med kategorier: {} og fylker: {}", styrkkoder, fylker)
         val aktivQuery: Op<Boolean> = (status eq StillingStatus.AKTIV)
         val soekeordQuery: Op<Boolean> = if (soekeord.isEmpty()) {
             Op.TRUE
         } else {
             Op.TRUE // TODO Benytte søkeord?
         }
-        val kategoriQuery: Op<Boolean> = if (kategorier.isEmpty()) {
+        val kategoriQuery: Op<Boolean> = if (styrkkoder.isEmpty()) {
             Op.TRUE
         } else {
-            (KategorierTable.normalisertKode inList kategorier)
+            (KategorierTable.normalisertKode inList styrkkoder)
         }
-        val klassifiseringQuery: Op<Boolean> = if (kategorier.isEmpty()) {
+        val klassifiseringQuery: Op<Boolean> = if (styrkkoder.isEmpty()) {
             Op.TRUE
         } else {
-            ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList kategorier))
+            ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList styrkkoder))
         }
         val styrkQuery = (kategoriQuery or klassifiseringQuery)
         val lokasjonQuery: Op<Boolean> = fylker.map { fylke ->

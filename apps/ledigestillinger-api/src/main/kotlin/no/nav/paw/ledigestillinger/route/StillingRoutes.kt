@@ -51,7 +51,7 @@ fun Route.stillingRoutes(
                         request.verify()
                         val stillinger = stillingService.finnStillingerByEgenskaper(
                             soekeord = request.soekeord,
-                            kategorier = request.kategorier,
+                            styrkkoder = request.styrkkoder,
                             fylker = request.fylker,
                             paging = request.paging
                         )

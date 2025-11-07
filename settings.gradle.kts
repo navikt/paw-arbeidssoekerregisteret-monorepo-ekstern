@@ -18,9 +18,9 @@ include(
     "domain:arena-avro-schema",
     "domain:bekreftelsesmelding-avro-schema",
     "domain:bekreftelse-paavegneav-avro-schema",
-    "domain-dev:ledigestillinger",
-    "domain-dev:arbeidsplassen-stillinger-feed",
-    "domain-dev:arbeidsplassen-stillinger-avro-schema",
+    "domain:ledigestillinger",
+    "domain:arbeidsplassen-stillinger-feed",
+    "domain:arbeidsplassen-stillinger-avro-schema",
     // libs
     "lib:health",
     "lib:logging",

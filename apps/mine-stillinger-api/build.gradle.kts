@@ -12,7 +12,7 @@ val jvmMajorVersion: String by project
 dependencies {
     implementation(project(":domain:felles"))
     implementation(project(":domain:error"))
-    implementation(project(":domain-dev:ledigestillinger"))
+    implementation(project(":domain:ledigestillinger"))
     implementation(project(":lib:topics"))
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:database"))

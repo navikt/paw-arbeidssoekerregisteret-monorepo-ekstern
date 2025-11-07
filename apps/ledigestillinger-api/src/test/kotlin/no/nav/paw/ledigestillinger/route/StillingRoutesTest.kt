@@ -111,7 +111,7 @@ class StillingRoutesTest : FreeSpec({
                     val request = FinnStillingerByEgenskaperRequest(
                         type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
-                        kategorier = listOf("2012"),
+                        styrkkoder = listOf("2012"),
                         fylker = listOf(
                             Fylke(
                                 fylkesnummer = "20",
@@ -142,7 +142,7 @@ class StillingRoutesTest : FreeSpec({
                     val request = FinnStillingerByEgenskaperRequest(
                         type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
-                        kategorier = emptyList(),
+                        styrkkoder = emptyList(),
                         fylker = listOf(
                             Fylke(
                                 fylkesnummer = "30",
@@ -174,7 +174,7 @@ class StillingRoutesTest : FreeSpec({
                     val request = FinnStillingerByEgenskaperRequest(
                         type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
-                        kategorier = emptyList(),
+                        styrkkoder = emptyList(),
                         fylker = listOf(
                             Fylke(
                                 fylkesnummer = "30",
@@ -209,7 +209,7 @@ class StillingRoutesTest : FreeSpec({
                     val request = FinnStillingerByEgenskaperRequest(
                         type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
-                        kategorier = listOf("4011", "4012"),
+                        styrkkoder = listOf("4011", "4012"),
                         fylker = emptyList(),
                         paging = Paging(1, 100)
                     )
@@ -236,7 +236,7 @@ class StillingRoutesTest : FreeSpec({
                     val request = FinnStillingerByEgenskaperRequest(
                         type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
-                        kategorier = emptyList(),
+                        styrkkoder = emptyList(),
                         fylker = emptyList(),
                         paging = Paging(1, 100)
                     )
@@ -272,7 +272,7 @@ class StillingRoutesTest : FreeSpec({
                     val request = FinnStillingerByEgenskaperRequest(
                         type = FinnStillingerType.BY_EGENSKAPER,
                         soekeord = emptyList(),
-                        kategorier = emptyList(),
+                        styrkkoder = emptyList(),
                         fylker = listOf(
                             Fylke(
                                 fylkesnummer = "50",

@@ -148,7 +148,7 @@ fun genererRequest(
 ): FinnStillingerRequest = FinnStillingerByEgenskaperRequest(
     type = FinnStillingerType.BY_EGENSKAPER,
     soekeord = søk.soekeord,
-    kategorier = søk.styrk08,
+    styrkkoder = søk.styrk08,
     fylker = søk.fylker.map { fylke ->
         Fylke(
             fylkesnummer = fylke.fylkesnummer,

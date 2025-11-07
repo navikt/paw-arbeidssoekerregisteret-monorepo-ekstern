@@ -9,7 +9,7 @@ class FinnStillingerRequestTest : FreeSpec({
         val request1 = FinnStillingerByEgenskaperRequest(
             type = FinnStillingerType.BY_EGENSKAPER,
             soekeord = emptyList(),
-            kategorier = listOf("1234", "5678"),
+            styrkkoder = listOf("1234", "5678"),
             fylker = listOf(
                 Fylke(
                     fylkesnummer = "03",

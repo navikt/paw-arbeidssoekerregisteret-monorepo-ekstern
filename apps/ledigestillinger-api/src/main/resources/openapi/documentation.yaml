@@ -114,7 +114,7 @@ components:
           type: array
           items:
             type: string
-        kategorier:
+        styrkkoder:
           type: array
           items:
             type: string
@@ -127,7 +127,7 @@ components:
       required:
         - type
         - soekeord
-        - kategorier
+        - styrkkoder
         - fylker
         - paging
     FinnStillingerByUuidListeRequest:

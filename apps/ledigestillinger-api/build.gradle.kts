@@ -10,8 +10,8 @@ val jvmMajorVersion: String by project
 dependencies {
     implementation(project(":domain:felles"))
     implementation(project(":domain:error"))
-    implementation(project(":domain-dev:ledigestillinger"))
-    implementation(project(":domain-dev:arbeidsplassen-stillinger-avro-schema"))
+    implementation(project(":domain:ledigestillinger"))
+    implementation(project(":domain:arbeidsplassen-stillinger-avro-schema"))
     implementation(project(":lib:topics"))
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:database"))

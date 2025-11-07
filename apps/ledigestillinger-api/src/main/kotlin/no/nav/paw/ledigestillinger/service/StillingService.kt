@@ -68,26 +68,26 @@ class StillingService(
     @WithSpan
     fun finnStillingerByEgenskaper(
         soekeord: Collection<String>,
-        kategorier: Collection<String>,
+        styrkkoder: Collection<String>,
         fylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
         logger.info("Finner stillinger for egeneskaper")
         Span.current().finnStillingerByEgenskaperEvent(
             antallSoekeord = soekeord.size,
-            antallKategorier = kategorier.size,
+            antallKategorier = styrkkoder.size,
             antallFylker = fylker.size,
             antallKommuner = fylker.sumOf { it.kommuner.size }
         )
         meterRegistry.finnStillingerByEgenskaperGauge(
             antallSoekeord = soekeord.size,
-            antallKategorier = kategorier.size,
+            antallKategorier = styrkkoder.size,
             antallFylker = fylker.size,
             antallKommuner = fylker.sumOf { it.kommuner.size }
         )
         val rows = StillingerTable.selectRowsByKategorierAndFylker(
             soekeord = soekeord,
-            kategorier = kategorier,
+            styrkkoder = styrkkoder,
             fylker = fylker,
             paging = paging
         )

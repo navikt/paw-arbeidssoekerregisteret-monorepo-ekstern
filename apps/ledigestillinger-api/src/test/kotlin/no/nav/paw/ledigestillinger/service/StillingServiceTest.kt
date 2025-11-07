@@ -105,7 +105,7 @@ class StillingServiceTest : FreeSpec({
                         kommuner = emptyList()
                     )
                 ),
-                kategorier = listOf("1012", "3011")
+                styrkkoder = listOf("1012", "3011")
             )
 
             // THEN
