@@ -38,4 +38,11 @@ class TestHelper(private val oauthServer: MockOAuth2Server) {
         contentType(ContentType.Application.Json)
         setBody(søk)
     }.validateAgainstOpenApiSpec()
+
+    suspend fun HttpClient.mineLedigeStillinger(
+        identitetsnummer: Identitetsnummer
+    ) = get("/api/v1/ledigestillinger") {
+        bearerAuth(oauthServer.sluttbrukerToken(id = identitetsnummer))
+        contentType(ContentType.Application.Json)
+    }.validateAgainstOpenApiSpec()
 }

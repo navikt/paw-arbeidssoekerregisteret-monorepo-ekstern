@@ -5,12 +5,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-data class ApiLedigeStillinger(
-    val soek: ApiStillingssoek,
-    val frorrigeSoek: Instant?,
-    val resultat: List<ApiJobbAnnonse>
-)
-
 data class ApiJobbAnnonse(
     val arbeidsplassenNoId: UUID,
     val tittel: String,

@@ -383,6 +383,7 @@ components:
       type: "object"
       properties:
         sistKjoert:
+          nullable: true
           type: "string"
           format: "date-time"
           example: "2025-10-20T12:00:00Z"
@@ -420,6 +421,7 @@ components:
           type: "string"
           example: "Norge"
         kommune:
+          nullable: true
           type: "string"
           example: "Oslo"
         sektor:
