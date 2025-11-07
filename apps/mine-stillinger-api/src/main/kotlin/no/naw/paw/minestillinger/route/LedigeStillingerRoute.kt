@@ -30,6 +30,7 @@ import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.api.Soeknadsfrist
 import no.naw.paw.minestillinger.api.SoeknadsfristType
 import no.naw.paw.minestillinger.api.vo.ApiSortOrder
+import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
@@ -70,23 +71,28 @@ fun Route.ledigeStillingerRoute(
                     }
                 }.await()
                 if (søkOgRequest?.second != null) {
-                    val response = ledigeStillingerClient.finnLedigeStillinger(
-                        call.securityContext().accessToken,
-                        søkOgRequest.second
-                    )
-                    val jobbAnonnser = response.stillinger.map(::jobbAnnonse)
-                    val svar = MineStillingerResponse(
-                        soek = søkOgRequest.first.soek.api(),
-                        resultat = jobbAnonnser,
-                        sistKjoert = søkOgRequest.first.sistKjoet
-                    )
-                    transaction {
-                        oppdaterSistKjøt(
-                            søkOgRequest.first.id,
-                            clock.now()
+                    try {
+                        val response = ledigeStillingerClient.finnLedigeStillinger(
+                            call.securityContext().accessToken,
+                            søkOgRequest.second
                         )
+                        val jobbAnonnser = response.stillinger.map(::jobbAnnonse)
+                        val svar = MineStillingerResponse(
+                            soek = søkOgRequest.first.soek.api(),
+                            resultat = jobbAnonnser,
+                            sistKjoert = søkOgRequest.first.sistKjoet
+                        )
+                        transaction {
+                            oppdaterSistKjøt(
+                                søkOgRequest.first.id,
+                                clock.now()
+                            )
+                        }
+                        call.respond(svar)
+                    } catch (e: Throwable) {
+                        appLogger.error("Uventet feil: ", e)
+                        throw e
                     }
-                    call.respond(svar)
                 } else {
                     call.respond(
                         HttpStatusCode.NotFound,
@@ -102,6 +108,7 @@ fun Route.ledigeStillingerRoute(
         }
     }
 }
+
 
 private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(
     tittel = stilling.tittel,
