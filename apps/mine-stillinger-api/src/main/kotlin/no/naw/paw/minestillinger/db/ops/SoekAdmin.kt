@@ -48,7 +48,7 @@ object ExposedSøkAdminOps : SøkAdminOps {
     override fun settSistKjørt(
         søkId: SøkId,
         tidspunkt: Instant
-    ): Boolean = settSistKjørt(søkId, tidspunkt)
+    ): Boolean = no.naw.paw.minestillinger.db.ops.settSistKjørt(søkId, tidspunkt)
 
 }
 
