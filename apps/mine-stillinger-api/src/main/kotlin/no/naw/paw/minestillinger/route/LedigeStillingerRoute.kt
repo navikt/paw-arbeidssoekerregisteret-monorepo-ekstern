@@ -36,6 +36,7 @@ import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.SøkId
 import no.naw.paw.minestillinger.domain.api
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 
 const val MINE_LEDIGE_STILLINGER_PATH = "/api/v1/ledigestillinger"
@@ -79,10 +80,12 @@ fun Route.ledigeStillingerRoute(
                         resultat = jobbAnonnser,
                         sistKjoert = søkOgRequest.first.sistKjoet
                     )
-                    oppdaterSistKjøt(
-                        søkOgRequest.first.id,
-                        clock.now()
-                    )
+                    transaction {
+                        oppdaterSistKjøt(
+                            søkOgRequest.first.id,
+                            clock.now()
+                        )
+                    }
                     call.respond(svar)
                 } else {
                     call.respond(
