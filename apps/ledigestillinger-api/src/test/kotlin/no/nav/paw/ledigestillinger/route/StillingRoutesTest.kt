@@ -44,6 +44,11 @@ class StillingRoutesTest : FreeSpec({
                 stillingService.lagreStilling(TestData.message3_2.asStillingRow())
                 stillingService.lagreStilling(TestData.message4_1.asStillingRow())
                 stillingService.lagreStilling(TestData.message4_2.asStillingRow())
+                stillingService.lagreStilling(TestData.message5_1.asStillingRow())
+                stillingService.lagreStilling(TestData.message5_2.asStillingRow())
+                stillingService.lagreStilling(TestData.message5_3.asStillingRow())
+                stillingService.lagreStilling(TestData.message5_4.asStillingRow())
+                stillingService.lagreStilling(TestData.message5_5.asStillingRow())
             }
         }
 
@@ -113,7 +118,7 @@ class StillingRoutesTest : FreeSpec({
                                 kommuner = emptyList()
                             )
                         ),
-                        paging = Paging(1, 10)
+                        paging = Paging(1, 100)
                     )
 
                     // WHEN
@@ -144,7 +149,7 @@ class StillingRoutesTest : FreeSpec({
                                 kommuner = emptyList()
                             )
                         ),
-                        paging = Paging(1, 10)
+                        paging = Paging(1, 100)
                     )
 
                     // WHEN
@@ -180,7 +185,7 @@ class StillingRoutesTest : FreeSpec({
                                 )
                             )
                         ),
-                        paging = Paging(1, 10)
+                        paging = Paging(1, 100)
                     )
 
                     // WHEN
@@ -206,7 +211,7 @@ class StillingRoutesTest : FreeSpec({
                         soekeord = emptyList(),
                         kategorier = listOf("4011", "4012"),
                         fylker = emptyList(),
-                        paging = Paging(1, 10)
+                        paging = Paging(1, 100)
                     )
 
                     // WHEN
@@ -233,7 +238,7 @@ class StillingRoutesTest : FreeSpec({
                         soekeord = emptyList(),
                         kategorier = emptyList(),
                         fylker = emptyList(),
-                        paging = Paging(1, 10)
+                        paging = Paging(1, 100)
                     )
 
                     // WHEN
@@ -246,7 +251,7 @@ class StillingRoutesTest : FreeSpec({
                     response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.OK
                     val body = response.body<FinnStillingerResponse>()
-                    body.stillinger shouldHaveSize 8
+                    body.stillinger shouldHaveSize 11
                     body.stillinger shouldContainOnly listOf(
                         TestData.message1_1.value.asDto(),
                         TestData.message1_2.value.asDto(),
@@ -255,7 +260,43 @@ class StillingRoutesTest : FreeSpec({
                         TestData.message3_1.value.asDto(),
                         TestData.message3_2.value.asDto(),
                         TestData.message4_1.value.asDto(),
-                        TestData.message4_2.value.asDto()
+                        TestData.message4_2.value.asDto(),
+                        TestData.message5_1.value.asDto(),
+                        TestData.message5_2.value.asDto(),
+                        TestData.message5_3.value.asDto()
+                    )
+                }
+
+                "Skal ikke finne stillinger med kilde 'DIR'" {
+                    // GIVEN
+                    val request = FinnStillingerByEgenskaperRequest(
+                        type = FinnStillingerType.BY_EGENSKAPER,
+                        soekeord = emptyList(),
+                        kategorier = emptyList(),
+                        fylker = listOf(
+                            Fylke(
+                                fylkesnummer = "50",
+                                kommuner = emptyList()
+                            )
+                        ),
+                        paging = Paging(1, 100)
+                    )
+
+                    // WHEN
+                    val response = client.post("/api/v1/stillinger") {
+                        bearerAuth(token.serialize())
+                        setJsonBody(request)
+                    }
+
+                    // THEN
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.OK
+                    val body = response.body<FinnStillingerResponse>()
+                    body.stillinger shouldHaveSize 3
+                    body.stillinger shouldContainOnly listOf(
+                        TestData.message5_1.value.asDto(),
+                        TestData.message5_2.value.asDto(),
+                        TestData.message5_3.value.asDto()
                     )
                 }
             }

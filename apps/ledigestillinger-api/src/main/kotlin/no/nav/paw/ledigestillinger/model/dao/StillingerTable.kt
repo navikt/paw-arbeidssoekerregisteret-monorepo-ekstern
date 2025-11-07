@@ -17,6 +17,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -84,7 +85,7 @@ object StillingerTable : LongIdTable("stillinger") {
                 kategorier = KategorierTable::selectRowsByParentId,
                 klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
                 lokasjoner = LokasjonerTable::selectRowsByParentId,
-                egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
+                egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
             )
         }
         .singleOrNull()
@@ -99,7 +100,7 @@ object StillingerTable : LongIdTable("stillinger") {
                 kategorier = KategorierTable::selectRowsByParentId,
                 klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
                 lokasjoner = LokasjonerTable::selectRowsByParentId,
-                egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
+                egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
             )
         }
 
@@ -114,7 +115,7 @@ object StillingerTable : LongIdTable("stillinger") {
         val soekeordQuery: Op<Boolean> = if (soekeord.isEmpty()) {
             Op.TRUE
         } else {
-            Op.TRUE // TODO Benytt søkeord?
+            Op.TRUE // TODO Benytte søkeord?
         }
         val kategoriQuery: Op<Boolean> = if (kategorier.isEmpty()) {
             Op.TRUE
@@ -135,8 +136,9 @@ object StillingerTable : LongIdTable("stillinger") {
                 LokasjonerTable.fylkeskode eq fylke.fylkesnummer and (LokasjonerTable.kommunekode inList kommunenummer)
             }
         }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
+        val kildeQuery = (kilde neq "DIR") // TODO Filtrerer ut direktemeldte stillinger
 
-        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery
+        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery and kildeQuery
 
         return join(KategorierTable, JoinType.LEFT, id, KategorierTable.parentId)
             .join(KlassifiseringerTable, JoinType.LEFT, id, KlassifiseringerTable.parentId)
@@ -151,7 +153,7 @@ object StillingerTable : LongIdTable("stillinger") {
                     kategorier = KategorierTable::selectRowsByParentId,
                     klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
                     lokasjoner = LokasjonerTable::selectRowsByParentId,
-                    egenskaper = { emptyList() } // TODO fjernet for å spare select EgenskaperTable::selectRowsByParentId
+                    egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
                 )
             }
     }

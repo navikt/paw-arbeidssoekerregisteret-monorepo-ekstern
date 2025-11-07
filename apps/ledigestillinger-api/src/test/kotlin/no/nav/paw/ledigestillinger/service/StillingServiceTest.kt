@@ -38,7 +38,12 @@ class StillingServiceTest : FreeSpec({
                 TestData.message3_1,
                 TestData.message3_2,
                 TestData.message4_1,
-                TestData.message4_2
+                TestData.message4_2,
+                TestData.message5_1,
+                TestData.message5_2,
+                TestData.message5_3,
+                TestData.message5_4,
+                TestData.message5_5,
             )
 
             // WHEN
@@ -46,7 +51,7 @@ class StillingServiceTest : FreeSpec({
 
             // THEN
             val rows = StillingerTable.selectRows()
-            rows shouldHaveSize 8
+            rows shouldHaveSize 13
             val row1 = rows[0]
             val row2 = rows[1]
             val row3 = rows[2]
@@ -55,6 +60,11 @@ class StillingServiceTest : FreeSpec({
             val row6 = rows[5]
             val row7 = rows[6]
             val row8 = rows[7]
+            val row9 = rows[8]
+            val row10 = rows[9]
+            val row11 = rows[10]
+            val row12 = rows[11]
+            val row13 = rows[12]
             row1.uuid shouldBe TestData.message1_1.key
             row1.asDto() shouldBe TestData.message1_1.value.asDto()
             row2.uuid shouldBe TestData.message1_2.key
@@ -71,6 +81,16 @@ class StillingServiceTest : FreeSpec({
             row7.asDto() shouldBe TestData.message4_1.value.asDto()
             row8.uuid shouldBe TestData.message4_2.key
             row8.asDto() shouldBe TestData.message4_2.value.asDto()
+            row9.uuid shouldBe TestData.message5_1.key
+            row9.asDto() shouldBe TestData.message5_1.value.asDto()
+            row10.uuid shouldBe TestData.message5_2.key
+            row10.asDto() shouldBe TestData.message5_2.value.asDto()
+            row11.uuid shouldBe TestData.message5_3.key
+            row11.asDto() shouldBe TestData.message5_3.value.asDto()
+            row12.uuid shouldBe TestData.message5_4.key
+            row12.asDto() shouldBe TestData.message5_4.value.asDto()
+            row13.uuid shouldBe TestData.message5_5.key
+            row13.asDto() shouldBe TestData.message5_5.value.asDto()
 
             // WHEN
             val stillinger = stillingService.finnStillingerByEgenskaper(

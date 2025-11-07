@@ -2,6 +2,7 @@ package no.nav.paw.kafkakeygenerator.client
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -21,7 +22,7 @@ class StandardKafkaKeysClient(
 ) : KafkaKeysClient {
     override suspend fun getIdAndKeyOrNull(identitetsnummer: String): KafkaKeysResponse? =
         httpClient.post("$baseUrl/api/v2/hentEllerOpprett") {
-            header("Authorization", "Bearer ${getAccessToken()}")
+            bearerAuth(getAccessToken())
             contentType(Application.Json)
             setBody(KafkaKeysRequest(identitetsnummer))
         }.let { response ->

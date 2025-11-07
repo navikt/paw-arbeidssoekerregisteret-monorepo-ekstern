@@ -31,6 +31,11 @@ object TestData {
     val uuid3_2: UUID = UUID.fromString("5d7774af-8b39-4607-9db4-bdd731478c14")
     val uuid4_1: UUID = UUID.fromString("ce4f105e-16d9-410f-8aee-56136a61607e")
     val uuid4_2: UUID = UUID.fromString("590c18b4-a0e1-40f3-afd6-0709d9cb9c2c")
+    val uuid5_1: UUID = UUID.fromString("0651bb04-4f3f-421c-85e5-33ebdb1ebddf")
+    val uuid5_2: UUID = UUID.fromString("b54bd99b-8a64-4098-aaa2-b6c3453f4b0e")
+    val uuid5_3: UUID = UUID.fromString("370ab569-1509-46a0-b442-83d085b41869")
+    val uuid5_4: UUID = UUID.fromString("b14b0b91-57af-4e19-ab06-21626b03043f")
+    val uuid5_5: UUID = UUID.fromString("3957b323-0202-43e6-a959-eb421a50a598")
     val adnr1_1: String = "ABCD1011"
     val adnr1_2: String = "ABCD1012"
     val adnr2_1: String = "ABCD2011"
@@ -39,6 +44,11 @@ object TestData {
     val adnr3_2: String = "ABCD3012"
     val adnr4_1: String = "ABCD4011"
     val adnr4_2: String = "ABCD4012"
+    val adnr5_1: String = "ABCD5011"
+    val adnr5_2: String = "ABCD5012"
+    val adnr5_3: String = "ABCD5013"
+    val adnr5_4: String = "ABCD5014"
+    val adnr5_5: String = "ABCD5015"
 
     val message1_1: Message<UUID, Ad> = message(
         uuid = uuid1_1,
@@ -96,11 +106,58 @@ object TestData {
         categories = categories(styrkCode = "4012"),
         locations = locations(municipalCode = "4012", countyCode = "40")
     )
+    val message5_1: Message<UUID, Ad> = message(
+        uuid = uuid5_1,
+        adnr = adnr5_1,
+        source = "AMEDIA",
+        privacy = PrivacyChannel.SHOW_ALL,
+        published = LocalDateTime.now().minusDays(5),
+        classifications = classifications(categoryType = KlassifiseringType.STYRK08, code = "5011"),
+        locations = locations(municipalCode = "5011", countyCode = "50")
+    )
+    val message5_2: Message<UUID, Ad> = message(
+        uuid = uuid5_2,
+        adnr = adnr5_2,
+        source = "AMEDIA",
+        privacy = PrivacyChannel.INTERNAL_NOT_SHOWN,
+        published = LocalDateTime.now().minusDays(4),
+        categories = categories(styrkCode = "5012"),
+        locations = locations(municipalCode = "5012", countyCode = "50")
+    )
+    val message5_3: Message<UUID, Ad> = message(
+        uuid = uuid5_3,
+        adnr = adnr5_3,
+        source = "IMPORTAPI",
+        privacy = PrivacyChannel.SHOW_ALL,
+        published = LocalDateTime.now().minusDays(3),
+        categories = categories(styrkCode = "5013"),
+        locations = locations(municipalCode = "5013", countyCode = "50")
+    )
+    val message5_4: Message<UUID, Ad> = message(
+        uuid = uuid5_4,
+        adnr = adnr5_4,
+        source = "DIR",
+        privacy = PrivacyChannel.SHOW_ALL,
+        published = LocalDateTime.now().minusDays(2),
+        categories = categories(styrkCode = "5014"),
+        locations = locations(municipalCode = "5014", countyCode = "50")
+    )
+    val message5_5: Message<UUID, Ad> = message(
+        uuid = uuid5_5,
+        adnr = adnr5_5,
+        source = "DIR",
+        privacy = PrivacyChannel.INTERNAL_NOT_SHOWN,
+        published = LocalDateTime.now().minusDays(1),
+        categories = categories(styrkCode = "5015"),
+        locations = locations(municipalCode = "5015", countyCode = "50")
+    )
 
     fun message(
         uuid: UUID = UUID.randomUUID(),
         adnr: String = "ABCD1234",
         status: AdStatus = AdStatus.ACTIVE,
+        privacy: PrivacyChannel = PrivacyChannel.SHOW_ALL,
+        source: String = "FINN",
         published: LocalDateTime = LocalDateTime.now(),
         expires: LocalDateTime? = null,
         categories: List<StyrkCategory> = emptyList(),
@@ -110,6 +167,8 @@ object TestData {
         uuid = uuid,
         adnr = adnr,
         status = status,
+        privacy = privacy,
+        source = source,
         published = published,
         expires = expires,
         categories = categories,
@@ -121,6 +180,8 @@ object TestData {
         uuid: UUID = UUID.randomUUID(),
         adnr: String = "ABCD1234",
         status: AdStatus = AdStatus.ACTIVE,
+        privacy: PrivacyChannel = PrivacyChannel.SHOW_ALL,
+        source: String = "FINN",
         published: LocalDateTime = LocalDateTime.now(),
         expires: LocalDateTime? = null,
         categories: List<StyrkCategory> = emptyList(),
@@ -131,6 +192,8 @@ object TestData {
         uuid = uuid,
         adnr = adnr,
         status = status,
+        privacy = privacy,
+        source = source,
         published = published,
         expires = expires,
         categories = categories,
@@ -142,6 +205,8 @@ object TestData {
         uuid: UUID = UUID.randomUUID(),
         adnr: String = "ABCD1234",
         status: AdStatus = AdStatus.ACTIVE,
+        privacy: PrivacyChannel = PrivacyChannel.SHOW_ALL,
+        source: String = "FINN",
         published: LocalDateTime = LocalDateTime.now(),
         expires: LocalDateTime? = null,
         categories: List<StyrkCategory> = emptyList(),
@@ -153,8 +218,8 @@ object TestData {
             this.adnr = adnr
             this.title = "Test stilling"
             this.status = status
-            this.privacy = PrivacyChannel.SHOW_ALL
-            this.source = "FINN"
+            this.privacy = privacy
+            this.source = source
             this.medium = "FINN"
             this.reference = "https://www.finn.no/stillinger/12345678"
             this.businessName = "Testbedrift"
