@@ -11,6 +11,7 @@ import io.ktor.server.response.respond
 import no.nav.paw.error.exception.ClientResponseException
 import no.nav.paw.error.exception.ProblemDetailsException
 import no.nav.paw.error.exception.ServerResponseException
+import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.ProblemDetailsBuilder
 import no.nav.paw.error.model.asHttpErrorType
@@ -27,19 +28,32 @@ suspend fun ApplicationCall.handleException(
     throwable: Throwable,
     customResolver: (throwable: Throwable, request: ApplicationRequest) -> ProblemDetails? = { _, _ -> null }
 ) {
-    val problemDetails = resolveProblemDetails(request, throwable, customResolver)
+    try {
+        val problemDetails = resolveProblemDetails(request, throwable, customResolver)
 
-    MDC.put(MDC_ERROR_ID_KEY, problemDetails.id.toString())
-    MDC.put(MDC_ERROR_TYPE_KEY, problemDetails.type.toString())
-    MDC.put(MDC_EXCEPTION_KEY, throwable.javaClass.canonicalName)
+        MDC.put(MDC_ERROR_ID_KEY, problemDetails.id.toString())
+        MDC.put(MDC_ERROR_TYPE_KEY, problemDetails.type.toString())
+        MDC.put(MDC_EXCEPTION_KEY, throwable.javaClass.canonicalName)
 
-    logger.error(problemDetails.detail, throwable)
+        logger.error(problemDetails.detail, throwable)
 
-    MDC.remove(MDC_ERROR_ID_KEY)
-    MDC.remove(MDC_ERROR_TYPE_KEY)
-    MDC.remove(MDC_EXCEPTION_KEY)
+        MDC.remove(MDC_ERROR_ID_KEY)
+        MDC.remove(MDC_ERROR_TYPE_KEY)
+        MDC.remove(MDC_EXCEPTION_KEY)
 
-    respond(problemDetails.status, problemDetails)
+        respond(problemDetails.status, problemDetails)
+    } catch (internalThrowable: Throwable) {
+        logger.error("Intern feil i feilhåndtering", internalThrowable)
+        respond(
+            HttpStatusCode.InternalServerError,
+            ProblemDetailsBuilder.builder()
+                .type(ErrorType.domain("internal").error("internal-error").build())
+                .status(HttpStatusCode.BadRequest)
+                .detail("Intern feil i feilhåndtering")
+                .instance(request.uri)
+                .build()
+        )
+    }
 }
 
 fun resolveProblemDetails(
@@ -97,6 +111,7 @@ fun resolveProblemDetails(
                 .instance(request.uri)
                 .build()
         }
+
         is ProblemDetailsException -> return throwable.details
         else -> {
             return ProblemDetailsBuilder.builder()

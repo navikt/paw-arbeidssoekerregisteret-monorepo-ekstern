@@ -24,9 +24,20 @@ Authorization: Bearer {{$auth.token("tokenx")}}
   "method": "POST",
   "url": "{{baseUrl}}/api/v1/stillinger",
   "body": {
+    "type": "BY_EGENSKAPER",
     "soekeord": [],
-    "kategorier": [],
-    "fylker": [],
+    "kategorier": [
+      "1330",
+      "2166",
+      "2514",
+      "3514"
+    ],
+    "fylker": [
+      {
+        "kommuner": [],
+        "fylkesnummer": "03"
+      }
+    ],
     "paging": {
       "page": 1,
       "pageSize": 10,

@@ -1,15 +1,15 @@
 ### GET Brukerprofil
-GET https://mine-stillinger-arbeidssoekerregisteret.intern.dev.nav.no/api/v1/brukerprofil
+GET {{baseUrl}}/api/v1/brukerprofil
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 ### PUT Tjenestestatus
-PUT https://mine-stillinger-arbeidssoekerregisteret.intern.dev.nav.no/api/v1/brukerprofil/tjenestestatus/AKTIV
+PUT {{baseUrl}}/api/v1/brukerprofil/tjenestestatus/AKTIV
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 ### PUT Stillingssøk
-PUT https://mine-stillinger-arbeidssoekerregisteret.intern.dev.nav.no/api/v1/brukerprofil/stillingssoek
+PUT {{baseUrl}}/api/v1/brukerprofil/stillingssoek
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -26,7 +26,10 @@ Authorization: Bearer {{accessToken}}
         ],
         "soekeord": [],
         "styrk08Kode": [
-            "2310"
+            "1330",
+            "2166",
+            "2514",
+            "3514"
         ]
     }
 ]
