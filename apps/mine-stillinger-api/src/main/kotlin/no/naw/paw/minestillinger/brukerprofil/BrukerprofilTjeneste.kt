@@ -60,7 +60,8 @@ class BrukerprofilTjeneste(
 
     suspend fun oppdaterAdresseGraderingBulk(
         brukerprofiler: List<BrukerProfil>,
-        tidspunkt: Instant) {
+        tidspunkt: Instant
+    ) {
         if (brukerprofiler.isEmpty()) return
         val map = brukerprofiler.associateBy(BrukerProfil::identitetsnummer)
         pdlClient.harBeskyttetAdresseBulk(brukerprofiler.map(BrukerProfil::identitetsnummer))
@@ -102,12 +103,16 @@ class BrukerprofilTjeneste(
         )
         val flagg = brukerProfil.listeMedFlagg
             .replace(gradertAdresseFlagg)
-            .addOrUpdate(
-                TjenestenErAktivFlagg(
-                    verdi = false,
-                    tidspunkt = tidspunkt
-                )
-            )
+            .let { flagg ->
+                if (harGradertAdresseNå) {
+                    flagg.addOrUpdate(
+                        TjenestenErAktivFlagg(
+                            verdi = false,
+                            tidspunkt = tidspunkt
+                        )
+                    )
+                } else flagg
+            }
         oppdaterFlagg(
             brukerProfil.id, OppdateringAvFlagg(
                 nyeOgOppdaterteFlagg = flagg.flaggSomMåOppdateres.toList(),
