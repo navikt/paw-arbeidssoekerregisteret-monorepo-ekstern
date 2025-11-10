@@ -136,7 +136,8 @@ class Livssyklustest : FreeSpec({
                     },
                     hentLagretSøk = ExposedSøkAdminOps::hentSoek,
                     oppdaterSistKjøt = ExposedSøkAdminOps::settSistKjørt,
-                    clock = clock
+                    clock = clock,
+                    meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
                 )
             }
 

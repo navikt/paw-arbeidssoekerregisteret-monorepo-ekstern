@@ -66,7 +66,8 @@ fun <A> initEmbeddedKtorServer(
                 hentBrukerId = { identitetsnummer -> brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(identitetsnummer)?.id },
                 hentLagretSøk = ExposedSøkAdminOps::hentSoek,
                 oppdaterSistKjøt = ExposedSøkAdminOps::settSistKjørt,
-                clock = clock
+                clock = clock,
+                meterRegistry = prometheusRegistry
             )
             kodeverk()
             swaggerUI("/docs/api", "openapi/openapi-spec.yaml")

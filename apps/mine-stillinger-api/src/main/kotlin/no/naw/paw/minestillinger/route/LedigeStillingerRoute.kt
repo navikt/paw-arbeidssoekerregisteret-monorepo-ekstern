@@ -7,6 +7,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.TokenX
@@ -36,6 +37,7 @@ import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.SøkId
 import no.naw.paw.minestillinger.domain.api
+import no.naw.paw.minestillinger.metrics.tellLedigeStillingerKall
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
@@ -43,6 +45,7 @@ import java.time.Instant
 const val MINE_LEDIGE_STILLINGER_PATH = "/api/v1/ledigestillinger"
 
 fun Route.ledigeStillingerRoute(
+    meterRegistry: MeterRegistry,
     ledigeStillingerClient: FinnStillingerClient,
     hentBrukerId: suspend (Identitetsnummer) -> BrukerId?,
     hentLagretSøk: (BrukerId) -> List<LagretStillingsoek>,
@@ -82,12 +85,14 @@ fun Route.ledigeStillingerRoute(
                             resultat = jobbAnonnser,
                             sistKjoert = søkOgRequest.first.sistKjoet
                         )
+                        val tidspunkt = clock.now()
                         transaction {
                             oppdaterSistKjøt(
                                 søkOgRequest.first.id,
-                                clock.now()
+                                tidspunkt
                             )
                         }
+                        tellLedigeStillingerKall(meterRegistry, tidspunkt, svar)
                         call.respond(svar)
                     } catch (e: Throwable) {
                         appLogger.error("Uventet feil: ", e)
@@ -108,7 +113,6 @@ fun Route.ledigeStillingerRoute(
         }
     }
 }
-
 
 private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(
     tittel = stilling.tittel,

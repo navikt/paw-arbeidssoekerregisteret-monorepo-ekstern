@@ -95,7 +95,8 @@ class LedigeStillingerRouteTest : FreeSpec({
                     hentBrukerId = { BrukerId(10) },
                     hentLagretSøk = { lagreSøk },
                     oppdaterSistKjøt = { _, _ -> true },
-                    clock = clock
+                    clock = clock,
+                    meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
                 )
             }
 
