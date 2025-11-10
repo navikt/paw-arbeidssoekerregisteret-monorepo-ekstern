@@ -4,6 +4,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -234,6 +235,7 @@ class Livssyklustest : FreeSpec({
                     response.body<MineStillingerResponse>() should { data ->
                         data.shouldNotBeNull()
                         data.resultat.shouldBeEmpty()
+                        data.sistKjoert.shouldBeNull()
                     }
                     coVerify(exactly = 1) { ledigeStillingerClient.finnLedigeStillinger(any(), any()) }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
@@ -250,6 +252,7 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     response.body<MineStillingerResponse>() should { data ->
                         data.shouldNotBeNull()
+                        data.sistKjoert shouldBe clock.now().truncatedTo(ChronoUnit.MILLIS)
                         data.resultat.size shouldBe 1
                         data.resultat.first() should { annonse ->
                             annonse.soeknadsfrist.type.name.lowercase() shouldBe stilling.soeknadsfrist.type.name.lowercase()
