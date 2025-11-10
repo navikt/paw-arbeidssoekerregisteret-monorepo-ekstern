@@ -20,8 +20,14 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
+import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
+import no.nav.paw.pdl.client.hentAdressebeskyttelse
+import no.nav.paw.pdl.graphql.generated.enums.AdressebeskyttelseGradering
+import no.nav.paw.pdl.graphql.generated.hentadressebeskyttelsebolk.Adressebeskyttelse
+import no.nav.paw.pdl.graphql.generated.hentadressebeskyttelsebolk.HentPersonBolkResult
+import no.nav.paw.pdl.graphql.generated.hentadressebeskyttelsebolk.Person
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.paw.test.data.periode.createProfilering
@@ -38,8 +44,13 @@ import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseFeil
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseResultat
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
@@ -53,9 +64,11 @@ import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
+import no.naw.paw.minestillinger.domain.medFlagg
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.ledigeStillingerRoute
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.time.Instant
@@ -199,6 +212,7 @@ class Livssyklustest : FreeSpec({
                     coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(kariIdent) }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
+
                 "Kari får 404 på mine stillinger før søket er lagret" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     val response = testClient.mineLedigeStillinger(kariIdent)
@@ -241,6 +255,33 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
+                "36 timer senere kjøres en bulk oppdatering av adresebeskyttelse, kari sin tjeneste blir ikke påvirket" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    forwardTimeByHours(36)
+                    coEvery { pdlClient.harBeskyttetAdresseBulk(any<List<Identitetsnummer>>()) } returns listOf(
+                        AdressebeskyttelseVerdi(
+                            identitetsnummer = kariIdent,
+                            harBeskyttetAdresse = false
+                        )
+                    )
+                    suspendedTransactionAsync {
+                        val profil = hentBrukerProfilUtenFlagg(kariIdent)!!
+                            .let { profilUtenFlaff ->
+                                val flagg = brukerprofilTjeneste.hentFlagg(profilUtenFlaff.id)
+                                profilUtenFlaff.medFlagg(ListeMedFlagg.listeMedFlagg(flagg))
+                            }
+                        brukerprofilTjeneste.oppdaterAdresseGraderingBulk(listOf(profil), clock.now())
+                    }.await()
+                    testClient.getBrukerprofil(kariIdent) should { response ->
+                        response.status shouldBe HttpStatusCode.OK
+                        response.body<ApiBrukerprofil>() should { apiProfil ->
+                            apiProfil.identitetsnummer shouldBe kariIdent.verdi
+                            apiProfil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
+                        }
+                    }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
                 "Når en stillinger blir tilgjengelig dukker den opp i søket til Kari" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     val stilling = lagStilling(karisLedigeStillingerRequest)
@@ -252,7 +293,7 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     response.body<MineStillingerResponse>() should { data ->
                         data.shouldNotBeNull()
-                        data.sistKjoert shouldBe clock.now().truncatedTo(ChronoUnit.MILLIS)
+                        data.sistKjoert shouldBe clock.now().truncatedTo(ChronoUnit.MILLIS) - (Duration.ofHours(36).truncatedTo(ChronoUnit.MILLIS))
                         data.resultat.size shouldBe 1
                         data.resultat.first() should { annonse ->
                             annonse.soeknadsfrist.type.name.lowercase() shouldBe stilling.soeknadsfrist.type.name.lowercase()
