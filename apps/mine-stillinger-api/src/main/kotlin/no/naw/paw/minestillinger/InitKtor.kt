@@ -59,7 +59,8 @@ fun <A> initEmbeddedKtorServer(
             brukerprofilRoute(
                 brukerprofilTjeneste = brukerprofilTjeneste,
                 søkeAdminOps = ExposedSøkAdminOps,
-                clock = clock
+                clock = clock,
+                meterRegistry = prometheusRegistry
             )
             ledigeStillingerRoute(
                 ledigeStillingerClient = finnStillingerClient,

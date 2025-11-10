@@ -5,9 +5,11 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
+import no.nav.paw.error.model.onSuccess
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
@@ -23,6 +25,7 @@ import no.naw.paw.minestillinger.brukerprofil.hentApiBrukerprofil
 import no.naw.paw.minestillinger.brukerprofil.setTjenestatestatus
 import no.naw.paw.minestillinger.tjenesteIkkeAktiv
 import no.naw.paw.minestillinger.db.ops.SøkAdminOps
+import no.naw.paw.minestillinger.metrics.tellHentBrukerpofilKall
 import no.naw.paw.minestillinger.validering.valider
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.slf4j.LoggerFactory.getLogger
@@ -30,6 +33,7 @@ import org.slf4j.LoggerFactory.getLogger
 const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
 
 fun Route.brukerprofilRoute(
+    meterRegistry: MeterRegistry,
     brukerprofilTjeneste: BrukerprofilTjeneste,
     søkeAdminOps: SøkAdminOps,
     clock: Clock
@@ -43,6 +47,9 @@ fun Route.brukerprofilRoute(
                     hentSøk = { brukerId -> søkeAdminOps.hentSoek(brukerId).map { it.soek } },
                     identitetsnummer = identitetsnummer,
                 )?.let(::Data) ?: brukerIkkeFunnet()
+                response.onSuccess { profil ->
+                    tellHentBrukerpofilKall(meterRegistry = meterRegistry, brukerprofil = profil)
+                }
                 call.respondWith(response)
             }
             put("/tjenestestatus/{tjenestestatus}") {

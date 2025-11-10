@@ -164,7 +164,8 @@ class TjenestestatusE2ETest : FreeSpec({
                     brukerprofilRoute(
                         brukerprofilTjeneste = brukerprofilTjeneste,
                         søkeAdminOps = ExposedSøkAdminOps,
-                        clock = SystemClock
+                        clock = SystemClock,
+                        meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
                     )
                 }
 

@@ -139,7 +139,10 @@ class Livssyklustest : FreeSpec({
 
             routing {
                 brukerprofilRoute(
-                    brukerprofilTjeneste = brukerprofilTjeneste, søkeAdminOps = ExposedSøkAdminOps, clock = clock
+                    brukerprofilTjeneste = brukerprofilTjeneste,
+                    søkeAdminOps = ExposedSøkAdminOps,
+                    clock = clock,
+                    meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
                 )
                 ledigeStillingerRoute(
                     ledigeStillingerClient = ledigeStillingerClient,
