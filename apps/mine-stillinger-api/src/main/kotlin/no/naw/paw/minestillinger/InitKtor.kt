@@ -88,7 +88,8 @@ fun Application.configureKtorServer(
 ) {
     installContentNegotiationPlugin()
     install(CallLogging) {
-        level = Level.INFO
+        level = Level.TRACE
+        logger = httpLogger
         filter { call ->
             !call.request.path().contains("internal")
         }

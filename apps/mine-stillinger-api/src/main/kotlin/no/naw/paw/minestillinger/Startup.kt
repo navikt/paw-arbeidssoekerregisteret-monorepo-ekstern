@@ -41,7 +41,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.util.*
 
-val appLogger = LoggerFactory.getLogger("brukerprofiler_api")
+val appLogger = LoggerFactory.getLogger("brukerprofiler.api")
+val httpLogger = LoggerFactory.getLogger("brukerprofiler.api.http")
 
 fun main() {
     appLogger.info("Starter brukerprofiler-api...")
