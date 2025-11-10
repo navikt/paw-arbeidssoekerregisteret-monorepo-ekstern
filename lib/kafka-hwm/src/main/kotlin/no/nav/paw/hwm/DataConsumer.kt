@@ -1,5 +1,6 @@
 package no.nav.paw.hwm
 
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.opentelemetry.api.common.AttributeKey.booleanKey
 import io.opentelemetry.api.common.Attributes
@@ -84,6 +85,8 @@ class DataConsumer<B, K, V> internal constructor(
     override fun isAlive(): Boolean {
         return between(lastPollProcessingCompletedAt.get(), Instant.now()) < isAliveTimeout
     }
+
+    val consumerMetrics: KafkaClientMetrics = KafkaClientMetrics(consumer)
 
     fun runAndCloseOnExit(): CompletableFuture<Void> {
         if (!hasStarted.compareAndSet(false, true)) {

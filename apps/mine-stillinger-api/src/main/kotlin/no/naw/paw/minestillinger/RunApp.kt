@@ -8,7 +8,7 @@ fun runApp(applicationContext: ApplicationContext): Unit {
         }
     val ktorInstance = initEmbeddedKtorServer(
         prometheusRegistry = applicationContext.prometheusMeterRegistry,
-        meterBinders = listOf(),
+        meterBinders = applicationContext.meterBinders,
         healthIndicator = applicationContext.healthChecks,
         authProviders = applicationContext.securityConfig.authProviders,
         brukerprofilTjeneste = applicationContext.brukerprofilTjeneste,

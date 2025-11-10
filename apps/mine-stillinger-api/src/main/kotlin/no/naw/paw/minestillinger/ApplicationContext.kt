@@ -1,6 +1,7 @@
 package no.naw.paw.minestillinger
 
 import com.zaxxer.hikari.HikariDataSource
+import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.health.HealthChecks
 import no.nav.paw.hwm.DataConsumer
@@ -21,6 +22,7 @@ data class ApplicationContext(
     val pdlClient: PdlClient,
     val finnStillingerClient: FinnStillingerClient,
     val brukerprofilTjeneste: BrukerprofilTjeneste,
-    val clock: Clock
+    val clock: Clock,
+    val meterBinders: List<MeterBinder>
 )
 

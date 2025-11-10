@@ -1,5 +1,8 @@
 package no.naw.paw.minestillinger
 
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -31,6 +34,8 @@ import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import org.apache.avro.specific.SpecificRecord
+import org.apache.kafka.clients.consumer.internals.ConsumerMetrics
+import org.apache.kafka.clients.consumer.internals.metrics.KafkaConsumerMetrics
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
@@ -99,7 +104,12 @@ fun main() {
         pdlClient = webClients.pdlClient,
         brukerprofilTjeneste = brukerprofilTjeneste,
         finnStillingerClient = webClients.finnStillingerClient,
-        clock = clock
+        clock = clock,
+        meterBinders = listOf(
+            consumer.consumerMetrics,
+            JvmGcMetrics(),
+            JvmMemoryMetrics()
+        )
     )
     runApp(appContext)
 }
