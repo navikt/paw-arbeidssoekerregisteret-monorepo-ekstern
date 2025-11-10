@@ -110,7 +110,7 @@ object StillingerTable : LongIdTable("stillinger") {
         fylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<StillingRow> {
-        logger.debug("Finner stillinger med kategorier: {} og fylker: {}", styrkkoder, fylker)
+        logger.trace("Finner stillinger med styrkkoder: {} og fylker: {}", styrkkoder, fylker)
         val aktivQuery: Op<Boolean> = (status eq StillingStatus.AKTIV)
         val soekeordQuery: Op<Boolean> = if (soekeord.isEmpty()) {
             Op.TRUE
