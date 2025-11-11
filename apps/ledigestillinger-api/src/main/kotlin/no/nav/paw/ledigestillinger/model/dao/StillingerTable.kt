@@ -224,7 +224,7 @@ object StillingerTable : LongIdTable("stillinger") {
     ).groupBy(status).map {
         StillingStatusCountRow(
             status = it[status],
-            count = it[id.count()]
+            count = it[status.count()]
         )
     }
 }
