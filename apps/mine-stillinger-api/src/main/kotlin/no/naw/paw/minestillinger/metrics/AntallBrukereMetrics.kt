@@ -9,9 +9,7 @@ import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.ProfileringTable
 import no.naw.paw.minestillinger.domain.ProfileringResultat
-import org.apache.kafka.common.protocol.types.Field
 import org.jetbrains.exposed.v1.core.JoinType
-import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
@@ -42,18 +40,13 @@ class AntallBrukereMetrics(
                     .count()
                 appLogger.info("debugInfoAntallProfiler: $debugInfoAntallProfiler")
                 appLogger.info("debugInfoAntallAktivePerioder: $debuigInfoAntallAktivePerioder")
-                val optOutTable = BrukerFlaggTable.alias("opt_out_table")
+
                 BrukerTable
                     .join(
                         otherTable = BrukerFlaggTable,
                         joinType = JoinType.INNER,
                         onColumn = BrukerTable.id,
                         otherColumn = BrukerFlaggTable.brukerId,
-                    ).join(
-                        otherTable = optOutTable,
-                        joinType = JoinType.LEFT,
-                        onColumn = BrukerTable.id,
-                        otherColumn = optOutTable[BrukerFlaggTable.brukerId],
                     ).join(
                         otherTable = ProfileringTable,
                         joinType = JoinType.LEFT,
@@ -74,7 +67,6 @@ class AntallBrukereMetrics(
                         MetricDataKey(
                             arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] == null,
                             tjenestenErAktiv = row[BrukerFlaggTable.verdi] == true,
-                            optOut = row[optOutTable[BrukerFlaggTable.verdi]] == true,
                             profileringsResultat =
                                 row[ProfileringTable.profileringResultat]
                                     ?.let { ProfileringResultat.valueOf(it) }
@@ -107,7 +99,6 @@ class AntallBrukereMetrics(
                                 Tag.of("arbeidssoekerperioden_er_aktiv", key.arbeidssoekerPeriodenErAktiv.toString()),
                                 Tag.of("tjenesten_er_aktiv", key.tjenestenErAktiv.toString()),
                                 Tag.of("profilerings_resultat", key.profileringsResultat.name),
-                                Tag.of("opt_out", key.optOut.toString())
                             ),
                             atomicLong,
                             { it.get().toDouble() },
@@ -123,7 +114,6 @@ class AntallBrukereMetrics(
 data class MetricDataKey(
     val arbeidssoekerPeriodenErAktiv: Boolean,
     val tjenestenErAktiv: Boolean,
-    val optOut: Boolean,
     val profileringsResultat: ProfileringResultat,
 )
 
