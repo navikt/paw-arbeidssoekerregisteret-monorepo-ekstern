@@ -20,6 +20,7 @@ import no.nav.paw.error.plugin.installErrorHandlingPlugin
 import no.nav.paw.health.healthChecksOf
 import no.nav.paw.ledigestillinger.config.APPLICATION_CONFIG
 import no.nav.paw.ledigestillinger.config.ApplicationConfig
+import no.nav.paw.ledigestillinger.context.TelemetryContext
 import no.nav.paw.ledigestillinger.plugin.configureRouting
 import no.nav.paw.ledigestillinger.service.StillingService
 import no.nav.paw.security.authentication.config.AuthProvider
@@ -40,7 +41,7 @@ class TestContext private constructor(
     val applicationConfig: ApplicationConfig = loadNaisOrLocalConfiguration(APPLICATION_CONFIG),
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG),
     val meterRegistry: MeterRegistry = SimpleMeterRegistry(),
-    val stillingService: StillingService = StillingService(applicationConfig, meterRegistry)
+    val stillingService: StillingService = StillingService(applicationConfig, TelemetryContext(meterRegistry))
 ) {
     fun setUp(): TestContext {
         Database.connect(dataSource)

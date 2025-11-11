@@ -12,6 +12,7 @@ import no.naw.paw.ledigestillinger.model.VisningGrad
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greater
@@ -217,4 +218,13 @@ object StillingerTable : LongIdTable("stillinger") {
     fun deleteByIdList(
         idList: Collection<Long>
     ): Int = deleteWhere { id inList idList }
+
+    fun countByStatus(): List<StillingStatusCountRow> = select(
+        status, status.count()
+    ).groupBy(status).map {
+        StillingStatusCountRow(
+            status = it[status],
+            count = it[id.count()]
+        )
+    }
 }

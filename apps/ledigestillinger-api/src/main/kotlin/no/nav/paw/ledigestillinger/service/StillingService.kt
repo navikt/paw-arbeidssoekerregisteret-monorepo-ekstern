@@ -1,11 +1,10 @@
 package no.nav.paw.ledigestillinger.service
 
-import io.micrometer.core.instrument.MeterRegistry
-import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.pam.stilling.ext.avro.Ad
 import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.config.ApplicationConfig
+import no.nav.paw.ledigestillinger.context.TelemetryContext
 import no.nav.paw.ledigestillinger.exception.StillingIkkeFunnetException
 import no.nav.paw.ledigestillinger.model.asDto
 import no.nav.paw.ledigestillinger.model.asStillingRow
@@ -16,14 +15,7 @@ import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
 import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
-import no.nav.paw.ledigestillinger.util.finnStillingerByEgenskaperEvent
-import no.nav.paw.ledigestillinger.util.finnStillingerByEgenskaperGauge
-import no.nav.paw.ledigestillinger.util.finnStillingerByUuidListeEvent
-import no.nav.paw.ledigestillinger.util.finnStillingerByUuidListeGauge
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
-import no.nav.paw.ledigestillinger.util.meldingerMottattCounter
-import no.nav.paw.ledigestillinger.util.meldingerMottattEvent
-import no.nav.paw.ledigestillinger.util.meldingerMottattGauge
 import no.nav.paw.logging.logger.buildLogger
 import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.Paging
@@ -36,7 +28,7 @@ import java.util.*
 
 class StillingService(
     private val applicationConfig: ApplicationConfig,
-    private val meterRegistry: MeterRegistry
+    private val telemetryContext: TelemetryContext
 ) {
     private val logger = buildLogger
 
@@ -59,8 +51,7 @@ class StillingService(
         uuidListe: Collection<UUID>
     ): List<Stilling> = transaction {
         logger.info("Finner stillinger for UUID-liste")
-        Span.current().finnStillingerByUuidListeEvent(antallUuider = uuidListe.size)
-        meterRegistry.finnStillingerByUuidListeGauge(antallUuider = uuidListe.size)
+        telemetryContext.finnStillingerByUuidListe(uuidListe)
         val rows = StillingerTable.selectRowsByUUIDList(uuidListe)
         rows.map { it.asDto() }
     }
@@ -73,18 +64,7 @@ class StillingService(
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
         logger.info("Finner stillinger for egeneskaper")
-        Span.current().finnStillingerByEgenskaperEvent(
-            antallSoekeord = soekeord.size,
-            antallKategorier = styrkkoder.size,
-            antallFylker = fylker.size,
-            antallKommuner = fylker.sumOf { it.kommuner.size }
-        )
-        meterRegistry.finnStillingerByEgenskaperGauge(
-            antallSoekeord = soekeord.size,
-            antallKategorier = styrkkoder.size,
-            antallFylker = fylker.size,
-            antallKommuner = fylker.sumOf { it.kommuner.size }
-        )
+        telemetryContext.finnStillingerByEgenskaper(soekeord, styrkkoder, fylker)
         val rows = StillingerTable.selectRowsByKategorierAndFylker(
             soekeord = soekeord,
             styrkkoder = styrkkoder,
@@ -151,7 +131,6 @@ class StillingService(
             .onEach { message ->
                 antallMottatt++
                 logger.trace("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
-                meterRegistry.meldingerMottattCounter(message.value.status)
             }
             .filter { message ->
                 val publishedTimestamp = message.value.published.fromLocalDateTimeString()
@@ -177,7 +156,6 @@ class StillingService(
             millisekunder,
             applicationConfig.pamStillingerKafkaConsumer.topic
         )
-        Span.current().meldingerMottattEvent(antallMottatt, antallLagret, millisekunder)
-        meterRegistry.meldingerMottattGauge(antallMottatt, antallLagret)
+        telemetryContext.meldingerMottatt(antallMottatt, antallLagret, millisekunder)
     }
 }

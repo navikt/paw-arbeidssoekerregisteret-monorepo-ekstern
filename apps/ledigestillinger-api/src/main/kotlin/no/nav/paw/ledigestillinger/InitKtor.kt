@@ -16,16 +16,19 @@ import no.nav.paw.health.StartupCheck
 import no.nav.paw.hwm.DataConsumer
 import no.nav.paw.hwm.Message
 import no.nav.paw.ledigestillinger.context.ApplicationContext
+import no.nav.paw.ledigestillinger.context.TelemetryContext
 import no.nav.paw.ledigestillinger.plugin.configureRouting
 import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
 import no.nav.paw.ledigestillinger.plugin.installLogginPlugin
 import no.nav.paw.ledigestillinger.plugin.installWebPlugins
 import no.nav.paw.ledigestillinger.serde.AdAvroDeserializer
 import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
+import no.nav.paw.scheduling.plugin.installScheduledTaskPlugin
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.apache.kafka.common.serialization.UUIDDeserializer
+import java.time.Duration
 import java.util.*
 import javax.sql.DataSource
 
@@ -46,7 +49,8 @@ fun <A> initEmbeddedKtorServer(
                 meterRegistry = meterRegistry,
                 meterBinders = meterBinderList,
                 dataSource = dataSource,
-                pamStillingerKafkaConsumer = pamStillingerKafkaConsumer
+                pamStillingerKafkaConsumer = pamStillingerKafkaConsumer,
+                telemetryContext = telemetryContext
             )
             configureRouting(
                 healthChecks = healthChecks,
@@ -63,6 +67,7 @@ fun Application.configureKtorServer(
     meterBinders: List<MeterBinder>,
     dataSource: DataSource,
     pamStillingerKafkaConsumer: DataConsumer<Message<UUID, Ad>, UUID, Ad>,
+    telemetryContext: TelemetryContext
 ) {
     installWebPlugins()
     installContentNegotiationPlugin()
@@ -75,5 +80,11 @@ fun Application.configureKtorServer(
     installAuthenticationPlugin(securityConfig.authProviders)
     installDatabasePlugins(dataSource)
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
+    installScheduledTaskPlugin(
+        pluginInstance = "DatabaseMetrics",
+        delay = Duration.ofMinutes(10),
+        period = Duration.ofMinutes(10),
+        task = telemetryContext::lagredeStillinger
+    )
 }
 
