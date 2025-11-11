@@ -4,7 +4,6 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import kotlinx.coroutines.delay
 import no.naw.paw.minestillinger.appLogger
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import no.naw.paw.minestillinger.db.BrukerFlaggTable
@@ -46,7 +45,6 @@ class AntallBrukereMetrics(
                 appLogger.info("debugInfoAntallProfiler: $debugInfoAntallProfiler")
                 appLogger.info("debugInfoAntallAktivePerioder: $debuigInfoAntallAktivePerioder")
                 val optOut = BrukerFlaggTable.alias("opt_out")
-                val harBruktTjenesten = BrukerFlaggTable.alias("har_brukt_tjenesten")
                 BrukerTable
                     .join(
                         otherTable = BrukerFlaggTable,
@@ -59,11 +57,6 @@ class AntallBrukereMetrics(
                         onColumn = BrukerTable.id,
                         otherColumn = optOut[BrukerFlaggTable.brukerId],
                     ).join(
-                        otherTable = harBruktTjenesten,
-                        joinType = JoinType.LEFT,
-                        onColumn = BrukerTable.id,
-                        otherColumn = harBruktTjenesten[BrukerFlaggTable.brukerId],
-                    ).join(
                         otherTable = ProfileringTable,
                         joinType = JoinType.LEFT,
                         onColumn = BrukerTable.arbeidssoekerperiodeId,
@@ -73,24 +66,19 @@ class AntallBrukereMetrics(
                         BrukerFlaggTable.verdi,
                         ProfileringTable.profileringResultat,
                         optOut[BrukerFlaggTable.verdi],
-                        harBruktTjenesten[BrukerFlaggTable.verdi],
                         BrukerTable.id.count(),
                     ).where {
-                        BrukerFlaggTable.navn eq TjenestenErAktivFlaggtype.type and (optOut[BrukerFlaggTable.navn] eq OptOutFlaggtype.type) and (
-                            harBruktTjenesten[BrukerFlaggTable.navn] eq HarBruktTjenestenFlaggtype.type
-                        )
+                        BrukerFlaggTable.navn eq TjenestenErAktivFlaggtype.type and (optOut[BrukerFlaggTable.navn] eq OptOutFlaggtype.type)
                     }.groupBy(
                         BrukerTable.arbeidssoekerperiodeAvsluttet,
                         BrukerFlaggTable.verdi,
                         ProfileringTable.profileringResultat,
                         optOut[BrukerFlaggTable.verdi],
-                        harBruktTjenesten[BrukerFlaggTable.verdi],
                     ).map { row ->
                         MetricDataKey(
                             arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] == null,
                             tjenestenErAktiv = row[BrukerFlaggTable.verdi] == true,
                             optOut = row[optOut[BrukerFlaggTable.verdi]] == true,
-                            harBruktTjenesten = row[harBruktTjenesten[BrukerFlaggTable.verdi]] == true,
                             profileringsResultat =
                                 row[ProfileringTable.profileringResultat]
                                     ?.let { ProfileringResultat.valueOf(it) }
@@ -124,7 +112,6 @@ class AntallBrukereMetrics(
                                 Tag.of("tjenesten_er_aktiv", key.tjenestenErAktiv.toString()),
                                 Tag.of("profilerings_resultat", key.profileringsResultat.name),
                                 Tag.of("opt_out", key.optOut.toString()),
-                                Tag.of("har_brukt_tjenesten", key.harBruktTjenesten.toString()),
                             ),
                             atomicLong,
                             { it.get().toDouble() },
@@ -141,7 +128,6 @@ data class MetricDataKey(
     val arbeidssoekerPeriodenErAktiv: Boolean,
     val tjenestenErAktiv: Boolean,
     val optOut: Boolean,
-    val harBruktTjenesten: Boolean,
     val profileringsResultat: ProfileringResultat,
 )
 
