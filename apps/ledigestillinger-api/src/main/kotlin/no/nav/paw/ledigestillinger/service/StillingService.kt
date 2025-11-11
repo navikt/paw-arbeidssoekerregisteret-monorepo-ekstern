@@ -39,14 +39,14 @@ class StillingService(
         )
     }
 
-    @WithSpan
+    @WithSpan("paw.stillinger.service.hent_by_uuid")
     fun hentStilling(uuid: UUID): Stilling = transaction {
         logger.info("Henter stilling")
         val row = StillingerTable.selectRowByUUID(uuid)
         row?.asDto() ?: throw StillingIkkeFunnetException()
     }
 
-    @WithSpan
+    @WithSpan("paw.stillinger.service.finn_by_uuid_liste")
     fun finnStillingerByUuidListe(
         uuidListe: Collection<UUID>
     ): List<Stilling> = transaction {
@@ -56,7 +56,7 @@ class StillingService(
         rows.map { it.asDto() }
     }
 
-    @WithSpan
+    @WithSpan("paw.stillinger.service.finn_by_egenskaper")
     fun finnStillingerByEgenskaper(
         soekeord: Collection<String>,
         styrkkoder: Collection<String>,
@@ -74,7 +74,7 @@ class StillingService(
         rows.map { it.asDto() }
     }
 
-    @WithSpan
+    @WithSpan("paw.stillinger.service.lagre")
     fun lagreStilling(stillingRow: StillingRow) {
         logger.debug("Lagrer stilling")
         val existingId = StillingerTable.selectIdByUUID(stillingRow.uuid)
@@ -110,6 +110,7 @@ class StillingService(
         }
     }
 
+    @WithSpan("paw.stillinger.service.slett")
     fun slettStillinger(medUtloeperEldreEnn: Duration): Int = transaction {
         val utloeperTimestampCutoff = Instant.now().minus(medUtloeperEldreEnn)
         logger.info("Sletter stillinger med utløp eldre enn {}", utloeperTimestampCutoff)
@@ -122,7 +123,7 @@ class StillingService(
             .also { rowsAffected -> logger.info("Slettet {} stillinger", rowsAffected) }
     }
 
-    @WithSpan
+    @WithSpan("paw.stillinger.service.handle_messages")
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
         var antallMottatt = 0
         var antallLagret = 0

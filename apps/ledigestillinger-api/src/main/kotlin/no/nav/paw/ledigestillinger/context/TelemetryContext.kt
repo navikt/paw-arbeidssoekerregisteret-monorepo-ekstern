@@ -21,7 +21,7 @@ class TelemetryContext(
         uuidListe: Collection<UUID>
     ) {
         Span.current().addEvent(
-            "paw.stillinger.finn_by_uuid_liste",
+            "paw.stillinger.event.finn_by_uuid_liste",
             Attributes.of(
                 stringKey("uuidListe"), uuidListe.size.toString()
             )
@@ -38,7 +38,7 @@ class TelemetryContext(
         fylker: Collection<Fylke>,
     ) {
         Span.current().addEvent(
-            "paw.stillinger.finn_by_egenskaper",
+            "paw.stillinger.event.finn_by_egenskaper",
             Attributes.of(
                 stringKey("soekeord"), soekeord.size.toString(),
                 stringKey("styrkkoder"), styrkkoder.size.toString(),
@@ -58,7 +58,7 @@ class TelemetryContext(
         millisekunder: Number
     ) {
         Span.current().addEvent(
-            "paw.stillinger.meldinger_mottatt",
+            "paw.stillinger.event.meldinger_mottatt",
             Attributes.of(
                 stringKey("mottatt"), antallMottatt.toString(),
                 stringKey("lagret"), antallLagret.toString(),
