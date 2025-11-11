@@ -27,7 +27,7 @@ fun ScheduledTaskPlugin(pluginInstance: Any): ApplicationPlugin<ScheduledTaskPlu
     return createApplicationPlugin(pluginName, ::ScheduledTaskPluginConfig) {
         application.log.info("Installerer {}", pluginName)
         val task = requireNotNull(pluginConfig.task) { "Task er null" }
-        val delay = requireNotNull(pluginConfig.delay) { "Delay er null" }
+        val delay = pluginConfig.delay ?: Duration.ZERO
         val period = requireNotNull(pluginConfig.period) { "Period er null" }
         val startEvent = pluginConfig.startEvent ?: ApplicationStarted
         val timer = Timer()

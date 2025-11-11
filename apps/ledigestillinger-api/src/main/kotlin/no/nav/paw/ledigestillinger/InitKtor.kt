@@ -82,7 +82,7 @@ fun Application.configureKtorServer(
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
     installScheduledTaskPlugin(
         pluginInstance = "DatabaseMetrics",
-        delay = Duration.ofMinutes(10),
+        delay = Duration.ofMinutes(1),
         period = Duration.ofMinutes(10),
         task = telemetryContext::lagredeStillinger
     )
