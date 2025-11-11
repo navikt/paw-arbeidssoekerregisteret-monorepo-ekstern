@@ -9,8 +9,9 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
-
-    <logger name="no.nav" level="WARN"/>
+    <logger name="app" level="TRACE"/>
+    <logger name="testlogger" level="TRACE"/>
+    <logger name="no.nav" level="INFO"/>
     <logger name="org.apache.kafka" level="WARN"/>
     <logger name="io.confluent.kafka" level="WARN"/>
 </configuration>

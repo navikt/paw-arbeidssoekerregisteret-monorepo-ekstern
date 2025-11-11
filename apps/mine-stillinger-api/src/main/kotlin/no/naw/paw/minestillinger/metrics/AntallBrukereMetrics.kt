@@ -4,12 +4,15 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import kotlinx.coroutines.delay
 import no.naw.paw.minestillinger.appLogger
+import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.ProfileringTable
 import no.naw.paw.minestillinger.domain.ProfileringResultat
 import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.alias
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
@@ -22,6 +25,7 @@ class AntallBrukereMetrics(
     val meterRegistry: MeterRegistry,
 ) {
     private val metricsMap = HashMap<MetricDataKey, AtomicLong>()
+    fun snapshot() = metricsMap.toList()
 
     suspend fun startPeriodiskOppdateringAvMetrics() {
         while (true) {
@@ -40,13 +44,18 @@ class AntallBrukereMetrics(
                     .count()
                 appLogger.info("debugInfoAntallProfiler: $debugInfoAntallProfiler")
                 appLogger.info("debugInfoAntallAktivePerioder: $debuigInfoAntallAktivePerioder")
-
+                val optOut = BrukerFlaggTable.alias("opt_out")
                 BrukerTable
                     .join(
                         otherTable = BrukerFlaggTable,
                         joinType = JoinType.INNER,
                         onColumn = BrukerTable.id,
                         otherColumn = BrukerFlaggTable.brukerId,
+                    ).join(
+                        otherTable = optOut,
+                        joinType = JoinType.LEFT,
+                        onColumn = BrukerTable.id,
+                        otherColumn = optOut[BrukerFlaggTable.brukerId],
                     ).join(
                         otherTable = ProfileringTable,
                         joinType = JoinType.LEFT,
@@ -56,17 +65,20 @@ class AntallBrukereMetrics(
                         BrukerTable.arbeidssoekerperiodeAvsluttet,
                         BrukerFlaggTable.verdi,
                         ProfileringTable.profileringResultat,
+                        optOut[BrukerFlaggTable.verdi],
                         BrukerTable.id.count(),
                     ).where {
-                        BrukerFlaggTable.navn eq TjenestenErAktivFlaggtype.type
+                        BrukerFlaggTable.navn eq TjenestenErAktivFlaggtype.type and (optOut[BrukerFlaggTable.navn] eq OptOutFlaggtype.type)
                     }.groupBy(
                         BrukerTable.arbeidssoekerperiodeAvsluttet,
                         BrukerFlaggTable.verdi,
                         ProfileringTable.profileringResultat,
+                        optOut[BrukerFlaggTable.verdi],
                     ).map { row ->
                         MetricDataKey(
                             arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] == null,
                             tjenestenErAktiv = row[BrukerFlaggTable.verdi] == true,
+                            optOut = row[optOut[BrukerFlaggTable.verdi]] == true,
                             profileringsResultat =
                                 row[ProfileringTable.profileringResultat]
                                     ?.let { ProfileringResultat.valueOf(it) }
@@ -99,6 +111,7 @@ class AntallBrukereMetrics(
                                 Tag.of("arbeidssoekerperioden_er_aktiv", key.arbeidssoekerPeriodenErAktiv.toString()),
                                 Tag.of("tjenesten_er_aktiv", key.tjenestenErAktiv.toString()),
                                 Tag.of("profilerings_resultat", key.profileringsResultat.name),
+                                Tag.of("opt_out", key.optOut.toString()),
                             ),
                             atomicLong,
                             { it.get().toDouble() },
@@ -114,6 +127,7 @@ class AntallBrukereMetrics(
 data class MetricDataKey(
     val arbeidssoekerPeriodenErAktiv: Boolean,
     val tjenestenErAktiv: Boolean,
+    val optOut: Boolean,
     val profileringsResultat: ProfileringResultat,
 )
 

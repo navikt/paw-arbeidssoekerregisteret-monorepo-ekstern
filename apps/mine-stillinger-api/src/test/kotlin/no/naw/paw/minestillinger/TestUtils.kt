@@ -23,7 +23,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-val testLogger: Logger = LoggerFactory.getLogger("no.nav.paw.logger.test")
+val testLogger: Logger = LoggerFactory.getLogger("testlogger")
 
 val MockOAuth2Server.tokenXAuthProvider: AuthProvider
     get() = AuthProvider(

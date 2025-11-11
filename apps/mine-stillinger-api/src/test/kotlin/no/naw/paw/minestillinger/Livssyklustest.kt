@@ -2,8 +2,10 @@ package no.naw.paw.minestillinger
 
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.engine.runBlocking
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -65,6 +67,7 @@ import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
 import no.naw.paw.minestillinger.domain.medFlagg
+import no.naw.paw.minestillinger.metrics.AntallBrukereMetrics
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.ledigeStillingerRoute
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -687,6 +690,34 @@ class Livssyklustest : FreeSpec({
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldHaveSize(1)
                     }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Når kari velger 'opt out' slettes søket og tjenestestatus endres til ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    val optOutResponse = testClient.setTjenestestatus(ApiTjenesteStatus.OPT_OUT, kariIdent)
+                    withClue(optOutResponse.bodyAsText()) {
+                        optOutResponse.status shouldBe HttpStatusCode.NoContent
+                    }
+                    val response = testClient.getBrukerprofil(kariIdent)
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe kariIdent.verdi
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.OPT_OUT
+                        profil.stillingssoek.shouldBeEmpty()
+                    }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Verifiser at vi kan kjøre en runde med metrics oppdtatering uten feil" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    val metricsTjeneste = AntallBrukereMetrics(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
+                    runBlocking {
+                        metricsTjeneste.oppdaterAntallBrukere()
+                    }
+                    val snapshot = metricsTjeneste.snapshot()
+                    snapshot.shouldNotBeEmpty()
+                    testLogger.info("Metrics snapshot:\n ${snapshot.joinToString("\n")}")
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
             } // end with(helper)
