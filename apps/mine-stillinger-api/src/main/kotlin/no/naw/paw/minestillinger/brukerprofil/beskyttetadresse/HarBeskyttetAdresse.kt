@@ -26,7 +26,7 @@ suspend fun PdlClient.harBeskyttetAdresseBulk(identitetsnummer: List<Identitetsn
     hentAdressebeskyttelse(identitetsnummer.map { it.verdi }, null, BEHANDLINGSNUMMER)
         ?.map { personResultat ->
             val ident = Identitetsnummer(personResultat.ident)
-            val feilkode = personResultat.code.takeIf { it.equals("ok", ignoreCase = true) }
+            val feilkode = personResultat.code.takeUnless { it.equals("ok", ignoreCase = true) }
             if (feilkode != null) {
                 AdressebeskyttelseFeil(ident, feilkode)
             } else {
