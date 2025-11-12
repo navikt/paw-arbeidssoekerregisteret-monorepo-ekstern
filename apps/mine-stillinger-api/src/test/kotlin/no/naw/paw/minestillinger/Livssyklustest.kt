@@ -54,8 +54,10 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdres
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
+import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
+import no.naw.paw.minestillinger.db.ops.brukerprofilUtenFlagg
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
 import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
 import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
@@ -71,6 +73,7 @@ import no.naw.paw.minestillinger.metrics.AntallBrukereMetrics
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.ledigeStillingerRoute
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
@@ -720,7 +723,22 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Metrics snapshot:\n ${snapshot.joinToString("\n")}")
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
-            } // end with(helper)
+
+                "Skriv alle brukerprofiler til console" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    transaction {
+                        BrukerTable.selectAll()
+                            .map(::brukerprofilUtenFlagg)
+                            .map { profilerUtenFlagg ->
+                                val flagg = brukerprofilTjeneste.hentFlagg(profilerUtenFlagg.id)
+                                profilerUtenFlagg.medFlagg(ListeMedFlagg.listeMedFlagg(flagg))
+                            }.forEach { brukerprofil ->
+                                val profilering = hentProfileringOrNull(brukerprofil.arbeidssoekerperiodeId)?.profileringResultat
+                                testLogger.info("Brukerprofil: identitetsnummer=${brukerprofil.identitetsnummer.verdi}, periode_aktiv=${brukerprofil.arbeidssoekerperiodeAvsluttet == null}, profilering=$profilering, flagg=${brukerprofil.listeMedFlagg.map { "${it.type.type}=${it.verdi}" }}")
+                            }
+                    }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")}
+            }
         }
     }
 })
