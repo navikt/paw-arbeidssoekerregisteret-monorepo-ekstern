@@ -67,7 +67,7 @@ class BrukerprofilTjeneste(
         pdlClient.harBeskyttetAdresseBulk(brukerprofiler.map(BrukerProfil::identitetsnummer))
             .forEach { beskyttetAdresse ->
                 when (beskyttetAdresse) {
-                    is AdressebeskyttelseFeil -> appLogger.error("Feil ved henting av adressebeskyttelse for brukerId=${map[beskyttetAdresse.identitetsnummer]?.id?.verdi}")
+                    is AdressebeskyttelseFeil -> appLogger.error("Feil ved henting av adressebeskyttelse, code=${beskyttetAdresse.code}")
                     is AdressebeskyttelseVerdi -> {
                         val brukerProfil = map[beskyttetAdresse.identitetsnummer]
                         if (brukerProfil != null) {
