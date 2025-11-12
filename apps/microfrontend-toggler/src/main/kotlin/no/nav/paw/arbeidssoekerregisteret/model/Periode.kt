@@ -19,7 +19,7 @@ fun PeriodeInfo.bleAvsluttetTidligereEnn(tidspunkt: Instant): Boolean =
 
 fun PeriodeInfo.erInnenfor(tidspunkt: Instant): Boolean = startet.isBefore(tidspunkt)
 
-fun PeriodeInfo.buildEnableToggle(
+fun PeriodeInfo.asEnableToggle(
     microfrontendId: String,
     sensitivitet: Sensitivitet
 ): Toggle {
@@ -32,7 +32,7 @@ fun PeriodeInfo.buildEnableToggle(
     )
 }
 
-fun PeriodeInfo.buildDisableToggle(microfrontendId: String): Toggle {
+fun PeriodeInfo.asDisableToggle(microfrontendId: String): Toggle {
     return Toggle(
         action = ToggleAction.DISABLE,
         ident = identitetsnummer,
@@ -41,7 +41,7 @@ fun PeriodeInfo.buildDisableToggle(microfrontendId: String): Toggle {
     )
 }
 
-fun Periode.buildPeriodeInfo(arbeidssoekerId: Long): PeriodeInfo {
+fun Periode.asPeriodeInfo(arbeidssoekerId: Long): PeriodeInfo {
     return PeriodeInfo(
         id = id,
         identitetsnummer = identitetsnummer,

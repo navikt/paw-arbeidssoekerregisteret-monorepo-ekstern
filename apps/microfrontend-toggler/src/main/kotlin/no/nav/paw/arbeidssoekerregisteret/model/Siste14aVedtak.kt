@@ -20,7 +20,7 @@ data class Beriket14aVedtak(
     val fraArena: Boolean
 )
 
-fun Siste14aVedtak.tilBeriket14aVedtak(
+fun Siste14aVedtak.asBeriket14aVedtak(
     arbeidssoekerId: Long
 ): Beriket14aVedtak {
     return Beriket14aVedtak(
@@ -39,8 +39,10 @@ data class Siste14aVedtakInfo(
     var fattetDato: Instant
 )
 
-fun Siste14aVedtak.tilSiste14aVedtakInfo(
+fun Siste14aVedtak.asSiste14aVedtakInfo(
     arbeidssoekerId: Long
 ): Siste14aVedtakInfo {
     return Siste14aVedtakInfo(aktorId.get(), arbeidssoekerId, fattetDato)
 }
+
+fun no.nav.paw.felles.model.AktorId.asCommonAktorId(): AktorId = AktorId(this.value)

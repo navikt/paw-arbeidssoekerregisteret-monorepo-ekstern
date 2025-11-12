@@ -5,7 +5,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 fun MockOAuth2Server.issueTokenXToken(
     issuerId: String = "default",
     acr: String = "idporten-loa-high",
-    pid: String = TestData.fnr1
+    pid: String = TestData.identitetsnummer1.value
 ): String {
     return issueToken(
         issuerId = issuerId,

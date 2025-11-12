@@ -6,7 +6,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
-import no.nav.paw.arbeidssoekerregisteret.model.buildPeriodeInfo
+import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildBeriket14aVedtakStream
@@ -14,8 +14,6 @@ import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.Stores
-import java.time.Duration
-import java.time.Instant
 
 /**
  *         14a1       14a2       14a3
@@ -32,44 +30,46 @@ class Beriket14aVedtakStreamTest : FreeSpec({
 
     with(LocalTestContext()) {
         "Testsuite for toggling av AIA-microfrontends basert på beriket 14a vedtak" - {
-            val periodeAvsluttetTidspunkt = Instant.now()
-            val periodeStartTidspunkt = periodeAvsluttetTidspunkt.minus(Duration.ofDays(10))
-            val startetPeriode = TestData.buildPeriode(
-                startetTidspunkt = periodeStartTidspunkt
-            )
-            val avsluttetPeriode = TestData.buildPeriode(
-                startetTidspunkt = periodeStartTidspunkt,
-                avsluttetTidspunkt = periodeAvsluttetTidspunkt
-            )
-            val beriket14aVedtak = TestData
-                .buildBeriket14aVedtak(fattetDato = periodeStartTidspunkt.plus(Duration.ofDays(2)))
-
             "Skal ikke deaktivere aia-behovsvurdering microfrontend om det ikke finnes noen periode tilhørende 14a vedtak" {
-                beriket14aVedtakTopic.pipeInput(TestData.kafkaKey1, beriket14aVedtak)
+                val kafkaKey = TestData.kafkaKey1
+                val beriket14aVedtak = TestData.beriket14aVedtak1
+
+                beriket14aVedtakTopic.pipeInput(kafkaKey.value, beriket14aVedtak)
 
                 microfrontendTopic.isEmpty shouldBe true
                 periodeKeyValueStore.size() shouldBe 0
             }
 
             "Skal ikke deaktivere aia-behovsvurdering microfrontend om det ikke finnes en aktiv periode tilhørende 14a vedtak" {
+                val kafkaKey = TestData.kafkaKey2
+                val arbeidssoekerId = TestData.arbeidsoekerId2
+                val avsluttetPeriode = TestData.periode2Avsluttet
+                val beriket14aVedtak = TestData.beriket14aVedtak2
+
                 periodeKeyValueStore.put(
-                    TestData.arbeidsoekerId1,
-                    avsluttetPeriode.buildPeriodeInfo(TestData.arbeidsoekerId1)
+                    arbeidssoekerId.value,
+                    avsluttetPeriode.asPeriodeInfo(arbeidssoekerId.value)
                 )
 
-                beriket14aVedtakTopic.pipeInput(TestData.kafkaKey1, beriket14aVedtak)
+                beriket14aVedtakTopic.pipeInput(kafkaKey.value, beriket14aVedtak)
 
                 microfrontendTopic.isEmpty shouldBe true
                 periodeKeyValueStore.size() shouldBe 1
             }
 
             "Skal deaktivere aia-behovsvurdering microfrontend om det finnes en aktiv periode tilhørende 14a vedtak" {
+                val kafkaKey = TestData.kafkaKey4
+                val identitetsnummer = TestData.identitetsnummer4
+                val arbeidssoekerId = TestData.arbeidsoekerId4
+                val startetPeriode = TestData.periode4Startet
+                val beriket14aVedtak = TestData.beriket14aVedtak4
+
                 periodeKeyValueStore.put(
-                    TestData.arbeidsoekerId1,
-                    startetPeriode.buildPeriodeInfo(TestData.arbeidsoekerId1)
+                    arbeidssoekerId.value,
+                    startetPeriode.asPeriodeInfo(arbeidssoekerId.value)
                 )
 
-                beriket14aVedtakTopic.pipeInput(TestData.kafkaKey1, beriket14aVedtak)
+                beriket14aVedtakTopic.pipeInput(kafkaKey.value, beriket14aVedtak)
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
@@ -77,16 +77,16 @@ class Beriket14aVedtakStreamTest : FreeSpec({
 
                 val behovsvurderingKeyValue = keyValueList.last()
 
-                behovsvurderingKeyValue.key shouldBe TestData.arbeidsoekerId1
+                behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
                 with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.DISABLE
-                    ident shouldBe avsluttetPeriode.identitetsnummer
+                    ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe null
                     initialedBy shouldBe "paw"
                 }
 
-                periodeKeyValueStore.size() shouldBe 1
+                periodeKeyValueStore.size() shouldBe 2
             }
         }
     }

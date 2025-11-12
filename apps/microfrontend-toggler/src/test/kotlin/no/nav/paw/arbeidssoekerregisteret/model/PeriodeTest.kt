@@ -23,7 +23,7 @@ class PeriodeTest : FreeSpec({
                         null
                     )
                 val periode = Periode(periodeUuid, identitetsnummer, periodeStartetMetadata, null)
-                val periodeInfo = periode.buildPeriodeInfo(arbeidssoekerId)
+                val periodeInfo = periode.asPeriodeInfo(arbeidssoekerId)
 
                 val json = objectMapper.writeValueAsString(periodeInfo)
                 json shouldBe aktivPeriodeJsonString
@@ -46,7 +46,7 @@ class PeriodeTest : FreeSpec({
                         null
                     )
                 val periode = Periode(periodeUuid, identitetsnummer, periodeStartetMetadata, periodeAvsluttetMetadata)
-                val periodeInfo = periode.buildPeriodeInfo(arbeidssoekerId)
+                val periodeInfo = periode.asPeriodeInfo(arbeidssoekerId)
 
                 val json = objectMapper.writeValueAsString(periodeInfo)
                 json shouldBe avsluttetPeriodeJsonString

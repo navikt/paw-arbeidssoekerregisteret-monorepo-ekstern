@@ -10,7 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
-import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggle
+import no.nav.paw.arbeidssoekerregisteret.model.asDisableToggle
 import no.nav.paw.arbeidssoekerregisteret.model.buildRecord
 import no.nav.paw.arbeidssoekerregisteret.model.erAvsluttet
 import no.nav.paw.arbeidssoekerregisteret.model.erInnenfor
@@ -125,7 +125,7 @@ private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
         periodeInfo.id,
         microfrontendId
     )
-    val disableToggle = periodeInfo.buildDisableToggle(microfrontendId)
+    val disableToggle = periodeInfo.asDisableToggle(microfrontendId)
     forward(disableToggle.buildRecord(periodeInfo.arbeidssoekerId))
     return disableToggle
 }

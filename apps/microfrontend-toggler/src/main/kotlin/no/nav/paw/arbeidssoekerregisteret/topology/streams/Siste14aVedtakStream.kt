@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.topology.streams
 
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.model.tilBeriket14aVedtak
+import no.nav.paw.arbeidssoekerregisteret.model.asBeriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildSiste14aVedtakSerde
@@ -30,6 +30,6 @@ fun StreamsBuilder.buildSiste14aVedtakStream(
         logger.debug("Mottok event på {} med key {}", kafkaTopology.siste14aVedtakTopic, key)
         meterRegistry.tellAntallMottatteSiste14aVedtak()
     }.mapKeyAndValue("mapKafkaKeys") { _, siste14aVedtak ->
-        kafkaKeysFunction(siste14aVedtak.aktorId.get())?.let { it.key to siste14aVedtak.tilBeriket14aVedtak(it.id) }
+        kafkaKeysFunction(siste14aVedtak.aktorId.get())?.let { it.key to siste14aVedtak.asBeriket14aVedtak(it.id) }
     }.to(kafkaTopology.beriket14aVedtakTopic, Produced.with(Serdes.Long(), buildBeriket14aVedtakSerde()))
 }

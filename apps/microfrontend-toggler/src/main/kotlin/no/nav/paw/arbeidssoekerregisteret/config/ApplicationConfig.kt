@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.config
 
 import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import java.time.Duration
+import java.time.Instant
 
 const val APPLICATION_CONFIG = "application_config.toml"
 
@@ -28,5 +29,6 @@ data class MicrofrontendToggleConfig(
     val periodeTogglePunctuatorSchedule: Duration,
     val utsattDeaktiveringAvAiaMinSide: Duration,
     val aiaMinSideSensitivitet: Sensitivitet,
-    val aiaBehovsvurderingSensitivitet: Sensitivitet
+    val aiaBehovsvurderingSensitivitet: Sensitivitet,
+    val deprekeringstidspunktBehovsvurdering: Instant
 )

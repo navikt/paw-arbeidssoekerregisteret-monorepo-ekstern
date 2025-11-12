@@ -15,6 +15,10 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
+import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
+import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
+import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
+import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
@@ -41,47 +45,30 @@ import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.state.KeyValueStore
 import java.util.*
 
-open class TestContext {
-
-    val SCHEMA_REGISTRY_SCOPE = "test-registry"
-
-    val serverConfig = loadNaisOrLocalConfiguration<ServerConfig>(SERVER_CONFIG)
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
-    val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
-    val mockOAuth2Server = MockOAuth2Server()
-    val meterRegistry = SimpleMeterRegistry()
-    val kafkaKeysClientMock = mockk<KafkaKeysClient>()
-    val periodeSerde = buildAvroSerde<Periode>()
-    val periodeInfoSerde = buildPeriodeInfoSerde()
-    val siste14aVedtakSerde = buildSiste14aVedtakSerde()
-    val beriket14aVedtakSerde = buildBeriket14aVedtakSerde()
-    val toggleSerde = buildToggleSerde()
-    val prometheusMeterRegistryMock = mockk<PrometheusMeterRegistry>()
-    val authorizationService = AuthorizationService()
-    val toggleServiceMock = mockk<ToggleService>()
-
-    val kafkaStreamProperties = Properties().apply {
+open class TestContext(
+    open val applicationConfig: ApplicationConfig = loadNaisOrLocalConfiguration(APPLICATION_CONFIG),
+    val serverConfig: ServerConfig = loadNaisOrLocalConfiguration(SERVER_CONFIG),
+    val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG),
+    val mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(),
+    val meterRegistry: SimpleMeterRegistry = SimpleMeterRegistry(),
+    val prometheusMeterRegistryMock: PrometheusMeterRegistry = mockk<PrometheusMeterRegistry>(),
+    val kafkaKeysClientMock: KafkaKeysClient = mockk<KafkaKeysClient>(),
+    val periodeSerde: Serde<Periode> = buildAvroSerde(),
+    val periodeInfoSerde: Serde<PeriodeInfo> = buildPeriodeInfoSerde(),
+    val siste14aVedtakSerde: Serde<Siste14aVedtak> = buildSiste14aVedtakSerde(),
+    val beriket14aVedtakSerde: Serde<Beriket14aVedtak> = buildBeriket14aVedtakSerde(),
+    val toggleSerde: Serde<Toggle> = buildToggleSerde(),
+    val authorizationService: AuthorizationService = AuthorizationService(),
+    val toggleServiceMock: ToggleService = mockk<ToggleService>(),
+    val kafkaStreamProperties: Properties = Properties().apply {
         this[StreamsConfig.APPLICATION_ID_CONFIG] = "test-kafka-streams"
         this[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = "dummy:1234"
         this[StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG] = Serdes.Long().javaClass
         this[StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG] = SpecificAvroSerde<SpecificRecord>().javaClass
         this[KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS] = "true"
-        this[KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG] = "mock://$SCHEMA_REGISTRY_SCOPE"
+        this[KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG] = "mock://test-registry"
     }
-
-    fun <T : SpecificRecord> buildAvroSerde(): Serde<T> {
-        val schemaRegistryClient = MockSchemaRegistry.getClientForScope(SCHEMA_REGISTRY_SCOPE)
-        val serde: Serde<T> = SpecificAvroSerde(schemaRegistryClient)
-        serde.configure(
-            mapOf(
-                KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS to "true",
-                KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG to "mock://$SCHEMA_REGISTRY_SCOPE"
-            ),
-            false
-        )
-        return serde
-    }
-
+) {
     fun <K, V> KeyValueStore<K, V>.size(): Int {
         var count = 0
         for (keyValue in all()) {
@@ -124,6 +111,21 @@ open class TestContext {
                     configureJackson()
                 }
             }
+        }
+    }
+
+    companion object {
+        fun <T : SpecificRecord> buildAvroSerde(): Serde<T> {
+            val schemaRegistryClient = MockSchemaRegistry.getClientForScope("test-registry")
+            val serde: Serde<T> = SpecificAvroSerde(schemaRegistryClient)
+            serde.configure(
+                mapOf(
+                    KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS to "true",
+                    KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG to "mock://test-registry"
+                ),
+                false
+            )
+            return serde
         }
     }
 }

@@ -12,10 +12,10 @@ import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
+import no.nav.paw.arbeidssoekerregisteret.model.asDisableToggle
+import no.nav.paw.arbeidssoekerregisteret.model.asEnableToggle
+import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.bleAvsluttetTidligereEnn
-import no.nav.paw.arbeidssoekerregisteret.model.buildDisableToggle
-import no.nav.paw.arbeidssoekerregisteret.model.buildEnableToggle
-import no.nav.paw.arbeidssoekerregisteret.model.buildPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.buildRecord
 import no.nav.paw.arbeidssoekerregisteret.model.erAvsluttet
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
@@ -55,7 +55,7 @@ fun StreamsBuilder.buildPeriodeStream(
             logger.debug("Mottok event på {} med key {}", kafkaTopology.periodeTopic, key)
             meterRegistry.tellAntallMottattePerioder()
         }.mapValues { periode ->
-            kafkaKeysFunction(periode.identitetsnummer).let { periode.buildPeriodeInfo(it.id) }
+            kafkaKeysFunction(periode.identitetsnummer).let { periode.asPeriodeInfo(it.id) }
         }.genericProcess<Long, PeriodeInfo, Long, Toggle>(
             name = "handtereToggleForPeriode",
             stateStoreNames = arrayOf(kafkaTopology.periodeStoreName),
@@ -169,18 +169,39 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
             "aktiv_periode"
         )
 
-        // Send event for å aktivere AIA Behovsvurdering
-        val enableAiaBehovsvurderingToggle = iverksettAktiverToggle(
-            periodeInfo,
-            microfrontendToggleConfig.aiaBehovsvurdering,
-            ToggleSource.ARBEIDSSOEKERPERIODE,
-            microfrontendToggleConfig.aiaBehovsvurderingSensitivitet
-        )
-        meterRegistry.tellAntallSendteToggles(
-            enableAiaBehovsvurderingToggle,
-            ToggleSource.ARBEIDSSOEKERPERIODE,
-            "aktiv_periode"
-        )
+        if (periodeInfo.startet.isBefore(microfrontendToggleConfig.deprekeringstidspunktBehovsvurdering)) {
+            logger.info(
+                "Periode startet før deprekeringstidspunkt {}, så aktiverer {}",
+                microfrontendToggleConfig.deprekeringstidspunktBehovsvurdering,
+                microfrontendToggleConfig.aiaBehovsvurdering
+            )
+
+            // Send event for å aktivere AIA Behovsvurdering
+            val enableAiaBehovsvurderingToggle = iverksettAktiverToggle(
+                periodeInfo,
+                microfrontendToggleConfig.aiaBehovsvurdering,
+                ToggleSource.ARBEIDSSOEKERPERIODE,
+                microfrontendToggleConfig.aiaBehovsvurderingSensitivitet
+            )
+            meterRegistry.tellAntallSendteToggles(
+                enableAiaBehovsvurderingToggle,
+                ToggleSource.ARBEIDSSOEKERPERIODE,
+                "aktiv_periode"
+            )
+        } else {
+            logger.info(
+                "Periode startet etter deprekeringstidspunkt {}, så avbryter aktivering av {}",
+                microfrontendToggleConfig.deprekeringstidspunktBehovsvurdering,
+                microfrontendToggleConfig.aiaBehovsvurdering
+            )
+
+            meterRegistry.tellAntallIkkeSendteToggles(
+                microfrontendToggleConfig.aiaBehovsvurdering,
+                ToggleSource.ARBEIDSSOEKERPERIODE,
+                ToggleAction.ENABLE,
+                "behovsvurdering_deprekert"
+            )
+        }
     }
 }
 
@@ -267,7 +288,7 @@ private fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
         periodeInfo.id,
         microfrontendId
     )
-    val enableToggle = periodeInfo.buildEnableToggle(microfrontendId, sensitivitet)
+    val enableToggle = periodeInfo.asEnableToggle(microfrontendId, sensitivitet)
     forward(enableToggle.buildRecord(periodeInfo.arbeidssoekerId))
     return enableToggle
 }
@@ -287,7 +308,7 @@ private fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
         periodeInfo.id,
         microfrontendId
     )
-    val disableToggle = periodeInfo.buildDisableToggle(microfrontendId)
+    val disableToggle = periodeInfo.asDisableToggle(microfrontendId)
     forward(disableToggle.buildRecord(periodeInfo.arbeidssoekerId))
     return disableToggle
 }

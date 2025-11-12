@@ -25,10 +25,8 @@ spec:
       value: "min-side.aapen-microfrontend-v1"
     - name: KAFKA_KEYS_SCOPE
       value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
-    - name: AIA_MIN_SIDE_SENSITIVITET
-      value: "SUBSTANTIAL"
-    - name: AIA_BEHOVSVURDERING_SENSITIVITET
-      value: "HIGH"
+    - name: DEPREKERINGSTIDSPUNKT_BEHOVSVURDERING
+      value: "2025-11-11T00:00:00Z"
   resources:
     limits:
       memory: 1024Mi

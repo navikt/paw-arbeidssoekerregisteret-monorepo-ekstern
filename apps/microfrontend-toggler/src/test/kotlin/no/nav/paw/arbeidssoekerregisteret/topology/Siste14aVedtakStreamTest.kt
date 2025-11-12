@@ -39,8 +39,8 @@ class Siste14aVedtakStreamTest : FreeSpec({
 
             "Skal ikke berike 14a vedtak" {
                 coEvery { kafkaKeysClientMock.getIdAndKeyOrNullBlocking(any<String>()) } returns KafkaKeysResponse(
-                    aktivArbeidsoekerId,
-                    aktivKey
+                    aktivArbeidsoekerId.value,
+                    aktivKey.value
                 )
 
                 siste14aVedtakTopic.pipeInput(UUID.randomUUID().toString(), aktivSiste14aVedtak)
@@ -51,10 +51,10 @@ class Siste14aVedtakStreamTest : FreeSpec({
 
                 val beriket14aVedtakKeyValue = keyValueList.last()
 
-                beriket14aVedtakKeyValue.key shouldBe aktivKey
+                beriket14aVedtakKeyValue.key shouldBe aktivKey.value
                 with(beriket14aVedtakKeyValue.value.shouldBeInstanceOf<Beriket14aVedtak>()) {
                     aktorId shouldBe aktivSiste14aVedtak.aktorId.get()
-                    arbeidssoekerId shouldBe aktivArbeidsoekerId
+                    arbeidssoekerId shouldBe aktivArbeidsoekerId.value
                     innsatsgruppe shouldBe aktivSiste14aVedtak.innsatsgruppe
                     hovedmal shouldBe aktivSiste14aVedtak.hovedmal
                     fattetDato shouldBe aktivSiste14aVedtak.fattetDato
