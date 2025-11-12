@@ -102,11 +102,12 @@ fun Application.configureKtorServer(
         distributionStatisticConfig =
             DistributionStatisticConfig.builder()
                 .percentilesHistogram(true)
-                .maximumExpectedValue(Duration.ofSeconds(1).toNanos().toDouble())
+                .maximumExpectedValue(Duration.ofSeconds(5).toNanos().toDouble())
                 .minimumExpectedValue(Duration.ofMillis(20).toNanos().toDouble())
                 .serviceLevelObjectives(
-                    Duration.ofMillis(150).toNanos().toDouble(),
-                    Duration.ofMillis(500).toNanos().toDouble()
+                    Duration.ofMillis(80).toNanos().toDouble(),
+                    Duration.ofMillis(160).toNanos().toDouble(),
+                    Duration.ofMillis(320).toNanos().toDouble()
                 )
                 .build()
     }
