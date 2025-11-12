@@ -18,34 +18,36 @@ import java.util.*
 
 object EgenvurderingPostgresRepository : EgenvurderingRepository {
 
-    override fun finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident: Identitetsnummer): NyesteProfilering? = transaction {
-        ProfileringTable.join(
-            otherTable = PeriodeTable,
-            joinType = JoinType.INNER,
-            onColumn = ProfileringTable.periodeId,
-            otherColumn = PeriodeTable.id
-        ).join(
-            otherTable = EgenvurderingTable,
-            joinType = JoinType.LEFT,
-            onColumn = ProfileringTable.id,
-            otherColumn = EgenvurderingTable.profileringId
-        ).selectAll()
-            .where {
-                PeriodeTable.identitetsnummer eq ident.verdi and
-                        PeriodeTable.avsluttet.isNull() and
-                        EgenvurderingTable.id.isNull()
-            }
-            .orderBy(ProfileringTable.profileringTidspunkt to SortOrder.DESC)
-            .limit(1)
-            .firstOrNull()
-            ?.let { row ->
-                NyesteProfilering(
-                    id = row[ProfileringTable.id],
-                    profilertTil = row[ProfileringTable.profilertTil],
-                    tidspunkt = row[ProfileringTable.profileringTidspunkt]
-                )
-            }
-    }
+    override fun finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident: Identitetsnummer): NyesteProfilering? =
+        transaction {
+            ProfileringTable.join(
+                otherTable = PeriodeTable,
+                joinType = JoinType.INNER,
+                onColumn = ProfileringTable.periodeId,
+                otherColumn = PeriodeTable.id
+            ).join(
+                otherTable = EgenvurderingTable,
+                joinType = JoinType.LEFT,
+                onColumn = ProfileringTable.id,
+                otherColumn = EgenvurderingTable.profileringId
+            ).selectAll()
+                .where {
+                    PeriodeTable.identitetsnummer eq ident.verdi and
+                            PeriodeTable.avsluttet.isNull() and
+                            EgenvurderingTable.id.isNull()
+                }
+                .orderBy(ProfileringTable.profileringTidspunkt to SortOrder.DESC)
+                .limit(1)
+                .firstOrNull()
+                ?.let { row ->
+                    NyesteProfilering(
+                        id = row[ProfileringTable.id],
+                        profilertTil = row[ProfileringTable.profilertTil],
+                        profileringTidspunkt = row[ProfileringTable.profileringTidspunkt],
+                        periodeStartetTidspunkt = row[PeriodeTable.startet]
+                    )
+                }
+        }
 
     override fun lagreEgenvurdering(egenvurdering: Egenvurdering) {
         EgenvurderingTable.insert {

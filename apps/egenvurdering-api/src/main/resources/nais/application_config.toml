@@ -1,3 +1,5 @@
+deprekeringstidspunktBehovsvurdering = "${DEPREKERINGSTIDSPUNKT_BEHOVSVURDERING}"
+
 [producerConfig]
 producerVersion = "${KAFKA_PAW_EGENVURDERING_PRODUCER_VERSION}"
 applicationIdPrefix = "paw-arbeidssoekerregisteret-api-egenvurdering"

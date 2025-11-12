@@ -29,6 +29,8 @@ spec:
       value: "paw.arbeidssoeker-egenvurdering-v1"
     - name: KAFKA_KEYS_SCOPE
       value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
+    - name: DEPREKERINGSTIDSPUNKT_BEHOVSVURDERING
+      value: "2050-01-01T00:00:00Z"
   resources:
     limits:
       memory: 2048Mi

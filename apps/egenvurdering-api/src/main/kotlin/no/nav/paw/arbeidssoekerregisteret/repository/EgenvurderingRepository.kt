@@ -19,7 +19,8 @@ interface EgenvurderingRepository {
 data class NyesteProfilering(
     val id: UUID,
     val profilertTil: String,
-    val tidspunkt: Instant,
+    val profileringTidspunkt: Instant,
+    val periodeStartetTidspunkt: Instant,
 )
 
 data class ProfileringRow(

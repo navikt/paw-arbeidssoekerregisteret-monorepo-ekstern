@@ -1,3 +1,5 @@
+deprekeringstidspunktBehovsvurdering = "2050-01-01T00:00:00Z"
+
 [producerConfig]
 producerVersion = "paw-egenvurdering-producer-v1"
 applicationIdPrefix = "paw-arbeidssoekerregisteret-api-egenvurdering"

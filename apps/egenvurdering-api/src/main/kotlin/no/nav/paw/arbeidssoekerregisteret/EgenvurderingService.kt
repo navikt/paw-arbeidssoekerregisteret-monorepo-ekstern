@@ -18,9 +18,9 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.config.env.currentRuntimeEnvironment
-import no.nav.paw.kafkakeygenerator.model.IdentitetType.FOLKEREGISTERIDENT
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.kafkakeygenerator.model.IdentitetType.FOLKEREGISTERIDENT
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.sikkerhetsnivaa
 import org.apache.kafka.clients.producer.Producer
@@ -42,12 +42,25 @@ class EgenvurderingService(
 
     fun getEgenvurderingGrunnlag(ident: Identitetsnummer): EgenvurderingGrunnlag {
         egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)?.let { nyesteProfilering ->
-            Span.current().addEvent("fant_profilering_fra_aapen_periode_uten_egenvurdering")
-            return EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
+            if (nyesteProfilering.periodeStartetTidspunkt.isBefore(applicationConfig.deprekeringstidspunktBehovsvurdering)) {
+                logger.info(
+                    "Periode startet før deprekeringstidspunkt {}, så returnerer tomt grunnlag",
+                    applicationConfig.deprekeringstidspunktBehovsvurdering
+                )
+                return EgenvurderingGrunnlag(grunnlag = null)
+            } else {
+                logger.info(
+                    "Periode startet etter deprekeringstidspunkt {}, så returnerer grunnlag",
+                    applicationConfig.deprekeringstidspunktBehovsvurdering
+                )
+                Span.current().addEvent("fant_profilering_fra_aapen_periode_uten_egenvurdering")
+                return EgenvurderingGrunnlag(grunnlag = nyesteProfilering.toProfileringDto())
+            }
         }
 
         hentAlternativeIdenter(ident).forEach { identitetsnummer ->
-            val nyesteProfilering = egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(identitetsnummer)
+            val nyesteProfilering =
+                egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(identitetsnummer)
             if (nyesteProfilering != null) {
                 logger.info("Fant profilering med id:${nyesteProfilering.id} for alternativ ident")
                 Span.current().addEvent("fant_profilering_fra_aapen_periode_uten_egenvurdering")
@@ -121,7 +134,7 @@ class EgenvurderingService(
     )
 }
 
-private fun NyesteProfilering.toProfileringDto() = ProfileringDto(
+fun NyesteProfilering.toProfileringDto() = ProfileringDto(
     profileringId = id,
     profilertTil = profilertTil.runCatching {
         ProfilertTilDto.valueOf(profilertTil)

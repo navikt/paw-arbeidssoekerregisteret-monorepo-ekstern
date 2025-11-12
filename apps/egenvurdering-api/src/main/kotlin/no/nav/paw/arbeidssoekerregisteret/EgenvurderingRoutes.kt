@@ -7,12 +7,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingGrunnlag
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
 import no.nav.paw.arbeidssoekerregisteret.policy.SluttbrukerAccessPolicy
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
-import no.nav.paw.config.env.ProdGcp
-import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
@@ -38,11 +35,7 @@ fun Route.egenvurderingRoutes(
                 autorisering(Action.READ, accessPolicies) {
                     val ident = call.securityContext().hentSluttbrukerEllerNull()?.ident
                         ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-                    val egenvurderingGrunnlag = if (currentRuntimeEnvironment is ProdGcp) {
-                        EgenvurderingGrunnlag(grunnlag = null)
-                    } else {
-                        egenvurderingService.getEgenvurderingGrunnlag(ident)
-                    }
+                    val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(ident)
                     call.respond(HttpStatusCode.OK, egenvurderingGrunnlag)
                 }
             }

@@ -1,9 +1,12 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
+import java.time.Instant
+
 const val APPLICATION_CONFIG = "application_config.toml"
 
 data class ApplicationConfig(
     val producerConfig: ProducerConfig,
+    val deprekeringstidspunktBehovsvurdering: Instant
 )
 
 data class ProducerConfig(

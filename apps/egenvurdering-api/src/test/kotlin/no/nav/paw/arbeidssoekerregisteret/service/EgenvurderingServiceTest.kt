@@ -14,20 +14,24 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.EgenvurderingService
+import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.ProducerConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.EgenvurderingRequest
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.NyesteProfilering
 import no.nav.paw.arbeidssoekerregisteret.repository.ProfileringRow
+import no.nav.paw.arbeidssoekerregisteret.toProfileringDto
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
+import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.model.Identitet
 import no.nav.paw.kafkakeygenerator.model.IdentitetType
 import no.nav.paw.kafkakeygenerator.model.IdentiteterResponse
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
-import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.Claims
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -39,13 +43,14 @@ import org.apache.kafka.clients.producer.RoundRobinPartitioner
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.Serializer
+import java.time.Duration
 import java.time.Instant
 import java.util.*
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.api.models.Egenvurdering as EgenvurderingDto
 
 class EgenvurderingServiceTest : FreeSpec({
 
-    val applicationConfig = mockk<ApplicationConfig>(relaxed = true)
+    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
     val kafkaKeysClient = mockk<KafkaKeysClient>(relaxed = true)
     val producer = mockk<Producer<Long, Egenvurdering>>(relaxed = true)
     val egenvurderingRepository = mockk<EgenvurderingRepository>()
@@ -57,14 +62,14 @@ class EgenvurderingServiceTest : FreeSpec({
         egenvurderingRepository = egenvurderingRepository,
     )
 
-
     "Returnerer egenvurdering grunnlag uten å kalle kafka keys når profilering finnes for ident" {
         val ident = Identitetsnummer("10987654321")
         val profileringId = UUID.randomUUID()
         val nyesteProfilering = NyesteProfilering(
             id = profileringId,
             profilertTil = "ANTATT_GODE_MULIGHETER",
-            tidspunkt = Instant.now()
+            profileringTidspunkt = Instant.now(),
+            periodeStartetTidspunkt = Instant.now().minusSeconds(60)
         )
 
         every {
@@ -106,7 +111,8 @@ class EgenvurderingServiceTest : FreeSpec({
         } returns NyesteProfilering(
             id = profileringId,
             profilertTil = "ANTATT_GODE_MULIGHETER",
-            tidspunkt = Instant.now()
+            profileringTidspunkt = Instant.now(),
+            periodeStartetTidspunkt = Instant.now().minusSeconds(60)
         )
 
         val grunnlag = egenvurderingService.getEgenvurderingGrunnlag(ident)
@@ -142,7 +148,8 @@ class EgenvurderingServiceTest : FreeSpec({
         val ugyldig = NyesteProfilering(
             id = profileringId,
             profilertTil = "NOPE_NOPE_NOPE",
-            tidspunkt = Instant.now()
+            profileringTidspunkt = Instant.now(),
+            periodeStartetTidspunkt = Instant.now().minusSeconds(60)
         )
 
         every {
@@ -210,9 +217,6 @@ class EgenvurderingServiceTest : FreeSpec({
     }
 
     "BadRequest når profilering ikke finnes" {
-        val topic = "egenvurdering-topic"
-        every { applicationConfig.producerConfig } returns ProducerConfig("v1", "app", topic)
-
         val profileringId = UUID.randomUUID()
         val request = EgenvurderingRequest(
             profileringId = profileringId,
@@ -237,6 +241,75 @@ class EgenvurderingServiceTest : FreeSpec({
             egenvurderingService.publiserOgLagreEgenvurdering(request, securityContext)
         }
         verify(exactly = 0) { egenvurderingRepository.lagreEgenvurdering(any()) }
+    }
+
+    "Tester for deprekeringstidspunkt-filter" - {
+        val deprekertTidspunkt = Instant.now().minusSeconds(60)
+        val justerApplicationConfig = applicationConfig.copy(
+            deprekeringstidspunktBehovsvurdering = deprekertTidspunkt
+        )
+        val justertEgenvurderingService = EgenvurderingService(
+            applicationConfig = justerApplicationConfig,
+            kafkaKeysClient = kafkaKeysClient,
+            producer = producer,
+            egenvurderingRepository = egenvurderingRepository,
+        )
+
+        "Skal returnere tomt egenvurderingsgrunnlag for perioder som starter før $deprekertTidspunkt" {
+            val profilering = NyesteProfilering(
+                id = UUID.randomUUID(),
+                profilertTil = ProfilertTil.OPPGITT_HINDRINGER.name,
+                profileringTidspunkt = Instant.now(),
+                periodeStartetTidspunkt = deprekertTidspunkt - Duration.ofMinutes(
+                    1
+                )
+            )
+
+            every {
+                egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(any())
+            } returns profilering
+
+            val egenvurdering = justertEgenvurderingService
+                .getEgenvurderingGrunnlag(Identitetsnummer("01017012345"))
+
+            egenvurdering.grunnlag.shouldBeNull()
+        }
+
+        "Skal returnere tomt egenvurderingsgrunnlag for perioder som starter akkurat $deprekertTidspunkt" {
+            val profilering = NyesteProfilering(
+                id = UUID.randomUUID(),
+                profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER.name,
+                profileringTidspunkt = Instant.now(),
+                periodeStartetTidspunkt = deprekertTidspunkt
+            )
+
+            every {
+                egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(any())
+            } returns profilering
+
+            val egenvurdering = justertEgenvurderingService
+                .getEgenvurderingGrunnlag(Identitetsnummer("01017012345"))
+
+            egenvurdering.grunnlag shouldBe profilering.toProfileringDto()
+        }
+
+        "Skal returnere tomt egenvurderingsgrunnlag for perioder som starter etter $deprekertTidspunkt" {
+            val profilering = NyesteProfilering(
+                id = UUID.randomUUID(),
+                profilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING.name,
+                profileringTidspunkt = Instant.now(),
+                periodeStartetTidspunkt = deprekertTidspunkt + Duration.ofMinutes(1)
+            )
+
+            every {
+                egenvurderingRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(any())
+            } returns profilering
+
+            val egenvurdering = justertEgenvurderingService
+                .getEgenvurderingGrunnlag(Identitetsnummer("01017012345"))
+
+            egenvurdering.grunnlag shouldBe profilering.toProfileringDto()
+        }
     }
 })
 
