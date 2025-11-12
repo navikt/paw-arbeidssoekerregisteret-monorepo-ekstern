@@ -12,7 +12,7 @@ import no.nav.paw.pdl.graphql.generated.enums.AdressebeskyttelseGradering
 const val BEHANDLINGSNUMMER = "B452"
 
 suspend fun PdlClient.harBeskyttetAdresse(identitetsnummer: Identitetsnummer): Boolean {
-    val adressebeskyttelse = hentAdressebeskyttelse(identitetsnummer.verdi, null, BEHANDLINGSNUMMER) ?: emptyList()
+    val adressebeskyttelse = hentAdressebeskyttelse(identitetsnummer.value, null, BEHANDLINGSNUMMER) ?: emptyList()
     Span.current().addEvent("adressebeskyttelse", Attributes.of(
         longKey("antall"), adressebeskyttelse.size.toLong())
     )
@@ -23,7 +23,7 @@ suspend fun PdlClient.harBeskyttetAdresse(identitetsnummer: Identitetsnummer): B
 }
 
 suspend fun PdlClient.harBeskyttetAdresseBulk(identitetsnummer: List<Identitetsnummer>): List<AdressebeskyttelseResultat> =
-    hentAdressebeskyttelse(identitetsnummer.map { it.verdi }, null, BEHANDLINGSNUMMER)
+    hentAdressebeskyttelse(identitetsnummer.map { it.value }, null, BEHANDLINGSNUMMER)
         ?.map { personResultat ->
             val ident = Identitetsnummer(personResultat.ident)
             val feilkode = personResultat.code.takeUnless { it.equals("ok", ignoreCase = true) }

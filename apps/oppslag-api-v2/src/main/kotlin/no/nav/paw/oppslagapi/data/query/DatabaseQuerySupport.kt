@@ -39,7 +39,7 @@ object ExposedDatabaseQuerySupport : DatabaseQuerySupport {
         transaction {
             DataTable.select(DataTable.periodeId)
                 .withDistinctOn(DataTable.periodeId)
-                .where(DataTable.identitetsnummer eq identitetsnummer.verdi)
+                .where(DataTable.identitetsnummer eq identitetsnummer.value)
                 .map { it[DataTable.periodeId] }
         }
 }

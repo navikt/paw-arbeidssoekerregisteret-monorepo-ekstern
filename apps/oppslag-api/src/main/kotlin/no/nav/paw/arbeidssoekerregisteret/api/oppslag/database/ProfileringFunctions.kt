@@ -33,7 +33,7 @@ object ProfileringFunctions {
         identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<ProfileringRow> {
-        val identer = identitetsnummerList.map { it.verdi }
+        val identer = identitetsnummerList.map { it.value }
         return ProfileringTable
             .join(MetadataTable, JoinType.LEFT, ProfileringTable.sendtInnAvId, MetadataTable.id)
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)

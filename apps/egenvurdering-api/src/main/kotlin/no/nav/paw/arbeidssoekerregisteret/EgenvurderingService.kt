@@ -81,7 +81,7 @@ class EgenvurderingService(
         val profilering = egenvurderingRepository.finnProfilering(request.profileringId, sluttbruker.ident)
             ?: throw BadRequestException("Fant ingen profilering for oppgit profileringId ${request.profileringId} og ident")
 
-        val kafkaKey = kafkaKeysClient.getIdAndKey(sluttbruker.ident.verdi).key
+        val kafkaKey = kafkaKeysClient.getIdAndKey(sluttbruker.ident.value).key
 
         val egenvurdering = lagEgenvurdering(
             navProfilering = profilering,
@@ -100,9 +100,9 @@ class EgenvurderingService(
 
     private fun hentAlternativeIdenter(identitetsnummer: Identitetsnummer): List<Identitetsnummer> = runBlocking {
         runCatching {
-            kafkaKeysClient.getIdentiteter(identitetsnummer.verdi).identiteter.filter { ident ->
-                ident.type == FOLKEREGISTERIDENT && ident.identitet != identitetsnummer.verdi
-            }.distinct().map { Identitetsnummer(verdi = it.identitet) }
+            kafkaKeysClient.getIdentiteter(identitetsnummer.value).identiteter.filter { ident ->
+                ident.type == FOLKEREGISTERIDENT && ident.identitet != identitetsnummer.value
+            }.distinct().map { Identitetsnummer(value = it.identitet) }
         }.onFailure { throwable ->
             logger.warn("Kall mot kafkaKey /identiteter feilet", throwable)
         }.getOrDefault(emptyList())
@@ -125,7 +125,7 @@ class EgenvurderingService(
         Instant.now(),
         Bruker(
             BrukerType.SLUTTBRUKER,
-            securityContext.hentSluttbrukerEllerNull()!!.ident.verdi,
+            securityContext.hentSluttbrukerEllerNull()!!.ident.value,
             securityContext.accessToken.sikkerhetsnivaa()
         ),
         currentRuntimeEnvironment.appNameOrDefaultForLocal(),

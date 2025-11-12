@@ -50,7 +50,7 @@ fun ToggleRequest.buildToggle(
 
     return Toggle(
         action = action,
-        ident = identitetsnummer.verdi,
+        ident = identitetsnummer.value,
         microfrontendId = microfrontendId,
         sensitivitet = sensitivitet,
         initialedBy = "paw" // TODO Styre dette med konfig/miljøvar?

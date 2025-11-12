@@ -59,15 +59,15 @@ object TestData {
         avsluttetTidspunkt: Instant? = null
     ) = periodeFactory.build(
         id = id,
-        identitetsnummer = identitetsnummer.verdi,
+        identitetsnummer = identitetsnummer.value,
         startet = metadataFactory.build(
             tidspunkt = startetTidspunkt,
-            utfortAv = brukerFactory.build(id = identitetsnummer.verdi)
+            utfortAv = brukerFactory.build(id = identitetsnummer.value)
         ),
         avsluttetTidspunkt?.let {
             metadataFactory.build(
                 tidspunkt = it,
-                utfortAv = brukerFactory.build(id = identitetsnummer.verdi)
+                utfortAv = brukerFactory.build(id = identitetsnummer.value)
             )
         }
     )

@@ -63,7 +63,7 @@ fun MockOAuth2Server.personToken(
 ): Pair<Map<String, Any>, SignedJWT> =
     mapOf(
         "acr" to acr,
-        "pid" to id.verdi
+        "pid" to id.value
     ).let { it.plus("issuer" to "tokenx") to issueToken(claims = it) }
 
 fun MockOAuth2Server.ansattToken(navAnsatt: NavAnsatt): Pair<Map<String, Any>, SignedJWT> =
@@ -149,7 +149,7 @@ fun periode(
     avsluttet: Instant? = null
 ) = PeriodeFactory.create().build(
     id = periodeId,
-    identitetsnummer = identitetsnummer.verdi,
+    identitetsnummer = identitetsnummer.value,
     startet = MetadataFactory.create().build(tidspunkt = startet),
     avsluttet = avsluttet?.let { MetadataFactory.create().build(tidspunkt = it) }
 )

@@ -17,7 +17,7 @@ class PdlHttpConsumer(
 
     suspend fun finnIdenter(identitetsnummer: Identitetsnummer): List<IdentInformasjon> {
         return pdlClient.hentIdenter(
-            ident = identitetsnummer.verdi,
+            ident = identitetsnummer.value,
             callId = UUID.randomUUID().toString(),
             navConsumerId = consumerId,
             behandlingsnummer = PDL_BEHANDLINGSNUMMER,

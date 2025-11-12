@@ -32,7 +32,7 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
                 otherColumn = EgenvurderingTable.profileringId
             ).selectAll()
                 .where {
-                    PeriodeTable.identitetsnummer eq ident.verdi and
+                    PeriodeTable.identitetsnummer eq ident.value and
                             PeriodeTable.avsluttet.isNull() and
                             EgenvurderingTable.id.isNull()
                 }
@@ -87,7 +87,7 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
             onColumn = ProfileringTable.periodeId,
             otherColumn = PeriodeTable.id
         ).selectAll()
-            .where { ProfileringTable.id eq profileringId and (PeriodeTable.identitetsnummer eq ident.verdi) }
+            .where { ProfileringTable.id eq profileringId and (PeriodeTable.identitetsnummer eq ident.value) }
             .firstOrNull()
             ?.let { row ->
                 ProfileringRow(

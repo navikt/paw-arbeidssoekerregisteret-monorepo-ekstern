@@ -81,7 +81,7 @@ class EgenvurderingServiceTest : FreeSpec({
         egenvurderingGrunnlag.grunnlag.profileringId shouldBe profileringId
         egenvurderingGrunnlag.grunnlag.profilertTil shouldBe ANTATT_GODE_MULIGHETER
 
-        coVerify(exactly = 0) { kafkaKeysClient.getIdentiteter(ident.verdi) }
+        coVerify(exactly = 0) { kafkaKeysClient.getIdentiteter(ident.value) }
     }
 
     "Returnerer egenvurdering grunnlag via alternativ ident" {
@@ -94,10 +94,10 @@ class EgenvurderingServiceTest : FreeSpec({
         } returns null
 
         coEvery {
-            kafkaKeysClient.getIdentiteter(ident.verdi)
+            kafkaKeysClient.getIdentiteter(ident.value)
         } returns IdentiteterResponse(
             identiteter = listOf(
-                Identitet(identitet = ident.verdi, type = IdentitetType.FOLKEREGISTERIDENT, gjeldende = true),
+                Identitet(identitet = ident.value, type = IdentitetType.FOLKEREGISTERIDENT, gjeldende = true),
                 Identitet(identitet = alternativIdent, type = IdentitetType.FOLKEREGISTERIDENT, gjeldende = true),
             )
         )
@@ -121,7 +121,7 @@ class EgenvurderingServiceTest : FreeSpec({
         grunnlag.grunnlag.profileringId shouldBe profileringId
         grunnlag.grunnlag.profilertTil shouldBe ANTATT_GODE_MULIGHETER
 
-        coVerify(exactly = 1) { kafkaKeysClient.getIdentiteter(ident.verdi) }
+        coVerify(exactly = 1) { kafkaKeysClient.getIdentiteter(ident.value) }
     }
 
 
@@ -133,13 +133,13 @@ class EgenvurderingServiceTest : FreeSpec({
         } returns null
 
         coEvery {
-            kafkaKeysClient.getIdentiteter(ident.verdi)
+            kafkaKeysClient.getIdentiteter(ident.value)
         } returns IdentiteterResponse(identiteter = emptyList())
 
         val egenvurderingGrunnlag = egenvurderingService.getEgenvurderingGrunnlag(ident)
         egenvurderingGrunnlag.grunnlag.shouldBeNull()
 
-        coVerify(exactly = 1) { kafkaKeysClient.getIdentiteter(ident.verdi) }
+        coVerify(exactly = 1) { kafkaKeysClient.getIdentiteter(ident.value) }
     }
 
     "IllegalArgumentException når profilertTil ikke kan mappes" {

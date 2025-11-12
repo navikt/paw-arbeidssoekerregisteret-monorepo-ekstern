@@ -48,7 +48,7 @@ object BekreftelseFunctions {
         identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<BekreftelseRow> {
-        val identiteter = identitetsnummerList.map { it.verdi }
+        val identiteter = identitetsnummerList.map { it.value }
         return BekreftelseTable
             .join(BekreftelseSvarTable, JoinType.LEFT, BekreftelseTable.svarId, BekreftelseSvarTable.id)
             .join(MetadataTable, JoinType.LEFT, BekreftelseSvarTable.sendtInnId, MetadataTable.id)

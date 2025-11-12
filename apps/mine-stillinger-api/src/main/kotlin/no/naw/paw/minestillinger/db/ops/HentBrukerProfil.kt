@@ -19,7 +19,7 @@ import java.time.Instant
 fun hentBrukerProfilUtenFlagg(identitetsnummer: Identitetsnummer): BrukerProfilerUtenFlagg? =
     transaction {
         BrukerTable.selectAll().where {
-            BrukerTable.identitetsnummer eq identitetsnummer.verdi
+            BrukerTable.identitetsnummer eq identitetsnummer.value
         }
             .map(::brukerprofilUtenFlagg)
             .firstOrNull()

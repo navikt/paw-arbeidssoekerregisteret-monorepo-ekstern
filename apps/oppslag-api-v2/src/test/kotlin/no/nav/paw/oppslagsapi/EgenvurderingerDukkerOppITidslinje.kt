@@ -149,7 +149,7 @@ class EgenvurderingerDukkerOppITidslinje : FreeSpec({
                 val token = oauthServer.ansattToken(
                     NavAnsatt(
                         oid = UUID.randomUUID(),
-                        ident = ansatt1.verdi,
+                        ident = ansatt1.value,
                         sikkerhetsnivaa = "tokenx:Level4"
                     )
                 )

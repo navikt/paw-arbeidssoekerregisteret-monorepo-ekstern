@@ -174,7 +174,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
     "Returnerer nyeste profilering fra åpen periode uten egenvurdering" {
         val periodeId = UUID.randomUUID()
         val ident = Identitetsnummer("12345678910")
-        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident.verdi)
+        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident.value)
 
         val eldreProfilering = createProfilering(
             periodeId = periodeId,
@@ -203,7 +203,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
     "Returnerer null når egenvurdering finnes for nyeste profilering" {
         val periodeId = UUID.randomUUID()
         val ident = Identitetsnummer("10987654321")
-        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident.verdi)
+        val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident.value)
         val profilering = createProfilering(periodeId = periodeId)
         val egenvurdering = createEgenvurderingFor(profilering)
 
@@ -221,7 +221,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val ident = Identitetsnummer("55555555555")
         val avsluttetPeriode = PeriodeFactory.create().build(
             id = periodeId,
-            identitetsnummer = ident.verdi,
+            identitetsnummer = ident.value,
             avsluttet = MetadataFactory.create().build()
         )
         val profilering = createProfilering(periodeId = periodeId)

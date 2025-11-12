@@ -43,16 +43,16 @@ fun TilgangsTjenesteForAnsatte.configureMock() {
 fun KafkaKeysClient.configureMock() {
     listOf(person1, person2).forEach { person ->
         person.forEach { identitet ->
-            coEvery { this@configureMock.getInfo(identitet.verdi) } returns KafkaKeysInfoResponse(
+            coEvery { this@configureMock.getInfo(identitet.value) } returns KafkaKeysInfoResponse(
                 info = Info(
-                    identitetsnummer = identitet.verdi,
+                    identitetsnummer = identitet.value,
                     lagretData = null,
                     pdlData = PdlData(
                         error = null,
                         id = person.map {
                             PdlId(
                                 gruppe = "FOLKEREGISTERIDENT",
-                                id = it.verdi,
+                                id = it.value,
                                 gjeldende = false
                             )
                         }

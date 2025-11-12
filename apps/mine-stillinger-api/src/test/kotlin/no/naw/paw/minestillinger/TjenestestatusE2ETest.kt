@@ -52,7 +52,7 @@ data class TjenestestatusTestCase(
 ) {
     override fun toString() =
         "Endring av tjenestestatus fra ${gjeldendeFlagg.map { it } } til $nyTjenesteStatus " +
-                "for bruker ${identitetsnummer.verdi} forventer HTTP status $forventetHttpStatusKode"
+                "for bruker ${identitetsnummer.value} forventer HTTP status $forventetHttpStatusKode"
 }
 
 val testcases = listOf(
@@ -137,7 +137,7 @@ class TjenestestatusE2ETest : FreeSpec({
 
     testcases.forEach { testcase ->
         transaction {
-            opprettOgOppdaterBruker(PeriodeFactory.create().build(identitetsnummer = testcase.identitetsnummer.verdi))
+            opprettOgOppdaterBruker(PeriodeFactory.create().build(identitetsnummer = testcase.identitetsnummer.value))
             val profil = brukerprofilTjeneste.hentBrukerprofilUtenFlagg(testcase.identitetsnummer)!!
             val brukerId = profil.id
             if (testcase.profilertTil == ProfileringResultat.ANTATT_GODE_MULIGHETER) {

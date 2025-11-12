@@ -22,14 +22,8 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
-import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
-import no.nav.paw.pdl.client.hentAdressebeskyttelse
-import no.nav.paw.pdl.graphql.generated.enums.AdressebeskyttelseGradering
-import no.nav.paw.pdl.graphql.generated.hentadressebeskyttelsebolk.Adressebeskyttelse
-import no.nav.paw.pdl.graphql.generated.hentadressebeskyttelsebolk.HentPersonBolkResult
-import no.nav.paw.pdl.graphql.generated.hentadressebeskyttelsebolk.Person
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.paw.test.data.periode.createProfilering
@@ -46,8 +40,6 @@ import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
-import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseFeil
-import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseResultat
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
@@ -187,7 +179,7 @@ class Livssyklustest : FreeSpec({
                         val response = testClient.getBrukerprofil(rolfIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe rolfIdent.verdi
+                            profil.identitetsnummer shouldBe rolfIdent.value
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                             profil.stillingssoek.shouldBeEmpty()
                         }
@@ -284,7 +276,7 @@ class Livssyklustest : FreeSpec({
                     testClient.getBrukerprofil(kariIdent) should { response ->
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { apiProfil ->
-                            apiProfil.identitetsnummer shouldBe kariIdent.verdi
+                            apiProfil.identitetsnummer shouldBe kariIdent.value
                             apiProfil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                         }
                     }
@@ -332,7 +324,7 @@ class Livssyklustest : FreeSpec({
                     val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe olaIdent.verdi
+                        profil.identitetsnummer shouldBe olaIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                         profil.stillingssoek.shouldBeEmpty()
                     }
@@ -352,7 +344,7 @@ class Livssyklustest : FreeSpec({
                     val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe olaIdent.verdi
+                        profil.identitetsnummer shouldBe olaIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                         profil.stillingssoek.shouldBeEmpty()
                     }
@@ -373,7 +365,7 @@ class Livssyklustest : FreeSpec({
                     val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe olaIdent.verdi
+                        profil.identitetsnummer shouldBe olaIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldBeEmpty()
                     }
@@ -389,7 +381,7 @@ class Livssyklustest : FreeSpec({
                         val response = testClient.getBrukerprofil(olaIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe olaIdent.verdi
+                            profil.identitetsnummer shouldBe olaIdent.value
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                             profil.stillingssoek.shouldBeEmpty()
                         }
@@ -410,7 +402,7 @@ class Livssyklustest : FreeSpec({
                         val response = testClient.getBrukerprofil(olaIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe olaIdent.verdi
+                            profil.identitetsnummer shouldBe olaIdent.value
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                             profil.stillingssoek.shouldBeEmpty()
                         }
@@ -437,7 +429,7 @@ class Livssyklustest : FreeSpec({
                         val response = testClient.getBrukerprofil(olaIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe olaIdent.verdi
+                            profil.identitetsnummer shouldBe olaIdent.value
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                             profil.stillingssoek.shouldBeEmpty()
                         }
@@ -480,7 +472,7 @@ class Livssyklustest : FreeSpec({
                         val response = testClient.getBrukerprofil(olaIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe olaIdent.verdi
+                            profil.identitetsnummer shouldBe olaIdent.value
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                             profil.stillingssoek.shouldBeEmpty()
                         }
@@ -511,7 +503,7 @@ class Livssyklustest : FreeSpec({
                         val response = testClient.getBrukerprofil(olaIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe olaIdent.verdi
+                            profil.identitetsnummer shouldBe olaIdent.value
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                             profil.stillingssoek.shouldHaveSize(1)
                             profil.stillingssoek.firstOrNull() should { søk ->
@@ -536,7 +528,7 @@ class Livssyklustest : FreeSpec({
                     val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe olaIdent.verdi
+                        profil.identitetsnummer shouldBe olaIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                         profil.stillingssoek.shouldHaveSize(1)
                     }
@@ -558,7 +550,7 @@ class Livssyklustest : FreeSpec({
                     val response = testClient.getBrukerprofil(olaIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe olaIdent.verdi
+                        profil.identitetsnummer shouldBe olaIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                         profil.stillingssoek.shouldHaveSize(1)
                         profil.stillingssoek.firstOrNull() should { søk ->
@@ -618,7 +610,7 @@ class Livssyklustest : FreeSpec({
                         val response = testClient.getBrukerprofil(olaIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe olaIdent.verdi
+                            profil.identitetsnummer shouldBe olaIdent.value
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                             profil.stillingssoek.shouldHaveSize(1)
                         }
@@ -648,7 +640,7 @@ class Livssyklustest : FreeSpec({
                         val response = testClient.getBrukerprofil(olaIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe olaIdent.verdi
+                            profil.identitetsnummer shouldBe olaIdent.value
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                             profil.stillingssoek.shouldHaveSize(0)
                         }
@@ -662,7 +654,7 @@ class Livssyklustest : FreeSpec({
                     val response = testClient.getBrukerprofil(kariIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe kariIdent.verdi
+                        profil.identitetsnummer shouldBe kariIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.AKTIV
                         profil.stillingssoek.shouldHaveSize(1)
                         profil.stillingssoek.firstOrNull() should { søk ->
@@ -689,7 +681,7 @@ class Livssyklustest : FreeSpec({
                     val response = testClient.getBrukerprofil(kariIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe kariIdent.verdi
+                        profil.identitetsnummer shouldBe kariIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldHaveSize(1)
                     }
@@ -705,7 +697,7 @@ class Livssyklustest : FreeSpec({
                     val response = testClient.getBrukerprofil(kariIdent)
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe kariIdent.verdi
+                        profil.identitetsnummer shouldBe kariIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.OPT_OUT
                         profil.stillingssoek.shouldBeEmpty()
                     }
@@ -734,7 +726,7 @@ class Livssyklustest : FreeSpec({
                                 profilerUtenFlagg.medFlagg(ListeMedFlagg.listeMedFlagg(flagg))
                             }.forEach { brukerprofil ->
                                 val profilering = hentProfileringOrNull(brukerprofil.arbeidssoekerperiodeId)?.profileringResultat
-                                testLogger.info("Brukerprofil: identitetsnummer=${brukerprofil.identitetsnummer.verdi}, periode_aktiv=${brukerprofil.arbeidssoekerperiodeAvsluttet == null}, profilering=$profilering, flagg=${brukerprofil.listeMedFlagg.map { "${it.type.type}=${it.verdi}" }}")
+                                testLogger.info("Brukerprofil: identitetsnummer=${brukerprofil.identitetsnummer.value}, periode_aktiv=${brukerprofil.arbeidssoekerperiodeAvsluttet == null}, profilering=$profilering, flagg=${brukerprofil.listeMedFlagg.map { "${it.type.type}=${it.verdi}" }}")
                             }
                     }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")}

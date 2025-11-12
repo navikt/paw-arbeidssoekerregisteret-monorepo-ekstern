@@ -1,10 +1,10 @@
 package no.nav.paw.felles.model
 
 @JvmInline
-value class Identitetsnummer(val value: String) {
+value class AktorId(val value: String) {
     override fun toString(): String {
         return "*".repeat(value.length)
     }
 }
 
-fun String.asIdentitetsnummer(): Identitetsnummer = Identitetsnummer(this)
+fun String.asAktorId(): AktorId = AktorId(this)

@@ -47,7 +47,7 @@ class PeriodeStreamTest : FreeSpec({
             "Testsuite for toggling av microfrontends basert på arbeidssøkerperiode" - {
 
                 "Skal aktivere begge microfrontends ved start av periode eldre en 21 dager (p1)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p1Identitetsnummer.verdi) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p1Identitetsnummer.value) } returns KafkaKeysResponse(
                         p1ArbeidssoekerId,
                         1
                     )
@@ -90,7 +90,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere begge microfrontend ved avslutting av periode eldre enn 21 dager (p1)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.verdi) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.value) } returns KafkaKeysResponse(
                         p1ArbeidssoekerId,
                         1
                     )
@@ -126,7 +126,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal aktivere begge microfrontends ved start av periode (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.verdi) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.value) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -169,7 +169,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere aia-behovsvurdering microfrontend ved avslutting av periode nyere enn 21 dager (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.verdi) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.value) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -202,7 +202,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal deaktivere aia-min-side microfrontend 21 dager etter avslutting av periode (p2)" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.verdi) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p2Identitetsnummer.value) } returns KafkaKeysResponse(
                         p2ArbeidssoekerId,
                         1
                     )
@@ -228,7 +228,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
 
                 "Skal ignorere duplikat start periode" {
-                    coEvery { kafkaKeysClientMock.getIdAndKey(p3Identitetsnummer.verdi) } returns KafkaKeysResponse(
+                    coEvery { kafkaKeysClientMock.getIdAndKey(p3Identitetsnummer.value) } returns KafkaKeysResponse(
                         p3ArbeidssoekerId,
                         1
                     )

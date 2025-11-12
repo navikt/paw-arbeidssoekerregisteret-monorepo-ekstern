@@ -19,7 +19,7 @@ class SjekkABTestingGruppeTest : FreeSpec({
             "90055544433",
             "34333333333"
         ).map(::Identitetsnummer).forEach { identitetsnummer ->
-            "skal matche ${identitetsnummer.verdi}, lengde=${identitetsnummer.verdi.length}" {
+            "skal matche ${identitetsnummer.value}, lengde=${identitetsnummer.value.length}" {
                 sjekkABTestingGruppe(regex, identitetsnummer) shouldBe true
             }
         }
@@ -37,7 +37,7 @@ class SjekkABTestingGruppeTest : FreeSpec({
             "23222222222",
             "2a222222222"
         ).map(::Identitetsnummer).forEach { identitetsnummer ->
-            "skal ikke matche ${identitetsnummer.verdi}" {
+            "skal ikke matche ${identitetsnummer.value}" {
                 sjekkABTestingGruppe(regex, identitetsnummer) shouldBe false
             }
         }
@@ -60,7 +60,7 @@ class SjekkABTestingGruppeTest : FreeSpec({
             "23222222222",
             "2a222222222"
         ).map(::Identitetsnummer).forEach { identitetsnummer ->
-            "skal ikke matche ${identitetsnummer.verdi}" {
+            "skal ikke matche ${identitetsnummer.value}" {
                 sjekkABTestingGruppe(regex, identitetsnummer) shouldBe false
             }
         }

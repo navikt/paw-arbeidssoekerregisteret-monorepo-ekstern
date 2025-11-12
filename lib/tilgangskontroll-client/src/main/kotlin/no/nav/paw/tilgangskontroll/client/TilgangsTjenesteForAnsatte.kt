@@ -54,8 +54,8 @@ private class TilgangsTjenesteForAnsatteImpl(
             bearerAuth(tokenProvider())
             contentType(ContentType.Application.Json)
             setBody(TilgangskontrollRequestV1(
-                identitetsnummer = identitetsnummer.verdi,
-                navAnsattId = navIdent.verdi,
+                identitetsnummer = identitetsnummer.value,
+                navAnsattId = navIdent.value,
                 tilgang = tilgang.toApi()
             ))
         }

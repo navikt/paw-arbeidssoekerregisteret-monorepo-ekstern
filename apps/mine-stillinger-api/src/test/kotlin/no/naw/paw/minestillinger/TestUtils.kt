@@ -42,7 +42,7 @@ fun MockOAuth2Server.sluttbrukerTokenJwt(
 ): SignedJWT =
     mapOf(
         "acr" to acr,
-        "pid" to id.verdi
+        "pid" to id.value
     ).let {
         it.plus("issuer" to TokenX.name) to issueToken(claims = it)
     }.second!!

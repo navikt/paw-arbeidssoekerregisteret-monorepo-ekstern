@@ -56,7 +56,7 @@ object PeriodeFunctions {
         identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<PeriodeRow> {
-        val identer = identitetsnummerList.map { it.verdi }
+        val identer = identitetsnummerList.map { it.value }
         return PeriodeTable
             .join(StartetMetadataAlias, JoinType.LEFT, PeriodeTable.startetId, StartetMetadataAlias[MetadataTable.id])
             .join(
@@ -137,7 +137,7 @@ object PeriodeFunctions {
     fun findPeriodeIdForIdentitetsnummerList(
         identitetsnummerList: Collection<Identitetsnummer>
     ): List<UUID> {
-        val identer = identitetsnummerList.map { it.verdi }
+        val identer = identitetsnummerList.map { it.value }
         return PeriodeTable
             .select(PeriodeTable.periodeId)
             .where { PeriodeTable.identitetsnummer inList identer }

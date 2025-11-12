@@ -52,7 +52,7 @@ data class BrukerProfil(
 
 fun BrukerProfil.api(): ApiBrukerprofil {
     return ApiBrukerprofil(
-        identitetsnummer = identitetsnummer.verdi,
+        identitetsnummer = identitetsnummer.value,
         tjenestestatus = when {
             tjenestenErAktiv -> ApiTjenesteStatus.AKTIV
             optOut -> ApiTjenesteStatus.OPT_OUT

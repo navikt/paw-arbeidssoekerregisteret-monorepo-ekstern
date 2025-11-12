@@ -203,7 +203,7 @@ class OpplysningerRepositoryTest : StringSpec({
         val tidspunkt = Instant.now()
         val periode = TestData.nyStartetPeriode(
             periodeId = periodeId,
-            identitetsnummer = TestData.identitetsnummer8.verdi
+            identitetsnummer = TestData.identitetsnummer8.value
         )
         periodeRepository.lagrePeriode(periode)
         val opplysninger1 = TestData.nyOpplysningerRow(

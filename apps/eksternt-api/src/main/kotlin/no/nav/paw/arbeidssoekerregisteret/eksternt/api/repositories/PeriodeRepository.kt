@@ -39,7 +39,7 @@ class PeriodeRepository {
         logger.debug("Finner perioder")
         return transaction {
             PeriodeTable.selectAll()
-                .where { PeriodeTable.identitetsnummer eq identitetsnummer.verdi }
+                .where { PeriodeTable.identitetsnummer eq identitetsnummer.value }
                 .filter {
                     val startetDateTime = it[PeriodeTable.startet].toLocalDateTime()
                     fraStartetDato == null || startetDateTime.toLocalDate() >= fraStartetDato

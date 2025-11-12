@@ -62,7 +62,7 @@ class VeilederAccessPolicy(
         auditLogger.audit(
             runtimeEnvironment = runtimeEnvironment,
             aktorIdent = bruker.ident,
-            sluttbrukerIdent = identiteter.first().verdi,
+            sluttbrukerIdent = identiteter.first().value,
             action = action,
             melding = "NAV-ansatt har benyttet $action-tilgang til informasjon om sluttbruker"
         )

@@ -8,7 +8,6 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.domain.BrukerProfil
-import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
@@ -92,7 +91,7 @@ class HentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlaggTest : FreeSpec({
             (0..antallTråder).map {
                 selectTråd().apply { start() }
             }.forEach { it.join() }
-            val resultat = brukereReturnert.toList().map { it.identitetsnummer.verdi }
+            val resultat = brukereReturnert.toList().map { it.identitetsnummer.value }
             resultat.size shouldBe 2
             resultat shouldContainExactlyInAnyOrder listOf(
                 rolf.identitetsnummer,

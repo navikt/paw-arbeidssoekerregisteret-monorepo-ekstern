@@ -36,7 +36,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             "Vi kan lese bruker fra databasen" {
                 val bruker = hentBrukerProfilUtenFlagg(periode.identitetsnummer.asIdentitetsnummer())
                 bruker.shouldNotBeNull()
-                bruker.identitetsnummer.verdi shouldBe periode.identitetsnummer
+                bruker.identitetsnummer.value shouldBe periode.identitetsnummer
                 bruker.arbeidssoekerperiodeId.verdi shouldBe periode.id
                 bruker.arbeidssoekerperiodeAvsluttet.shouldBeNull()
             }
@@ -52,7 +52,7 @@ class OpprettOgOppdaterBrukerTest : FreeSpec({
             opprettOgOppdaterBruker(periodeAvsluttet)
             val brukerFraDb = hentBrukerProfilUtenFlagg(periodeAvsluttet.identitetsnummer.asIdentitetsnummer())
             brukerFraDb.shouldNotBeNull()
-            brukerFraDb.identitetsnummer.verdi shouldBe periodeAvsluttet.identitetsnummer
+            brukerFraDb.identitetsnummer.value shouldBe periodeAvsluttet.identitetsnummer
             brukerFraDb.arbeidssoekerperiodeId.verdi shouldBe periodeAvsluttet.id
             brukerFraDb.arbeidssoekerperiodeAvsluttet shouldBe periodeAvsluttet.avsluttet.tidspunkt
         }

@@ -76,7 +76,7 @@ class AutorisasjonsTjeneste(
         }.map {
             val brukerIdent = when (bruker) {
                 is NavAnsatt -> bruker.ident
-                is Sluttbruker -> bruker.ident.verdi
+                is Sluttbruker -> bruker.ident.value
                 else -> null
             }
             if (brukerIdent != null) {
@@ -84,7 +84,7 @@ class AutorisasjonsTjeneste(
                     auditLogger.audit(
                         melding = handling,
                         aktorIdent = brukerIdent,
-                        sluttbrukerIdent = sluttbruker.verdi,
+                        sluttbrukerIdent = sluttbruker.value,
                         event = CefMessageEvent.ACCESS,
                         runtimeEnvironment = currentRuntimeEnvironment
                     )

@@ -25,7 +25,7 @@ class ApplicationQueryLogic(
         securityContext: SecurityContext,
         identitetsnummer: Identitetsnummer
     ): Response<List<Tidslinje>> {
-        val identieteter = kafkaKeysClient.getInfo(identitetsnummer.verdi)
+        val identieteter = kafkaKeysClient.getInfo(identitetsnummer.value)
             ?.info
             ?.pdlData
             ?.id

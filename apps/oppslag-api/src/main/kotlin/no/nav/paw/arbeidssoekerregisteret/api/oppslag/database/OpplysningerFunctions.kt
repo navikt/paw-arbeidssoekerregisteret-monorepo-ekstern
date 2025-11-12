@@ -54,7 +54,7 @@ object OpplysningerFunctions {
         identitetsnummerList: Collection<Identitetsnummer>,
         paging: Paging = Paging()
     ): List<OpplysningerRow> {
-        val identiteter = identitetsnummerList.map { it.verdi }
+        val identiteter = identitetsnummerList.map { it.value }
         return OpplysningerOmArbeidssoekerTable
             .join(MetadataTable, JoinType.LEFT, OpplysningerOmArbeidssoekerTable.sendtInnAvId, MetadataTable.id)
             .join(BrukerTable, JoinType.LEFT, MetadataTable.utfoertAvId, BrukerTable.id)
