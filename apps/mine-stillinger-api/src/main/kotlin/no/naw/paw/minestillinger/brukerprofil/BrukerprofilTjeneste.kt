@@ -3,6 +3,9 @@ package no.naw.paw.minestillinger.brukerprofil
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
@@ -17,9 +20,9 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdres
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
-import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
@@ -69,7 +72,10 @@ class BrukerprofilTjeneste(
         pdlClient.harBeskyttetAdresseBulk(brukerprofiler.map(BrukerProfil::identitetsnummer))
             .forEach { beskyttetAdresse ->
                 when (beskyttetAdresse) {
-                    is AdressebeskyttelseFeil -> appLogger.error("Feil ved henting av adressebeskyttelse, code=${beskyttetAdresse.code}")
+                    is AdressebeskyttelseFeil -> {
+                        appLogger.error("Feil ved henting av adressebeskyttelse, code=${beskyttetAdresse.code}")
+                        Span.current().addEvent("pdl_error", Attributes.of(stringKey("code"), beskyttetAdresse.code))
+                    }
                     is AdressebeskyttelseVerdi -> {
                         val brukerProfil = map[beskyttetAdresse.identitetsnummer]
                         if (brukerProfil != null) {

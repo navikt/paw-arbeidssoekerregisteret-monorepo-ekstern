@@ -1,5 +1,7 @@
 package no.naw.paw.minestillinger.brukerprofil.beskyttetadresse
 
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.delay
@@ -63,6 +65,9 @@ class BeskyttetAddresseDagligOppdatering(
                     tidspunkt = clock.now()
                 )
             }.count()
+            .also { count ->
+                Span.current().setAttribute(longKey("antall"), count)
+            }
     }
 
 
