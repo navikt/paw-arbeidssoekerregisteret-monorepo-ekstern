@@ -3,6 +3,7 @@ package no.naw.paw.minestillinger.brukerprofil
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
 import no.nav.paw.felles.model.Identitetsnummer
@@ -58,6 +59,7 @@ class BrukerprofilTjeneste(
         return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
     }
 
+    @WithSpan("vedlikehold_oppdater_adresse_gradering_bulk")
     suspend fun oppdaterAdresseGraderingBulk(
         brukerprofiler: List<BrukerProfil>,
         tidspunkt: Instant

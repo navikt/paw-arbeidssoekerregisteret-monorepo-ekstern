@@ -1,5 +1,6 @@
 package no.naw.paw.minestillinger.brukerprofil.beskyttetadresse
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.delay
 import no.nav.paw.felles.model.Identitetsnummer
@@ -40,15 +41,7 @@ class BeskyttetAddresseDagligOppdatering(
             if (between(sisteKjøring.get(), clock.now()) > interval) {
                 appLogger.info("Starter oppdatering av adressebeskyttelse for brukerprofiler")
                 val antall = suspendedTransactionAsync {
-                    val tidspunkt = clock.now()
-                    val finnAlleEldreEnn = tidspunkt - adresseBeskyttelseGyldighetsperiode
-                    hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(finnAlleEldreEnn)
-                        .also { brukere ->
-                            brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
-                                brukerprofiler = brukere,
-                                tidspunkt = clock.now()
-                            )
-                        }.count()
+                    finnOgOppdater()
                 }.await().also {
                     sisteKjøring.set(clock.now())
                 }
@@ -57,6 +50,19 @@ class BeskyttetAddresseDagligOppdatering(
             delay(timeMillis = 1000)
         }
         appLogger.info("Jobb for oppdatering av beskyttet adresse er stoppet")
+    }
+
+    @WithSpan("vedlikehold_finn_og_oppdater_profiler_med_utgått_adresse_beskyttelse")
+    private suspend fun finnOgOppdater(): Int {
+        val tidspunkt = clock.now()
+        val finnAlleEldreEnn = tidspunkt - adresseBeskyttelseGyldighetsperiode
+        return hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(finnAlleEldreEnn)
+            .also { brukere ->
+                brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
+                    brukerprofiler = brukere,
+                    tidspunkt = clock.now()
+                )
+            }.count()
     }
 
 
