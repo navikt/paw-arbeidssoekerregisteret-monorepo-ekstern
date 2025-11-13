@@ -7,6 +7,7 @@ import no.nav.paw.health.ReadinessCheck
 import no.nav.paw.health.StartupCheck
 import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.appLogger
+import no.naw.paw.minestillinger.db.ops.slettFrittståendeProfileringer
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
 import java.time.Duration
 import java.time.Duration.between
@@ -31,7 +32,7 @@ class SlettGamlePropfileringerUtenProfil(
             if (between(sisteKjøring.get(), clock.now()) > interval) {
                 val grense = clock.now() - forsinkelseFørSletting
                 appLogger.info("Sletter alle firttstående profileringer utført før $grense")
-                val antallSlettet = slettHvorPeriodeAvsluttetFør(grense)
+                val antallSlettet = slettFrittståendeProfileringer(grense)
                 appLogger.info("Slettet $antallSlettet profileringer uten tilknyttet brukerprofil")
                 sisteKjøring.set(clock.now())
             }

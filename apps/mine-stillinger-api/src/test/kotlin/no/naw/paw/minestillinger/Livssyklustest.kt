@@ -47,6 +47,7 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.BrukerTable
+import no.naw.paw.minestillinger.db.ProfileringTable
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.ExposedSøkAdminOps
 import no.naw.paw.minestillinger.db.ops.brukerprofilUtenFlagg
@@ -59,11 +60,13 @@ import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
+import no.naw.paw.minestillinger.db.ops.slettFrittståendeProfileringer
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
 import no.naw.paw.minestillinger.domain.medFlagg
 import no.naw.paw.minestillinger.metrics.AntallBrukereMetrics
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.ledigeStillingerRoute
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
@@ -714,6 +717,33 @@ class Livssyklustest : FreeSpec({
                     snapshot.shouldNotBeEmpty()
                     testLogger.info("Metrics snapshot:\n ${snapshot.joinToString("\n")}")
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Verifiser frittstående profileringer" - {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    transaction {
+                        ProfileringTable.selectAll().forEach {
+                            val profilering = it[ProfileringTable.profileringId]
+                            val periodeId = it[ProfileringTable.periodeId]
+                            val profil = BrukerTable.selectAll().where { BrukerTable.arbeidssoekerperiodeId eq periodeId }.firstOrNull()
+                            val tidspunkt = it[ProfileringTable.profileringTidspunkt]
+                            val tidSidenProfilert = Duration.between(tidspunkt, clock.now())
+                            testLogger.info("ProfileringId=$profilering, PeriodeId=$periodeId, HarBruker=${profil != null}, dager_siden_profilert=${tidSidenProfilert.toDays()}, ProfileringTidspunkt=$tidspunkt")
+                        }
+                    }
+                    "For 24H timer siden skulle vi ikke ha slettet noen frittstående profileringer" {
+                        val tidspunkt = clock.now() - Duration.ofDays(8)  //en dag tilbake i tid også 7 dager bakover fra det
+                        val antall = slettFrittståendeProfileringer(tidspunkt)
+                        antall shouldBe 0
+                    }
+                    "Vi skal ha en frittstående profilering som er eldre enn 7 dager som slettes" {
+                        val antall = slettFrittståendeProfileringer(clock.now())
+                        antall shouldBe 1
+                    }
+                    "Denne ene profileringen er nå slettet, så en ny kjøring skal ikke slette noe" {
+                        val antall = slettFrittståendeProfileringer(clock.now())
+                        antall shouldBe 0
+                    }
                 }
 
                 "Skriv alle brukerprofiler til console" {
