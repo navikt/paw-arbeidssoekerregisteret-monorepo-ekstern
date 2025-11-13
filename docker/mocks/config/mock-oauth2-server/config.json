@@ -92,6 +92,18 @@
                 },
                 {
                     "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-oppslag-v2-level-4",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-oppslag-v2",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-oppslag-v2"
+                        ],
+                        "pid": "01017012345",
+                        "acr": "Level4"
+                    }
+                },
+                {
+                    "requestParam": "client_id",
                     "match": "paw-arbeidssoekerregisteret-api-brukerprofiler",
                     "claims": {
                         "sub": "admin@paw-arbeidssoekerregisteret-api-brukerprofiler",

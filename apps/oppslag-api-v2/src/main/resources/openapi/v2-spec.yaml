@@ -1,0 +1,805 @@
+openapi: 3.0.3
+info:
+  title: API Oppslag v2
+  description: API for spørring på data om arbeidssøkere
+  version: 2.0.0
+servers:
+  - url: "https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no"
+    description: Development server
+paths:
+  /api/v2/bekreftelser:
+    post:
+      description: "Hent alle bekreftelser for oppgitte perioder, body: PeriodeRequest eller IdentitetsnummerRequest"
+      parameters:
+        - name: "traceparent"
+          in: "header"
+          required: false
+          description: "https://www.w3.org/TR/trace-context/#traceparent-header-field-values"
+          schema:
+            type: "string"
+            format: "traceparent"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/IdentitetsnummerRequest'
+                - $ref: '#/components/schemas/PerioderRequest'
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BekreftelserResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
+                type: "urn:paw:http:kunne-ikke-tolke-forespoersel"
+                status: 400
+                title: "Bad Request"
+                detail: "Kunne ikke tolke forespørsel"
+                instance: "/api/v2/bekreftelser"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
+                type: "urn:paw:security:ugyldig-bruker"
+                status: 403
+                title: "Forbidden"
+                detail: "Bruker er ugyldig"
+                instance: "/api/v2/bekreftelser"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "b88c0266-dd7f-40c1-9f8e-d7e511c36792"
+                type: "urn:paw:default:ukjent-feil"
+                status: 500
+                title: "Internal Server Error"
+                detail: "Ukjent feil"
+                instance: "/api/v2/bekreftelser"
+                timestamp: "2021-01-01T12:00:00.000Z"
+
+  /api/v2/tidslinjer:
+    post:
+      description: "Hent alle bekreftelser for oppgitte perioder, body: PeriodeRequest eller IdentitetsnummerRequest"
+      parameters:
+        - name: "traceparent"
+          in: "header"
+          required: false
+          description: "https://www.w3.org/TR/trace-context/#traceparent-header-field-values"
+          schema:
+            type: "string"
+            format: "traceparent"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/PerioderRequest'
+                - $ref: '#/components/schemas/IdentitetsnummerRequest'
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TidslinjeResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
+                type: "urn:paw:http:kunne-ikke-tolke-forespoersel"
+                status: 400
+                title: "Bad Request"
+                detail: "Kunne ikke tolke forespørsel"
+                instance: "/api/v2/tidslinjer"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
+                type: "urn:paw:security:ugyldig-bruker"
+                status: 403
+                title: "Forbidden"
+                detail: "Bruker er ugyldig"
+                instance: "/api/v2/tidslinjer"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "b88c0266-dd7f-40c1-9f8e-d7e511c36792"
+                type: "urn:paw:default:ukjent-feil"
+                status: 500
+                title: "Internal Server Error"
+                detail: "Ukjent feil"
+                instance: "/api/v2/tidslinjer"
+                timestamp: "2021-01-01T12:00:00.000Z"
+
+components:
+  schemas:
+    PerioderRequest:
+      type: object
+      properties:
+        perioder:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - perioder
+    IdentitetsnummerRequest:
+      type: object
+      properties:
+        identitetsnummer:
+          type: string
+          format: identitetsnummer
+          pattern: '^\d{11}$'
+          description: "Norsk identitetsnummer (11 siffer, ingen andre tegn)"
+      required:
+        - identitetsnummer
+    # --- Periode and dependencies ---
+    Periode:
+      type: object
+      description: |
+        En periode er en tidsperiode hvor en bruker har vært registrert som arbeidssøker.
+        En bruker kan ha flere perioder, og en periode kan være pågående eller avsluttet.
+        En periode er pågående dersom "avsluttet" er 'null' (ikke satt).
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: |
+            Unik identifikator for perioden.
+            Annen data knyttet til perioden kan lagres i andre systemer med denne som nøkkel.
+            Opplysninger som hentes inn fra arbeidssøkeren vil være knyttet til denne perioden,
+            det samme gjelder profileringsresultater.
+        identitetsnummer:
+          type: string
+          description: Inneholder informasjon om hvem perioden tilhører (fødselsnummer eller d-nummer)
+        startet:
+          $ref: '#/components/schemas/Metadata'
+          description: Inneholder informasjon om når perioden startet og hvem som startet den
+        avsluttet:
+          $ref: '#/components/schemas/Metadata'
+          nullable: true
+          description: |
+            Dersom det er en pågående periode, vil denne være 'null'. Er den ikke 'null', er perioden avsluttet.
+            Inneholder informasjon om når perioden ble avsluttet og hvem som avsluttet den
+      required:
+        - id
+        - identitetsnummer
+        - startet
+
+    Metadata:
+      type: object
+      description: Inneholder metadata om en endring i arbeidssøkerregisteret.
+      properties:
+        tidspunkt:
+          type: string
+          format: date-time
+          description: Tidspunkt for endringen.
+        utfoertAv:
+          $ref: '#/components/schemas/Bruker'
+        kilde:
+          type: string
+          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen.
+        aarsak:
+          type: string
+          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende.
+        tidspunktFraKilde:
+          description: Avvik i tid mellom kilde og register.
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/TidspunktFraKilde'
+      required:
+        - tidspunkt
+        - utfoertAv
+        - kilde
+        - aarsak
+
+    Bruker:
+      type: object
+      description: Informasjon om brukeren som utførte en handling
+      properties:
+        type:
+          type: string
+          enum: [ UKJENT_VERDI, UDEFINERT, VEILEDER, SYSTEM, SLUTTBRUKER ]
+          description: Type bruker som utførte handlingen
+        id:
+          type: string
+          description: Identifikator for brukeren, format avhenger av brukertype
+        sikkerhetsnivaa:
+          type: string
+          nullable: true
+          description: Sikkerhetsnivået bruker var innlogget med ved utførelse av handlingen
+      required:
+        - type
+        - id
+
+    TidspunktFraKilde:
+      type: object
+      properties:
+        tidspunkt:
+          type: string
+          format: date-time
+          description: |
+            Betydningen av tidspunktet er avhengig av avviksType.
+            FORSINKELSE: Tidspunktet er tidspunktet da endringen skulle vært utført.
+
+            SLETTET: Tidspunktet er tidspunktet da endringen ble utført(samme som selve recorden).
+
+            TIDSPUNKT_KORRIGERT: Tidspunktet som egentlig er korrekt, feks tidspunktet da en periode skulle vært stoppet
+                               eller startet
+        avviksType:
+          $ref: '#/components/schemas/AvviksType'
+          description: Årsaken til til avvik i tid mellom kilde og register.
+      required:
+        - tidspunkt
+        - avviksType
+
+    AvviksType:
+      type: string
+      description: |
+        Ukjent verdi settes aldri direkte, men brukes som standardverdi og
+        for å indikere at en verdi er ukjent for mottaker av melding, dvs at
+        at den er satt til en verdi som ikke er definert i Avro-skjemaet til mottaker.
+      enum:
+        - UKJENT_VERDI
+        - FORSINKELSE
+        - RETTING
+        - SLETTET
+        - TIDSPUNKT_KORRIGERT
+      default: UKJENT_VERDI
+
+    # --- OpplysningerOmArbeidssoeker and dependencies ---
+    OpplysningerOmArbeidssoeker:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unik identifikator for opplysningene.
+        periodeId:
+          type: string
+          format: uuid
+          description: Id for perioden opplysningene tilhører.
+        sendtInnAv:
+          $ref: '#/components/schemas/Metadata'
+        utdanning:
+          $ref: '#/components/schemas/Utdanning'
+        helse:
+          $ref: '#/components/schemas/Helse'
+        jobbsituasjon:
+          $ref: '#/components/schemas/Jobbsituasjon'
+        annet:
+          $ref: '#/components/schemas/Annet'
+      required:
+        - sendtInnAv
+        - id
+        - periodeId
+
+    Utdanning:
+      type: object
+      description: Information about the job seeker's education background
+      properties:
+        nus:
+          type: string
+          description: |
+            NUS kode for utdanning, oversikt over NUS koder er tilgjengelig fra SSB.
+        bestaatt:
+          $ref: '#/components/schemas/JaNeiVetIkke'
+          nullable: true
+          description: |
+            Bare inkludert dersom informasjonen er innhetet, feks for
+            nus kode 0,1,2 og 9 gir det ikke mening å hente inn info for
+            dette feltet.
+        godkjent:
+          $ref: '#/components/schemas/JaNeiVetIkke'
+          nullable: true
+          description: |
+            Bare inkludert dersom informasjonen er innhetet, feks for
+            nus kode 0,1,2 og 9 gir det ikke mening å hente inn info for
+            dette feltet.
+      required:
+        - nus
+
+    JaNeiVetIkke:
+      type: string
+      description: |
+        UKJENT_VERDI - Verdien er satt, men den er ikke definert i versjonen av APIet som klienten bruker.
+        JA - Ja.
+        NEI - Nei.
+        VET_IKKE - Vet ikke.
+      enum:
+        - UKJENT_VERDI
+        - JA
+        - NEI
+        - VET_IKKE
+      default: UKJENT_VERDI
+
+    Helse:
+      type: object
+      description: Har personen helseutfordringer som hindrer dem i å jobbe?
+      properties:
+        helsetilstandHindrerArbeid:
+          $ref: '#/components/schemas/JaNeiVetIkke'
+          nullable: true
+
+    Jobbsituasjon:
+      type: object
+      description: |
+        Inneholder et sett med beskrivelser av jobbsituasjonen. Det er mulig å ha flere beskrivelser av jobbsituasjonen,
+        feks kan personen være permittert og samtidig ha en deltidsjobb.
+      properties:
+        beskrivelser:
+          type: array
+          items:
+            $ref: '#/components/schemas/BeskrivelseMedDetaljer'
+      required:
+        - beskrivelser
+
+    BeskrivelseMedDetaljer:
+      type: object
+      description: Beskrivelse av et enkelt forhold som inngår i jobbsituasjonen, feks permitering eller oppsigelse
+      properties:
+        beskrivelse:
+          $ref: '#/components/schemas/Beskrivelse'
+        detaljer:
+          type: object
+          additionalProperties:
+            type: string
+          description: |
+            Feltene taes bare med dersom de er er tilgjengelige, i praksis må klienter støtte å motta en tom map.
+            Andre felter enn de som er definert her kan også forekomme.
+            Detaljer om jobbsituasjonen. Følgende nøkler er definert:
+                    Nøkkel                      -           Verdi
+            gjelder_fra_dato_iso8601    -       datoen jobbsituasjonen gjelder fra (eksempel 2019-01-27)
+            gjelder_til_dato_iso8601    -       datoen jobbsituasjonen gjelder til (eksempel 2019-01-27)
+            stilling_styrk08            -       stillingens kode i STYRK08 (eksempel "2359"), se SSB for mer informasjon om STYRK08.
+                                                Forventet for:
+                                                - HAR_SAGT_OPP
+                                                - HAR_BLITT_SAGT_OPP
+                                                - PERMITTERT
+                                                - KONKURS
+                                                Kan også brukes for andre beskriverlser som er knyttet til en stilling, feks "DELTIDSJOBB_VIL_MER"
+            prosent                     -       prosentandel jobbstituasjonen gjelder for (feks kombinert med 'ER_PERMITTERT' eller 'DELTIDSJOBB_VIL_MER'), eksempel "50".
+            siste_dag_med_loenn_iso8601 -       Siste dag det betales lønn for (feks ved oppsigelse)(eksempel 2019-01-27).
+                                                Enkelte kilder, inkludert migrering har brukt 'siste_dag_med_loen_iso8601' (en 'n'), enbefaler
+                                                derfor å normalisere til 'siste_dag_med_loenn_iso8601' (to 'n') ved lesing for å fange begge verianter.
+            siste_arbeidsdag_iso8601    -       Siste arbeidssdag. Ikke nødvendigvis siste dag det betales lønn for, feks ved konkurs(eksempel 2019-01-27).
+      required:
+        - beskrivelse
+        - detaljer
+
+    Beskrivelse:
+      type: string
+      description: |
+        Beskrivelse av jobbsituasjonen. Følgende beskrivelser er definert:
+        UKJENT_VERDI                    -       Verdien er satt, men den er ikke definert i versjonen av APIet som klienten bruker.
+        UDEFINERT                       -       Verdien er ikke satt.
+        HAR_SAGT_OPP                    -       Personen har sagt opp sin stilling.
+        HAR_BLITT_SAGT_OPP              -       Personen har blitt sagt opp fra sin stilling.
+        ER_PERMITTERT                   -       Personen er permittert.
+        ALDRI_HATT_JOBB                 -       Personen har aldri hatt en jobb.
+        IKKE_VAERT_I_JOBB_SISTE_2_AAR   -       Personen har ikke vært i jobb de siste 2 årene.
+        AKKURAT_FULLFORT_UTDANNING      -       Personen har akkurat fullført sin utdanning.
+        USIKKER_JOBBSITUASJON           -       Personen er usikker på sin jobbsituasjon.
+        MIDLERTIDIG_JOBB                -       Personen har en midlertidig jobb.
+        DELTIDSJOBB_VIL_MER             -       Personen har en/flere deltidsjobber, men ønsker å jobbe mer.
+        NY_JOBB                         -       Personen har fått seg ny jobb.
+        KONKURS                         -       Personen har mistet jobben på grunn av konkurs.
+        ANNET                           -       Personen har en annen jobbsituasjon.
+      enum:
+        - UKJENT_VERDI
+        - UDEFINERT
+        - HAR_SAGT_OPP
+        - HAR_BLITT_SAGT_OPP
+        - ER_PERMITTERT
+        - ALDRI_HATT_JOBB
+        - IKKE_VAERT_I_JOBB_SISTE_2_AAR
+        - AKKURAT_FULLFORT_UTDANNING
+        - VIL_BYTTE_JOBB
+        - USIKKER_JOBBSITUASJON
+        - MIDLERTIDIG_JOBB
+        - DELTIDSJOBB_VIL_MER
+        - NY_JOBB
+        - KONKURS
+        - ANNET
+      default: UKJENT_VERDI
+
+    Annet:
+      type: object
+      description: Har personen andre forhold som hindrer dem i å jobbe?
+      properties:
+        andreForholdHindrerArbeid:
+          $ref: '#/components/schemas/JaNeiVetIkke'
+          nullable: true
+
+    # --- Profilering and dependencies ---
+    Profilering:
+      type: object
+      description: |
+        Profilering av arbeidssøker
+        Inneholder informasjon som brukes til ruting av arbeidssøker til riktig veiledningstjeneste.
+        Profileringen er koblet til et bestemt sett opplysninger om arbeidssøker og en bestemt periode.
+        I tilfeller hvor 'opplysningerOmAbreidssøker' oppdateres til å gjelde periode vil det dukke opp en ny
+        profilering knyttet til den samme 'opplysningerOmArbeidssokerId' (periodeId vil være endret).
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unik id for profileringen
+        periodeId:
+          type: string
+          format: uuid
+          description: Unik id for perioden som profileringen tilhører
+        opplysningerOmArbeidssokerId:
+          type: string
+          format: uuid
+          description: Unik id for OpplysningerOmArbeidssøker som profileringen tilhører
+        sendtInnAv:
+          $ref: '#/components/schemas/Metadata'
+          description: |
+            Inneholder informasjon om når profileringen ble opprettet.
+            Profileringen er en automatisk prosess så 'sendtInnAv.utfoertAv' vil alltid peke på en
+            'SYSTEM' bruker med id på formen '[APP_NAVN]:[VERSJON]'
+        profilertTil:
+          $ref: '#/components/schemas/ProfilertTil'
+          description: Selve profileringsresultatet
+        jobbetSammenhengendeSeksAvTolvSisteMnd:
+          type: boolean
+          description: Om personen har jobbet sammenhengende seks av de siste tolv månedene
+        alder:
+          type: integer
+          nullable: true
+          description: Personens alder
+      required:
+        - id
+        - periodeId
+        - opplysningerOmArbeidssokerId
+        - sendtInnAv
+        - profilertTil
+        - jobbetSammenhengendeSeksAvTolvSisteMnd
+
+    ProfilertTil:
+      type: string
+      description: |
+        Resultatet av en profilering
+        UKJENT_VERDI - Verdien er satt, men den er ikke definert i versjonen av APIet som klienten bruker.
+        UDEFINERT - Ingen verdi er satt.
+        ANTATT_GODE_MULIGHETER - Antatt gode muligheter for å komme i arbeid.
+        ANTATT_BEHOV_FOR_VEILEDNING - Antatt behov for veiledning.
+        OPPGITT_HINDRINGER - Personen har oppgitt at det finnes hindringer (helse eller annet) for å komme i arbeid.
+      enum:
+        - UKJENT_VERDI
+        - UDEFINERT
+        - ANTATT_GODE_MULIGHETER
+        - ANTATT_BEHOV_FOR_VEILEDNING
+        - OPPGITT_HINDRINGER
+      default: UKJENT_VERDI
+
+    # --- Bekreftelse and dependencies ---
+    Bekreftelse:
+      type: object
+      description: "Bekreftelse melding"
+      properties:
+        periodeId:
+          type: string
+          format: uuid
+          description: "UUID for perioden som meldingen gjelder, hentes fra Periode topic eller oppslags api."
+        bekreftelsesloesning:
+          $ref: '#/components/schemas/Bekreftelsesloesning'
+          description: "Hvilket løsning/system som sender meldingen."
+        id:
+          type: string
+          format: uuid
+          description: "Unik id for meldingen. Duplikater sees på som nettverkshikke eller lignende og skal trygt kunne ignoreres."
+        svar:
+          $ref: '#/components/schemas/Svar'
+          description: "Svar fra bruker, inkludert metadata."
+      required:
+        - periodeId
+        - bekreftelsesloesning
+        - id
+        - svar
+
+    Bekreftelsesloesning:
+      type: string
+      enum:
+        - UKJENT_VERDI
+        - ARBEIDSSOEKERREGISTERET
+        - DAGPENGER
+        - FRISKMELDT_TIL_ARBEIDSFORMIDLING
+      default: UKJENT_VERDI
+
+    Svar:
+      type: object
+      properties:
+        sendtInnAv:
+          $ref: '#/components/schemas/Metadata'
+        gjelderFra:
+          type: string
+          format: date-time
+        gjelderTil:
+          type: string
+          format: date-time
+        harJobbetIDennePerioden:
+          type: boolean
+        vilFortsetteSomArbeidssoeker:
+          type: boolean
+      required:
+        - sendtInnAv
+        - gjelderFra
+        - gjelderTil
+        - harJobbetIDennePerioden
+        - vilFortsetteSomArbeidssoeker
+
+    # --- PaaVegneAvStart / Stopp ---
+    PaaVegneAvStart:
+      type: object
+      properties:
+        periodeId:
+          type: string
+          format: uuid
+          description: 'UUID for perioden som meldingen gjelder, hentes fra Periode topic eller oppslags api.'
+        bekreftelsesloesning:
+          $ref: '#/components/schemas/Bekreftelsesloesning'
+          description: 'Hvilket løsning/system som sender meldingen.'
+        intervalMS:
+          type: integer
+          format: int64
+          description: >
+            Interval for bekreftelse i millisekunder.
+            Denne gir registeret et hint om hvor ofte løsningen vil sende meldinger,
+            registeret vil ikke gjøre noe når fristen utløper.
+        graceMS:
+          type: integer
+          format: int64
+          description: >
+            Grace periode i millisekunder.
+            Hvor lenge den som sender bekreftelse på vegne av arbeidssøker venter etter at intervallet er utløpt før den
+            terminerer sine tjenester og stopper bekreftelse på vegne av arbeidssøker. Feks før dagpengene stoppes og
+            og dagpengeløsningen stopper bekreftelse på vegne av arbeidssøker.
+            Dette brukes av registeret for å å kunne oppdage 'døde' klienter, men har ingen funksjonell betydning.
+      required:
+        - periodeId
+        - bekreftelsesloesning
+        - handling
+        - intervalMS
+        - graceMS
+
+    PaaVegneAvStopp:
+      type: object
+      properties:
+        periodeId:
+          type: string
+          format: uuid
+          description: 'UUID for perioden som meldingen gjelder, hentes fra Periode topic eller oppslags api.'
+        bekreftelsesloesning:
+          $ref: '#/components/schemas/Bekreftelsesloesning'
+          description: 'Hvilket løsning/system som sender meldingen.'
+        fristBrutt:
+          type: boolean
+          default: false
+          description: >
+            Angir om grunnen til stopp meldingen er at brukeren har brutt fristen i det eksterne systemet.
+            Dersom denne er satt til true og fristene som ble meldt inn i start meldingen er like eller lenger enn
+            registerets egne frister vil arbeidssøkerperioden bli stoppet umidelbart.
+      required:
+        - periodeId
+        - bekreftelsesloesning
+
+    # --- BekreftelseMedMetadata and response ---
+    BekreftelseMedMetadata:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "Angir om dette er en gyldig bekreftelse"
+          enum:
+            - "GYLDIG"
+            - "UVENTET_KILDE"
+            - "UTENFOR_PERIODE"
+        bekreftelse:
+          $ref: '#/components/schemas/Bekreftelse'
+
+    BekreftelserResponse:
+      type: object
+      description: "Response for bekreftelser"
+      properties:
+        bekreftelser:
+          type: array
+          items:
+            $ref: '#/components/schemas/BekreftelseMedMetadata'
+      required:
+        - bekreftelser
+    #---Tidslinje---
+    HendelseType:
+      type: string
+      enum:
+        - "periode_startet_v1"
+        - "periode_avsluttet_v1"
+        - "opplysninger_v4"
+        - "profilering_v1"
+        - "bekreftelse_v1"
+        - "pa_vegne_av_start_v1"
+        - "pa_vegne_av_stopp_v1"
+        - "egenvurdering_v1"
+    Hendelse:
+      type: object
+      description: "En hendelse i tidslinjen for en periode"
+      properties:
+        hendelseType:
+          description: "Angir hvilken hendelse dette er, som angir hvilken type data som er inkludert"
+          $ref: '#/components/schemas/HendelseType'
+        tidspunkt:
+          type: string
+          format: date-time
+          description: "Tidspunktet for hendelsen"
+        periodeStartetV1:
+          $ref: '#/components/schemas/Metadata'
+        periodeAvsluttetV1:
+          $ref: '#/components/schemas/Metadata'
+        opplysningerV4:
+          $ref: '#/components/schemas/OpplysningerOmArbeidssoeker'
+        profileringV1:
+          $ref: '#/components/schemas/Profilering'
+        bekreftelseV1:
+          $ref: '#/components/schemas/BekreftelseMedMetadata'
+        paVegneAvStartV1:
+          $ref: '#/components/schemas/PaaVegneAvStart'
+        paVegneAvStoppV1:
+          $ref: '#/components/schemas/PaaVegneAvStopp'
+        egenvurderingV1:
+          $ref: '#/components/schemas/Egenvurdering'
+      required:
+        - hendelseType
+        - tidspunkt
+    Tidslinje:
+      description: "Tidslinje for en Arbeidssøkerperiode"
+      type: object
+      properties:
+        periodeId:
+          type: string
+          format: uuid
+          description: "UUID for perioden som tidslinjen gjelder"
+        identitetsnummer:
+          type: string
+          description: "Identitetsnummer for arbeidssøker, fødselsnummer eller d-nummer"
+        startet:
+          type: string
+          format: date-time
+          description: "Starttidspunkt for perioden"
+        avsluttet:
+          type: string
+          format: date-time
+          description: "Avslutningstidspunkt for perioden, ikke satt dersom perioden er pågående"
+        hendelser:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hendelse'
+      required:
+        - periodeId
+        - identitetsnummer
+        - startet
+        - hendelser
+
+    TidslinjeResponse:
+      type: object
+      description: "Response for tidslinjekall"
+      properties:
+        tidslinjer:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tidslinje'
+      required:
+        - tidslinje
+
+    Egenvurdering:
+      type: object
+      description: "Brukers egenvurdering av sin situasjon"
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "Unik id for egenvurderingen"
+        periodeId:
+          type: string
+          format: uuid
+          description: "Periode id"
+        profileringId:
+          type: string
+          format: uuid
+          description: "Profilering id"
+        sendtInnAv:
+          $ref: "#/components/schemas/Metadata"
+          description: "Metadata om når egenvurderingen ble sendt inn og av hvem"
+        profilertTil:
+          $ref: "#/components/schemas/ProfilertTil"
+          description: "Resultatet av profileringen som egenvurderingen gjelder for"
+        egenvurdering:
+          $ref: "#/components/schemas/ProfilertTil"
+      required:
+        - id
+        - periodeId
+        - profileringId
+        - sendtInnAv
+        - profilertTil
+        - egenvurdering
+
+    ProblemDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          format: uri
+        status:
+          type: integer
+        title:
+          type: string
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - status
+        - title
+        - instance
+        - timestamp
+      example:
+        id: "3cd944fb-6187-41a8-91b2-b172f2baf890"
+        type: "urn:paw:default:ukjent-feil"
+        status: 500
+        title: "Internal Server Error"
+        detail: "Ukjent feil"
+        instance: "/api/v3/bekreftelser"
+        timestamp: "2021-01-01T12:00:00.000Z"

@@ -6,13 +6,12 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.Status
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.*
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET
+import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.DAGPENGER
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
-import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning.DAGPENGER as AVRO_BEKREFTELSE_DAGPENGER
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
-import no.nav.paw.bekreftelse.paavegneav.v1.vo.Bekreftelsesloesning.DAGPENGER as AVRO_PAA_VEGNE_AV_DAGPENGER
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp
 import no.nav.paw.felles.model.Identitetsnummer
@@ -23,8 +22,7 @@ import no.nav.paw.oppslagapi.data.pa_vegne_av_start_v1
 import no.nav.paw.oppslagapi.data.pa_vegne_av_stopp_v1
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
-import no.nav.paw.oppslagsapi.periode
-import no.nav.paw.oppslagsapi.person1
+import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.test.data.bekreftelse.startPaaVegneAv
 import no.nav.paw.test.data.bekreftelse.stoppPaaVegneAv
@@ -32,18 +30,32 @@ import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse as OpenApiBekreftelse
+import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning.DAGPENGER as AVRO_BEKREFTELSE_DAGPENGER
+import no.nav.paw.bekreftelse.paavegneav.v1.vo.Bekreftelsesloesning.DAGPENGER as AVRO_PAA_VEGNE_AV_DAGPENGER
 
-class TidslinjegeneratorTest: FreeSpec({
+class TidslinjegeneratorTest : FreeSpec({
     "Tidslinjegenerator" - {
         "Verifiser standard flyt åpen periode" {
             val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-            val periode = periode(identitetsnummer = person1.first(), startet = startTid)
+            val periode = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTid)
             val rader = listOf(
                 row(periode),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),
-                row(startPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER), timestamp = startTid + 2.dager),
-                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 3.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
-                row(stoppPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER), timestamp = startTid + 4.dager),
+                row(
+                    startPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER),
+                    timestamp = startTid + 2.dager
+                ),
+                row(
+                    bekreftelseMelding(
+                        periodeId = periode.id,
+                        tidspunkt = startTid + 3.dager,
+                        bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER
+                    )
+                ),
+                row(
+                    stoppPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER),
+                    timestamp = startTid + 4.dager
+                ),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 5.dager))
             )
             val tidslinje = genererTidslinje(periodeId = periode.id, rader = rader)
@@ -53,25 +65,39 @@ class TidslinjegeneratorTest: FreeSpec({
             tidslinje.periodeStopp shouldBe null
             tidslinje.bekreftelser should { bekreftelser ->
                 bekreftelser.size shouldBe 3
-                bekreftelser.shouldForAll { bekreftelse -> bekreftelse.status shouldBe Status.GYLDIG}
+                bekreftelser.shouldForAll { bekreftelse -> bekreftelse.status shouldBe Status.GYLDIG }
             }
         }
         "Verifiser standard flyt avsluttet periode" {
             val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-            val periode = periode(identitetsnummer = person1.first(), startet = startTid)
+            val periode = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTid)
             val rader = listOf(
                 row(periode),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),
-                row(startPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER), timestamp = startTid + 2.dager),
-                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 3.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
-                row(stoppPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER), timestamp = startTid + 4.dager),
+                row(
+                    startPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER),
+                    timestamp = startTid + 2.dager
+                ),
+                row(
+                    bekreftelseMelding(
+                        periodeId = periode.id,
+                        tidspunkt = startTid + 3.dager,
+                        bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER
+                    )
+                ),
+                row(
+                    stoppPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER),
+                    timestamp = startTid + 4.dager
+                ),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 5.dager)),
-                row(periode(
-                    identitetsnummer = Identitetsnummer(periode.identitetsnummer),
-                    periodeId = periode.id,
-                    startet = periode.startet.tidspunkt,
-                    avsluttet = startTid + 6.dager
-                ))
+                row(
+                    TestData.periode(
+                        identitetsnummer = Identitetsnummer(periode.identitetsnummer),
+                        periodeId = periode.id,
+                        startet = periode.startet.tidspunkt,
+                        avsluttet = startTid + 6.dager
+                    )
+                )
             )
             val tidslinje = genererTidslinje(periodeId = periode.id, rader = rader)
             tidslinje.shouldNotBeNull()
@@ -80,17 +106,26 @@ class TidslinjegeneratorTest: FreeSpec({
             tidslinje.periodeStopp shouldBe startTid + 6.dager
             tidslinje.bekreftelser should { bekreftelser ->
                 bekreftelser.size shouldBe 3
-                bekreftelser.shouldForAll { bekreftelse -> bekreftelse.status shouldBe Status.GYLDIG}
+                bekreftelser.shouldForAll { bekreftelse -> bekreftelse.status shouldBe Status.GYLDIG }
             }
         }
         "Verifiser uventet avsender" {
             val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-            val periode = periode(identitetsnummer = person1.first(), startet = startTid)
+            val periode = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTid)
             val rader = listOf(
                 row(periode),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),
-                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 3.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
-                row(stoppPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER), timestamp = startTid + 4.dager),
+                row(
+                    bekreftelseMelding(
+                        periodeId = periode.id,
+                        tidspunkt = startTid + 3.dager,
+                        bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER
+                    )
+                ),
+                row(
+                    stoppPaaVegneAv(periodeId = periode.id, bekreftelsesloesning = AVRO_PAA_VEGNE_AV_DAGPENGER),
+                    timestamp = startTid + 4.dager
+                ),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 5.dager))
             )
             val tidslinje = genererTidslinje(periodeId = periode.id, rader = rader)
@@ -112,19 +147,39 @@ class TidslinjegeneratorTest: FreeSpec({
         }
         "Verifiser innsendt utenfor periode" {
             val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-            val periode = periode(identitetsnummer = person1.first(), startet = startTid)
+            val periode = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTid)
             val rader = listOf(
                 row(periode),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),
-                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid - 3.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
-                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 9.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
-                row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 5.dager, bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER)),
-                row(periode(
-                    identitetsnummer = Identitetsnummer(periode.identitetsnummer),
-                    periodeId = periode.id,
-                    startet = periode.startet.tidspunkt,
-                    avsluttet = startTid + 6.dager
-                ))
+                row(
+                    bekreftelseMelding(
+                        periodeId = periode.id,
+                        tidspunkt = startTid - 3.dager,
+                        bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER
+                    )
+                ),
+                row(
+                    bekreftelseMelding(
+                        periodeId = periode.id,
+                        tidspunkt = startTid + 9.dager,
+                        bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER
+                    )
+                ),
+                row(
+                    bekreftelseMelding(
+                        periodeId = periode.id,
+                        tidspunkt = startTid + 5.dager,
+                        bekreftelsesloesning = AVRO_BEKREFTELSE_DAGPENGER
+                    )
+                ),
+                row(
+                    TestData.periode(
+                        identitetsnummer = Identitetsnummer(periode.identitetsnummer),
+                        periodeId = periode.id,
+                        startet = periode.startet.tidspunkt,
+                        avsluttet = startTid + 6.dager
+                    )
+                )
             )
             val tidslinje = genererTidslinje(periodeId = periode.id, rader = rader)
             tidslinje.shouldNotBeNull()
@@ -169,6 +224,7 @@ fun row(paaVegneAv: PaaVegneAv, timestamp: Instant = Instant.now()): Row<Any> {
                 data = handling.toOpenApi(paaVegneAv)
             )
         }
+
         is Stopp -> {
             Row(
                 type = pa_vegne_av_stopp_v1,
@@ -178,6 +234,7 @@ fun row(paaVegneAv: PaaVegneAv, timestamp: Instant = Instant.now()): Row<Any> {
                 data = handling.toOpenApi(paaVegneAv)
             )
         }
+
         else -> throw IllegalArgumentException("Handling $handling is not implemented for Tidslinje")
     }
 }
@@ -186,7 +243,7 @@ fun row(periode: Periode): Row<Metadata> {
     val avsluttet = periode.avsluttet
     return if (avsluttet == null) {
         Row(
-            type= periode_startet_v1,
+            type = periode_startet_v1,
             identitetsnummer = periode.identitetsnummer,
             periodeId = periode.id,
             timestamp = periode.startet.tidspunkt,
@@ -194,7 +251,7 @@ fun row(periode: Periode): Row<Metadata> {
         )
     } else {
         Row(
-            type= periode_avsluttet_v1,
+            type = periode_avsluttet_v1,
             identitetsnummer = periode.identitetsnummer,
             periodeId = periode.id,
             timestamp = avsluttet.tidspunkt,

@@ -1,0 +1,124 @@
+### GET /api/v1/arbeidssoekerperioder med tokenx token
+GET {{baseUrl}}/api/v1/arbeidssoekerperioder
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### POST /api/v1/veileder/arbeidssoekerperioder med azure token
+POST {{baseUrl}}/api/v1/veileder/arbeidssoekerperioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "identitetsnummer": "03017012345"
+}
+
+
+
+
+
+### GET /api/v1/opplysninger-om-arbeidssoeker med tokenx token
+GET {{baseUrl}}/api/v1/opplysninger-om-arbeidssoeker
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### GET /api/v1/opplysninger-om-arbeidssoeker/{periodeId} med tokenx token
+GET {{baseUrl}}/api/v1/opplysninger-om-arbeidssoeker/b42f2c7b-10b5-41a8-b415-f671457964e5
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### POST /api/v1/veileder/opplysninger-om-arbeidssoeker med azure token
+POST {{baseUrl}}/api/v1/veileder/opplysninger-om-arbeidssoeker
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "identitetsnummer": "03017012345"
+}
+
+
+
+
+
+### GET /api/v1/profilering med tokenx token
+GET {{baseUrl}}/api/v1/profilering
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### GET /api/v1/profilering/{periodeId} med tokenx token
+GET {{baseUrl}}/api/v1/profilering/b42f2c7b-10b5-41a8-b415-f671457964e5
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### POST /api/v1/veileder/profilering med azure token
+POST {{baseUrl}}/api/v1/veileder/profilering
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "identitetsnummer": "13498717912"
+}
+
+
+
+
+
+### GET /api/v1/arbeidssoekerbekreftelser med tokenx token
+GET {{baseUrl}}/api/v1/arbeidssoekerbekreftelser
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### GET /api/v1/arbeidssoekerbekreftelser/{periodeId} med tokenx token
+GET {{baseUrl}}/api/v1/arbeidssoekerbekreftelser/b42f2c7b-10b5-41a8-b415-f671457964e5
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### POST /api/v1/veileder/arbeidssoekerbekreftelser med azure token
+POST {{baseUrl}}/api/v1/veileder/arbeidssoekerbekreftelser
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "identitetsnummer": "13498717912"
+}
+
+
+
+
+
+### GET /api/v1/arbeidssoekerperioder-aggregert med tokenx token
+GET {{baseUrl}}/api/v1/arbeidssoekerperioder-aggregert
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### POST /api/v1/veileder/arbeidssoekerperioder-aggregert med azure token
+POST {{baseUrl}}/api/v1/veileder/arbeidssoekerperioder-aggregert
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "identitetsnummer": "13498717912"
+}
+
+
+
+
+
+### GET /api/v1/samlet-informasjon med tokenx token
+GET {{baseUrl}}/api/v1/samlet-informasjon
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### POST /api/v1/veileder/samlet-informasjon med azure token
+POST {{baseUrl}}/api/v1/veileder/samlet-informasjon
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "identitetsnummer": "13498717912"
+}

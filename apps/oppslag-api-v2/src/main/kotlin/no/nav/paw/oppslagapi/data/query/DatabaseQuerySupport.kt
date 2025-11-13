@@ -3,7 +3,7 @@ package no.nav.paw.oppslagapi.data.query
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.DataTable
 import no.nav.paw.oppslagapi.data.Row
-import no.nav.paw.oppslagapi.data.objectMapper
+import no.nav.paw.oppslagapi.utils.objectMapper
 import no.nav.paw.oppslagapi.data.typeTilKlasse
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq

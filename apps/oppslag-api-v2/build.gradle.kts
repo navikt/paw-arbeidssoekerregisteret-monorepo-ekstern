@@ -104,25 +104,32 @@ sourceSets {
     }
 }
 
+data class ApiSpec(
+    val name: String
+) {
+    val validator: String get() = "${name}ApiValidator"
+    val generator: String get() = "${name}ApiGenerator"
+    val file: String get() = "${layout.projectDirectory}/src/main/resources/openapi/${name}-spec.yaml"
+}
 
-val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/openapi-spec.yaml"
-val legacyApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/legacy-spec.yaml"
+val v1ApiSpec = ApiSpec(name = "v1")
+val v2ApiSpec = ApiSpec(name = "v2")
+val v3ApiSpec = ApiSpec(name = "v3")
+val apiSpecList = listOf(v1ApiSpec, v2ApiSpec, v3ApiSpec)
+val apiValidatorList = apiSpecList.map { it.validator }
+val apiGeneratorList = apiSpecList.map { it.generator }
 
 tasks {
-    val legacyApi = "legacyApi"
-    val v2Api = "api"
-    val apis = listOf(legacyApi, v2Api)
-
     withType<Test>().configureEach {
         useJUnitPlatform()
     }
 
     named("compileTestKotlin") {
-        dependsOn(apis.map { it + "Validator" } + apis.map { it + "Generator" })
+        dependsOn(apiValidatorList + apiGeneratorList)
     }
 
     named("compileKotlin") {
-        dependsOn(apis.map { it + "Validator" } + apis.map { it + "Generator" })
+        dependsOn(apiValidatorList + apiGeneratorList)
     }
 
     withType(Jar::class) {
@@ -133,20 +140,21 @@ tasks {
         }
     }
 
-    register<ValidateTask>("${v2Api}Validator") {
-        inputSpec = openApiDocFile
+    register<ValidateTask>(v1ApiSpec.validator) {
+        inputSpec = v1ApiSpec.file
+    }
+    register<ValidateTask>(v2ApiSpec.validator) {
+        inputSpec = v2ApiSpec.file
+    }
+    register<ValidateTask>(v3ApiSpec.validator) {
+        inputSpec = v3ApiSpec.file
     }
 
-    register<ValidateTask>("${legacyApi}Validator") {
-        inputSpec = legacyApiDocFile
-    }
-
-    register<GenerateTask>("${legacyApi}Generator") {
-        generatorName.set("kotlin-server")
-        library.set("ktor")
-        inputSpec = legacyApiDocFile
+    register<GenerateTask>(v1ApiSpec.generator) {
+        generatorName = "kotlin"
+        inputSpec = v1ApiSpec.file
         outputDir = "${layout.buildDirectory.get()}/generated/"
-        packageName = "no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag"
+        packageName = "no.nav.paw.arbeidssoekerregisteret.api.${v1ApiSpec.name}.oppslag"
         configOptions.set(
             mapOf(
                 "serializationLibrary" to "jackson",
@@ -164,13 +172,33 @@ tasks {
             "Instant" to "java.time.Instant"
         )
     }
-
-    register<GenerateTask>("apiGenerator") {
-        generatorName.set("kotlin-server")
-        library.set("ktor")
-        inputSpec = openApiDocFile
+    register<GenerateTask>(v2ApiSpec.generator) {
+        generatorName = "kotlin"
+        inputSpec = v2ApiSpec.file
         outputDir = "${layout.buildDirectory.get()}/generated/"
-        packageName = "no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag"
+        packageName = "no.nav.paw.arbeidssoekerregisteret.api.${v2ApiSpec.name}.oppslag"
+        configOptions.set(
+            mapOf(
+                "serializationLibrary" to "jackson",
+                "enumPropertyNaming" to "original",
+            ),
+        )
+        typeMappings = mapOf(
+            "DateTime" to "Instant"
+        )
+        globalProperties = mapOf(
+            "apis" to "none",
+            "models" to ""
+        )
+        importMappings = mapOf(
+            "Instant" to "java.time.Instant"
+        )
+    }
+    register<GenerateTask>(v3ApiSpec.generator) {
+        generatorName = "kotlin"
+        inputSpec = v3ApiSpec.file
+        outputDir = "${layout.buildDirectory.get()}/generated/"
+        packageName = "no.nav.paw.arbeidssoekerregisteret.api.${v3ApiSpec.name}.oppslag"
         configOptions.set(
             mapOf(
                 "serializationLibrary" to "jackson",

@@ -1,0 +1,72 @@
+### POST /api/v3/snapshot by identitetsnummer med tokenx token
+POST {{baseUrl}}/api/v3/snapshot
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "01017012345"
+}
+
+### POST /api/v3/snapshot by identitetsnummer med azure token
+POST {{baseUrl}}/api/v3/snapshot
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "01017012345"
+}
+
+
+
+
+### POST /api/v3/perioder by identitetsnummer med tokenx token
+POST {{baseUrl}}/api/v3/perioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "01017012345"
+}
+
+### POST /api/v3/perioder by identitetsnummer med azure token
+POST {{baseUrl}}/api/v3/perioder?ordering=DESC
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "01017012345"
+}
+
+### POST /api/v3/perioder by perioder med tokenx token
+POST {{baseUrl}}/api/v3/perioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "type": "PERIODER",
+    "perioder": [
+        "b42f2c7b-10b5-41a8-b415-f671457964e5"
+    ]
+}
+
+### POST /api/v3/perioder by perioder med azure token
+POST {{baseUrl}}/api/v3/perioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "PERIODER",
+    "perioder": [
+        "b42f2c7b-10b5-41a8-b415-f671457964e5"
+    ]
+}

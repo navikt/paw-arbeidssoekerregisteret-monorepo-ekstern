@@ -4,10 +4,12 @@ import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.api.trace.StatusCode
-import no.nav.paw.oppslagapi.appLogger
+import no.nav.paw.logging.logger.buildNamedLogger
 import no.nav.paw.oppslagapi.data.DataTable
 import no.nav.paw.oppslagapi.data.Row
 import org.jetbrains.exposed.v1.jdbc.batchInsert
+
+private val logger = buildNamedLogger("database")
 
 fun writeBatchToDb(rows: Sequence<Pair<Row<String>, Span>>) {
     val tracer = GlobalOpenTelemetry
@@ -36,7 +38,7 @@ fun writeBatchToDb(rows: Sequence<Pair<Row<String>, Span>>) {
             this[DataTable.timestamp] = row.timestamp
             this[DataTable.data] = row.data
         }.count()
-        appLogger.debug("Skrev $rowCount rader til databasen")
+        logger.debug("Skrev $rowCount rader til databasen")
         batchSpan.setAttribute("db.rows_inserted", rowCount.toLong())
     }
         .onSuccess { batchSpan.end() }
