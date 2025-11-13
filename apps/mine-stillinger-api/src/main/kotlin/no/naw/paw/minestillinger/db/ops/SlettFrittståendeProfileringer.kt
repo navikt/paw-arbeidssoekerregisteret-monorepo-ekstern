@@ -28,6 +28,7 @@ fun slettFrittståendeProfileringer(
                 joinType = JoinType.LEFT
             ).select(ProfileringTable.periodeId)
             .where { BrukerTable.arbeidssoekerperiodeId.isNull() and (ProfileringTable.profileringTidspunkt less profilertFør) }
+            .limit(1000)
             .map { it[ProfileringTable.periodeId] }
         val slettet = ProfileringTable.deleteWhere {
             ProfileringTable.periodeId.inList(skalSlettes)
