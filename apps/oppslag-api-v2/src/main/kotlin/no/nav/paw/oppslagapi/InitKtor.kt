@@ -98,8 +98,9 @@ fun <A> Route.configureRoutes(
     appQueryLogic: ApplicationQueryLogic
 ) where A : IsAlive, A : IsReady, A : HasStarted {
     internalRoutes(healthIndicator, prometheusRegistry)
-    swaggerUI(path = "documentation/openapi-spec", swaggerFile = "openapi/openapi-spec.yaml")
-    swaggerUI(path = "documentation/legacy-spec", swaggerFile = "openapi/legacy-spec.yaml")
+    swaggerUI(path = "/api/v1/docs", swaggerFile = "openapi/v1-spec.yaml")
+    swaggerUI(path = "/api/v2/docs", swaggerFile = "openapi/v2-spec.yaml")
+    swaggerUI(path = "/api/v3/docs", swaggerFile = "openapi/v3-spec.yaml")
     route("/api/v2/bekreftelser") {
         v2Bekreftelse(appQueryLogic)
     }
@@ -109,11 +110,12 @@ fun <A> Route.configureRoutes(
     v1Routes(appQueryLogic)
 }
 
-suspend inline fun <reified T: Any> RoutingCall.respondWith(response: Response<T>) {
+suspend inline fun <reified T : Any> RoutingCall.respondWith(response: Response<T>) {
     when (response) {
         is Data<T> -> {
             respond(status = HttpStatusCode.OK, message = response.data)
         }
+
         is ProblemDetails -> {
             respond(status = response.status, message = response)
         }
