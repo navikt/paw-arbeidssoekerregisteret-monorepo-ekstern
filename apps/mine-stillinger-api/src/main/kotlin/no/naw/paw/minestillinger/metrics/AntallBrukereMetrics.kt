@@ -2,6 +2,7 @@ package no.naw.paw.minestillinger.metrics
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotlinx.coroutines.delay
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
@@ -35,6 +36,7 @@ class AntallBrukereMetrics(
     }
 
     @kotlin.jvm.Synchronized
+    @WithSpan("metrics_oppdater_antall_brukere")
     fun oppdaterAntallBrukere() {
         val data =
             transaction {

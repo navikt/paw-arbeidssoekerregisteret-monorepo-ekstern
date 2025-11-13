@@ -1,5 +1,6 @@
 package no.naw.paw.minestillinger.db.ops
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetAdresseFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
@@ -46,7 +47,7 @@ fun lesFlaggFraDB(brukerId: BrukerId): List<Flagg> {
 
         }
 }
-
+@WithSpan("vedlikehold_hent_aktive_brukere_med_utløpt_adressebeskyttelse_flagg")
 fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
     alleFraFørDetteErUtløpt: Instant
 ): List<BrukerProfil> {

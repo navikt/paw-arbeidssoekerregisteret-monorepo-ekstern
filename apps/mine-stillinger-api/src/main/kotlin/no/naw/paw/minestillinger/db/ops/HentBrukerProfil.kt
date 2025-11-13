@@ -1,5 +1,6 @@
 package no.naw.paw.minestillinger.db.ops
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.felles.model.asIdentitetsnummer
 import no.naw.paw.minestillinger.db.BrukerTable
@@ -34,6 +35,7 @@ fun brukerprofilUtenFlagg(row: ResultRow): BrukerProfilerUtenFlagg {
     )
 }
 
+@WithSpan("vedlikehold_slett_hvor_periode_avsluttet_foer")
 fun slettHvorPeriodeAvsluttetFør(tidspunkt: Instant): Int {
     return transaction {
         BrukerTable.deleteWhere {

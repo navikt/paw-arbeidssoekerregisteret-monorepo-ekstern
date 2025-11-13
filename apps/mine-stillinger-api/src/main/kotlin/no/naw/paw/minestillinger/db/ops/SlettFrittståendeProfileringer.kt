@@ -1,5 +1,6 @@
 package no.naw.paw.minestillinger.db.ops
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.ProfileringTable
@@ -13,6 +14,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 
+@WithSpan("vedlikehold_slett_frittstående_profileringer")
 fun slettFrittståendeProfileringer(
     profilertFør: Instant
 ): Int {
