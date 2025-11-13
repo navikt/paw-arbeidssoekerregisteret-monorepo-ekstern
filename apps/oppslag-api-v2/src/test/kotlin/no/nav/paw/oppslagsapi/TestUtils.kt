@@ -30,7 +30,7 @@ import java.nio.file.Paths
 import java.time.Instant
 import java.util.*
 
-private val openApiSpecPath = Paths.get("src/main/resources/openapi/openapi-spec.yaml")
+private val openApiSpecPath = Paths.get("src/main/resources/openapi/v2-spec.yaml")
 val specValidator = OpenApiInteractionValidator
     .createFor(openApiSpecPath.toString())
     .build()
