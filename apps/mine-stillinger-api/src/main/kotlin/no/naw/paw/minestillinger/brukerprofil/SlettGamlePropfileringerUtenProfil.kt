@@ -31,9 +31,7 @@ class SlettGamlePropfileringerUtenProfil(
         while (skalFortsette.get()) {
             if (between(sisteKjøring.get(), clock.now()) > interval) {
                 val grense = clock.now() - forsinkelseFørSletting
-                appLogger.info("Sletter alle firttstående profileringer utført før $grense")
-                val antallSlettet = slettFrittståendeProfileringer(grense)
-                appLogger.info("Slettet $antallSlettet profileringer uten tilknyttet brukerprofil")
+                slettFrittståendeProfileringer(grense)
                 sisteKjøring.set(clock.now())
             }
             delay(timeMillis = 1000L)
