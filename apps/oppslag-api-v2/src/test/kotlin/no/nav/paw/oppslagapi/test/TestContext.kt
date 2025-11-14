@@ -9,6 +9,10 @@ import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+val testLogger: Logger = LoggerFactory.getLogger("no.nav.paw.logger.test")
 
 data class TestContext(
     val mockOAuthServer: MockOAuth2Server = MockOAuth2Server(),

@@ -11,25 +11,22 @@ import no.nav.paw.error.model.map
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
+import no.nav.paw.oppslagapi.mapping.v1.v1Bekreftelser
+import no.nav.paw.oppslagapi.mapping.v1.v1Opplysninger
+import no.nav.paw.oppslagapi.mapping.v1.v1Periode
+import no.nav.paw.oppslagapi.mapping.v1.v1Profileringer
 import no.nav.paw.oppslagapi.respondWith
-import no.nav.paw.oppslagapi.v2TilV1.v1Bekreftelser
-import no.nav.paw.oppslagapi.v2TilV1.v1Opplysninger
-import no.nav.paw.oppslagapi.v2TilV1.v1Periode
-import no.nav.paw.oppslagapi.v2TilV1.v1Profileringer
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 
-const val V1_API_SAMLET_INFORMASJON = "samlet-informasjon"
-const val V1_API_VEILEDER_SAMLET_INFORMASJON = "veileder/samlet-informasjon"
-
 fun Route.v1SamletInformasjon(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = TokenX) {
-        get(V1_API_SAMLET_INFORMASJON) {
+        get("/samlet-informasjon") {
             val securityContext = call.securityContext()
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")
@@ -51,7 +48,7 @@ fun Route.v1VeilederSamletInformasjon(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = AzureAd) {
-        post<ArbeidssoekerperiodeRequest>(V1_API_VEILEDER_SAMLET_INFORMASJON) { request ->
+        post<ArbeidssoekerperiodeRequest>("/veileder/samlet-informasjon") { request ->
             val securityContext = call.securityContext()
             val identitetsnummer = Identitetsnummer(request.identitetsnummer)
             val bareReturnerSiste = call.bareReturnerSiste()
@@ -91,7 +88,7 @@ private fun tilSamletInformasjon(
         .takeLast(antall)
     val profileringer = tidslinje
         .v1Profileringer()
-        .sortedByDescending { it.sendtInnAv.tidspunkt}
+        .sortedByDescending { it.sendtInnAv.tidspunkt }
         .takeLast(antall)
 
     SamletInformasjonResponse(

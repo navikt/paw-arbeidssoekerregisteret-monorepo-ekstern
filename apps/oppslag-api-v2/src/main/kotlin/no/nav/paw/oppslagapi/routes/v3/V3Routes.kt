@@ -17,12 +17,12 @@ import no.nav.paw.oppslagapi.respondWith
 import no.nav.paw.security.authentication.model.securityContext
 
 fun Route.v3Routes(
-    appQueryLogic: ApplicationQueryLogic
+    queryLogic: ApplicationQueryLogic
 ) {
     route("/api/v3") {
         post<SingleQueryRequest>("/perioder") { request ->
             val securityContext = call.securityContext()
-            val response = appQueryLogic.hentTidslinjer(
+            val response = queryLogic.hentTidslinjer(
                 securityContext = securityContext,
                 baseRequest = request.asV2Request()
             ).map { tidslinjer ->
@@ -32,7 +32,7 @@ fun Route.v3Routes(
         }
         post<ListQueryRequest>("/tidslinjer") { request ->
             val securityContext = call.securityContext()
-            val response = appQueryLogic.hentTidslinjer(
+            val response = queryLogic.hentTidslinjer(
                 securityContext = securityContext,
                 baseRequest = request.asV2Request()
             ).map { tidslinjer ->

@@ -10,23 +10,20 @@ import no.nav.paw.error.model.map
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
+import no.nav.paw.oppslagapi.mapping.v1.v1Profileringer
 import no.nav.paw.oppslagapi.respondWith
-import no.nav.paw.oppslagapi.v2TilV1.v1Profileringer
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
-import java.util.UUID
-
-const val V1_API_PROFILERING = "profilering"
-const val V1_API_VEILEDER_PROFILERING = "veileder/profilering"
+import java.util.*
 
 fun Route.v1Profilering(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = TokenX) {
-        get(V1_API_PROFILERING) {
+        get("/profilering") {
             val securityContext = call.securityContext()
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")
@@ -51,7 +48,7 @@ fun Route.v1Profilering(
             }
             call.respondWith(response)
         }
-        get("$V1_API_PROFILERING/{periodeId}") {
+        get("/profilering/{periodeId}") {
             val siste = call.bareReturnerSiste()
             val periodeId = call.parameters["periodeId"]?.let(UUID::fromString)
                 ?: throw IllegalArgumentException("PeriodeId må spesifiseres i URL")
@@ -73,7 +70,7 @@ fun Route.v1VeilederProfilering(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = AzureAd) {
-        post<ProfileringRequest>(V1_API_VEILEDER_PROFILERING) { request ->
+        post<ProfileringRequest>("/veileder/profilering") { request ->
             val securityContext = call.securityContext()
             val bareReturnerSiste = call.bareReturnerSiste()
             val response: Response<List<ProfileringResponse>> = (request.periodeId?.let { periodeId ->
