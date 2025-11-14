@@ -10,23 +10,20 @@ import no.nav.paw.error.model.map
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
+import no.nav.paw.oppslagapi.mapping.v1.v1Bekreftelser
 import no.nav.paw.oppslagapi.respondWith
-import no.nav.paw.oppslagapi.v2TilV1.v1Bekreftelser
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
-import java.util.UUID
-
-const val V1_API_BEKREFTELSER = "opplysninger-om-arbeidssoeker"
-const val V1_API_VEILEDER_BEKREFTELSER = "veileder/opplysninger-om-arbeidssoeker"
+import java.util.*
 
 fun Route.v1Bekrefelser(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = TokenX) {
-        get(V1_API_BEKREFTELSER) {
+        get("arbeidssoekerbekreftelser") {
             val securityContext = call.securityContext()
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")
@@ -39,10 +36,10 @@ fun Route.v1Bekrefelser(
                 else it
             }.map { tidslinjer ->
                 tidslinjer
-                    .flatMap { tidslinje ->tidslinje.v1Bekreftelser() }
+                    .flatMap { tidslinje -> tidslinje.v1Bekreftelser() }
                     .let { response ->
                         if (bareReturnerSiste) {
-                            listOfNotNull(response.maxByOrNull { it.svar.sendtInnAv.tidspunkt } )
+                            listOfNotNull(response.maxByOrNull { it.svar.sendtInnAv.tidspunkt })
                         } else {
                             response
                         }
@@ -52,7 +49,7 @@ fun Route.v1Bekrefelser(
             call.respondWith(response)
         }
 
-        get("$V1_API_BEKREFTELSER/{periodeId}") {
+        get("/arbeidssoekerbekreftelser/{periodeId}") {
             val siste = call.bareReturnerSiste()
             val periodeId = call.parameters["periodeId"]?.let(UUID::fromString)
                 ?: throw IllegalArgumentException("PeriodeId må spesifiseres i URL")
@@ -74,7 +71,7 @@ fun Route.v1VeilederBekreftelser(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = AzureAd) {
-        post<OpplysningerOmArbeidssoekerRequest>(V1_API_VEILEDER_BEKREFTELSER) { request ->
+        post<OpplysningerOmArbeidssoekerRequest>("/veileder/arbeidssoekerbekreftelser") { request ->
             val securityContext = call.securityContext()
             val identitetsnummer = Identitetsnummer(request.identitetsnummer)
             val bareReturnerSiste = call.bareReturnerSiste()
@@ -90,10 +87,10 @@ fun Route.v1VeilederBekreftelser(
                 if (bareReturnerSiste) listOfNotNull(it.gjeldeneEllerSisteTidslinje())
                 else it
             }.map { tidslinjer ->
-                tidslinjer.flatMap { tidslinje -> tidslinje.v1Bekreftelser()}
+                tidslinjer.flatMap { tidslinje -> tidslinje.v1Bekreftelser() }
                     .let { response ->
                         if (bareReturnerSiste) {
-                            listOfNotNull(response.maxByOrNull { it.svar.sendtInnAv.tidspunkt } )
+                            listOfNotNull(response.maxByOrNull { it.svar.sendtInnAv.tidspunkt })
                         } else {
                             response
                         }

@@ -14,23 +14,20 @@ import no.nav.paw.error.model.map
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
-import no.nav.paw.oppslagapi.v2TilV1.v1Bekreftelser
-import no.nav.paw.oppslagapi.v2TilV1.v1OpplysningerAggregert
-import no.nav.paw.oppslagapi.v2TilV1.v1Periode
+import no.nav.paw.oppslagapi.mapping.v1.v1Bekreftelser
+import no.nav.paw.oppslagapi.mapping.v1.v1OpplysningerAggregert
+import no.nav.paw.oppslagapi.mapping.v1.v1Periode
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 
-const val V1_API_ARBEIDSSOEKERPERIODER_AGGREGERT = "arbeidssoekerperioder-aggregert"
-const val V1_API_VEILEDER_ARBEIDSSOEKERPERIODER_AGGREGERT = "veileder/arbeidssoekerperioder-aggregert"
-
 fun Route.v1PerioderAggregert(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = TokenX) {
-        get(V1_API_ARBEIDSSOEKERPERIODER_AGGREGERT) {
+        get("/arbeidssoekerperioder-aggregert") {
             val securityContext = call.securityContext()
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")
@@ -70,7 +67,7 @@ fun Route.v1VeilederPerioderAggregert(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = AzureAd) {
-        post<ArbeidssoekerperiodeRequest>(V1_API_VEILEDER_ARBEIDSSOEKERPERIODER_AGGREGERT) { request ->
+        post<ArbeidssoekerperiodeRequest>("/veileder/arbeidssoekerperioder-aggregert") { request ->
             val securityContext = call.securityContext()
             val identitetsnummer = Identitetsnummer(request.identitetsnummer)
             val bareReturnerSiste = call.bareReturnerSiste()

@@ -15,7 +15,7 @@ import no.nav.paw.error.model.map
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
-import no.nav.paw.oppslagapi.v2TilV1.v1Periode
+import no.nav.paw.oppslagapi.mapping.v1.v1Periode
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -23,15 +23,11 @@ import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 
-const val V1_API_ARBEIDSSOEKERPERIODER = "arbeidssoekerperioder"
-const val V1_API_VEILEDER_ARBEIDSSOEKERPERIODER = "veileder/arbeidssoekerperioder"
-
-
 fun Route.v1Perioder(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = TokenX) {
-        get(V1_API_ARBEIDSSOEKERPERIODER) {
+        get("/arbeidssoekerperioder") {
             val securityContext = call.securityContext()
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")
@@ -48,7 +44,7 @@ fun Route.v1VeilederPerioder(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = AzureAd) {
-        post<ArbeidssoekerperiodeRequest>(V1_API_VEILEDER_ARBEIDSSOEKERPERIODER) { request ->
+        post<ArbeidssoekerperiodeRequest>("/veileder/arbeidssoekerperioder") { request ->
             val securityContext = call.securityContext()
             val identitetsnummer = Identitetsnummer(request.identitetsnummer)
             prosesserHentPeriodeV1Kall(

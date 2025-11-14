@@ -9,64 +9,6 @@ servers:
   - url: "https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no"
     description: Development
 paths:
-  /api/v3/bekreftelser:
-    post:
-      description: "Hent alle bekreftelser for oppgitte perioder, body: PeriodeRequest eller IdentitetsnummerRequest"
-      parameters:
-        - name: "traceparent"
-          in: "header"
-          required: false
-          description: "https://www.w3.org/TR/trace-context/#traceparent-header-field-values"
-          schema:
-            type: "string"
-            format: "traceparent"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ListQueryRequest"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          headers:
-            x-trace-id:
-              description: "Trace id"
-              schema:
-                type: "string"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BekreftelserResponse"
-        "400":
-          description: "Bad Request"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetails"
-              example:
-                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
-                type: "urn:paw:http:kunne-ikke-tolke-forespoersel"
-                status: 400
-                title: "Bad Request"
-                detail: "Kunne ikke tolke forespørsel"
-                instance: "/api/v3/bekreftelser"
-                timestamp: "2021-01-01T12:00:00.000Z"
-        "500":
-          description: "Internal Server Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetails"
-              example:
-                id: "b88c0266-dd7f-40c1-9f8e-d7e511c36792"
-                type: "urn:paw:default:ukjent-feil"
-                status: 500
-                title: "Internal Server Error"
-                detail: "Ukjent feil"
-                instance: "/api/v3/bekreftelser"
-                timestamp: "2021-01-01T12:00:00.000Z"
-
   /api/v3/perioder:
     post:
       description: "Hent aggregert periode, med tilhørende opplysninger, profilering, egenvurdering og bekreftelse"
@@ -108,6 +50,20 @@ paths:
                 status: 400
                 title: "Bad Request"
                 detail: "Kunne ikke tolke forespørsel"
+                instance: "/api/v3/perioder"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
+                type: "urn:paw:security:ugyldig-bruker"
+                status: 403
+                title: "Forbidden"
+                detail: "Bruker er ugyldig"
                 instance: "/api/v3/perioder"
                 timestamp: "2021-01-01T12:00:00.000Z"
         "500":
@@ -166,6 +122,20 @@ paths:
                 status: 400
                 title: "Bad Request"
                 detail: "Kunne ikke tolke forespørsel"
+                instance: "/api/v3/tidslinjer"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "eea6958a-273d-4dbc-9c85-faaa37530cbf"
+                type: "urn:paw:security:ugyldig-bruker"
+                status: 403
+                title: "Forbidden"
+                detail: "Bruker er ugyldig"
                 instance: "/api/v3/tidslinjer"
                 timestamp: "2021-01-01T12:00:00.000Z"
         "500":
@@ -888,7 +858,7 @@ components:
         title:
           type: string
         detail:
-          type: string
+          type: [ 'null', string ]
         instance:
           type: string
         timestamp:
@@ -899,7 +869,6 @@ components:
         - type
         - status
         - title
-        - detail
         - instance
         - timestamp
       example:
