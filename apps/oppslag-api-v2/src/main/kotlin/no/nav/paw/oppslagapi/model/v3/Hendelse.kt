@@ -17,8 +17,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(value = Profilering::class, name = "PROFILERING_V1"),
     JsonSubTypes.Type(value = Egenvurdering::class, name = "EGENVURDERING_V1"),
     JsonSubTypes.Type(value = BekreftelseMedMetadata::class, name = "BEKREFTELSE_V1"),
-    JsonSubTypes.Type(value = PaaVegneAvStart::class, name = "PA_VEGNE_AV_START_V1"),
-    JsonSubTypes.Type(value = PaaVegneAvStopp::class, name = "PA_VEGNE_AV_STOPP_V1"),
+    JsonSubTypes.Type(value = PaaVegneAvStart::class, name = "PAA_VEGNE_AV_START_V1"),
+    JsonSubTypes.Type(value = PaaVegneAvStopp::class, name = "PAA_VEGNE_AV_STOPP_V1"),
+    JsonSubTypes.Type(value = Metadata::class, name = "METADATA_V1"),
 )
 sealed interface Hendelse {
 

@@ -15,9 +15,9 @@ data class Tidslinje(
     @get:JsonProperty("startet")
     val startet: Instant,
 
-    @get:JsonProperty("hendelser")
-    val hendelser: List<Hendelse>,
-
     @get:JsonProperty("avsluttet")
-    val avsluttet: Instant? = null
+    val avsluttet: Instant? = null,
+
+    @get:JsonProperty("hendelser")
+    val hendelser: List<Hendelse>
 )

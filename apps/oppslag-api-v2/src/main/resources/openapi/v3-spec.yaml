@@ -192,7 +192,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          PERIODE: "#/components/schemas/PeriodeRequest"
+          PERIODE_ID: "#/components/schemas/PeriodeRequest"
           IDENTITETSNUMMER: "#/components/schemas/IdentitetsnummerRequest"
     ListQueryRequest:
       oneOf:
@@ -201,13 +201,13 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          PERIODE_LISTE: "#/components/schemas/PeriodeListRequest"
+          PERIODE_ID_LISTE: "#/components/schemas/PeriodeListRequest"
           IDENTITETSNUMMER: "#/components/schemas/IdentitetsnummerRequest"
     QueryType:
       type: string
       enum:
-        - PERIODE
-        - PERIODE_LISTE
+        - PERIODE_ID
+        - PERIODE_ID_LISTE
         - IDENTITETSNUMMER
     PeriodeRequest:
       type: object
@@ -246,6 +246,7 @@ components:
       required:
         - type
         - identitetsnummer
+
     # --- Periode and dependencies ---
     Periode:
       type: object
@@ -712,7 +713,6 @@ components:
       required:
         - type
         - periodeId
-        - status
     BekreftelserResponse:
       type: object
       description: "Response for bekreftelser"
@@ -739,9 +739,10 @@ components:
         - "OPPLYSNINGER_V4"
         - "PROFILERING_V1"
         - "BEKREFTELSE_V1"
-        - "PA_VEGNE_AV_START_V1"
-        - "PA_VEGNE_AV_STOPP_V1"
+        - "PAA_VEGNE_AV_START_V1"
+        - "PAA_VEGNE_AV_STOPP_V1"
         - "EGENVURDERING_V1"
+        - "METADATA_V1"
     Hendelse:
       oneOf:
         - $ref: "#/components/schemas/Metadata"
@@ -759,9 +760,10 @@ components:
           OPPLYSNINGER_V4: "#/components/schemas/OpplysningerOmArbeidssoeker"
           PROFILERING_V1: "#/components/schemas/Profilering"
           BEKREFTELSE_V1: "#/components/schemas/BekreftelseMedMetadata"
-          PA_VEGNE_AV_START_V1: "#/components/schemas/PaaVegneAvStart"
-          PA_VEGNE_AV_STOPP_V1: "#/components/schemas/PaaVegneAvStopp"
+          PAA_VEGNE_AV_START_V1: "#/components/schemas/PaaVegneAvStart"
+          PAA_VEGNE_AV_STOPP_V1: "#/components/schemas/PaaVegneAvStopp"
           EGENVURDERING_V1: "#/components/schemas/Egenvurdering"
+          METADATA_V1: "#/components/schemas/Metadata"
 
     Tidslinje:
       description: "Tidslinje for en Arbeidssøkerperiode"
@@ -876,22 +878,22 @@ components:
       type: object
       properties:
         id:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
         type:
-          type: "string"
-          format: "uri"
+          type: string
+          format: uri
         status:
-          type: "integer"
+          type: integer
         title:
-          type: "string"
+          type: string
         detail:
-          type: "string"
+          type: string
         instance:
-          type: "string"
+          type: string
         timestamp:
-          type: "string"
-          format: "date-time"
+          type: string
+          format: date-time
       required:
         - id
         - type

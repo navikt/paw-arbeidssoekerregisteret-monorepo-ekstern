@@ -16,5 +16,5 @@ data class PaaVegneAvStopp(
 ) : Hendelse {
 
     @get:JsonProperty("type")
-    override val type: HendelseType = HendelseType.PA_VEGNE_AV_STOPP_V1
+    override val type: HendelseType = HendelseType.PAA_VEGNE_AV_STOPP_V1
 }

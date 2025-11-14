@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = IdentitetsnummerRequest::class, name = "IDENTITETSNUMMER"),
-    JsonSubTypes.Type(value = PeriodeRequest::class, name = "PERIODE")
+    JsonSubTypes.Type(value = PeriodeRequest::class, name = "PERIODE_ID")
 )
 
 sealed interface SingleQueryRequest {

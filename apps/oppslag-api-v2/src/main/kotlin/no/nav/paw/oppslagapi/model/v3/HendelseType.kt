@@ -19,14 +19,17 @@ enum class HendelseType(val value: String) {
     @JsonProperty(value = "BEKREFTELSE_V1")
     BEKREFTELSE_V1("BEKREFTELSE_V1"),
 
-    @JsonProperty(value = "PA_VEGNE_AV_START_V1")
-    PA_VEGNE_AV_START_V1("PA_VEGNE_AV_START_V1"),
+    @JsonProperty(value = "PAA_VEGNE_AV_START_V1")
+    PAA_VEGNE_AV_START_V1("PAA_VEGNE_AV_START_V1"),
 
-    @JsonProperty(value = "PA_VEGNE_AV_STOPP_V1")
-    PA_VEGNE_AV_STOPP_V1("PA_VEGNE_AV_STOPP_V1"),
+    @JsonProperty(value = "PAA_VEGNE_AV_STOPP_V1")
+    PAA_VEGNE_AV_STOPP_V1("PAA_VEGNE_AV_STOPP_V1"),
 
     @JsonProperty(value = "EGENVURDERING_V1")
-    EGENVURDERING_V1("EGENVURDERING_V1");
+    EGENVURDERING_V1("EGENVURDERING_V1"),
+
+    @JsonProperty(value = "METADATA_V1")
+    METADATA_V1("METADATA_V1");
 
     override fun toString(): String = value
 }

@@ -1,0 +1,74 @@
+package no.nav.paw.oppslagapi.mapping.v3
+
+import no.nav.paw.error.model.Response
+import no.nav.paw.error.model.map
+import no.nav.paw.logging.logger.buildApplicationLogger
+import no.nav.paw.oppslagapi.exception.PeriodeIkkeFunnetException
+import no.nav.paw.oppslagapi.model.v3.AggregertPeriode
+import no.nav.paw.oppslagapi.model.v3.Bekreftelse
+import no.nav.paw.oppslagapi.model.v3.Egenvurdering
+import no.nav.paw.oppslagapi.model.v3.Hendelse
+import no.nav.paw.oppslagapi.model.v3.HendelseType
+import no.nav.paw.oppslagapi.model.v3.Metadata
+import no.nav.paw.oppslagapi.model.v3.OpplysningerOmArbeidssoeker
+import no.nav.paw.oppslagapi.model.v3.Profilering
+import no.nav.paw.oppslagapi.model.v3.Tidslinje
+
+private val logger = buildApplicationLogger
+
+fun Response<List<Tidslinje>>.finnSistePeriode(): Response<AggregertPeriode> {
+    return this.map { tidslinje ->
+        val aktive = tidslinje.filter { it.avsluttet != null }
+        if (aktive.isEmpty()) {
+            throw PeriodeIkkeFunnetException("Ingen aktive perioder funnet")
+        } else if (aktive.size == 1) {
+            aktive.first().asAggregertPeriode()
+        } else {
+            logger.error("Flere aktive perioder funnet, bruker nyeste som 'siste'")
+            aktive.maxBy { it.startet }.asAggregertPeriode()
+        }
+    }
+}
+
+fun Tidslinje.asAggregertPeriode(): AggregertPeriode {
+    return AggregertPeriode(
+        id = this.periodeId,
+        identitetsnummer = this.identitetsnummer,
+        startet = this.hendelser.finnStartet(),
+        avsluttet = this.hendelser.finnAvsluttet(),
+        opplysning = this.hendelser.finnOpplysninger(),
+        profilering = this.hendelser.finnProfilering(),
+        egenvurdering = this.hendelser.finnEgenvurdering(),
+        bekreftelse = this.hendelser.finnBekreftelse()
+    )
+}
+
+fun List<Hendelse>.finnStartet(): Metadata {
+    return this.firstOrNull { it.type == HendelseType.PERIODE_STARTET_V1 }
+        ?.let { it as Metadata } ?: throw PeriodeIkkeFunnetException("Ingen perioder funnet")
+}
+
+fun List<Hendelse>.finnAvsluttet(): Metadata? {
+    return this.firstOrNull { it.type == HendelseType.PERIODE_AVSLUTTET_V1 }
+        ?.let { it as Metadata }
+}
+
+fun List<Hendelse>.finnOpplysninger(): OpplysningerOmArbeidssoeker? {
+    return this.firstOrNull { it.type == HendelseType.OPPLYSNINGER_V4 }
+        ?.let { it as OpplysningerOmArbeidssoeker }
+}
+
+fun List<Hendelse>.finnProfilering(): Profilering? {
+    return this.firstOrNull { it.type == HendelseType.PROFILERING_V1 }
+        ?.let { it as Profilering }
+}
+
+fun List<Hendelse>.finnEgenvurdering(): Egenvurdering? {
+    return this.firstOrNull { it.type == HendelseType.EGENVURDERING_V1 }
+        ?.let { it as Egenvurdering }
+}
+
+fun List<Hendelse>.finnBekreftelse(): Bekreftelse? {
+    return this.firstOrNull { it.type == HendelseType.BEKREFTELSE_V1 }
+        ?.let { it as Bekreftelse }
+}
