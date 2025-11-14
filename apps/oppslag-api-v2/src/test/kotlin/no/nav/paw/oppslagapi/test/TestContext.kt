@@ -1,0 +1,28 @@
+package no.nav.paw.oppslagapi.test
+
+import io.mockk.mockk
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.kafkakeygenerator.factory.mockKafkaKeysClient
+import no.nav.paw.logging.logger.AuditLogger
+import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
+import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
+import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
+import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
+import no.nav.security.mock.oauth2.MockOAuth2Server
+
+data class TestContext(
+    val mockOAuthServer: MockOAuth2Server = MockOAuth2Server(),
+    val kafkaKeysClientMock: KafkaKeysClient = mockKafkaKeysClient(),
+    val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk(),
+    val autorisasjonsTjeneste: AutorisasjonsTjeneste = AutorisasjonsTjeneste(
+        kafkaKeysClient = kafkaKeysClientMock,
+        tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
+        auditLogger = AuditLogger.getLogger()
+    ),
+    val databaseQuerySupportMock: DatabaseQuerySupport = mockk(),
+    val mockedQueryLogic: ApplicationQueryLogic = ApplicationQueryLogic(
+        kafkaKeysClient = kafkaKeysClientMock,
+        autorisasjonsTjeneste = autorisasjonsTjeneste,
+        databaseQuerySupport = databaseQuerySupportMock
+    )
+)

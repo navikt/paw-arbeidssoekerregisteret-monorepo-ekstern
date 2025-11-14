@@ -9,7 +9,7 @@ data class BekreftelseMedMetadata(
     val periodeId: UUID,
 
     @get:JsonProperty("status")
-    val status: BekreftelsStatus,
+    val status: BekreftelsStatus? = null,
 
     @get:JsonProperty("bekreftelse")
     val bekreftelse: Bekreftelse? = null

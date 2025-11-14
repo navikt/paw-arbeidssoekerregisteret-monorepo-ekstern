@@ -14,7 +14,6 @@ import io.ktor.server.request.path
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingCall
-import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.binder.MeterBinder
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
@@ -28,9 +27,9 @@ import no.nav.paw.oppslagapi.health.HasStarted
 import no.nav.paw.oppslagapi.health.IsAlive
 import no.nav.paw.oppslagapi.health.IsReady
 import no.nav.paw.oppslagapi.health.internalRoutes
-import no.nav.paw.oppslagapi.routes.v1Routes
-import no.nav.paw.oppslagapi.routes.v2Bekreftelse
-import no.nav.paw.oppslagapi.routes.v2Tidslinjer
+import no.nav.paw.oppslagapi.routes.v1.v1Routes
+import no.nav.paw.oppslagapi.routes.v2.v2Routes
+import no.nav.paw.oppslagapi.routes.v3.v3Routes
 import no.nav.paw.security.authentication.config.AuthProvider
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
@@ -101,13 +100,9 @@ fun <A> Route.configureRoutes(
     swaggerUI(path = "/api/v1/docs", swaggerFile = "openapi/v1-spec.yaml")
     swaggerUI(path = "/api/v2/docs", swaggerFile = "openapi/v2-spec.yaml")
     swaggerUI(path = "/api/v3/docs", swaggerFile = "openapi/v3-spec.yaml")
-    route("/api/v2/bekreftelser") {
-        v2Bekreftelse(appQueryLogic)
-    }
-    route("/api/v2/tidslinjer") {
-        v2Tidslinjer(appQueryLogic)
-    }
     v1Routes(appQueryLogic)
+    v2Routes(appQueryLogic)
+    v3Routes(appQueryLogic)
 }
 
 suspend inline fun <reified T : Any> RoutingCall.respondWith(response: Response<T>) {

@@ -1,17 +1,17 @@
-package no.nav.paw.oppslagapi.routes
+package no.nav.paw.oppslagapi.routes.v1
 
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.BekreftelseResponse
-import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerRequest
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringRequest
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringResponse
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.map
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.gjeldeneEllerSisteTidslinje
 import no.nav.paw.oppslagapi.respondWith
-import no.nav.paw.oppslagapi.v2TilV1.v1Bekreftelser
+import no.nav.paw.oppslagapi.v2TilV1.v1Profileringer
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.model.TokenX
@@ -19,19 +19,19 @@ import no.nav.paw.security.authentication.model.securityContext
 import no.nav.paw.security.authentication.plugin.autentisering
 import java.util.UUID
 
-const val V1_API_BEKREFTELSER = "opplysninger-om-arbeidssoeker"
-const val V1_API_VEILEDER_BEKREFTELSER = "veileder/opplysninger-om-arbeidssoeker"
+const val V1_API_PROFILERING = "profilering"
+const val V1_API_VEILEDER_PROFILERING = "veileder/profilering"
 
-fun Route.v1Bekrefelser(
+fun Route.v1Profilering(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = TokenX) {
-        get(V1_API_BEKREFTELSER) {
+        get(V1_API_PROFILERING) {
             val securityContext = call.securityContext()
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")
             val bareReturnerSiste = call.bareReturnerSiste()
-            val response: Response<List<BekreftelseResponse>> = appQueryLogic.hentTidslinjer(
+            val response: Response<List<ProfileringResponse>> = appQueryLogic.hentTidslinjer(
                 securityContext = securityContext,
                 identitetsnummer = bruker.ident
             ).map {
@@ -39,10 +39,10 @@ fun Route.v1Bekrefelser(
                 else it
             }.map { tidslinjer ->
                 tidslinjer
-                    .flatMap { tidslinje ->tidslinje.v1Bekreftelser() }
+                    .flatMap { tidslinje -> tidslinje.v1Profileringer() }
                     .let { response ->
                         if (bareReturnerSiste) {
-                            listOfNotNull(response.maxByOrNull { it.svar.sendtInnAv.tidspunkt } )
+                            listOfNotNull(response.maxByOrNull { it.sendtInnAv.tidspunkt })
                         } else {
                             response
                         }
@@ -51,49 +51,47 @@ fun Route.v1Bekrefelser(
             }
             call.respondWith(response)
         }
-
-        get("$V1_API_BEKREFTELSER/{periodeId}") {
+        get("$V1_API_PROFILERING/{periodeId}") {
             val siste = call.bareReturnerSiste()
             val periodeId = call.parameters["periodeId"]?.let(UUID::fromString)
                 ?: throw IllegalArgumentException("PeriodeId må spesifiseres i URL")
             val securityContext = call.securityContext()
-            val response: Response<List<BekreftelseResponse>> = appQueryLogic.hentTidslinjer(
+            val response: Response<List<ProfileringResponse>> = appQueryLogic.hentTidslinjer(
                 securityContext = securityContext,
                 perioder = listOf(periodeId)
             ).map { tidslinje ->
-                tidslinje.firstOrNull()?.v1Bekreftelser() ?: emptyList()
-            }.map { bekreftelser ->
-                if (siste) listOfNotNull(bekreftelser.maxByOrNull { it.svar.sendtInnAv.tidspunkt }) else bekreftelser
-            }
+                tidslinje.firstOrNull()?.v1Profileringer() ?: emptyList()
+            }.map { profileringer ->
+                if (siste) listOf(profileringer.maxByOrNull { it.sendtInnAv.tidspunkt }) else profileringer
+            }.map { it.filterNotNull() }
             call.respondWith(response)
         }
     }
 }
 
-fun Route.v1VeilederBekreftelser(
+fun Route.v1VeilederProfilering(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = AzureAd) {
-        post<OpplysningerOmArbeidssoekerRequest>(V1_API_VEILEDER_BEKREFTELSER) { request ->
+        post<ProfileringRequest>(V1_API_VEILEDER_PROFILERING) { request ->
             val securityContext = call.securityContext()
-            val identitetsnummer = Identitetsnummer(request.identitetsnummer)
             val bareReturnerSiste = call.bareReturnerSiste()
-            val response: Response<List<BekreftelseResponse>> = (request.periodeId?.let { periodeId ->
+            val response: Response<List<ProfileringResponse>> = (request.periodeId?.let { periodeId ->
                 appQueryLogic.hentTidslinjer(
                     securityContext = securityContext,
                     perioder = listOf(periodeId)
                 )
             } ?: appQueryLogic.hentTidslinjer(
                 securityContext = securityContext,
-                identitetsnummer = identitetsnummer
+                identitetsnummer = Identitetsnummer(request.identitetsnummer)
             )).map {
                 if (bareReturnerSiste) listOfNotNull(it.gjeldeneEllerSisteTidslinje())
                 else it
             }.map { tidslinjer ->
-                tidslinjer.flatMap { tidslinje -> tidslinje.v1Bekreftelser()}
+                tidslinjer.flatMap { tidslinje -> tidslinje.v1Profileringer() }
                     .let { response ->
                         if (bareReturnerSiste) {
-                            listOfNotNull(response.maxByOrNull { it.svar.sendtInnAv.tidspunkt } )
+                            listOfNotNull(response.maxByOrNull { it.sendtInnAv.tidspunkt })
                         } else {
                             response
                         }

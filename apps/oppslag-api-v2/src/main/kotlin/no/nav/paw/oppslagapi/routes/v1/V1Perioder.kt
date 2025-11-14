@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.routes
+package no.nav.paw.oppslagapi.routes.v1
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond

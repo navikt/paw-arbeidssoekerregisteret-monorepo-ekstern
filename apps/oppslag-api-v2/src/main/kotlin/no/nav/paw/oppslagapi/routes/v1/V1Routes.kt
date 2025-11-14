@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.routes
+package no.nav.paw.oppslagapi.routes.v1
 
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route

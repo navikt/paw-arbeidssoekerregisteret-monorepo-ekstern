@@ -12,10 +12,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = IdentitetsnummerRequest::class, name = "IDENTITETSNUMMER"),
-    JsonSubTypes.Type(value = PeriodeListRequest::class, name = "PERIODE_LISTE")
+    JsonSubTypes.Type(value = PeriodeListRequest::class, name = "PERIODE_ID_LISTE")
 )
 
-interface ListQueryRequest {
+sealed interface ListQueryRequest {
 
     @get:JsonProperty("type")
     val type: QueryType

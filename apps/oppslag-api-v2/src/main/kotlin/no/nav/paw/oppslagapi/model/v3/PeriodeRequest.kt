@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeName
 import java.util.*
 
-@JsonTypeName("PERIODE")
+@JsonTypeName("PERIODE_ID")
 data class PeriodeRequest(
 
     @get:JsonProperty("type")
