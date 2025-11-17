@@ -87,9 +87,6 @@ spec:
           namespace: nais
         - application: saas-proxy
           namespace: teamcrm
-        - application: salesforce
-          namespace: teamcrm
-          cluster: dev-external
         - application: arena
           namespace: teamarenanais
           cluster: dev-fss
