@@ -96,9 +96,6 @@ spec:
         - application: paw-brukerstotte
           namespace: paw
           cluster: dev-gcp
-        - application: veilarbportefolje
-          namespace: pto
-          cluster: dev-fss
         - application: arbeidssokerregistrering
           namespace: paw
           cluster: dev-gcp
@@ -107,12 +104,6 @@ spec:
           cluster: dev-fss
         - application: paw-brukerstotte
           namespace: paw
-        - application: veilarbportefolje
-          namespace: obo
-          cluster: dev-gcp
-        - application: veilarbperson
-          namespace: obo
-          cluster: dev-gcp
         - application: familie-ef-sak
           namespace: teamfamilie
           cluster: dev-gcp
