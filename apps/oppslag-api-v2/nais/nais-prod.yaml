@@ -117,8 +117,10 @@ spec:
         databases:
           - name: arbeidssoekerregisteretapioppslagv2
         flags:
-          - name: cloudsql.enable_pgaudit
-            value: "true"
-          - name: pgaudit.log
-            value: "write"
+          - name: "cloudsql.enable_pgaudit"
+            value: "on"
+          - name: "pgaudit.log"
+            value: "write,ddl,role"
+          - name: "pgaudit.log_parameter"
+            value: "on"
         diskSize: 13
