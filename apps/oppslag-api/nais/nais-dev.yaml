@@ -111,8 +111,6 @@ spec:
           namespace: teamsykefravr
         - application: veilarbdirigent
           namespace: dab
-        - application: ao-oppfolgingskontor
-          namespace: dab
     outbound:
       rules:
         - application: paw-tilgangskontroll
