@@ -11,7 +11,7 @@ import java.time.Instant
 
 fun tellLedigeStillingerKall(meterRegistry: MeterRegistry, tidspunkt: Instant, svar: MineStillingerResponse) {
     val antallStillinger = svar.resultat.size
-    val dagerSidenSist = if (svar.sistKjoert != null) Duration.between(tidspunkt, svar.sistKjoert).toDays() else -1
+    val dagerSidenSist = if (svar.sistKjoert != null) Duration.between(svar.sistKjoert, tidspunkt).toDays() else -1
     Span.current().setAttribute(longKey("antall_treff"), antallStillinger)
     Span.current().setAttribute(longKey("antall_soekeord"), ((svar.soek as? HarSoekeord)?.soekeord?.size ?: -1))
     Span.current().setAttribute(longKey("antall_styrk08"), ((svar.soek as? ApiStedSoek)?.styrk08?.size ?: -1))
