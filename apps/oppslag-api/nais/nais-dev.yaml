@@ -96,20 +96,6 @@ spec:
         - application: paw-brukerstotte
           namespace: paw
           cluster: dev-gcp
-        - application: dp-oppslag-arbeidssoker
-          namespace: teamdagpenger
-        - application: dp-dagpenger
-          namespace: teamdagpenger
-        - application: dp-soknadsdialog
-          namespace: teamdagpenger
-        - application: dp-mine-dagpenger-frontend
-          namespace: teamdagpenger
-        - application: dp-rapportering
-          namespace: teamdagpenger
-        - application: dp-meldekortregister
-          namespace: teamdagpenger
-        - application: dp-rapportering-personregister
-          namespace: teamdagpenger
         - application: veilarbportefolje
           namespace: pto
           cluster: dev-fss
