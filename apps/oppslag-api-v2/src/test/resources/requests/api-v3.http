@@ -1,0 +1,94 @@
+### POST /api/v3/perioder by identitetsnummer med tokenx token
+POST {{baseUrl}}/api/v3/perioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "13498717912"
+}
+
+### POST /api/v3/perioder by identitetsnummer med azure token
+POST {{baseUrl}}/api/v3/perioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "13498717912"
+}
+
+### POST /api/v3/perioder by periodeId med tokenx token
+POST {{baseUrl}}/api/v3/perioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "type": "PERIODE_ID",
+    "periodeId": "b42f2c7b-10b5-41a8-b415-f671457964e5"
+}
+
+### POST /api/v3/perioder by periodeId med azure token
+POST {{baseUrl}}/api/v3/perioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "PERIODE_ID",
+    "periodeId": "b42f2c7b-10b5-41a8-b415-f671457964e5"
+}
+
+
+
+
+### POST /api/v3/tidslinjer by identitetsnummer med tokenx token
+POST {{baseUrl}}/api/v3/tidslinjer
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "13498717912"
+}
+
+### POST /api/v3/tidslinjer by perioder med tokenx token
+POST {{baseUrl}}/api/v3/tidslinjer
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "type": "PERIODE_ID_LISTE",
+    "perioder": [
+        "b42f2c7b-10b5-41a8-b415-f671457964e5"
+    ]
+}
+
+### POST /api/v3/tidslinjer by identitetsnummer med azure token
+POST {{baseUrl}}/api/v3/tidslinjer
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "13498717912"
+}
+
+### POST /api/v3/tidslinjer by perioder med azure token
+POST {{baseUrl}}/api/v3/tidslinjer
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "PERIODE_ID_LISTE",
+    "perioder": [
+        "b42f2c7b-10b5-41a8-b415-f671457964e5"
+    ]
+}

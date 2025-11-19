@@ -97,9 +97,9 @@ fun <A> Route.configureRoutes(
     appQueryLogic: ApplicationQueryLogic
 ) where A : IsAlive, A : IsReady, A : HasStarted {
     internalRoutes(healthIndicator, prometheusRegistry)
-    swaggerUI(path = "/api/v1/docs", swaggerFile = "openapi/v1-spec.yaml")
-    swaggerUI(path = "/api/v2/docs", swaggerFile = "openapi/v2-spec.yaml")
-    swaggerUI(path = "/api/v3/docs", swaggerFile = "openapi/v3-spec.yaml")
+    swaggerUI(path = "/api/docs/v1", swaggerFile = "openapi/v1-spec.yaml")
+    swaggerUI(path = "/api/docs/v2", swaggerFile = "openapi/v2-spec.yaml")
+    swaggerUI(path = "/api/docs/v3", swaggerFile = "openapi/v3-spec.yaml")
     v1Routes(appQueryLogic)
     v2Routes(appQueryLogic)
     v3Routes(appQueryLogic)
