@@ -1,6 +1,5 @@
 package no.nav.paw.oppslagapi.model.v3
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
@@ -11,18 +10,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     visible = true
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = Metadata::class, name = "PERIODE_AVSLUTTET_V1"),
-    JsonSubTypes.Type(value = Metadata::class, name = "PERIODE_STARTET_V1"),
+    JsonSubTypes.Type(value = PeriodeStartet::class, name = "PERIODE_STARTET_V1"),
+    JsonSubTypes.Type(value = PeriodeAvluttet::class, name = "PERIODE_AVSLUTTET_V1"),
     JsonSubTypes.Type(value = OpplysningerOmArbeidssoeker::class, name = "OPPLYSNINGER_V4"),
     JsonSubTypes.Type(value = Profilering::class, name = "PROFILERING_V1"),
     JsonSubTypes.Type(value = Egenvurdering::class, name = "EGENVURDERING_V1"),
-    JsonSubTypes.Type(value = BekreftelseMedMetadata::class, name = "BEKREFTELSE_V1"),
+    JsonSubTypes.Type(value = Bekreftelse::class, name = "BEKREFTELSE_V1"),
     JsonSubTypes.Type(value = PaaVegneAvStart::class, name = "PAA_VEGNE_AV_START_V1"),
-    JsonSubTypes.Type(value = PaaVegneAvStopp::class, name = "PAA_VEGNE_AV_STOPP_V1"),
-    JsonSubTypes.Type(value = Metadata::class, name = "METADATA_V1"),
+    JsonSubTypes.Type(value = PaaVegneAvStopp::class, name = "PAA_VEGNE_AV_STOPP_V1")
 )
 sealed interface Hendelse {
 
-    @get:JsonProperty("type")
     val type: HendelseType
 }

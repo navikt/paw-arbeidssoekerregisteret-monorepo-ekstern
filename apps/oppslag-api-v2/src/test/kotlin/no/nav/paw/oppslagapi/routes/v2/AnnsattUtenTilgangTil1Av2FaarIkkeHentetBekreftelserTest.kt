@@ -48,7 +48,7 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
         kafkaKeysClient = kafkaKeysClientMock
     )
     val startTime = Instant.now() - Duration.ofDays(30)
-    val periode1 = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTime)
+    val periode1 = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTime)
     val periode2 = TestData.periode(identitetsnummer = TestData.fnr2, startet = startTime)
     val bekreftelseMelding_p1 = bekreftelseMelding(periodeId = periode1.id)
     val bekreftelseMelding_p2 = bekreftelseMelding(periodeId = periode2.id)
@@ -111,7 +111,7 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetBekreftelserTest : FreeSpec({
                     )
                 }
                 val client = createTestHttpClient()
-                val token = oauthServer.ansattToken(navAnsatt = TestData.navAnstatt3)
+                val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt3)
                 val response = client.hentBekreftelserV2(token, listOf(periode1.id))
                 response.status shouldBe HttpStatusCode.Forbidden
             }

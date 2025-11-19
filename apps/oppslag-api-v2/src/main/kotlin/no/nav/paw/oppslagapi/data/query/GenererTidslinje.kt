@@ -11,7 +11,7 @@ import java.time.Duration.between
 import java.time.Instant
 import java.util.*
 
-fun genererTidslinje(rader: List<Pair<UUID, List<Row<out Any>>>>): List<Tidslinje> {
+fun genererTidslinje(rader: List<Pair<UUID, List<Row<Any>>>>): List<Tidslinje> {
     val startMap = rader.associate { (periodeId, rader) ->
         val førsteRegistrerte = rader.minByOrNull { it.timestamp }
         periodeId to (rader.firstOrNull { it.type == periode_startet_v1 }
@@ -19,7 +19,7 @@ fun genererTidslinje(rader: List<Pair<UUID, List<Row<out Any>>>>): List<Tidslinj
                 hendelseType = førsteRegistrerte?.type ?: "ukjent",
                 hendelseAlder = between(førsteRegistrerte?.timestamp ?: Instant.EPOCH, Instant.now())
             )
-        )
+                )
     }
     val avsluttetMap = rader.associate { (periodeId, rader) ->
         periodeId to rader.firstOrNull { it.type == periode_avsluttet_v1 }

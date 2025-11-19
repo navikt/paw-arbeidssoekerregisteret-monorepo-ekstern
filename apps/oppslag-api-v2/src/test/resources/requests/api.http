@@ -2,19 +2,63 @@
 GET {{baseUrl}}/internal/hasStarted
 Accept: application/json
 
-### GET Request
-GET {{baseUrl}}/api/v1/stillinger/74a3b46e-7e77-4c6b-90e9-e8d021e704a2
+### POST Request v3 perioder by identitetsnummer med tokenx token
+POST {{baseUrl}}/api/v3/perioder
 Accept: application/json
+Content-Type: application/json
 Authorization: Bearer {{$auth.token("tokenx")}}
 
-### POST Request
-POST {{baseUrl}}/api/v1/veileder/arbeidssoekerperioder-aggregert
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "01017012345"
+}
+
+### POST Request v3 perioder by identitetsnummer med azure token
+POST {{baseUrl}}/api/v3/perioder
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{$auth.token("azure")}}
 
 {
-    "identitetsnummer": "01017012345"
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "03017012345"
 }
+
+### POST Request v3 perioder by periodeId med tokenx token
+POST {{baseUrl}}/api/v3/perioder
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "type": "PERIODE_ID",
+    "periodeId": "7a1c3a0f-dc73-4181-b5a2-3fb6047a7465"
+}
+
+### POST Request v3 tidslinjer by identitetsnummer med azure token
+POST {{baseUrl}}/api/v3/tidslinjer
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "IDENTITETSNUMMER",
+    "identitetsnummer": "03017012345"
+}
+
+### POST Request v3 tidslinjer by perioder med azure token
+POST {{baseUrl}}/api/v3/tidslinjer
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "type": "PERIODE_ID_LISTE",
+    "perioder": [
+        "7a1c3a0f-dc73-4181-b5a2-3fb6047a7465",
+        "d290f1ee-6c54-4b01-90e6-d701748f0851"
+    ]
+}
+
 
 ###

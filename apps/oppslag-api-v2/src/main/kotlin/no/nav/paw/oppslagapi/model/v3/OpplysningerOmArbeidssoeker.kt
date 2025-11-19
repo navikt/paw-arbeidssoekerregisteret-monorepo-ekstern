@@ -1,29 +1,30 @@
 package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonTypeName
 import java.util.*
 
+@JsonTypeName("OPPLYSNINGER_V4")
 data class OpplysningerOmArbeidssoeker(
 
-    @get:JsonProperty("id")
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.OPPLYSNINGER_V4,
+
+    @field:JsonProperty("id")
     val id: UUID,
 
-    @get:JsonProperty("sendtInnAv")
+    @field:JsonProperty("sendtInnAv")
     val sendtInnAv: Metadata,
 
-    @get:JsonProperty("utdanning")
+    @field:JsonProperty("utdanning")
     val utdanning: Utdanning? = null,
 
-    @get:JsonProperty("helse")
+    @field:JsonProperty("helse")
     val helse: Helse? = null,
 
-    @get:JsonProperty("jobbsituasjon")
+    @field:JsonProperty("jobbsituasjon")
     val jobbsituasjon: Jobbsituasjon? = null,
 
-    @get:JsonProperty("annet")
+    @field:JsonProperty("annet")
     val annet: Annet? = null
-) : Hendelse {
-
-    @get:JsonProperty("type")
-    override val type: HendelseType = HendelseType.OPPLYSNINGER_V4
-}
+) : Hendelse

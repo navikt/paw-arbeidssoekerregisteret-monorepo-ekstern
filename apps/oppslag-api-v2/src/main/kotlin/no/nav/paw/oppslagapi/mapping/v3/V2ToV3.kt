@@ -4,7 +4,6 @@ import no.nav.paw.oppslagapi.model.v3.Annet
 import no.nav.paw.oppslagapi.model.v3.AvviksType
 import no.nav.paw.oppslagapi.model.v3.BekreftelsStatus
 import no.nav.paw.oppslagapi.model.v3.Bekreftelse
-import no.nav.paw.oppslagapi.model.v3.BekreftelseMedMetadata
 import no.nav.paw.oppslagapi.model.v3.Bekreftelsesloesning
 import no.nav.paw.oppslagapi.model.v3.Beskrivelse
 import no.nav.paw.oppslagapi.model.v3.BeskrivelseMedDetaljer
@@ -13,20 +12,20 @@ import no.nav.paw.oppslagapi.model.v3.BrukerType
 import no.nav.paw.oppslagapi.model.v3.Egenvurdering
 import no.nav.paw.oppslagapi.model.v3.Helse
 import no.nav.paw.oppslagapi.model.v3.Hendelse
-import no.nav.paw.oppslagapi.model.v3.HendelseType
 import no.nav.paw.oppslagapi.model.v3.JaNeiVetIkke
 import no.nav.paw.oppslagapi.model.v3.Jobbsituasjon
 import no.nav.paw.oppslagapi.model.v3.Metadata
 import no.nav.paw.oppslagapi.model.v3.OpplysningerOmArbeidssoeker
 import no.nav.paw.oppslagapi.model.v3.PaaVegneAvStart
 import no.nav.paw.oppslagapi.model.v3.PaaVegneAvStopp
+import no.nav.paw.oppslagapi.model.v3.PeriodeAvluttet
+import no.nav.paw.oppslagapi.model.v3.PeriodeStartet
 import no.nav.paw.oppslagapi.model.v3.Profilering
 import no.nav.paw.oppslagapi.model.v3.ProfilertTil
 import no.nav.paw.oppslagapi.model.v3.Svar
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.oppslagapi.model.v3.TidspunktFraKilde
 import no.nav.paw.oppslagapi.model.v3.Utdanning
-import java.util.UUID
 
 fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje.asV3(): Tidslinje {
     return Tidslinje(
@@ -52,12 +51,12 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3(): He
 }
 
 fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3PeriodeStartet(): Hendelse {
-    return this.periodeStartetV1?.asV3(HendelseType.PERIODE_STARTET_V1)
+    return this.periodeStartetV1?.asV3PeriodeStartet()
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.periode_startet_v1)
 }
 
 fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3PeriodeAvsluttet(): Hendelse {
-    return this.periodeAvsluttetV1?.asV3(HendelseType.PERIODE_AVSLUTTET_V1)
+    return this.periodeAvsluttetV1?.asV3PeriodeAvsluttet()
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.periode_avsluttet_v1)
 }
 
@@ -91,9 +90,28 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3PaaVeg
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.pa_vegne_av_stopp_v1)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3(type: HendelseType): Metadata {
+fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3(): Metadata {
     return Metadata(
-        type = type,
+        tidspunkt = this.tidspunkt,
+        utfoertAv = this.utfoertAv.asV3(),
+        kilde = this.kilde,
+        aarsak = this.aarsak,
+        tidspunktFraKilde = this.tidspunktFraKilde?.asV3()
+    )
+}
+
+fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3PeriodeStartet(): PeriodeStartet {
+    return PeriodeStartet(
+        tidspunkt = this.tidspunkt,
+        utfoertAv = this.utfoertAv.asV3(),
+        kilde = this.kilde,
+        aarsak = this.aarsak,
+        tidspunktFraKilde = this.tidspunktFraKilde?.asV3()
+    )
+}
+
+fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3PeriodeAvsluttet(): PeriodeAvluttet {
+    return PeriodeAvluttet(
         tidspunkt = this.tidspunkt,
         utfoertAv = this.utfoertAv.asV3(),
         kilde = this.kilde,
@@ -105,7 +123,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3(type:
 fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker.asV3(): OpplysningerOmArbeidssoeker {
     return OpplysningerOmArbeidssoeker(
         id = this.id,
-        sendtInnAv = this.sendtInnAv.asV3(HendelseType.METADATA_V1),
+        sendtInnAv = this.sendtInnAv.asV3(),
         utdanning = this.utdanning?.asV3(),
         helse = this.helse?.asV3(),
         jobbsituasjon = this.jobbsituasjon?.asV3(),
@@ -170,7 +188,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering.asV3():
     return Profilering(
         id = this.id,
         opplysningerOmArbeidssokerId = this.opplysningerOmArbeidssokerId,
-        sendtInnAv = this.sendtInnAv.asV3(HendelseType.METADATA_V1),
+        sendtInnAv = this.sendtInnAv.asV3(),
         profilertTil = this.profilertTil.asV3(),
         jobbetSammenhengendeSeksAvTolvSisteMnd = this.jobbetSammenhengendeSeksAvTolvSisteMnd,
         alder = this.alder
@@ -181,7 +199,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Egenvurdering.asV3(
     return Egenvurdering(
         id = this.id,
         profileringId = this.profileringId,
-        sendtInnAv = this.sendtInnAv.asV3(HendelseType.METADATA_V1),
+        sendtInnAv = this.sendtInnAv.asV3(),
         profilertTil = this.profilertTil.asV3(),
         egenvurdering = this.egenvurdering.asV3()
     )
@@ -197,25 +215,23 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.asV3()
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.asV3(): BekreftelseMedMetadata {
-    return BekreftelseMedMetadata(
-        periodeId = UUID.randomUUID(), // TODO Trengs denne?
-        status = this.status?.asV3(),
-        bekreftelse = this.bekreftelse?.asV3()
-    )
-}
-
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse.asV3(): Bekreftelse {
-    return Bekreftelse(
-        id = this.id,
-        bekreftelsesloesning = this.bekreftelsesloesning.asV3(),
-        svar = this.svar.asV3()
-    )
+fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.asV3(): Bekreftelse? {
+    val status = this.status?.asV3() ?: BekreftelsStatus.GYLDIG
+    return if (status == BekreftelsStatus.GYLDIG && this.bekreftelse != null) {
+        Bekreftelse(
+            id = this.bekreftelse.id,
+            bekreftelsesloesning = this.bekreftelse.bekreftelsesloesning.asV3(),
+            status = status,
+            svar = this.bekreftelse.svar.asV3()
+        )
+    } else {
+        null
+    }
 }
 
 fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Svar.asV3(): Svar {
     return Svar(
-        sendtInnAv = this.sendtInnAv.asV3(HendelseType.METADATA_V1),
+        sendtInnAv = this.sendtInnAv.asV3(),
         gjelderFra = this.gjelderFra,
         gjelderTil = this.gjelderTil,
         harJobbetIDennePerioden = this.harJobbetIDennePerioden,
@@ -298,18 +314,5 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.asV3()
         no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.NEI -> JaNeiVetIkke.NEI
         no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.VET_IKKE -> JaNeiVetIkke.VET_IKKE
         no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.UKJENT_VERDI -> JaNeiVetIkke.UKJENT_VERDI
-    }
-}
-
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.asV3(): HendelseType {
-    return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.periode_startet_v1 -> HendelseType.PERIODE_STARTET_V1
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.periode_avsluttet_v1 -> HendelseType.PERIODE_AVSLUTTET_V1
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.opplysninger_v4 -> HendelseType.OPPLYSNINGER_V4
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.profilering_v1 -> HendelseType.PROFILERING_V1
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.egenvurdering_v1 -> HendelseType.EGENVURDERING_V1
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.bekreftelse_v1 -> HendelseType.BEKREFTELSE_V1
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.pa_vegne_av_start_v1 -> HendelseType.PAA_VEGNE_AV_START_V1
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.pa_vegne_av_stopp_v1 -> HendelseType.PAA_VEGNE_AV_STOPP_V1
     }
 }

@@ -1,9 +1,9 @@
 package no.nav.paw.oppslagapi.mapping.v3
 
 import no.nav.paw.felles.model.Identitetsnummer
-import no.nav.paw.oppslagapi.V2BaseRequest
-import no.nav.paw.oppslagapi.V2IdentitetsnummerRequest
-import no.nav.paw.oppslagapi.V2PerioderRequest
+import no.nav.paw.oppslagapi.model.v2.V2BaseRequest
+import no.nav.paw.oppslagapi.model.v2.V2IdentitetsnummerRequest
+import no.nav.paw.oppslagapi.model.v2.V2PerioderRequest
 import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerRequest
 import no.nav.paw.oppslagapi.model.v3.ListQueryRequest
 import no.nav.paw.oppslagapi.model.v3.PeriodeListRequest

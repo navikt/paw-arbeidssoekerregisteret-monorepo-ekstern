@@ -23,7 +23,7 @@ fun Route.v1Bekrefelser(
     appQueryLogic: ApplicationQueryLogic
 ) {
     autentisering(issuer = TokenX) {
-        get("arbeidssoekerbekreftelser") {
+        get("/arbeidssoekerbekreftelser") {
             val securityContext = call.securityContext()
             val bruker = (securityContext.bruker as? Sluttbruker)
                 ?: throw IllegalArgumentException("Ugyldig token type, forventet Sluttbruker")

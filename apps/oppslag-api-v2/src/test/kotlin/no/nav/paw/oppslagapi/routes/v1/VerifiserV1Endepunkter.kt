@@ -64,7 +64,7 @@ class VerifiserV1Endepunkter : FreeSpec({
         kafkaKeysClient = kafkaKeysClientMock
     )
     val startTime = Instant.now() - Duration.ofDays(30)
-    val periode1 = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTime)
+    val periode1 = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTime)
     val bekreftelseMelding = bekreftelseMelding(periodeId = periode1.id)
     val opplysningerId = UUID.randomUUID()
     every { databaseQuerySupportMock.hentPerioder(Identitetsnummer(periode1.identitetsnummer)) } returns listOf(periode1.id)
@@ -144,7 +144,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                         }
                     }
                 }
-                val token = oauthServer.ansattToken(navAnsatt = TestData.navAnstatt1)
+                val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt1)
                 val response = client.hentViaPost(
                     url = "/api/v1/veileder/arbeidssoekerperioder",
                     token = token,
@@ -187,7 +187,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                         }
                     }
                 }
-                val token = oauthServer.ansattToken(navAnsatt = TestData.navAnstatt1)
+                val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt1)
                 val response = client.hentViaPost(
                     url = "/api/v1/veileder/profilering",
                     token = token,
@@ -223,7 +223,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                         }
                     }
                 }
-                val token = oauthServer.ansattToken(navAnsatt = TestData.navAnstatt1)
+                val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt1)
                 val response = client.hentViaPost(
                     url = "/api/v1/veileder/arbeidssoekerperioder-aggregert",
                     token = token,

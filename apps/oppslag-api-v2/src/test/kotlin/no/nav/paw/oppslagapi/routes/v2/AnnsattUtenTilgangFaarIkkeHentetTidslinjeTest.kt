@@ -48,7 +48,7 @@ class AnnsattUtenTilgangFaarIkkeHentetTidslinjeTest : FreeSpec({
         kafkaKeysClient = kafkaKeysClientMock
     )
     val startTime = Instant.now() - Duration.ofDays(30)
-    val periode1 = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTime)
+    val periode1 = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTime)
     val bekreftelseMelding = bekreftelseMelding(periodeId = periode1.id)
 
     every { databaseQuerySupportMock.hentRaderForPeriode(periode1.id) } returns listOf(
@@ -93,7 +93,7 @@ class AnnsattUtenTilgangFaarIkkeHentetTidslinjeTest : FreeSpec({
                     )
                 }
                 val client = createTestHttpClient()
-                val token = oauthServer.ansattToken(navAnsatt = TestData.navAnstatt3)
+                val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt3)
                 val response = client.hentTidslinjerV2(token, listOf(periode1.id))
                 response.status shouldBe HttpStatusCode.Forbidden
             }

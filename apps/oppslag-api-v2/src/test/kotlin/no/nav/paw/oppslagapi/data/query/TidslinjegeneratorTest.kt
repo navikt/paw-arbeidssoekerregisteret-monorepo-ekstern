@@ -37,7 +37,7 @@ class TidslinjegeneratorTest : FreeSpec({
     "Tidslinjegenerator" - {
         "Verifiser standard flyt åpen periode" {
             val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-            val periode = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTid)
+            val periode = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTid)
             val rader = listOf(
                 row(periode),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),
@@ -70,7 +70,7 @@ class TidslinjegeneratorTest : FreeSpec({
         }
         "Verifiser standard flyt avsluttet periode" {
             val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-            val periode = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTid)
+            val periode = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTid)
             val rader = listOf(
                 row(periode),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),
@@ -111,7 +111,7 @@ class TidslinjegeneratorTest : FreeSpec({
         }
         "Verifiser uventet avsender" {
             val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-            val periode = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTid)
+            val periode = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTid)
             val rader = listOf(
                 row(periode),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),
@@ -147,7 +147,7 @@ class TidslinjegeneratorTest : FreeSpec({
         }
         "Verifiser innsendt utenfor periode" {
             val startTid = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-            val periode = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTid)
+            val periode = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTid)
             val rader = listOf(
                 row(periode),
                 row(bekreftelseMelding(periodeId = periode.id, tidspunkt = startTid + 1.dager)),

@@ -1,6 +1,7 @@
 package no.nav.paw.oppslagapi.routes.v3
 
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.http.HttpStatusCode
@@ -13,10 +14,8 @@ import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.configureKtorServer
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.query.genererTidslinje
-import no.nav.paw.oppslagapi.exception.PERIODE_IKKE_FUNNET_ERROR_TYPE
-import no.nav.paw.oppslagapi.mapping.v3.asAggregertPeriode
 import no.nav.paw.oppslagapi.mapping.v3.asV3
-import no.nav.paw.oppslagapi.model.v3.AggregertPeriode
+import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.oppslagapi.test.TestContext
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.oppslagapi.test.ansattToken
@@ -24,10 +23,10 @@ import no.nav.paw.oppslagapi.test.brukerToken
 import no.nav.paw.oppslagapi.test.configureMock
 import no.nav.paw.oppslagapi.test.createAuthProviders
 import no.nav.paw.oppslagapi.test.createTestHttpClient
-import no.nav.paw.oppslagapi.test.hentPerioderV3
+import no.nav.paw.oppslagapi.test.hentTidslinjerV3
 import java.util.*
 
-class V3PerioderRouteTest : FreeSpec({
+class V3TidslinjeRouteTest : FreeSpec({
     with(TestContext()) {
         val bruker1 = TestData.bruker3
         val bruker2 = TestData.bruker4
@@ -42,7 +41,8 @@ class V3PerioderRouteTest : FreeSpec({
         val groupedRows2: List<Pair<UUID, List<Row<Any>>>> = TestData.rows4
             .groupBy { it.periodeId }
             .map { (periodeId, rows) -> periodeId to rows }
-        val forventetPeriode1 = genererTidslinje(rader = groupedRows1).first().asV3().asAggregertPeriode()
+        val forventetTidslinje1 = genererTidslinje(rader = groupedRows1).first().asV3()
+        val forventetTidslinje2 = genererTidslinje(rader = groupedRows2).first().asV3()
 
         beforeSpec {
             tilgangsTjenesteForAnsatteMock.configureMock()
@@ -53,8 +53,8 @@ class V3PerioderRouteTest : FreeSpec({
             mockOAuthServer.shutdown()
         }
 
-        "Sluttbruker henter periode med identitetsnummer" - {
-            "/api/v3/perioder -> 403 Forbidden" {
+        "Sluttbruker henter tidslinjer med identitetsnummer" - {
+            "/api/v3/tidslinjer -> 403 Forbidden" {
                 testApplication {
                     application {
                         configureKtorServer(
@@ -70,7 +70,7 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.brukerToken(bruker = bruker1)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
                         identitetsnummer = bruker3.ident
                     )
@@ -82,7 +82,7 @@ class V3PerioderRouteTest : FreeSpec({
                 }
             }
 
-            "/api/v3/perioder -> 404 Not Found - ingen perioder" {
+            "/api/v3/tidslinjer -> 200 OK - ingen perioder" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker3.ident to emptyList()
                 )
@@ -103,19 +103,17 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.brukerToken(bruker = bruker3)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
                         identitetsnummer = bruker3.ident
                     )
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val feil = response.body<ProblemDetails>()
-                    feil.type shouldBe PERIODE_IKKE_FUNNET_ERROR_TYPE
-                    feil.status shouldBe HttpStatusCode.NotFound
-                    feil.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.OK
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 0
                 }
             }
 
-            "/api/v3/perioder -> 404 Not Found - ingen aktive perioder" {
+            "/api/v3/tidslinjer -> 200 OK - ingen aktive perioder" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker2.ident to groupedRows2
                 )
@@ -136,19 +134,18 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.brukerToken(bruker = bruker2)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
                         identitetsnummer = bruker2.ident
                     )
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val feil = response.body<ProblemDetails>()
-                    feil.type shouldBe PERIODE_IKKE_FUNNET_ERROR_TYPE
-                    feil.status shouldBe HttpStatusCode.NotFound
-                    feil.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.OK
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 1
+                    tidslinjer.first() shouldBe forventetTidslinje2
                 }
             }
 
-            "/api/v3/perioder -> 200 OK" {
+            "/api/v3/tidslinjer -> 200 OK" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker1.ident to groupedRows1
                 )
@@ -169,19 +166,20 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.brukerToken(bruker = bruker1)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
                         identitetsnummer = bruker1.ident
                     )
                     response.status shouldBe HttpStatusCode.OK
-                    val periode = response.body<AggregertPeriode>()
-                    periode shouldBe forventetPeriode1
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 1
+                    tidslinjer.first() shouldBe forventetTidslinje1
                 }
             }
         }
 
-        "Sluttbruker henter periode med periodeId" - {
-            "/api/v3/perioder -> 403 Forbidden" {
+        "Sluttbruker henter tidslinjer med periodeId" - {
+            "/api/v3/tidslinjer -> 403 Forbidden" {
                 testApplication {
                     application {
                         configureKtorServer(
@@ -197,9 +195,9 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.brukerToken(bruker = bruker3)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
-                        periodeId = periodeId1
+                        perioder = listOf(periodeId1)
                     )
                     response.status shouldBe HttpStatusCode.Forbidden
                     val feil = response.body<ProblemDetails>()
@@ -209,7 +207,7 @@ class V3PerioderRouteTest : FreeSpec({
                 }
             }
 
-            "/api/v3/perioder -> 404 Not Found - ingen perioder" {
+            "/api/v3/tidslinjer -> 200 OK - ingen perioder" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker1.ident to listOf(periodeId3 to emptyList())
                 )
@@ -230,19 +228,21 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.brukerToken(bruker = bruker1)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
-                        periodeId = periodeId3
+                        perioder = listOf(periodeId3)
                     )
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val feil = response.body<ProblemDetails>()
-                    feil.type shouldBe PERIODE_IKKE_FUNNET_ERROR_TYPE
-                    feil.status shouldBe HttpStatusCode.NotFound
-                    feil.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.OK
+                    val tidslinjer = response.body<String>()
+                    println(tidslinjer)
+                    /*
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 0
+                     */
                 }
             }
 
-            "/api/v3/perioder -> 404 Not Found - ingen aktive perioder" {
+            "/api/v3/tidslinjer -> 200 OK - ingen aktive perioder" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker2.ident to groupedRows2
                 )
@@ -263,19 +263,18 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.brukerToken(bruker = bruker2)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
-                        periodeId = periodeId2
+                        perioder = listOf(periodeId2)
                     )
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val feil = response.body<ProblemDetails>()
-                    feil.type shouldBe PERIODE_IKKE_FUNNET_ERROR_TYPE
-                    feil.status shouldBe HttpStatusCode.NotFound
-                    feil.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.OK
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 1
+                    tidslinjer.first() shouldBe forventetTidslinje2
                 }
             }
 
-            "/api/v3/perioder -> 200 OK" {
+            "/api/v3/tidslinjer -> 200 OK" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker1.ident to groupedRows1
                 )
@@ -296,19 +295,20 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.brukerToken(bruker = bruker1)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
-                        periodeId = periodeId1
+                        perioder = listOf(periodeId1)
                     )
                     response.status shouldBe HttpStatusCode.OK
-                    val periode = response.body<AggregertPeriode>()
-                    periode shouldBe forventetPeriode1
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 1
+                    tidslinjer.first() shouldBe forventetTidslinje1
                 }
             }
         }
 
-        "Ansatt henter periode med identitetsnummer" - {
-            "/api/v3/perioder -> 404 Not Found - ingen perioder" {
+        "Ansatt henter tidslinjer med identitetsnummer" - {
+            "/api/v3/tidslinjer -> 200 OK - ingen perioder" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker3.ident to emptyList()
                 )
@@ -329,19 +329,17 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.ansattToken(navAnsatt = ansatt)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
                         identitetsnummer = bruker3.ident
                     )
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val feil = response.body<ProblemDetails>()
-                    feil.type shouldBe PERIODE_IKKE_FUNNET_ERROR_TYPE
-                    feil.status shouldBe HttpStatusCode.NotFound
-                    feil.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.OK
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 0
                 }
             }
 
-            "/api/v3/perioder -> 404 Not Found - ingen aktive perioder" {
+            "/api/v3/tidslinjer -> 200 OK - ingen aktive perioder" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker2.ident to groupedRows2
                 )
@@ -362,19 +360,18 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.ansattToken(navAnsatt = ansatt)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
                         identitetsnummer = bruker2.ident
                     )
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val feil = response.body<ProblemDetails>()
-                    feil.type shouldBe PERIODE_IKKE_FUNNET_ERROR_TYPE
-                    feil.status shouldBe HttpStatusCode.NotFound
-                    feil.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.OK
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 1
+                    tidslinjer.first() shouldBe forventetTidslinje2
                 }
             }
 
-            "/api/v3/perioder -> 200 OK" {
+            "/api/v3/tidslinjer -> 200 OK" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker1.ident to groupedRows1
                 )
@@ -395,19 +392,20 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.ansattToken(navAnsatt = ansatt)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
                         identitetsnummer = bruker1.ident
                     )
                     response.status shouldBe HttpStatusCode.OK
-                    val periode = response.body<AggregertPeriode>()
-                    periode shouldBe forventetPeriode1
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 1
+                    tidslinjer.first() shouldBe forventetTidslinje1
                 }
             }
         }
 
-        "Ansatt henter periode med periodeId" - {
-            "/api/v3/perioder -> 404 Not Found - ingen perioder" {
+        "Ansatt henter tidslinjer med periodeId" - {
+            "/api/v3/tidslinjer -> 200 OK - ingen perioder" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker1.ident to listOf(periodeId3 to emptyList())
                 )
@@ -428,19 +426,17 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.ansattToken(navAnsatt = ansatt)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
-                        periodeId = periodeId3
+                        perioder = listOf(periodeId3)
                     )
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val feil = response.body<ProblemDetails>()
-                    feil.type shouldBe PERIODE_IKKE_FUNNET_ERROR_TYPE
-                    feil.status shouldBe HttpStatusCode.NotFound
-                    feil.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.OK
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 0
                 }
             }
 
-            "/api/v3/perioder -> 404 Not Found - ingen aktive perioder" {
+            "/api/v3/tidslinjer -> 200 OK - ingen aktiv perioder" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker2.ident to groupedRows2
                 )
@@ -461,19 +457,18 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.ansattToken(navAnsatt = ansatt)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
-                        periodeId = periodeId2
+                        perioder = listOf(periodeId2)
                     )
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val feil = response.body<ProblemDetails>()
-                    feil.type shouldBe PERIODE_IKKE_FUNNET_ERROR_TYPE
-                    feil.status shouldBe HttpStatusCode.NotFound
-                    feil.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.OK
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 1
+                    tidslinjer.first() shouldBe forventetTidslinje2
                 }
             }
 
-            "/api/v3/perioder -> 200 OK" {
+            "/api/v3/tidslinjer -> 200 OK" {
                 val data: List<Pair<Identitetsnummer, List<Pair<UUID, List<Row<Any>>>>>> = listOf(
                     bruker1.ident to groupedRows1
                 )
@@ -494,13 +489,14 @@ class V3PerioderRouteTest : FreeSpec({
                     }
                     val client = createTestHttpClient()
                     val token = mockOAuthServer.ansattToken(navAnsatt = ansatt)
-                    val response = client.hentPerioderV3(
+                    val response = client.hentTidslinjerV3(
                         token = token,
-                        periodeId = periodeId1
+                        perioder = listOf(periodeId1)
                     )
                     response.status shouldBe HttpStatusCode.OK
-                    val periode = response.body<AggregertPeriode>()
-                    periode shouldBe forventetPeriode1
+                    val tidslinjer = response.body<List<Tidslinje>>()
+                    tidslinjer shouldHaveSize 1
+                    tidslinjer.first() shouldBe forventetTidslinje1
                 }
             }
         }

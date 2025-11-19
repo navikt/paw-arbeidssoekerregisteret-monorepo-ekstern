@@ -7,9 +7,9 @@ import java.util.*
 @JsonTypeName("PERIODE_ID_LISTE")
 data class PeriodeListRequest(
 
-    @get:JsonProperty("type")
-    override val type: QueryType,
+    @field:JsonProperty("type")
+    override val type: QueryType = QueryType.PERIODE_ID_LISTE,
 
-    @get:JsonProperty("perioder")
+    @field:JsonProperty("perioder")
     val perioder: List<UUID>
 ) : ListQueryRequest

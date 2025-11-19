@@ -4,6 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Jobbsituasjon(
 
-    @get:JsonProperty("beskrivelser")
+    @field:JsonProperty("beskrivelser")
     val beskrivelser: List<BeskrivelseMedDetaljer>
 )

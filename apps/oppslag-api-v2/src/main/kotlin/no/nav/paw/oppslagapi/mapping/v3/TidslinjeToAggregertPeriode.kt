@@ -9,8 +9,9 @@ import no.nav.paw.oppslagapi.model.v3.Bekreftelse
 import no.nav.paw.oppslagapi.model.v3.Egenvurdering
 import no.nav.paw.oppslagapi.model.v3.Hendelse
 import no.nav.paw.oppslagapi.model.v3.HendelseType
-import no.nav.paw.oppslagapi.model.v3.Metadata
 import no.nav.paw.oppslagapi.model.v3.OpplysningerOmArbeidssoeker
+import no.nav.paw.oppslagapi.model.v3.PeriodeAvluttet
+import no.nav.paw.oppslagapi.model.v3.PeriodeStartet
 import no.nav.paw.oppslagapi.model.v3.Profilering
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
 
@@ -18,7 +19,7 @@ private val logger = buildApplicationLogger
 
 fun Response<List<Tidslinje>>.finnSistePeriode(): Response<AggregertPeriode> {
     return this.map { tidslinje ->
-        val aktive = tidslinje.filter { it.avsluttet != null }
+        val aktive = tidslinje.filter { it.avsluttet == null }
         if (aktive.isEmpty()) {
             throw PeriodeIkkeFunnetException("Ingen aktive perioder funnet")
         } else if (aktive.size == 1) {
@@ -31,26 +32,29 @@ fun Response<List<Tidslinje>>.finnSistePeriode(): Response<AggregertPeriode> {
 }
 
 fun Tidslinje.asAggregertPeriode(): AggregertPeriode {
+    val opplysning = this.hendelser.finnOpplysninger()
+    val profilering = opplysning?.let { this.hendelser.finnProfilering() }
+    val egenvurdering = profilering?.let { this.hendelser.finnEgenvurdering() }
     return AggregertPeriode(
         id = this.periodeId,
         identitetsnummer = this.identitetsnummer,
         startet = this.hendelser.finnStartet(),
         avsluttet = this.hendelser.finnAvsluttet(),
-        opplysning = this.hendelser.finnOpplysninger(),
-        profilering = this.hendelser.finnProfilering(),
-        egenvurdering = this.hendelser.finnEgenvurdering(),
+        opplysning = opplysning,
+        profilering = profilering,
+        egenvurdering = egenvurdering,
         bekreftelse = this.hendelser.finnBekreftelse()
     )
 }
 
-fun List<Hendelse>.finnStartet(): Metadata {
+fun List<Hendelse>.finnStartet(): PeriodeStartet {
     return this.firstOrNull { it.type == HendelseType.PERIODE_STARTET_V1 }
-        ?.let { it as Metadata } ?: throw PeriodeIkkeFunnetException("Ingen perioder funnet")
+        ?.let { it as PeriodeStartet } ?: throw PeriodeIkkeFunnetException("Ingen perioder funnet")
 }
 
-fun List<Hendelse>.finnAvsluttet(): Metadata? {
+fun List<Hendelse>.finnAvsluttet(): PeriodeAvluttet? {
     return this.firstOrNull { it.type == HendelseType.PERIODE_AVSLUTTET_V1 }
-        ?.let { it as Metadata }
+        ?.let { it as PeriodeAvluttet }
 }
 
 fun List<Hendelse>.finnOpplysninger(): OpplysningerOmArbeidssoeker? {

@@ -6,9 +6,9 @@ import io.ktor.server.routing.route
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.error.model.map
-import no.nav.paw.oppslagapi.V2Request
+import no.nav.paw.oppslagapi.model.v2.V2Request
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
-import no.nav.paw.oppslagapi.hentTidslinjer
+import no.nav.paw.oppslagapi.model.v2.hentTidslinjer
 import no.nav.paw.oppslagapi.respondWith
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.TokenX

@@ -19,9 +19,13 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PerioderRequest
 import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerRequest
+import no.nav.paw.oppslagapi.model.v3.PeriodeListRequest
 import no.nav.paw.oppslagapi.model.v3.PeriodeRequest
-import no.nav.paw.oppslagapi.model.v3.QueryType
+import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.NavAnsatt
+import no.nav.paw.security.authentication.model.Sluttbruker
+import no.nav.paw.security.authentication.model.TokenX
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -35,26 +39,26 @@ fun ApplicationTestBuilder.createTestHttpClient() = createClient {
     }
 }
 
-fun MockOAuth2Server.personToken(
-    id: Identitetsnummer,
+fun MockOAuth2Server.brukerToken(
+    bruker: Sluttbruker,
     acr: String = "idporten-loa-high"
 ): Pair<Map<String, Any>, SignedJWT> =
     mapOf(
         "acr" to acr,
-        "pid" to id.value
-    ).let { it.plus("issuer" to "tokenx") to issueToken(claims = it) }
+        "pid" to bruker.ident.value
+    ).let { it.plus("issuer" to TokenX.name) to issueToken(claims = it) }
 
 fun MockOAuth2Server.ansattToken(navAnsatt: NavAnsatt): Pair<Map<String, Any>, SignedJWT> =
     mapOf(
         "oid" to navAnsatt.oid,
         "NAVident" to navAnsatt.ident
-    ).let { it.plus("issuer" to "azure") to issueToken(claims = it) }
+    ).let { it.plus("issuer" to AzureAd.name) to issueToken(claims = it) }
 
 fun MockOAuth2Server.anonymToken(): Pair<Map<String, Any>, SignedJWT> =
     mapOf(
         "oid" to UUID.randomUUID().toString(),
         "roles" to listOf("access_as_application")
-    ).let { it.plus("issuer" to "azure") to issueToken(claims = it) }
+    ).let { it.plus("issuer" to AzureAd.name) to issueToken(claims = it) }
 
 suspend fun HttpClient.hentViaGet(
     url: String,
@@ -114,29 +118,52 @@ suspend fun HttpClient.hentTidslinjerV2(
 
 suspend fun HttpClient.hentPerioderV3(
     token: Pair<Map<String, Any>, SignedJWT>,
+    identitetsnummer: Identitetsnummer
+): HttpResponse {
+    return hentViaPost(
+        url = "/api/v3/perioder",
+        token = token,
+        request = IdentitetsnummerRequest(
+            identitetsnummer = identitetsnummer.value
+        )
+    ).validateOpenApiSpec(validator = v3ApiValidator)
+}
+
+suspend fun HttpClient.hentPerioderV3(
+    token: Pair<Map<String, Any>, SignedJWT>,
     periodeId: UUID
 ): HttpResponse {
-    val response = hentViaPost(
+    return hentViaPost(
         url = "/api/v3/perioder",
         token = token,
         request = PeriodeRequest(
-            type = QueryType.PERIODE_ID,
             periodeId = periodeId
         )
     ).validateOpenApiSpec(validator = v3ApiValidator)
-    return response
+}
+
+suspend fun HttpClient.hentTidslinjerV3(
+    token: Pair<Map<String, Any>, SignedJWT>,
+    identitetsnummer: Identitetsnummer
+): HttpResponse {
+    return hentViaPost(
+        url = "/api/v3/tidslinjer",
+        token = token,
+        request = IdentitetsnummerRequest(
+            identitetsnummer = identitetsnummer.value
+        )
+    )//.validateOpenApiSpec(validator = v3ApiValidator)
 }
 
 suspend fun HttpClient.hentTidslinjerV3(
     token: Pair<Map<String, Any>, SignedJWT>,
     perioder: List<UUID>
 ): HttpResponse {
-    val response = hentViaPost(
+    return hentViaPost(
         url = "/api/v3/tidslinjer",
         token = token,
-        request = PerioderRequest(
+        request = PeriodeListRequest(
             perioder = perioder
         )
-    ).validateOpenApiSpec(validator = v3ApiValidator)
-    return response
+    )//.validateOpenApiSpec(validator = v3ApiValidator)
 }

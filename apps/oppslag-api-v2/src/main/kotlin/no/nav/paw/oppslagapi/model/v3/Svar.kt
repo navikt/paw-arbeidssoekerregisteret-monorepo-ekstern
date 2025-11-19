@@ -5,18 +5,18 @@ import java.time.Instant
 
 data class Svar(
 
-    @get:JsonProperty("sendtInnAv")
+    @field:JsonProperty("sendtInnAv")
     val sendtInnAv: Metadata,
 
-    @get:JsonProperty("gjelderFra")
+    @field:JsonProperty("gjelderFra")
     val gjelderFra: Instant,
 
-    @get:JsonProperty("gjelderTil")
+    @field:JsonProperty("gjelderTil")
     val gjelderTil: Instant,
 
-    @get:JsonProperty("harJobbetIDennePerioden")
+    @field:JsonProperty("harJobbetIDennePerioden")
     val harJobbetIDennePerioden: Boolean,
 
-    @get:JsonProperty("vilFortsetteSomArbeidssoeker")
+    @field:JsonProperty("vilFortsetteSomArbeidssoeker")
     val vilFortsetteSomArbeidssoeker: Boolean
 )

@@ -25,11 +25,11 @@ import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.oppslagapi.test.TestData
+import no.nav.paw.oppslagapi.test.brukerToken
 import no.nav.paw.oppslagapi.test.configureMock
 import no.nav.paw.oppslagapi.test.createAuthProviders
 import no.nav.paw.oppslagapi.test.createTestHttpClient
 import no.nav.paw.oppslagapi.test.hentTidslinjerV2
-import no.nav.paw.oppslagapi.test.personToken
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -52,7 +52,7 @@ class BrukerFaarIkkeHentetAndresTidslinjeTest : FreeSpec({
         kafkaKeysClient = kafkaKeysClientMock
     )
     val startTime = Instant.now() - Duration.ofDays(30)
-    val periode1 = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTime)
+    val periode1 = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTime)
     val periode1Avsluttet = TestData.periode(
         identitetsnummer = Identitetsnummer(periode1.identitetsnummer),
         startet = periode1.startet.tidspunkt,
@@ -127,7 +127,7 @@ class BrukerFaarIkkeHentetAndresTidslinjeTest : FreeSpec({
                     )
                 }
                 val client = createTestHttpClient()
-                val token = oauthServer.personToken(id = TestData.dnr1)
+                val token = oauthServer.brukerToken(bruker = TestData.bruker1)
                 val response = client.hentTidslinjerV2(token, listOf(periode1.id, periode2.id))
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<ProblemDetails>().status shouldBe HttpStatusCode.Forbidden

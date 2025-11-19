@@ -23,11 +23,11 @@ import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.DatabaseQuerySupport
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.oppslagapi.test.TestData
+import no.nav.paw.oppslagapi.test.brukerToken
 import no.nav.paw.oppslagapi.test.configureMock
 import no.nav.paw.oppslagapi.test.createAuthProviders
 import no.nav.paw.oppslagapi.test.createTestHttpClient
 import no.nav.paw.oppslagapi.test.hentBekreftelserV2
-import no.nav.paw.oppslagapi.test.personToken
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -49,7 +49,7 @@ class BrukerFaarIkkeHentetAndreBekreftelserTest : FreeSpec({
         kafkaKeysClient = kafkaKeysClientMock
     )
     val startTime = Instant.now() - Duration.ofDays(30)
-    val periode1 = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTime)
+    val periode1 = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTime)
     val periode2 = TestData.periode(identitetsnummer = TestData.fnr2, startet = startTime)
     val bekreftelseMelding_p1 = bekreftelseMelding(periodeId = periode1.id)
     val bekreftelseMelding_p2 = bekreftelseMelding(periodeId = periode2.id)
@@ -112,7 +112,7 @@ class BrukerFaarIkkeHentetAndreBekreftelserTest : FreeSpec({
                     )
                 }
                 val client = createTestHttpClient()
-                val token = oauthServer.personToken(id = TestData.dnr1)
+                val token = oauthServer.brukerToken(bruker = TestData.bruker1)
                 val response = client.hentBekreftelserV2(token, listOf(periode1.id, periode2.id))
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<ProblemDetails>().status shouldBe HttpStatusCode.Forbidden

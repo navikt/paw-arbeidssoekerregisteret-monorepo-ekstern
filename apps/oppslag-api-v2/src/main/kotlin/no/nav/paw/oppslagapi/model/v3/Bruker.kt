@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Bruker(
 
-    @get:JsonProperty("type")
+    @field:JsonProperty("type")
     val type: BrukerType = BrukerType.UKJENT_VERDI,
 
-    @get:JsonProperty("id")
+    @field:JsonProperty("id")
     val id: String,
 
-    @get:JsonProperty("sikkerhetsnivaa")
+    @field:JsonProperty("sikkerhetsnivaa")
     val sikkerhetsnivaa: String? = null
 )

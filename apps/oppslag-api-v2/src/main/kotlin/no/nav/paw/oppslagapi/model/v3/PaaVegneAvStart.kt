@@ -1,23 +1,24 @@
 package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonTypeName
 import java.util.*
 
+@JsonTypeName("PAA_VEGNE_AV_START_V1")
 data class PaaVegneAvStart(
 
-    @get:JsonProperty("periodeId")
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.PAA_VEGNE_AV_START_V1,
+
+    @field:JsonProperty("periodeId")
     val periodeId: UUID,
 
-    @get:JsonProperty("bekreftelsesloesning")
+    @field:JsonProperty("bekreftelsesloesning")
     val bekreftelsesloesning: Bekreftelsesloesning = Bekreftelsesloesning.UKJENT_VERDI,
 
-    @get:JsonProperty("intervalMS")
+    @field:JsonProperty("intervalMS")
     val intervalMS: Long,
 
-    @get:JsonProperty("graceMS")
+    @field:JsonProperty("graceMS")
     val graceMS: Long
-) : Hendelse {
-
-    @get:JsonProperty("type")
-    override val type: HendelseType = HendelseType.PAA_VEGNE_AV_START_V1
-}
+) : Hendelse

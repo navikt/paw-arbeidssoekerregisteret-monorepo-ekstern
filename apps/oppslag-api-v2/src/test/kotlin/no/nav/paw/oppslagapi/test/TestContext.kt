@@ -16,16 +16,17 @@ val testLogger: Logger = LoggerFactory.getLogger("no.nav.paw.logger.test")
 
 data class TestContext(
     val mockOAuthServer: MockOAuth2Server = MockOAuth2Server(),
-    val kafkaKeysClientMock: KafkaKeysClient = mockKafkaKeysClient(),
+    val mockKafkaKeysClient: KafkaKeysClient = mockKafkaKeysClient(),
+    val kafkaKeysClientMock: KafkaKeysClient = mockk(),
     val tilgangsTjenesteForAnsatteMock: TilgangsTjenesteForAnsatte = mockk(),
     val autorisasjonsTjeneste: AutorisasjonsTjeneste = AutorisasjonsTjeneste(
-        kafkaKeysClient = kafkaKeysClientMock,
+        kafkaKeysClient = mockKafkaKeysClient,
         tilgangsTjenesteForAnsatte = tilgangsTjenesteForAnsatteMock,
         auditLogger = AuditLogger.getLogger()
     ),
     val databaseQuerySupportMock: DatabaseQuerySupport = mockk(),
     val mockedQueryLogic: ApplicationQueryLogic = ApplicationQueryLogic(
-        kafkaKeysClient = kafkaKeysClientMock,
+        kafkaKeysClient = mockKafkaKeysClient,
         autorisasjonsTjeneste = autorisasjonsTjeneste,
         databaseQuerySupport = databaseQuerySupportMock
     )

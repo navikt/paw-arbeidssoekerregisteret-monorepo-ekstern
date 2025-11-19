@@ -1,7 +1,7 @@
 package no.nav.paw.oppslagapi.data.consumer
 
 import io.opentelemetry.api.trace.Span
-import no.nav.paw.oppslagapi.appLogger
+import no.nav.paw.logging.logger.buildLogger
 import no.nav.paw.oppslagapi.consumer_version
 import no.nav.paw.oppslagapi.data.consumer.kafka.hwm.updateHwm
 import no.nav.paw.oppslagapi.health.HasStarted
@@ -11,7 +11,6 @@ import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.Deserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-
 import java.time.Duration
 import java.time.Duration.between
 import java.time.Instant
@@ -27,6 +26,7 @@ class DataConsumer(
     private val consumerHealthMetric: ConsumerHealthMetric
 ) : IsAlive, HasStarted {
     override val name = "DataConsumer(consumer_version=$consumer_version, pollTimeout=$pollTimeout)"
+    private val logger = buildLogger
 
     private val sisteProessering = AtomicReference(Instant.EPOCH)
     private val erStartet = AtomicBoolean(false)
@@ -57,13 +57,13 @@ class DataConsumer(
             throw IllegalStateException("DataConsumer kan kun startes en gang")
         }
         return CompletableFuture.runAsync {
-            appLogger.info("Startet DataConsumer for consumer_version=${consumer_version}")
+            logger.info("Startet DataConsumer for consumer_version=${consumer_version}")
             runCatching {
                 while (true) {
                     consumer.poll(pollTimeout)
                         .takeIf { !it.isEmpty }
                         ?.let { records ->
-                            appLogger.debug("Received {} records", records.count())
+                            logger.debug("Received {} records", records.count())
                             val eldsteRecordTidspunkt = mutableMapOf<Pair<String, Int>, Long>()
                             transaction {
                                 records
@@ -97,12 +97,12 @@ class DataConsumer(
                     consumerHealthMetric.consumerPollProcessed(now)
                 }
             }.onFailure { throwable ->
-                runCatching { consumer.close(Duration.ofSeconds(1)) }
-                appLogger.error("DataConsumer avsluttet med feil", throwable)
+                runCatching { consumer.close() }
+                logger.error("DataConsumer avsluttet med feil", throwable)
                 exitStatus.set(Status.ERROR(message = "Stoppet grunnet feil", cause = throwable))
             }.onSuccess {
-                runCatching { consumer.close(Duration.ofSeconds(1)) }
-                appLogger.info("DataConsumer avsluttet uten feil")
+                runCatching { consumer.close() }
+                logger.info("DataConsumer avsluttet uten feil")
             }
         }
     }

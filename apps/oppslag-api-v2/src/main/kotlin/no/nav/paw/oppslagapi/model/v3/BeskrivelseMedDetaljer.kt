@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class BeskrivelseMedDetaljer(
 
-    @get:JsonProperty("beskrivelse")
+    @field:JsonProperty("beskrivelse")
     val beskrivelse: Beskrivelse = Beskrivelse.UKJENT_VERDI,
 
-    @get:JsonProperty("detaljer")
+    @field:JsonProperty("detaljer")
     val detaljer: Map<String, String>
 )

@@ -5,27 +5,27 @@ import java.util.*
 
 data class AggregertPeriode(
 
-    @get:JsonProperty("id")
+    @field:JsonProperty("id")
     val id: UUID,
 
-    @get:JsonProperty("identitetsnummer")
+    @field:JsonProperty("identitetsnummer")
     val identitetsnummer: String,
 
-    @get:JsonProperty("startet")
-    val startet: Metadata,
+    @field:JsonProperty("startet")
+    val startet: PeriodeStartet,
 
-    @get:JsonProperty("avsluttet")
-    val avsluttet: Metadata? = null,
+    @field:JsonProperty("avsluttet")
+    val avsluttet: PeriodeAvluttet? = null,
 
-    @get:JsonProperty("opplysning")
+    @field:JsonProperty("opplysning")
     val opplysning: OpplysningerOmArbeidssoeker? = null,
 
-    @get:JsonProperty("profilering")
+    @field:JsonProperty("profilering")
     val profilering: Profilering? = null,
 
-    @get:JsonProperty("egenvurdering")
+    @field:JsonProperty("egenvurdering")
     val egenvurdering: Egenvurdering? = null,
 
-    @get:JsonProperty("bekreftelse")
+    @field:JsonProperty("bekreftelse")
     val bekreftelse: Bekreftelse? = null
 )

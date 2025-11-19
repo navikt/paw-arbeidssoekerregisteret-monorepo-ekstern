@@ -6,18 +6,18 @@ import java.util.*
 
 data class Tidslinje(
 
-    @get:JsonProperty("periodeId")
+    @field:JsonProperty("periodeId")
     val periodeId: UUID,
 
-    @get:JsonProperty("identitetsnummer")
+    @field:JsonProperty("identitetsnummer")
     val identitetsnummer: String,
 
-    @get:JsonProperty("startet")
+    @field:JsonProperty("startet")
     val startet: Instant,
 
-    @get:JsonProperty("avsluttet")
+    @field:JsonProperty("avsluttet")
     val avsluttet: Instant? = null,
 
-    @get:JsonProperty("hendelser")
+    @field:JsonProperty("hendelser")
     val hendelser: List<Hendelse>
 )

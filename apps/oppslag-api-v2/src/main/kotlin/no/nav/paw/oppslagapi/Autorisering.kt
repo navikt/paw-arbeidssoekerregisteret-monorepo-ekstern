@@ -1,34 +1,32 @@
 package no.nav.paw.oppslagapi
 
-import io.ktor.http.HttpStatusCode
 import io.opentelemetry.api.common.AttributeKey.stringKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.paw.config.env.currentRuntimeEnvironment
-import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.flatMap
 import no.nav.paw.error.model.map
 import no.nav.paw.error.model.onFailure
 import no.nav.paw.error.model.onSuccess
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
-import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.felles.model.NavIdent
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.oppslagapi.data.finnAlleIdenterForPerson
+import no.nav.paw.oppslagapi.mapping.asProblemDetails
 import no.nav.paw.security.authentication.model.Anonym
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.security.authentication.model.SecurityContext
 import no.nav.paw.security.authentication.model.Sluttbruker
+import no.nav.paw.security.authorization.exception.IngenTilgangException
 import no.nav.paw.tilgangskontroll.client.RESPONSE_DATA_UNIT
 import no.nav.paw.tilgangskontroll.client.Tilgang
 import no.nav.paw.tilgangskontroll.client.TilgangsTjenesteForAnsatte
 import no.nav.paw.tilgangskontroll.client.feilVedIkkeTilgang
-import java.time.Instant
-import java.util.*
 
 class AutorisasjonsTjeneste(
     private val tilgangsTjenesteForAnsatte: TilgangsTjenesteForAnsatte,
@@ -63,16 +61,18 @@ class AutorisasjonsTjeneste(
                 bruker = bruker,
                 identitetsnummer = oenskerTilgangTil
             )
-        }.onSuccess{
+        }.onSuccess {
             Span.current().addEvent(
-            "autorisering_ok", Attributes.of(
-                stringKey("brukertype"), bruker::class.simpleName?.lowercase() ?: "null",
-            ))
+                "autorisering_ok", Attributes.of(
+                    stringKey("brukertype"), bruker::class.simpleName?.lowercase() ?: "null",
+                )
+            )
         }.onFailure {
             Span.current().addEvent(
-            "autorisering_avvist", Attributes.of(
-                stringKey("brukertype"), bruker::class.simpleName?.lowercase() ?: "null",
-            ))
+                "autorisering_avvist", Attributes.of(
+                    stringKey("brukertype"), bruker::class.simpleName?.lowercase() ?: "null",
+                )
+            )
         }.map {
             val brukerIdent = when (bruker) {
                 is NavAnsatt -> bruker.ident
@@ -131,15 +131,6 @@ class AutorisasjonsTjeneste(
         }
     }
 
-    private fun ikkeTilgangProblemDetails(): ProblemDetails = ProblemDetails(
-        id = UUID.randomUUID(),
-        type = ErrorType
-            .domain("tilgangskontroll")
-            .error("ikke_tilgang")
-            .build(),
-        status = HttpStatusCode.Forbidden,
-        title = "Ikke tilgang",
-        instance = "instance??",
-        timestamp = Instant.now()
-    )
+    private fun ikkeTilgangProblemDetails(): ProblemDetails = IngenTilgangException("Ingen tilgang")
+        .asProblemDetails("/api")
 }

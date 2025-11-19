@@ -4,6 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Annet(
 
-    @get:JsonProperty("andreForholdHindrerArbeid")
+    @field:JsonProperty("andreForholdHindrerArbeid")
     val andreForholdHindrerArbeid: JaNeiVetIkke? = JaNeiVetIkke.UKJENT_VERDI
 )

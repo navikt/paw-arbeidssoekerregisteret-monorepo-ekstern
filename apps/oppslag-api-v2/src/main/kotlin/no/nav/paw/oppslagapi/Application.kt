@@ -6,7 +6,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
-import io.micrometer.core.instrument.binder.jvm.JvmInfoMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.core.instrument.binder.system.UptimeMetrics
@@ -20,6 +19,7 @@ import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.factory.KafkaFactory
 import no.nav.paw.logging.logger.AuditLogger
+import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.oppslagapi.data.consumer.ConsumerHealthMetric
 import no.nav.paw.oppslagapi.data.consumer.DataConsumer
 import no.nav.paw.oppslagapi.data.consumer.kafka.HwmRebalanceListener
@@ -34,7 +34,6 @@ import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
-import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.*
 
@@ -42,12 +41,12 @@ const val consumer_version = 1
 const val consumer_group = "oppslag-api-v2-consumer-v$consumer_version"
 const val partition_count = 6
 
-val consumer_poll_timeout = Duration.ofSeconds(1)!!
+val consumer_poll_timeout: Duration = Duration.ofSeconds(1)
 
-val appLogger = LoggerFactory.getLogger("app")!!
+private val logger = buildApplicationLogger
 
 fun main() {
-    appLogger.info("Starter oppslag-api-v2")
+    logger.info("Starter oppslag-api-v2")
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG)
     val topicNames = standardTopicNames(currentRuntimeEnvironment)
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)

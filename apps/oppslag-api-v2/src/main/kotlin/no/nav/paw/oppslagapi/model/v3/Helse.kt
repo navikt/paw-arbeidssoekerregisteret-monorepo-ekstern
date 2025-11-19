@@ -4,6 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Helse(
 
-    @get:JsonProperty("helsetilstandHindrerArbeid")
+    @field:JsonProperty("helsetilstandHindrerArbeid")
     val helsetilstandHindrerArbeid: JaNeiVetIkke? = JaNeiVetIkke.UKJENT_VERDI
 )

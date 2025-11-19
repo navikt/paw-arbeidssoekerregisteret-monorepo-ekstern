@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName
 @JsonTypeName("IDENTITETSNUMMER")
 data class IdentitetsnummerRequest(
 
-    @get:JsonProperty("type")
-    override val type: QueryType,
+    @field:JsonProperty("type")
+    override val type: QueryType = QueryType.IDENTITETSNUMMER,
 
-    @get:JsonProperty("identitetsnummer")
+    @field:JsonProperty("identitetsnummer")
     val identitetsnummer: String
 ) : SingleQueryRequest, ListQueryRequest

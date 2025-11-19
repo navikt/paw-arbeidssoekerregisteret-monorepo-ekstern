@@ -1,9 +1,14 @@
 package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonTypeName
 import java.time.Instant
 
-data class Metadata(
+@JsonTypeName("PERIODE_STARTET_V1")
+data class PeriodeStartet(
+
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.PERIODE_STARTET_V1,
 
     @field:JsonProperty("tidspunkt")
     val tidspunkt: Instant,
@@ -19,4 +24,4 @@ data class Metadata(
 
     @field:JsonProperty("tidspunktFraKilde")
     val tidspunktFraKilde: TidspunktFraKilde? = null
-)
+) : Hendelse

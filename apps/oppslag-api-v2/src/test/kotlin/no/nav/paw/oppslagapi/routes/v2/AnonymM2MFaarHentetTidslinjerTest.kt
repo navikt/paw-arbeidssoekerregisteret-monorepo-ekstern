@@ -54,7 +54,7 @@ class AnonymM2MFaarHentetTidslinjerTest : FreeSpec({
         kafkaKeysClient = kafkaKeysClientMock
     )
     val startTime = Instant.now() - Duration.ofDays(30)
-    val periode1 = TestData.periode(identitetsnummer = TestData.dnr1, startet = startTime)
+    val periode1 = TestData.periode(identitetsnummer = TestData.fnr1, startet = startTime)
     val periode1Avsluttet = TestData.periode(
         identitetsnummer = Identitetsnummer(periode1.identitetsnummer),
         startet = periode1.startet.tidspunkt,

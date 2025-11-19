@@ -1,25 +1,27 @@
 package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonTypeName
 import java.util.*
 
+@JsonTypeName("EGENVURDERING_V1")
 data class Egenvurdering(
 
-    @get:JsonProperty("type")
+    @field:JsonProperty("type")
     override val type: HendelseType = HendelseType.EGENVURDERING_V1,
 
-    @get:JsonProperty("id")
+    @field:JsonProperty("id")
     val id: UUID,
 
-    @get:JsonProperty("profileringId")
+    @field:JsonProperty("profileringId")
     val profileringId: UUID,
 
-    @get:JsonProperty("sendtInnAv")
+    @field:JsonProperty("sendtInnAv")
     val sendtInnAv: Metadata,
 
-    @get:JsonProperty("profilertTil")
+    @field:JsonProperty("profilertTil")
     val profilertTil: ProfilertTil = ProfilertTil.UKJENT_VERDI,
 
-    @get:JsonProperty("egenvurdering")
+    @field:JsonProperty("egenvurdering")
     val egenvurdering: ProfilertTil = ProfilertTil.UKJENT_VERDI,
 ) : Hendelse

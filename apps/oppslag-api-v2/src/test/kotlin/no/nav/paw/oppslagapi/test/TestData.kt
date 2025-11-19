@@ -1,16 +1,36 @@
 package no.nav.paw.oppslagapi.test
 
 import io.opentelemetry.api.trace.Span
+import no.nav.paw.arbeidssokerregisteret.api.v1.Bruker
+import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
+import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
+import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
+import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
+import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.felles.model.NavIdent
+import no.nav.paw.oppslagapi.data.Row
+import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
+import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.oppslagapi.data.consumer.toRow
+import no.nav.paw.oppslagapi.data.egenvurdering_v1
+import no.nav.paw.oppslagapi.data.opplysninger_om_arbeidssoeker_v4
+import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
+import no.nav.paw.oppslagapi.data.periode_startet_v1
+import no.nav.paw.oppslagapi.data.profilering_v1
 import no.nav.paw.oppslagapi.data.serde
+import no.nav.paw.security.authentication.model.Anonym
 import no.nav.paw.security.authentication.model.NavAnsatt
+import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.test.data.bekreftelse.startPaaVegneAv
 import no.nav.paw.test.data.bekreftelse.stoppPaaVegneAv
+import no.nav.paw.test.data.periode.BrukerFactory
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
+import no.nav.paw.test.data.periode.createEgenvurdering
 import no.nav.paw.test.data.periode.createOpplysninger
 import no.nav.paw.test.data.periode.createProfilering
 import no.nav.paw.tilgangskontroll.client.Tilgang
@@ -28,97 +48,200 @@ object TestData {
     val fnr1 = Identitetsnummer("01017012345")
     val dnr2 = Identitetsnummer("42017012345")
     val fnr2 = Identitetsnummer("02017012345")
+    val dnr3 = Identitetsnummer("43017012345")
+    val fnr3 = Identitetsnummer("03017012345")
+    val dnr4 = Identitetsnummer("44017012345")
+    val fnr4 = Identitetsnummer("04017012345")
+    val dnr5 = Identitetsnummer("45017012345")
+    val fnr5 = Identitetsnummer("05017012345")
 
-    val person1 = listOf(dnr1, fnr1)
-    val person2 = listOf(dnr2, fnr2)
+    val bruker1 = sluttbruker(listOf(dnr1, fnr1))
+    val bruker2 = sluttbruker(listOf(dnr2, fnr2))
+    val bruker3 = sluttbruker(listOf(dnr3, fnr3))
+    val bruker4 = sluttbruker(listOf(dnr4, fnr4))
+    val bruker5 = sluttbruker(listOf(dnr5, fnr5))
 
-    val personer = listOf(person1, person2)
+    val brukere = listOf(bruker1, bruker2, bruker3, bruker4, bruker5)
 
-    val navAnstatt1 = navAnsatt(
+    val anstatt1 = navAnsatt(
         navId = navId1
     )
-    val navAnstatt2 = navAnsatt(
+    val anstatt2 = navAnsatt(
         navId = navId2
     )
-    val navAnstatt3 = navAnsatt(
+    val anstatt3 = navAnsatt(
         navId = navId3
     )
 
-    val periode_a_startet = periode(identitetsnummer = Identitetsnummer("12345678901"), startet = Instant.now())
-    val periode_a_opplysninger = createOpplysninger(
-        periodeId = periode_a_startet.id,
-        sendtInnAv = metadata(tidspunkt = Instant.now())
+    val periode1_1_startet = periode(
+        identitetsnummer = fnr1,
+        startet = Instant.now()
     )
-    val periode_a_paa_vegne_av_startet = startPaaVegneAv(periodeId = periode_a_startet.id)
-    val periode_a_paa_vegne_av_stoppet = stoppPaaVegneAv(periodeId = periode_a_startet.id)
-    val periode_a_bekreftelse = bekreftelseMelding(periodeId = periode_a_startet.id)
-    val periode_a_avsluttet = periode(
-        periodeId = periode_a_startet.id,
-        identitetsnummer = Identitetsnummer(periode_a_startet.identitetsnummer),
+    val periode1_1_opplysninger = oppslysninger(
+        periodeId = periode1_1_startet.id,
+        tidspunkt = Instant.now()
+    )
+    val periode1_1_paa_vegne_av_startet = startPaaVegneAv(
+        periodeId = periode1_1_startet.id
+    )
+    val periode1_1_paa_vegne_av_stoppet = stoppPaaVegneAv(
+        periodeId = periode1_1_startet.id
+    )
+    val periode1_1_bekreftelse = bekreftelse(
+        periodeId = periode1_1_startet.id
+    )
+    val periode1_1_avsluttet = periode(
+        periodeId = periode1_1_startet.id,
+        identitetsnummer = Identitetsnummer(periode1_1_startet.identitetsnummer),
         avsluttet = Instant.now() + Duration.ofMinutes(1),
-        startet = periode_a_startet.startet.tidspunkt
+        startet = periode1_1_startet.startet.tidspunkt
     )
-    val periode_b_startet = periode(identitetsnummer = Identitetsnummer("12345678902"), startet = Instant.now())
-    val periode_b_opplysninger = createOpplysninger(
-        periodeId = periode_b_startet.id,
-        sendtInnAv = metadata(tidspunkt = Instant.now())
+    val periode2_1_startet = periode(identitetsnummer = fnr2, startet = Instant.now())
+    val periode2_1_opplysninger = oppslysninger(
+        periodeId = periode2_1_startet.id,
+        tidspunkt = Instant.now()
     )
-    val periode_b_avsluttet = periode(
-        periodeId = periode_b_startet.id,
-        identitetsnummer = Identitetsnummer(periode_b_startet.identitetsnummer),
+    val periode2_1_avsluttet = periode(
+        periodeId = periode2_1_startet.id,
+        identitetsnummer = Identitetsnummer(periode2_1_startet.identitetsnummer),
         avsluttet = Instant.now() + Duration.ofMinutes(1),
-        startet = periode_b_startet.startet.tidspunkt
+        startet = periode2_1_startet.startet.tidspunkt
     )
-    val periode_c_startet = periode(identitetsnummer = Identitetsnummer("12345678902"), startet = Instant.now())
-    val periode_c_opplysninger = createOpplysninger(
-        periodeId = periode_c_startet.id,
-        sendtInnAv = metadata(tidspunkt = Instant.now())
+    val periode2_2_startet = periode(
+        identitetsnummer = fnr2,
+        startet = Instant.now()
     )
-    val periode_c_profilering = createProfilering(
-        periodeId = periode_c_startet.id,
-        opplysningerId = periode_c_opplysninger.id,
-        sendtInnAv = metadata(tidspunkt = Instant.now())
+    val periode2_2_opplysninger = oppslysninger(
+        periodeId = periode2_2_startet.id,
+        tidspunkt = Instant.now()
     )
-    val periode_c_avsluttet = periode(
-        periodeId = periode_c_startet.id,
-        identitetsnummer = Identitetsnummer(periode_c_startet.identitetsnummer),
+    val periode2_2_profilering = profilering(
+        periodeId = periode2_2_startet.id,
+        opplysningerId = periode2_2_opplysninger.id,
+        tidspunkt = Instant.now()
+    )
+    val periode2_2_avsluttet = periode(
+        periodeId = periode2_2_startet.id,
+        identitetsnummer = Identitetsnummer(periode2_2_startet.identitetsnummer),
         avsluttet = Instant.now() + Duration.ofMinutes(1),
-        startet = periode_c_startet.startet.tidspunkt
+        startet = periode2_2_startet.startet.tidspunkt
     )
 
-    val data = listOf(
-        periode_a_startet,
-        periode_a_opplysninger,
-        periode_a_paa_vegne_av_startet,
-        periode_a_paa_vegne_av_stoppet,
-        periode_a_bekreftelse,
-        periode_a_avsluttet,
-        periode_b_startet,
-        periode_b_opplysninger,
-        periode_b_avsluttet,
-        periode_c_startet,
-        periode_c_opplysninger,
-        periode_c_profilering,
-        periode_c_avsluttet
+    val periode3_1_startet = periode(
+        identitetsnummer = fnr3,
+        startet = Instant.now() - Duration.ofDays(42)
+    )
+    val opplysninger3_1 = oppslysninger(
+        periodeId = periode3_1_startet.id,
+        tidspunkt = periode3_1_startet.startet.tidspunkt + Duration.ofMinutes(1)
+    )
+    val bekreftelse3_1 = bekreftelse(
+        periodeId = periode3_1_startet.id,
+        tidspunkt = Instant.now() - Duration.ofDays(32)
+    )
+    val profilering3_1 = profilering(
+        periodeId = periode3_1_startet.id,
+        opplysningerId = opplysninger3_1.id,
+        tidspunkt = periode3_1_startet.startet.tidspunkt + Duration.ofMinutes(2)
+    )
+    val egenvurdering3_1 = egenvurdering(
+        periodeId = periode3_1_startet.id,
+        profileringId = profilering3_1.id,
+        tidspunkt = periode3_1_startet.startet.tidspunkt + Duration.ofDays(1)
     )
 
-    val dataRows
-        get() =
-            data
-                .map(SpecificRecord::asConsumerRecord)
-                .map { it.toRow(serde.deserializer()) to Span.current() }
+    val periode4_1_startet = periode(
+        identitetsnummer = fnr4,
+        startet = Instant.now() - Duration.ofDays(42)
+    )
+    val periode4_1_avsluttet = periode4_1_startet.asAvsluttet(
+        avsluttet = Instant.now() - Duration.ofDays(12)
+    )
+    val opplysninger4_1 = oppslysninger(
+        periodeId = periode4_1_startet.id,
+        tidspunkt = periode4_1_startet.startet.tidspunkt + Duration.ofMinutes(1)
+    )
+    val bekreftelse4_1 = bekreftelse(
+        periodeId = periode4_1_startet.id,
+        tidspunkt = Instant.now() - Duration.ofDays(32)
+    )
+    val profilering4_1 = profilering(
+        periodeId = periode4_1_startet.id,
+        opplysningerId = opplysninger3_1.id,
+        tidspunkt = periode4_1_startet.startet.tidspunkt + Duration.ofMinutes(2)
+    )
+    val egenvurdering4_1 = egenvurdering(
+        periodeId = periode4_1_startet.id,
+        profileringId = profilering4_1.id,
+        tidspunkt = periode4_1_startet.startet.tidspunkt + Duration.ofDays(1)
+    )
 
-    val tilgangsConfig = tilgang(navId1, person1, Tilgang.LESE, true) +
-            tilgang(navId1, person2, Tilgang.LESE, true) +
-            tilgang(navId2, person1, Tilgang.LESE, true) +
-            tilgang(navId2, person2, Tilgang.LESE, true) +
-            tilgang(navId3, person1, Tilgang.LESE, false) +
-            tilgang(navId3, person2, Tilgang.LESE, true)
+    val hendelser1 = listOf(
+        periode1_1_startet,
+        periode1_1_opplysninger,
+        periode1_1_paa_vegne_av_startet,
+        periode1_1_paa_vegne_av_stoppet,
+        periode1_1_bekreftelse,
+        periode1_1_avsluttet
+    )
+    val hendelser2 = listOf(
+        periode2_1_startet,
+        periode2_1_opplysninger,
+        periode2_1_avsluttet,
+        periode2_2_startet,
+        periode2_2_opplysninger,
+        periode2_2_profilering,
+        periode2_2_avsluttet
+    )
+    val hendelser3 = listOf(
+        periode3_1_startet,
+        /*opplysninger3_1,
+        bekreftelse3_1,
+        profilering3_1,
+        egenvurdering3_1*/
+    )
+    val hendelser4 = listOf(
+        periode4_1_startet,
+        periode4_1_avsluttet,
+        opplysninger4_1,
+        bekreftelse4_1,
+        profilering4_1,
+        egenvurdering4_1
+    )
+
+    val data1 = hendelser1
+        .map(SpecificRecord::asConsumerRecord)
+        .map { it.toRow(serde.deserializer()) to Span.current() }
+    val data2 = hendelser2
+        .map(SpecificRecord::asConsumerRecord)
+        .map { it.toRow(serde.deserializer()) to Span.current() }
+    val data = data1 + data2
+
+    val rows3: List<Row<Any>> = hendelser3
+        .map { it.asRow() }
+    val rows4: List<Row<Any>> = hendelser4
+        .map { it.asRow() }
+
+    val tilgangsConfig: List<TilgangsConfig> = tilgang(navId1, bruker1, Tilgang.LESE, true) +
+            tilgang(navId1, bruker2, Tilgang.LESE, true) +
+            tilgang(navId1, bruker3, Tilgang.LESE, true) +
+            tilgang(navId1, bruker4, Tilgang.LESE, true) +
+            tilgang(navId1, bruker5, Tilgang.LESE, true) +
+            tilgang(navId2, bruker1, Tilgang.LESE, true) +
+            tilgang(navId2, bruker2, Tilgang.LESE, true) +
+            tilgang(navId2, bruker3, Tilgang.LESE, true) +
+            tilgang(navId2, bruker4, Tilgang.LESE, true) +
+            tilgang(navId2, bruker5, Tilgang.LESE, true) +
+            tilgang(navId3, bruker1, Tilgang.LESE, false) +
+            tilgang(navId3, bruker2, Tilgang.LESE, true) +
+            tilgang(navId3, bruker3, Tilgang.LESE, true) +
+            tilgang(navId3, bruker4, Tilgang.LESE, true) +
+            tilgang(navId3, bruker5, Tilgang.LESE, true)
 
     fun periode(
         periodeId: UUID = UUID.randomUUID(),
-        identitetsnummer: Identitetsnummer,
-        startet: Instant,
+        identitetsnummer: Identitetsnummer = fnr1,
+        startet: Instant = Instant.now(),
         avsluttet: Instant? = null
     ) = PeriodeFactory.create()
         .build(
@@ -129,29 +252,93 @@ object TestData {
         )
 
     fun metadata(
-        tidspunkt: Instant
+        tidspunkt: Instant = Instant.now(),
+        utfortAv: Bruker = bruker()
     ) = MetadataFactory.create()
         .build(
-            tidspunkt = tidspunkt
+            tidspunkt = tidspunkt,
+            utfortAv = utfortAv
         )
+
+    fun oppslysninger(
+        periodeId: UUID = UUID.randomUUID(),
+        tidspunkt: Instant = Instant.now()
+    ): OpplysningerOmArbeidssoeker = createOpplysninger(
+        periodeId = periodeId,
+        sendtInnAv = metadata(tidspunkt = tidspunkt)
+    )
+
+    fun bekreftelse(
+        periodeId: UUID = UUID.randomUUID(),
+        tidspunkt: Instant = Instant.now()
+    ): Bekreftelse = bekreftelseMelding(
+        periodeId = periodeId,
+        tidspunkt = tidspunkt
+    )
+
+    fun profilering(
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID(),
+        profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+        tidspunkt: Instant = Instant.now()
+    ): Profilering = createProfilering(
+        periodeId = periodeId,
+        opplysningerId = opplysningerId,
+        profilertTil = profilertTil,
+        sendtInnAv = metadata(tidspunkt = tidspunkt)
+    )
+
+    fun egenvurdering(
+        periodeId: UUID = UUID.randomUUID(),
+        profileringId: UUID = UUID.randomUUID(),
+        profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+        tidspunkt: Instant = Instant.now()
+    ): Egenvurdering = createEgenvurdering(
+        periodeId = periodeId,
+        profileringId = profileringId,
+        sendtInnAv = metadata(tidspunkt = tidspunkt),
+        profilertTil = profilertTil,
+        egenvurdering = egenvurdering,
+    )
+
+    fun bruker(
+        type: BrukerType = BrukerType.SLUTTBRUKER,
+        ident: String = fnr1.value
+    ): Bruker = BrukerFactory.create()
+        .build(
+            brukerType = type,
+            id = ident
+        )
+
+    fun sluttbruker(
+        identitetsnummer: List<Identitetsnummer>
+    ): Sluttbruker = Sluttbruker(
+        ident = identitetsnummer.last(),
+        alleIdenter = identitetsnummer.toSet(),
+        sikkerhetsnivaa = "tokenx:Level4"
+    )
 
     fun navAnsatt(
         navId: NavIdent
-    ): NavAnsatt {
-        return NavAnsatt(
-            oid = UUID.randomUUID(),
-            ident = navId.value,
-            sikkerhetsnivaa = "azure:Level4"
-        )
-    }
+    ): NavAnsatt = NavAnsatt(
+        oid = UUID.randomUUID(),
+        ident = navId.value,
+        sikkerhetsnivaa = "azure:Level4"
+    )
+
+    fun anonym(
+    ): Anonym = Anonym(
+        oid = UUID.randomUUID()
+    )
 
     fun tilgang(
         ansatt: NavIdent,
-        person: List<Identitetsnummer>,
+        person: Sluttbruker,
         tilgangsType: Tilgang,
         harTilgang: Boolean
     ): List<TilgangsConfig> {
-        return person.map { identitetsnummer ->
+        return person.alleIdenter.map { identitetsnummer ->
             TilgangsConfig(
                 ident = ansatt,
                 identitetsnummer = identitetsnummer,
@@ -162,9 +349,78 @@ object TestData {
     }
 }
 
+fun Periode.asAvsluttet(
+    avsluttet: Instant
+): Periode = PeriodeFactory.create()
+    .build(
+        id = id,
+        identitetsnummer = identitetsnummer,
+        startet = startet,
+        avsluttet = MetadataFactory.create()
+            .build(tidspunkt = avsluttet)
+    )
+
 data class TilgangsConfig(
     val ident: NavIdent,
     val identitetsnummer: Identitetsnummer,
     val tilgangsType: Tilgang,
     val harTilgang: Boolean
 )
+
+fun Any.asRow(): Row<Any> {
+    when (this) {
+        is Periode -> {
+            if (this.avsluttet == null) {
+                return Row(
+                    type = periode_startet_v1,
+                    periodeId = this.id,
+                    identitetsnummer = this.identitetsnummer,
+                    timestamp = this.startet.tidspunkt,
+                    data = this.startet.toOpenApi()
+                )
+            } else {
+                return Row(
+                    type = periode_avsluttet_v1,
+                    periodeId = this.id,
+                    identitetsnummer = this.identitetsnummer,
+                    timestamp = this.avsluttet.tidspunkt,
+                    data = this.startet.toOpenApi()
+                )
+            }
+        }
+
+        is OpplysningerOmArbeidssoeker -> return Row(
+            type = opplysninger_om_arbeidssoeker_v4,
+            periodeId = this.periodeId,
+            identitetsnummer = null,
+            timestamp = this.sendtInnAv.tidspunkt,
+            data = this.toOpenApi()
+        )
+
+        is Bekreftelse -> return Row(
+            type = bekreftelsemelding_v1,
+            periodeId = this.periodeId,
+            identitetsnummer = null,
+            timestamp = this.svar.sendtInnAv.tidspunkt,
+            data = this.toOpenApi()
+        )
+
+        is Profilering -> return Row(
+            type = profilering_v1,
+            periodeId = this.periodeId,
+            identitetsnummer = null,
+            timestamp = this.sendtInnAv.tidspunkt,
+            data = this.toOpenApi()
+        )
+
+        is Egenvurdering -> return Row(
+            type = egenvurdering_v1,
+            periodeId = this.periodeId,
+            identitetsnummer = null,
+            timestamp = this.sendtInnAv.tidspunkt,
+            data = this.toOpenApi()
+        )
+
+        else -> throw IllegalArgumentException("Ukjent type: ${this::class.java.name}")
+    }
+}

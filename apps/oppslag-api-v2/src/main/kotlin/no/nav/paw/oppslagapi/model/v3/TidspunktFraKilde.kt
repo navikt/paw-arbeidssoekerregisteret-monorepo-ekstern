@@ -5,9 +5,9 @@ import java.time.Instant
 
 data class TidspunktFraKilde(
 
-    @get:JsonProperty("tidspunkt")
+    @field:JsonProperty("tidspunkt")
     val tidspunkt: Instant,
 
-    @get:JsonProperty("avviksType")
+    @field:JsonProperty("avviksType")
     val avviksType: AvviksType = AvviksType.UKJENT_VERDI
 )
