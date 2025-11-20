@@ -58,7 +58,7 @@ class VerifiserV1Endepunkter : FreeSpec({
         kafkaKeysClient = kafkaKeysClientMock,
         auditLogger = AuditLogger.getLogger()
     )
-    val appLogic = ApplicationQueryLogic(
+    val queryLogic = ApplicationQueryLogic(
         autorisasjonsTjeneste = autorisasjonsTjeneste,
         databaseQuerySupport = databaseQuerySupportMock,
         kafkaKeysClient = kafkaKeysClientMock
@@ -132,7 +132,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                 }
                 routing {
                     v1Routes(
-                        appQueryLogic = appLogic
+                        queryLogic = queryLogic
                     )
                 }
                 val client = createClient {
@@ -175,7 +175,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                 }
                 routing {
                     v1Routes(
-                        appQueryLogic = appLogic
+                        queryLogic = queryLogic
                     )
                 }
                 val client = createClient {
@@ -211,7 +211,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                 }
                 routing {
                     v1Routes(
-                        appQueryLogic = appLogic
+                        queryLogic = queryLogic
                     )
                 }
                 val client = createClient {

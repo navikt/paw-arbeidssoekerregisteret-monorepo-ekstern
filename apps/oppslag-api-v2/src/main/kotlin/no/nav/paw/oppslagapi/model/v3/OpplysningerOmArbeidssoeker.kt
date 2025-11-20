@@ -7,9 +7,6 @@ import java.util.*
 @JsonTypeName("OPPLYSNINGER_V4")
 data class OpplysningerOmArbeidssoeker(
 
-    @field:JsonProperty("type")
-    override val type: HendelseType = HendelseType.OPPLYSNINGER_V4,
-
     @field:JsonProperty("id")
     val id: UUID,
 
@@ -27,4 +24,8 @@ data class OpplysningerOmArbeidssoeker(
 
     @field:JsonProperty("annet")
     val annet: Annet? = null
-) : Hendelse
+) : Hendelse {
+
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.OPPLYSNINGER_V4
+}

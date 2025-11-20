@@ -7,9 +7,6 @@ import java.util.*
 @JsonTypeName("BEKREFTELSE_V1")
 data class Bekreftelse(
 
-    @field:JsonProperty("type")
-    override val type: HendelseType = HendelseType.BEKREFTELSE_V1,
-
     @field:JsonProperty("id")
     val id: UUID,
 
@@ -21,4 +18,8 @@ data class Bekreftelse(
 
     @field:JsonProperty("svar")
     val svar: Svar
-) : Hendelse
+) : Hendelse {
+
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.BEKREFTELSE_V1
+}

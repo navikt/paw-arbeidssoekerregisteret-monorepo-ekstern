@@ -78,6 +78,7 @@ object TestData {
         startet = Instant.now()
     )
     val periode1_1_opplysninger = oppslysninger(
+        identitetsnummer = fnr1,
         periodeId = periode1_1_startet.id,
         tidspunkt = Instant.now()
     )
@@ -91,19 +92,23 @@ object TestData {
         periodeId = periode1_1_startet.id
     )
     val periode1_1_avsluttet = periode(
-        periodeId = periode1_1_startet.id,
         identitetsnummer = Identitetsnummer(periode1_1_startet.identitetsnummer),
+        periodeId = periode1_1_startet.id,
         avsluttet = Instant.now() + Duration.ofMinutes(1),
         startet = periode1_1_startet.startet.tidspunkt
     )
-    val periode2_1_startet = periode(identitetsnummer = fnr2, startet = Instant.now())
+    val periode2_1_startet = periode(
+        identitetsnummer = fnr2,
+        startet = Instant.now()
+    )
     val periode2_1_opplysninger = oppslysninger(
+        identitetsnummer = fnr2,
         periodeId = periode2_1_startet.id,
         tidspunkt = Instant.now()
     )
     val periode2_1_avsluttet = periode(
-        periodeId = periode2_1_startet.id,
         identitetsnummer = Identitetsnummer(periode2_1_startet.identitetsnummer),
+        periodeId = periode2_1_startet.id,
         avsluttet = Instant.now() + Duration.ofMinutes(1),
         startet = periode2_1_startet.startet.tidspunkt
     )
@@ -112,17 +117,19 @@ object TestData {
         startet = Instant.now()
     )
     val periode2_2_opplysninger = oppslysninger(
+        identitetsnummer = fnr2,
         periodeId = periode2_2_startet.id,
         tidspunkt = Instant.now()
     )
     val periode2_2_profilering = profilering(
+        identitetsnummer = fnr2,
         periodeId = periode2_2_startet.id,
         opplysningerId = periode2_2_opplysninger.id,
         tidspunkt = Instant.now()
     )
     val periode2_2_avsluttet = periode(
-        periodeId = periode2_2_startet.id,
         identitetsnummer = Identitetsnummer(periode2_2_startet.identitetsnummer),
+        periodeId = periode2_2_startet.id,
         avsluttet = Instant.now() + Duration.ofMinutes(1),
         startet = periode2_2_startet.startet.tidspunkt
     )
@@ -132,22 +139,25 @@ object TestData {
         startet = Instant.now() - Duration.ofDays(42)
     )
     val opplysninger3_1 = oppslysninger(
+        identitetsnummer = fnr3,
         periodeId = periode3_1_startet.id,
         tidspunkt = periode3_1_startet.startet.tidspunkt + Duration.ofMinutes(1)
     )
-    val bekreftelse3_1 = bekreftelse(
-        periodeId = periode3_1_startet.id,
-        tidspunkt = Instant.now() - Duration.ofDays(32)
-    )
     val profilering3_1 = profilering(
+        identitetsnummer = fnr3,
         periodeId = periode3_1_startet.id,
         opplysningerId = opplysninger3_1.id,
         tidspunkt = periode3_1_startet.startet.tidspunkt + Duration.ofMinutes(2)
     )
     val egenvurdering3_1 = egenvurdering(
+        identitetsnummer = fnr3,
         periodeId = periode3_1_startet.id,
         profileringId = profilering3_1.id,
         tidspunkt = periode3_1_startet.startet.tidspunkt + Duration.ofDays(1)
+    )
+    val bekreftelse3_1 = bekreftelse(
+        periodeId = periode3_1_startet.id,
+        tidspunkt = Instant.now() - Duration.ofDays(32)
     )
 
     val periode4_1_startet = periode(
@@ -158,22 +168,25 @@ object TestData {
         avsluttet = Instant.now() - Duration.ofDays(12)
     )
     val opplysninger4_1 = oppslysninger(
+        identitetsnummer = fnr4,
         periodeId = periode4_1_startet.id,
         tidspunkt = periode4_1_startet.startet.tidspunkt + Duration.ofMinutes(1)
     )
-    val bekreftelse4_1 = bekreftelse(
-        periodeId = periode4_1_startet.id,
-        tidspunkt = Instant.now() - Duration.ofDays(32)
-    )
     val profilering4_1 = profilering(
+        identitetsnummer = fnr4,
         periodeId = periode4_1_startet.id,
         opplysningerId = opplysninger3_1.id,
         tidspunkt = periode4_1_startet.startet.tidspunkt + Duration.ofMinutes(2)
     )
     val egenvurdering4_1 = egenvurdering(
+        identitetsnummer = fnr4,
         periodeId = periode4_1_startet.id,
         profileringId = profilering4_1.id,
         tidspunkt = periode4_1_startet.startet.tidspunkt + Duration.ofDays(1)
+    )
+    val bekreftelse4_1 = bekreftelse(
+        periodeId = periode4_1_startet.id,
+        tidspunkt = Instant.now() - Duration.ofDays(32)
     )
 
     val hendelser1 = listOf(
@@ -195,18 +208,18 @@ object TestData {
     )
     val hendelser3 = listOf(
         periode3_1_startet,
-        /*opplysninger3_1,
-        bekreftelse3_1,
+        opplysninger3_1,
         profilering3_1,
-        egenvurdering3_1*/
+        egenvurdering3_1,
+        bekreftelse3_1
     )
     val hendelser4 = listOf(
         periode4_1_startet,
         periode4_1_avsluttet,
         opplysninger4_1,
-        bekreftelse4_1,
         profilering4_1,
-        egenvurdering4_1
+        egenvurdering4_1,
+        bekreftelse4_1
     )
 
     val data1 = hendelser1
@@ -239,8 +252,8 @@ object TestData {
             tilgang(navId3, bruker5, Tilgang.LESE, true)
 
     fun periode(
-        periodeId: UUID = UUID.randomUUID(),
         identitetsnummer: Identitetsnummer = fnr1,
+        periodeId: UUID = UUID.randomUUID(),
         startet: Instant = Instant.now(),
         avsluttet: Instant? = null
     ) = PeriodeFactory.create()
@@ -251,21 +264,56 @@ object TestData {
             avsluttet = avsluttet?.let { MetadataFactory.create().build(tidspunkt = it) }
         )
 
-    fun metadata(
-        tidspunkt: Instant = Instant.now(),
-        utfortAv: Bruker = bruker()
-    ) = MetadataFactory.create()
-        .build(
-            tidspunkt = tidspunkt,
-            utfortAv = utfortAv
-        )
-
     fun oppslysninger(
+        identitetsnummer: Identitetsnummer = fnr1,
         periodeId: UUID = UUID.randomUUID(),
         tidspunkt: Instant = Instant.now()
     ): OpplysningerOmArbeidssoeker = createOpplysninger(
         periodeId = periodeId,
-        sendtInnAv = metadata(tidspunkt = tidspunkt)
+        sendtInnAv = metadata(
+            tidspunkt = tidspunkt,
+            utfortAv = bruker(
+                identitetsnummer = identitetsnummer
+            )
+        )
+    )
+
+    fun profilering(
+        identitetsnummer: Identitetsnummer = fnr1,
+        periodeId: UUID = UUID.randomUUID(),
+        opplysningerId: UUID = UUID.randomUUID(),
+        profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+        tidspunkt: Instant = Instant.now()
+    ): Profilering = createProfilering(
+        periodeId = periodeId,
+        opplysningerId = opplysningerId,
+        profilertTil = profilertTil,
+        sendtInnAv = metadata(
+            tidspunkt = tidspunkt,
+            utfortAv = bruker(
+                identitetsnummer = identitetsnummer
+            )
+        )
+    )
+
+    fun egenvurdering(
+        identitetsnummer: Identitetsnummer = fnr1,
+        periodeId: UUID = UUID.randomUUID(),
+        profileringId: UUID = UUID.randomUUID(),
+        profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+        tidspunkt: Instant = Instant.now()
+    ): Egenvurdering = createEgenvurdering(
+        periodeId = periodeId,
+        profileringId = profileringId,
+        sendtInnAv = metadata(
+            tidspunkt = tidspunkt,
+            utfortAv = bruker(
+                identitetsnummer = identitetsnummer
+            )
+        ),
+        profilertTil = profilertTil,
+        egenvurdering = egenvurdering,
     )
 
     fun bekreftelse(
@@ -276,31 +324,30 @@ object TestData {
         tidspunkt = tidspunkt
     )
 
-    fun profilering(
-        periodeId: UUID = UUID.randomUUID(),
-        opplysningerId: UUID = UUID.randomUUID(),
-        profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
-        tidspunkt: Instant = Instant.now()
-    ): Profilering = createProfilering(
-        periodeId = periodeId,
-        opplysningerId = opplysningerId,
-        profilertTil = profilertTil,
-        sendtInnAv = metadata(tidspunkt = tidspunkt)
-    )
+    fun metadata(
+        tidspunkt: Instant = Instant.now(),
+        utfortAv: Bruker = bruker()
+    ) = MetadataFactory.create()
+        .build(
+            tidspunkt = tidspunkt,
+            utfortAv = utfortAv
+        )
 
-    fun egenvurdering(
-        periodeId: UUID = UUID.randomUUID(),
-        profileringId: UUID = UUID.randomUUID(),
-        profilertTil: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
-        egenvurdering: ProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
-        tidspunkt: Instant = Instant.now()
-    ): Egenvurdering = createEgenvurdering(
-        periodeId = periodeId,
-        profileringId = profileringId,
-        sendtInnAv = metadata(tidspunkt = tidspunkt),
-        profilertTil = profilertTil,
-        egenvurdering = egenvurdering,
-    )
+    fun bruker(
+        identitetsnummer: Identitetsnummer
+    ): Bruker = BrukerFactory.create()
+        .build(
+            brukerType = BrukerType.SLUTTBRUKER,
+            id = identitetsnummer.value
+        )
+
+    fun bruker(
+        navId: NavIdent
+    ): Bruker = BrukerFactory.create()
+        .build(
+            brukerType = BrukerType.VEILEDER,
+            id = navId.value
+        )
 
     fun bruker(
         type: BrukerType = BrukerType.SLUTTBRUKER,

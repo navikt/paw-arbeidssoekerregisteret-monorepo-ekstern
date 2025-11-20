@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: Periode API
-  description: API for handling arbeidssøkerperioder (job seeker periods)
-  version: 1.0.0
+  title: API Oppslag v2
+  description: API for spørring på data om arbeidssøkere
+  version: 2.0.0
 servers:
   - url: "https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no"
     description: Development server

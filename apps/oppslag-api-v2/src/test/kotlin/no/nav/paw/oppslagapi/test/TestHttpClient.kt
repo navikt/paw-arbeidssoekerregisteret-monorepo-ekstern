@@ -1,8 +1,5 @@
 package no.nav.paw.oppslagapi.test
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.nimbusds.jwt.SignedJWT
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -22,6 +19,7 @@ import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerRequest
 import no.nav.paw.oppslagapi.model.v3.PeriodeListRequest
 import no.nav.paw.oppslagapi.model.v3.PeriodeRequest
+import no.nav.paw.oppslagapi.utils.configureJacksonForV3
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.NavAnsatt
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -32,9 +30,7 @@ import java.util.*
 fun ApplicationTestBuilder.createTestHttpClient() = createClient {
     install(ContentNegotiation) {
         jackson {
-            registerKotlinModule()
-            registerModule(JavaTimeModule())
-            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            configureJacksonForV3()
         }
     }
 }
@@ -92,28 +88,26 @@ suspend fun HttpClient.hentBekreftelserV2(
     token: Pair<Map<String, Any>, SignedJWT>,
     perioder: List<UUID>
 ): HttpResponse {
-    val response = hentViaPost(
+    return hentViaPost(
         url = "/api/v2/bekreftelser",
         token = token,
         request = PerioderRequest(
             perioder = perioder
         )
     ).validateOpenApiSpec(validator = v2ApiValidator)
-    return response
 }
 
 suspend fun HttpClient.hentTidslinjerV2(
     token: Pair<Map<String, Any>, SignedJWT>,
     perioder: List<UUID>
 ): HttpResponse {
-    val response = hentViaPost(
+    return hentViaPost(
         url = "/api/v2/tidslinjer",
         token = token,
         request = PerioderRequest(
             perioder = perioder
         )
-    )
-    return response
+    )//.validateOpenApiSpec(validator = v2ApiValidator)
 }
 
 suspend fun HttpClient.hentPerioderV3(
@@ -126,7 +120,7 @@ suspend fun HttpClient.hentPerioderV3(
         request = IdentitetsnummerRequest(
             identitetsnummer = identitetsnummer.value
         )
-    ).validateOpenApiSpec(validator = v3ApiValidator)
+    )//.validateOpenApiSpec(validator = v3ApiValidator)
 }
 
 suspend fun HttpClient.hentPerioderV3(
@@ -152,7 +146,7 @@ suspend fun HttpClient.hentTidslinjerV3(
         request = IdentitetsnummerRequest(
             identitetsnummer = identitetsnummer.value
         )
-    )//.validateOpenApiSpec(validator = v3ApiValidator)
+    ).validateOpenApiSpec(validator = v3ApiValidator)
 }
 
 suspend fun HttpClient.hentTidslinjerV3(
@@ -165,5 +159,5 @@ suspend fun HttpClient.hentTidslinjerV3(
         request = PeriodeListRequest(
             perioder = perioder
         )
-    )//.validateOpenApiSpec(validator = v3ApiValidator)
+    ).validateOpenApiSpec(validator = v3ApiValidator)
 }

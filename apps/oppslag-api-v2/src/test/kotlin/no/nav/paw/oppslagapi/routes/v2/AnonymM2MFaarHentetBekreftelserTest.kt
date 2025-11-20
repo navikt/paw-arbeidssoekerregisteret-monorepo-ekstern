@@ -92,7 +92,7 @@ class AnonymM2MFaarHentetBekreftelserTest : FreeSpec({
                     configureRoutes(
                         healthIndicator = CompoudHealthIndicator(),
                         prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                        appQueryLogic = appLogic
+                        queryLogic = appLogic
                     )
                 }
                 val client = createTestHttpClient()

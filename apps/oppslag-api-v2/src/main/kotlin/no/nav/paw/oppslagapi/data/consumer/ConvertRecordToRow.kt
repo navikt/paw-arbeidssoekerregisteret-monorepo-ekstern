@@ -12,7 +12,7 @@ import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.oppslagapi.data.egenvurdering_v1
-import no.nav.paw.oppslagapi.data.objectMapper
+import no.nav.paw.oppslagapi.utils.objectMapper
 import no.nav.paw.oppslagapi.data.opplysninger_om_arbeidssoeker_v4
 import no.nav.paw.oppslagapi.data.pa_vegne_av_start_v1
 import no.nav.paw.oppslagapi.data.pa_vegne_av_stopp_v1

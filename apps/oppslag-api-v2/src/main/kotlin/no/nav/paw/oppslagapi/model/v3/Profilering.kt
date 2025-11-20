@@ -7,9 +7,6 @@ import java.util.*
 @JsonTypeName("PROFILERING_V1")
 data class Profilering(
 
-    @field:JsonProperty("type")
-    override val type: HendelseType = HendelseType.PROFILERING_V1,
-
     @field:JsonProperty("id")
     val id: UUID,
 
@@ -27,4 +24,8 @@ data class Profilering(
 
     @field:JsonProperty("alder")
     val alder: Int? = null
-) : Hendelse
+) : Hendelse {
+
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.PROFILERING_V1
+}

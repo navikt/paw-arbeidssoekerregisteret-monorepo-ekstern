@@ -1,8 +1,8 @@
-openapi: 3.1.1
+openapi: 3.0.3
 info:
   title: API Oppslag v3
   description: API for spørring på data om arbeidssøkere
-  version: 1.0.0
+  version: 3.0.0
 servers:
   - url: "https://oppslag-v2-arbeidssoekerregisteret.intern.nav.no"
     description: Production
@@ -229,7 +229,7 @@ components:
           type: string
           format: identitetsnummer
           pattern: '^\d{11}$'
-          description: "Norsk identitetsnummer (11 siffer, ingen andre tegn)"
+          description: Norsk identitetsnummer (11 siffer, ingen andre tegn)
       required:
         - type
         - identitetsnummer
@@ -237,26 +237,27 @@ components:
     # --- Periode and dependencies ---
     PeriodeStartet:
       type: object
-      description: Inneholder data om en startet periode.
+      description: Inneholder data om en startet periode
       properties:
         type:
-          $ref: "#/components/schemas/HendelseType"
-          description: "Enumerert navn for hvilken type hendelse det er."
+          type: string
+          enum:
+            - PERIODE_STARTET_V1
         tidspunkt:
           type: string
           format: date-time
-          description: Tidspunkt for endringen.
+          description: Tidspunkt for endringen
         utfoertAv:
           $ref: "#/components/schemas/Bruker"
         kilde:
           type: string
-          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen.
+          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen
         aarsak:
           type: string
-          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende.
+          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende
         tidspunktFraKilde:
-          description: Avvik i tid mellom kilde og register.
           $ref: "#/components/schemas/TidspunktFraKilde"
+          description: Avvik i tid mellom kilde og register
       required:
         - type
         - tidspunkt
@@ -266,26 +267,27 @@ components:
 
     PeriodeAvluttet:
       type: object
-      description: Inneholder data om en startet periode.
+      description: Inneholder data om en startet periode
       properties:
         type:
-          $ref: "#/components/schemas/HendelseType"
-          description: "Enumerert navn for hvilken type hendelse det er."
+          type: string
+          enum:
+            - PERIODE_AVSLUTTET_V1
         tidspunkt:
           type: string
           format: date-time
-          description: Tidspunkt for endringen.
+          description: Tidspunkt for endringen
         utfoertAv:
           $ref: "#/components/schemas/Bruker"
         kilde:
           type: string
-          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen.
+          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen
         aarsak:
           type: string
-          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende.
+          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende
         tidspunktFraKilde:
-          description: Avvik i tid mellom kilde og register.
           $ref: "#/components/schemas/TidspunktFraKilde"
+          description: Avvik i tid mellom kilde og register.
       required:
         - type
         - tidspunkt
@@ -295,7 +297,7 @@ components:
 
     Metadata:
       type: object
-      description: Inneholder metadata om en endring i arbeidssøkerregisteret.
+      description: Inneholder metadata om en endring i arbeidssøkerregisteret
       properties:
         tidspunkt:
           type: string
@@ -305,13 +307,13 @@ components:
           $ref: "#/components/schemas/Bruker"
         kilde:
           type: string
-          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen.
+          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen
         aarsak:
           type: string
-          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende.
+          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende
         tidspunktFraKilde:
-          description: Avvik i tid mellom kilde og register.
           $ref: "#/components/schemas/TidspunktFraKilde"
+          description: Avvik i tid mellom kilde og register.
       required:
         - tidspunkt
         - utfoertAv
@@ -382,12 +384,13 @@ components:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/HendelseType"
-          description: "Enumerert navn for hvilken type hendelse det er."
+          type: string
+          enum:
+            - OPPLYSNINGER_V4
         id:
           type: string
           format: uuid
-          description: Unik identifikator for opplysningene.
+          description: Unik identifikator for opplysningene
         sendtInnAv:
           $ref: "#/components/schemas/Metadata"
         utdanning:
@@ -409,8 +412,7 @@ components:
       properties:
         nus:
           type: string
-          description: |
-            NUS kode for utdanning, oversikt over NUS koder er tilgjengelig fra SSB.
+          description: NUS kode for utdanning, oversikt over NUS koder er tilgjengelig fra SSB
         bestaatt:
           $ref: "#/components/schemas/JaNeiVetIkke"
           description: |
@@ -547,8 +549,9 @@ components:
         profilering knyttet til den samme 'opplysningerOmArbeidssokerId' (periodeId vil være endret).
       properties:
         type:
-          $ref: "#/components/schemas/HendelseType"
-          description: "Enumerert navn for hvilken type hendelse det er."
+          type: string
+          enum:
+            - PROFILERING_V1
         id:
           type: string
           format: uuid
@@ -600,25 +603,26 @@ components:
     # --- Egenvurdering and dependencies ---
     Egenvurdering:
       type: object
-      description: "Brukers egenvurdering av sin situasjon"
+      description: Brukers egenvurdering av sin situasjon
       properties:
         type:
-          $ref: "#/components/schemas/HendelseType"
-          description: "Enumerert navn for hvilken type hendelse det er."
+          type: string
+          enum:
+            - EGENVURDERING_V1
         id:
           type: string
           format: uuid
-          description: "Unik id for egenvurderingen"
+          description: Unik id for egenvurderingen
         profileringId:
           type: string
           format: uuid
-          description: "Profilering id"
+          description: Profilering id
         sendtInnAv:
           $ref: "#/components/schemas/Metadata"
-          description: "Metadata om når egenvurderingen ble sendt inn og av hvem"
+          description: Metadata om når egenvurderingen ble sendt inn og av hvem
         profilertTil:
           $ref: "#/components/schemas/ProfilertTil"
-          description: "Resultatet av profileringen som egenvurderingen gjelder for"
+          description: Resultatet av profileringen som egenvurderingen gjelder for
         egenvurdering:
           $ref: "#/components/schemas/ProfilertTil"
       required:
@@ -632,23 +636,24 @@ components:
     # --- Bekreftelse and dependencies ---
     Bekreftelse:
       type: object
-      description: "Bekreftelse melding"
+      description: Bekreftelse melding
       properties:
         type:
-          $ref: "#/components/schemas/HendelseType"
-          description: "Enumerert navn for hvilken type hendelse det er."
+          type: string
+          enum:
+            - BEKREFTELSE_V1
         id:
           type: string
           format: uuid
-          description: "Unik id for meldingen. Duplikater sees på som nettverkshikke eller lignende og skal trygt kunne ignoreres."
+          description: Unik id for meldingen. Duplikater sees på som nettverkshikke eller lignende og skal trygt kunne ignoreres
         bekreftelsesloesning:
           $ref: "#/components/schemas/Bekreftelsesloesning"
-          description: "Hvilket løsning/system som sender meldingen."
+          description: Hvilket løsning/system som sender meldingen
         status:
           $ref: "#/components/schemas/BekreftelsStatus"
         svar:
           $ref: "#/components/schemas/Svar"
-          description: "Svar fra bruker, inkludert metadata."
+          description: Svar fra bruker, inkludert metadata
       required:
         - type
         - id
@@ -689,7 +694,7 @@ components:
 
     BekreftelsStatus:
       type: string
-      description: "Angir om dette er en gyldig bekreftelse"
+      description: Angir om dette er en gyldig bekreftelse
       enum:
         - "GYLDIG"
         - "UVENTET_KILDE"
@@ -700,15 +705,16 @@ components:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/HendelseType"
-          description: "Enumerert navn for hvilken type hendelse det er."
+          type: string
+          enum:
+            - PAA_VEGNE_AV_START_V1
         periodeId:
           type: string
           format: uuid
-          description: "UUID for perioden som meldingen gjelder, hentes fra Periode topic eller oppslags api."
+          description: UUID for perioden som meldingen gjelder, hentes fra Periode topic eller oppslags api
         bekreftelsesloesning:
           $ref: "#/components/schemas/Bekreftelsesloesning"
-          description: "Hvilket løsning/system som sender meldingen."
+          description: Hvilket løsning/system som sender meldingen
         intervalMS:
           type: integer
           format: int64
@@ -737,15 +743,16 @@ components:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/HendelseType"
-          description: "Enumerert navn for hvilken type hendelse det er."
+          type: string
+          enum:
+            - PAA_VEGNE_AV_STOPP_V1
         periodeId:
           type: string
           format: uuid
-          description: "UUID for perioden som meldingen gjelder, hentes fra Periode topic eller oppslags api."
+          description: UUID for perioden som meldingen gjelder, hentes fra Periode topic eller oppslags api
         bekreftelsesloesning:
           $ref: "#/components/schemas/Bekreftelsesloesning"
-          description: "Hvilket løsning/system som sender meldingen."
+          description: Hvilket løsning/system som sender meldingen
         fristBrutt:
           type: boolean
           default: false
@@ -770,6 +777,7 @@ components:
         - "BEKREFTELSE_V1"
         - "PAA_VEGNE_AV_START_V1"
         - "PAA_VEGNE_AV_STOPP_V1"
+
     Hendelse:
       oneOf:
         - $ref: "#/components/schemas/PeriodeStartet"
@@ -793,24 +801,24 @@ components:
           PAA_VEGNE_AV_STOPP_V1: "#/components/schemas/PaaVegneAvStopp"
 
     Tidslinje:
-      description: "Tidslinje for en Arbeidssøkerperiode"
+      description: Tidslinje for en Arbeidssøkerperiode
       type: object
       properties:
         periodeId:
           type: string
           format: uuid
-          description: "UUID for perioden som tidslinjen gjelder"
+          description: UUID for perioden som tidslinjen gjelder
         identitetsnummer:
           type: string
-          description: "Identitetsnummer for arbeidssøker, fødselsnummer eller d-nummer"
+          description: Identitetsnummer for arbeidssøker, fødselsnummer eller d-nummer
         startet:
           type: string
           format: date-time
-          description: "Starttidspunkt for perioden"
+          description: Starttidspunkt for perioden
         avsluttet:
           type: string
           format: date-time
-          description: "Avslutningstidspunkt for perioden, ikke satt dersom perioden er pågående"
+          description: Avslutningstidspunkt for perioden, ikke satt dersom perioden er pågående
         hendelser:
           type: array
           items:
@@ -876,7 +884,7 @@ components:
         title:
           type: string
         detail:
-          type: [ 'null', string ]
+          type: string
         instance:
           type: string
         timestamp:

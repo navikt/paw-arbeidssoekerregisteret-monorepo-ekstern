@@ -7,9 +7,6 @@ import java.util.*
 @JsonTypeName("EGENVURDERING_V1")
 data class Egenvurdering(
 
-    @field:JsonProperty("type")
-    override val type: HendelseType = HendelseType.EGENVURDERING_V1,
-
     @field:JsonProperty("id")
     val id: UUID,
 
@@ -24,4 +21,8 @@ data class Egenvurdering(
 
     @field:JsonProperty("egenvurdering")
     val egenvurdering: ProfilertTil = ProfilertTil.UKJENT_VERDI,
-) : Hendelse
+) : Hendelse {
+
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.EGENVURDERING_V1
+}

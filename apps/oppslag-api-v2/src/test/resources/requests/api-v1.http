@@ -10,7 +10,7 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("azure")}}
 
 {
-    "identitetsnummer": "13498717912"
+    "identitetsnummer": "03017012345"
 }
 
 
@@ -34,7 +34,7 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("azure")}}
 
 {
-    "identitetsnummer": "13498717912"
+    "identitetsnummer": "03017012345"
 }
 
 

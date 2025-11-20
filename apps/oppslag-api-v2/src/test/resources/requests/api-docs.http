@@ -1,14 +1,11 @@
 ### GET /api/docs/v1 med tokenx token
-GET {{baseUrl}}/api/docs/v1
-Accept: application/json
-Authorization: Bearer {{$auth.token("azure")}}
+GET {{baseUrl}}/api/docs/v1/v1-spec.yaml
+Accept: application/yaml
 
 ### GET /api/docs/v2 med tokenx token
-GET {{baseUrl}}/api/docs/v2
-Accept: application/json
-Authorization: Bearer {{$auth.token("azure")}}
+GET {{baseUrl}}/api/docs/v2/v2-spec.yaml
+Accept: application/yaml
 
 ### GET /api/docs/v3 med azure token
-GET {{baseUrl}}/api/docs/v3
-Accept: application/json
-Authorization: Bearer {{$auth.token("azure")}}
+GET {{baseUrl}}/api/docs/v3/v3-spec.yaml
+Accept: application/yaml

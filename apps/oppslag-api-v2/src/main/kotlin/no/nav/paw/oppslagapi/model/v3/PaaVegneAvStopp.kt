@@ -7,9 +7,6 @@ import java.util.*
 @JsonTypeName("PAA_VEGNE_AV_STOPP_V1")
 data class PaaVegneAvStopp(
 
-    @field:JsonProperty("type")
-    override val type: HendelseType = HendelseType.PAA_VEGNE_AV_STOPP_V1,
-
     @field:JsonProperty("periodeId")
     val periodeId: UUID,
 
@@ -18,4 +15,8 @@ data class PaaVegneAvStopp(
 
     @field:JsonProperty("fristBrutt")
     val fristBrutt: Boolean? = false
-) : Hendelse
+) : Hendelse {
+
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.PAA_VEGNE_AV_STOPP_V1
+}

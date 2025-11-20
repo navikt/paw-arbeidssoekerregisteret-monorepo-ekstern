@@ -107,7 +107,7 @@ class AnnsattUtenTilgangTil1Av2FaarIkkeHentetTidslinjerTest : FreeSpec({
                     configureRoutes(
                         healthIndicator = CompoudHealthIndicator(),
                         prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                        appQueryLogic = appLogic
+                        queryLogic = appLogic
                     )
                 }
                 val client = createTestHttpClient()

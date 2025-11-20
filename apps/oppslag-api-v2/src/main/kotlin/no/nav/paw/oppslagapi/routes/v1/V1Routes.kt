@@ -3,24 +3,32 @@ package no.nav.paw.oppslagapi.routes.v1
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
+import no.nav.paw.oppslagapi.plugin.installContentNegotiation
+import no.nav.paw.oppslagapi.plugin.installErrorHandler
+import no.nav.paw.oppslagapi.utils.configureJacksonForV1
 
 fun Route.v1Routes(
-    appQueryLogic: ApplicationQueryLogic
+    queryLogic: ApplicationQueryLogic
 ) {
     route("/api/v1") {
-        v1Perioder(appQueryLogic)
-        v1VeilederPerioder(appQueryLogic)
+        installContentNegotiation {
+            configureJacksonForV1()
+        }
+        installErrorHandler()
 
-        v1PerioderAggregert(appQueryLogic)
-        v1VeilederPerioderAggregert(appQueryLogic)
-        v1SamletInformasjon(appQueryLogic)
-        v1VeilederSamletInformasjon(appQueryLogic)
+        v1Perioder(queryLogic)
+        v1VeilederPerioder(queryLogic)
 
-        v1Opplysninger(appQueryLogic)
-        v1VeilederOpplysninger(appQueryLogic)
-        v1Profilering(appQueryLogic)
-        v1VeilederProfilering(appQueryLogic)
-        v1Bekrefelser(appQueryLogic)
-        v1VeilederBekreftelser(appQueryLogic)
+        v1PerioderAggregert(queryLogic)
+        v1VeilederPerioderAggregert(queryLogic)
+        v1SamletInformasjon(queryLogic)
+        v1VeilederSamletInformasjon(queryLogic)
+
+        v1Opplysninger(queryLogic)
+        v1VeilederOpplysninger(queryLogic)
+        v1Profilering(queryLogic)
+        v1VeilederProfilering(queryLogic)
+        v1Bekrefelser(queryLogic)
+        v1VeilederBekreftelser(queryLogic)
     }
 }

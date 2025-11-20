@@ -1,8 +1,8 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: "Open API Spec fra Oppslag API (v1)"
-  description: "Ikke implementert! API for synkront oppslag mot arbeidssøkerregisteret."
-  version: "0.0.1"
+  title: API Oppslag v1
+  description: API for spørring på data om arbeidssøkere
+  version: 1.0.0
 servers:
   - url: "https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no"
     description: Development server

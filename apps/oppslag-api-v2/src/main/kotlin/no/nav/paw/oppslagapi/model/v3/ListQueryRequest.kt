@@ -15,8 +15,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(value = PeriodeListRequest::class, name = "PERIODE_ID_LISTE")
 )
 
-sealed interface ListQueryRequest {
+sealed interface ListQueryRequest : QueryRequest {
 
     @get:JsonProperty("type")
-    val type: QueryType
+    override val type: QueryType
 }

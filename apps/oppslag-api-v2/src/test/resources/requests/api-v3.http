@@ -6,7 +6,7 @@ Authorization: Bearer {{$auth.token("tokenx")}}
 
 {
     "type": "IDENTITETSNUMMER",
-    "identitetsnummer": "13498717912"
+    "identitetsnummer": "03017012345"
 }
 
 ### POST /api/v3/perioder by identitetsnummer med azure token
@@ -17,7 +17,7 @@ Authorization: Bearer {{$auth.token("azure")}}
 
 {
     "type": "IDENTITETSNUMMER",
-    "identitetsnummer": "13498717912"
+    "identitetsnummer": "03017012345"
 }
 
 ### POST /api/v3/perioder by periodeId med tokenx token
@@ -53,7 +53,7 @@ Authorization: Bearer {{$auth.token("tokenx")}}
 
 {
     "type": "IDENTITETSNUMMER",
-    "identitetsnummer": "13498717912"
+    "identitetsnummer": "03017012345"
 }
 
 ### POST /api/v3/tidslinjer by perioder med tokenx token
@@ -77,7 +77,7 @@ Authorization: Bearer {{$auth.token("azure")}}
 
 {
     "type": "IDENTITETSNUMMER",
-    "identitetsnummer": "13498717912"
+    "identitetsnummer": "03017012345"
 }
 
 ### POST /api/v3/tidslinjer by perioder med azure token

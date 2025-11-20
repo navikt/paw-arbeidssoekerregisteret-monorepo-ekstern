@@ -15,8 +15,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(value = PeriodeRequest::class, name = "PERIODE_ID")
 )
 
-sealed interface SingleQueryRequest {
+sealed interface SingleQueryRequest : QueryRequest {
 
     @get:JsonProperty("type")
-    val type: QueryType
+    override val type: QueryType
 }

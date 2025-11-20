@@ -19,7 +19,7 @@ import no.nav.paw.oppslagapi.configureRoutes
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
-import no.nav.paw.oppslagapi.data.objectMapper
+import no.nav.paw.oppslagapi.utils.objectMapper
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.profilering_v1
@@ -116,7 +116,7 @@ class AnsattMedTilgangFaarHentetTidslinjerTest : FreeSpec({
                     configureRoutes(
                         healthIndicator = CompoudHealthIndicator(),
                         prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                        appQueryLogic = appLogic
+                        queryLogic = appLogic
                     )
                 }
                 val client = createTestHttpClient()

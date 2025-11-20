@@ -5,7 +5,7 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("azure")}}
 
 {
-    "identitetsnummer": "13498717912"
+    "identitetsnummer": "03017012345"
 }
 
 ### POST /api/v2/bekreftelser by perioder med azure token
@@ -31,7 +31,7 @@ Content-Type: application/json
 Authorization: Bearer {{$auth.token("azure")}}
 
 {
-    "identitetsnummer": "21519120183"
+    "identitetsnummer": "03017012345"
 }
 
 ### POST /api/v2/tidslinjer by perioder med azure token

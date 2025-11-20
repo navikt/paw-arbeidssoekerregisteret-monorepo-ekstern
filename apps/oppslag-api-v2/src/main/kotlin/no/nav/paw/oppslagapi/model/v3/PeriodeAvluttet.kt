@@ -7,9 +7,6 @@ import java.time.Instant
 @JsonTypeName("PERIODE_AVSLUTTET_V1")
 data class PeriodeAvluttet(
 
-    @field:JsonProperty("type")
-    override val type: HendelseType = HendelseType.PERIODE_AVSLUTTET_V1,
-
     @field:JsonProperty("tidspunkt")
     val tidspunkt: Instant,
 
@@ -24,4 +21,8 @@ data class PeriodeAvluttet(
 
     @field:JsonProperty("tidspunktFraKilde")
     val tidspunktFraKilde: TidspunktFraKilde? = null
-) : Hendelse
+) : Hendelse {
+
+    @field:JsonProperty("type")
+    override val type: HendelseType = HendelseType.PERIODE_AVSLUTTET_V1
+}
