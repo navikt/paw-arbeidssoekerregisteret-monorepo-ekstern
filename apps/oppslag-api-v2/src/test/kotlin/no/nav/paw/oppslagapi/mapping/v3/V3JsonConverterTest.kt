@@ -7,15 +7,40 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import no.nav.paw.oppslagapi.data.Row
-import no.nav.paw.oppslagapi.utils.objectMapper
 import no.nav.paw.oppslagapi.data.query.genererTidslinje
+import no.nav.paw.oppslagapi.model.v3.AggregertPeriode
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.oppslagapi.test.v3ApiValidator
+import no.nav.paw.oppslagapi.utils.objectMapper
 import java.util.*
 
 class V3JsonConverterTest : FreeSpec({
-    "Skal mappe til riktig type" {
+    "Skal mappe til riktig typer for snapshot" {
+        val rader: List<Pair<UUID, List<Row<Any>>>> = TestData.rows3
+            .groupBy { it.periodeId }
+            .map { (periodeId, rows) -> periodeId to rows }
+        val input = genererTidslinje(rader).first().asV3().asAggregertPeriode()
+
+        val json = objectMapper.writeValueAsString(input)
+        println(json)
+        val output = objectMapper.readValue<AggregertPeriode>(json)
+        println(output)
+
+        val response = SimpleResponse.Builder(
+            200
+        ).withContentType("application/json")
+            .withBody(json.toByteArray().inputStream())
+            .build()
+
+        val result = v3ApiValidator
+            .validateResponse("/api/v3/snapshot", Request.Method.POST, response)
+        withClue(result) { result.hasErrors() shouldBe false }
+
+        println(result)
+    }
+
+    "Skal mappe til riktig typer for perioder" {
         val rader: List<Pair<UUID, List<Row<Any>>>> = TestData.rows3
             .groupBy { it.periodeId }
             .map { (periodeId, rows) -> periodeId to rows }
@@ -34,7 +59,7 @@ class V3JsonConverterTest : FreeSpec({
             .build()
 
         val result = v3ApiValidator
-            .validateResponse("/api/v3/tidslinjer", Request.Method.POST, response)
+            .validateResponse("/api/v3/perioder", Request.Method.POST, response)
         withClue(result) { result.hasErrors() shouldBe false }
 
         println(result)

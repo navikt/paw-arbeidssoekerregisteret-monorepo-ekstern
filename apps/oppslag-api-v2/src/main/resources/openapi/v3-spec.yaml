@@ -9,7 +9,7 @@ servers:
   - url: "https://oppslag-v2-arbeidssoekerregisteret.intern.dev.nav.no"
     description: Development
 paths:
-  /api/v3/perioder:
+  /api/v3/snapshot:
     post:
       description: "Hent aggregert periode, med tilhørende opplysninger, profilering, egenvurdering og bekreftelse"
       parameters:
@@ -24,7 +24,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SingleQueryRequest"
+              $ref: "#/components/schemas/IdentitetsnummerQueryRequest"
         required: true
       responses:
         "200":
@@ -77,7 +77,7 @@ paths:
                 type: "urn:paw:perioder:periode-ikke-funnet"
                 status: 404
                 title: "Not Found"
-                detail: "Ingen aktive perioder funnet"
+                detail: "Ingen perioder funnet"
                 instance: "/api/v3/perioder"
                 timestamp: "2021-01-01T12:00:00.000Z"
         "500":
@@ -95,9 +95,9 @@ paths:
                 instance: "/api/v3/perioder"
                 timestamp: "2021-01-01T12:00:00.000Z"
 
-  /api/v3/tidslinjer:
+  /api/v3/perioder:
     post:
-      description: "Hent alle bekreftelser for oppgitte perioder, body: PeriodeRequest eller IdentitetsnummerRequest"
+      description: "Hent tidslinje av perioder, med tilhørende opplysninger, profilering, egenvurdering og bekreftelse"
       parameters:
         - name: "traceparent"
           in: "header"
@@ -106,11 +106,27 @@ paths:
           schema:
             type: "string"
             format: "traceparent"
+        - name: "types"
+          in: "query"
+          required: false
+          description: "Filtrer hendelser på typer"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/HendelseType"
+        - name: "ordering"
+          in: "query"
+          required: false
+          description: "Sorteringsrettning på tidslinjen"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/SortOrder"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ListQueryRequest"
+              $ref: "#/components/schemas/QueryRequest"
         required: true
       responses:
         "200":
@@ -172,46 +188,32 @@ paths:
 components:
   schemas:
     # ---Requests ---
-    SingleQueryRequest:
+    SortOrder:
+      type: string
+      enum:
+        - ASC
+        - DESC
+    QueryRequest:
       oneOf:
-        - $ref: "#/components/schemas/PeriodeRequest"
-        - $ref: "#/components/schemas/IdentitetsnummerRequest"
+        - $ref: "#/components/schemas/PerioderQueryRequest"
+        - $ref: "#/components/schemas/IdentitetsnummerQueryRequest"
       discriminator:
         propertyName: type
         mapping:
-          PERIODE_ID: "#/components/schemas/PeriodeRequest"
-          IDENTITETSNUMMER: "#/components/schemas/IdentitetsnummerRequest"
-    ListQueryRequest:
-      oneOf:
-        - $ref: "#/components/schemas/PeriodeListRequest"
-        - $ref: "#/components/schemas/IdentitetsnummerRequest"
-      discriminator:
-        propertyName: type
-        mapping:
-          PERIODE_ID_LISTE: "#/components/schemas/PeriodeListRequest"
-          IDENTITETSNUMMER: "#/components/schemas/IdentitetsnummerRequest"
+          PERIODER: "#/components/schemas/PerioderQueryRequest"
+          IDENTITETSNUMMER: "#/components/schemas/IdentitetsnummerQueryRequest"
     QueryType:
       type: string
       enum:
-        - PERIODE_ID
-        - PERIODE_ID_LISTE
+        - PERIODER
         - IDENTITETSNUMMER
-    PeriodeRequest:
+    PerioderQueryRequest:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/QueryType"
-        periodeId:
           type: string
-          format: uuid
-      required:
-        - type
-        - periodeId
-    PeriodeListRequest:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/QueryType"
+          enum:
+            - PERIODER
         perioder:
           type: array
           items:
@@ -220,11 +222,13 @@ components:
       required:
         - type
         - perioder
-    IdentitetsnummerRequest:
+    IdentitetsnummerQueryRequest:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/QueryType"
+          type: string
+          enum:
+            - IDENTITETSNUMMER
         identitetsnummer:
           type: string
           format: identitetsnummer

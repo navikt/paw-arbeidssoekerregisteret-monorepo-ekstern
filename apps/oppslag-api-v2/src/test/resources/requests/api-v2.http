@@ -1,3 +1,13 @@
+### POST /api/v2/bekreftelser by identitetsnummer med tokenx token
+POST {{baseUrl}}/api/v2/bekreftelser
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "identitetsnummer": "03017012345"
+}
+
 ### POST /api/v2/bekreftelser by identitetsnummer med azure token
 POST {{baseUrl}}/api/v2/bekreftelser
 Accept: application/json
@@ -6,6 +16,18 @@ Authorization: Bearer {{$auth.token("azure")}}
 
 {
     "identitetsnummer": "03017012345"
+}
+
+### POST /api/v2/bekreftelser by perioder med tokenx token
+POST {{baseUrl}}/api/v2/bekreftelser
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "perioder": [
+        "b42f2c7b-10b5-41a8-b415-f671457964e5"
+    ]
 }
 
 ### POST /api/v2/bekreftelser by perioder med azure token
@@ -24,6 +46,16 @@ Authorization: Bearer {{$auth.token("azure")}}
 
 
 
+### POST /api/v2/tidslinjer by identitetsnummer med tokenx token
+POST {{baseUrl}}/api/v2/tidslinjer
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "identitetsnummer": "03017012345"
+}
+
 ### POST /api/v2/tidslinjer by identitetsnummer med azure token
 POST {{baseUrl}}/api/v2/tidslinjer
 Accept: application/json
@@ -32,6 +64,18 @@ Authorization: Bearer {{$auth.token("azure")}}
 
 {
     "identitetsnummer": "03017012345"
+}
+
+### POST /api/v2/tidslinjer by perioder med tokenx token
+POST {{baseUrl}}/api/v2/tidslinjer
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "perioder": [
+        "b42f2c7b-10b5-41a8-b415-f671457964e5"
+    ]
 }
 
 ### POST /api/v2/tidslinjer by perioder med azure token

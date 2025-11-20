@@ -19,14 +19,13 @@ private val logger = buildApplicationLogger
 
 fun Response<List<Tidslinje>>.finnSistePeriode(): Response<AggregertPeriode> {
     return this.map { tidslinje ->
-        val aktive = tidslinje.filter { it.avsluttet == null }
-        if (aktive.isEmpty()) {
-            throw PeriodeIkkeFunnetException("Ingen aktive perioder funnet")
-        } else if (aktive.size == 1) {
-            aktive.first().asAggregertPeriode()
+        if (tidslinje.isEmpty()) {
+            throw PeriodeIkkeFunnetException("Ingen perioder funnet")
+        } else if (tidslinje.size == 1) {
+            tidslinje.first().asAggregertPeriode()
         } else {
             logger.error("Flere aktive perioder funnet, bruker nyeste som 'siste'")
-            aktive.maxBy { it.startet }.asAggregertPeriode()
+            tidslinje.maxBy { it.startet }.asAggregertPeriode()
         }
     }
 }

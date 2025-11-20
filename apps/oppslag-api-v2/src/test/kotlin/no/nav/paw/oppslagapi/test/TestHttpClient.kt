@@ -16,9 +16,8 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PerioderRequest
 import no.nav.paw.felles.model.Identitetsnummer
-import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerRequest
-import no.nav.paw.oppslagapi.model.v3.PeriodeListRequest
-import no.nav.paw.oppslagapi.model.v3.PeriodeRequest
+import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerQueryRequest
+import no.nav.paw.oppslagapi.model.v3.PerioderQueryRequest
 import no.nav.paw.oppslagapi.utils.configureJacksonForV3
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.NavAnsatt
@@ -110,6 +109,19 @@ suspend fun HttpClient.hentTidslinjerV2(
     )//.validateOpenApiSpec(validator = v2ApiValidator)
 }
 
+suspend fun HttpClient.hentSnapshotV3(
+    token: Pair<Map<String, Any>, SignedJWT>,
+    identitetsnummer: Identitetsnummer
+): HttpResponse {
+    return hentViaPost(
+        url = "/api/v3/snapshot",
+        token = token,
+        request = IdentitetsnummerQueryRequest(
+            identitetsnummer = identitetsnummer.value
+        )
+    ).validateOpenApiSpec(validator = v3ApiValidator)
+}
+
 suspend fun HttpClient.hentPerioderV3(
     token: Pair<Map<String, Any>, SignedJWT>,
     identitetsnummer: Identitetsnummer
@@ -117,46 +129,20 @@ suspend fun HttpClient.hentPerioderV3(
     return hentViaPost(
         url = "/api/v3/perioder",
         token = token,
-        request = IdentitetsnummerRequest(
+        request = IdentitetsnummerQueryRequest(
             identitetsnummer = identitetsnummer.value
         )
-    )//.validateOpenApiSpec(validator = v3ApiValidator)
+    ).validateOpenApiSpec(validator = v3ApiValidator)
 }
 
 suspend fun HttpClient.hentPerioderV3(
-    token: Pair<Map<String, Any>, SignedJWT>,
-    periodeId: UUID
-): HttpResponse {
-    return hentViaPost(
-        url = "/api/v3/perioder",
-        token = token,
-        request = PeriodeRequest(
-            periodeId = periodeId
-        )
-    ).validateOpenApiSpec(validator = v3ApiValidator)
-}
-
-suspend fun HttpClient.hentTidslinjerV3(
-    token: Pair<Map<String, Any>, SignedJWT>,
-    identitetsnummer: Identitetsnummer
-): HttpResponse {
-    return hentViaPost(
-        url = "/api/v3/tidslinjer",
-        token = token,
-        request = IdentitetsnummerRequest(
-            identitetsnummer = identitetsnummer.value
-        )
-    ).validateOpenApiSpec(validator = v3ApiValidator)
-}
-
-suspend fun HttpClient.hentTidslinjerV3(
     token: Pair<Map<String, Any>, SignedJWT>,
     perioder: List<UUID>
 ): HttpResponse {
     return hentViaPost(
-        url = "/api/v3/tidslinjer",
+        url = "/api/v3/perioder",
         token = token,
-        request = PeriodeListRequest(
+        request = PerioderQueryRequest(
             perioder = perioder
         )
     ).validateOpenApiSpec(validator = v3ApiValidator)
