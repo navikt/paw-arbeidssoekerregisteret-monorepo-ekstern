@@ -1,13 +1,5 @@
 package no.nav.paw.oppslagapi.data.query
 
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Egenvurdering
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.egenvurdering_v1
 import no.nav.paw.oppslagapi.data.opplysninger_om_arbeidssoeker_v4
@@ -16,6 +8,14 @@ import no.nav.paw.oppslagapi.data.pa_vegne_av_stopp_v1
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.profilering_v1
+import no.nav.paw.oppslagapi.model.v2.Egenvurdering
+import no.nav.paw.oppslagapi.model.v2.Hendelse
+import no.nav.paw.oppslagapi.model.v2.HendelseType
+import no.nav.paw.oppslagapi.model.v2.Metadata
+import no.nav.paw.oppslagapi.model.v2.OpplysningerOmArbeidssoeker
+import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStart
+import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStopp
+import no.nav.paw.oppslagapi.model.v2.Profilering
 
 /**
  * Mapper alt untatt bekreftelsemelding_v1 til Hendelse.

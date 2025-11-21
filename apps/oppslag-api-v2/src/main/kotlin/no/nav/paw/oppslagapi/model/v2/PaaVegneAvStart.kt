@@ -1,0 +1,19 @@
+package no.nav.paw.oppslagapi.model.v2
+
+import com.fasterxml.jackson.annotation.JsonProperty
+import java.util.*
+
+data class PaaVegneAvStart(
+
+    @get:JsonProperty("periodeId")
+    val periodeId: UUID,
+
+    @get:JsonProperty("bekreftelsesloesning")
+    val bekreftelsesloesning: Bekreftelsesloesning = Bekreftelsesloesning.UKJENT_VERDI,
+
+    @get:JsonProperty("intervalMS")
+    val intervalMS: Long,
+
+    @get:JsonProperty("graceMS")
+    val graceMS: Long
+)

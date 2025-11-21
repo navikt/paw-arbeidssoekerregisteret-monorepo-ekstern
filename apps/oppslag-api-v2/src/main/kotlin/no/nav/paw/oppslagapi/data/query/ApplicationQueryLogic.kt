@@ -2,12 +2,12 @@ package no.nav.paw.oppslagapi.data.query
 
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.error.model.Data
 import no.nav.paw.error.model.Response
-import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
+import no.nav.paw.oppslagapi.model.v2.Tidslinje
 import no.nav.paw.security.authentication.model.SecurityContext
 import java.util.*
 
@@ -29,8 +29,8 @@ class ApplicationQueryLogic(
             ?.info
             ?.pdlData
             ?.id
-            ?.filter { it.gruppe.equals("FOLKEREGISTERIDENT", ignoreCase = true)  }
-            ?.map{ it.id }
+            ?.filter { it.gruppe.equals("FOLKEREGISTERIDENT", ignoreCase = true) }
+            ?.map { it.id }
             ?.map(::Identitetsnummer)
             ?: listOf(identitetsnummer)
 
@@ -39,7 +39,7 @@ class ApplicationQueryLogic(
             securityContext = securityContext,
             oenskerTilgangTil = identieteter
         ) {
-            val periodeIder = identieteter.flatMap { id -> databaseQuerySupport.hentPerioder(id ) }
+            val periodeIder = identieteter.flatMap { id -> databaseQuerySupport.hentPerioder(id) }
             val perioder = periodeIder.map { it to databaseQuerySupport.hentRaderForPeriode(it) }
             genererTidslinje(perioder)
         }

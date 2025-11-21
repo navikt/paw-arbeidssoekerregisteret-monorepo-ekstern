@@ -27,7 +27,7 @@ import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.oppslagapi.model.v3.TidspunktFraKilde
 import no.nav.paw.oppslagapi.model.v3.Utdanning
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje.asV3(): Tidslinje {
+fun no.nav.paw.oppslagapi.model.v2.Tidslinje.asV3(): Tidslinje {
     return Tidslinje(
         periodeId = this.periodeId,
         identitetsnummer = this.identitetsnummer,
@@ -37,60 +37,60 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje.asV3(): T
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3(): Hendelse {
     return when (this.hendelseType) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.periode_startet_v1 -> this.asV3PeriodeStartet()
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.periode_avsluttet_v1 -> this.asV3PeriodeAvsluttet()
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.opplysninger_v4 -> this.asV3Opplysninger()
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.profilering_v1 -> this.asV3Profilering()
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.egenvurdering_v1 -> this.asV3Egenvurdering()
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.bekreftelse_v1 -> this.asV3Bekreftelse()
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.pa_vegne_av_start_v1 -> this.asV3PaaVegneAvStart()
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.pa_vegne_av_stopp_v1 -> this.asV3PaaVegneAvStopp()
+        no.nav.paw.oppslagapi.model.v2.HendelseType.periode_startet_v1 -> this.asV3PeriodeStartet()
+        no.nav.paw.oppslagapi.model.v2.HendelseType.periode_avsluttet_v1 -> this.asV3PeriodeAvsluttet()
+        no.nav.paw.oppslagapi.model.v2.HendelseType.opplysninger_v4 -> this.asV3Opplysninger()
+        no.nav.paw.oppslagapi.model.v2.HendelseType.profilering_v1 -> this.asV3Profilering()
+        no.nav.paw.oppslagapi.model.v2.HendelseType.egenvurdering_v1 -> this.asV3Egenvurdering()
+        no.nav.paw.oppslagapi.model.v2.HendelseType.bekreftelse_v1 -> this.asV3Bekreftelse()
+        no.nav.paw.oppslagapi.model.v2.HendelseType.pa_vegne_av_start_v1 -> this.asV3PaaVegneAvStart()
+        no.nav.paw.oppslagapi.model.v2.HendelseType.pa_vegne_av_stopp_v1 -> this.asV3PaaVegneAvStopp()
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3PeriodeStartet(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PeriodeStartet(): Hendelse {
     return this.periodeStartetV1?.asV3PeriodeStartet()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.periode_startet_v1)
+        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.periode_startet_v1)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3PeriodeAvsluttet(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PeriodeAvsluttet(): Hendelse {
     return this.periodeAvsluttetV1?.asV3PeriodeAvsluttet()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.periode_avsluttet_v1)
+        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.periode_avsluttet_v1)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3Opplysninger(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Opplysninger(): Hendelse {
     return this.opplysningerV4?.asV3()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.opplysninger_v4)
+        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.opplysninger_v4)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3Profilering(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Profilering(): Hendelse {
     return this.profileringV1?.asV3()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.profilering_v1)
+        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.profilering_v1)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3Egenvurdering(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Egenvurdering(): Hendelse {
     return this.egenvurderingV1?.asV3()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.egenvurdering_v1)
+        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.egenvurdering_v1)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3Bekreftelse(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Bekreftelse(): Hendelse {
     return this.bekreftelseV1?.asV3()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.bekreftelse_v1)
+        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.bekreftelse_v1)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3PaaVegneAvStart(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PaaVegneAvStart(): Hendelse {
     return this.paVegneAvStartV1?.asV3()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.pa_vegne_av_start_v1)
+        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.pa_vegne_av_start_v1)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse.asV3PaaVegneAvStopp(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PaaVegneAvStopp(): Hendelse {
     return this.paVegneAvStoppV1?.asV3()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType.pa_vegne_av_stopp_v1)
+        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.pa_vegne_av_stopp_v1)
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3(): Metadata {
+fun no.nav.paw.oppslagapi.model.v2.Metadata.asV3(): Metadata {
     return Metadata(
         tidspunkt = this.tidspunkt,
         utfoertAv = this.utfoertAv.asV3(),
@@ -100,7 +100,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3(): Me
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3PeriodeStartet(): PeriodeStartet {
+fun no.nav.paw.oppslagapi.model.v2.Metadata.asV3PeriodeStartet(): PeriodeStartet {
     return PeriodeStartet(
         tidspunkt = this.tidspunkt,
         utfoertAv = this.utfoertAv.asV3(),
@@ -110,7 +110,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3Period
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3PeriodeAvsluttet(): PeriodeAvluttet {
+fun no.nav.paw.oppslagapi.model.v2.Metadata.asV3PeriodeAvsluttet(): PeriodeAvluttet {
     return PeriodeAvluttet(
         tidspunkt = this.tidspunkt,
         utfoertAv = this.utfoertAv.asV3(),
@@ -120,7 +120,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata.asV3Period
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker.asV3(): OpplysningerOmArbeidssoeker {
+fun no.nav.paw.oppslagapi.model.v2.OpplysningerOmArbeidssoeker.asV3(): OpplysningerOmArbeidssoeker {
     return OpplysningerOmArbeidssoeker(
         id = this.id,
         sendtInnAv = this.sendtInnAv.asV3(),
@@ -131,7 +131,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbei
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Utdanning.asV3(): Utdanning {
+fun no.nav.paw.oppslagapi.model.v2.Utdanning.asV3(): Utdanning {
     return Utdanning(
         nus = this.nus,
         bestaatt = this.bestaatt?.asV3(),
@@ -139,52 +139,52 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Utdanning.asV3(): U
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Helse.asV3(): Helse {
+fun no.nav.paw.oppslagapi.model.v2.Helse.asV3(): Helse {
     return Helse(
         helsetilstandHindrerArbeid = this.helsetilstandHindrerArbeid?.asV3()
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Jobbsituasjon.asV3(): Jobbsituasjon {
+fun no.nav.paw.oppslagapi.model.v2.Jobbsituasjon.asV3(): Jobbsituasjon {
     return Jobbsituasjon(
         beskrivelser = this.beskrivelser.map { it.asV3() }
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BeskrivelseMedDetaljer.asV3(): BeskrivelseMedDetaljer {
+fun no.nav.paw.oppslagapi.model.v2.BeskrivelseMedDetaljer.asV3(): BeskrivelseMedDetaljer {
     return BeskrivelseMedDetaljer(
         beskrivelse = this.beskrivelse.asV3(),
         detaljer = this.detaljer
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.asV3(): Beskrivelse {
+fun no.nav.paw.oppslagapi.model.v2.Beskrivelse.asV3(): Beskrivelse {
     return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.UDEFINERT -> Beskrivelse.UDEFINERT
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.HAR_SAGT_OPP -> Beskrivelse.HAR_SAGT_OPP
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.HAR_BLITT_SAGT_OPP -> Beskrivelse.HAR_BLITT_SAGT_OPP
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.ER_PERMITTERT -> Beskrivelse.ER_PERMITTERT
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.ALDRI_HATT_JOBB -> Beskrivelse.ALDRI_HATT_JOBB
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.IKKE_VAERT_I_JOBB_SISTE_2_AAR -> Beskrivelse.IKKE_VAERT_I_JOBB_SISTE_2_AAR
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.AKKURAT_FULLFORT_UTDANNING -> Beskrivelse.AKKURAT_FULLFORT_UTDANNING
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.VIL_BYTTE_JOBB -> Beskrivelse.VIL_BYTTE_JOBB
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.USIKKER_JOBBSITUASJON -> Beskrivelse.USIKKER_JOBBSITUASJON
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.MIDLERTIDIG_JOBB -> Beskrivelse.MIDLERTIDIG_JOBB
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.DELTIDSJOBB_VIL_MER -> Beskrivelse.DELTIDSJOBB_VIL_MER
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.NY_JOBB -> Beskrivelse.NY_JOBB
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.KONKURS -> Beskrivelse.KONKURS
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.ANNET -> Beskrivelse.ANNET
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse.UKJENT_VERDI -> Beskrivelse.UKJENT_VERDI
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.UDEFINERT -> Beskrivelse.UDEFINERT
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.HAR_SAGT_OPP -> Beskrivelse.HAR_SAGT_OPP
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.HAR_BLITT_SAGT_OPP -> Beskrivelse.HAR_BLITT_SAGT_OPP
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.ER_PERMITTERT -> Beskrivelse.ER_PERMITTERT
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.ALDRI_HATT_JOBB -> Beskrivelse.ALDRI_HATT_JOBB
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.IKKE_VAERT_I_JOBB_SISTE_2_AAR -> Beskrivelse.IKKE_VAERT_I_JOBB_SISTE_2_AAR
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.AKKURAT_FULLFORT_UTDANNING -> Beskrivelse.AKKURAT_FULLFORT_UTDANNING
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.VIL_BYTTE_JOBB -> Beskrivelse.VIL_BYTTE_JOBB
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.USIKKER_JOBBSITUASJON -> Beskrivelse.USIKKER_JOBBSITUASJON
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.MIDLERTIDIG_JOBB -> Beskrivelse.MIDLERTIDIG_JOBB
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.DELTIDSJOBB_VIL_MER -> Beskrivelse.DELTIDSJOBB_VIL_MER
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.NY_JOBB -> Beskrivelse.NY_JOBB
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.KONKURS -> Beskrivelse.KONKURS
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.ANNET -> Beskrivelse.ANNET
+        no.nav.paw.oppslagapi.model.v2.Beskrivelse.UKJENT_VERDI -> Beskrivelse.UKJENT_VERDI
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Annet.asV3(): Annet {
+fun no.nav.paw.oppslagapi.model.v2.Annet.asV3(): Annet {
     return Annet(
         andreForholdHindrerArbeid = this.andreForholdHindrerArbeid?.asV3()
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering.asV3(): Profilering {
+fun no.nav.paw.oppslagapi.model.v2.Profilering.asV3(): Profilering {
     return Profilering(
         id = this.id,
         opplysningerOmArbeidssokerId = this.opplysningerOmArbeidssokerId,
@@ -195,7 +195,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering.asV3():
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Egenvurdering.asV3(): Egenvurdering {
+fun no.nav.paw.oppslagapi.model.v2.Egenvurdering.asV3(): Egenvurdering {
     return Egenvurdering(
         id = this.id,
         profileringId = this.profileringId,
@@ -205,17 +205,17 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Egenvurdering.asV3(
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.asV3(): ProfilertTil {
+fun no.nav.paw.oppslagapi.model.v2.ProfilertTil.asV3(): ProfilertTil {
     return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.UDEFINERT -> ProfilertTil.UDEFINERT
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.ANTATT_GODE_MULIGHETER -> ProfilertTil.ANTATT_GODE_MULIGHETER
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING -> ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.OPPGITT_HINDRINGER -> ProfilertTil.OPPGITT_HINDRINGER
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil.UKJENT_VERDI -> ProfilertTil.UKJENT_VERDI
+        no.nav.paw.oppslagapi.model.v2.ProfilertTil.UDEFINERT -> ProfilertTil.UDEFINERT
+        no.nav.paw.oppslagapi.model.v2.ProfilertTil.ANTATT_GODE_MULIGHETER -> ProfilertTil.ANTATT_GODE_MULIGHETER
+        no.nav.paw.oppslagapi.model.v2.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING -> ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
+        no.nav.paw.oppslagapi.model.v2.ProfilertTil.OPPGITT_HINDRINGER -> ProfilertTil.OPPGITT_HINDRINGER
+        no.nav.paw.oppslagapi.model.v2.ProfilertTil.UKJENT_VERDI -> ProfilertTil.UKJENT_VERDI
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.asV3(): Bekreftelse? {
+fun no.nav.paw.oppslagapi.model.v2.BekreftelseMedMetadata.asV3(): Bekreftelse? {
     val status = this.status?.asV3() ?: BekreftelsStatus.GYLDIG
     return if (status == BekreftelsStatus.GYLDIG && this.bekreftelse != null) {
         Bekreftelse(
@@ -229,7 +229,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetad
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Svar.asV3(): Svar {
+fun no.nav.paw.oppslagapi.model.v2.Svar.asV3(): Svar {
     return Svar(
         sendtInnAv = this.sendtInnAv.asV3(),
         gjelderFra = this.gjelderFra,
@@ -239,15 +239,15 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Svar.asV3(): Svar {
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.Status.asV3(): BekreftelsStatus {
+fun no.nav.paw.oppslagapi.model.v2.BekreftelseStatus.asV3(): BekreftelsStatus {
     return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.Status.GYLDIG -> BekreftelsStatus.GYLDIG
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.Status.UVENTET_KILDE -> BekreftelsStatus.UVENTET_KILDE
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.Status.UTENFOR_PERIODE -> BekreftelsStatus.UTENFOR_PERIODE
+        no.nav.paw.oppslagapi.model.v2.BekreftelseStatus.GYLDIG -> BekreftelsStatus.GYLDIG
+        no.nav.paw.oppslagapi.model.v2.BekreftelseStatus.UVENTET_KILDE -> BekreftelsStatus.UVENTET_KILDE
+        no.nav.paw.oppslagapi.model.v2.BekreftelseStatus.UTENFOR_PERIODE -> BekreftelsStatus.UTENFOR_PERIODE
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart.asV3(): PaaVegneAvStart {
+fun no.nav.paw.oppslagapi.model.v2.PaaVegneAvStart.asV3(): PaaVegneAvStart {
     return PaaVegneAvStart(
         periodeId = this.periodeId,
         bekreftelsesloesning = this.bekreftelsesloesning.asV3(),
@@ -256,7 +256,7 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart.asV
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp.asV3(): PaaVegneAvStopp {
+fun no.nav.paw.oppslagapi.model.v2.PaaVegneAvStopp.asV3(): PaaVegneAvStopp {
     return PaaVegneAvStopp(
         periodeId = this.periodeId,
         bekreftelsesloesning = this.bekreftelsesloesning.asV3(),
@@ -264,16 +264,16 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp.asV
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.asV3(): Bekreftelsesloesning {
+fun no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning.asV3(): Bekreftelsesloesning {
     return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET -> Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.DAGPENGER -> Bekreftelsesloesning.DAGPENGER
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> Bekreftelsesloesning.FRISKMELDT_TIL_ARBEIDSFORMIDLING
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.UKJENT_VERDI -> Bekreftelsesloesning.UKJENT_VERDI
+        no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET -> Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET
+        no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning.DAGPENGER -> Bekreftelsesloesning.DAGPENGER
+        no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning.FRISKMELDT_TIL_ARBEIDSFORMIDLING -> Bekreftelsesloesning.FRISKMELDT_TIL_ARBEIDSFORMIDLING
+        no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning.UKJENT_VERDI -> Bekreftelsesloesning.UKJENT_VERDI
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker.asV3(): Bruker {
+fun no.nav.paw.oppslagapi.model.v2.Bruker.asV3(): Bruker {
     return Bruker(
         type = this.type.asV3(),
         id = this.id,
@@ -281,38 +281,38 @@ fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker.asV3(): Bruk
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker.Type.asV3(): BrukerType {
+fun no.nav.paw.oppslagapi.model.v2.BrukerType.asV3(): BrukerType {
     return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker.Type.SLUTTBRUKER -> BrukerType.SLUTTBRUKER
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker.Type.VEILEDER -> BrukerType.VEILEDER
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker.Type.SYSTEM -> BrukerType.SYSTEM
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker.Type.UDEFINERT -> BrukerType.UDEFINERT
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker.Type.UKJENT_VERDI -> BrukerType.UKJENT_VERDI
+        no.nav.paw.oppslagapi.model.v2.BrukerType.SLUTTBRUKER -> BrukerType.SLUTTBRUKER
+        no.nav.paw.oppslagapi.model.v2.BrukerType.VEILEDER -> BrukerType.VEILEDER
+        no.nav.paw.oppslagapi.model.v2.BrukerType.SYSTEM -> BrukerType.SYSTEM
+        no.nav.paw.oppslagapi.model.v2.BrukerType.UDEFINERT -> BrukerType.UDEFINERT
+        no.nav.paw.oppslagapi.model.v2.BrukerType.UKJENT_VERDI -> BrukerType.UKJENT_VERDI
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidspunktFraKilde.asV3(): TidspunktFraKilde {
+fun no.nav.paw.oppslagapi.model.v2.TidspunktFraKilde.asV3(): TidspunktFraKilde {
     return TidspunktFraKilde(
         tidspunkt = this.tidspunkt,
         avviksType = this.avviksType.asV3()
     )
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType.asV3(): AvviksType {
+fun no.nav.paw.oppslagapi.model.v2.AvviksType.asV3(): AvviksType {
     return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType.FORSINKELSE -> AvviksType.FORSINKELSE
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType.RETTING -> AvviksType.RETTING
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType.SLETTET -> AvviksType.SLETTET
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType.TIDSPUNKT_KORRIGERT -> AvviksType.TIDSPUNKT_KORRIGERT
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType.UKJENT_VERDI -> AvviksType.UKJENT_VERDI
+        no.nav.paw.oppslagapi.model.v2.AvviksType.FORSINKELSE -> AvviksType.FORSINKELSE
+        no.nav.paw.oppslagapi.model.v2.AvviksType.RETTING -> AvviksType.RETTING
+        no.nav.paw.oppslagapi.model.v2.AvviksType.SLETTET -> AvviksType.SLETTET
+        no.nav.paw.oppslagapi.model.v2.AvviksType.TIDSPUNKT_KORRIGERT -> AvviksType.TIDSPUNKT_KORRIGERT
+        no.nav.paw.oppslagapi.model.v2.AvviksType.UKJENT_VERDI -> AvviksType.UKJENT_VERDI
     }
 }
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.asV3(): JaNeiVetIkke {
+fun no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.asV3(): JaNeiVetIkke {
     return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.JA -> JaNeiVetIkke.JA
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.NEI -> JaNeiVetIkke.NEI
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.VET_IKKE -> JaNeiVetIkke.VET_IKKE
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.UKJENT_VERDI -> JaNeiVetIkke.UKJENT_VERDI
+        no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.JA -> JaNeiVetIkke.JA
+        no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.NEI -> JaNeiVetIkke.NEI
+        no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.VET_IKKE -> JaNeiVetIkke.VET_IKKE
+        no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.UKJENT_VERDI -> JaNeiVetIkke.UKJENT_VERDI
     }
 }

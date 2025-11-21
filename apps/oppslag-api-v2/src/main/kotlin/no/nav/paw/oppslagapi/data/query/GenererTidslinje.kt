@@ -1,12 +1,12 @@
 package no.nav.paw.oppslagapi.data.query
 
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Hendelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
+import no.nav.paw.oppslagapi.model.v2.Hendelse
+import no.nav.paw.oppslagapi.model.v2.HendelseType
+import no.nav.paw.oppslagapi.model.v2.Tidslinje
 import java.time.Duration.between
 import java.time.Instant
 import java.util.*

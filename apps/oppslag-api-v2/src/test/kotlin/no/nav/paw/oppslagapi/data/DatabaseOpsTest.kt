@@ -6,10 +6,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start
@@ -20,6 +16,10 @@ import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.consumer.writeBatchToDb
 import no.nav.paw.oppslagapi.data.query.ExposedDatabaseQuerySupport
 import no.nav.paw.oppslagapi.initDatabase
+import no.nav.paw.oppslagapi.model.v2.Bekreftelse
+import no.nav.paw.oppslagapi.model.v2.Metadata
+import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStart
+import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStopp
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.oppslagapi.test.opprettSerde
 import org.apache.avro.specific.SpecificRecord
@@ -166,7 +166,7 @@ class DatabaseOpsTest : FreeSpec({
 })
 
 infix fun Any.shouldMatch(opplysninger: OpplysningerOmArbeidssoeker) {
-    this.shouldBeInstanceOf<no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker>()
+    this.shouldBeInstanceOf<no.nav.paw.oppslagapi.model.v2.OpplysningerOmArbeidssoeker>()
     id shouldBe opplysninger.id
     periodeId shouldBe opplysninger.periodeId
     annet?.andreForholdHindrerArbeid?.name shouldBe opplysninger.annet?.andreForholdHindrerArbeid?.name

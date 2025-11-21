@@ -5,7 +5,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.BekreftelseRespo
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringResponse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
+import no.nav.paw.oppslagapi.model.v2.Tidslinje
 
 fun Tidslinje.v1Periode(): ArbeidssoekerperiodeResponse {
     return ArbeidssoekerperiodeResponse(

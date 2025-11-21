@@ -5,7 +5,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.SamletInformasjonResponse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.map
 import no.nav.paw.felles.model.Identitetsnummer
@@ -15,6 +14,7 @@ import no.nav.paw.oppslagapi.mapping.v1.v1Bekreftelser
 import no.nav.paw.oppslagapi.mapping.v1.v1Opplysninger
 import no.nav.paw.oppslagapi.mapping.v1.v1Periode
 import no.nav.paw.oppslagapi.mapping.v1.v1Profileringer
+import no.nav.paw.oppslagapi.model.v2.Tidslinje
 import no.nav.paw.oppslagapi.respondWith
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.model.Sluttbruker

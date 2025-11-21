@@ -2,8 +2,8 @@ package no.nav.paw.oppslagapi.mapping.v1
 
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.AvviksTypeResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.TidspunktFraKildeResponse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidspunktFraKilde
+import no.nav.paw.oppslagapi.model.v2.AvviksType
+import no.nav.paw.oppslagapi.model.v2.TidspunktFraKilde
 
 fun TidspunktFraKilde.v1TidspunktFraKilde(): TidspunktFraKildeResponse {
     return TidspunktFraKildeResponse(

@@ -1,18 +1,19 @@
 package no.nav.paw.oppslagapi.data.query
 
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
+import no.nav.paw.oppslagapi.model.v2.Bekreftelse
+import no.nav.paw.oppslagapi.model.v2.BekreftelseMedMetadata
+import no.nav.paw.oppslagapi.model.v2.BekreftelseStatus
+import no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning
+import no.nav.paw.oppslagapi.model.v2.Metadata
+import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStart
+import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStopp
 import java.time.Instant
 import java.util.*
 
-fun genererTidslinje(periodeId: UUID, rader: List<Row<out Any>>): Tidslinje? {
+fun genererTidslinje(periodeId: UUID, rader: List<Row<out Any>>): GenerertTidslinje? {
     val (start, meldinger) = rader
         .filter { it.periodeId == periodeId }
         .sortedBy { it.timestamp }
@@ -37,7 +38,7 @@ fun <A> List<A>.removeFirst(predicate: (A) -> Boolean): Pair<A?, List<A>> {
     }
 }
 
-data class Tidslinje(
+data class GenerertTidslinje(
     val identitetsnummer: String,
     val periodeStart: Instant,
     val periodeStopp: Instant?,
@@ -47,7 +48,7 @@ data class Tidslinje(
     val ansvarlig: Set<Bekreftelsesloesning>,
     val bekreftelser: List<BekreftelseMedMetadata>,
 ) {
-    operator fun plus(row: Row<out Any>): Tidslinje =
+    operator fun plus(row: Row<out Any>): GenerertTidslinje =
         when (val data = row.data) {
             is PaaVegneAvStart -> this.copy(
                 tidspunkt = row.timestamp,
@@ -72,10 +73,10 @@ data class Tidslinje(
                 bekreftelser = this.bekreftelser + BekreftelseMedMetadata(
                     bekreftelse = data,
                     status = when {
-                        periodeStopp != null -> BekreftelseMedMetadata.Status.UTENFOR_PERIODE
-                        periodeStart > row.timestamp -> BekreftelseMedMetadata.Status.UTENFOR_PERIODE
-                        data.bekreftelsesloesning !in this.ansvarlig -> BekreftelseMedMetadata.Status.UVENTET_KILDE
-                        else -> BekreftelseMedMetadata.Status.GYLDIG
+                        periodeStopp != null -> BekreftelseStatus.UTENFOR_PERIODE
+                        periodeStart > row.timestamp -> BekreftelseStatus.UTENFOR_PERIODE
+                        data.bekreftelsesloesning !in this.ansvarlig -> BekreftelseStatus.UVENTET_KILDE
+                        else -> BekreftelseStatus.GYLDIG
                     }
                 )
             )
@@ -98,7 +99,7 @@ data class Tidslinje(
 fun tidslinje(
     identitetsnummer: String,
     periodeStart: Instant,
-): Tidslinje = Tidslinje(
+): GenerertTidslinje = GenerertTidslinje(
     identitetsnummer = identitetsnummer,
     periodeStart = periodeStart,
     periodeStopp = null,

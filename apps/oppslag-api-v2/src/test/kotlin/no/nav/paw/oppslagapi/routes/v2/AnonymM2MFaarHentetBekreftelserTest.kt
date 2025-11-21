@@ -8,8 +8,6 @@ import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelserResponse
 import no.nav.paw.oppslagapi.configureKtorServer
 import no.nav.paw.oppslagapi.configureRoutes
 import no.nav.paw.oppslagapi.data.Row
@@ -17,6 +15,8 @@ import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.consumer.converters.toOpenApi
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
+import no.nav.paw.oppslagapi.model.v2.BekreftelseStatus
+import no.nav.paw.oppslagapi.model.v2.BekreftelserResponse
 import no.nav.paw.oppslagapi.test.TestContext
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.oppslagapi.test.ansattToken
@@ -83,7 +83,7 @@ class AnonymM2MFaarHentetBekreftelserTest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     val body: BekreftelserResponse = response.body()
                     body.bekreftelser.size shouldBe 1
-                    body.bekreftelser.first().status shouldBe BekreftelseMedMetadata.Status.GYLDIG
+                    body.bekreftelser.first().status shouldBe BekreftelseStatus.GYLDIG
                     body.bekreftelser.first().bekreftelse shouldBe bekreftelseMelding.toOpenApi()
                 }
             }

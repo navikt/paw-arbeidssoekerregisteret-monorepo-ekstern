@@ -13,10 +13,10 @@ import no.nav.paw.test.data.periode.createHelse
 import no.nav.paw.test.data.periode.createOpplysninger
 import no.nav.paw.test.data.periode.createProfilering
 import no.nav.paw.test.data.periode.createUtdanning
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata as OpenApiMetadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Metadata as MainAvroMetadata
+import no.nav.paw.oppslagapi.model.v2.Metadata as OpenApiMetadata
 
-class MainAvroConvertersTest: FreeSpec({
+class MainAvroConvertersTest : FreeSpec({
     "MainAvroConverters" - {
         "Verifiser at Avro Periode konverteres riktig til Open API Periode" - {
             listOf(

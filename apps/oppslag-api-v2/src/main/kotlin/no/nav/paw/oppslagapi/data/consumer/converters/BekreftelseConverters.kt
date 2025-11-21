@@ -1,16 +1,17 @@
 package no.nav.paw.oppslagapi.data.consumer.converters
 
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse as OpenApiBekreftelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning as OpenApiBekreftelsesloesning
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker as OpenApiBruker
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata as OpenApiMetadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Svar as OpenApiSvar
+import no.nav.paw.oppslagapi.model.v2.BrukerType
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning as AvroBekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.Bruker as AvroBruker
 import no.nav.paw.bekreftelse.melding.v1.vo.BrukerType as AvroBrukerType
 import no.nav.paw.bekreftelse.melding.v1.vo.Metadata as AvroMetadata
 import no.nav.paw.bekreftelse.melding.v1.vo.Svar as AvroSvar
+import no.nav.paw.oppslagapi.model.v2.Bekreftelse as OpenApiBekreftelse
+import no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning as OpenApiBekreftelsesloesning
+import no.nav.paw.oppslagapi.model.v2.Bruker as OpenApiBruker
+import no.nav.paw.oppslagapi.model.v2.Metadata as OpenApiMetadata
+import no.nav.paw.oppslagapi.model.v2.Svar as OpenApiSvar
 
 fun Bekreftelse.toOpenApi(): OpenApiBekreftelse =
     OpenApiBekreftelse(
@@ -50,11 +51,11 @@ private fun AvroMetadata.toOpenApi(): OpenApiMetadata =
 private fun AvroBruker.toOpenApi(): OpenApiBruker =
     OpenApiBruker(
         type = when (this.type) {
-            AvroBrukerType.VEILEDER -> OpenApiBruker.Type.VEILEDER
-            AvroBrukerType.SYSTEM -> OpenApiBruker.Type.SYSTEM
-            AvroBrukerType.SLUTTBRUKER -> OpenApiBruker.Type.SLUTTBRUKER
-            AvroBrukerType.UKJENT_VERDI -> OpenApiBruker.Type.UKJENT_VERDI
-            AvroBrukerType.UDEFINERT -> OpenApiBruker.Type.UDEFINERT
+            AvroBrukerType.VEILEDER -> BrukerType.VEILEDER
+            AvroBrukerType.SYSTEM -> BrukerType.SYSTEM
+            AvroBrukerType.SLUTTBRUKER -> BrukerType.SLUTTBRUKER
+            AvroBrukerType.UKJENT_VERDI -> BrukerType.UKJENT_VERDI
+            AvroBrukerType.UDEFINERT -> BrukerType.UDEFINERT
         },
         id = this.id,
         sikkerhetsnivaa = this.sikkerhetsnivaa
