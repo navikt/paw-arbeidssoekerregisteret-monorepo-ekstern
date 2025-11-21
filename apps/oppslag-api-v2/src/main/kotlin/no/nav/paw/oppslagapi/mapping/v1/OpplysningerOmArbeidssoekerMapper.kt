@@ -47,18 +47,27 @@ fun BeskrivelseMedDetaljer.toV1(): BeskrivelseMedDetaljerResponse =
 fun Utdanning.toV1(): UtdanningResponse =
     UtdanningResponse(
         nus = this.nus,
-        bestaatt = this.bestaatt?.let { JaNeiVetIkke.valueOf(it.name) },
-        godkjent = this.godkjent?.let { JaNeiVetIkke.valueOf(it.name) }
+        bestaatt = this.bestaatt?.toV1(),
+        godkjent = this.godkjent?.toV1()
     )
 
 fun Helse.toV1(): HelseResponse =
     HelseResponse(
-        helsetilstandHindrerArbeid = this.helsetilstandHindrerArbeid?.let { JaNeiVetIkke.valueOf(it.name) }
-            ?: JaNeiVetIkke.VET_IKKE,
+        helsetilstandHindrerArbeid = this.helsetilstandHindrerArbeid?.toV1() ?: JaNeiVetIkke.VET_IKKE,
     )
 
 fun Annet.toV1(): AnnetResponse =
     AnnetResponse(
-        andreForholdHindrerArbeid = this.andreForholdHindrerArbeid?.let { JaNeiVetIkke.valueOf(it.name) }
+        andreForholdHindrerArbeid = this.andreForholdHindrerArbeid?.toV1()
     )
+
+fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.toV1(): JaNeiVetIkke? {
+    return when (this) {
+        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.JA -> JaNeiVetIkke.JA
+        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.NEI -> JaNeiVetIkke.NEI
+        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.VET_IKKE -> JaNeiVetIkke.VET_IKKE
+        else -> null
+    }
+}
+
 
