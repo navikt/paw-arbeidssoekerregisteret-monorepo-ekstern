@@ -2,8 +2,9 @@ package no.nav.paw.oppslagapi.model.v2
 
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
+import no.nav.paw.oppslagapi.exception.UgyldigForespoerselException
 import no.nav.paw.security.authentication.model.SecurityContext
-import java.util.UUID
+import java.util.*
 
 sealed interface V2BaseRequest
 data class V2IdentitetsnummerRequest(
@@ -33,7 +34,7 @@ data class V2Request(
         get() = when {
             identitetsnummer != null -> V2IdentitetsnummerRequest(Identitetsnummer(identitetsnummer))
             perioder != null -> V2PerioderRequest(perioder)
-            else -> throw IllegalStateException("Ugyldig state, feil i input validering")
+            else -> throw UgyldigForespoerselException("Ugyldig forespørsel. Benytter både identitetsnummer og perioder")
         }
 }
 
