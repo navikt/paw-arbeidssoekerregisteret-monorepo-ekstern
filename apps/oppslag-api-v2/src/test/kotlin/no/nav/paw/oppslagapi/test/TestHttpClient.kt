@@ -14,6 +14,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.append
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
+import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PerioderRequest
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerQueryRequest
@@ -81,6 +83,47 @@ suspend fun HttpClient.hentViaPost(
         setBody(request)
     }
     return response
+}
+
+suspend fun HttpClient.hentPerioderV1(
+    token: Pair<Map<String, Any>, SignedJWT>,
+    identitetsnummer: Identitetsnummer
+): HttpResponse {
+    return hentViaPost(
+        url = "/api/v1/veileder/arbeidssoekerperioder",
+        token = token,
+        request = ArbeidssoekerperiodeRequest(
+            identitetsnummer = identitetsnummer.value
+        )
+    )//.validateOpenApiSpec(validator = v1ApiValidator)
+}
+
+suspend fun HttpClient.hentProfileringV1(
+    token: Pair<Map<String, Any>, SignedJWT>,
+    identitetsnummer: Identitetsnummer,
+    periodeId: UUID
+): HttpResponse {
+    return hentViaPost(
+        url = "/api/v1/veileder/profilering",
+        token = token,
+        request = ProfileringRequest(
+            identitetsnummer = identitetsnummer.value,
+            periodeId = periodeId
+        )
+    )//.validateOpenApiSpec(validator = v1ApiValidator)
+}
+
+suspend fun HttpClient.hentAggregertePerioderV1(
+    token: Pair<Map<String, Any>, SignedJWT>,
+    identitetsnummer: Identitetsnummer
+): HttpResponse {
+    return hentViaPost(
+        url = "/api/v1/veileder/arbeidssoekerperioder-aggregert",
+        token = token,
+        request = ArbeidssoekerperiodeRequest(
+            identitetsnummer = identitetsnummer.value
+        )
+    )//.validateOpenApiSpec(validator = v1ApiValidator)
 }
 
 suspend fun HttpClient.hentBekreftelserV2(

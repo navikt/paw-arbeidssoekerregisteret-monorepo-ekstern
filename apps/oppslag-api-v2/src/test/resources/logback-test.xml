@@ -10,7 +10,11 @@
         <appender-ref ref="CONSOLE"/>
     </root>
 
+    <logger name="no.nav.paw.logger.error" level="OFF"/>
     <logger name="no.nav" level="WARN"/>
+    <logger name="AuditLogger" level="WARN"/>
+    <logger name="io.ktor" level="WARN"/>
+    <logger name="io.micrometer" level="WARN"/>
     <logger name="org.apache.kafka" level="WARN"/>
     <logger name="io.confluent.kafka" level="WARN"/>
 </configuration>
