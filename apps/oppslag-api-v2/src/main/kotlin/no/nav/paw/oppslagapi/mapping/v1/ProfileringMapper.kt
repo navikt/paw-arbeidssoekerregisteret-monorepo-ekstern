@@ -3,8 +3,8 @@ package no.nav.paw.oppslagapi.mapping.v1
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringsResultat
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil
+import no.nav.paw.oppslagapi.model.v2.Profilering
+import no.nav.paw.oppslagapi.model.v2.ProfilertTil
 
 fun Profilering.toV1Profilering(): ProfileringResponse {
     return ProfileringResponse(

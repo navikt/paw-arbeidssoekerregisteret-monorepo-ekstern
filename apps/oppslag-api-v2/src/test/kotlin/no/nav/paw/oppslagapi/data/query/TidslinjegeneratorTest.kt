@@ -5,10 +5,6 @@ import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BekreftelseMedMetadata.Status
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning.DAGPENGER
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
@@ -22,6 +18,10 @@ import no.nav.paw.oppslagapi.data.pa_vegne_av_start_v1
 import no.nav.paw.oppslagapi.data.pa_vegne_av_stopp_v1
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
+import no.nav.paw.oppslagapi.model.v2.BekreftelseStatus
+import no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET
+import no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning.DAGPENGER
+import no.nav.paw.oppslagapi.model.v2.Metadata
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.test.data.bekreftelse.startPaaVegneAv
@@ -29,9 +29,9 @@ import no.nav.paw.test.data.bekreftelse.stoppPaaVegneAv
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse as OpenApiBekreftelse
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning.DAGPENGER as AVRO_BEKREFTELSE_DAGPENGER
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Bekreftelsesloesning.DAGPENGER as AVRO_PAA_VEGNE_AV_DAGPENGER
+import no.nav.paw.oppslagapi.model.v2.Bekreftelse as OpenApiBekreftelse
 
 class TidslinjegeneratorTest : FreeSpec({
     "Tidslinjegenerator" - {
@@ -65,7 +65,7 @@ class TidslinjegeneratorTest : FreeSpec({
             tidslinje.periodeStopp shouldBe null
             tidslinje.bekreftelser should { bekreftelser ->
                 bekreftelser.size shouldBe 3
-                bekreftelser.shouldForAll { bekreftelse -> bekreftelse.status shouldBe Status.GYLDIG }
+                bekreftelser.shouldForAll { bekreftelse -> bekreftelse.status shouldBe BekreftelseStatus.GYLDIG }
             }
         }
         "Verifiser standard flyt avsluttet periode" {
@@ -106,7 +106,7 @@ class TidslinjegeneratorTest : FreeSpec({
             tidslinje.periodeStopp shouldBe startTid + 6.dager
             tidslinje.bekreftelser should { bekreftelser ->
                 bekreftelser.size shouldBe 3
-                bekreftelser.shouldForAll { bekreftelse -> bekreftelse.status shouldBe Status.GYLDIG }
+                bekreftelser.shouldForAll { bekreftelse -> bekreftelse.status shouldBe BekreftelseStatus.GYLDIG }
             }
         }
         "Verifiser uventet avsender" {
@@ -135,11 +135,11 @@ class TidslinjegeneratorTest : FreeSpec({
             tidslinje.periodeStopp shouldBe null
             tidslinje.bekreftelser should { bekreftelser ->
                 bekreftelser.size shouldBe 3
-                bekreftelser.filter { it.status == Status.GYLDIG } should { gyldige ->
+                bekreftelser.filter { it.status == BekreftelseStatus.GYLDIG } should { gyldige ->
                     gyldige.size shouldBe 2
                     gyldige.shouldForAll { bekreftelse -> bekreftelse.bekreftelse?.bekreftelsesloesning shouldBe ARBEIDSSOEKERREGISTERET }
                 }
-                bekreftelser.filter { it.status == Status.UVENTET_KILDE } should { uventetKilde ->
+                bekreftelser.filter { it.status == BekreftelseStatus.UVENTET_KILDE } should { uventetKilde ->
                     uventetKilde.size shouldBe 1
                     uventetKilde.first().bekreftelse?.bekreftelsesloesning shouldBe DAGPENGER
                 }
@@ -188,11 +188,11 @@ class TidslinjegeneratorTest : FreeSpec({
             tidslinje.periodeStopp shouldBe startTid + 6.dager
             tidslinje.bekreftelser should { bekreftelser ->
                 bekreftelser.size shouldBe 4
-                bekreftelser.filter { it.status == Status.GYLDIG } should { gyldige ->
+                bekreftelser.filter { it.status == BekreftelseStatus.GYLDIG } should { gyldige ->
                     gyldige.size shouldBe 1
                     gyldige.first().bekreftelse?.svar?.sendtInnAv?.tidspunkt shouldBe startTid + 1.dager
                 }
-                bekreftelser.filter { it.status == Status.UTENFOR_PERIODE } should { uventetKilde ->
+                bekreftelser.filter { it.status == BekreftelseStatus.UTENFOR_PERIODE } should { uventetKilde ->
                     uventetKilde.size shouldBe 2
                     uventetKilde.filter { it.bekreftelse?.svar?.sendtInnAv?.tidspunkt == startTid - 3.dager }.size shouldBe 1
                     uventetKilde.filter { it.bekreftelse?.svar?.sendtInnAv?.tidspunkt == startTid - 3.dager }.size shouldBe 1

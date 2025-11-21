@@ -10,9 +10,6 @@ import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.every
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.HendelseType
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidslinjeResponse
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.felles.model.Identitetsnummer
@@ -26,6 +23,9 @@ import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
 import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.data.profilering_v1
 import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
+import no.nav.paw.oppslagapi.model.v2.HendelseType
+import no.nav.paw.oppslagapi.model.v2.ProfilertTil
+import no.nav.paw.oppslagapi.model.v2.TidslinjeResponse
 import no.nav.paw.oppslagapi.test.TestContext
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.oppslagapi.test.ansattToken

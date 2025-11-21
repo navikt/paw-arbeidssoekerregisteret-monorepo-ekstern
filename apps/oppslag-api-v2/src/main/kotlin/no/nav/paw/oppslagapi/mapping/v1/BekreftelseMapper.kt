@@ -2,8 +2,8 @@ package no.nav.paw.oppslagapi.mapping.v1
 
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.BekreftelseResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.BekreftelseSvarResponse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning
+import no.nav.paw.oppslagapi.model.v2.Bekreftelse
+import no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning
 
 fun Bekreftelse.v1Bekreftelse(): BekreftelseResponse {
     return BekreftelseResponse(

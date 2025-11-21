@@ -3,11 +3,11 @@ package no.nav.paw.oppslagapi.data.query
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.types.shouldBeSameInstanceAs
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Tidslinje
+import no.nav.paw.oppslagapi.model.v2.Tidslinje
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
-class GjeldeneEllerSisteTidslinjeTest: FreeSpec({
+class GjeldeneEllerSisteTidslinjeTest : FreeSpec({
     "Ved 3 inaktive perioder skal siste avsluttede returneres" {
         val tidslinjer = listOf(
             Tidslinje(

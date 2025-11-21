@@ -8,12 +8,12 @@ import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.JobbSituasjonBes
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerAggregertResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmArbeidssoekerResponse
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.UtdanningResponse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Annet
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BeskrivelseMedDetaljer
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Helse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Utdanning
+import no.nav.paw.oppslagapi.model.v2.Annet
+import no.nav.paw.oppslagapi.model.v2.BeskrivelseMedDetaljer
+import no.nav.paw.oppslagapi.model.v2.Helse
+import no.nav.paw.oppslagapi.model.v2.OpplysningerOmArbeidssoeker
+import no.nav.paw.oppslagapi.model.v2.Profilering
+import no.nav.paw.oppslagapi.model.v2.Utdanning
 
 fun OpplysningerOmArbeidssoeker.toV1(): OpplysningerOmArbeidssoekerResponse =
     OpplysningerOmArbeidssoekerResponse(
@@ -61,11 +61,11 @@ fun Annet.toV1(): AnnetResponse =
         andreForholdHindrerArbeid = this.andreForholdHindrerArbeid?.toV1()
     )
 
-fun no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.toV1(): JaNeiVetIkke? {
+fun no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.toV1(): JaNeiVetIkke? {
     return when (this) {
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.JA -> JaNeiVetIkke.JA
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.NEI -> JaNeiVetIkke.NEI
-        no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke.VET_IKKE -> JaNeiVetIkke.VET_IKKE
+        no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.JA -> JaNeiVetIkke.JA
+        no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.NEI -> JaNeiVetIkke.NEI
+        no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke.VET_IKKE -> JaNeiVetIkke.VET_IKKE
         else -> null
     }
 }

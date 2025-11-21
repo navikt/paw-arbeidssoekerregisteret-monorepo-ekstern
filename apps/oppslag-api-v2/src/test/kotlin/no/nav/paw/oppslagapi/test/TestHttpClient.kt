@@ -16,8 +16,8 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ArbeidssoekerperiodeRequest
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.ProfileringRequest
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PerioderRequest
 import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.oppslagapi.model.v2.PerioderRequest
 import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerQueryRequest
 import no.nav.paw.oppslagapi.model.v3.PerioderQueryRequest
 import no.nav.paw.oppslagapi.utils.configureJacksonForV3

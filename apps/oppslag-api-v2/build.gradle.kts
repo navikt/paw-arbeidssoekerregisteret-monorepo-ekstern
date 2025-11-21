@@ -116,7 +116,7 @@ val v1ApiSpec = ApiSpec(name = "v1")
 val v2ApiSpec = ApiSpec(name = "v2")
 val v3ApiSpec = ApiSpec(name = "v3")
 val apiValidatorList = listOf(v1ApiSpec, v2ApiSpec, v3ApiSpec).map { it.validator }
-val apiGeneratorList = listOf(v1ApiSpec, v2ApiSpec).map { it.generator }
+val apiGeneratorList = listOf(v1ApiSpec).map { it.generator }
 
 tasks {
     withType<Test>().configureEach {
@@ -154,28 +154,6 @@ tasks {
         inputSpec = v1ApiSpec.file
         outputDir = "${layout.buildDirectory.get()}/generated/"
         packageName = "no.nav.paw.arbeidssoekerregisteret.api.${v1ApiSpec.name}.oppslag"
-        configOptions.set(
-            mapOf(
-                "serializationLibrary" to "jackson",
-                "enumPropertyNaming" to "original",
-            ),
-        )
-        typeMappings = mapOf(
-            "DateTime" to "Instant"
-        )
-        globalProperties = mapOf(
-            "apis" to "none",
-            "models" to ""
-        )
-        importMappings = mapOf(
-            "Instant" to "java.time.Instant"
-        )
-    }
-    register<GenerateTask>(v2ApiSpec.generator) {
-        generatorName = "kotlin"
-        inputSpec = v2ApiSpec.file
-        outputDir = "${layout.buildDirectory.get()}/generated/"
-        packageName = "no.nav.paw.arbeidssoekerregisteret.api.${v2ApiSpec.name}.oppslag"
         configOptions.set(
             mapOf(
                 "serializationLibrary" to "jackson",

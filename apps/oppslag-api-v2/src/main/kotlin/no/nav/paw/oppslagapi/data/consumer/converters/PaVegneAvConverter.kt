@@ -4,14 +4,13 @@ import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv as AvroPaaVegneAv
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Bekreftelsesloesning as AvroBekreftelsesloesning
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Start as AvroStart
 import no.nav.paw.bekreftelse.paavegneav.v1.vo.Stopp as AvroStopp
-
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStart as OpenApiPaaVegneAvStart
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning as OpenApiBekreftelsesloesning
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.PaaVegneAvStopp as OpenApiPaaVegneAvStopp
+import no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning as OpenApiBekreftelsesloesning
+import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStart as OpenApiPaaVegneAvStart
+import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStopp as OpenApiPaaVegneAvStopp
 
 // Extension function to convert Avro Bekreftelsesloesning to OpenApiBekreftelsesloesning
 fun AvroBekreftelsesloesning.toOpenApi(): OpenApiBekreftelsesloesning =
-    when(this) {
+    when (this) {
         AvroBekreftelsesloesning.UKJENT_VERDI -> OpenApiBekreftelsesloesning.UKJENT_VERDI
         AvroBekreftelsesloesning.ARBEIDSSOEKERREGISTERET -> OpenApiBekreftelsesloesning.ARBEIDSSOEKERREGISTERET
         AvroBekreftelsesloesning.DAGPENGER -> OpenApiBekreftelsesloesning.DAGPENGER

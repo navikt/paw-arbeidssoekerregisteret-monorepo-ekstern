@@ -2,23 +2,24 @@ package no.nav.paw.oppslagapi.mapping.v1
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Annet
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.AvviksType
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bekreftelsesloesning
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Beskrivelse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.BeskrivelseMedDetaljer
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Bruker
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Helse
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.JaNeiVetIkke
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Jobbsituasjon
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Metadata
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.OpplysningerOmArbeidssoeker
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Profilering
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.ProfilertTil
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Svar
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.TidspunktFraKilde
-import no.nav.paw.arbeidssoekerregisteret.api.v2.oppslag.models.Utdanning
+import no.nav.paw.oppslagapi.model.v2.Annet
+import no.nav.paw.oppslagapi.model.v2.AvviksType
+import no.nav.paw.oppslagapi.model.v2.Bekreftelse
+import no.nav.paw.oppslagapi.model.v2.Bekreftelsesloesning
+import no.nav.paw.oppslagapi.model.v2.Beskrivelse
+import no.nav.paw.oppslagapi.model.v2.BeskrivelseMedDetaljer
+import no.nav.paw.oppslagapi.model.v2.Bruker
+import no.nav.paw.oppslagapi.model.v2.BrukerType
+import no.nav.paw.oppslagapi.model.v2.Helse
+import no.nav.paw.oppslagapi.model.v2.JaNeiVetIkke
+import no.nav.paw.oppslagapi.model.v2.Jobbsituasjon
+import no.nav.paw.oppslagapi.model.v2.Metadata
+import no.nav.paw.oppslagapi.model.v2.OpplysningerOmArbeidssoeker
+import no.nav.paw.oppslagapi.model.v2.Profilering
+import no.nav.paw.oppslagapi.model.v2.ProfilertTil
+import no.nav.paw.oppslagapi.model.v2.Svar
+import no.nav.paw.oppslagapi.model.v2.TidspunktFraKilde
+import no.nav.paw.oppslagapi.model.v2.Utdanning
 import java.time.Instant
 import java.util.*
 
@@ -29,7 +30,7 @@ class V2TilV1ConvertersTest : FreeSpec({
         val periodeId = UUID.randomUUID()
         val metadata = Metadata(
             tidspunkt = Instant.now(),
-            utfoertAv = Bruker(type = Bruker.Type.SYSTEM, id = "brukerId"),
+            utfoertAv = Bruker(type = BrukerType.SYSTEM, id = "brukerId"),
             kilde = "kilde",
             aarsak = "aarsak",
             tidspunktFraKilde = null
@@ -106,7 +107,7 @@ class V2TilV1ConvertersTest : FreeSpec({
         val periodeId = UUID.randomUUID()
         val metadata = Metadata(
             tidspunkt = Instant.now(),
-            utfoertAv = Bruker(type = Bruker.Type.SYSTEM, id = "brukerId"),
+            utfoertAv = Bruker(type = BrukerType.SYSTEM, id = "brukerId"),
             kilde = "kilde",
             aarsak = "aarsak",
             tidspunktFraKilde = null
@@ -144,7 +145,7 @@ class V2TilV1ConvertersTest : FreeSpec({
         val opplysningerId = UUID.randomUUID()
         val metadata = Metadata(
             tidspunkt = Instant.now(),
-            utfoertAv = Bruker(type = Bruker.Type.SYSTEM, id = "brukerId"),
+            utfoertAv = Bruker(type = BrukerType.SYSTEM, id = "brukerId"),
             kilde = "kilde",
             aarsak = "aarsak",
             tidspunktFraKilde = null
@@ -185,7 +186,7 @@ class V2TilV1ConvertersTest : FreeSpec({
 
     "Metadata.v1Metadata() should convert and map all fields correctly" {
         val tidspunkt = Instant.now()
-        val bruker = Bruker(type = Bruker.Type.SYSTEM, id = "brukerId")
+        val bruker = Bruker(type = BrukerType.SYSTEM, id = "brukerId")
         val tidspunktFraKilde = TidspunktFraKilde(
             tidspunkt = tidspunkt,
             avviksType = AvviksType.RETTING
@@ -208,7 +209,7 @@ class V2TilV1ConvertersTest : FreeSpec({
     }
 
     "Bruker.v1Bruker() should convert and map all fields correctly" {
-        val v2 = Bruker(type = Bruker.Type.VEILEDER, id = "brukerId")
+        val v2 = Bruker(type = BrukerType.VEILEDER, id = "brukerId")
         val v1 = v2.v1Bruker()
         v1.type.name shouldBe v2.type.name
         v1.id shouldBe v2.id
