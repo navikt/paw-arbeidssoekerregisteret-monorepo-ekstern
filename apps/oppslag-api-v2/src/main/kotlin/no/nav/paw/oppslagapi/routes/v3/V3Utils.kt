@@ -11,10 +11,21 @@ import no.nav.paw.oppslagapi.exception.UgyldigForespoerselException
 import no.nav.paw.oppslagapi.mapping.v3.asV3
 import no.nav.paw.oppslagapi.model.v2.V2BaseRequest
 import no.nav.paw.oppslagapi.model.v2.hentTidslinjer
+import no.nav.paw.oppslagapi.model.v3.Bekreftelse
+import no.nav.paw.oppslagapi.model.v3.Egenvurdering
+import no.nav.paw.oppslagapi.model.v3.Hendelse
 import no.nav.paw.oppslagapi.model.v3.HendelseType
+import no.nav.paw.oppslagapi.model.v3.OpplysningerOmArbeidssoeker
+import no.nav.paw.oppslagapi.model.v3.PaaVegneAvStart
+import no.nav.paw.oppslagapi.model.v3.PaaVegneAvStopp
+import no.nav.paw.oppslagapi.model.v3.PeriodeAvluttet
+import no.nav.paw.oppslagapi.model.v3.PeriodeStartet
+import no.nav.paw.oppslagapi.model.v3.Profilering
 import no.nav.paw.oppslagapi.model.v3.SortOrder
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.security.authentication.model.SecurityContext
+import java.time.Duration
+import java.time.Instant
 
 private val logger = buildApplicationLogger
 
@@ -41,13 +52,18 @@ suspend fun ApplicationQueryLogic.finnTidslinjer(
 
 private fun Tidslinje.byTypes(
     types: List<HendelseType>,
-    ordering: SortOrder // TODO: Sortere hendelser også?
+    ordering: SortOrder
 ): Tidslinje {
     return if (types.isEmpty()) {
-        this
+        this.copy(
+            hendelser = hendelser
+                .sortedByTidspunk(ordering)
+        )
     } else {
         this.copy(
-            hendelser = hendelser.filter { types.contains(it.type) }
+            hendelser = hendelser
+                .filter { types.contains(it.type) }
+                .sortedByTidspunk(ordering)
         )
     }
 }
@@ -56,6 +72,26 @@ fun Iterable<Tidslinje>.sortedByStart(ordering: SortOrder): List<Tidslinje> {
     return when (ordering) {
         SortOrder.ASC -> this.sortedBy { it.startet.toEpochMilli() }
         SortOrder.DESC -> this.sortedByDescending { it.startet.toEpochMilli() }
+    }
+}
+
+fun Iterable<Hendelse>.sortedByTidspunk(ordering: SortOrder): List<Hendelse> {
+    return when (ordering) {
+        SortOrder.ASC -> this.sortedBy { it.tidspunkt().toEpochMilli() }
+        SortOrder.DESC -> this.sortedByDescending { it.tidspunkt().toEpochMilli() }
+    }
+}
+
+fun Hendelse.tidspunkt(): Instant {
+    return when (this) {
+        is PeriodeStartet -> this.tidspunkt
+        is PeriodeAvluttet -> this.tidspunkt
+        is OpplysningerOmArbeidssoeker -> this.sendtInnAv.tidspunkt
+        is Profilering -> this.sendtInnAv.tidspunkt
+        is Egenvurdering -> this.sendtInnAv.tidspunkt
+        is Bekreftelse -> this.svar.sendtInnAv.tidspunkt
+        is PaaVegneAvStart -> Instant.EPOCH
+        is PaaVegneAvStopp -> Instant.EPOCH + Duration.ofMinutes(1)
     }
 }
 

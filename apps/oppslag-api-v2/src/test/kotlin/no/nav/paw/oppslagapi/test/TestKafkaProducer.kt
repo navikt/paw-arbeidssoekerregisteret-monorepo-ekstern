@@ -7,6 +7,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
+import no.nav.paw.bekreftelse.paavegneav.v1.PaaVegneAv
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
@@ -29,6 +30,7 @@ fun main() {
     val profileringProducerId = "$producerIdPrefix-profilering-producer"
     val egenvurderingProducerId = "$producerIdPrefix-egenvurdering-producer"
     val bekreftelseProducerId = "$producerIdPrefix-bekreftelse-producer"
+    val paaVegneAvProducerId = "$producerIdPrefix-paavegneav-producer"
     val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
 
     val periodeKafkaProducer = buildKafkaProducer(
@@ -56,18 +58,44 @@ fun main() {
         kafkaConfig,
         BekreftelseSerializer()
     )
+    val paaVegneAvKafkaProducer = buildKafkaProducer(
+        paaVegneAvProducerId,
+        kafkaConfig,
+        PaaVegneAvSerializer()
+    )
 
-    val key3 = -1003L
+    val key = -1003L
+    val hendelser = TestData.hendelser1
 
-    val perioder = mapOf(key3 to TestData.periode3_1_startet)
+    val perioder = hendelser
+        .filter { it is Periode }
+        .map { it as Periode }
+        .map { key to it }
 
-    val opplysninger = mapOf(key3 to TestData.opplysninger3_1)
+    val opplysninger = hendelser
+        .filter { it is OpplysningerOmArbeidssoeker }
+        .map { it as OpplysningerOmArbeidssoeker }
+        .map { key to it }
 
-    val profileringer = mapOf(key3 to TestData.profilering3_1)
+    val profileringer = hendelser
+        .filter { it is Profilering }
+        .map { it as Profilering }
+        .map { key to it }
 
-    val egenvurderinger = mapOf(key3 to TestData.egenvurdering3_1)
+    val egenvurderinger = hendelser
+        .filter { it is Egenvurdering }
+        .map { it as Egenvurdering }
+        .map { key to it }
 
-    val bekreftelser = mapOf(key3 to TestData.bekreftelse3_1)
+    val bekreftelser = hendelser
+        .filter { it is Bekreftelse }
+        .map { it as Bekreftelse }
+        .map { key to it }
+
+    val paaVegneAv = hendelser
+        .filter { it is PaaVegneAv }
+        .map { it as PaaVegneAv }
+        .map { key to it }
 
     try {
         perioder.forEach { (key, value) ->
@@ -123,6 +151,17 @@ fun main() {
     } finally {
         bekreftelseKafkaProducer.close()
     }
+
+    try {
+        paaVegneAv.forEach { (key, value) ->
+            logger.info("Sender paaVegneAv for periode {}", value.periodeId)
+            paaVegneAvKafkaProducer.sendRecord(topicNames.paavnegneavTopic, key, value)
+        }
+    } catch (e: Exception) {
+        logger.error("Send paaVegneAv feilet", e)
+    } finally {
+        paaVegneAvKafkaProducer.close()
+    }
 }
 
 private fun <T : SpecificRecord> Producer<Long, T>.sendRecord(
@@ -152,3 +191,4 @@ class OpplysningerOmArbeidssoekerSerializer : SpecificAvroSerializer<Opplysninge
 class ProfileringSerializer : SpecificAvroSerializer<Profilering>()
 class EgenvurderingSerializer : SpecificAvroSerializer<Egenvurdering>()
 class BekreftelseSerializer : SpecificAvroSerializer<Bekreftelse>()
+class PaaVegneAvSerializer : SpecificAvroSerializer<PaaVegneAv>()

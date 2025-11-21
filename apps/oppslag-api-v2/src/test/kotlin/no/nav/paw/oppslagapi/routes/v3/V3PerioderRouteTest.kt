@@ -15,6 +15,7 @@ import no.nav.paw.oppslagapi.configureKtorServer
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.query.genererTidslinje
 import no.nav.paw.oppslagapi.mapping.v3.asV3
+import no.nav.paw.oppslagapi.model.v3.SortOrder
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.oppslagapi.test.TestContext
 import no.nav.paw.oppslagapi.test.TestData
@@ -41,8 +42,12 @@ class V3PerioderRouteTest : FreeSpec({
         val groupedRows2: List<Pair<UUID, List<Row<Any>>>> = TestData.rows4
             .groupBy { it.periodeId }
             .map { (periodeId, rows) -> periodeId to rows }
-        val forventetTidslinje1 = genererTidslinje(rader = groupedRows1).first().asV3()
-        val forventetTidslinje2 = genererTidslinje(rader = groupedRows2).first().asV3()
+        val unorderedForventetTidslinje1 = genererTidslinje(rader = groupedRows1).first().asV3()
+        val forventetTidslinje1 = unorderedForventetTidslinje1
+            .copy(hendelser = unorderedForventetTidslinje1.hendelser.sortedByTidspunk(SortOrder.DESC))
+        val unorderedForventetTidslinje2 = genererTidslinje(rader = groupedRows2).first().asV3()
+        val forventetTidslinje2 = unorderedForventetTidslinje2
+            .copy(hendelser = unorderedForventetTidslinje2.hendelser.sortedByTidspunk(SortOrder.DESC))
 
         beforeSpec {
             tilgangsTjenesteForAnsatteMock.configureMock()

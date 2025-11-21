@@ -25,6 +25,11 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/IdentitetsnummerQueryRequest"
+            examples:
+              IDENTITETSNUMMER:
+                value:
+                  type: "IDENTITETSNUMMER"
+                  identitetsnummer: "01017012345"
         required: true
       responses:
         "200":
@@ -127,6 +132,18 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/QueryRequest"
+            examples:
+              IDENTITETSNUMMER:
+                value:
+                  type: "IDENTITETSNUMMER"
+                  identitetsnummer: "01017012345"
+              PERIODER:
+                value:
+                  type: "PERIODER"
+                  perioder: [
+                    "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+                  ]
         required: true
       responses:
         "200":
