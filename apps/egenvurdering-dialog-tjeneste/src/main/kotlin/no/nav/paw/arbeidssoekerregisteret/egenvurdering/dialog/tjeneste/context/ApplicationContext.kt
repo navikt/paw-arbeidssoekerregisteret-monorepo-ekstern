@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.A
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ServerConfig
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
@@ -55,7 +56,7 @@ data class ApplicationContext(
                 keyDeserializer = LongDeserializer::class,
                 valueDeserializer = egenvurderingAvroDeserializer::class,
 
-            )
+                )
             val texasClient = TexasClient(applicationConfig.texasClientConfig, createHttpClient())
             val veilarbdialogClient = VeilarbdialogClient(
                 config = applicationConfig.veilarbdialogClientConfig,
@@ -90,6 +91,7 @@ data class ApplicationContext(
                 useServerPreparedStatements = false
             )
         } catch (e: Exception) {
+            buildApplicationLogger.debug("Kunne ikke opprette datasource", e)
             throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
         }
 

@@ -15,6 +15,11 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <logger name="app" level="INFO"/>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <logger name="no.nav.paw" level="INFO"/>
+            <logger name="ch.qos.logback" level="ERROR"/>
         </then>
     </if>
 
@@ -23,6 +28,11 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <logger name="app" level="TRACE"/>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <logger name="no.nav.paw" level="DEBUG"/>
+            <logger name="ch.qos.logback" level="ERROR"/>
         </then>
     </if>
 
@@ -31,11 +41,11 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT"/>
             </root>
+            <logger name="app" level="TRACE"/>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <logger name="no.nav.paw" level="DEBUG"/>
+            <logger name="ch.qos.logback" level="ERROR"/>
         </then>
     </if>
-    <logger name="app" level="TRACE"/>
-    <logger name="org.apache.kafka" level="WARN"/>
-    <logger name="io.confluent.kafka" level="WARN"/>
-    <logger name="no.nav.paw" level="DEBUG"/>
-    <logger name="ch.qos.logback" level="ERROR"/>
 </configuration>
