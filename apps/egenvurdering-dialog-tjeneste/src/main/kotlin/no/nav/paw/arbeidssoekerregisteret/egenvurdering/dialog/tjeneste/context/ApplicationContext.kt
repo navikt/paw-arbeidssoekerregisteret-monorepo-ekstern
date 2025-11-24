@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.A
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ServerConfig
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.factory.createHttpClient
@@ -26,6 +27,8 @@ import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.LongDeserializer
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.sql.DataSource
 
 data class ApplicationContext(
@@ -69,7 +72,13 @@ data class ApplicationContext(
                 kafkaConsumerLivenessProbe,
                 databaseIsAliveCheck(dataSource)
             )
-
+            prometheusMeterRegistry.gauge("${PeriodeIdDialogIdTable.tableName.lowercase()}_antall_rader", dataSource, { _ ->
+                transaction {
+                    PeriodeIdDialogIdTable.selectAll()
+                        .count()
+                        .toDouble()
+                }
+            })
             return ApplicationContext(
                 serverConfig = serverConfig,
                 applicationConfig = applicationConfig,
