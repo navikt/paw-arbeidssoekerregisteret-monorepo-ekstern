@@ -5,18 +5,19 @@ import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.context.ApplicationContext
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureDatabase
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureKafka
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureLogging
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureRouting
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureSerialization
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.buildApplicationLogger
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.installTracingPlugin
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.installWebPlugins
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.configureJacksonOverrides
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
-import no.nav.paw.config.env.DevGcp
 import no.nav.paw.config.env.appNameOrDefaultForLocal
-import no.nav.paw.config.env.currentRuntimeEnvironment
+import no.nav.paw.database.plugin.installDatabasePlugins
+import no.nav.paw.logging.logger.buildApplicationLogger
+import no.nav.paw.logging.plugin.installLoggingPlugin
+import no.nav.paw.metrics.plugin.installMetricsPlugin
+import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
+import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.apache.kafka.clients.consumer.ConsumerRecords
 
 fun main() {
@@ -45,22 +46,20 @@ fun main() {
 }
 
 fun Application.module(applicationContext: ApplicationContext) {
-    configureSerialization()
-    configureHTTP()
-    configureLogging()
-    configureMetrics(applicationContext)
-    configureDatabase(applicationContext.dataSource)
-    configureRouting(applicationContext)
-    if (currentRuntimeEnvironment is DevGcp) {
-        configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
-            if (!records.isEmpty) {
-                applicationContext.dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
-            }
+    with(applicationContext) {
+        installWebPlugins()
+        installLoggingPlugin()
+        installContentNegotiationPlugin {
+            configureJacksonOverrides()
         }
-    } else {
+        installTracingPlugin()
+        installMetricsPlugin(meterRegistry)
+        installAuthenticationPlugin(securityConfig.authProviders)
+        installDatabasePlugins(dataSource)
+        configureRouting(healthChecks, meterRegistry, dialogService)
         configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
             if (!records.isEmpty) {
-                throw IllegalStateException("Mottok ${records.count()} i produksjon. Noe er galt med feature toggle i egenvurdering-api")
+                dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)
             }
         }
     }

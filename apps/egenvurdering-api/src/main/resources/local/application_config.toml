@@ -1,6 +1,6 @@
-deprekeringstidspunktBehovsvurdering = "2050-01-01T00:00:00Z"
+prodsettingstidspunktEgenvurdering = "2025-01-01T00:00:00+01:00"
 
 [producerConfig]
 producerVersion = "paw-egenvurdering-producer-v1"
 applicationIdPrefix = "paw-arbeidssoekerregisteret-api-egenvurdering"
-egenvurderingTopic = "arbeidssoker-egenvurdering-v1"
+egenvurderingTopic = "paw.arbeidssoeker-egenvurdering-v1"

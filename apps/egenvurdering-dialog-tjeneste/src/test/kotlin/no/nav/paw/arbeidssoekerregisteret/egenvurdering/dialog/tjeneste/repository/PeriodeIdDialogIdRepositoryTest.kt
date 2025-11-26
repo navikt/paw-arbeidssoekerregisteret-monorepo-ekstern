@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.reposit
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.buildPostgresDataSource
 import org.jetbrains.exposed.v1.jdbc.Database
 import java.util.*
 
@@ -10,7 +11,7 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
 
     val periodeIdDialogIdRepository = PeriodeIdDialogIdRepository
 
-    val dataSource = autoClose(initTestDatabase())
+    val dataSource = autoClose(buildPostgresDataSource())
     beforeSpec { Database.connect(dataSource) }
 
     "getDialogIdOrNull er null når periode ikke finnes" {

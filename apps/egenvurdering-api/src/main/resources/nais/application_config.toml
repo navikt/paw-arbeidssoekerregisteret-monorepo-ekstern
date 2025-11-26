@@ -1,4 +1,4 @@
-deprekeringstidspunktBehovsvurdering = "${DEPREKERINGSTIDSPUNKT_BEHOVSVURDERING}"
+prodsettingstidspunktEgenvurdering = "${PRODSETTINGSTIDSPUNKT_EGENVURDERING}"
 
 [producerConfig]
 producerVersion = "${KAFKA_PAW_EGENVURDERING_PRODUCER_VERSION}"

@@ -2,14 +2,14 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.context
 
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.DialogService
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ServerConfig
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.buildApplicationLogger
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service.DialogService
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
@@ -23,6 +23,9 @@ import no.nav.paw.health.probes.databaseIsAliveCheck
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.logging.logger.buildApplicationLogger
+import no.nav.paw.security.authentication.config.SECURITY_CONFIG
+import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.texas.TexasClient
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.Deserializer
@@ -34,7 +37,8 @@ import javax.sql.DataSource
 data class ApplicationContext(
     val serverConfig: ServerConfig,
     val applicationConfig: ApplicationConfig,
-    val prometheusMeterRegistry: PrometheusMeterRegistry,
+    val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG),
+    val meterRegistry: PrometheusMeterRegistry,
     val egenvurderingAvroDeserializer: Deserializer<Egenvurdering>,
     val consumer: KafkaConsumer<Long, Egenvurdering>,
     val dialogService: DialogService,
@@ -65,24 +69,31 @@ data class ApplicationContext(
                 config = applicationConfig.veilarbdialogClientConfig,
                 texasClient = texasClient,
             )
-            val dialogService = DialogService(veilarbdialogClient)
+            val dialogService = DialogService(
+                applicationConfig = applicationConfig,
+                veilarbdialogClient = veilarbdialogClient,
+                periodeIdDialogIdRepository = PeriodeIdDialogIdRepository
+            )
             val dataSource = createDataSource()
             val kafkaConsumerLivenessProbe = GenericLivenessProbe()
             val healthChecks = healthChecksOf(
                 kafkaConsumerLivenessProbe,
                 databaseIsAliveCheck(dataSource)
             )
-            prometheusMeterRegistry.gauge("${PeriodeIdDialogIdTable.tableName.lowercase()}_antall_rader", dataSource, { _ ->
+            prometheusMeterRegistry.gauge(
+                "${PeriodeIdDialogIdTable.tableName.lowercase()}_antall_rader",
+                dataSource
+            ) { _ ->
                 transaction {
                     PeriodeIdDialogIdTable.selectAll()
                         .count()
                         .toDouble()
                 }
-            })
+            }
             return ApplicationContext(
                 serverConfig = serverConfig,
                 applicationConfig = applicationConfig,
-                prometheusMeterRegistry = prometheusMeterRegistry,
+                meterRegistry = prometheusMeterRegistry,
                 egenvurderingAvroDeserializer = egenvurderingAvroDeserializer,
                 consumer = egenvurderingConsumer,
                 dialogService = dialogService,

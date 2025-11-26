@@ -1,0 +1,15 @@
+### GET /api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag med tokenx token
+GET {{baseUrl}}/api/v1/arbeidssoeker/profilering/egenvurdering/grunnlag
+Accept: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+### POST /api/v1/arbeidssoeker/profilering/egenvurdering med azure token
+POST {{baseUrl}}/api/v1/arbeidssoeker/profilering/egenvurdering
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("tokenx")}}
+
+{
+    "profileringId": "3ef5e4bd-9703-4dbf-a0cc-51dd86592a5c",
+    "egenvurdering": "ANTATT_GODE_MULIGHETER"
+}

@@ -125,6 +125,30 @@
                         "pid": "01017012345",
                         "acr": "idporten-loa-high"
                     }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-egenvurdering-01017012345",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-egenvurdering",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-egenvurdering"
+                        ],
+                        "pid": "01017012345",
+                        "acr": "idporten-loa-high"
+                    }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-arbeidssoekerregisteret-api-egenvurdering-03017012345",
+                    "claims": {
+                        "sub": "admin@paw-arbeidssoekerregisteret-api-egenvurdering",
+                        "aud": [
+                            "paw-arbeidssoekerregisteret-api-egenvurdering"
+                        ],
+                        "pid": "03017012345",
+                        "acr": "idporten-loa-high"
+                    }
                 }
             ]
         },

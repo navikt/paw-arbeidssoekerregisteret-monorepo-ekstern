@@ -19,6 +19,10 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ArbeidsoppfølgingsperiodeAvsluttet
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogId
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogRequest
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogResponse
 import no.nav.paw.client.factory.configureJackson
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.m2m.MachineToMachineTokenResponse

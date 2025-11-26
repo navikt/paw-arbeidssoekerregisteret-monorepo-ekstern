@@ -1,0 +1,9 @@
+### POST Request /api/v1/egenvurdering/dialog
+POST {{baseUrl}}/api/v1/egenvurdering/dialog
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("azure")}}
+
+{
+    "periodeId": "6be3aafd-8ca0-4aeb-99c3-34434d2e6f51"
+}

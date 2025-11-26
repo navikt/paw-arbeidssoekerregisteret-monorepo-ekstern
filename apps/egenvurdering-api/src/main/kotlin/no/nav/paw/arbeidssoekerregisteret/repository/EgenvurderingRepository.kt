@@ -1,30 +1,20 @@
 package no.nav.paw.arbeidssoekerregisteret.repository
 
+import no.nav.paw.arbeidssoekerregisteret.model.EgenvurderingRow
+import no.nav.paw.arbeidssoekerregisteret.model.NyesteProfileringRow
+import no.nav.paw.arbeidssoekerregisteret.model.ProfileringRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.felles.model.Identitetsnummer
-import java.time.Instant
 import java.util.*
 
 interface EgenvurderingRepository {
-    fun finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident: Identitetsnummer): NyesteProfilering?
+    fun finnNyesteProfilering(identitetsnummer: Identitetsnummer): NyesteProfileringRow?
     fun lagrePeriode(periode: Periode)
     fun lagreProfilering(profilering: Profilering)
     fun lagreEgenvurdering(egenvurdering: Egenvurdering)
     fun slettPeriode(periodeId: UUID): Boolean
-    fun finnProfilering(profileringId: UUID, ident: Identitetsnummer): ProfileringRow?
+    fun finnProfilering(profileringId: UUID, identitetsnummer: Identitetsnummer): ProfileringRow?
+    fun finnEgenvurderinger(identitetsnummer: Identitetsnummer): List<EgenvurderingRow>
 }
-
-data class NyesteProfilering(
-    val id: UUID,
-    val profilertTil: String,
-    val profileringTidspunkt: Instant,
-    val periodeStartetTidspunkt: Instant,
-)
-
-data class ProfileringRow(
-    val id: UUID,
-    val periodeId: UUID,
-    val profilertTil: String,
-)

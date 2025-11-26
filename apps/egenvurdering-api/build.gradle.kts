@@ -13,6 +13,9 @@ dependencies {
     implementation(project(":domain:error"))
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":lib:hoplite-config"))
+    implementation(project(":lib:serialization"))
+    implementation(project(":lib:logging"))
+    implementation(project(":lib:metrics"))
     implementation(project(":lib:health"))
     implementation(project(":lib:error-handling"))
     implementation(project(":lib:security"))
@@ -84,6 +87,7 @@ dependencies {
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.nav.security.mock.oauth2.server)
     testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.atlassian.oai.swaggerRequestValidator.core)
 }
 
 java {
@@ -109,11 +113,11 @@ tasks.withType(Jar::class) {
 }
 
 tasks.named("compileKotlin") {
-    dependsOn("openApiValidate", "openApiGenerate")
+    dependsOn("openApiValidate")
 }
 
 tasks.named("compileTestKotlin") {
-    dependsOn("openApiValidate", "openApiGenerate")
+    dependsOn("openApiValidate")
 }
 
 sourceSets {
@@ -128,28 +132,4 @@ val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/docu
 
 openApiValidate {
     inputSpec = openApiDocFile
-}
-
-openApiGenerate {
-    generatorName.set("kotlin-server")
-    inputSpec = openApiDocFile
-    library.set("ktor")
-    outputDir = "${layout.buildDirectory.get()}/generated/"
-    packageName = "no.nav.paw.arbeidssoekerregisteret.egenvurdering.api"
-    configOptions.set(
-        mapOf(
-            "serializationLibrary" to "jackson",
-            "enumPropertyNaming" to "original",
-        ),
-    )
-    typeMappings = mapOf(
-        "DateTime" to "LocalDateTime",
-    )
-    globalProperties = mapOf(
-        "apis" to "none",
-        "models" to ""
-    )
-    importMappings = mapOf(
-        "LocalDateTime" to "java.time.LocalDateTime"
-    )
 }

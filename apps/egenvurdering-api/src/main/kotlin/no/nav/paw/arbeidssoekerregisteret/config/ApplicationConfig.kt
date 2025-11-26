@@ -6,7 +6,7 @@ const val APPLICATION_CONFIG = "application_config.toml"
 
 data class ApplicationConfig(
     val producerConfig: ProducerConfig,
-    val deprekeringstidspunktBehovsvurdering: Instant
+    val prodsettingstidspunktEgenvurdering: Instant
 )
 
 data class ProducerConfig(

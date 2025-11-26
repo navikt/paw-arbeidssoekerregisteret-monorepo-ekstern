@@ -1,0 +1,9 @@
+### POST /tokenx/token
+POST {{baseUrl}}/tokenx/token
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&
+client_id={{clientId}}&
+client_secret={{clientSecret}}&
+scope={{scope}}

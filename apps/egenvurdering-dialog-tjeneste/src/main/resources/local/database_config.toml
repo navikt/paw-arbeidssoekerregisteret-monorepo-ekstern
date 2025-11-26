@@ -1,1 +1,1 @@
-jdbcUrl = "jdbc:postgresql://localhost:5432/app?user=egenvurdering_dialog_tjeneste&password=Paw1234"
+jdbcUrl = "jdbc:postgresql://localhost:5432/egenvurdering_dialog_tjeneste?user=egenvurdering_dialog_tjeneste&password=Paw1234"

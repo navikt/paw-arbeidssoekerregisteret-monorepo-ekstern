@@ -14,9 +14,12 @@ dependencies {
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
+    implementation(project(":lib:logging"))
+    implementation(project(":lib:serialization"))
     implementation(project(":lib:kafka"))
     implementation(project(":lib:database"))
     implementation(project(":lib:health"))
+    implementation(project(":lib:metrics"))
     implementation(project(":lib:security"))
     implementation(project(":lib:http-client-utils"))
     testImplementation(project(":test:test-data-factory"))
@@ -58,6 +61,10 @@ dependencies {
     implementation(libs.opentelemetry.api)
     implementation(libs.opentelemetry.annotations)
 
+    // Docs
+    implementation(libs.ktor.server.openapi)
+    implementation(libs.ktor.server.swagger)
+
     // Kafka
     implementation(libs.kafka.clients)
     implementation(libs.confluent.kafka.avro.serializer)
@@ -70,6 +77,7 @@ dependencies {
     testImplementation(libs.bundles.unit.testing.kotest)
     testImplementation(libs.nav.security.mock.oauth2.server)
     testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.atlassian.oai.swaggerRequestValidator.core)
 }
 
 java {
@@ -92,4 +100,18 @@ tasks.withType(Jar::class) {
         attributes["Main-Class"] = application.mainClass.get()
         attributes["Implementation-Title"] = rootProject.name
     }
+}
+
+tasks.named("compileTestKotlin") {
+    dependsOn("openApiValidate")
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("openApiValidate")
+}
+
+val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/v1.yaml"
+
+openApiValidate {
+    inputSpec = openApiDocFile
 }

@@ -1,0 +1,21 @@
+{
+    "request": {
+        "method": "POST",
+        "urlPathPattern": "/api/v2/identiteter"
+    },
+    "response": {
+        "status": 200,
+        "jsonBody": {
+            "identiteter": [
+                {
+                    "identitet": "{{jsonPath request.body '$.ident'}}",
+                    "type": "FOLKEREGISTERIDENT",
+                    "gjeldende": true
+                }
+            ]
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+}

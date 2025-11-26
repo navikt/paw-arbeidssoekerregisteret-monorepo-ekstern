@@ -22,6 +22,8 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
+  ingresses:
+    - https://egenvurdering-dialog-arbeidssoekerregisteret.intern.dev.nav.no/api/docs
   env:
     - name: KAFKA_PAW_EGENVURDERING_CONSUMER_VERSION
       value: "egenvurdering-consumer-v1"
@@ -67,6 +69,13 @@ spec:
   postgres:
     clusterName: egenvurdering-dialog-tjeneste
   accessPolicy:
+    inbound:
+      rules:
+        - application: paw-dev-proxy
+        - application: azure-token-generator
+          namespace: nais
+        - application: veilarbvedtaksstotte
+          namespace: obo
     outbound:
       rules:
         - application: veilarbdialog

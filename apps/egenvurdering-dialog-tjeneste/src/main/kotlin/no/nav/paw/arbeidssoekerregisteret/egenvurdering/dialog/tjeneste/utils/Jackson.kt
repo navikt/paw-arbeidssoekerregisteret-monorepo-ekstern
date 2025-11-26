@@ -8,9 +8,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 
-fun ObjectMapper.configureJackson() {
+fun ObjectMapper.configureJacksonOverrides() {
     setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
     disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
     disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
     registerModule(JavaTimeModule())

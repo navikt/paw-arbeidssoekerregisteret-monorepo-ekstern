@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: Egenvurdering Dialog Tjeneste v1
+  description: API for henting av egenvurdering-data relatert til dialoger
+  version: 1.0.0
+paths:
+  /api/v1/egenvurdering/dialog:
+    post:
+      description: "Hent dialogId for periode"
+      parameters:
+        - name: "traceparent"
+          in: "header"
+          required: false
+          description: "https://www.w3.org/TR/trace-context/#traceparent-header-field-values"
+          schema:
+            type: "string"
+            format: "traceparent"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EgenvurderingDialogRequest"
+            example:
+              periodeId: "c499f45f-829f-4c05-9bfc-8a6bf4924055"
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EgenvurderingDialogResponse"
+              example:
+                dialogId: "5e3b8af7-dba6-477d-a583-7ed79644b4ca"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "1bbc8dee-a6d6-467a-aed7-adcc89941ebb"
+                type: "urn:paw:http:kunne-ikke-tolke-forespoersel"
+                status: 400
+                title: "Bad Request"
+                detail: "Kunne ikke tolke forespørsel"
+                instance: "/api/v1/egenvurdering/dialog"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "7e5e370f-d8c3-4194-b088-18b3d1b30bb0"
+                type: "urn:paw:security:ugyldig-bruker"
+                status: 403
+                title: "Forbidden"
+                detail: "Bruker er ugyldig"
+                instance: "/api/v1/egenvurdering/dialog"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "87385cc6-f7a7-4594-b333-5d4016e4dfd3"
+                type: "urn:paw:egenvurdering:dialog-ikke-funnet"
+                status: 404
+                title: "Not Found"
+                detail: "Ingen dialog funnet for arbeidssøkerperiode"
+                instance: "/api/v1/egenvurdering/dialog"
+                timestamp: "2021-01-01T12:00:00.000Z"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+              example:
+                id: "d2a4177c-6647-4a50-8459-9f81dd34ffba"
+                type: "urn:paw:default:ukjent-feil"
+                status: 500
+                title: "Internal Server Error"
+                detail: "Ukjent feil"
+                instance: "/api/v1/egenvurdering/dialog"
+                timestamp: "2021-01-01T12:00:00.000Z"
+
+components:
+  schemas:
+    # ---Requests ---
+    EgenvurderingDialogRequest:
+      type: object
+      properties:
+        periodeId:
+          type: string
+          format: uuid
+      required:
+        - periodeId
+
+    # ---Responses ---
+    EgenvurderingDialogResponse:
+      type: object
+      properties:
+        dialogId:
+          type: number
+          format: int64
+      required:
+        - dialogId
+
+    # --- Problem details med dependencies ---
+    ProblemDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          format: uri
+        status:
+          type: integer
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - status
+        - title
+        - instance
+        - timestamp
+      example:
+        id: "3cd944fb-6187-41a8-91b2-b172f2baf890"
+        type: "urn:paw:default:ukjent-feil"
+        status: 500
+        title: "Internal Server Error"
+        detail: "Ukjent feil"
+        instance: "/api/v3/bekreftelser"
+        timestamp: "2021-01-01T12:00:00.000Z"

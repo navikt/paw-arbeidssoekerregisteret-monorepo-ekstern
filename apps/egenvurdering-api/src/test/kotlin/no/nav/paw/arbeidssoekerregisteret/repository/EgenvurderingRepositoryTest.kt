@@ -8,14 +8,13 @@ import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.context.consumerVersion
 import no.nav.paw.arbeidssoekerregisteret.context.partitionCount
 import no.nav.paw.arbeidssoekerregisteret.lagrePerioderOgProfileringer
-import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering
+import no.nav.paw.arbeidssoekerregisteret.mapping.asDto
+import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnNyesteProfilering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.finnProfilering
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository.lagreEgenvurdering
-import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
-import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
-import no.nav.paw.hwm.insertHwm
 import no.nav.paw.felles.model.Identitetsnummer
+import no.nav.paw.hwm.insertHwm
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.paw.test.data.periode.createEgenvurderingFor
@@ -31,6 +30,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
+import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil as AvroProfilertTil
 
 class EgenvurderingRepositoryTest : FreeSpec({
 
@@ -193,11 +193,11 @@ class EgenvurderingRepositoryTest : FreeSpec({
             recordSequence(periode, eldreProfilering, nyereProfilering).lagrePerioderOgProfileringer()
         }
 
-        val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
+        val nyesteProfilering = finnNyesteProfilering(ident)
 
         nyesteProfilering.shouldNotBeNull()
         nyesteProfilering.id shouldBe nyereProfilering.id
-        nyesteProfilering.profilertTil shouldBe nyereProfilering.profilertTil.name
+        nyesteProfilering.profilertTil shouldBe nyereProfilering.profilertTil.asDto()
     }
 
     "Returnerer null når egenvurdering finnes for nyeste profilering" {
@@ -212,7 +212,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
             lagreEgenvurdering(egenvurdering)
         }
 
-        val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
+        val nyesteProfilering = finnNyesteProfilering(ident)
         nyesteProfilering.shouldBeNull()
     }
 
@@ -229,7 +229,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
         transaction {
             recordSequence(avsluttetPeriode, profilering).lagrePerioderOgProfileringer()
         }
-        val nyesteProfilering = finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident)
+        val nyesteProfilering = finnNyesteProfilering(ident)
         nyesteProfilering.shouldBeNull()
     }
 
@@ -259,11 +259,11 @@ class EgenvurderingRepositoryTest : FreeSpec({
         val periode = PeriodeFactory.create().build(id = periodeId, identitetsnummer = ident)
         val profilering = createProfilering(
             periodeId = periodeId,
-            profilertTil = ANTATT_BEHOV_FOR_VEILEDNING
+            profilertTil = AvroProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
         )
         val egenvurdering = createEgenvurderingFor(
             profilering,
-            egenvurdering = ANTATT_GODE_MULIGHETER,
+            egenvurdering = AvroProfilertTil.ANTATT_GODE_MULIGHETER,
             profilertTil = profilering.profilertTil,
         )
 
@@ -277,7 +277,7 @@ class EgenvurderingRepositoryTest : FreeSpec({
                 .selectAll()
                 .where { EgenvurderingTable.profileringId eq profilering.id }
                 .single()[EgenvurderingTable.egenvurdering]
-            lagretEgenvurdering shouldBe ANTATT_GODE_MULIGHETER.name
+            lagretEgenvurdering shouldBe AvroProfilertTil.ANTATT_GODE_MULIGHETER.asDto()
         }
     }
 

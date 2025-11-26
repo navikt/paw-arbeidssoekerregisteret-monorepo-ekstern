@@ -1,5 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret.repository
 
+import no.nav.paw.arbeidssoekerregisteret.mapping.asDto
+import no.nav.paw.arbeidssoekerregisteret.model.EgenvurderingRow
+import no.nav.paw.arbeidssoekerregisteret.model.NyesteProfileringRow
+import no.nav.paw.arbeidssoekerregisteret.model.ProfileringRow
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
@@ -18,7 +22,7 @@ import java.util.*
 
 object EgenvurderingPostgresRepository : EgenvurderingRepository {
 
-    override fun finnNyesteProfileringFraÅpenPeriodeUtenEgenvurdering(ident: Identitetsnummer): NyesteProfilering? =
+    override fun finnNyesteProfilering(identitetsnummer: Identitetsnummer): NyesteProfileringRow? =
         transaction {
             ProfileringTable.join(
                 otherTable = PeriodeTable,
@@ -32,7 +36,7 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
                 otherColumn = EgenvurderingTable.profileringId
             ).selectAll()
                 .where {
-                    PeriodeTable.identitetsnummer eq ident.value and
+                    PeriodeTable.identitetsnummer eq identitetsnummer.value and
                             PeriodeTable.avsluttet.isNull() and
                             EgenvurderingTable.id.isNull()
                 }
@@ -40,7 +44,7 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
                 .limit(1)
                 .firstOrNull()
                 ?.let { row ->
-                    NyesteProfilering(
+                    NyesteProfileringRow(
                         id = row[ProfileringTable.id],
                         profilertTil = row[ProfileringTable.profilertTil],
                         profileringTidspunkt = row[ProfileringTable.profileringTidspunkt],
@@ -53,7 +57,7 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
         EgenvurderingTable.insert {
             it[id] = egenvurdering.id
             it[profileringId] = egenvurdering.profileringId
-            it[EgenvurderingTable.egenvurdering] = egenvurdering.egenvurdering.name
+            it[EgenvurderingTable.egenvurdering] = egenvurdering.egenvurdering.asDto()
         }
     }
 
@@ -71,7 +75,7 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
             it[id] = profilering.id
             it[periodeId] = profilering.periodeId
             it[profileringTidspunkt] = profilering.sendtInnAv.tidspunkt
-            it[profilertTil] = profilering.profilertTil.name
+            it[profilertTil] = profilering.profilertTil.asDto()
         }
     }
 
@@ -80,20 +84,48 @@ object EgenvurderingPostgresRepository : EgenvurderingRepository {
         return PeriodeTable.deleteWhere { PeriodeTable.id eq periodeId } > 0
     }
 
-    override fun finnProfilering(profileringId: UUID, ident: Identitetsnummer): ProfileringRow? = transaction {
+    override fun finnProfilering(profileringId: UUID, identitetsnummer: Identitetsnummer): ProfileringRow? =
+        transaction {
+            ProfileringTable.join(
+                otherTable = PeriodeTable,
+                joinType = JoinType.INNER,
+                onColumn = ProfileringTable.periodeId,
+                otherColumn = PeriodeTable.id
+            ).selectAll()
+                .where { ProfileringTable.id eq profileringId and (PeriodeTable.identitetsnummer eq identitetsnummer.value) }
+                .firstOrNull()
+                ?.let { row ->
+                    ProfileringRow(
+                        id = row[ProfileringTable.id],
+                        periodeId = row[ProfileringTable.periodeId],
+                        profilertTil = row[ProfileringTable.profilertTil]
+                    )
+                }
+        }
+
+    override fun finnEgenvurderinger(identitetsnummer: Identitetsnummer): List<EgenvurderingRow> = transaction {
         ProfileringTable.join(
             otherTable = PeriodeTable,
             joinType = JoinType.INNER,
             onColumn = ProfileringTable.periodeId,
             otherColumn = PeriodeTable.id
+        ).join(
+            otherTable = EgenvurderingTable,
+            joinType = JoinType.LEFT,
+            onColumn = ProfileringTable.id,
+            otherColumn = EgenvurderingTable.profileringId
         ).selectAll()
-            .where { ProfileringTable.id eq profileringId and (PeriodeTable.identitetsnummer eq ident.value) }
-            .firstOrNull()
-            ?.let { row ->
-                ProfileringRow(
-                    id = row[ProfileringTable.id],
+            .where { PeriodeTable.identitetsnummer eq identitetsnummer.value }
+            .orderBy(ProfileringTable.profileringTidspunkt to SortOrder.DESC)
+            .map { row ->
+                EgenvurderingRow(
+                    id = row[EgenvurderingTable.id],
                     periodeId = row[ProfileringTable.periodeId],
-                    profilertTil = row[ProfileringTable.profilertTil]
+                    profileringId = row[ProfileringTable.id],
+                    profilering = row[ProfileringTable.profilertTil],
+                    egenvurdering = row[EgenvurderingTable.egenvurdering],
+                    periodeStartetTidspunkt = row[PeriodeTable.startet],
+                    profileringTidspunkt = row[ProfileringTable.profileringTidspunkt]
                 )
             }
     }

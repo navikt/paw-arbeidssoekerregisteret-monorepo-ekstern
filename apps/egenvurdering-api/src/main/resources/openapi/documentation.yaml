@@ -8,7 +8,7 @@ paths:
     post:
       description: "Tar imot brukerens egenvurdering av profilering"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "traceparent"
           in: "header"
@@ -31,10 +31,6 @@ paths:
               description: "Trace id"
               schema:
                 type: "string"
-          content:
-            application/json:
-              schema:
-                type: "object"
         "400":
           description: "Bad Request"
           headers:
@@ -83,7 +79,7 @@ paths:
     get:
       description: "Henter grunnlaget for en egenvurdering hvis det finnes"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       responses:
         "200":
           description: "OK"
@@ -152,48 +148,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
 
-  /internal/isAlive:
-    get:
-      description: "Service is alive probe"
-      responses:
-        "503":
-          description: "Service Unavailable"
-          content:
-            text/plain:
-              schema:
-                $ref: "#/components/schemas/HealthStatus"
-        "200":
-          description: "OK"
-          content:
-            text/plain:
-              schema:
-                $ref: "#/components/schemas/HealthStatus"
-  /internal/isReady:
-    get:
-      description: "Service is ready probe"
-      responses:
-        "503":
-          description: "Service Unavailable"
-          content:
-            text/plain:
-              schema:
-                $ref: "#/components/schemas/HealthStatus"
-        "200":
-          description: "OK"
-          content:
-            text/plain:
-              schema:
-                $ref: "#/components/schemas/HealthStatus"
-  /internal/metrics:
-    get:
-      description: "Prometheus metrics"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "string"
 components:
   securitySchemes:
     TokenXAuth:
@@ -217,11 +171,11 @@ components:
           description: "Profilering id"
           format: uuid
         egenvurdering:
-          $ref: "#/components/schemas/Egenvurdering"
+          $ref: "#/components/schemas/EgenvurdertTil"
       required:
         - "profileringId"
         - "egenvurdering"
-    Egenvurdering:
+    EgenvurdertTil:
       type: "string"
       enum:
         - "ANTATT_BEHOV_FOR_VEILEDNING"
@@ -231,53 +185,61 @@ components:
       type: object
       properties:
         grunnlag:
-            $ref: "#/components/schemas/Profilering"
+          $ref: "#/components/schemas/Profilering"
     Profilering:
-        type: object
-        properties:
-          profileringId:
-            type: "string"
-            format: "uuid"
-            description: "ID for profileringen"
-          profilertTil:
-            $ref: "#/components/schemas/ProfilertTil"
-        required:
-            - profileringId
-            - profilertTil
+      type: object
+      properties:
+        profileringId:
+          type: "string"
+          format: "uuid"
+          description: "ID for profileringen"
+        profilertTil:
+          $ref: "#/components/schemas/ProfilertTil"
+      required:
+        - profileringId
+        - profilertTil
     ProfilertTil:
       type: "string"
       enum:
         - "ANTATT_GODE_MULIGHETER"
         - "ANTATT_BEHOV_FOR_VEILEDNING"
         - "OPPGITT_HINDRINGER"
+        - "UKJENT_VERDI"
+        - "UDEFINERT"
+
+    # --- Problem details med dependencies ---
     ProblemDetails:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         type:
-          type: "string"
-        title:
-          type: "string"
+          type: string
+          format: uri
         status:
-          type: "number"
+          type: integer
+        title:
+          type: string
         detail:
-          type: "string"
+          type: string
         instance:
-          type: "string"
+          type: string
+        timestamp:
+          type: string
+          format: date-time
       required:
+        - id
         - type
-        - title
         - status
-        - detail
+        - title
         - instance
+        - timestamp
       example:
-        type: "about:blank"
-        title: "Forbidden"
-        status: 403
-        detail: "Access denied"
-        instance: "/api/endpoint"
-    HealthStatus:
-      type: "string"
-      enum:
-        - "UNKNOWN"
-        - "HEALTHY"
-        - "UNHEALTHY"
+        id: "3cd944fb-6187-41a8-91b2-b172f2baf890"
+        type: "urn:paw:default:ukjent-feil"
+        status: 500
+        title: "Internal Server Error"
+        detail: "Ukjent feil"
+        instance: "/api/v3/bekreftelser"
+        timestamp: "2021-01-01T12:00:00.000Z"

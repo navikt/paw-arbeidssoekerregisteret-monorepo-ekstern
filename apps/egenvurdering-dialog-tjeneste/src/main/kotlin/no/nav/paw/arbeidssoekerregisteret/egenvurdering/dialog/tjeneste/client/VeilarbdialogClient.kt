@@ -12,6 +12,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ArbeidsoppfølgingsperiodeAvsluttet
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogRequest
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogResponse
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogResultat
 import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.error.exception.ClientResponseException
 import no.nav.paw.error.model.ErrorType

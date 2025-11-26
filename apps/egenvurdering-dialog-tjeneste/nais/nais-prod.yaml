@@ -67,6 +67,10 @@ spec:
   postgres:
     clusterName: egenvurdering-dialog-tjeneste
   accessPolicy:
+    inbound:
+      rules:
+        - application: veilarbvedtaksstotte
+          namespace: obo
     outbound:
       rules:
         - application: veilarbdialog

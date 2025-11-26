@@ -6,21 +6,24 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.context.consumerVersion
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureKafka
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
-import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
+import no.nav.paw.arbeidssoekerregisteret.plugins.installTracingPlugin
+import no.nav.paw.arbeidssoekerregisteret.plugins.installWebPlugins
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingPostgresRepository
 import no.nav.paw.arbeidssoekerregisteret.repository.EgenvurderingRepository
-import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
+import no.nav.paw.arbeidssoekerregisteret.utils.configureJacksonOverrides
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.database.plugin.installDatabasePlugins
+import no.nav.paw.error.plugin.installErrorHandlingPlugin
 import no.nav.paw.hwm.updateHwm
+import no.nav.paw.logging.logger.buildApplicationLogger
+import no.nav.paw.logging.plugin.installLoggingPlugin
+import no.nav.paw.metrics.plugin.installMetricsPlugin
+import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
+import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -51,12 +54,16 @@ fun main() {
 }
 
 fun Application.module(applicationContext: ApplicationContext) {
-    configureSerialization()
-    configureHTTP()
-    configureLogging()
-    configureMetrics(applicationContext)
+    installContentNegotiationPlugin {
+        configureJacksonOverrides()
+    }
+    installWebPlugins()
+    installLoggingPlugin()
+    installTracingPlugin()
+    installMetricsPlugin(applicationContext.prometheusMeterRegistry)
+    installErrorHandlingPlugin()
     installDatabasePlugins(applicationContext.datasource)
-    configureAuthentication(applicationContext)
+    installAuthenticationPlugin(applicationContext.securityConfig.authProviders)
     configureRouting(applicationContext)
     configureKafka(applicationContext) { records ->
         if (!records.isEmpty) {

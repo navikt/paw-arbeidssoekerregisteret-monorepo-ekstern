@@ -1,0 +1,3 @@
+### GET /api/docs
+GET {{baseUrl}}/api/docs/documentation.yaml
+Accept: application/yaml

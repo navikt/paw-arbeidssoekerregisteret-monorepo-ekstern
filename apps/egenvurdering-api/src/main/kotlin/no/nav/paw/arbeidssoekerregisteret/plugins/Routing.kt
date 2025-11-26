@@ -6,7 +6,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
-import no.nav.paw.arbeidssoekerregisteret.egenvurderingRoutes
+import no.nav.paw.arbeidssoekerregisteret.route.egenvurderingRoutes
 import no.nav.paw.health.livenessRoute
 import no.nav.paw.health.readinessRoute
 import no.nav.paw.health.startupRoute
