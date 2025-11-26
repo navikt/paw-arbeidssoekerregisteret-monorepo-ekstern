@@ -9,7 +9,7 @@ spec:
     majorVersion: "17"
     resources:
       cpu: 100m
-      diskSize: 2Gi
+      diskSize: 3Gi
       memory: 2G
 ---
 apiVersion: nais.io/v1alpha1
