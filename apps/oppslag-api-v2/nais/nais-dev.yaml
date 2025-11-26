@@ -90,6 +90,8 @@ spec:
           namespace: obo
         - application: veilarbportefolje
           namespace: obo
+        - application: veilarbvedtaksstotte
+          namespace: obo
         - application: dp-oppslag-arbeidssoker
           namespace: teamdagpenger
         - application: dp-rapportering-personregister
