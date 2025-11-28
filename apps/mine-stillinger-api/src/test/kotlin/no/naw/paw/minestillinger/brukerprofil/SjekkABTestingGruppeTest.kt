@@ -8,6 +8,7 @@ import no.nav.paw.felles.model.Identitetsnummer
 class SjekkABTestingGruppeTest : FreeSpec({
     val matchTestGruppen = "\\d([02468])\\d{9}"
     val ikkeMatchNoen = "[az]{100}"
+    val matchAlle = "\\d{11}"
 
     "Regex '${matchTestGruppen} skal matche følgende identitetsnummer" - {
         val regex = Regex(matchTestGruppen)
@@ -18,6 +19,29 @@ class SjekkABTestingGruppeTest : FreeSpec({
             "78099988877",
             "90055544433",
             "34333333333"
+        ).map(::Identitetsnummer).forEach { identitetsnummer ->
+            "skal matche ${identitetsnummer.value}, lengde=${identitetsnummer.value.length}" {
+                sjekkABTestingGruppe(regex, identitetsnummer) shouldBe true
+            }
+        }
+    }
+
+    "Reg ex '${matchAlle} skal matche alle identitetsnummer" - {
+        val regex = Regex(matchAlle)
+        listOf(
+            "12012345678",
+            "34098765432",
+            "56011122334",
+            "78099988877",
+            "90055544433",
+            "34333333333",
+            "11312345678",
+            "35198765432",
+            "57111122334",
+            "79199988877",
+            "91155544433",
+            "33333333337",
+            "23222222222"
         ).map(::Identitetsnummer).forEach { identitetsnummer ->
             "skal matche ${identitetsnummer.value}, lengde=${identitetsnummer.value.length}" {
                 sjekkABTestingGruppe(regex, identitetsnummer) shouldBe true
