@@ -5,6 +5,7 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.routing.Route
 import no.nav.paw.serialization.jackson.configureJackson
 
 fun Application.installContentNegotiationPlugin(
@@ -16,3 +17,14 @@ fun Application.installContentNegotiationPlugin(
         }
     }
 }
+
+fun Route.installContentNegotiationPlugin(
+    configureJackson: ObjectMapper.() -> ObjectMapper
+) {
+    install(ContentNegotiation) {
+        jackson {
+            configureJackson()
+        }
+    }
+}
+

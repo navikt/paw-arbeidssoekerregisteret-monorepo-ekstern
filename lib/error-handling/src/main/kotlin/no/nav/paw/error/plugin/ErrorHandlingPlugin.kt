@@ -12,10 +12,6 @@ import no.nav.paw.error.model.ProblemDetails
 
 const val ERROR_HANDLING_PLUGIN_NAME: String = "ErrorHandlingPlugin"
 
-class ErrorHandlingPluginConfig {
-    var customResolver: ((Throwable, ApplicationRequest) -> ProblemDetails?)? = null
-}
-
 val ErrorHandlingPlugin
     get(): RouteScopedPlugin<ErrorHandlingPluginConfig> = createRouteScopedPlugin(
         ERROR_HANDLING_PLUGIN_NAME,
@@ -30,3 +26,7 @@ val ErrorHandlingPlugin
             }
         }
     }
+
+class ErrorHandlingPluginConfig {
+    var customResolver: ((Throwable, ApplicationRequest) -> ProblemDetails?)? = null
+}
