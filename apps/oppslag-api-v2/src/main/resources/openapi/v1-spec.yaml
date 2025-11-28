@@ -13,7 +13,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -83,7 +83,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -112,7 +112,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "periodeId"
           in: "path"
@@ -140,7 +140,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -169,7 +169,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "periodeId"
           in: "path"
@@ -226,7 +226,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "periodeId"
           in: "path"
@@ -272,7 +272,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -305,7 +305,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -346,7 +346,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -387,7 +387,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -428,7 +428,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -469,7 +469,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "periodeId"
           in: "path"
@@ -515,7 +515,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -786,6 +786,10 @@ components:
         alder:
           type: "integer"
           format: "int32"
+        egenvurderinger:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/EgenvurderingResponse"
       required:
         - "profileringId"
         - "periodeId"
@@ -819,6 +823,35 @@ components:
         - "opplysningerOmArbeidssoekerId"
         - "sendtInnAv"
         - "profilertTil"
+    EgenvurderingResponse:
+      type: "object"
+      properties:
+        egenvurderingId:
+          type: "string"
+          format: "uuid"
+        periodeId:
+          type: "string"
+          format: "uuid"
+        opplysningerOmArbeidssoekerId:
+          type: "string"
+          format: "uuid"
+        profileringId:
+          type: "string"
+          format: "uuid"
+        sendtInnAv:
+          $ref: "#/components/schemas/MetadataResponse"
+        profilertTil:
+          $ref: '#/components/schemas/ProfileringsResultat'
+        egenvurdering:
+          $ref: "#/components/schemas/ProfileringsResultat"
+      required:
+        - "egenvurderingId"
+        - "periodeId"
+        - "opplysningerOmArbeidssoekerId"
+        - "profileringId"
+        - "sendtInnAv"
+        - "profilertTil"
+        - "egenvurdering"
     SamletInformasjonResponse:
       type: "object"
       properties:

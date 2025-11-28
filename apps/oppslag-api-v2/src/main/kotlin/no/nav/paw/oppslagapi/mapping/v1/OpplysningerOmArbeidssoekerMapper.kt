@@ -10,6 +10,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.OpplysningerOmAr
 import no.nav.paw.arbeidssoekerregisteret.api.v1.oppslag.models.UtdanningResponse
 import no.nav.paw.oppslagapi.model.v2.Annet
 import no.nav.paw.oppslagapi.model.v2.BeskrivelseMedDetaljer
+import no.nav.paw.oppslagapi.model.v2.Egenvurdering
 import no.nav.paw.oppslagapi.model.v2.Helse
 import no.nav.paw.oppslagapi.model.v2.OpplysningerOmArbeidssoeker
 import no.nav.paw.oppslagapi.model.v2.Profilering
@@ -26,7 +27,10 @@ fun OpplysningerOmArbeidssoeker.toV1(): OpplysningerOmArbeidssoekerResponse =
         annet = this.annet?.toV1()
     )
 
-fun OpplysningerOmArbeidssoeker.toV1Aggregert(profilering: Profilering?): OpplysningerOmArbeidssoekerAggregertResponse =
+fun OpplysningerOmArbeidssoeker.toV1Aggregert(
+    profilering: Profilering?,
+    egenvurdering: Egenvurdering?
+): OpplysningerOmArbeidssoekerAggregertResponse =
     OpplysningerOmArbeidssoekerAggregertResponse(
         opplysningerOmArbeidssoekerId = this.id,
         periodeId = this.periodeId,
@@ -35,7 +39,7 @@ fun OpplysningerOmArbeidssoeker.toV1Aggregert(profilering: Profilering?): Opplys
         utdanning = this.utdanning?.toV1(),
         helse = this.helse?.toV1(),
         annet = this.annet?.toV1(),
-        profilering = profilering?.toV1ProfileringAggregert()
+        profilering = profilering?.toV1ProfileringAggregert(egenvurdering)
     )
 
 fun BeskrivelseMedDetaljer.toV1(): BeskrivelseMedDetaljerResponse =

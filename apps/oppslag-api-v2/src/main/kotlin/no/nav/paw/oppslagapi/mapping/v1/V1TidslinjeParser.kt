@@ -28,10 +28,17 @@ fun Tidslinje.v1OpplysningerAggregert(): List<OpplysningerOmArbeidssoekerAggrege
     hendelser
         .mapNotNull { it.opplysningerV4 }
         .map { opplysninger ->
+            val profilering = hendelser
+                .mapNotNull { it.profileringV1 }
+                .firstOrNull { it.opplysningerOmArbeidssokerId == opplysninger.id }
+            val egenvurdering = profilering?.let {
+                hendelser
+                    .mapNotNull { it.egenvurderingV1 }
+                    .firstOrNull { it.profileringId == profilering.id }
+            }
             opplysninger.toV1Aggregert(
-                profilering = hendelser
-                    .mapNotNull { it.profileringV1 }
-                    .firstOrNull { it.opplysningerOmArbeidssokerId == opplysninger.id }
+                profilering = profilering,
+                egenvurdering = egenvurdering
             )
         }
 

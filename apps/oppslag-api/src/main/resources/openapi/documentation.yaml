@@ -15,7 +15,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -85,7 +85,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -114,7 +114,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "periodeId"
           in: "path"
@@ -142,7 +142,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -171,7 +171,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "periodeId"
           in: "path"
@@ -228,7 +228,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "periodeId"
           in: "path"
@@ -274,7 +274,7 @@ paths:
       tags:
         - "Endepunkter for personbruker"
       security:
-        - TokenXAuth: []
+        - TokenXAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -307,7 +307,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -348,7 +348,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -389,7 +389,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -430,7 +430,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -471,7 +471,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "periodeId"
           in: "path"
@@ -517,7 +517,7 @@ paths:
       tags:
         - "Endepunkter for veileder/system"
       security:
-        - AzureAuth: []
+        - AzureAuth: [ ]
       parameters:
         - name: "siste"
           in: "query"
@@ -666,13 +666,13 @@ components:
         avsluttet:
           $ref: "#/components/schemas/MetadataResponse"
         opplysningerOmArbeidssoeker:
-            type: "array"
-            items:
-                $ref: "#/components/schemas/OpplysningerOmArbeidssoekerAggregertResponse"
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OpplysningerOmArbeidssoekerAggregertResponse"
         bekreftelser:
-            type: "array"
-            items:
-                $ref: "#/components/schemas/BekreftelseResponse"
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BekreftelseResponse"
       required:
         - "periodeId"
         - "startet"
@@ -896,17 +896,17 @@ components:
       type: "object"
       properties:
         sendtInnAv:
-            $ref: "#/components/schemas/MetadataResponse"
+          $ref: "#/components/schemas/MetadataResponse"
         gjelderFra:
-            type: "string"
-            format: "date-time"
+          type: "string"
+          format: "date-time"
         gjelderTil:
-            type: "string"
-            format: "date-time"
+          type: "string"
+          format: "date-time"
         harJobbetIDennePerioden:
-            type: "boolean"
+          type: "boolean"
         vilFortsetteSomArbeidssoeker:
-            type: "boolean"
+          type: "boolean"
       required:
         - "sendtInnAv"
         - "gjelderFra"
