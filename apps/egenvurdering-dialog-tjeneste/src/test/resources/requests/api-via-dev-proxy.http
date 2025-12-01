@@ -9,6 +9,6 @@ Authorization: Bearer {{$auth.token("azure")}}
   "method": "POST",
   "url": "http://egenvurdering-dialog-tjeneste/api/v1/egenvurdering/dialog",
   "body": {
-    "periodeId": "6be3aafd-8ca0-4aeb-99c3-34434d2e6f51"
+    "periodeId": "6be3aafd-8ca0-4aeb-99c3-34434d2e6f52"
   }
 }

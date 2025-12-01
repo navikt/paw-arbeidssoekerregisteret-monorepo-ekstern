@@ -13,6 +13,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.co
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.config.env.appNameOrDefaultForLocal
 import no.nav.paw.database.plugin.installDatabasePlugins
+import no.nav.paw.error.plugin.installErrorHandlingPlugin
 import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.logging.plugin.installLoggingPlugin
 import no.nav.paw.metrics.plugin.installMetricsPlugin
@@ -52,6 +53,7 @@ fun Application.module(applicationContext: ApplicationContext) {
         installContentNegotiationPlugin {
             configureJacksonOverrides()
         }
+        installErrorHandlingPlugin()
         installTracingPlugin()
         installMetricsPlugin(meterRegistry)
         installAuthenticationPlugin(securityConfig.authProviders)

@@ -247,6 +247,19 @@
                         "name": "Nav Navesen",
                         "NAVident": "12345"
                     }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "egenvurdering-dialog-tjeneste-m2m",
+                    "claims": {
+                        "sub": "admin@egenvurdering-dialog-tjeneste",
+                        "aud": [
+                            "egenvurdering-dialog-tjeneste"
+                        ],
+                        "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
+                        "name": "Nav Navesen",
+                        "NAVident": "12345"
+                    }
                 }
             ]
         },

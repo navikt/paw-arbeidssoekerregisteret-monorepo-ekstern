@@ -1,6 +1,6 @@
 [[authProviders]]
 name = "azure"
-audiences = ["paw-arbeidssoekerregisteret-api-oppslag-v2"]
+audiences = ["egenvurdering-dialog-tjeneste"]
 discoveryUrl = "http://localhost:8081/azure/.well-known/openid-configuration"
 
     [authProviders.requiredClaims]
