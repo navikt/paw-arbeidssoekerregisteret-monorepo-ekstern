@@ -12,7 +12,7 @@ Authorization: Bearer {{$auth.token("tokenx")}}
 {
     "type": "BY_EGENSKAPER",
     "soekeord": [],
-    "kategorier": [],
+    "styrkkoder": [],
     "fylker": [],
     "paging": {
         "page": 1,

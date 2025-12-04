@@ -22,8 +22,8 @@ import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class StillingService(
@@ -58,17 +58,18 @@ class StillingService(
 
     @WithSpan("paw.stillinger.service.finn_by_egenskaper")
     fun finnStillingerByEgenskaper(
-        soekeord: Collection<String>,
-        styrkkoder: Collection<String>,
-        fylker: Collection<Fylke>,
+        medSoekeord: Collection<String>,
+        medStyrkkoder: Collection<String>,
+        medFylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
         logger.info("Finner stillinger for egeneskaper")
-        telemetryContext.finnStillingerByEgenskaper(soekeord, styrkkoder, fylker)
+        telemetryContext.finnStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
         val rows = StillingerTable.selectRowsByKategorierAndFylker(
-            soekeord = soekeord,
-            styrkkoder = styrkkoder,
-            fylker = fylker,
+            medSoekeord = medSoekeord,
+            medStyrkkoder = medStyrkkoder,
+            medFylker = medFylker,
+            ikkeMedKilder = listOf("DIR"), // TODO Filtrerer ut direktemeldte stillinger
             paging = paging
         )
         rows.map { it.asDto() }
@@ -111,16 +112,36 @@ class StillingService(
     }
 
     @WithSpan("paw.stillinger.service.slett")
-    fun slettStillinger(medUtloeperEldreEnn: Duration): Int = transaction {
-        val utloeperTimestampCutoff = Instant.now().minus(medUtloeperEldreEnn)
-        logger.info("Sletter stillinger med utløp eldre enn {}", utloeperTimestampCutoff)
-        val slettetIdList = StillingerTable.selectIdListByStatus(status = StillingStatus.SLETTET)
-        val idList = slettetIdList + StillingerTable.selectIdListByStatusListAndUtloeperGraterThan(
-            statusList = listOf(StillingStatus.AVVIST, StillingStatus.INAKTIV, StillingStatus.STOPPET),
-            utloeperTimestampCutoff = utloeperTimestampCutoff
+    fun slettGamleStillinger() = runCatching {
+        val slettEldreEnn = applicationConfig.slettIkkeAktiveStillingerMedUtloeperEldreEnn
+        val slettEldreEnnTimestamp = Instant.now()
+            .minus(slettEldreEnn)
+        logger.info(
+            "Sletter ikke-aktive stillinger med utløp eldre enn {} dager ({})",
+            slettEldreEnn.toDays(),
+            slettEldreEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
         )
-        StillingerTable.deleteByIdList(idList)
-            .also { rowsAffected -> logger.info("Slettet {} stillinger", rowsAffected) }
+
+        val rowsAffected = transaction {
+            StillingerTable.deleteByStatusListAndUtloeperLessThan(
+                statusList = listOf(
+                    StillingStatus.AVVIST,
+                    StillingStatus.INAKTIV,
+                    StillingStatus.STOPPET,
+                    StillingStatus.SLETTET
+                ),
+                utloeperTimestamp = slettEldreEnnTimestamp
+            )
+        }
+
+        logger.info(
+            "Slettet {} ikke-aktive stillinger med utløp eldre enn {} dager ({})",
+            rowsAffected,
+            slettEldreEnn.toDays(),
+            slettEldreEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
+        )
+    }.getOrElse { cause ->
+        logger.error("Feil ved sletting av utløpte stillinger", cause)
     }
 
     @WithSpan("paw.stillinger.service.handle_messages")
