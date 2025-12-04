@@ -32,16 +32,23 @@ import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
+import java.time.Duration
 import javax.sql.DataSource
 import kotlin.coroutines.EmptyCoroutineContext
 
 class TestContext private constructor(
+    val clock: MutableClock = TestData.clock,
     val dataSource: DataSource,
     val mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(),
-    val applicationConfig: ApplicationConfig = loadNaisOrLocalConfiguration(APPLICATION_CONFIG),
+    val applicationConfig: ApplicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
+        .copy(beholdAlleStillingerPublisertEtter = clock.instant().minus(Duration.ofDays(100))),
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG),
     val meterRegistry: MeterRegistry = SimpleMeterRegistry(),
-    val stillingService: StillingService = StillingService(applicationConfig, TelemetryContext(meterRegistry))
+    val stillingService: StillingService = StillingService(
+        clock = clock,
+        applicationConfig = applicationConfig,
+        telemetryContext = TelemetryContext(meterRegistry)
+    )
 ) {
     fun setUp(): TestContext {
         Database.connect(dataSource)

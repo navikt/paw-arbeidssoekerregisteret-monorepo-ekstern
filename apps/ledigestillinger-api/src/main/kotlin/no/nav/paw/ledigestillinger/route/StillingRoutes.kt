@@ -50,9 +50,9 @@ fun Route.stillingRoutes(
                     is FinnStillingerByEgenskaperRequest -> {
                         request.verify()
                         val stillinger = stillingService.finnStillingerByEgenskaper(
-                            soekeord = request.soekeord,
-                            styrkkoder = request.styrkkoder,
-                            fylker = request.fylker,
+                            medSoekeord = request.soekeord,
+                            medStyrkkoder = request.styrkkoder,
+                            medFylker = request.fylker,
                             paging = request.paging
                         )
                         val response = FinnStillingerResponse(

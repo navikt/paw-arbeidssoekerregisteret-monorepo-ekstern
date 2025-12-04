@@ -10,11 +10,9 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.pam.stilling.ext.avro.Ad
 import no.nav.paw.database.plugin.installDatabasePlugins
 import no.nav.paw.error.plugin.installErrorHandlingPlugin
-import no.nav.paw.health.LivenessCheck
-import no.nav.paw.health.ReadinessCheck
-import no.nav.paw.health.StartupCheck
 import no.nav.paw.hwm.DataConsumer
 import no.nav.paw.hwm.Message
+import no.nav.paw.ledigestillinger.config.ApplicationConfig
 import no.nav.paw.ledigestillinger.context.ApplicationContext
 import no.nav.paw.ledigestillinger.context.TelemetryContext
 import no.nav.paw.ledigestillinger.plugin.configureRouting
@@ -22,20 +20,19 @@ import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
 import no.nav.paw.ledigestillinger.plugin.installLogginPlugin
 import no.nav.paw.ledigestillinger.plugin.installWebPlugins
 import no.nav.paw.ledigestillinger.serde.AdAvroDeserializer
+import no.nav.paw.ledigestillinger.service.StillingService
 import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
 import no.nav.paw.scheduling.plugin.installScheduledTaskPlugin
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.apache.kafka.common.serialization.UUIDDeserializer
-import java.time.Duration
 import java.util.*
 import javax.sql.DataSource
 
-fun <A> initEmbeddedKtorServer(
+fun initEmbeddedKtorServer(
     applicationContext: ApplicationContext
-): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> where
-        A : LivenessCheck, A : ReadinessCheck, A : StartupCheck {
+): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
     with(applicationContext) {
         val pamStillingerKafkaConsumer = createHwmKafkaConsumer(
             config = applicationContext.applicationConfig.pamStillingerKafkaConsumer,
@@ -45,12 +42,14 @@ fun <A> initEmbeddedKtorServer(
         )
         return embeddedServer(Netty, port = 8080) {
             configureKtorServer(
+                applicationConfig = applicationConfig,
                 securityConfig = securityConfig,
                 meterRegistry = meterRegistry,
                 meterBinders = meterBinderList,
+                telemetryContext = telemetryContext,
                 dataSource = dataSource,
-                pamStillingerKafkaConsumer = pamStillingerKafkaConsumer,
-                telemetryContext = telemetryContext
+                stillingService = stillingService,
+                pamStillingerKafkaConsumer = pamStillingerKafkaConsumer
             )
             configureRouting(
                 healthChecks = healthChecks,
@@ -62,12 +61,14 @@ fun <A> initEmbeddedKtorServer(
 }
 
 fun Application.configureKtorServer(
+    applicationConfig: ApplicationConfig,
     securityConfig: SecurityConfig,
     meterRegistry: PrometheusMeterRegistry,
     meterBinders: List<MeterBinder>,
+    telemetryContext: TelemetryContext,
     dataSource: DataSource,
-    pamStillingerKafkaConsumer: DataConsumer<Message<UUID, Ad>, UUID, Ad>,
-    telemetryContext: TelemetryContext
+    stillingService: StillingService,
+    pamStillingerKafkaConsumer: DataConsumer<Message<UUID, Ad>, UUID, Ad>
 ) {
     installWebPlugins()
     installContentNegotiationPlugin()
@@ -81,10 +82,18 @@ fun Application.configureKtorServer(
     installDatabasePlugins(dataSource)
     installKafkaConsumerPlugin(pamStillingerKafkaConsumer)
     installScheduledTaskPlugin(
-        pluginInstance = "DatabaseMetrics",
-        delay = Duration.ofMinutes(1),
-        period = Duration.ofMinutes(10),
-        task = telemetryContext::lagredeStillinger
+        pluginInstance = applicationConfig.databaseMetricsScheduledTask.name,
+        delay = applicationConfig.databaseMetricsScheduledTask.delay,
+        period = applicationConfig.databaseMetricsScheduledTask.period,
+        task = telemetryContext::tellLagredeStillinger
     )
+    /* TODO Midlertidig deaktivert
+    installScheduledTaskPlugin(
+        pluginInstance = applicationConfig.databaseCleanupScheduledTask.name,
+        delay = applicationConfig.databaseCleanupScheduledTask.delay,
+        period = applicationConfig.databaseCleanupScheduledTask.period,
+        task = stillingService::slettUtloepteStillinger
+    )
+    */
 }
 

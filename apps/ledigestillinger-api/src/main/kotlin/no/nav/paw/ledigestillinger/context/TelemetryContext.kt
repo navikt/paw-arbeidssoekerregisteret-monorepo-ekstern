@@ -17,7 +17,7 @@ import java.util.*
 class TelemetryContext(
     private val meterRegistry: MeterRegistry
 ) {
-    fun finnStillingerByUuidListe(
+    fun tellStillingerByUuidListe(
         uuidListe: Collection<UUID>
     ) {
         Span.current().addEvent(
@@ -32,7 +32,7 @@ class TelemetryContext(
             .increment()
     }
 
-    fun finnStillingerByEgenskaper(
+    fun tellStillingerByEgenskaper(
         soekeord: Collection<String>,
         styrkkoder: Collection<String>,
         fylker: Collection<Fylke>,
@@ -52,7 +52,7 @@ class TelemetryContext(
             .increment()
     }
 
-    fun meldingerMottatt(
+    fun tellMeldingerMottatt(
         antallMottatt: Number,
         antallLagret: Number,
         millisekunder: Number
@@ -71,7 +71,7 @@ class TelemetryContext(
             .increment(antallMottatt.toDouble())
     }
 
-    fun lagredeStillinger() = transaction {
+    fun tellLagredeStillinger() = transaction {
         val stillingerGauge = MultiGauge.builder("paw.stillinger.gauge.database")
             .description("Antall stillinger per status i databasen")
             .baseUnit("stillinger")
