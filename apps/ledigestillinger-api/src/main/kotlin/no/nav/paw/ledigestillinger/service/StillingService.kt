@@ -15,18 +15,20 @@ import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
 import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
-import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
+import no.nav.paw.ledigestillinger.util.skalBeholdes
 import no.nav.paw.logging.logger.buildLogger
 import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.Duration
+import java.time.Clock
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class StillingService(
+    private val clock: Clock,
     private val applicationConfig: ApplicationConfig,
     private val telemetryContext: TelemetryContext
 ) {
@@ -35,7 +37,7 @@ class StillingService(
     init {
         logger.info(
             "Starter konsumering av stillinger som er publisert etter {}",
-            applicationConfig.velgStillingerNyereEnn
+            applicationConfig.beholdAlleStillingerPublisertEtter.truncatedTo(ChronoUnit.SECONDS)
         )
     }
 
@@ -51,24 +53,25 @@ class StillingService(
         uuidListe: Collection<UUID>
     ): List<Stilling> = transaction {
         logger.info("Finner stillinger for UUID-liste")
-        telemetryContext.finnStillingerByUuidListe(uuidListe)
+        telemetryContext.tellStillingerByUuidListe(uuidListe)
         val rows = StillingerTable.selectRowsByUUIDList(uuidListe)
         rows.map { it.asDto() }
     }
 
     @WithSpan("paw.stillinger.service.finn_by_egenskaper")
     fun finnStillingerByEgenskaper(
-        soekeord: Collection<String>,
-        styrkkoder: Collection<String>,
-        fylker: Collection<Fylke>,
+        medSoekeord: Collection<String>,
+        medStyrkkoder: Collection<String>,
+        medFylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
         logger.info("Finner stillinger for egeneskaper")
-        telemetryContext.finnStillingerByEgenskaper(soekeord, styrkkoder, fylker)
+        telemetryContext.tellStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
         val rows = StillingerTable.selectRowsByKategorierAndFylker(
-            soekeord = soekeord,
-            styrkkoder = styrkkoder,
-            fylker = fylker,
+            medSoekeord = medSoekeord,
+            medStyrkkoder = medStyrkkoder,
+            medFylker = medFylker,
+            utenKilder = listOf("DIR"), // TODO Filtrerer ut direktemeldte stillinger
             paging = paging
         )
         rows.map { it.asDto() }
@@ -111,52 +114,81 @@ class StillingService(
     }
 
     @WithSpan("paw.stillinger.service.slett")
-    fun slettStillinger(medUtloeperEldreEnn: Duration): Int = transaction {
-        val utloeperTimestampCutoff = Instant.now().minus(medUtloeperEldreEnn)
-        logger.info("Sletter stillinger med utløp eldre enn {}", utloeperTimestampCutoff)
-        val slettetIdList = StillingerTable.selectIdListByStatus(status = StillingStatus.SLETTET)
-        val idList = slettetIdList + StillingerTable.selectIdListByStatusListAndUtloeperGraterThan(
-            statusList = listOf(StillingStatus.AVVIST, StillingStatus.INAKTIV, StillingStatus.STOPPET),
-            utloeperTimestampCutoff = utloeperTimestampCutoff
-        )
-        StillingerTable.deleteByIdList(idList)
-            .also { rowsAffected -> logger.info("Slettet {} stillinger", rowsAffected) }
-    }
+    fun slettUtloepteStillinger() = runCatching {
+        with(applicationConfig) {
+            val beholdNyereEnnTimestamp = Instant.now(clock)
+                .minus(beholdIkkeAktiveStillingerMedUtloeperNyereEnn)
+            logger.info(
+                "Sletter ikke-aktive stillinger med utløp eldre enn {} dager ({})",
+                beholdIkkeAktiveStillingerMedUtloeperNyereEnn.toDays(),
+                beholdNyereEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
+            )
+
+            val rowsAffected = transaction {
+                val count = StillingerTable.countByStatus()
+                logger.info("Stillinger by count: {}", count)
+                StillingerTable.deleteByStatusListAndUtloeperLessThan(
+                    statusList = listOf(
+                        StillingStatus.AVVIST,
+                        StillingStatus.INAKTIV,
+                        StillingStatus.STOPPET,
+                        StillingStatus.SLETTET
+                    ),
+                    utloeperTimestamp = beholdNyereEnnTimestamp
+                )
+            }
+
+            logger.info(
+                "Slettet {} ikke-aktive stillinger med utløp eldre enn {} dager ({})",
+                rowsAffected,
+                beholdIkkeAktiveStillingerMedUtloeperNyereEnn.toDays(),
+                beholdNyereEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
+            )
+        }
+    }.recover { cause ->
+        logger.error("Feil ved sletting av utløpte stillinger", cause)
+    }.getOrThrow()
 
     @WithSpan("paw.stillinger.service.handle_messages")
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
-        var antallMottatt = 0
-        var antallLagret = 0
-        val start = System.currentTimeMillis()
-        messages
-            .onEach { message ->
-                antallMottatt++
-                logger.trace("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
-            }
-            .filter { message ->
-                val publishedTimestamp = message.value.published.fromLocalDateTimeString()
-                publishedTimestamp.isAfter(applicationConfig.velgStillingerNyereEnn)
-            }
-            .onEach { message ->
-                logger.trace("Prosesserer melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
-            }
-            .forEach { message ->
-                runCatching {
-                    val stillingRow = message.asStillingRow()
-                    lagreStilling(stillingRow)
-                    antallLagret++
-                }.onFailure { cause ->
-                    logger.error("Feil ved mottak av melding", cause)
-                }.getOrThrow()
-            }
-        val slutt = System.currentTimeMillis()
-        val millisekunder = slutt - start
-        logger.info(
-            "Håndterte {} meldinger på {}ms fra topic={}",
-            antallMottatt,
-            millisekunder,
-            applicationConfig.pamStillingerKafkaConsumer.topic
-        )
-        telemetryContext.meldingerMottatt(antallMottatt, antallLagret, millisekunder)
+        with(applicationConfig) {
+            var antallMottatt = 0
+            var antallLagret = 0
+            val start = System.currentTimeMillis()
+            messages
+                .onEach { message ->
+                    antallMottatt++
+                    logger.trace("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
+                }
+                .filter { message ->
+                    val utloperGrense = Instant.now(clock)
+                        .minus(beholdIkkeAktiveStillingerMedUtloeperNyereEnn)
+                    message.skalBeholdes(
+                        publisertGrense = beholdAlleStillingerPublisertEtter,
+                        utloperGrense = utloperGrense
+                    )
+                }
+                .onEach { message ->
+                    logger.trace("Prosesserer melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
+                }
+                .forEach { message ->
+                    runCatching {
+                        val stillingRow = message.asStillingRow()
+                        lagreStilling(stillingRow)
+                        antallLagret++
+                    }.onFailure { cause ->
+                        logger.error("Feil ved mottak av melding", cause)
+                    }.getOrThrow()
+                }
+            val slutt = System.currentTimeMillis()
+            val millisekunder = slutt - start
+            logger.info(
+                "Håndterte {} meldinger på {}ms fra topic={}",
+                antallMottatt,
+                millisekunder,
+                pamStillingerKafkaConsumer.topic
+            )
+            telemetryContext.tellMeldingerMottatt(antallMottatt, antallLagret, millisekunder)
+        }
     }
 }

@@ -15,6 +15,9 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <logger name="no.nav.paw" level="INFO"/>
             <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>
@@ -24,6 +27,9 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <logger name="no.nav.paw" level="DEBUG"/>
             <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>
@@ -33,9 +39,9 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT"/>
             </root>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <logger name="no.nav.paw" level="DEBUG"/>
         </then>
     </if>
-    <logger name="org.apache.kafka" level="WARN"/>
-    <logger name="io.confluent.kafka" level="WARN"/>
-    <logger name="no.nav.paw" level="DEBUG"/>
 </configuration>

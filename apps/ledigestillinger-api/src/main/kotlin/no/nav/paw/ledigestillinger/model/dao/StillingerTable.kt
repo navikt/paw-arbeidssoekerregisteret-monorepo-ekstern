@@ -15,10 +15,10 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
-import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -63,19 +63,6 @@ object StillingerTable : LongIdTable("stillinger") {
         .map { it[id].value }
         .singleOrNull()
 
-    fun selectIdListByStatus(
-        status: StillingStatus
-    ): List<Long> = select(id)
-        .where { StillingerTable.status eq status }
-        .map { it[id].value }
-
-    fun selectIdListByStatusListAndUtloeperGraterThan(
-        statusList: Collection<StillingStatus>,
-        utloeperTimestampCutoff: Instant
-    ): List<Long> = select(id)
-        .where { status inList statusList and utloeperTimestamp.isNotNull() and (utloeperTimestamp greater utloeperTimestampCutoff) }
-        .map { it[id].value }
-
     fun selectRowByUUID(
         uuid: UUID
     ): StillingRow? = selectAll()
@@ -106,30 +93,31 @@ object StillingerTable : LongIdTable("stillinger") {
         }
 
     fun selectRowsByKategorierAndFylker(
-        soekeord: Collection<String>,
-        styrkkoder: Collection<String>,
-        fylker: Collection<Fylke>,
+        medSoekeord: Collection<String> = emptyList(),
+        medStyrkkoder: Collection<String> = emptyList(),
+        medFylker: Collection<Fylke> = emptyList(),
+        utenKilder: Collection<String> = emptyList(),
         paging: Paging = Paging()
     ): List<StillingRow> {
-        logger.trace("Finner stillinger med styrkkoder: {} og fylker: {}", styrkkoder, fylker)
+        logger.trace("Finner stillinger med styrkkoder: {} og fylker: {}", medStyrkkoder, medFylker)
         val aktivQuery: Op<Boolean> = (status eq StillingStatus.AKTIV)
-        val soekeordQuery: Op<Boolean> = if (soekeord.isEmpty()) {
+        val soekeordQuery: Op<Boolean> = if (medSoekeord.isEmpty()) {
             Op.TRUE
         } else {
             Op.TRUE // TODO Benytte søkeord?
         }
-        val kategoriQuery: Op<Boolean> = if (styrkkoder.isEmpty()) {
+        val kategoriQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
             Op.TRUE
         } else {
-            (KategorierTable.normalisertKode inList styrkkoder)
+            (KategorierTable.normalisertKode inList medStyrkkoder)
         }
-        val klassifiseringQuery: Op<Boolean> = if (styrkkoder.isEmpty()) {
+        val klassifiseringQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
             Op.TRUE
         } else {
-            ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList styrkkoder))
+            ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList medStyrkkoder))
         }
         val styrkQuery = (kategoriQuery or klassifiseringQuery)
-        val lokasjonQuery: Op<Boolean> = fylker.map { fylke ->
+        val lokasjonQuery: Op<Boolean> = medFylker.map { fylke ->
             if (fylke.kommuner.isEmpty()) {
                 LokasjonerTable.fylkeskode eq fylke.fylkesnummer
             } else {
@@ -137,7 +125,7 @@ object StillingerTable : LongIdTable("stillinger") {
                 LokasjonerTable.fylkeskode eq fylke.fylkesnummer and (LokasjonerTable.kommunekode inList kommunenummer)
             }
         }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
-        val kildeQuery = (kilde neq "DIR") // TODO Filtrerer ut direktemeldte stillinger
+        val kildeQuery = (kilde notInList utenKilder)
 
         val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery and kildeQuery
 
@@ -158,6 +146,17 @@ object StillingerTable : LongIdTable("stillinger") {
                 )
             }
     }
+
+    fun selectIdByStatusListAndUtloeperLessThanWithLimit(
+        statusList: Collection<StillingStatus>,
+        utloeperTimestampCutoff: Instant,
+        count: Int
+    ): List<Long> = select(id)
+        .where {
+            status inList statusList and utloeperTimestamp.isNotNull() and (utloeperTimestamp less utloeperTimestampCutoff)
+        }
+        .limit(count)
+        .map { it[id].value }
 
     fun insert(
         row: StillingRow
@@ -218,6 +217,13 @@ object StillingerTable : LongIdTable("stillinger") {
     fun deleteByIdList(
         idList: Collection<Long>
     ): Int = deleteWhere { id inList idList }
+
+    fun deleteByStatusListAndUtloeperLessThan(
+        statusList: Collection<StillingStatus>,
+        utloeperTimestamp: Instant
+    ): Int = deleteWhere {
+        status inList statusList and this.utloeperTimestamp.isNotNull() and (this.utloeperTimestamp less utloeperTimestamp)
+    }
 
     fun countByStatus(): List<StillingStatusCountRow> = select(
         status, status.count()
