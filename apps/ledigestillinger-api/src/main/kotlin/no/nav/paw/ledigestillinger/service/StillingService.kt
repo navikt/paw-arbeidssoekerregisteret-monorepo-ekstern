@@ -25,6 +25,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.CompletableFuture.runAsync
 
 class StillingService(
     private val applicationConfig: ApplicationConfig,
@@ -122,27 +123,35 @@ class StillingService(
             slettEldreEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
         )
 
-        val rowsAffected = transaction {
-            StillingerTable.deleteByStatusListAndUtloeperLessThan(
-                statusList = listOf(
-                    StillingStatus.AVVIST,
-                    StillingStatus.INAKTIV,
-                    StillingStatus.STOPPET,
-                    StillingStatus.SLETTET
-                ),
-                utloeperTimestamp = slettEldreEnnTimestamp
+        val future = runAsync {
+            val rowsAffected = transaction {
+                StillingerTable.deleteByStatusListAndUtloeperLessThan(
+                    statusList = listOf(
+                        StillingStatus.AVVIST,
+                        StillingStatus.INAKTIV,
+                        StillingStatus.STOPPET,
+                        StillingStatus.SLETTET
+                    ),
+                    utloeperTimestamp = slettEldreEnnTimestamp
+                )
+            }
+
+            logger.info(
+                "Slettet {} ikke-aktive stillinger med utløp eldre enn {} dager ({})",
+                rowsAffected,
+                slettEldreEnn.toDays(),
+                slettEldreEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
             )
         }
 
-        logger.info(
-            "Slettet {} ikke-aktive stillinger med utløp eldre enn {} dager ({})",
-            rowsAffected,
-            slettEldreEnn.toDays(),
-            slettEldreEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
-        )
-    }.getOrElse { cause ->
+        logger.info("Venter på fremtiden!!!!")
+
+        future.get(1, java.util.concurrent.TimeUnit.MINUTES)
+
+        logger.info("Fremtiden kom og gikk!!!")
+    }.recover { cause ->
         logger.error("Feil ved sletting av utløpte stillinger", cause)
-    }
+    }.getOrThrow()
 
     @WithSpan("paw.stillinger.service.handle_messages")
     fun handleMessages(messages: Sequence<Message<UUID, Ad>>): Unit = transaction {
