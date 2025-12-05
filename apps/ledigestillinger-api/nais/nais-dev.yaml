@@ -37,7 +37,7 @@ spec:
     path: /internal/isReady
     initialDelay: 10
   startup:
-    failureThreshold: 10
+    failureThreshold: 200
     initialDelay: 12
     path: /internal/hasStarted
     periodSeconds: 10
