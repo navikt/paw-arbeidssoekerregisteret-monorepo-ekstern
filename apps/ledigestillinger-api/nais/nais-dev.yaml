@@ -61,7 +61,7 @@ spec:
   gcp:
     sqlInstances:
       - type: POSTGRES_17
-        tier: db-g1-small
+        tier: db-custom-1-6144
         databases:
           - name: ledigestillinger
 
