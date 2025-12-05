@@ -125,6 +125,8 @@ class StillingService(
 
         val future = runAsync {
             val rowsAffected = transaction {
+                val count = StillingerTable.countByStatus()
+                logger.info("Stillinger by count: {}", count)
                 StillingerTable.deleteByStatusListAndUtloeperLessThan(
                     statusList = listOf(
                         StillingStatus.AVVIST,
