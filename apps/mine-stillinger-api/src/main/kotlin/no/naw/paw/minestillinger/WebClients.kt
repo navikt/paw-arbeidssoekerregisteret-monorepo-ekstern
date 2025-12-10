@@ -12,6 +12,7 @@ import no.nav.paw.client.factory.createAzureAdM2MTokenClient
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.kafkakeygenerator.config.KAFKA_KEY_GENERATOR_CLIENT_CONFIG
 import no.nav.paw.kafkakeygenerator.factory.createKafkaKeyGeneratorClient
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.pdl.factory.createPdlClient
@@ -21,7 +22,8 @@ import no.nav.paw.security.texas.TexasClient
 class WebClients(
     val kafkaClient: KafkaKeysClient,
     val pdlClient: PdlClient,
-    val finnStillingerClient: FinnStillingerClient
+    val finnStillingerClient: FinnStillingerClient,
+    val kafkaKeysClient: KafkaKeysClient
 )
 
 fun initWebClient(): WebClients {
@@ -42,6 +44,11 @@ fun initWebClient(): WebClients {
         httpClient = httpClient,
         config = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     )
+    val kafkaClient = createKafkaKeyGeneratorClient(
+        httpClient = httpClient,
+        tokenClient = m2mTokenClient,
+        kafkaKeyConfig = loadNaisOrLocalConfiguration(KAFKA_KEY_GENERATOR_CLIENT_CONFIG)
+    )
     val finnStillingerClient = FinnStillingerClient(
         config = loadNaisOrLocalConfiguration("finn_ledige_stillinger.toml"),
         texasClient = texasClient,
@@ -58,6 +65,7 @@ fun initWebClient(): WebClients {
     return WebClients(
         kafkaClient = idClient,
         pdlClient = pdlClient,
-        finnStillingerClient = finnStillingerClient
+        finnStillingerClient = finnStillingerClient,
+        kafkaKeysClient = kafkaClient
     )
 }
