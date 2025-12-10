@@ -73,6 +73,7 @@ spec:
     outbound:
       rules:
         - application: paw-arbeidssoekerregisteret-api-ledigestillinger
+        - application: paw-kafka-key-generator
       external:
         - host: pdl-api.prod-fss-pub.nais.io
   gcp:

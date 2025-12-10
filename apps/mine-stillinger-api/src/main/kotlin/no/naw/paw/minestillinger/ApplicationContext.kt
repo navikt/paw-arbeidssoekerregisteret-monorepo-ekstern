@@ -9,6 +9,7 @@ import no.nav.paw.hwm.Message
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.security.authentication.config.SecurityConfig
+import no.nav.paw.security.texas.TexasClient
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import org.apache.avro.specific.SpecificRecord
 
@@ -23,6 +24,7 @@ data class ApplicationContext(
     val finnStillingerClient: FinnStillingerClient,
     val brukerprofilTjeneste: BrukerprofilTjeneste,
     val clock: Clock,
-    val meterBinders: List<MeterBinder>
+    val meterBinders: List<MeterBinder>,
+    val texasClient: TexasClient
 )
 

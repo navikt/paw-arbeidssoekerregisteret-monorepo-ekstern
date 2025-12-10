@@ -110,7 +110,8 @@ fun main() {
             consumer.consumerMetrics,
             JvmGcMetrics(),
             JvmMemoryMetrics()
-        )
+        ),
+        texasClient = texasClient
     )
     runApp(appContext)
 }
