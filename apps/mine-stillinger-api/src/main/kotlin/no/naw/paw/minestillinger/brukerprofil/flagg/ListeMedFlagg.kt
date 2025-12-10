@@ -1,7 +1,5 @@
 package no.naw.paw.minestillinger.brukerprofil.flagg
 
-import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
-
 class ListeMedFlagg private constructor(
     flagg: Collection<Flagg>,
     private val dirty: Set<LagretFlagg>
@@ -16,7 +14,7 @@ class ListeMedFlagg private constructor(
     private val map: Map<Flaggtype<*>, Flagg> = flagg.associateBy { it.type }
 
     init {
-        require(flagg.size == flagg.map<Flagg, Flaggtype<*>> { it.type }.toSet().size) {
+        require(flagg.size == flagg.map { it.type }.toSet().size) {
             "Duplikate flagg funnet i settet"
         }
     }
