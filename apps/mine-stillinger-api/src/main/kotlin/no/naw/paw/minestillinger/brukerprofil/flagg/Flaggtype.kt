@@ -7,7 +7,7 @@ import java.time.Instant
 
 sealed interface Flaggtype<A: Flagg> {
     val type: String
-    fun flagg(verdi: Boolean, tidspunkt: Instant): Flagg
+    fun flagg(verdi: Boolean, tidspunkt: Instant): A
 }
 
 sealed interface Flagg {

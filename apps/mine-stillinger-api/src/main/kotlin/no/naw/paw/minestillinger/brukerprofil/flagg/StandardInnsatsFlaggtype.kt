@@ -4,7 +4,7 @@ import java.time.Instant
 
 object StandardInnsatsFlaggtype: Flaggtype<StandardInnsatsFlagg> {
     override val type: String = "standard_innsats"
-    override fun flagg(verdi: Boolean, tidspunkt: Instant) = HarGodeMuligheterFlagg(verdi, tidspunkt)
+    override fun flagg(verdi: Boolean, tidspunkt: Instant) = StandardInnsatsFlagg(verdi, tidspunkt)
 }
 
 data class StandardInnsatsFlagg(
