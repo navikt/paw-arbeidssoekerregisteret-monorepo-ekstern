@@ -26,7 +26,7 @@ spec:
     - name: KAFKA_KEYS_SCOPE
       value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
     - name: DEPREKERINGSTIDSPUNKT_BEHOVSVURDERING
-      value: "2050-01-01T00:00:00Z"
+      value: "2025-12-11T07:00:00+01:00"
   resources:
     limits:
       memory: 2048Mi
