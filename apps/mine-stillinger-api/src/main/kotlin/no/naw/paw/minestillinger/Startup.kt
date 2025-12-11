@@ -2,7 +2,6 @@ package no.naw.paw.minestillinger
 
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
-import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -34,8 +33,6 @@ import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import org.apache.avro.specific.SpecificRecord
-import org.apache.kafka.clients.consumer.internals.ConsumerMetrics
-import org.apache.kafka.clients.consumer.internals.metrics.KafkaConsumerMetrics
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
@@ -61,11 +58,19 @@ fun main() {
         )
     )
     val kafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG))
-    val consumer = kafkaFactory.createConsumer<Long, SpecificRecord>(
+    val topicAwareValueDeserializer = kafkaFactory.initTopicAwareValueDeserializer(
+        topicNames = topicNames,
+        siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
+    )
+    val topicAwareKeyDeserializer = initTopicAwareKeyDeserializer(
+        topicNames = topicNames,
+        siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
+    )
+    val consumer = kafkaFactory.createConsumer<Any, Any>(
         groupId = "brukerprofiler_api_consumer_v1",
         clientId = "brukerprofiler_api_v1_${UUID.randomUUID()}",
-        keyDeserializer = LongDeserializer::class,
-        valueDeserializer = ActualSpecificAvroDeserializer::class
+        keyDeserializer = topicAwareKeyDeserializer,
+        valueDeserializer = topicAwareValueDeserializer
     ).asMessageConsumerWithHwmAndMetrics(
         prometheusMeterRegistry = prometheusMeterRegistry,
         receiver = ::process,
@@ -116,7 +121,7 @@ fun main() {
     runApp(appContext)
 }
 
-fun process(source: Sequence<Message<Long, SpecificRecord>>) {
+fun process(source: Sequence<Message<Any, Any>>) {
     transaction {
         source
             .onEach { message ->

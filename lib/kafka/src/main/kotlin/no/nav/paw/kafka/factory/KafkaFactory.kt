@@ -70,6 +70,32 @@ class KafkaFactory(private val config: KafkaConfig) {
                     )
         )
 
+    fun <K : Any, V : Any> createConsumer(
+        groupId: String,
+        clientId: String,
+        keyDeserializer: Deserializer<K>,
+        valueDeserializer: Deserializer<V>,
+        autoCommit: Boolean = false,
+        autoOffsetReset: String = "earliest",
+        maxPollRecords: Int = ConsumerConfig.DEFAULT_MAX_POLL_RECORDS,
+        fetchMaxBytes: Int = ConsumerConfig.DEFAULT_FETCH_MAX_BYTES,
+        maxPartitionFetchBytes: Int = ConsumerConfig.DEFAULT_MAX_PARTITION_FETCH_BYTES
+    ): KafkaConsumer<K, V> =
+        KafkaConsumer(
+            baseProperties +
+                    mapOf(
+                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to autoCommit,
+                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to autoOffsetReset,
+                        ConsumerConfig.GROUP_ID_CONFIG to groupId,
+                        ConsumerConfig.CLIENT_ID_CONFIG to clientId,
+                        ConsumerConfig.MAX_POLL_RECORDS_CONFIG to maxPollRecords,
+                        ConsumerConfig.FETCH_MAX_BYTES_CONFIG to fetchMaxBytes,
+                        ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG to maxPartitionFetchBytes
+                    ),
+            keyDeserializer,
+            valueDeserializer
+        )
+
     private fun authenticationConfig(config: KafkaAuthenticationConfig): Map<String, Any> =
         mapOf(
             CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to "SSL",

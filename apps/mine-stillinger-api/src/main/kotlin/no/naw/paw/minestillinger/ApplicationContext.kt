@@ -11,10 +11,9 @@ import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.texas.TexasClient
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
-import org.apache.avro.specific.SpecificRecord
 
 data class ApplicationContext(
-    val consumer: DataConsumer<Message<Long, SpecificRecord>, Long, SpecificRecord>,
+    val consumer: DataConsumer<Message<Any, Any>, Any, Any>,
     val dataSource: HikariDataSource,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
     val securityConfig: SecurityConfig,
