@@ -2,6 +2,7 @@ package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeName
+import java.time.Instant
 import java.util.*
 
 @JsonTypeName("EGENVURDERING_V1")
@@ -21,6 +22,9 @@ data class Egenvurdering(
 
     @field:JsonProperty("egenvurdering")
     val egenvurdering: ProfilertTil = ProfilertTil.UKJENT_VERDI,
+
+    @get:JsonProperty("tidspunkt")
+    override val tidspunkt: Instant
 ) : Hendelse {
 
     @field:JsonProperty("type")

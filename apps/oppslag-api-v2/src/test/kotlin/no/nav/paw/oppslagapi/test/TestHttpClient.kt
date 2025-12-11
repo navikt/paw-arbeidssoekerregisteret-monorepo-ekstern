@@ -160,7 +160,7 @@ suspend fun HttpClient.hentSnapshotV3(
         url = "/api/v3/snapshot",
         token = token,
         request = IdentitetsnummerQueryRequest(
-            identitetsnummer = identitetsnummer.value
+            identitetsnummer = identitetsnummer
         )
     ).validateOpenApiSpec(validator = v3ApiValidator)
 }
@@ -173,7 +173,7 @@ suspend fun HttpClient.hentPerioderV3(
         url = "/api/v3/perioder",
         token = token,
         request = IdentitetsnummerQueryRequest(
-            identitetsnummer = identitetsnummer.value
+            identitetsnummer = identitetsnummer
         )
     ).validateOpenApiSpec(validator = v3ApiValidator)
 }
@@ -199,7 +199,7 @@ suspend fun HttpClient.hentSnapshotV4(
         url = "/api/v4/snapshot",
         token = token,
         request = IdentitetsnummerQueryRequest(
-            identitetsnummer = identitetsnummer.value
+            identitetsnummer = identitetsnummer
         )
     ).validateOpenApiSpec(validator = v4ApiValidator)
 }
@@ -212,7 +212,7 @@ suspend fun HttpClient.hentPerioderV4(
         url = "/api/v4/perioder",
         token = token,
         request = IdentitetsnummerQueryRequest(
-            identitetsnummer = identitetsnummer.value
+            identitetsnummer = identitetsnummer
         )
     ).validateOpenApiSpec(validator = v4ApiValidator)
 }

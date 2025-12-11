@@ -7,20 +7,11 @@ import java.time.Instant
 @JsonTypeName("PERIODE_STARTET_V1")
 data class PeriodeStartet(
 
-    @field:JsonProperty("tidspunkt")
-    val tidspunkt: Instant,
+    @field:JsonProperty("sendtInnAv")
+    val sendtInnAv: Metadata,
 
-    @field:JsonProperty("utfoertAv")
-    val utfoertAv: Bruker,
-
-    @field:JsonProperty("kilde")
-    val kilde: String,
-
-    @field:JsonProperty("aarsak")
-    val aarsak: String,
-
-    @field:JsonProperty("tidspunktFraKilde")
-    val tidspunktFraKilde: TidspunktFraKilde? = null
+    @get:JsonProperty("tidspunkt")
+    override val tidspunkt: Instant
 ) : Hendelse {
 
     @field:JsonProperty("type")

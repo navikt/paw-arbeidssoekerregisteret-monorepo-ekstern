@@ -55,7 +55,7 @@ paths:
                 status: 400
                 title: "Bad Request"
                 detail: "Kunne ikke tolke forespørsel"
-                instance: "/api/v3/perioder"
+                instance: "/api/v4/perioder"
                 timestamp: "2021-01-01T12:00:00.000Z"
         "403":
           description: "Forbidden"
@@ -69,7 +69,7 @@ paths:
                 status: 403
                 title: "Forbidden"
                 detail: "Bruker er ugyldig"
-                instance: "/api/v3/perioder"
+                instance: "/api/v4/perioder"
                 timestamp: "2021-01-01T12:00:00.000Z"
         "404":
           description: "Not Found"
@@ -83,7 +83,7 @@ paths:
                 status: 404
                 title: "Not Found"
                 detail: "Ingen perioder funnet"
-                instance: "/api/v3/perioder"
+                instance: "/api/v4/perioder"
                 timestamp: "2021-01-01T12:00:00.000Z"
         "500":
           description: "Internal Server Error"
@@ -97,7 +97,7 @@ paths:
                 status: 500
                 title: "Internal Server Error"
                 detail: "Ukjent feil"
-                instance: "/api/v3/perioder"
+                instance: "/api/v4/perioder"
                 timestamp: "2021-01-01T12:00:00.000Z"
 
   /api/v4/perioder:
@@ -171,7 +171,7 @@ paths:
                 status: 400
                 title: "Bad Request"
                 detail: "Kunne ikke tolke forespørsel"
-                instance: "/api/v3/tidslinjer"
+                instance: "/api/v4/tidslinjer"
                 timestamp: "2021-01-01T12:00:00.000Z"
         "403":
           description: "Forbidden"
@@ -185,7 +185,7 @@ paths:
                 status: 403
                 title: "Forbidden"
                 detail: "Bruker er ugyldig"
-                instance: "/api/v3/tidslinjer"
+                instance: "/api/v4/tidslinjer"
                 timestamp: "2021-01-01T12:00:00.000Z"
         "500":
           description: "Internal Server Error"
@@ -199,7 +199,7 @@ paths:
                 status: 500
                 title: "Internal Server Error"
                 detail: "Ukjent feil"
-                instance: "/api/v3/tidslinjer"
+                instance: "/api/v4/tidslinjer"
                 timestamp: "2021-01-01T12:00:00.000Z"
 
 components:
@@ -924,5 +924,5 @@ components:
         status: 500
         title: "Internal Server Error"
         detail: "Ukjent feil"
-        instance: "/api/v3/bekreftelser"
+        instance: "/api/v4/bekreftelser"
         timestamp: "2021-01-01T12:00:00.000Z"

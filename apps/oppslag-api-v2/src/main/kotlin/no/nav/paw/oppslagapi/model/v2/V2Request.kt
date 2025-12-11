@@ -1,9 +1,7 @@
 package no.nav.paw.oppslagapi.model.v2
 
 import no.nav.paw.felles.model.Identitetsnummer
-import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.exception.UgyldigForespoerselException
-import no.nav.paw.security.authentication.model.SecurityContext
 import java.util.*
 
 sealed interface V2BaseRequest
@@ -36,19 +34,4 @@ data class V2Request(
             perioder != null -> V2PerioderRequest(perioder)
             else -> throw UgyldigForespoerselException("Ugyldig forespørsel. Benytter både identitetsnummer og perioder")
         }
-}
-
-suspend fun ApplicationQueryLogic.hentTidslinjer(
-    securityContext: SecurityContext,
-    baseRequest: V2BaseRequest
-) = when (baseRequest) {
-    is V2IdentitetsnummerRequest -> hentTidslinjer(
-        securityContext = securityContext,
-        identitetsnummer = baseRequest.identitetsnummer
-    )
-
-    is V2PerioderRequest -> hentTidslinjer(
-        securityContext = securityContext,
-        perioder = baseRequest.perioder
-    )
 }

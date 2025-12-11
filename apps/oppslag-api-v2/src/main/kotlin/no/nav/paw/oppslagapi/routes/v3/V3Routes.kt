@@ -4,10 +4,8 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
-import no.nav.paw.oppslagapi.mapping.v3.asV2
 import no.nav.paw.oppslagapi.mapping.v3.finnSistePeriode
 import no.nav.paw.oppslagapi.model.v3.AggregertPeriode
-import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerQueryRequest
 import no.nav.paw.oppslagapi.model.v3.QueryRequest
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.oppslagapi.plugin.installContentNegotiation
@@ -29,11 +27,11 @@ fun Route.v3Routes(
         installErrorHandler()
 
         autentisering(TokenX, AzureAd) {
-            post<IdentitetsnummerQueryRequest>("/snapshot") { request ->
+            post<QueryRequest>("/snapshot") { request ->
                 val securityContext = call.securityContext()
                 val response = queryLogic.finnTidslinjer(
                     securityContext = securityContext,
-                    request = request.asV2()
+                    request = request
                 ).finnSistePeriode()
                 call.respondWith<AggregertPeriode>(response)
             }
@@ -42,7 +40,7 @@ fun Route.v3Routes(
                 val securityContext = call.securityContext()
                 val response = queryLogic.finnTidslinjer(
                     securityContext = securityContext,
-                    request = request.asV2(),
+                    request = request,
                     types = call.types(),
                     ordering = call.ordering()
                 )
