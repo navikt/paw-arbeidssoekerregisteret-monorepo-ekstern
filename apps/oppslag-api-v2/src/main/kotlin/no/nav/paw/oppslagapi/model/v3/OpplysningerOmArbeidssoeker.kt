@@ -2,6 +2,7 @@ package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeName
+import java.time.Instant
 import java.util.*
 
 @JsonTypeName("OPPLYSNINGER_V4")
@@ -23,7 +24,10 @@ data class OpplysningerOmArbeidssoeker(
     val jobbsituasjon: Jobbsituasjon? = null,
 
     @field:JsonProperty("annet")
-    val annet: Annet? = null
+    val annet: Annet? = null,
+
+    @get:JsonProperty("tidspunkt")
+    override val tidspunkt: Instant
 ) : Hendelse {
 
     @field:JsonProperty("type")

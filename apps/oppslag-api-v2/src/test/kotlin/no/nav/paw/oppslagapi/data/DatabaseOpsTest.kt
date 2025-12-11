@@ -71,39 +71,39 @@ class DatabaseOpsTest : FreeSpec({
                 rader.size shouldBe 6
                 rader.firstOrNull { it.type == pa_vegne_av_start_v1 } should { paaVegneAvStart ->
                     paaVegneAvStart.shouldNotBeNull()
-                    paaVegneAvStart.periodeId shouldBe TestData.periode1_1_paa_vegne_av_startet.periodeId
+                    paaVegneAvStart.periodeId shouldBe TestData.paa_vegne_av1_1_startet.periodeId
                     paaVegneAvStart.identitetsnummer shouldBe null
                     paaVegneAvStart.data should { data ->
                         data.shouldBeInstanceOf<PaaVegneAvStart>()
-                        data.graceMS shouldBe (TestData.periode1_1_paa_vegne_av_startet.handling as? Start)?.graceMS
-                        data.intervalMS shouldBe (TestData.periode1_1_paa_vegne_av_startet.handling as? Start)?.intervalMS
+                        data.graceMS shouldBe (TestData.paa_vegne_av1_1_startet.handling as? Start)?.graceMS
+                        data.intervalMS shouldBe (TestData.paa_vegne_av1_1_startet.handling as? Start)?.intervalMS
                     }
                 }
                 rader.firstOrNull { it.type == pa_vegne_av_stopp_v1 } should { paaVegneAvStopp ->
                     paaVegneAvStopp.shouldNotBeNull()
-                    paaVegneAvStopp.periodeId shouldBe TestData.periode1_1_paa_vegne_av_stoppet.periodeId
+                    paaVegneAvStopp.periodeId shouldBe TestData.paa_vegne_av1_1_stoppet.periodeId
                     paaVegneAvStopp.identitetsnummer shouldBe null
                     paaVegneAvStopp.data should { data ->
                         data.shouldBeInstanceOf<PaaVegneAvStopp>()
-                        data.periodeId shouldBe TestData.periode1_1_paa_vegne_av_stoppet.periodeId
-                        data.bekreftelsesloesning.name shouldBe TestData.periode1_1_paa_vegne_av_stoppet.bekreftelsesloesning.name
-                        data.fristBrutt shouldBe (TestData.periode1_1_paa_vegne_av_stoppet.handling as? Stopp)?.fristBrutt
+                        data.periodeId shouldBe TestData.paa_vegne_av1_1_stoppet.periodeId
+                        data.bekreftelsesloesning.name shouldBe TestData.paa_vegne_av1_1_stoppet.bekreftelsesloesning.name
+                        data.fristBrutt shouldBe (TestData.paa_vegne_av1_1_stoppet.handling as? Stopp)?.fristBrutt
                     }
                 }
                 rader.firstOrNull { it.type == bekreftelsemelding_v1 } should { bekreftelse ->
                     bekreftelse.shouldNotBeNull()
-                    bekreftelse.periodeId shouldBe TestData.periode1_1_bekreftelse.periodeId
-                    bekreftelse.timestamp shouldBe TestData.periode1_1_bekreftelse.svar.sendtInnAv.tidspunkt
+                    bekreftelse.periodeId shouldBe TestData.bekreftelse1_1.periodeId
+                    bekreftelse.timestamp shouldBe TestData.bekreftelse1_1.svar.sendtInnAv.tidspunkt
                     bekreftelse.identitetsnummer shouldBe null
                     bekreftelse.data should { data ->
                         data.shouldBeInstanceOf<Bekreftelse>()
-                        data.periodeId shouldBe TestData.periode1_1_bekreftelse.periodeId
-                        data.bekreftelsesloesning.name shouldBe TestData.periode1_1_bekreftelse.bekreftelsesloesning.name
-                        data.svar.gjelderTil shouldBe TestData.periode1_1_bekreftelse.svar.gjelderTil
-                        data.svar.gjelderFra shouldBe TestData.periode1_1_bekreftelse.svar.gjelderFra
-                        data.svar.harJobbetIDennePerioden shouldBe TestData.periode1_1_bekreftelse.svar.harJobbetIDennePerioden
+                        data.periodeId shouldBe TestData.bekreftelse1_1.periodeId
+                        data.bekreftelsesloesning.name shouldBe TestData.bekreftelse1_1.bekreftelsesloesning.name
+                        data.svar.gjelderTil shouldBe TestData.bekreftelse1_1.svar.gjelderTil
+                        data.svar.gjelderFra shouldBe TestData.bekreftelse1_1.svar.gjelderFra
+                        data.svar.harJobbetIDennePerioden shouldBe TestData.bekreftelse1_1.svar.harJobbetIDennePerioden
                         data.svar.vilFortsetteSomArbeidssoeker shouldBe data.svar.vilFortsetteSomArbeidssoeker
-                        data.svar.sendtInnAv shouldMatch TestData.periode1_1_bekreftelse.svar.sendtInnAv
+                        data.svar.sendtInnAv shouldMatch TestData.bekreftelse1_1.svar.sendtInnAv
                     }
                 }
                 rader.firstOrNull { it.type == periode_startet_v1 } should { periodeStart ->
@@ -115,11 +115,11 @@ class DatabaseOpsTest : FreeSpec({
                 }
                 rader.firstOrNull { it.type == opplysninger_om_arbeidssoeker_v4 } should { opplysninger ->
                     opplysninger.shouldNotBeNull()
-                    opplysninger.timestamp shouldBe TestData.periode1_1_opplysninger.sendtInnAv.tidspunkt
-                    opplysninger.periodeId shouldBe TestData.periode1_1_opplysninger.periodeId
-                    opplysninger.timestamp shouldBe TestData.periode1_1_opplysninger.sendtInnAv.tidspunkt
+                    opplysninger.timestamp shouldBe TestData.opplysninger1_1.sendtInnAv.tidspunkt
+                    opplysninger.periodeId shouldBe TestData.opplysninger1_1.periodeId
+                    opplysninger.timestamp shouldBe TestData.opplysninger1_1.sendtInnAv.tidspunkt
                     opplysninger.identitetsnummer shouldBe null
-                    opplysninger.data shouldMatch TestData.periode1_1_opplysninger
+                    opplysninger.data shouldMatch TestData.opplysninger1_1
                 }
                 rader.firstOrNull { it.type == periode_avsluttet_v1 } should { periodeAvsluttet ->
                     periodeAvsluttet.shouldNotBeNull()
@@ -148,10 +148,10 @@ class DatabaseOpsTest : FreeSpec({
                 }
                 rader.firstOrNull { it.type == opplysninger_om_arbeidssoeker_v4 } should { opplysninger ->
                     opplysninger.shouldNotBeNull()
-                    opplysninger.periodeId shouldBe TestData.periode2_1_opplysninger.periodeId
-                    opplysninger.timestamp shouldBe TestData.periode2_1_opplysninger.sendtInnAv.tidspunkt
+                    opplysninger.periodeId shouldBe TestData.opplysninger2_1.periodeId
+                    opplysninger.timestamp shouldBe TestData.opplysninger2_1.sendtInnAv.tidspunkt
                     opplysninger.identitetsnummer shouldBe null
-                    opplysninger.data shouldMatch TestData.periode2_1_opplysninger
+                    opplysninger.data shouldMatch TestData.opplysninger2_1
                 }
                 rader.firstOrNull { it.type == periode_avsluttet_v1 } should { periodeAvsluttet ->
                     periodeAvsluttet.shouldNotBeNull()

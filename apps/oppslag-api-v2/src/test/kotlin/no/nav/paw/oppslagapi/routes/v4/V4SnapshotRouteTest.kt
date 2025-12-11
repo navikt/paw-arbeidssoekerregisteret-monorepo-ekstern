@@ -16,7 +16,9 @@ import no.nav.paw.oppslagapi.data.query.genererTidslinje
 import no.nav.paw.oppslagapi.exception.PERIODE_IKKE_FUNNET_ERROR_TYPE
 import no.nav.paw.oppslagapi.mapping.v3.asAggregertPeriode
 import no.nav.paw.oppslagapi.mapping.v3.asV3
-import no.nav.paw.oppslagapi.model.v3.AggregertPeriode
+import no.nav.paw.oppslagapi.mapping.v4.asAggregertPeriodeV4
+import no.nav.paw.oppslagapi.mapping.v4.asV4
+import no.nav.paw.oppslagapi.model.v4.AggregertPeriodeV4
 import no.nav.paw.oppslagapi.test.TestContext
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.oppslagapi.test.ansattToken
@@ -39,8 +41,8 @@ class V4SnapshotRouteTest : FreeSpec({
         val groupedRows2: List<Pair<UUID, List<Row<Any>>>> = TestData.rows4
             .groupBy { it.periodeId }
             .map { (periodeId, rows) -> periodeId to rows }
-        val forventetPeriode1 = genererTidslinje(rader = groupedRows1).first().asV3().asAggregertPeriode()
-        val forventetPeriode2 = genererTidslinje(rader = groupedRows2).first().asV3().asAggregertPeriode()
+        val forventetPeriode1 = genererTidslinje(rader = groupedRows1).first().asV4().asAggregertPeriodeV4()
+        val forventetPeriode2 = genererTidslinje(rader = groupedRows2).first().asV4().asAggregertPeriodeV4()
 
         beforeSpec {
             tilgangsTjenesteForAnsatteMock.configureMock()
@@ -139,7 +141,7 @@ class V4SnapshotRouteTest : FreeSpec({
                         identitetsnummer = bruker2.ident
                     )
                     response.status shouldBe HttpStatusCode.OK
-                    val periode = response.body<AggregertPeriode>()
+                    val periode = response.body<AggregertPeriodeV4>()
                     periode shouldBe forventetPeriode2
                 }
             }
@@ -170,7 +172,7 @@ class V4SnapshotRouteTest : FreeSpec({
                         identitetsnummer = bruker1.ident
                     )
                     response.status shouldBe HttpStatusCode.OK
-                    val periode = response.body<AggregertPeriode>()
+                    val periode = response.body<AggregertPeriodeV4>()
                     periode shouldBe forventetPeriode1
                 }
             }
@@ -236,7 +238,7 @@ class V4SnapshotRouteTest : FreeSpec({
                         identitetsnummer = bruker2.ident
                     )
                     response.status shouldBe HttpStatusCode.OK
-                    val periode = response.body<AggregertPeriode>()
+                    val periode = response.body<AggregertPeriodeV4>()
                     periode shouldBe forventetPeriode2
                 }
             }
@@ -267,7 +269,7 @@ class V4SnapshotRouteTest : FreeSpec({
                         identitetsnummer = bruker1.ident
                     )
                     response.status shouldBe HttpStatusCode.OK
-                    val periode = response.body<AggregertPeriode>()
+                    val periode = response.body<AggregertPeriodeV4>()
                     periode shouldBe forventetPeriode1
                 }
             }

@@ -37,18 +37,3 @@ data class V2Request(
             else -> throw UgyldigForespoerselException("Ugyldig forespørsel. Benytter både identitetsnummer og perioder")
         }
 }
-
-suspend fun ApplicationQueryLogic.hentTidslinjer(
-    securityContext: SecurityContext,
-    baseRequest: V2BaseRequest
-) = when (baseRequest) {
-    is V2IdentitetsnummerRequest -> hentTidslinjer(
-        securityContext = securityContext,
-        identitetsnummer = baseRequest.identitetsnummer
-    )
-
-    is V2PerioderRequest -> hentTidslinjer(
-        securityContext = securityContext,
-        perioder = baseRequest.perioder
-    )
-}

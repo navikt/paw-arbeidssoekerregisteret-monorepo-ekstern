@@ -8,7 +8,6 @@ import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.model.v2.BekreftelserResponse
 import no.nav.paw.oppslagapi.model.v2.TidslinjeResponse
 import no.nav.paw.oppslagapi.model.v2.V2Request
-import no.nav.paw.oppslagapi.model.v2.hentTidslinjer
 import no.nav.paw.oppslagapi.plugin.installContentNegotiation
 import no.nav.paw.oppslagapi.plugin.installErrorHandler
 import no.nav.paw.oppslagapi.respondWith

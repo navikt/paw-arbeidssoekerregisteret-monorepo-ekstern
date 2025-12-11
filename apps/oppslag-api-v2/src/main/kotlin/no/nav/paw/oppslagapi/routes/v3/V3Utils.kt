@@ -9,37 +9,39 @@ import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.PeriodeUtenStartHendelseException
 import no.nav.paw.oppslagapi.exception.UgyldigForespoerselException
 import no.nav.paw.oppslagapi.mapping.v3.asV3
-import no.nav.paw.oppslagapi.model.v2.V2BaseRequest
-import no.nav.paw.oppslagapi.model.v2.hentTidslinjer
-import no.nav.paw.oppslagapi.model.v3.Bekreftelse
-import no.nav.paw.oppslagapi.model.v3.Egenvurdering
 import no.nav.paw.oppslagapi.model.v3.Hendelse
 import no.nav.paw.oppslagapi.model.v3.HendelseType
-import no.nav.paw.oppslagapi.model.v3.OpplysningerOmArbeidssoeker
-import no.nav.paw.oppslagapi.model.v3.PaaVegneAvStart
-import no.nav.paw.oppslagapi.model.v3.PaaVegneAvStopp
-import no.nav.paw.oppslagapi.model.v3.PeriodeAvluttet
-import no.nav.paw.oppslagapi.model.v3.PeriodeStartet
-import no.nav.paw.oppslagapi.model.v3.Profilering
+import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerQueryRequest
+import no.nav.paw.oppslagapi.model.v3.PerioderQueryRequest
+import no.nav.paw.oppslagapi.model.v3.QueryRequest
 import no.nav.paw.oppslagapi.model.v3.SortOrder
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.security.authentication.model.SecurityContext
-import java.time.Duration
-import java.time.Instant
 
 private val logger = buildApplicationLogger
 
 suspend fun ApplicationQueryLogic.finnTidslinjer(
     securityContext: SecurityContext,
-    request: V2BaseRequest,
+    request: QueryRequest,
     types: List<HendelseType> = emptyList(),
     ordering: SortOrder = SortOrder.DESC
 ): Response<List<Tidslinje>> {
     return try {
-        hentTidslinjer(
-            securityContext = securityContext,
-            baseRequest = request
-        ).map { tidslinjer ->
+        when (request) {
+            is IdentitetsnummerQueryRequest -> {
+                hentTidslinjer(
+                    securityContext = securityContext,
+                    identitetsnummer = request.identitetsnummer
+                )
+            }
+
+            is PerioderQueryRequest -> {
+                hentTidslinjer(
+                    securityContext = securityContext,
+                    perioder = request.perioder
+                )
+            }
+        }.map { tidslinjer ->
             tidslinjer
                 .map { it.asV3().byTypes(types, ordering) }
                 .sortedByStart(ordering)
@@ -77,21 +79,8 @@ fun Iterable<Tidslinje>.sortedByStart(ordering: SortOrder): List<Tidslinje> {
 
 fun Iterable<Hendelse>.sortedByTidspunk(ordering: SortOrder): List<Hendelse> {
     return when (ordering) {
-        SortOrder.ASC -> this.sortedBy { it.tidspunkt().toEpochMilli() }
-        SortOrder.DESC -> this.sortedByDescending { it.tidspunkt().toEpochMilli() }
-    }
-}
-
-fun Hendelse.tidspunkt(): Instant {
-    return when (this) {
-        is PeriodeStartet -> this.tidspunkt
-        is PeriodeAvluttet -> this.tidspunkt
-        is OpplysningerOmArbeidssoeker -> this.sendtInnAv.tidspunkt
-        is Profilering -> this.sendtInnAv.tidspunkt
-        is Egenvurdering -> this.sendtInnAv.tidspunkt
-        is Bekreftelse -> this.svar.sendtInnAv.tidspunkt
-        is PaaVegneAvStart -> Instant.EPOCH
-        is PaaVegneAvStopp -> Instant.EPOCH + Duration.ofMinutes(1)
+        SortOrder.ASC -> this.sortedBy { it.tidspunkt.toEpochMilli() }
+        SortOrder.DESC -> this.sortedByDescending { it.tidspunkt.toEpochMilli() }
     }
 }
 

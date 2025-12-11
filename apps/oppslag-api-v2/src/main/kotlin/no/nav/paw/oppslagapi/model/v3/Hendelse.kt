@@ -2,6 +2,7 @@ package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import java.time.Instant
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -22,4 +23,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 sealed interface Hendelse {
 
     val type: HendelseType
+    val tidspunkt: Instant
 }

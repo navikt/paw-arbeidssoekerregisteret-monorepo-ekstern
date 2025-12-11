@@ -35,13 +35,16 @@ fun Response<List<Tidslinje>>.finnSistePeriode(): Response<AggregertPeriode> {
                     instance = "finnSistePeriode"
                 )
             }
+
             aktivePerioder.size == 1 -> {
                 Data(aktivePerioder.first().asAggregertPeriode())
             }
+
             aktivePerioder.size > 1 -> {
                 logger.warn("Flere aktive perioder funnet, bruker nyeste som 'siste'")
                 Data(aktivePerioder.maxBy { it.startet }.asAggregertPeriode())
             }
+
             else -> Data(tidslinje.maxBy { it.startet }.asAggregertPeriode())
         }
     }
