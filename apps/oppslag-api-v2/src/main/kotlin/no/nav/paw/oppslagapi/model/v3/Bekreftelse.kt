@@ -2,6 +2,7 @@ package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeName
+import java.time.Instant
 import java.util.*
 
 @JsonTypeName("BEKREFTELSE_V1")
@@ -17,7 +18,10 @@ data class Bekreftelse(
     val status: BekreftelsStatus,
 
     @field:JsonProperty("svar")
-    val svar: Svar
+    val svar: Svar,
+
+    @get:JsonProperty("tidspunkt")
+    override val tidspunkt: Instant
 ) : Hendelse {
 
     @field:JsonProperty("type")

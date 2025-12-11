@@ -2,6 +2,7 @@ package no.nav.paw.oppslagapi.model.v3
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeName
+import java.time.Instant
 import java.util.*
 
 @JsonTypeName("PAA_VEGNE_AV_START_V1")
@@ -17,7 +18,10 @@ data class PaaVegneAvStart(
     val intervalMS: Long,
 
     @field:JsonProperty("graceMS")
-    val graceMS: Long
+    val graceMS: Long,
+
+    @get:JsonProperty("tidspunkt")
+    override val tidspunkt: Instant
 ) : Hendelse {
 
     @field:JsonProperty("type")

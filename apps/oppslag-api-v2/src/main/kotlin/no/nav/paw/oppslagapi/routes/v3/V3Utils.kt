@@ -10,7 +10,6 @@ import no.nav.paw.oppslagapi.data.query.PeriodeUtenStartHendelseException
 import no.nav.paw.oppslagapi.exception.UgyldigForespoerselException
 import no.nav.paw.oppslagapi.mapping.v3.asV3
 import no.nav.paw.oppslagapi.model.v2.V2BaseRequest
-import no.nav.paw.oppslagapi.model.v2.hentTidslinjer
 import no.nav.paw.oppslagapi.model.v3.Bekreftelse
 import no.nav.paw.oppslagapi.model.v3.Egenvurdering
 import no.nav.paw.oppslagapi.model.v3.Hendelse
@@ -23,6 +22,7 @@ import no.nav.paw.oppslagapi.model.v3.PeriodeStartet
 import no.nav.paw.oppslagapi.model.v3.Profilering
 import no.nav.paw.oppslagapi.model.v3.SortOrder
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
+import no.nav.paw.oppslagapi.routes.v2.hentTidslinjer
 import no.nav.paw.security.authentication.model.SecurityContext
 import java.time.Duration
 import java.time.Instant
