@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-    </appender>
-
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c{1}:%L - %m%n</pattern>
         </encoder>
     </appender>
 
+    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
 
     <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/secure-logs/secure.log</file>
@@ -32,6 +31,11 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <logger name="no.nav.paw" level="INFO"/>
+            <logger name="io.ktor.server.plugins.cors" level="WARN"/>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>
     <if condition='"${NAIS_CLUSTER_NAME}" == "dev-gcp"'>
@@ -43,6 +47,11 @@
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
             </root>
+            <logger name="no.nav.paw" level="INFO"/>
+            <logger name="io.ktor.server.plugins.cors" level="WARN"/>
+            <logger name="org.apache.kafka" level="WARN"/>
+            <logger name="io.confluent.kafka" level="WARN"/>
+            <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>
     <if condition='"${NAIS_CLUSTER_NAME}" == "docker"'>
@@ -51,7 +60,7 @@
             <logger name="org.apache.kafka" level="WARN"/>
             <logger name="io.confluent.kafka" level="WARN"/>
             <root level="INFO">
-                <appender-ref ref="CONSOLE"/>
+                <appender-ref ref="STDOUT"/>
             </root>
         </then>
     </if>
@@ -61,10 +70,8 @@
             <logger name="org.apache.kafka" level="WARN"/>
             <logger name="io.confluent.kafka" level="WARN"/>
             <root level="INFO">
-                <appender-ref ref="CONSOLE"/>
+                <appender-ref ref="STDOUT"/>
             </root>
         </then>
     </if>
-
-    <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
 </configuration>
