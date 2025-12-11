@@ -1,10 +1,14 @@
 package no.naw.paw.minestillinger.vedtak14a
 
+import io.opentelemetry.api.common.AttributeKey.booleanKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.felles.model.AktorId
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.hwm.Message
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.StandardInnsatsFlaggtype
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
@@ -24,21 +28,33 @@ fun lagre14aResultat(
                     ?.let { AktorId(it.value) }
                     ?.let(idFunction)
                     ?.let(brukerprofilTjeneste::hentLokalBrukerProfilEllerNull)
-                val innsatsgruppe = message.value.innsatsgruppe
-                val fattetTidspunkt = message.value.fattetDato?.toInstant() ?: Instant.EPOCH
-                val brukerId = when {
-                    brukerprofil == null -> null
-                    brukerprofil.arbeidssoekerperiodeAvsluttet != null -> null
-                    else -> brukerprofil.id
-                }
-                brukerId?.let {
-                    it to StandardInnsatsFlaggtype.flagg(
-                        verdi = innsatsgruppe == Innsatsgruppe.STANDARD_INNSATS,
-                        tidspunkt = fattetTidspunkt
+                brukerprofil?.let { it to message }
+            }
+            .filter { (brukerprofil, message) ->
+                val harAktivPeriode = brukerprofil.arbeidssoekerperiodeAvsluttet == null
+                val fattet = message.value.fattetDato?.toInstant()
+                val profileringsTidspunkt = brukerprofil.flagg<HarGodeMuligheterFlagg>()?.tidspunkt ?: Instant.EPOCH
+                val fattetEtterProfilering = fattet != null && fattet.isAfter(profileringsTidspunkt)
+                val harInnsatsgruppe = message.value.innsatsgruppe != null
+                Span.current().addEvent(
+                    "vedtaksfilter", Attributes.of(
+                        booleanKey("vedtak_er_etter_profilering"), fattetEtterProfilering,
+                        booleanKey("har_aktiv_periode"), harAktivPeriode,
+                        booleanKey("har_innsatsgruppe"), harInnsatsgruppe
                     )
-                }
-            }.forEach { (brukerId, flagg) ->
-                brukerprofilTjeneste.skrivFlagg(brukerId, listOf(flagg))
+                )
+                harAktivPeriode && fattetEtterProfilering && harInnsatsgruppe
+            }
+            .forEach { (profil, melding) ->
+                val brukerId = profil.id
+                val vedtattStdInnsats = melding.value.innsatsgruppe == Innsatsgruppe.STANDARD_INNSATS
+                brukerprofilTjeneste.skrivFlagg(
+                    brukerId,
+                    listOf(StandardInnsatsFlaggtype.flagg(
+                        verdi = vedtattStdInnsats,
+                        tidspunkt = melding.value.fattetDato!!.toInstant() //Filter på fattetEtterProfilering sikrer non-null her
+                    ))
+                )
             }
     }
 }
