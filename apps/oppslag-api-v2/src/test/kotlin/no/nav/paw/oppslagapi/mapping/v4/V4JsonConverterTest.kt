@@ -8,8 +8,8 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.query.genererTidslinje
-import no.nav.paw.oppslagapi.model.v3.AggregertPeriode
-import no.nav.paw.oppslagapi.model.v3.Tidslinje
+import no.nav.paw.oppslagapi.model.v4.AggregertPeriodeV4
+import no.nav.paw.oppslagapi.model.v4.TidslinjeV4
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.oppslagapi.test.v4ApiValidator
 import no.nav.paw.oppslagapi.utils.objectMapper
@@ -23,9 +23,7 @@ class V4JsonConverterTest : FreeSpec({
         val input = genererTidslinje(rader).first().asV4().asAggregertPeriodeV4()
 
         val json = objectMapper.writeValueAsString(input)
-        println(json)
-        val output = objectMapper.readValue<AggregertPeriode>(json)
-        println(output)
+        objectMapper.readValue<AggregertPeriodeV4>(json)
 
         val response = SimpleResponse.Builder(
             200
@@ -48,9 +46,7 @@ class V4JsonConverterTest : FreeSpec({
 
         val input = listOf(tidslinje)
         val json = objectMapper.writeValueAsString(input)
-        println(json)
-        val output = objectMapper.readValue<List<Tidslinje>>(json)
-        println(output)
+        objectMapper.readValue<List<TidslinjeV4>>(json)
 
         val response = SimpleResponse.Builder(
             200
@@ -61,7 +57,5 @@ class V4JsonConverterTest : FreeSpec({
         val result = v4ApiValidator
             .validateResponse("/api/v4/perioder", Request.Method.POST, response)
         withClue(result) { result.hasErrors() shouldBe false }
-
-        println(result)
     }
 })

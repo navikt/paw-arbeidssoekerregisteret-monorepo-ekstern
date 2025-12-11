@@ -4,7 +4,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
-import no.nav.paw.oppslagapi.mapping.v3.asV2
 import no.nav.paw.oppslagapi.mapping.v4.finnSistePeriodeV4
 import no.nav.paw.oppslagapi.model.v3.QueryRequest
 import no.nav.paw.oppslagapi.model.v4.AggregertPeriodeV4
@@ -34,7 +33,7 @@ fun Route.v4Routes(
                 val securityContext = call.securityContext()
                 val response = queryLogic.finnTidslinjerV4(
                     securityContext = securityContext,
-                    request = request.asV2()
+                    request = request
                 ).finnSistePeriodeV4()
                 call.respondWith<AggregertPeriodeV4>(response)
             }
@@ -43,7 +42,7 @@ fun Route.v4Routes(
                 val securityContext = call.securityContext()
                 val response = queryLogic.finnTidslinjerV4(
                     securityContext = securityContext,
-                    request = request.asV2(),
+                    request = request,
                     types = call.types(),
                     ordering = call.ordering()
                 )

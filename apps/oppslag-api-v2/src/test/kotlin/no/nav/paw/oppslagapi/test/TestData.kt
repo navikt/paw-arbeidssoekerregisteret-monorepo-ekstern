@@ -77,18 +77,30 @@ object TestData {
         identitetsnummer = fnr1,
         startet = Instant.now()
     )
-    val periode1_1_opplysninger = oppslysninger(
+    val opplysninger1_1 = oppslysninger(
         identitetsnummer = fnr1,
         periodeId = periode1_1_startet.id,
-        tidspunkt = Instant.now()
+        tidspunkt = Instant.now() + Duration.ofMinutes(1)
     )
-    val periode1_1_paa_vegne_av_startet = startPaaVegneAv(
+    val profilering1_1 = profilering(
+        identitetsnummer = fnr1,
+        periodeId = periode1_1_startet.id,
+        opplysningerId = opplysninger1_1.id,
+        tidspunkt = Instant.now() + Duration.ofMinutes(2)
+    )
+    val egenvurdering1_1 = egenvurdering(
+        identitetsnummer = fnr3,
+        periodeId = periode1_1_startet.id,
+        profileringId = profilering1_1.id,
+        tidspunkt = periode1_1_startet.startet.tidspunkt + Duration.ofDays(5)
+    )
+    val paa_vegne_av1_1_startet = startPaaVegneAv(
         periodeId = periode1_1_startet.id
     )
-    val periode1_1_paa_vegne_av_stoppet = stoppPaaVegneAv(
+    val paa_vegne_av1_1_stoppet = stoppPaaVegneAv(
         periodeId = periode1_1_startet.id
     )
-    val periode1_1_bekreftelse = bekreftelse(
+    val bekreftelse1_1 = bekreftelse(
         periodeId = periode1_1_startet.id
     )
     val periode1_1_avsluttet = periode(
@@ -101,7 +113,7 @@ object TestData {
         identitetsnummer = fnr2,
         startet = Instant.now()
     )
-    val periode2_1_opplysninger = oppslysninger(
+    val opplysninger2_1 = oppslysninger(
         identitetsnummer = fnr2,
         periodeId = periode2_1_startet.id,
         tidspunkt = Instant.now()
@@ -116,15 +128,15 @@ object TestData {
         identitetsnummer = fnr2,
         startet = Instant.now()
     )
-    val periode2_2_opplysninger = oppslysninger(
+    val opplysninger2_2 = oppslysninger(
         identitetsnummer = fnr2,
         periodeId = periode2_2_startet.id,
         tidspunkt = Instant.now()
     )
-    val periode2_2_profilering = profilering(
+    val profilering2_2 = profilering(
         identitetsnummer = fnr2,
         periodeId = periode2_2_startet.id,
-        opplysningerId = periode2_2_opplysninger.id,
+        opplysningerId = opplysninger2_2.id,
         tidspunkt = Instant.now()
     )
     val periode2_2_avsluttet = periode(
@@ -191,19 +203,19 @@ object TestData {
 
     val hendelser1 = listOf(
         periode1_1_startet,
-        periode1_1_opplysninger,
-        periode1_1_paa_vegne_av_startet,
-        periode1_1_paa_vegne_av_stoppet,
-        periode1_1_bekreftelse,
+        opplysninger1_1,
+        paa_vegne_av1_1_startet,
+        paa_vegne_av1_1_stoppet,
+        bekreftelse1_1,
         periode1_1_avsluttet
     )
     val hendelser2 = listOf(
         periode2_1_startet,
-        periode2_1_opplysninger,
+        opplysninger2_1,
         periode2_1_avsluttet,
         periode2_2_startet,
-        periode2_2_opplysninger,
-        periode2_2_profilering,
+        opplysninger2_2,
+        profilering2_2,
         periode2_2_avsluttet
     )
     val hendelser3 = listOf(

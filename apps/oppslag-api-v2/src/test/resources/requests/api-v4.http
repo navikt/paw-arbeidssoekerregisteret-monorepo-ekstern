@@ -67,6 +67,6 @@ Authorization: Bearer {{$auth.token("azure")}}
 {
     "type": "PERIODER",
     "perioder": [
-        "b42f2c7b-10b5-41a8-b415-f671457964e5"
+        "f1670adf-a8ae-42e9-8ee9-c0415edf29a2"
     ]
 }

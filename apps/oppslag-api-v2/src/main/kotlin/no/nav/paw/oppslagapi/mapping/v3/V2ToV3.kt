@@ -26,6 +26,7 @@ import no.nav.paw.oppslagapi.model.v3.Svar
 import no.nav.paw.oppslagapi.model.v3.Tidslinje
 import no.nav.paw.oppslagapi.model.v3.TidspunktFraKilde
 import no.nav.paw.oppslagapi.model.v3.Utdanning
+import java.time.Instant
 
 fun no.nav.paw.oppslagapi.model.v2.Tidslinje.asV3(): Tidslinje {
     return Tidslinje(
@@ -51,41 +52,42 @@ fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3(): Hendelse? {
 }
 
 fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PeriodeStartet(): Hendelse {
-    return this.periodeStartetV1?.asV3PeriodeStartet()
+    return this.periodeStartetV1?.asV3PeriodeStartet(this.tidspunkt)
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.periode_startet_v1)
 }
 
 fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PeriodeAvsluttet(): Hendelse {
-    return this.periodeAvsluttetV1?.asV3PeriodeAvsluttet()
+    return this.periodeAvsluttetV1?.asV3PeriodeAvsluttet(this.tidspunkt)
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.periode_avsluttet_v1)
 }
 
 fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Opplysninger(): Hendelse {
-    return this.opplysningerV4?.asV3()
+    return this.opplysningerV4?.asV3(this.tidspunkt)
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.opplysninger_v4)
 }
 
 fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Profilering(): Hendelse {
-    return this.profileringV1?.asV3()
+    return this.profileringV1?.asV3(this.tidspunkt)
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.profilering_v1)
 }
 
 fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Egenvurdering(): Hendelse {
-    return this.egenvurderingV1?.asV3()
+    return this.egenvurderingV1?.asV3(this.tidspunkt)
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.egenvurdering_v1)
 }
 
 fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Bekreftelse(): Hendelse? {
-    return this.bekreftelseV1?.asV3()
+    return this.bekreftelseV1?.asV3(this.tidspunkt)
 }
 
 fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PaaVegneAvStart(): Hendelse {
-    return this.paVegneAvStartV1?.asV3()
+    return this.paVegneAvStartV1?.asV3(this.tidspunkt)
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.pa_vegne_av_start_v1)
 }
 
-fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PaaVegneAvStopp(): Hendelse {
-    return this.paVegneAvStoppV1?.asV3()
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PaaVegneAvStopp(
+): Hendelse {
+    return this.paVegneAvStoppV1?.asV3(this.tidspunkt)
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.pa_vegne_av_stopp_v1)
 }
 
@@ -99,34 +101,29 @@ fun no.nav.paw.oppslagapi.model.v2.Metadata.asV3(): Metadata {
     )
 }
 
-fun no.nav.paw.oppslagapi.model.v2.Metadata.asV3PeriodeStartet(): PeriodeStartet {
+fun no.nav.paw.oppslagapi.model.v2.Metadata.asV3PeriodeStartet(tidspunkt: Instant): PeriodeStartet {
     return PeriodeStartet(
-        tidspunkt = this.tidspunkt,
-        utfoertAv = this.utfoertAv.asV3(),
-        kilde = this.kilde,
-        aarsak = this.aarsak,
-        tidspunktFraKilde = this.tidspunktFraKilde?.asV3()
+        sendtInnAv = this.asV3(),
+        tidspunkt = tidspunkt
     )
 }
 
-fun no.nav.paw.oppslagapi.model.v2.Metadata.asV3PeriodeAvsluttet(): PeriodeAvluttet {
+fun no.nav.paw.oppslagapi.model.v2.Metadata.asV3PeriodeAvsluttet(tidspunkt: Instant): PeriodeAvluttet {
     return PeriodeAvluttet(
-        tidspunkt = this.tidspunkt,
-        utfoertAv = this.utfoertAv.asV3(),
-        kilde = this.kilde,
-        aarsak = this.aarsak,
-        tidspunktFraKilde = this.tidspunktFraKilde?.asV3()
+        sendtInnAv = this.asV3(),
+        tidspunkt = tidspunkt
     )
 }
 
-fun no.nav.paw.oppslagapi.model.v2.OpplysningerOmArbeidssoeker.asV3(): OpplysningerOmArbeidssoeker {
+fun no.nav.paw.oppslagapi.model.v2.OpplysningerOmArbeidssoeker.asV3(tidspunkt: Instant): OpplysningerOmArbeidssoeker {
     return OpplysningerOmArbeidssoeker(
         id = this.id,
         sendtInnAv = this.sendtInnAv.asV3(),
         utdanning = this.utdanning?.asV3(),
         helse = this.helse?.asV3(),
         jobbsituasjon = this.jobbsituasjon?.asV3(),
-        annet = this.annet?.asV3()
+        annet = this.annet?.asV3(),
+        tidspunkt = tidspunkt
     )
 }
 
@@ -183,24 +180,26 @@ fun no.nav.paw.oppslagapi.model.v2.Annet.asV3(): Annet {
     )
 }
 
-fun no.nav.paw.oppslagapi.model.v2.Profilering.asV3(): Profilering {
+fun no.nav.paw.oppslagapi.model.v2.Profilering.asV3(tidspunkt: Instant): Profilering {
     return Profilering(
         id = this.id,
         opplysningerOmArbeidssokerId = this.opplysningerOmArbeidssokerId,
         sendtInnAv = this.sendtInnAv.asV3(),
         profilertTil = this.profilertTil.asV3(),
         jobbetSammenhengendeSeksAvTolvSisteMnd = this.jobbetSammenhengendeSeksAvTolvSisteMnd,
-        alder = this.alder
+        alder = this.alder,
+        tidspunkt = tidspunkt
     )
 }
 
-fun no.nav.paw.oppslagapi.model.v2.Egenvurdering.asV3(): Egenvurdering {
+fun no.nav.paw.oppslagapi.model.v2.Egenvurdering.asV3(tidspunkt: Instant): Egenvurdering {
     return Egenvurdering(
         id = this.id,
         profileringId = this.profileringId,
         sendtInnAv = this.sendtInnAv.asV3(),
         profilertTil = this.profilertTil.asV3(),
-        egenvurdering = this.egenvurdering.asV3()
+        egenvurdering = this.egenvurdering.asV3(),
+        tidspunkt = tidspunkt
     )
 }
 
@@ -214,14 +213,15 @@ fun no.nav.paw.oppslagapi.model.v2.ProfilertTil.asV3(): ProfilertTil {
     }
 }
 
-fun no.nav.paw.oppslagapi.model.v2.BekreftelseMedMetadata.asV3(): Bekreftelse? {
+fun no.nav.paw.oppslagapi.model.v2.BekreftelseMedMetadata.asV3(tidspunkt: Instant): Bekreftelse? {
     val status = this.status?.asV3() ?: BekreftelsStatus.GYLDIG
     return if (status == BekreftelsStatus.GYLDIG && this.bekreftelse != null) {
         Bekreftelse(
             id = this.bekreftelse.id,
             bekreftelsesloesning = this.bekreftelse.bekreftelsesloesning.asV3(),
             status = status,
-            svar = this.bekreftelse.svar.asV3()
+            svar = this.bekreftelse.svar.asV3(),
+            tidspunkt = tidspunkt
         )
     } else {
         null
@@ -246,20 +246,22 @@ fun no.nav.paw.oppslagapi.model.v2.BekreftelseStatus.asV3(): BekreftelsStatus {
     }
 }
 
-fun no.nav.paw.oppslagapi.model.v2.PaaVegneAvStart.asV3(): PaaVegneAvStart {
+fun no.nav.paw.oppslagapi.model.v2.PaaVegneAvStart.asV3(tidspunkt: Instant): PaaVegneAvStart {
     return PaaVegneAvStart(
         periodeId = this.periodeId,
         bekreftelsesloesning = this.bekreftelsesloesning.asV3(),
         intervalMS = this.intervalMS,
-        graceMS = this.graceMS
+        graceMS = this.graceMS,
+        tidspunkt = tidspunkt
     )
 }
 
-fun no.nav.paw.oppslagapi.model.v2.PaaVegneAvStopp.asV3(): PaaVegneAvStopp {
+fun no.nav.paw.oppslagapi.model.v2.PaaVegneAvStopp.asV3(tidspunkt: Instant): PaaVegneAvStopp {
     return PaaVegneAvStopp(
         periodeId = this.periodeId,
         bekreftelsesloesning = this.bekreftelsesloesning.asV3(),
-        fristBrutt = this.fristBrutt
+        fristBrutt = this.fristBrutt,
+        tidspunkt = tidspunkt
     )
 }
 

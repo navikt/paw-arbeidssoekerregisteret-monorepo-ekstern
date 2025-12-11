@@ -23,9 +23,7 @@ class V3JsonConverterTest : FreeSpec({
         val input = genererTidslinje(rader).first().asV3().asAggregertPeriode()
 
         val json = objectMapper.writeValueAsString(input)
-        println(json)
-        val output = objectMapper.readValue<AggregertPeriode>(json)
-        println(output)
+        objectMapper.readValue<AggregertPeriode>(json)
 
         val response = SimpleResponse.Builder(
             200
@@ -36,8 +34,6 @@ class V3JsonConverterTest : FreeSpec({
         val result = v3ApiValidator
             .validateResponse("/api/v3/snapshot", Request.Method.POST, response)
         withClue(result) { result.hasErrors() shouldBe false }
-
-        println(result)
     }
 
     "Skal mappe til riktig typer for perioder" {
@@ -48,9 +44,7 @@ class V3JsonConverterTest : FreeSpec({
 
         val input = listOf(tidslinje)
         val json = objectMapper.writeValueAsString(input)
-        println(json)
-        val output = objectMapper.readValue<List<Tidslinje>>(json)
-        println(output)
+        objectMapper.readValue<List<Tidslinje>>(json)
 
         val response = SimpleResponse.Builder(
             200
@@ -61,7 +55,5 @@ class V3JsonConverterTest : FreeSpec({
         val result = v3ApiValidator
             .validateResponse("/api/v3/perioder", Request.Method.POST, response)
         withClue(result) { result.hasErrors() shouldBe false }
-
-        println(result)
     }
 })

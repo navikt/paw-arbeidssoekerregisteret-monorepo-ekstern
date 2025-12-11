@@ -1,4 +1,4 @@
-package no.nav.paw.oppslagapi.data.query
+package no.nav.paw.oppslagapi.model
 
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
@@ -11,32 +11,6 @@ import no.nav.paw.oppslagapi.model.v2.Metadata
 import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStart
 import no.nav.paw.oppslagapi.model.v2.PaaVegneAvStopp
 import java.time.Instant
-import java.util.*
-
-fun genererTidslinje(periodeId: UUID, rader: List<Row<out Any>>): GenerertTidslinje? {
-    val (start, meldinger) = rader
-        .filter { it.periodeId == periodeId }
-        .sortedBy { it.timestamp }
-        .removeFirst { melding -> melding.type == periode_startet_v1 }
-    if (start == null) return null
-    return meldinger.fold(
-        initial = tidslinje(
-            identitetsnummer = start.identitetsnummer!!,
-            periodeStart = start.timestamp
-        )
-    ) { tidslinje, row -> tidslinje + row }
-}
-
-fun <A> List<A>.removeFirst(predicate: (A) -> Boolean): Pair<A?, List<A>> {
-    val index = indexOfFirst(predicate)
-    return if (index == -1) {
-        null to this
-    } else {
-        val element = this[index]
-        val newList = toMutableList().also { it.removeAt(index) }.toList()
-        element to newList
-    }
-}
 
 data class GenerertTidslinje(
     val identitetsnummer: String,
@@ -95,19 +69,3 @@ data class GenerertTidslinje(
             else -> this
         }
 }
-
-fun tidslinje(
-    identitetsnummer: String,
-    periodeStart: Instant,
-): GenerertTidslinje = GenerertTidslinje(
-    identitetsnummer = identitetsnummer,
-    periodeStart = periodeStart,
-    periodeStopp = null,
-    tidspunkt = Instant.now(),
-    ansvarStart = emptyList(),
-    ansvarStopp = emptyList(),
-    ansvarlig = setOf(Bekreftelsesloesning.ARBEIDSSOEKERREGISTERET),
-    bekreftelser = emptyList(),
-)
-
-

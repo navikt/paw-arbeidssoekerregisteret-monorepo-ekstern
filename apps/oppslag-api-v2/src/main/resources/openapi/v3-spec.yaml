@@ -24,12 +24,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/IdentitetsnummerQueryRequest"
+              $ref: "#/components/schemas/QueryRequest"
             examples:
               IDENTITETSNUMMER:
                 value:
                   type: "IDENTITETSNUMMER"
                   identitetsnummer: "01017012345"
+              PERIODER:
+                value:
+                  type: "PERIODER"
+                  perioder: [
+                    "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+                  ]
         required: true
       responses:
         "200":
@@ -264,27 +271,16 @@ components:
           type: string
           enum:
             - PERIODE_STARTET_V1
+        sendtInnAv:
+          $ref: "#/components/schemas/Metadata"
         tidspunkt:
           type: string
           format: date-time
-          description: Tidspunkt for endringen
-        utfoertAv:
-          $ref: "#/components/schemas/Bruker"
-        kilde:
-          type: string
-          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen
-        aarsak:
-          type: string
-          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende
-        tidspunktFraKilde:
-          $ref: "#/components/schemas/TidspunktFraKilde"
-          description: Avvik i tid mellom kilde og register
+          description: Tidspunkt for hendelsen
       required:
         - type
+        - sendtInnAv
         - tidspunkt
-        - utfoertAv
-        - kilde
-        - aarsak
 
     PeriodeAvluttet:
       type: object
@@ -294,27 +290,16 @@ components:
           type: string
           enum:
             - PERIODE_AVSLUTTET_V1
+        sendtInnAv:
+          $ref: "#/components/schemas/Metadata"
         tidspunkt:
           type: string
           format: date-time
-          description: Tidspunkt for endringen
-        utfoertAv:
-          $ref: "#/components/schemas/Bruker"
-        kilde:
-          type: string
-          description: Navn på systemet som utførte endringen eller ble benyttet til å utføre endringen
-        aarsak:
-          type: string
-          description: Aarasek til endringen. Feks "Flyttet ut av landet" eller lignende
-        tidspunktFraKilde:
-          $ref: "#/components/schemas/TidspunktFraKilde"
-          description: Avvik i tid mellom kilde og register.
+          description: Tidspunkt for hendelsen
       required:
         - type
+        - sendtInnAv
         - tidspunkt
-        - utfoertAv
-        - kilde
-        - aarsak
 
     Metadata:
       type: object
@@ -422,10 +407,15 @@ components:
           $ref: "#/components/schemas/Jobbsituasjon"
         annet:
           $ref: "#/components/schemas/Annet"
+        tidspunkt:
+          type: string
+          format: date-time
+          description: Tidspunkt for hendelsen
       required:
         - type
         - id
         - sendtInnAv
+        - tidspunkt
 
     Utdanning:
       type: object
@@ -596,6 +586,10 @@ components:
         alder:
           type: integer
           description: Personens alder
+        tidspunkt:
+          type: string
+          format: date-time
+          description: Tidspunkt for hendelsen
       required:
         - type
         - id
@@ -603,6 +597,7 @@ components:
         - sendtInnAv
         - profilertTil
         - jobbetSammenhengendeSeksAvTolvSisteMnd
+        - tidspunkt
 
     ProfilertTil:
       type: string
@@ -646,6 +641,10 @@ components:
           description: Resultatet av profileringen som egenvurderingen gjelder for
         egenvurdering:
           $ref: "#/components/schemas/ProfilertTil"
+        tidspunkt:
+          type: string
+          format: date-time
+          description: Tidspunkt for hendelsen
       required:
         - type
         - id
@@ -653,6 +652,7 @@ components:
         - sendtInnAv
         - profilertTil
         - egenvurdering
+        - tidspunkt
 
     # --- Bekreftelse and dependencies ---
     Bekreftelse:
@@ -675,12 +675,17 @@ components:
         svar:
           $ref: "#/components/schemas/Svar"
           description: Svar fra bruker, inkludert metadata
+        tidspunkt:
+          type: string
+          format: date-time
+          description: Tidspunkt for hendelsen
       required:
         - type
         - id
         - bekreftelsesloesning
         - status
         - svar
+        - tidspunkt
 
     Bekreftelsesloesning:
       type: string
@@ -752,6 +757,10 @@ components:
             terminerer sine tjenester og stopper bekreftelse på vegne av arbeidssøker. Feks før dagpengene stoppes og
             og dagpengeløsningen stopper bekreftelse på vegne av arbeidssøker.
             Dette brukes av registeret for å å kunne oppdage 'døde' klienter, men har ingen funksjonell betydning.
+        tidspunkt:
+          type: string
+          format: date-time
+          description: Tidspunkt for hendelsen
       required:
         - type
         - periodeId
@@ -759,6 +768,7 @@ components:
         - handling
         - intervalMS
         - graceMS
+        - tidspunkt
 
     PaaVegneAvStopp:
       type: object
@@ -781,10 +791,15 @@ components:
             Angir om grunnen til stopp meldingen er at brukeren har brutt fristen i det eksterne systemet.
             Dersom denne er satt til true og fristene som ble meldt inn i start meldingen er like eller lenger enn
             registerets egne frister vil arbeidssøkerperioden bli stoppet umidelbart.
+        tidspunkt:
+          type: string
+          format: date-time
+          description: Tidspunkt for hendelsen
       required:
         - type
         - periodeId
         - bekreftelsesloesning
+        - tidspunkt
 
     #--- Tidslinje med dependencies ---
     HendelseType:

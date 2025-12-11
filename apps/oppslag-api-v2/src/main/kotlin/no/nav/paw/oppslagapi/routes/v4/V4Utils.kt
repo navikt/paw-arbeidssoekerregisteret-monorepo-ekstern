@@ -7,9 +7,10 @@ import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.oppslagapi.data.query.ApplicationQueryLogic
 import no.nav.paw.oppslagapi.data.query.PeriodeUtenStartHendelseException
 import no.nav.paw.oppslagapi.mapping.v4.asV4
-import no.nav.paw.oppslagapi.model.v2.V2BaseRequest
-import no.nav.paw.oppslagapi.model.v2.hentTidslinjer
 import no.nav.paw.oppslagapi.model.v3.HendelseType
+import no.nav.paw.oppslagapi.model.v3.IdentitetsnummerQueryRequest
+import no.nav.paw.oppslagapi.model.v3.PerioderQueryRequest
+import no.nav.paw.oppslagapi.model.v3.QueryRequest
 import no.nav.paw.oppslagapi.model.v3.SortOrder
 import no.nav.paw.oppslagapi.model.v4.BekreftelseV4
 import no.nav.paw.oppslagapi.model.v4.EgenvurderingV4
@@ -29,15 +30,26 @@ private val logger = buildApplicationLogger
 
 suspend fun ApplicationQueryLogic.finnTidslinjerV4(
     securityContext: SecurityContext,
-    request: V2BaseRequest,
+    request: QueryRequest,
     types: List<HendelseType> = emptyList(),
     ordering: SortOrder = SortOrder.DESC
 ): Response<List<TidslinjeV4>> {
     return try {
-        hentTidslinjer(
-            securityContext = securityContext,
-            baseRequest = request
-        ).map { tidslinjer ->
+        when (request) {
+            is IdentitetsnummerQueryRequest -> {
+                hentTidslinjer(
+                    securityContext = securityContext,
+                    identitetsnummer = request.identitetsnummer
+                )
+            }
+
+            is PerioderQueryRequest -> {
+                hentTidslinjer(
+                    securityContext = securityContext,
+                    perioder = request.perioder
+                )
+            }
+        }.map { tidslinjer ->
             tidslinjer
                 .map { it.asV4().byTypes(types, ordering) }
                 .sortedByStart(ordering)
@@ -73,7 +85,7 @@ private fun Iterable<TidslinjeV4>.sortedByStart(ordering: SortOrder): List<Tidsl
     }
 }
 
-private fun Iterable<HendelseV4>.sortedByTidspunk(ordering: SortOrder): List<HendelseV4> {
+fun Iterable<HendelseV4>.sortedByTidspunk(ordering: SortOrder): List<HendelseV4> {
     return when (ordering) {
         SortOrder.ASC -> this.sortedBy { it.tidspunkt().toEpochMilli() }
         SortOrder.DESC -> this.sortedByDescending { it.tidspunkt().toEpochMilli() }
