@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
@@ -11,6 +12,8 @@ import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
+import no.nav.paw.felles.model.AktorId
+import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.health.healthChecksOf
 import no.nav.paw.health.probes.DatasourceLivenessProbe
 import no.nav.paw.hwm.HwmTopicConfig
@@ -18,6 +21,7 @@ import no.nav.paw.hwm.Message
 import no.nav.paw.hwm.asMessageConsumerWithHwmAndMetrics
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.kafkakeygenerator.model.IdentitetType
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.texas.TEXAS_CONFIG
@@ -32,6 +36,8 @@ import no.naw.paw.minestillinger.db.ops.lesFlaggFraDB
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
+import no.naw.paw.minestillinger.vedtak14a.Siste14aVedtakMelding
+import no.naw.paw.minestillinger.vedtak14a.lagre14aResultat
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -55,26 +61,21 @@ fun main() {
         HwmTopicConfig(
             topic = topicNames.profileringTopic,
             consumerVersion = PROFILERING_CONSUMER_VERSION
-        )
+        ),
+        //Venter på tilgang til topic
+        //HwmTopicConfig(
+        //    topic = SISTE_14A_VEDTAK_TOPIC,
+        //    consumerVersion = SISTE_14A_VEDTAK_CONSUMER_VERSION
+        //)
     )
     val kafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG))
     val topicAwareValueDeserializer = kafkaFactory.initTopicAwareValueDeserializer(
         topicNames = topicNames,
-        siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
+        siste14aVedtakTopic = SISTE_14A_VEDTAK_TOPIC
     )
     val topicAwareKeyDeserializer = initTopicAwareKeyDeserializer(
         topicNames = topicNames,
-        siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
-    )
-    val consumer = kafkaFactory.createConsumer<Any, Any>(
-        groupId = "brukerprofiler_api_consumer_v1",
-        clientId = "brukerprofiler_api_v1_${UUID.randomUUID()}",
-        keyDeserializer = topicAwareKeyDeserializer,
-        valueDeserializer = topicAwareValueDeserializer
-    ).asMessageConsumerWithHwmAndMetrics(
-        prometheusMeterRegistry = prometheusMeterRegistry,
-        receiver = ::process,
-        hwmTopicConfig = topics
+        siste14aVedtakTopic = SISTE_14A_VEDTAK_TOPIC
     )
     val dataSource = initDatabase(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
     val webClients = initWebClient()
@@ -89,6 +90,33 @@ fun main() {
         abTestingRegex = requireNotNull(System.getenv("AB_TESTING_REGEX")?.toRegex()) { "AB_TESTING_REGEX env variabel må være satt" },
         clock = clock
     )
+    val processorContext = ProcessorContext(
+        brukerprofilTjeneste = brukerprofilTjeneste,
+        idFunction = { aktorId ->
+            runBlocking {
+                webClients.kafkaKeysClient.getIdentiteter(
+                    identitetsnummer = aktorId.value,
+                    visKonflikter = false,
+                    hentFraPdl = false
+                )
+            }.identiteter
+                .firstOrNull { it.gjeldende && it.type == IdentitetType.FOLKEREGISTERIDENT }
+                ?.identitet
+                ?.let(::Identitetsnummer)
+        }
+
+    )
+    val consumer = kafkaFactory.createConsumer(
+        groupId = "brukerprofiler_api_consumer_v1",
+        clientId = "brukerprofiler_api_v1_${UUID.randomUUID()}",
+        keyDeserializer = topicAwareKeyDeserializer,
+        valueDeserializer = topicAwareValueDeserializer
+    ).asMessageConsumerWithHwmAndMetrics(
+        prometheusMeterRegistry = prometheusMeterRegistry,
+        receiver = processorContext::process,
+        hwmTopicConfig = topics
+    )
+
     val bakgrunnsprosesser = initBakgrunnsprosesser(
         webClients = webClients,
         clock = clock,
@@ -121,7 +149,12 @@ fun main() {
     runApp(appContext)
 }
 
-fun process(source: Sequence<Message<Any, Any>>) {
+class ProcessorContext(
+    val brukerprofilTjeneste: BrukerprofilTjeneste,
+    val idFunction: (AktorId) -> Identitetsnummer?
+)
+
+fun ProcessorContext.process(source: Sequence<Message<Any, Any>>) {
     transaction {
         source
             .onEach { message ->
@@ -131,6 +164,7 @@ fun process(source: Sequence<Message<Any, Any>>) {
                 when (val value = message.value) {
                     is Profilering -> lagreProfilering(value)
                     is Periode -> opprettOgOppdaterBruker(value)
+                    is Siste14aVedtakMelding -> lagre14aResultat(idFunction, brukerprofilTjeneste, value)
                 }
             }
     }

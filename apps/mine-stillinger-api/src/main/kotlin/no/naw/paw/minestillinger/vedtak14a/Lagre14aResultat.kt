@@ -16,21 +16,27 @@ import java.time.Instant
 fun lagre14aResultat(
     idFunction: (AktorId) -> Identitetsnummer?,
     brukerprofilTjeneste: BrukerprofilTjeneste,
-    message: Message<String, Siste14aVedtakMelding>
+    vedtak: Siste14aVedtakMelding
 ) {
-    message.let { message ->
-        val brukerprofil = message.value.aktorId
-            ?.let { AktorId(it.value) }
-            ?.let(idFunction)
+    vedtak.aktorId?.let { aktørId ->
+        val brukerprofil = AktorId(aktørId.value)
+            .let(idFunction)
             ?.let(brukerprofilTjeneste::hentLokalBrukerProfilEllerNull)
-        brukerprofil?.let { it to message }
+        brukerprofil?.let { it to vedtak }
+    }.also { res ->
+        Span.current().addEvent(
+            "brukerprofil_mapping", Attributes.of(
+                booleanKey("brukerprofil_funnet"), res != null,
+                booleanKey("vedtak_har_aktorId"), vedtak.aktorId != null
+            )
+        )
     }
-        ?.takeIf { (brukerprofil, message) ->
+        ?.takeIf { (brukerprofil, vedtak) ->
             val harAktivPeriode = brukerprofil.arbeidssoekerperiodeAvsluttet == null
-            val fattet = message.value.fattetDato?.toInstant()
+            val fattet = vedtak.fattetDato?.toInstant()
             val profileringsTidspunkt = brukerprofil.flagg<HarGodeMuligheterFlagg>()?.tidspunkt ?: Instant.EPOCH
             val fattetEtterProfilering = fattet != null && fattet.isAfter(profileringsTidspunkt)
-            val harInnsatsgruppe = message.value.innsatsgruppe != null
+            val harInnsatsgruppe = vedtak.innsatsgruppe != null
             Span.current().addEvent(
                 "vedtaksfilter", Attributes.of(
                     booleanKey("vedtak_er_etter_profilering"), fattetEtterProfilering,
@@ -43,13 +49,13 @@ fun lagre14aResultat(
         ?.run {
             val (profil, melding) = this
             val brukerId = profil.id
-            val vedtattStdInnsats = melding.value.innsatsgruppe == Innsatsgruppe.STANDARD_INNSATS
+            val vedtattStdInnsats = vedtak.innsatsgruppe == Innsatsgruppe.STANDARD_INNSATS
             brukerprofilTjeneste.skrivFlagg(
                 brukerId,
                 listOf(
                     StandardInnsatsFlaggtype.flagg(
                         verdi = vedtattStdInnsats,
-                        tidspunkt = melding.value.fattetDato!!.toInstant() //Filter på fattetEtterProfilering sikrer non-null her
+                        tidspunkt = vedtak.fattetDato!!.toInstant() //Filter på fattetEtterProfilering sikrer non-null her
                     )
                 )
             )
