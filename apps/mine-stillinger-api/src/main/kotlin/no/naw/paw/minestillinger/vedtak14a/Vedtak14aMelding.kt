@@ -1,17 +1,16 @@
 package no.naw.paw.minestillinger.vedtak14a
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.paw.felles.model.AktorId
 import org.apache.kafka.common.serialization.Deserializer
 import java.time.ZonedDateTime
 
-class Siste14aVedtakMelding {
-    var aktorId: AktorId? = null
-    var innsatsgruppe: Innsatsgruppe? = null
-    var hovedmal: Hovedmål? = null
-    var fattetDato: ZonedDateTime? = null
-    var fraArena: Boolean = false
-}
+class Siste14aVedtakMelding (
+    var aktorId: AktørId? = null,
+    var innsatsgruppe: Innsatsgruppe? = null,
+    var hovedmal: Hovedmål? = null,
+    var fattetDato: ZonedDateTime? = null,
+    var fraArena: Boolean = false,
+)
 
 data class AktørId(val id: String)
 

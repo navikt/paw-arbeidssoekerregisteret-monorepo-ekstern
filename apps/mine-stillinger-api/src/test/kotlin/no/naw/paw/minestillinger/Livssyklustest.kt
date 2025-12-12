@@ -45,6 +45,7 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdres
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.StandardInnsatsFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.ProfileringTable
@@ -66,6 +67,11 @@ import no.naw.paw.minestillinger.domain.medFlagg
 import no.naw.paw.minestillinger.metrics.AntallBrukereMetrics
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.ledigeStillingerRoute
+import no.naw.paw.minestillinger.vedtak14a.AktørId
+import no.naw.paw.minestillinger.vedtak14a.Innsatsgruppe
+import no.naw.paw.minestillinger.vedtak14a.Innsatsgruppe.VARIG_TILPASSET_INNSATS
+import no.naw.paw.minestillinger.vedtak14a.Siste14aVedtakMelding
+import no.naw.paw.minestillinger.vedtak14a.lagre14aResultat
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -73,6 +79,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicReference
 
@@ -361,7 +369,58 @@ class Livssyklustest : FreeSpec({
                         lagreProfilering(
                             createProfilering(
                                 periodeId = olaPeriode.id,
-                                profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+                                profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER,
+                                sendtInnAv = MetadataFactory.create().build(tidspunkt = clock.now())
+                            )
+                        )
+                    }
+                    val response = testClient.getBrukerprofil(olaIdent)
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe olaIdent.value
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
+                        profil.stillingssoek.shouldBeEmpty()
+                    }
+                    coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Når Ola får 14a vedtak som indikerer at han trenger hjelp endres tjenestestatis tilbake til ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    currentTime.updateAndGet { current -> current + Duration.ofSeconds(2) }
+                    transaction {
+                        lagre14aResultat(
+                            idFunction = { olaIdent },
+                            brukerprofilTjeneste = brukerprofilTjeneste,
+                            vedtak = Siste14aVedtakMelding(
+                                aktorId = AktørId("11223344556677"),
+                                innsatsgruppe = VARIG_TILPASSET_INNSATS,
+                                fattetDato = clock.now().atZone(ZoneId.of("Europe/Oslo"))
+                            )
+                        )
+                    }
+                    val response = testClient.getBrukerprofil(olaIdent)
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe olaIdent.value
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.stillingssoek.shouldBeEmpty()
+                    }
+                    coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Når Ola får et nytt 14a vedtak som indikerer standard innsats tjenestestatis tilbake til ${ApiTjenesteStatus.INAKTIV}" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    currentTime.updateAndGet { current -> current + Duration.ofSeconds(2) }
+                    transaction {
+                        lagre14aResultat(
+                            idFunction = { olaIdent },
+                            brukerprofilTjeneste = brukerprofilTjeneste,
+                            vedtak = Siste14aVedtakMelding(
+                                aktorId = AktørId("11223344556677"),
+                                innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+                                fattetDato = clock.now().atZone(ZoneId.of("Europe/Oslo"))
                             )
                         )
                     }

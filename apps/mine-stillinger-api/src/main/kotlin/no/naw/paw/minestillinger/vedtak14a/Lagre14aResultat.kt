@@ -19,11 +19,12 @@ fun lagre14aResultat(
     vedtak: Siste14aVedtakMelding
 ) {
     vedtak.aktorId?.let { aktørId ->
-        val brukerprofil = AktorId(aktørId.value)
+        val brukerprofil = AktorId(aktørId.id)
             .let(idFunction)
             ?.let(brukerprofilTjeneste::hentLokalBrukerProfilEllerNull)
         brukerprofil?.let { it to vedtak }
     }.also { res ->
+        println("Vi er her")
         Span.current().addEvent(
             "brukerprofil_mapping", Attributes.of(
                 booleanKey("brukerprofil_funnet"), res != null,
@@ -47,7 +48,7 @@ fun lagre14aResultat(
             harAktivPeriode && fattetEtterProfilering && harInnsatsgruppe
         }
         ?.run {
-            val (profil, melding) = this
+            val (profil, vedtak) = this
             val brukerId = profil.id
             val vedtattStdInnsats = vedtak.innsatsgruppe == Innsatsgruppe.STANDARD_INNSATS
             brukerprofilTjeneste.skrivFlagg(
