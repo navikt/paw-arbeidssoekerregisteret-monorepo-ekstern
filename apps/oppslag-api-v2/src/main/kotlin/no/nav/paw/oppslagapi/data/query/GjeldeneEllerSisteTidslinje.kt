@@ -12,7 +12,7 @@ fun List<ApiTidslinje>.gjeldeneEllerSisteTidslinje(): ApiTidslinje? {
     return when {
         antallAktive == 1 -> aktive.first()
         antallAktive > 1 -> {
-            tidslinjeFilterLogger.error("Flere aktive perioder funnet, bruker eldste som 'siste'")
+            tidslinjeFilterLogger.warn("Flere aktive perioder funnet, bruker eldste som 'siste'")
             aktive.minBy { it.startet }
         }
 

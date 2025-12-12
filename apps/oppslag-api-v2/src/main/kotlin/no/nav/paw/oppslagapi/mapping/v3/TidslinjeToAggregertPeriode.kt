@@ -24,7 +24,7 @@ fun Response<List<Tidslinje>>.finnSistePeriode(): Response<AggregertPeriode> {
         } else if (tidslinje.size == 1) {
             tidslinje.first().asAggregertPeriode()
         } else {
-            logger.error("Flere aktive perioder funnet, bruker nyeste som 'siste'")
+            logger.warn("Flere aktive perioder funnet, bruker nyeste som 'siste'")
             tidslinje.maxBy { it.startet }.asAggregertPeriode()
         }
     }
