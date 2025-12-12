@@ -10,6 +10,7 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetAdresseFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.StandardInnsatsFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import java.time.Instant
 
@@ -41,7 +42,12 @@ data class BrukerProfil(
     val optOut: Boolean = listeMedFlagg[OptOutFlaggtype]?.verdi ?: false
     val harGradertAdresse: Boolean = listeMedFlagg[HarBeskyttetAdresseFlaggtype]?.verdi ?: false
     val tjenestenErAktiv: Boolean = listeMedFlagg[TjenestenErAktivFlaggtype]?.verdi ?: false
-    val harGodeMuligheter: Boolean = listeMedFlagg[HarGodeMuligheterFlaggtype]?.verdi ?: false
+
+    val harGodeMuligheter: Boolean = listOfNotNull(
+        listeMedFlagg[HarGodeMuligheterFlaggtype],
+        listeMedFlagg[StandardInnsatsFlaggtype]
+    ).maxByOrNull { it.tidspunkt }?.verdi ?: false
+
     val erITestGruppen: Boolean = listeMedFlagg[ErITestGruppenFlaggtype]?.verdi ?: false
 
     inline fun <reified A: Flagg> flagg(): Flagg? {
