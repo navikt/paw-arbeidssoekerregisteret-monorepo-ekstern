@@ -33,11 +33,11 @@ fun no.nav.paw.oppslagapi.model.v2.Tidslinje.asV3(): Tidslinje {
         identitetsnummer = this.identitetsnummer,
         startet = this.startet,
         avsluttet = this.avsluttet,
-        hendelser = this.hendelser.map { it.asV3() }
+        hendelser = this.hendelser.mapNotNull { it.asV3() }
     )
 }
 
-fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3(): Hendelse? {
     return when (this.hendelseType) {
         no.nav.paw.oppslagapi.model.v2.HendelseType.periode_startet_v1 -> this.asV3PeriodeStartet()
         no.nav.paw.oppslagapi.model.v2.HendelseType.periode_avsluttet_v1 -> this.asV3PeriodeAvsluttet()
@@ -75,9 +75,8 @@ fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Egenvurdering(): Hendelse {
         ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.egenvurdering_v1)
 }
 
-fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Bekreftelse(): Hendelse {
+fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3Bekreftelse(): Hendelse? {
     return this.bekreftelseV1?.asV3()
-        ?: throw IllegalArgumentException("Hendelse er ikke av type " + no.nav.paw.oppslagapi.model.v2.HendelseType.bekreftelse_v1)
 }
 
 fun no.nav.paw.oppslagapi.model.v2.Hendelse.asV3PaaVegneAvStart(): Hendelse {
