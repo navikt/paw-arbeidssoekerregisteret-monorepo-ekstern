@@ -355,7 +355,7 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
-                "Når Ola blir profilert til antatt gode muligheter endes tjenestestatus til ${ApiTjenesteStatus.INAKTIV}" {
+                "Når Ola blir profilert til antatt gode muligheter endres tjenestestatus til ${ApiTjenesteStatus.INAKTIV}" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     transaction {
                         lagreProfilering(
