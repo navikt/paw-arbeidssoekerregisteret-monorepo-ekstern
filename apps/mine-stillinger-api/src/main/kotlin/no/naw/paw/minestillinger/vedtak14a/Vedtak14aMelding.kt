@@ -1,6 +1,8 @@
 package no.naw.paw.minestillinger.vedtak14a
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.apache.kafka.common.serialization.Deserializer
 import java.time.ZonedDateTime
 
@@ -30,6 +32,9 @@ enum class Innsatsgruppe {
 
 object Siste14aDeserializer: Deserializer<Siste14aVedtakMelding> {
     val objectMapper = ObjectMapper()
+        .registerKotlinModule()
+        .registerModule(JavaTimeModule())!!
+
     override fun deserialize(topic: String?, data: ByteArray?): Siste14aVedtakMelding? {
         if (data == null) return null
         return objectMapper.readValue(data, Siste14aVedtakMelding::class.java)
