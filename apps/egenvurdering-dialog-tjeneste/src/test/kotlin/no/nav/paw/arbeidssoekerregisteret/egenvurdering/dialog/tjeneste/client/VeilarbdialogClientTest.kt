@@ -1,5 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client
 
+import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
@@ -112,7 +114,7 @@ class VeilarbdialogClientTest : FreeSpec({
         }.shouldBeInstanceOf<ArbeidsoppfølgingsperiodeAvsluttet>()
     }
 
-    "Feilsituasjon kaster VeilarbdialogClientException" - {
+    "409 feil skal ikke kaste exception" - {
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
             request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
@@ -133,7 +135,7 @@ class VeilarbdialogClientTest : FreeSpec({
             httpClient = testClient(mockEngine)
         )
 
-        shouldThrow<VeilarbdialogClientException> {
+        shouldNotThrowAny {
             runBlocking {
                 veilarbDialogClient.lagEllerOppdaterDialog(
                     DialogRequest.nyTråd(

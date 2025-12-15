@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service
 
 import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.common.AttributeKey.stringKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.runBlocking
@@ -10,6 +11,8 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.V
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClientException
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.toDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.Annen409Feil
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.BrukerKanIkkeVarsles
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ProfileringIkkeStøttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ProfileringKombinasjonIkkeStøttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.tilDialogmelding
@@ -75,6 +78,13 @@ class DialogService(
                     is ArbeidsoppfølgingsperiodeAvsluttet -> {
                         traceArbeidsoppfoelgingsperiodeAvsluttet(periodeId, eksisterendeDialogId)
                     }
+
+                    is Annen409Feil -> Span.current().addEvent("veilarbdialog_conflict", Attributes.of(
+                        stringKey("type"), response::class.simpleName!!
+                    ))
+                    BrukerKanIkkeVarsles -> Span.current().addEvent("veilarbdialog_conflict", Attributes.of(
+                        stringKey("type"), response::class.simpleName!!
+                    ))
                 }
             }
     }
@@ -94,8 +104,9 @@ class DialogService(
     private fun traceArbeidsoppfoelgingsperiodeAvsluttet(periodeId: UUID, dialogId: Long?) {
         Span.current()
             .addEvent(
-                "arbeidsoppfoelgingsperiode_avsluttet",
-                Attributes.of(AttributeKey.stringKey("dialogId"), dialogId.toString())
+                "veilarbdialog_conflict",
+                Attributes.of(AttributeKey.stringKey("dialogId"), dialogId.toString(),
+                    stringKey("type"), ArbeidsoppfølgingsperiodeAvsluttet::class.simpleName!!)
             )
         logger.warn("Arbeidsoppfølgingsperiode for periodeId=$periodeId, dialogId=$dialogId er avsluttet. Klarte ikke å sende dialogmelding.")
     }

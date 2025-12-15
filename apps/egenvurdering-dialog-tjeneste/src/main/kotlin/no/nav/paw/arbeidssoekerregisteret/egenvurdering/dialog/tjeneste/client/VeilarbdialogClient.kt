@@ -9,10 +9,17 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.Annen409Feil
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ArbeidsoppfølgingsperiodeAvsluttet
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.BrukerKanIkkeVarsles
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogResponse
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogResultat
@@ -39,7 +46,7 @@ class VeilarbdialogClient(
         }
         return when {
             response.status.isSuccess() -> response.body<DialogResponse>()
-            response.arbeidsoppfølgingsperiodeErAvsluttet() -> ArbeidsoppfølgingsperiodeAvsluttet
+            response.status == Conflict -> response.handleConflict()
             else -> {
                 throw VeilarbdialogClientException(
                     status = response.status,
@@ -50,10 +57,14 @@ class VeilarbdialogClient(
         }
     }
 
-    private suspend fun HttpResponse.arbeidsoppfølgingsperiodeErAvsluttet(): Boolean =
-        this.status == HttpStatusCode.Conflict && this.bodyAsText()
-            //Hacky, men veilarbdialog har ikke en egen feilkode for dette
-            .contains("Kan ikke sende henvendelse på historisk dialog")
+    private suspend fun HttpResponse.handleConflict(): DialogResultat {
+        val body = bodyAsText()
+        return when {
+            body.contains("Kan ikke sende henvendelse på historisk dialog") -> ArbeidsoppfølgingsperiodeAvsluttet
+            body.contains("Bruker kan ikke varsles") -> BrukerKanIkkeVarsles
+            else -> Annen409Feil(body)
+        }
+    }
 }
 
 class VeilarbdialogClientException(
