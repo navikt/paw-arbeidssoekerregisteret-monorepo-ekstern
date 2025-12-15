@@ -103,6 +103,10 @@ spec:
           namespace: teamdagpenger
         - application: dp-mine-dagpenger-frontend
           namespace: teamdagpenger
+        - application: saas-proxy
+          namespace: teamcrm
+        - application: saas-proxy
+          namespace: platforce
     outbound:
       rules:
         - application: paw-tilgangskontroll
