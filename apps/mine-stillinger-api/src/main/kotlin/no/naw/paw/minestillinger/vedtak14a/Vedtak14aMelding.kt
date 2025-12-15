@@ -37,6 +37,10 @@ object Siste14aDeserializer: Deserializer<Siste14aVedtakMelding> {
 
     override fun deserialize(topic: String?, data: ByteArray?): Siste14aVedtakMelding? {
         if (data == null) return null
-        return objectMapper.readValue(data, Siste14aVedtakMelding::class.java)
+        return try {
+            objectMapper.readValue(data, Siste14aVedtakMelding::class.java)
+        } catch (e: Exception) {
+            throw Exception("Feil ved deserialisering av Siste14aVedtakMelding: ${e::class.qualifiedName}")
+        }
     }
 }
