@@ -7,7 +7,7 @@ import org.apache.kafka.common.serialization.Deserializer
 import java.time.ZonedDateTime
 
 class Siste14aVedtakMelding (
-    var aktorId: AktørId? = null,
+    var aktorId: String? = null,
     var innsatsgruppe: Innsatsgruppe? = null,
     var hovedmal: Hovedmål? = null,
     var fattetDato: ZonedDateTime? = null,

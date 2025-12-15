@@ -19,7 +19,7 @@ fun lagre14aResultat(
     vedtak: Siste14aVedtakMelding
 ) {
     vedtak.aktorId?.let { aktørId ->
-        val brukerprofil = AktorId(aktørId.id)
+        val brukerprofil = AktorId(aktørId)
             .let(idFunction)
             ?.let(brukerprofilTjeneste::hentLokalBrukerProfilEllerNull)
         brukerprofil?.let { it to vedtak }

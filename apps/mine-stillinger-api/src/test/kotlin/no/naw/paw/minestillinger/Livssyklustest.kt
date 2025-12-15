@@ -393,7 +393,7 @@ class Livssyklustest : FreeSpec({
                             idFunction = { olaIdent },
                             brukerprofilTjeneste = brukerprofilTjeneste,
                             vedtak = Siste14aVedtakMelding(
-                                aktorId = AktørId("11223344556677"),
+                                aktorId = "11223344556677",
                                 innsatsgruppe = VARIG_TILPASSET_INNSATS,
                                 fattetDato = clock.now().atZone(ZoneId.of("Europe/Oslo"))
                             )
@@ -418,7 +418,7 @@ class Livssyklustest : FreeSpec({
                             idFunction = { olaIdent },
                             brukerprofilTjeneste = brukerprofilTjeneste,
                             vedtak = Siste14aVedtakMelding(
-                                aktorId = AktørId("11223344556677"),
+                                aktorId = "11223344556677",
                                 innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
                                 fattetDato = clock.now().atZone(ZoneId.of("Europe/Oslo"))
                             )
