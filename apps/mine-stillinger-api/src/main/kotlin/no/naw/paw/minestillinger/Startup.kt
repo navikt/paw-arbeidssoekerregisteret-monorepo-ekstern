@@ -62,11 +62,10 @@ fun main() {
             topic = topicNames.profileringTopic,
             consumerVersion = PROFILERING_CONSUMER_VERSION
         ),
-        //Venter på tilgang til topic
-        //HwmTopicConfig(
-        //    topic = SISTE_14A_VEDTAK_TOPIC,
-        //    consumerVersion = SISTE_14A_VEDTAK_CONSUMER_VERSION
-        //)
+        HwmTopicConfig(
+            topic = SISTE_14A_VEDTAK_TOPIC,
+            consumerVersion = SISTE_14A_VEDTAK_CONSUMER_VERSION
+        )
     )
     val kafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG))
     val topicAwareValueDeserializer = kafkaFactory.initTopicAwareValueDeserializer(
