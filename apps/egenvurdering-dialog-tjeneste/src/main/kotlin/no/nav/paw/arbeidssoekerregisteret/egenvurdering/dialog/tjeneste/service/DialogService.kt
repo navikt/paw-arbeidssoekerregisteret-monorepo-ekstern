@@ -45,7 +45,7 @@ class DialogService(
                             throw Exception(
                                 "Feil ved kommunikasjon med veilarbdialog ved prosessering av egenvurdering:" +
                                         " topic=${record.topic()}, partition=${record.partition()}," +
-                                        " offset=${record.offset()}, periodeId=${egenvurdering.periodeId}",
+                                        " offset=${record.offset()}",
                                 ex
                             )
                         }
