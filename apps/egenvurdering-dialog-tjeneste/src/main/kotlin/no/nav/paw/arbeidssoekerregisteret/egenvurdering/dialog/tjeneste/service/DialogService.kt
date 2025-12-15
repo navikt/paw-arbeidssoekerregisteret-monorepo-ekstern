@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ArbeidsoppfølgingsperiodeAvsluttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogResponse
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClientException
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.toDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ProfileringIkkeStøttet
@@ -27,8 +28,8 @@ class DialogService(
 
     fun varsleVeilederOmEgenvurderingAvProfilering(records: ConsumerRecords<Long, Egenvurdering>) {
         records.asSequence()
-            .map { record -> record.value() }
-            .mapNotNull { egenvurdering ->
+            .mapNotNull { record ->
+                val egenvurdering = record.value()
                 try {
                     val dialogmelding = egenvurdering.tilDialogmelding()
                     val eksisterendeDialogId: Long? =
@@ -37,7 +38,18 @@ class DialogService(
                         fnr = egenvurdering.sendtInnAv.utfoertAv.id,
                         dialogId = eksisterendeDialogId
                     )
-                    val response = runBlocking { veilarbdialogClient.lagEllerOppdaterDialog(dialogRequest) }
+                    val response = runBlocking {
+                        try {
+                            veilarbdialogClient.lagEllerOppdaterDialog(dialogRequest)
+                        } catch (ex: VeilarbdialogClientException) {
+                            throw Exception(
+                                "Feil ved kommunikasjon med veilarbdialog ved prosessering av egenvurdering:" +
+                                        " topic=${record.topic()}, partition=${record.partition()}," +
+                                        " offset=${record.offset()}, periodeId=${egenvurdering.periodeId}",
+                                ex
+                            )
+                        }
+                    }
                     Triple(egenvurdering.periodeId, eksisterendeDialogId, response)
                 } catch (e: ProfileringIkkeStøttet) {
                     logger.error(e.message, e)
