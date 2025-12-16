@@ -12,7 +12,9 @@ import java.time.Instant
 import java.util.*
 
 fun genererTidslinje(rader: List<Pair<UUID, List<Row<Any>>>>): List<Tidslinje> {
-    val startMap = rader.associate { (periodeId, rader) ->
+    val filtrertData = rader.filter { (_, rader) -> rader.isNotEmpty() }
+    val startMap = filtrertData
+        .associate { (periodeId, rader) ->
         val førsteRegistrerte = rader.minByOrNull { it.timestamp }
         periodeId to (rader.firstOrNull { it.type == periode_startet_v1 }
             ?: throw PeriodeUtenStartHendelseException(
@@ -21,10 +23,10 @@ fun genererTidslinje(rader: List<Pair<UUID, List<Row<Any>>>>): List<Tidslinje> {
             )
                 )
     }
-    val avsluttetMap = rader.associate { (periodeId, rader) ->
+    val avsluttetMap = filtrertData.associate { (periodeId, rader) ->
         periodeId to rader.firstOrNull { it.type == periode_avsluttet_v1 }
     }
-    val bekreftelser: Map<UUID, List<Hendelse>> = rader.mapNotNull { (periodeId, rader) ->
+    val bekreftelser: Map<UUID, List<Hendelse>> = filtrertData.mapNotNull { (periodeId, rader) ->
         genererTidslinje(periodeId, rader)?.let { periodeId to it.bekreftelser }
     }.associate { (periodeId, bekreftelserMedMetadata) ->
         periodeId to bekreftelserMedMetadata.map { bekreftelse ->
@@ -36,7 +38,7 @@ fun genererTidslinje(rader: List<Pair<UUID, List<Row<Any>>>>): List<Tidslinje> {
         }
     }
 
-    val andreHendelser: Map<UUID, List<Hendelse>> = rader.mapNotNull { (periodeId, rader) ->
+    val andreHendelser: Map<UUID, List<Hendelse>> = filtrertData.mapNotNull { (periodeId, rader) ->
         periodeId to rader.filter { it.type != bekreftelsemelding_v1 }
     }.associate { (periodeId, rader) ->
         periodeId to rader.map { rad ->
