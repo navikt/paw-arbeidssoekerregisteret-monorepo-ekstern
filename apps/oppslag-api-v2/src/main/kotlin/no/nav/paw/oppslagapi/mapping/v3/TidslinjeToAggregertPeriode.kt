@@ -1,8 +1,14 @@
 package no.nav.paw.oppslagapi.mapping.v3
 
+import io.ktor.http.HttpStatusCode
+import io.opentelemetry.api.trace.Span
+import no.nav.paw.error.model.Data
+import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
+import no.nav.paw.error.model.flatMap
 import no.nav.paw.error.model.map
 import no.nav.paw.logging.logger.buildApplicationLogger
+import no.nav.paw.oppslagapi.exception.PERIODE_IKKE_FUNNET_ERROR_TYPE
 import no.nav.paw.oppslagapi.exception.PeriodeIkkeFunnetException
 import no.nav.paw.oppslagapi.model.v3.AggregertPeriode
 import no.nav.paw.oppslagapi.model.v3.Bekreftelse
@@ -18,14 +24,25 @@ import no.nav.paw.oppslagapi.model.v3.Tidslinje
 private val logger = buildApplicationLogger
 
 fun Response<List<Tidslinje>>.finnSistePeriode(): Response<AggregertPeriode> {
-    return this.map { tidslinje ->
-        if (tidslinje.isEmpty()) {
-            throw PeriodeIkkeFunnetException("Ingen perioder funnet")
-        } else if (tidslinje.size == 1) {
-            tidslinje.first().asAggregertPeriode()
-        } else {
-            logger.warn("Flere aktive perioder funnet, bruker nyeste som 'siste'")
-            tidslinje.maxBy { it.startet }.asAggregertPeriode()
+    return this.flatMap { tidslinje ->
+        val aktivePerioder = tidslinje.filter { it.avsluttet == null }
+        when {
+            tidslinje.isEmpty() -> {
+                ProblemDetails(
+                    status = HttpStatusCode.NotFound,
+                    type = PERIODE_IKKE_FUNNET_ERROR_TYPE,
+                    title = "Not Found",
+                    instance = "finnSistePeriode"
+                )
+            }
+            aktivePerioder.size == 1 -> {
+                Data(aktivePerioder.first().asAggregertPeriode())
+            }
+            aktivePerioder.size > 1 -> {
+                logger.warn("Flere aktive perioder funnet, bruker nyeste som 'siste'")
+                Data(aktivePerioder.maxBy { it.startet }.asAggregertPeriode())
+            }
+            else -> Data(tidslinje.maxBy { it.startet }.asAggregertPeriode())
         }
     }
 }

@@ -10,6 +10,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.request.path
+import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingCall
@@ -106,7 +107,10 @@ suspend inline fun <reified T : Any> RoutingCall.respondWith(response: Response<
         }
 
         is ProblemDetails -> {
-            respond(status = response.status, message = response)
+            respond(
+                status = response.status,
+                message = response.copy(instance = request.uri)
+            )
         }
     }
 }
