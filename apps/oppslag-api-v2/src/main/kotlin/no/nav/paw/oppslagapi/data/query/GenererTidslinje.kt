@@ -1,5 +1,10 @@
 package no.nav.paw.oppslagapi.data.query
 
+import io.opentelemetry.api.common.AttributeKey.booleanKey
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.oppslagapi.data.Row
 import no.nav.paw.oppslagapi.data.bekreftelsemelding_v1
 import no.nav.paw.oppslagapi.data.periode_avsluttet_v1
@@ -7,6 +12,7 @@ import no.nav.paw.oppslagapi.data.periode_startet_v1
 import no.nav.paw.oppslagapi.model.v2.Hendelse
 import no.nav.paw.oppslagapi.model.v2.HendelseType
 import no.nav.paw.oppslagapi.model.v2.Tidslinje
+import java.time.Duration
 import java.time.Duration.between
 import java.time.Instant
 import java.util.*
@@ -15,14 +21,25 @@ fun genererTidslinje(rader: List<Pair<UUID, List<Row<Any>>>>): List<Tidslinje> {
     val filtrertData = rader.filter { (_, rader) -> rader.isNotEmpty() }
     val startMap = filtrertData
         .associate { (periodeId, rader) ->
-        val førsteRegistrerte = rader.minByOrNull { it.timestamp }
-        periodeId to (rader.firstOrNull { it.type == periode_startet_v1 }
-            ?: throw PeriodeUtenStartHendelseException(
-                hendelseType = førsteRegistrerte?.type ?: "ukjent",
-                hendelseAlder = between(førsteRegistrerte?.timestamp ?: Instant.EPOCH, Instant.now())
-            )
+            val førsteRegistrerte = rader.minByOrNull { it.timestamp }
+            val tidsDiff = between(førsteRegistrerte?.timestamp ?: Instant.EPOCH, Instant.now())
+            val startHendelse = rader.firstOrNull { it.type == periode_startet_v1 }
+            if (startHendelse != null) {
+                periodeId to startHendelse
+            } else {
+                Span.current().addEvent(
+                    "periode_uten_start", Attributes.of(
+                        stringKey("foerste_registrerte_hendelse_type"), førsteRegistrerte?.type ?: "ukjent",
+                        longKey("ms_siden_foerste_hendelse"), tidsDiff.toMillis(),
+                        booleanKey("under_ett_sekund_diff"), tidsDiff < Duration.ofSeconds(1)
+                    )
                 )
-    }
+                throw PeriodeUtenStartHendelseException(
+                    hendelseType = førsteRegistrerte?.type ?: "ukjent",
+                    hendelseAlder = tidsDiff
+                )
+            }
+        }
     val avsluttetMap = filtrertData.associate { (periodeId, rader) ->
         periodeId to rader.firstOrNull { it.type == periode_avsluttet_v1 }
     }
