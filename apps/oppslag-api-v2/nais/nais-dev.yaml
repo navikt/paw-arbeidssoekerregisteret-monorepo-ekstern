@@ -104,6 +104,8 @@ spec:
           namespace: teamdagpenger
         - application: dp-mine-dagpenger-frontend
           namespace: teamdagpenger
+        - application: dp-brukerdialog-frontend
+          namespace: teamdagpenger
         - application: saas-proxy
           namespace: teamcrm
         - application: saas-proxy
