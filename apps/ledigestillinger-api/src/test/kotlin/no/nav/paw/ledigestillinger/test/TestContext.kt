@@ -23,6 +23,7 @@ import no.nav.paw.ledigestillinger.config.ApplicationConfig
 import no.nav.paw.ledigestillinger.context.TelemetryContext
 import no.nav.paw.ledigestillinger.plugin.configureRouting
 import no.nav.paw.ledigestillinger.service.StillingService
+import no.nav.paw.ledigestillinger.service.StillingServiceV2
 import no.nav.paw.security.authentication.config.AuthProvider
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
@@ -45,6 +46,11 @@ class TestContext private constructor(
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG),
     val meterRegistry: MeterRegistry = SimpleMeterRegistry(),
     val stillingService: StillingService = StillingService(
+        clock = clock,
+        applicationConfig = applicationConfig,
+        telemetryContext = TelemetryContext(meterRegistry)
+    ),
+    val stillingServiceV2: StillingServiceV2 = StillingServiceV2(
         clock = clock,
         applicationConfig = applicationConfig,
         telemetryContext = TelemetryContext(meterRegistry)

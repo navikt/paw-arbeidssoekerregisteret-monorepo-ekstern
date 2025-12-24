@@ -18,12 +18,12 @@ class MutableClock private constructor(
 
     override fun instant(): Instant = instant
 
-    fun advanceClock(temporalAmount: TemporalAmount) {
-        instant = instant.plus(temporalAmount)
+    fun advance(amount: TemporalAmount) {
+        instant = instant.plus(amount)
     }
 
-    fun rewindClock(temporalAmount: TemporalAmount) {
-        instant = instant.minus(temporalAmount)
+    fun rewind(amount: TemporalAmount) {
+        instant = instant.minus(amount)
     }
 
     companion object {
