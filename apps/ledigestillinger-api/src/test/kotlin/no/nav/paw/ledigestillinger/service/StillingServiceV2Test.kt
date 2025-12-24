@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldHaveSize
 import no.nav.paw.ledigestillinger.model.asDto
-import no.nav.paw.ledigestillinger.model.dao.StillingerTable
+import no.nav.paw.ledigestillinger.model.dao.StillingerTableV2
 import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData
 import no.nav.paw.ledigestillinger.test.selectRows
@@ -12,7 +12,7 @@ import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.Paging
 import java.time.Duration
 
-class StillingServiceTest : FreeSpec({
+class StillingServiceV2Test : FreeSpec({
     with(TestContext.buildWithDatabase()) {
 
         beforeSpec {
@@ -40,15 +40,15 @@ class StillingServiceTest : FreeSpec({
             relevanteStillinger shouldHaveSize 11
 
             // WHEN
-            stillingService.handleMessages(TestData.alleMessages.asSequence())
+            stillingServiceV2.handleMessages(TestData.alleMessages.asSequence())
 
             // THEN
-            val lagredeStillinger1 = StillingerTable.selectRows().map { it.asDto() }
+            val lagredeStillinger1 = StillingerTableV2.selectRows().map { it.asDto() }
             lagredeStillinger1 shouldHaveSize 18
             lagredeStillinger1 shouldContainOnly mottatteStillinger
 
             // WHEN
-            val stillinger = stillingService.finnStillingerByEgenskaper(
+            val stillinger = stillingServiceV2.finnStillingerByEgenskaper(
                 medSoekeord = emptyList(),
                 medFylker = emptyList(),
                 medStyrkkoder = emptyList(),
@@ -60,7 +60,7 @@ class StillingServiceTest : FreeSpec({
             stillinger shouldContainOnly relevanteStillinger
 
             // WHEN
-            val stillingerForFilter = stillingService.finnStillingerByEgenskaper(
+            val stillingerForFilter = stillingServiceV2.finnStillingerByEgenskaper(
                 medSoekeord = emptyList(),
                 medFylker = listOf(
                     Fylke(
@@ -84,8 +84,8 @@ class StillingServiceTest : FreeSpec({
             )
 
             // WHEN
-            stillingService.slettUtloepteStillinger()
-            val lagredeStillinger2 = StillingerTable.selectRows().map { it.asDto() }
+            stillingServiceV2.slettUtloepteStillinger()
+            val lagredeStillinger2 = StillingerTableV2.selectRows().map { it.asDto() }
 
             // THEN
             lagredeStillinger2 shouldHaveSize 18
@@ -94,8 +94,8 @@ class StillingServiceTest : FreeSpec({
             clock.advance(Duration.ofDays(10))
 
             // WHEN
-            stillingService.slettUtloepteStillinger()
-            val lagredeStillinger3 = StillingerTable.selectRows().map { it.asDto() }
+            stillingServiceV2.slettUtloepteStillinger()
+            val lagredeStillinger3 = StillingerTableV2.selectRows().map { it.asDto() }
 
             // THEN
             lagredeStillinger3 shouldHaveSize 17
@@ -104,8 +104,8 @@ class StillingServiceTest : FreeSpec({
             clock.advance(Duration.ofDays(10))
 
             // WHEN
-            stillingService.slettUtloepteStillinger()
-            val lagredeStillinger4 = StillingerTable.selectRows().map { it.asDto() }
+            stillingServiceV2.slettUtloepteStillinger()
+            val lagredeStillinger4 = StillingerTableV2.selectRows().map { it.asDto() }
 
             // THEN
             lagredeStillinger4 shouldHaveSize 13

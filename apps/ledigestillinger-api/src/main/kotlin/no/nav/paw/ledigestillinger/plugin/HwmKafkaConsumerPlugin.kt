@@ -9,9 +9,9 @@ import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.install
 import io.ktor.server.application.log
 import no.nav.paw.hwm.DataConsumer
-import org.slf4j.LoggerFactory
+import no.nav.paw.logging.logger.buildNamedLogger
 
-private val logger = LoggerFactory.getLogger("no.nav.paw.logger.kafka.consumer")
+private val logger = buildNamedLogger("kafka.consumer")
 
 fun Application.installKafkaConsumerPlugin(
     kafkaConsumer: DataConsumer<*, *, *>

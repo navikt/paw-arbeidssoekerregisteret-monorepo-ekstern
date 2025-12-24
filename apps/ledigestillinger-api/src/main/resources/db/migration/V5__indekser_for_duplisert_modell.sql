@@ -1,0 +1,12 @@
+CREATE INDEX stillinger_v2_kilde_idx ON stillinger_v2(kilde);
+CREATE INDEX stillinger_v2_status_idx ON stillinger_v2(status);
+CREATE INDEX arbeidsgivere_v2_parent_id_idx ON arbeidsgivere_v2(parent_id);
+CREATE INDEX kategorier_v2_parent_id_idx ON kategorier_v2(parent_id);
+CREATE INDEX kategorier_v2_normalisert_kode_idx ON kategorier_v2(normalisert_kode);
+CREATE INDEX klassifiseringer_v2_parent_id_idx ON klassifiseringer_v2(parent_id);
+CREATE INDEX klassifiseringer_v2_kode_idx ON klassifiseringer_v2(kode);
+CREATE INDEX klassifiseringer_v2_type_idx ON klassifiseringer_v2(type);
+CREATE INDEX lokasjoner_v2_parent_id_idx ON lokasjoner_v2(parent_id);
+CREATE INDEX lokasjoner_v2_fylkeskode_idx ON lokasjoner_v2(fylkeskode);
+CREATE INDEX lokasjoner_v2_kommunekode_idx ON lokasjoner_v2(kommunekode);
+CREATE INDEX egenskaper_v2_parent_id_idx ON egenskaper_v2(parent_id);
