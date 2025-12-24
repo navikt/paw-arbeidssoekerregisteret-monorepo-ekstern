@@ -21,7 +21,7 @@ import java.util.*
 
 @Suppress("ConstPropertyName")
 object TestData {
-    val clock: MutableClock = MutableClock.systemDefaultZone()
+    val clock: WallClock = WallClock.systemDefaultZone()
 
     const val fnr1: String = "01017012345"
 

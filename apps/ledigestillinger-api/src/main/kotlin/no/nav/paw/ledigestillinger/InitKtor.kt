@@ -19,14 +19,12 @@ import no.nav.paw.ledigestillinger.plugin.configureRouting
 import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
 import no.nav.paw.ledigestillinger.plugin.installLogginPlugin
 import no.nav.paw.ledigestillinger.plugin.installWebPlugins
-import no.nav.paw.ledigestillinger.serde.AdAvroDeserializer
 import no.nav.paw.ledigestillinger.service.StillingService
 import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
 import no.nav.paw.scheduling.plugin.installScheduledTaskPlugin
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
-import org.apache.kafka.common.serialization.UUIDDeserializer
 import java.util.*
 import javax.sql.DataSource
 
@@ -34,12 +32,6 @@ fun initEmbeddedKtorServer(
     applicationContext: ApplicationContext
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
     with(applicationContext) {
-        val pamStillingerKafkaConsumer = createHwmKafkaConsumer(
-            config = applicationContext.applicationConfig.pamStillingerKafkaConsumer,
-            keyDeserializer = UUIDDeserializer::class,
-            valueDeserializer = AdAvroDeserializer::class,
-            consumeFunction = stillingService::handleMessages
-        )
         return embeddedServer(Netty, port = 8080) {
             configureKtorServer(
                 applicationConfig = applicationConfig,

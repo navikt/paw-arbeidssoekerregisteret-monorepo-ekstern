@@ -1,6 +1,7 @@
 package no.nav.paw.ledigestillinger.util
 
 import no.nav.pam.stilling.ext.avro.Ad
+import no.nav.pam.stilling.ext.avro.AdStatus
 import no.nav.paw.hwm.Message
 import no.nav.paw.logging.logger.buildNamedLogger
 import java.time.Instant
@@ -20,7 +21,7 @@ fun Ad.skalBeholdes(
     publisertGrense: Instant,
     utloperGrense: Instant
 ): Boolean {
-    return erPublisertEtter(publisertGrense) && !erUtloept(utloperGrense)
+    return erPublisertEtter(publisertGrense) && !erIkkeAktivOgUtloept(utloperGrense)
 }
 
 private fun Ad.erPublisertEtter(
@@ -36,15 +37,17 @@ private fun Ad.erPublisertEtter(
     }
 }
 
-private fun Ad.erUtloept(
+private fun Ad.erIkkeAktivOgUtloept(
     utloperGrense: Instant
 ): Boolean {
     val expiresTimestamp: Instant? = expires?.fromLocalDateTimeString()
-    return expiresTimestamp != null && expiresTimestamp.isBefore(utloperGrense).also { bool ->
-        if (bool) logger.info(
-            "Filtert vekk stilling fordi den utløp {} som er før grensen {}",
-            expiresTimestamp.truncatedTo(ChronoUnit.SECONDS),
-            utloperGrense.truncatedTo(ChronoUnit.SECONDS)
-        )
-    }
+    return status != AdStatus.ACTIVE && expiresTimestamp != null && expiresTimestamp.isBefore(utloperGrense)
+        .also { bool ->
+            if (bool) logger.info(
+                "Filtert vekk stilling fordi den har status {} og utløp {} som er før grensen {}",
+                status.name,
+                expiresTimestamp.truncatedTo(ChronoUnit.SECONDS),
+                utloperGrense.truncatedTo(ChronoUnit.SECONDS)
+            )
+        }
 }

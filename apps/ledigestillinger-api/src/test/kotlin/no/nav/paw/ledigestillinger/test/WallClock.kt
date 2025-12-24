@@ -7,32 +7,32 @@ import java.time.ZoneOffset
 import java.time.temporal.TemporalAmount
 
 
-class MutableClock private constructor(
+class WallClock private constructor(
     private var instant: Instant,
     private val zone: ZoneId
 ) : Clock() {
 
     override fun getZone(): ZoneId = zone
 
-    override fun withZone(zone: ZoneId): Clock = MutableClock(instant, zone)
+    override fun withZone(zone: ZoneId): Clock = WallClock(instant, zone)
 
     override fun instant(): Instant = instant
 
-    fun advanceClock(temporalAmount: TemporalAmount) {
-        instant = instant.plus(temporalAmount)
+    fun advance(amount: TemporalAmount) {
+        instant = instant.plus(amount)
     }
 
-    fun rewindClock(temporalAmount: TemporalAmount) {
-        instant = instant.minus(temporalAmount)
+    fun rewind(amount: TemporalAmount) {
+        instant = instant.minus(amount)
     }
 
     companion object {
-        fun systemUTC(): MutableClock = MutableClock(
+        fun systemUTC(): WallClock = WallClock(
             instant = Instant.now(),
             zone = ZoneOffset.UTC
         )
 
-        fun systemDefaultZone(): MutableClock = MutableClock(
+        fun systemDefaultZone(): WallClock = WallClock(
             instant = Instant.now(),
             zone = ZoneId.systemDefault()
         )
