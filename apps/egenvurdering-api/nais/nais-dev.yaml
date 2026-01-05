@@ -71,6 +71,12 @@ spec:
   postgres:
     clusterName: paw-arbeidssoekerregisteret-api-egenvurdering
   accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+        - application: paw-kafka-key-generator
+          namespace: paw
     inbound:
       rules:
         - application: arbeidssoekerregisteret-for-personbruker
@@ -78,7 +84,3 @@ spec:
           namespace: nais
         - application: azure-token-generator
           namespace: nais
-    outbound:
-      rules:
-        - application: paw-kafka-key-generator
-          namespace: paw

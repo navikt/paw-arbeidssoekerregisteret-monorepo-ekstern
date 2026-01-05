@@ -2,12 +2,13 @@ package no.nav.paw.arbeidssoekerregisteret.context
 
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
+import no.nav.paw.arbeidssoekerregisteret.service.EgenvurderingService
 import no.nav.paw.arbeidssoekerregisteret.utils.ConsumerHealthMetric
+import no.nav.paw.arbeidssoekerregisteret.utils.SecureLogger
 import no.nav.paw.arbeidssokerregisteret.TopicNames
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
@@ -56,7 +57,7 @@ data class ApplicationContext(
     val topics: TopicNames,
     val hwmRebalanceListener: HwmRebalanceListener,
     val kafkaConsumerLivenessProbe: GenericLivenessProbe,
-    val healthChecks: HealthChecks,
+    val healthChecks: HealthChecks
 ) {
     companion object {
         fun create(): ApplicationContext {
@@ -142,6 +143,7 @@ data class ApplicationContext(
                 useServerPreparedStatements = false
             )
         } catch (e: Exception) {
+            SecureLogger.error("Kunne ikke opprette datasource", e)
             throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${(e.cause ?: e)::class.simpleName}")
         }
 
