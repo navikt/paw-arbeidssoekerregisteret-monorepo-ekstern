@@ -6,7 +6,8 @@ import java.time.Instant
 
 object PeriodeIdDialogIdTable : Table("periode_id_dialog_id") {
     val periodeId = uuid("periode_id")
-    val dialogId = long("dialog_id")
+    val dialogId = long("dialog_id").nullable()
+    val dialogStatus = varchar("dialog_status", 255).nullable()
     @SuppressWarnings("Teknisk kolonne")
     val insertedTimestamp = timestamp("inserted_timestamp").clientDefault { Instant.now() }
 

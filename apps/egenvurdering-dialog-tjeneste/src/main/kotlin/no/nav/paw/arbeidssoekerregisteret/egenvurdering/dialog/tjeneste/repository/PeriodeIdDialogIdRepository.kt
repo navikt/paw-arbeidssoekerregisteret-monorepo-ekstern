@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository
 
-
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -44,6 +43,17 @@ object PeriodeIdDialogIdRepository {
             throw UpdateFeilet(periodeId, dialogId, e)
         }
     }
+
+    fun setStatus(periodeId: UUID, dialogStatus: DialogStatus) = transaction {
+        PeriodeIdDialogIdTable.insert {
+            it[PeriodeIdDialogIdTable.periodeId] = periodeId
+            it[PeriodeIdDialogIdTable.dialogStatus] = dialogStatus.name
+        }
+    }
+}
+
+enum class DialogStatus {
+    BRUKER_KAN_IKKE_VARSLES,
 }
 
 class InsertFeilet(

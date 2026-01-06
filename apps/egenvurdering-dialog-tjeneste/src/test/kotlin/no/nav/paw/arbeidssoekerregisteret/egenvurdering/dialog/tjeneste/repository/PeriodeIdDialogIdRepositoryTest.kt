@@ -3,8 +3,13 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.reposit
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.DialogStatus.BRUKER_KAN_IKKE_VARSLES
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.buildPostgresDataSource
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
 class PeriodeIdDialogIdRepositoryTest : FreeSpec({
@@ -82,4 +87,33 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         periodeIdDialogIdRepository.getDialogIdOrNull(periodeId1) shouldBe dialogId1
         periodeIdDialogIdRepository.getDialogIdOrNull(periodeId2) shouldBe dialogId2
     }
+
+    "Oppdatere dialogStatus, dialogId er null" {
+        val periodeId = UUID.randomUUID()
+        periodeIdDialogIdRepository.setStatus(periodeId, BRUKER_KAN_IKKE_VARSLES)
+
+        val row = transaction {
+            PeriodeIdDialogIdTable
+                .selectAll()
+                .where(PeriodeIdDialogIdTable.periodeId eq periodeId)
+                .firstOrNull().let { row: ResultRow? ->
+                    PeriodeDialogRow(
+                        periodeId = row!![PeriodeIdDialogIdTable.periodeId],
+                        dialogId = row[PeriodeIdDialogIdTable.dialogId],
+                        dialogStatus = row[PeriodeIdDialogIdTable.dialogStatus]?.let(DialogStatus::valueOf)
+                    )
+                }
+        }
+
+        row.periodeId shouldBe periodeId
+        row.dialogId shouldBe null
+        row.dialogStatus shouldBe BRUKER_KAN_IKKE_VARSLES
+    }
+
 })
+
+data class PeriodeDialogRow(
+    val periodeId: UUID,
+    val dialogId: Long?,
+    val dialogStatus: DialogStatus?,
+)
