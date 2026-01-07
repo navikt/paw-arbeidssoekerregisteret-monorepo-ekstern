@@ -2,6 +2,8 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.reposit
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.http.HttpStatusCode
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository.hentDialogInfoFra
@@ -93,9 +95,15 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         periodeIdDialogIdRepository.setDialogResponseInfo(periodeId, httpStatusCode, errorMessage)
 
         val row = hentDialogInfoFra(periodeId)
+        row.shouldNotBeNull()
         row.periodeId shouldBe periodeId
         row.dialogId shouldBe null
         row.dialogHttpStatusCode shouldBe httpStatusCode
         row.dialogErrorMessage shouldBe errorMessage
+    }
+
+    "hentDialogInfoFra ukjent periode returnerer null" {
+        val ukjentPeriodeId = UUID.randomUUID()
+        hentDialogInfoFra(ukjentPeriodeId).shouldBeNull()
     }
 })

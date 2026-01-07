@@ -52,13 +52,14 @@ object PeriodeIdDialogIdRepository {
         }
     }
 
-    fun hentDialogInfoFra(periodeId: UUID): PeriodeDialogRow = transaction {
+    fun hentDialogInfoFra(periodeId: UUID): PeriodeDialogRow? = transaction {
         PeriodeIdDialogIdTable
             .selectAll()
             .where(PeriodeIdDialogIdTable.periodeId eq periodeId)
-            .firstOrNull().let { row ->
+            .firstOrNull()
+            ?.let { row ->
                 PeriodeDialogRow(
-                    periodeId = row!![PeriodeIdDialogIdTable.periodeId],
+                    periodeId = row[PeriodeIdDialogIdTable.periodeId],
                     dialogId = row[PeriodeIdDialogIdTable.dialogId],
                     dialogHttpStatusCode = row[PeriodeIdDialogIdTable.dialogHttpStatusCode],
                     dialogErrorMessage = row[PeriodeIdDialogIdTable.dialogErrorMessage],
