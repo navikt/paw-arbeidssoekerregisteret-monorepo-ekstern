@@ -44,16 +44,13 @@ object PeriodeIdDialogIdRepository {
         }
     }
 
-    fun setStatus(periodeId: UUID, dialogStatus: DialogStatus) = transaction {
+    fun setStatus(periodeId: UUID, httpStatusCode: Int, errorMessage: String) = transaction {
         PeriodeIdDialogIdTable.insert {
             it[PeriodeIdDialogIdTable.periodeId] = periodeId
-            it[PeriodeIdDialogIdTable.dialogStatus] = dialogStatus.name
+            it[PeriodeIdDialogIdTable.dialogHttpStatusCode] = httpStatusCode
+            it[PeriodeIdDialogIdTable.dialogErrorMessage] = errorMessage
         }
     }
-}
-
-enum class DialogStatus {
-    BRUKER_KAN_IKKE_VARSLES,
 }
 
 class InsertFeilet(
