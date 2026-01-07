@@ -49,7 +49,7 @@ object PeriodeIdDialogIdRepository {
         periodeId: UUID,
         httpStatusCode: Int,
         errorMessage: String,
-    ) = transaction {
+    ): Unit = transaction {
         PeriodeIdDialogIdTable.insertIgnore {
             it[PeriodeIdDialogIdTable.periodeId] = periodeId
             it[PeriodeIdDialogIdTable.dialogHttpStatusCode] = httpStatusCode

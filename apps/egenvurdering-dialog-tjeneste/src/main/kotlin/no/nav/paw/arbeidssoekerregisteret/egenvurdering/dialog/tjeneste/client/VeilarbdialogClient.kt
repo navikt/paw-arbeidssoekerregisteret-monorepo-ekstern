@@ -60,9 +60,9 @@ class VeilarbdialogClient(
     private suspend fun HttpResponse.handleConflict(): DialogResultat {
         val body = bodyAsText()
         return when {
-            body.contains("Kan ikke sende henvendelse på historisk dialog") -> ArbeidsoppfølgingsperiodeAvsluttet
-            body.contains("Bruker kan ikke varsles") -> BrukerKanIkkeVarsles
-            else -> Annen409Feil(body)
+            body.contains("Kan ikke sende henvendelse på historisk dialog") -> ArbeidsoppfølgingsperiodeAvsluttet(this.status, body)
+            body.contains("Bruker kan ikke varsles") -> BrukerKanIkkeVarsles(this.status, body)
+            else -> Annen409Feil(this.status, body)
         }
     }
 }

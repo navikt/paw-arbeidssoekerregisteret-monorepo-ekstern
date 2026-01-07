@@ -19,8 +19,8 @@ fun Route.egenvurderingRoutes(
         autentisering(AzureAd) {
             post<EgenvurderingDialogRequest>("/dialog") { request ->
                 val dialogInfo = dialogService.finnDialogInfoForPeriodeId(request.periodeId)
-                    ?: throw DialogIkkeFunnetException()
                 when {
+                    dialogInfo == null -> throw DialogIkkeFunnetException()
                     dialogInfo.dialogId != null ->
                         call.respond(EgenvurderingDialogResponse(dialogId = dialogInfo.dialogId))
 
