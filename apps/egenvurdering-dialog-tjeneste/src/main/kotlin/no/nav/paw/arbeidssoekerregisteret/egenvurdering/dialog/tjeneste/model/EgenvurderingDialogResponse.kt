@@ -4,5 +4,5 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class EgenvurderingDialogResponse(
     @field:JsonProperty("dialogId")
-    val dialogId: Long
+    val dialogId: Long?
 )
