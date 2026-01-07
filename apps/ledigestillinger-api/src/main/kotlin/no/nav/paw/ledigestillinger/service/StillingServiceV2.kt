@@ -52,10 +52,16 @@ class StillingServiceV2(
     fun finnStillingerByUuidListe(
         uuidListe: Collection<UUID>
     ): List<Stilling> = transaction {
-        logger.info("Finner stillinger for UUID-liste")
-        telemetryContext.tellStillingerByUuidListe(uuidListe)
-        val rows = StillingerTableV2.selectRowsByUUIDList(uuidListe)
-        rows.map { it.asDto() }
+        val start = System.currentTimeMillis()
+        try {
+            telemetryContext.tellStillingerByUuidListe(uuidListe)
+            val rows = StillingerTableV2.selectRowsByUUIDList(uuidListe)
+            rows.map { it.asDto() }
+        } finally {
+            val slutt = System.currentTimeMillis()
+            val millisekunder = slutt - start
+            logger.info("Fant stillinger for UUID-liste på {}ms", millisekunder)
+        }
     }
 
     @WithSpan("paw.stillinger.service.finn_by_egenskaper")
@@ -65,16 +71,22 @@ class StillingServiceV2(
         medFylker: Collection<Fylke>,
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
-        logger.info("Finner stillinger for egeneskaper")
-        telemetryContext.tellStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
-        val rows = StillingerTableV2.selectRowsByKategorierAndFylker(
-            medSoekeord = medSoekeord,
-            medStyrkkoder = medStyrkkoder,
-            medFylker = medFylker,
-            utenKilder = listOf("DIR"), // TODO Filtrerer ut direktemeldte stillinger
-            paging = paging
-        )
-        rows.map { it.asDto() }
+        val start = System.currentTimeMillis()
+        try {
+            telemetryContext.tellStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
+            val rows = StillingerTableV2.selectRowsByKategorierAndFylker(
+                medSoekeord = medSoekeord,
+                medStyrkkoder = medStyrkkoder,
+                medFylker = medFylker,
+                utenKilder = listOf("DIR"), // TODO Filtrerer ut direktemeldte stillinger
+                paging = paging
+            )
+            rows.map { it.asDto() }
+        } finally {
+            val slutt = System.currentTimeMillis()
+            val millisekunder = slutt - start
+            logger.info("Fant stillinger for egeneskaper på {}ms", millisekunder)
+        }
     }
 
     @WithSpan("paw.stillinger.service.lagre")
