@@ -56,7 +56,7 @@ data class ApplicationContext(
         consumerConfig = applicationConfig.pamStillingerKafkaConsumer,
         keyDeserializer = UUIDDeserializer::class,
         valueDeserializer = AdAvroDeserializer::class,
-        consumeFunction = stillingService::handleMessages
+        consumeFunction = stillingServiceV2::handleMessages
     )
 ) {
     val healthChecks get(): HealthChecks = healthChecksOf(pamStillingerKafkaConsumer)
