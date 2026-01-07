@@ -36,19 +36,19 @@ class StillingRoutesTest : FreeSpec({
 
             // GIVEN
             transaction {
-                stillingService.lagreStilling(TestData.message1_1.asStillingRow())
-                stillingService.lagreStilling(TestData.message1_2.asStillingRow())
-                stillingService.lagreStilling(TestData.message2_1.asStillingRow())
-                stillingService.lagreStilling(TestData.message2_2.asStillingRow())
-                stillingService.lagreStilling(TestData.message3_1.asStillingRow())
-                stillingService.lagreStilling(TestData.message3_2.asStillingRow())
-                stillingService.lagreStilling(TestData.message4_1.asStillingRow())
-                stillingService.lagreStilling(TestData.message4_2.asStillingRow())
-                stillingService.lagreStilling(TestData.message5_1.asStillingRow())
-                stillingService.lagreStilling(TestData.message5_2.asStillingRow())
-                stillingService.lagreStilling(TestData.message5_3.asStillingRow())
-                stillingService.lagreStilling(TestData.message5_4.asStillingRow())
-                stillingService.lagreStilling(TestData.message5_5.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message1_1.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message1_2.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message2_1.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message2_2.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message3_1.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message3_2.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message4_1.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message4_2.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message5_1.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message5_2.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message5_3.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message5_4.asStillingRow())
+                stillingServiceV2.lagreStilling(TestData.message5_5.asStillingRow())
             }
         }
 

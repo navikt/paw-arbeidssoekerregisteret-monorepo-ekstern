@@ -21,7 +21,7 @@ import no.naw.paw.ledigestillinger.model.Stilling
 import java.util.*
 
 fun Route.stillingRoutes(
-    stillingService: StillingService
+    stillingService: StillingServiceV2
 ) {
     route("/api/v1/stillinger") {
         autentisering(TokenX) {

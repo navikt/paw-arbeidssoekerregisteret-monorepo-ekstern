@@ -41,13 +41,13 @@ fun initEmbeddedKtorServer(
                 meterBinders = meterBinderList,
                 telemetryContext = telemetryContext,
                 dataSource = dataSource,
-                stillingService = stillingService,
+                stillingService = stillingServiceV2,
                 pamStillingerKafkaConsumer = pamStillingerKafkaConsumer
             )
             configureRouting(
                 healthChecks = healthChecks,
                 meterRegistry = meterRegistry,
-                stillingService = stillingService
+                stillingService = stillingServiceV2
             )
         }
     }
@@ -60,7 +60,7 @@ fun Application.configureKtorServer(
     meterBinders: List<MeterBinder>,
     telemetryContext: TelemetryContext,
     dataSource: DataSource,
-    stillingService: StillingService,
+    stillingService: StillingServiceV2,
     pamStillingerKafkaConsumer: DataConsumer<Message<UUID, Ad>, UUID, Ad>
 ) {
     installWebPlugins()

@@ -92,7 +92,7 @@ class TestContext private constructor(
                 configureRouting(
                     healthChecks = healthChecksOf(),
                     meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                    stillingService = stillingService
+                    stillingService = stillingServiceV2
                 )
             }
             block()

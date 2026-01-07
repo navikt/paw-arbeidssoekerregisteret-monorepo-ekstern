@@ -16,7 +16,7 @@ import no.nav.paw.metrics.route.metricsRoutes
 fun Application.configureRouting(
     healthChecks: HealthChecks,
     meterRegistry: PrometheusMeterRegistry,
-    stillingService: StillingService
+    stillingService: StillingServiceV2
 ) {
     routing {
         livenessRoute(healthChecks)
