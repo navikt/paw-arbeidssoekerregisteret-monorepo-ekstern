@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.route
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
@@ -17,12 +18,15 @@ fun Route.egenvurderingRoutes(
     route("/api/v1/egenvurdering") {
         autentisering(AzureAd) {
             post<EgenvurderingDialogRequest>("/dialog") { request ->
-                val dialogId =
-                    dialogService.finnDialogIdForPeriodeId(request.periodeId) ?: throw DialogIkkeFunnetException()
-                val response = EgenvurderingDialogResponse(
-                    dialogId = dialogId
-                )
-                call.respond<EgenvurderingDialogResponse>(response)
+                val dialogInfo = dialogService.finnDialogInfoForPeriodeId(request.periodeId)
+                    ?: throw DialogIkkeFunnetException()
+                when {
+                    dialogInfo.dialogId != null ->
+                        call.respond(EgenvurderingDialogResponse(dialogId = dialogInfo.dialogId))
+
+                    dialogInfo.dialogHttpStatusCode == HttpStatusCode.Conflict.value ->
+                        call.respond(HttpStatusCode.NoContent)
+                }
             }
         }
     }
