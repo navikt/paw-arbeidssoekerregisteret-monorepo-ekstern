@@ -37,6 +37,13 @@ paths:
                 $ref: "#/components/schemas/EgenvurderingDialogResponse"
               example:
                 dialogId: 1337
+        "204":
+          description: "NoContent"
+          headers:
+            x-trace-id:
+              description: "Trace id"
+              schema:
+                type: "string"
         "400":
           description: "Bad Request"
           content:
@@ -115,8 +122,6 @@ components:
         dialogId:
           type: number
           format: int64
-      required:
-        - dialogId
       example:
         dialogId: 1337
 
