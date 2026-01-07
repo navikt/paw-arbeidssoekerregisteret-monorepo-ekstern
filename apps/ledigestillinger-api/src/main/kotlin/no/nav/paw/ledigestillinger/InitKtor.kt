@@ -20,6 +20,7 @@ import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
 import no.nav.paw.ledigestillinger.plugin.installLogginPlugin
 import no.nav.paw.ledigestillinger.plugin.installWebPlugins
 import no.nav.paw.ledigestillinger.service.StillingService
+import no.nav.paw.ledigestillinger.service.StillingServiceV2
 import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
 import no.nav.paw.scheduling.plugin.installScheduledTaskPlugin
 import no.nav.paw.security.authentication.config.SecurityConfig

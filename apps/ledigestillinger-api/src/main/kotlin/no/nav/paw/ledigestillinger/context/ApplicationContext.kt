@@ -46,7 +46,7 @@ data class ApplicationContext(
         applicationConfig = applicationConfig,
         telemetryContext = telemetryContext
     ),
-    val stillingService2: StillingServiceV2 = StillingServiceV2(
+    val stillingServiceV2: StillingServiceV2 = StillingServiceV2(
         clock = clock,
         applicationConfig = applicationConfig,
         telemetryContext = telemetryContext
@@ -56,7 +56,7 @@ data class ApplicationContext(
         consumerConfig = applicationConfig.pamStillingerKafkaConsumer,
         keyDeserializer = UUIDDeserializer::class,
         valueDeserializer = AdAvroDeserializer::class,
-        consumeFunction = stillingService2::handleMessages
+        consumeFunction = stillingService::handleMessages
     )
 ) {
     val healthChecks get(): HealthChecks = healthChecksOf(pamStillingerKafkaConsumer)

@@ -2,7 +2,7 @@ beholdAlleStillingerPublisertEtter = "2024-01-01T00:00:00+01:00"
 beholdIkkeAktiveStillingerMedUtloeperNyereEnn = "P90D"
 
 [pamStillingerKafkaConsumer]
-version = 2
+version = 1
 topic = "teampam.stilling-ekstern-1"
 groupIdPrefix = "paw-arbeidssoekerregisteret-api-ledigestillinger-stilling-ekstern"
 
