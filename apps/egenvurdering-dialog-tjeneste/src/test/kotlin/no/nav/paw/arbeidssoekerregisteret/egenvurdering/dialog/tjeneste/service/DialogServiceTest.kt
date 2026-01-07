@@ -122,11 +122,19 @@ class DialogServiceTest : FreeSpec({
     }
 
 
-    "Eksisterende tråd – Oppfølgingsperiode avsluttet gir ingen endring i mapping" {
+    "Eksisterende tråd – Oppfølgingsperiode avsluttet setter riktig statuskode og feilmelding fra veilarbdialog" {
         val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
         val existingDialogId = 777L
         val periodeId = UUID.randomUUID()
+
         every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns existingDialogId
+        every {
+            periodeIdDialogIdRepository.setDialogResponseInfo(
+                periodeId = periodeId,
+                httpStatusCode = HttpStatusCode.Conflict.value,
+                errorMessage = "Kan ikke sende henvendelse på historisk dialog",
+            )
+        } returns Unit
 
         val engine = MockEngine {
             respond(
@@ -156,7 +164,68 @@ class DialogServiceTest : FreeSpec({
         val records = consumerRecordsOf(egenvurdering)
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-        verify { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
+        verify(exactly = 1) { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
+        verify(exactly = 1) {
+            periodeIdDialogIdRepository.setDialogResponseInfo(
+                periodeId = periodeId,
+                httpStatusCode = HttpStatusCode.Conflict.value,
+                errorMessage = "Kan ikke sende henvendelse på historisk dialog",
+            )
+        }
+
+        confirmVerified(periodeIdDialogIdRepository)
+    }
+
+    "Person har reservert seg i kontakt og reservasjonsregisteret (KRR)" {
+        val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
+        val periodeId = UUID.randomUUID()
+
+        every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns null
+        every {
+            periodeIdDialogIdRepository.setDialogResponseInfo(
+                periodeId = periodeId,
+                httpStatusCode = HttpStatusCode.Conflict.value,
+                errorMessage = "Bruker kan ikke varsles",
+            )
+        } returns Unit
+
+        val engine = MockEngine {
+            respond(
+                content = "Bruker kan ikke varsles",
+                status = HttpStatusCode.Conflict,
+            )
+        }
+        val veilarbdialogClient = VeilarbdialogClient(
+            config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", target = "veilarbdialog.fake"),
+            texasClient = mockk(relaxed = true),
+            httpClient = testClient(engine)
+        )
+        val service = DialogService(
+            applicationConfig = applicationConfig,
+            veilarbdialogClient = veilarbdialogClient,
+            periodeIdDialogIdRepository = periodeIdDialogIdRepository
+        )
+
+        val egenvurdering = egenvurdering(
+            periodeId = periodeId,
+            navProfilering = ANTATT_BEHOV_FOR_VEILEDNING,
+            brukersEgenvurdering = ANTATT_BEHOV_FOR_VEILEDNING,
+            tidspunkt = Instant.parse("2025-03-16T12:00:00Z"),
+            fnr = "10987654321"
+        )
+
+        val records = consumerRecordsOf(egenvurdering)
+        service.varsleVeilederOmEgenvurderingAvProfilering(records)
+
+        verify(exactly = 1) { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
+        verify(exactly = 1) {
+            periodeIdDialogIdRepository.setDialogResponseInfo(
+                periodeId = periodeId,
+                httpStatusCode = HttpStatusCode.Conflict.value,
+                errorMessage = "Bruker kan ikke varsles",
+            )
+        }
+
         confirmVerified(periodeIdDialogIdRepository)
     }
 

@@ -1,21 +1,20 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service
 
-import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.AttributeKey.stringKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.runBlocking
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ArbeidsoppfølgingsperiodeAvsluttet
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogResponse
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClientException
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.toDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.Annen409Feil
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ArbeidsoppfølgingsperiodeAvsluttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.BrukerKanIkkeVarsles
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.DialogResponse
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ProfileringIkkeStøttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ProfileringKombinasjonIkkeStøttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.tilDialogmelding
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.toDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
@@ -26,7 +25,7 @@ import java.util.*
 class DialogService(
     private val applicationConfig: ApplicationConfig,
     private val veilarbdialogClient: VeilarbdialogClient,
-    private val periodeIdDialogIdRepository: PeriodeIdDialogIdRepository
+    private val periodeIdDialogIdRepository: PeriodeIdDialogIdRepository,
 ) {
     private val logger = buildLogger
 
@@ -77,20 +76,45 @@ class DialogService(
                     }
 
                     is ArbeidsoppfølgingsperiodeAvsluttet -> {
+                        periodeIdDialogIdRepository.setDialogResponseInfo(
+                            periodeId,
+                            response.httpStatusCode.value,
+                            response.errorMessage,
+                        )
                         traceArbeidsoppfoelgingsperiodeAvsluttet(periodeId, eksisterendeDialogId)
                     }
 
-                    is Annen409Feil -> Span.current().addEvent("veilarbdialog_conflict", Attributes.of(
-                        stringKey("type"), response::class.simpleName!!
-                    ))
-                    BrukerKanIkkeVarsles -> Span.current().addEvent("veilarbdialog_conflict", Attributes.of(
-                        stringKey("type"), response::class.simpleName!!
-                    ))
+                    is BrukerKanIkkeVarsles -> {
+                        periodeIdDialogIdRepository.setDialogResponseInfo(
+                            periodeId,
+                            response.httpStatusCode.value,
+                            response.errorMessage,
+                        )
+                        Span.current().addEvent(
+                            "veilarbdialog_conflict", Attributes.of(
+                                stringKey("type"), response::class.simpleName!!
+                            )
+                        )
+                    }
+                    is Annen409Feil -> {
+                        periodeIdDialogIdRepository.setDialogResponseInfo(
+                            periodeId,
+                            response.httpStatusCode.value,
+                            response.errorMessage,
+                        )
+                        Span.current().addEvent(
+                            "veilarbdialog_conflict", Attributes.of(
+                                stringKey("type"), response::class.simpleName!!
+                            )
+                        )
+                    }
+
                 }
             }
     }
 
-    fun finnDialogInfoForPeriodeId(periodeId: UUID): PeriodeDialogRow? = periodeIdDialogIdRepository.hentDialogInfoFra(periodeId)
+    fun finnDialogInfoForPeriodeId(periodeId: UUID): PeriodeDialogRow? =
+        periodeIdDialogIdRepository.hentDialogInfoFra(periodeId)
 
     private fun traceEndringAvDialogId(dialogId: Long, response: DialogResponse, periodeId: UUID) {
         Span.current().addEvent(
@@ -108,7 +132,8 @@ class DialogService(
                 "veilarbdialog_conflict",
                 Attributes.of(
                     stringKey("dialogId"), dialogId.toString(),
-                    stringKey("type"), ArbeidsoppfølgingsperiodeAvsluttet::class.simpleName!!)
+                    stringKey("type"), ArbeidsoppfølgingsperiodeAvsluttet::class.simpleName!!
+                )
             )
         logger.warn("Arbeidsoppfølgingsperiode for periodeId=$periodeId, dialogId=$dialogId er avsluttet. Klarte ikke å sende dialogmelding.")
     }
