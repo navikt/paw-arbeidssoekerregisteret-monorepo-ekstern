@@ -53,14 +53,12 @@ class StillingServiceV2(
         uuidListe: Collection<UUID>
     ): List<Stilling> = transaction {
         val start = System.currentTimeMillis()
-        try {
-            telemetryContext.tellStillingerByUuidListe(uuidListe)
-            val rows = StillingerTableV2.selectRowsByUUIDList(uuidListe)
-            rows.map { it.asDto() }
-        } finally {
+        telemetryContext.tellStillingerByUuidListe(uuidListe)
+        val rows = StillingerTableV2.selectRowsByUUIDList(uuidListe)
+        rows.map { it.asDto() }.also { treff ->
             val slutt = System.currentTimeMillis()
             val millisekunder = slutt - start
-            logger.info("Fant stillinger for UUID-liste på {}ms", millisekunder)
+            logger.info("Fant {} stillinger for UUID-liste på {}ms", treff.size, millisekunder)
         }
     }
 
@@ -72,20 +70,18 @@ class StillingServiceV2(
         paging: Paging = Paging()
     ): List<Stilling> = transaction {
         val start = System.currentTimeMillis()
-        try {
-            telemetryContext.tellStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
-            val rows = StillingerTableV2.selectRowsByKategorierAndFylker(
-                medSoekeord = medSoekeord,
-                medStyrkkoder = medStyrkkoder,
-                medFylker = medFylker,
-                utenKilder = listOf("DIR"), // TODO Filtrerer ut direktemeldte stillinger
-                paging = paging
-            )
-            rows.map { it.asDto() }
-        } finally {
+        telemetryContext.tellStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
+        val rows = StillingerTableV2.selectRowsByKategorierAndFylker(
+            medSoekeord = medSoekeord,
+            medStyrkkoder = medStyrkkoder,
+            medFylker = medFylker,
+            utenKilder = listOf("DIR"), // TODO Filtrerer ut direktemeldte stillinger
+            paging = paging
+        )
+        rows.map { it.asDto() }.also { treff ->
             val slutt = System.currentTimeMillis()
             val millisekunder = slutt - start
-            logger.info("Fant stillinger for egeneskaper på {}ms", millisekunder)
+            logger.info("Fant {} stillinger for egeneskaper på {}ms", treff.size, millisekunder)
         }
     }
 
