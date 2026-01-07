@@ -161,12 +161,7 @@ class StillingServiceV2(
                     logger.trace("Mottatt melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
                 }
                 .filter { message ->
-                    val utloperGrense = Instant.now(clock)
-                        .minus(beholdIkkeAktiveStillingerMedUtloeperNyereEnn)
-                    message.skalBeholdes(
-                        publisertGrense = beholdAlleStillingerPublisertEtter,
-                        utloperGrense = utloperGrense
-                    )
+                    message.skalBeholdes(publisertGrense = beholdAlleStillingerPublisertEtter)
                 }
                 .onEach { message ->
                     logger.trace("Prosesserer melding på topic=${message.topic}, partition=${message.partition}, offset=${message.offset}")
