@@ -102,6 +102,35 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         row.dialogErrorMessage shouldBe errorMessage
     }
 
+    "setDialogResponseInfo er idempotent og oppdaterer eksisterende rad" {
+        val periodeId = UUID.randomUUID()
+        val dialogId = 1000000L
+        periodeIdDialogIdRepository.insert(periodeId, dialogId)
+
+        val førsteStatus = HttpStatusCode.Conflict.value
+        val førsteFeilmelding = "Bruker kan ikke varsles"
+        periodeIdDialogIdRepository.setDialogResponseInfo(periodeId, førsteStatus, førsteFeilmelding)
+
+        val første = hentDialogInfoFra(periodeId)
+        første.shouldNotBeNull()
+        første.periodeId shouldBe periodeId
+        første.dialogId shouldBe dialogId
+        første.dialogHttpStatusCode shouldBe førsteStatus
+        første.dialogErrorMessage shouldBe førsteFeilmelding
+
+        val andreStatus = HttpStatusCode.PaymentRequired.value
+        val andreFeilmelding = "Kan ikke sende henvendelse på historisk dialog"
+        periodeIdDialogIdRepository.setDialogResponseInfo(periodeId, andreStatus, andreFeilmelding)
+
+        val andre = hentDialogInfoFra(periodeId)
+        andre.shouldNotBeNull()
+        andre.periodeId shouldBe periodeId
+        andre.dialogId shouldBe dialogId
+        andre.dialogHttpStatusCode shouldBe andreStatus
+        andre.dialogErrorMessage shouldBe andreFeilmelding
+    }
+
+
     "hentDialogInfoFra ukjent periode returnerer null" {
         val ukjentPeriodeId = UUID.randomUUID()
         hentDialogInfoFra(ukjentPeriodeId).shouldBeNull()

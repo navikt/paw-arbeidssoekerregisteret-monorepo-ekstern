@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.reposit
 
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
@@ -44,9 +45,18 @@ object PeriodeIdDialogIdRepository {
         }
     }
 
-    fun setDialogResponseInfo(periodeId: UUID, httpStatusCode: Int, errorMessage: String) = transaction {
-        PeriodeIdDialogIdTable.insert {
+    fun setDialogResponseInfo(
+        periodeId: UUID,
+        httpStatusCode: Int,
+        errorMessage: String,
+    ) = transaction {
+        PeriodeIdDialogIdTable.insertIgnore {
             it[PeriodeIdDialogIdTable.periodeId] = periodeId
+            it[PeriodeIdDialogIdTable.dialogHttpStatusCode] = httpStatusCode
+            it[PeriodeIdDialogIdTable.dialogErrorMessage] = errorMessage
+        }
+
+        PeriodeIdDialogIdTable.update({ PeriodeIdDialogIdTable.periodeId eq periodeId }) {
             it[PeriodeIdDialogIdTable.dialogHttpStatusCode] = httpStatusCode
             it[PeriodeIdDialogIdTable.dialogErrorMessage] = errorMessage
         }
