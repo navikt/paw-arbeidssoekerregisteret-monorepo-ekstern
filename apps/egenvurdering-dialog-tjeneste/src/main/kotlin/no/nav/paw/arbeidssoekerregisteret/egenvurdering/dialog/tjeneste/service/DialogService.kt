@@ -16,6 +16,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.Br
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ProfileringIkkeStøttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ProfileringKombinasjonIkkeStøttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.tilDialogmelding
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.logging.logger.buildLogger
@@ -89,13 +90,13 @@ class DialogService(
             }
     }
 
-    fun finnDialogIdForPeriodeId(periodeId: UUID): Long? = periodeIdDialogIdRepository.getDialogIdOrNull(periodeId)
+    fun finnDialogInfoForPeriodeId(periodeId: UUID): PeriodeDialogRow? = periodeIdDialogIdRepository.hentDialogInfoFra(periodeId)
 
     private fun traceEndringAvDialogId(dialogId: Long, response: DialogResponse, periodeId: UUID) {
         Span.current().addEvent(
             "endret_dialog_id", Attributes.of(
-                AttributeKey.stringKey("eksisterende_dialogId"), dialogId.toString(),
-                AttributeKey.stringKey("ny_dialogId"), response.dialogId
+                stringKey("eksisterende_dialogId"), dialogId.toString(),
+                stringKey("ny_dialogId"), response.dialogId
             )
         )
         logger.warn("Fant ikke dialog med $dialogId. Oppdaterer til ny dialogId=${response.dialogId}, for periodeId=$periodeId.")
@@ -105,7 +106,8 @@ class DialogService(
         Span.current()
             .addEvent(
                 "veilarbdialog_conflict",
-                Attributes.of(AttributeKey.stringKey("dialogId"), dialogId.toString(),
+                Attributes.of(
+                    stringKey("dialogId"), dialogId.toString(),
                     stringKey("type"), ArbeidsoppfølgingsperiodeAvsluttet::class.simpleName!!)
             )
         logger.warn("Arbeidsoppfølgingsperiode for periodeId=$periodeId, dialogId=$dialogId er avsluttet. Klarte ikke å sende dialogmelding.")
@@ -113,12 +115,12 @@ class DialogService(
 
     private fun traceNyMeldingPaaEksisterendeTraad(dialogId: String, periodeId: UUID) {
         Span.current()
-            .addEvent("ny_melding_på_eksisterende_traad", Attributes.of(AttributeKey.stringKey("dialogId"), dialogId))
+            .addEvent("ny_melding_på_eksisterende_traad", Attributes.of(stringKey("dialogId"), dialogId))
         logger.info("Ny melding på eksisterende tråd med dialogId=$dialogId for periodeId=$periodeId")
     }
 
     private fun traceNyTraad(dialogId: String, periodeId: UUID) {
-        Span.current().addEvent("ny_traad", Attributes.of(AttributeKey.stringKey("dialogId"), dialogId))
+        Span.current().addEvent("ny_traad", Attributes.of(stringKey("dialogId"), dialogId))
         logger.info("Ny traad med dialogId=$dialogId for periodeId=$periodeId")
     }
 }

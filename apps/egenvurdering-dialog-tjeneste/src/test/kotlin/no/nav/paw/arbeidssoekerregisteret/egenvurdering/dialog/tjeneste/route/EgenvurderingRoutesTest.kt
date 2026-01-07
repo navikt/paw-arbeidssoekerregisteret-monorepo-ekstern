@@ -12,6 +12,7 @@ import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.exception.DIALOG_IKKE_FUNNET_ERROR_TYPE
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.EgenvurderingDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.EgenvurderingDialogResponse
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.validateAgainstOpenApiSpec
 import no.nav.paw.error.model.ErrorType
@@ -81,11 +82,35 @@ class EgenvurderingRoutesTest : FreeSpec({
                     verify { periodeIdDialogIdRepositoryMock wasNot Called }
                 }
 
-                "Skal få 404 ved ingen dialog" {
+                "Skal få 404 når periodeId ikke finnes i db" {
+                    val token = mockOAuth2Server.issueAzureAdToken()
+                    val ukjentPeriodeId = UUID.randomUUID()
+                    every { periodeIdDialogIdRepositoryMock.hentDialogInfoFra(ukjentPeriodeId) } returns null
+
+                    val request = EgenvurderingDialogRequest(ukjentPeriodeId)
+                    val response = client.post("/api/v1/egenvurdering/dialog") {
+                        bearerAuth(token.serialize())
+                        setJsonBody(request)
+                    }
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.NotFound
+                    val body = response.body<ProblemDetails>()
+                    body.type shouldBe DIALOG_IKKE_FUNNET_ERROR_TYPE
+                    body.status shouldBe HttpStatusCode.NotFound
+                    body.title shouldBe HttpStatusCode.NotFound.description
+                }
+
+                "Skal få 204 når vi ikke har fått dialogId fra veilarbdialog " {
                     // GIVEN
                     val token = mockOAuth2Server.issueAzureAdToken()
-                    every { periodeIdDialogIdRepositoryMock.getDialogIdOrNull(any()) } returns null
-                    val request = EgenvurderingDialogRequest(periodeId = UUID.randomUUID())
+                    val periodeId = UUID.randomUUID()
+                    every { periodeIdDialogIdRepositoryMock.hentDialogInfoFra(any()) } returns PeriodeDialogRow(
+                        periodeId = periodeId,
+                        dialogId = null,
+                        dialogHttpStatusCode = 409,
+                        dialogErrorMessage = "Feilmelding fra veilarbdialog",
+                    )
+                    val request = EgenvurderingDialogRequest(periodeId = periodeId)
 
                     // WHEN
                     val response = client.post("/api/v1/egenvurdering/dialog") {
@@ -95,20 +120,22 @@ class EgenvurderingRoutesTest : FreeSpec({
 
                     // THEN
                     response.validateAgainstOpenApiSpec()
-                    response.status shouldBe HttpStatusCode.NotFound
-                    val body = response.body<ProblemDetails>()
-                    body.type shouldBe DIALOG_IKKE_FUNNET_ERROR_TYPE
-                    body.status shouldBe HttpStatusCode.NotFound
-                    body.title shouldBe HttpStatusCode.NotFound.description
+                    response.status shouldBe HttpStatusCode.NoContent
 
-                    verify { periodeIdDialogIdRepositoryMock.getDialogIdOrNull(any()) }
+                    verify { periodeIdDialogIdRepositoryMock.hentDialogInfoFra(any()) }
                 }
 
                 "Skal få 200 ved dialog" {
                     // GIVEN
                     val token = mockOAuth2Server.issueAzureAdToken()
-                    every { periodeIdDialogIdRepositoryMock.getDialogIdOrNull(any()) } returns 1001L
-                    val request = EgenvurderingDialogRequest(periodeId = UUID.randomUUID())
+                    val periodeId = UUID.randomUUID()
+                    every { periodeIdDialogIdRepositoryMock.hentDialogInfoFra(any()) } returns PeriodeDialogRow(
+                        periodeId,
+                        dialogId = 1001L,
+                        null,
+                        null
+                    )
+                    val request = EgenvurderingDialogRequest(periodeId = periodeId)
 
                     // WHEN
                     val response = client.post("/api/v1/egenvurdering/dialog") {
@@ -122,7 +149,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                     val body = response.body<EgenvurderingDialogResponse>()
                     body.dialogId shouldBe 1001L
 
-                    verify { periodeIdDialogIdRepositoryMock.getDialogIdOrNull(any()) }
+                    verify { periodeIdDialogIdRepositoryMock.hentDialogInfoFra(any()) }
                 }
             }
         }
