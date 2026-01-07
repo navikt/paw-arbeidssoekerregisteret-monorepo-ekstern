@@ -44,12 +44,26 @@ object PeriodeIdDialogIdRepository {
         }
     }
 
-    fun setStatus(periodeId: UUID, httpStatusCode: Int, errorMessage: String) = transaction {
+    fun setDialogResponseInfo(periodeId: UUID, httpStatusCode: Int, errorMessage: String) = transaction {
         PeriodeIdDialogIdTable.insert {
             it[PeriodeIdDialogIdTable.periodeId] = periodeId
             it[PeriodeIdDialogIdTable.dialogHttpStatusCode] = httpStatusCode
             it[PeriodeIdDialogIdTable.dialogErrorMessage] = errorMessage
         }
+    }
+
+    fun hentDialogInfoFra(periodeId: UUID): PeriodeDialogRow = transaction {
+        PeriodeIdDialogIdTable
+            .selectAll()
+            .where(PeriodeIdDialogIdTable.periodeId eq periodeId)
+            .firstOrNull().let { row ->
+                PeriodeDialogRow(
+                    periodeId = row!![PeriodeIdDialogIdTable.periodeId],
+                    dialogId = row[PeriodeIdDialogIdTable.dialogId],
+                    dialogHttpStatusCode = row[PeriodeIdDialogIdTable.dialogHttpStatusCode],
+                    dialogErrorMessage = row[PeriodeIdDialogIdTable.dialogErrorMessage],
+                )
+            }
     }
 }
 
