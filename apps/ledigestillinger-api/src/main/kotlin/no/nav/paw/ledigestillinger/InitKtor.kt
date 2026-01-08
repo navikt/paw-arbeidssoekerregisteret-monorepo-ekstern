@@ -79,13 +79,11 @@ fun Application.configureKtorServer(
         period = applicationConfig.databaseMetricsScheduledTask.period,
         task = telemetryContext::tellLagredeStillinger
     )
-    /* TODO Midlertidig deaktivert
     installScheduledTaskPlugin(
         pluginInstance = applicationConfig.databaseCleanupScheduledTask.name,
         delay = applicationConfig.databaseCleanupScheduledTask.delay,
         period = applicationConfig.databaseCleanupScheduledTask.period,
         task = stillingService::slettUtloepteStillinger
     )
-    */
 }
 

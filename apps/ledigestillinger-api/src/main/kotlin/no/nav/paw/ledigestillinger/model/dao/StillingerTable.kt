@@ -148,7 +148,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
             }
     }
 
-    fun selectIdByStatusListAndUtloeperLessThanWithLimit(
+    fun selectIdByStatusListAndUtloeperOlderThanWithLimit(
         statusList: Collection<StillingStatus>,
         utloeperTimestampCutoff: Instant,
         count: Int
@@ -219,7 +219,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         idList: Collection<Long>
     ): Int = deleteWhere { id inList idList }
 
-    fun deleteByStatusListAndUtloeperLessThan(
+    fun deleteByStatusListAndUtloeperOlderThan(
         statusList: Collection<StillingStatus>,
         utloeperTimestamp: Instant
     ): Int = deleteWhere {

@@ -87,9 +87,9 @@ class StillingService(
 
     @WithSpan("paw.stillinger.service.lagre")
     fun lagreStilling(stillingRow: StillingRow) {
-        logger.debug("Lagrer stilling")
         val existingId = StillingerTable.selectIdByUUID(stillingRow.uuid)
         if (existingId == null) {
+            logger.debug("Oppretter stilling med adnr={} uuid={}", stillingRow.adnr, stillingRow.uuid)
             val id = StillingerTable.insert(stillingRow)
             stillingRow.arbeidsgiver?.let { row ->
                 ArbeidsgivereTable.insert(
@@ -114,6 +114,7 @@ class StillingService(
                 rows = stillingRow.egenskaper
             )
         } else {
+            logger.debug("Oppdaterer stilling med adnr={} uuid={}", stillingRow.adnr, stillingRow.uuid)
             StillingerTable.updateById(
                 id = existingId,
                 row = stillingRow
@@ -131,11 +132,15 @@ class StillingService(
                 beholdIkkeAktiveStillingerMedUtloeperNyereEnn.toDays(),
                 beholdNyereEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
             )
+            transaction {
+                val beforeCount = StillingerTable.countByStatus()
+                logger.info("Stillinger før sletting: {}", beforeCount)
+            }
+
+            val start = System.currentTimeMillis()
 
             val rowsAffected = transaction {
-                val count = StillingerTable.countByStatus()
-                logger.info("Stillinger by count: {}", count)
-                StillingerTable.deleteByStatusListAndUtloeperLessThan(
+                StillingerTable.deleteByStatusListAndUtloeperOlderThan(
                     statusList = listOf(
                         StillingStatus.AVVIST,
                         StillingStatus.INAKTIV,
@@ -146,11 +151,20 @@ class StillingService(
                 )
             }
 
+            val slutt = System.currentTimeMillis()
+            val millisekunder = slutt - start
+
+            transaction {
+                val afterCount = StillingerTable.countByStatus()
+                logger.info("Stillinger etter sletting: {}", afterCount)
+            }
+
             logger.info(
-                "Slettet {} ikke-aktive stillinger med utløp eldre enn {} dager ({})",
+                "Slettet {} ikke-aktive stillinger med utløp eldre enn {} dager ({}) på {}ms",
                 rowsAffected,
                 beholdIkkeAktiveStillingerMedUtloeperNyereEnn.toDays(),
-                beholdNyereEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
+                beholdNyereEnnTimestamp.truncatedTo(ChronoUnit.SECONDS),
+                millisekunder
             )
         }
     }.recover { cause ->
