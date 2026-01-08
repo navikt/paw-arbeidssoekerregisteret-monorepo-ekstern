@@ -132,10 +132,6 @@ class StillingService(
                 beholdIkkeAktiveStillingerMedUtloeperNyereEnn.toDays(),
                 beholdNyereEnnTimestamp.truncatedTo(ChronoUnit.SECONDS)
             )
-            transaction {
-                val beforeCount = StillingerTable.countByStatus()
-                logger.info("Stillinger før sletting: {}", beforeCount)
-            }
 
             val start = System.currentTimeMillis()
 
@@ -153,11 +149,6 @@ class StillingService(
 
             val slutt = System.currentTimeMillis()
             val millisekunder = slutt - start
-
-            transaction {
-                val afterCount = StillingerTable.countByStatus()
-                logger.info("Stillinger etter sletting: {}", afterCount)
-            }
 
             logger.info(
                 "Slettet {} ikke-aktive stillinger med utløp eldre enn {} dager ({}) på {}ms",
