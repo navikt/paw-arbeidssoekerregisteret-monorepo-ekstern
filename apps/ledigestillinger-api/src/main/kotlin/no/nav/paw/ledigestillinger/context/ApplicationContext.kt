@@ -21,7 +21,6 @@ import no.nav.paw.ledigestillinger.config.KafkaConsumerConfig
 import no.nav.paw.ledigestillinger.consumer.HwmMessageConsumer
 import no.nav.paw.ledigestillinger.serde.AdAvroDeserializer
 import no.nav.paw.ledigestillinger.service.StillingService
-import no.nav.paw.ledigestillinger.service.StillingServiceV2
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import org.apache.kafka.common.serialization.Deserializer
@@ -46,17 +45,12 @@ data class ApplicationContext(
         applicationConfig = applicationConfig,
         telemetryContext = telemetryContext
     ),
-    val stillingServiceV2: StillingServiceV2 = StillingServiceV2(
-        clock = clock,
-        applicationConfig = applicationConfig,
-        telemetryContext = telemetryContext
-    ),
     val pamStillingerKafkaConsumer: HwmMessageConsumer<UUID, Ad> = kafkaFactory.createHwmKafkaConsumer(
         meterRegistry = meterRegistry,
         consumerConfig = applicationConfig.pamStillingerKafkaConsumer,
         keyDeserializer = UUIDDeserializer::class,
         valueDeserializer = AdAvroDeserializer::class,
-        consumeFunction = stillingServiceV2::handleMessages
+        consumeFunction = stillingService::handleMessages
     )
 ) {
     val healthChecks get(): HealthChecks = healthChecksOf(pamStillingerKafkaConsumer)

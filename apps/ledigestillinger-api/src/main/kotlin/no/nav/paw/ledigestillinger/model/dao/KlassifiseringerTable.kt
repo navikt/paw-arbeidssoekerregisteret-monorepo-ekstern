@@ -1,12 +1,13 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.model.asKlassifiseringRow
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
-object KlassifiseringerTable : LongIdTable("klassifiseringer") {
+object KlassifiseringerTable : LongIdTable("klassifiseringer_v2") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val type = enumerationByName<KlassifiseringType>("type", 20)
     val kode = varchar("kode", 255)

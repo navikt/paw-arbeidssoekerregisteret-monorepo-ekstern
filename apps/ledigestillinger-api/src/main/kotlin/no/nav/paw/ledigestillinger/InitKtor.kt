@@ -20,7 +20,6 @@ import no.nav.paw.ledigestillinger.plugin.installKafkaConsumerPlugin
 import no.nav.paw.ledigestillinger.plugin.installLogginPlugin
 import no.nav.paw.ledigestillinger.plugin.installWebPlugins
 import no.nav.paw.ledigestillinger.service.StillingService
-import no.nav.paw.ledigestillinger.service.StillingServiceV2
 import no.nav.paw.metrics.plugin.installWebAppMetricsPlugin
 import no.nav.paw.scheduling.plugin.installScheduledTaskPlugin
 import no.nav.paw.security.authentication.config.SecurityConfig
@@ -41,13 +40,13 @@ fun initEmbeddedKtorServer(
                 meterBinders = meterBinderList,
                 telemetryContext = telemetryContext,
                 dataSource = dataSource,
-                stillingService = stillingServiceV2,
+                stillingService = stillingService,
                 pamStillingerKafkaConsumer = pamStillingerKafkaConsumer
             )
             configureRouting(
                 healthChecks = healthChecks,
                 meterRegistry = meterRegistry,
-                stillingService = stillingServiceV2
+                stillingService = stillingService
             )
         }
     }
@@ -60,7 +59,7 @@ fun Application.configureKtorServer(
     meterBinders: List<MeterBinder>,
     telemetryContext: TelemetryContext,
     dataSource: DataSource,
-    stillingService: StillingServiceV2,
+    stillingService: StillingService,
     pamStillingerKafkaConsumer: DataConsumer<Message<UUID, Ad>, UUID, Ad>
 ) {
     installWebPlugins()

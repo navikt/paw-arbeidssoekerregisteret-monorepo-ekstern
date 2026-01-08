@@ -1,11 +1,12 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.model.asEgenskapRow
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
-object EgenskaperTable : LongIdTable("egenskaper") {
+object EgenskaperTable : LongIdTable("egenskaper_v2") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val key = varchar("key", 50)
     val value = text("value")

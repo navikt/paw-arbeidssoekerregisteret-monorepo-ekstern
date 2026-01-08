@@ -2,19 +2,13 @@ package no.nav.paw.ledigestillinger.test
 
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
+import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgivereTable
-import no.nav.paw.ledigestillinger.model.dao.ArbeidsgivereTableV2
 import no.nav.paw.ledigestillinger.model.dao.KategorierTable
-import no.nav.paw.ledigestillinger.model.dao.KategorierTableV2
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
-import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTableV2
 import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
-import no.nav.paw.ledigestillinger.model.dao.LokasjonerTableV2
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
-import no.nav.paw.ledigestillinger.model.dao.StillingerTableV2
-import no.nav.paw.ledigestillinger.model.dao.asStillingRow
-import no.nav.paw.ledigestillinger.model.dao.asStillingRowV2
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.testcontainers.containers.PostgreSQLContainer
@@ -29,19 +23,6 @@ fun StillingerTable.selectRows(): List<StillingRow> = transaction {
                 kategorier = KategorierTable::selectRowsByParentId,
                 klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
                 lokasjoner = LokasjonerTable::selectRowsByParentId,
-                egenskaper = { emptyList() }
-            )
-        }
-}
-
-fun StillingerTableV2.selectRows(): List<StillingRow> = transaction {
-    selectAll()
-        .map {
-            it.asStillingRowV2(
-                arbeidsgiver = ArbeidsgivereTableV2::selectRowByParentId,
-                kategorier = KategorierTableV2::selectRowsByParentId,
-                klassifiseringer = KlassifiseringerTableV2::selectRowsByParentId,
-                lokasjoner = LokasjonerTableV2::selectRowsByParentId,
                 egenskaper = { emptyList() }
             )
         }

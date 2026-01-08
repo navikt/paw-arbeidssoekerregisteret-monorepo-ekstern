@@ -1,11 +1,12 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.model.asLokasjonRow
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
-object LokasjonerTable : LongIdTable("lokasjoner") {
+object LokasjonerTable : LongIdTable("lokasjoner_v2") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val adresse = varchar("adresse", 255).nullable()
     val postkode = varchar("postkode", 10).nullable()

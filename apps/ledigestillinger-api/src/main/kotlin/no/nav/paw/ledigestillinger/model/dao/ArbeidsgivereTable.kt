@@ -1,11 +1,12 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.model.asArbeidsgiverRow
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
-object ArbeidsgivereTable : LongIdTable("arbeidsgivere") {
+object ArbeidsgivereTable : LongIdTable("arbeidsgivere_v2") {
     val parentId = long("parent_id").references(StillingerTable.id)
     val orgForm = varchar("org_form", 20)
     val orgNr = varchar("org_nr", 20).nullable()

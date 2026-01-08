@@ -9,7 +9,6 @@ import no.nav.paw.ledigestillinger.exception.MalformedRequestException
 import no.nav.paw.ledigestillinger.exception.RequestParamMissingException
 import no.nav.paw.ledigestillinger.model.asResponse
 import no.nav.paw.ledigestillinger.service.StillingService
-import no.nav.paw.ledigestillinger.service.StillingServiceV2
 import no.nav.paw.security.authentication.model.TokenX
 import no.nav.paw.security.authentication.plugin.autentisering
 import no.naw.paw.ledigestillinger.model.FinnStillingerByEgenskaperRequest
@@ -21,7 +20,7 @@ import no.naw.paw.ledigestillinger.model.Stilling
 import java.util.*
 
 fun Route.stillingRoutes(
-    stillingService: StillingServiceV2
+    stillingService: StillingService
 ) {
     route("/api/v1/stillinger") {
         autentisering(TokenX) {

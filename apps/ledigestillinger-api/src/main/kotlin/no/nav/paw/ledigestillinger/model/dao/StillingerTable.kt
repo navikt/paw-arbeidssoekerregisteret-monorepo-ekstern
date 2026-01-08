@@ -1,5 +1,6 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
@@ -31,7 +32,7 @@ import java.util.*
 
 private val logger = buildNamedLogger("database")
 
-object StillingerTable : LongIdTable("stillinger") {
+object StillingerTable : LongIdTable("stillinger_v2") {
     val uuid = uuid("uuid")
     val adnr = varchar("adnr", 50).nullable()
     val tittel = varchar("tittel", 1000)

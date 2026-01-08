@@ -10,13 +10,12 @@ import no.nav.paw.health.readinessRoute
 import no.nav.paw.health.startupRoute
 import no.nav.paw.ledigestillinger.route.stillingRoutes
 import no.nav.paw.ledigestillinger.service.StillingService
-import no.nav.paw.ledigestillinger.service.StillingServiceV2
 import no.nav.paw.metrics.route.metricsRoutes
 
 fun Application.configureRouting(
     healthChecks: HealthChecks,
     meterRegistry: PrometheusMeterRegistry,
-    stillingService: StillingServiceV2
+    stillingService: StillingService
 ) {
     routing {
         livenessRoute(healthChecks)
