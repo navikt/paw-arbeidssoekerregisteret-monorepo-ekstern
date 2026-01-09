@@ -111,6 +111,8 @@ spec:
           namespace: platforce
         - application: isfrisktilarbeid
           namespace: teamsykefravr
+        - application: veilarbdirigent
+          namespace: dab
     outbound:
       rules:
         - application: paw-tilgangskontroll
