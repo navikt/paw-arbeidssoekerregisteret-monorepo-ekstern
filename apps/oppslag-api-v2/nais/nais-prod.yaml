@@ -109,6 +109,8 @@ spec:
           namespace: teamcrm
         - application: saas-proxy
           namespace: platforce
+        - application: isfrisktilarbeid
+          namespace: teamsykefravr
     outbound:
       rules:
         - application: paw-tilgangskontroll
