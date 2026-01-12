@@ -17,5 +17,6 @@ fun Route.openApiRoutes() {
         swaggerUI(path = "/v1", swaggerFile = "openapi/v1-spec.yaml")
         swaggerUI(path = "/v2", swaggerFile = "openapi/v2-spec.yaml")
         swaggerUI(path = "/v3", swaggerFile = "openapi/v3-spec.yaml")
+        swaggerUI(path = "/v4", swaggerFile = "openapi/v4-spec.yaml")
     }
 }
