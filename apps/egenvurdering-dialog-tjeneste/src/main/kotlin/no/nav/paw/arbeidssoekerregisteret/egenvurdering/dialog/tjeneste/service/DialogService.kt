@@ -36,7 +36,7 @@ class DialogService(
                 try {
                     val dialogmelding = egenvurdering.tilDialogmelding()
                     val eksisterendeDialogId: Long? =
-                        periodeIdDialogIdRepository.getDialogIdOrNull(egenvurdering.periodeId)
+                        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(egenvurdering.periodeId)?.dialogId
                     val dialogRequest = dialogmelding.toDialogRequest(
                         fnr = egenvurdering.sendtInnAv.utfoertAv.id,
                         dialogId = eksisterendeDialogId
@@ -53,7 +53,7 @@ class DialogService(
                             )
                         }
                     }
-                    Triple(egenvurdering.periodeId, eksisterendeDialogId, response)
+                    Triple(egenvurdering, eksisterendeDialogId, response)
                 } catch (e: ProfileringIkkeStøttet) {
                     logger.error(e.message, e)
                     null
@@ -61,33 +61,42 @@ class DialogService(
                     logger.error(e.message, e)
                     null
                 }
-            }.forEach { (periodeId, eksisterendeDialogId, response) ->
+            }.forEach { (egenvurdering, eksisterendeDialogId, response) ->
                 when (response) {
                     is DialogResponse -> {
                         if (eksisterendeDialogId == null) {
-                            periodeIdDialogIdRepository.insert(periodeId, response.dialogId.toLong())
-                            traceNyTraad(response.dialogId, periodeId)
+                            periodeIdDialogIdRepository.insert(
+                                periodeId = egenvurdering.periodeId,
+                                egenvurderingId = egenvurdering.id,
+                                dialogId = response.dialogId.toLong(),
+                                httpStatusCode = response.httpStatusCode
+                            )
+                            traceNyTraad(response.dialogId, egenvurdering.periodeId)
                         } else if (eksisterendeDialogId == response.dialogId.toLong()) {
-                            traceNyMeldingPaaEksisterendeTraad(response.dialogId, periodeId)
+                            traceNyMeldingPaaEksisterendeTraad(response.dialogId, egenvurdering.periodeId)
                         } else if (eksisterendeDialogId != response.dialogId.toLong()) {
-                            traceEndringAvDialogId(eksisterendeDialogId, response, periodeId)
-                            periodeIdDialogIdRepository.update(periodeId, response.dialogId.toLong())
+                            traceEndringAvDialogId(eksisterendeDialogId, response, egenvurdering.periodeId)
+                            periodeIdDialogIdRepository.update(egenvurdering.periodeId, response.dialogId.toLong())
                         }
                     }
 
                     is ArbeidsoppfølgingsperiodeAvsluttet -> {
-                        periodeIdDialogIdRepository.setDialogResponseInfo(
-                            periodeId,
-                            response.httpStatusCode.value,
+                        periodeIdDialogIdRepository.insert(
+                            periodeId = egenvurdering.periodeId,
+                            dialogId = null,
+                            egenvurderingId = egenvurdering.id,
+                            response.httpStatusCode,
                             response.errorMessage,
                         )
-                        traceArbeidsoppfoelgingsperiodeAvsluttet(periodeId, eksisterendeDialogId)
+                        traceArbeidsoppfoelgingsperiodeAvsluttet(egenvurdering.periodeId, eksisterendeDialogId)
                     }
 
                     is BrukerKanIkkeVarsles -> {
-                        periodeIdDialogIdRepository.setDialogResponseInfo(
-                            periodeId,
-                            response.httpStatusCode.value,
+                        periodeIdDialogIdRepository.insert(
+                            periodeId = egenvurdering.periodeId,
+                            dialogId = null,
+                            egenvurderingId = egenvurdering.id,
+                            response.httpStatusCode,
                             response.errorMessage,
                         )
                         Span.current().addEvent(
@@ -96,10 +105,13 @@ class DialogService(
                             )
                         )
                     }
+
                     is Annen409Feil -> {
-                        periodeIdDialogIdRepository.setDialogResponseInfo(
-                            periodeId,
-                            response.httpStatusCode.value,
+                        periodeIdDialogIdRepository.insert(
+                            periodeId = egenvurdering.periodeId,
+                            dialogId = null,
+                            egenvurderingId = egenvurdering.id,
+                            response.httpStatusCode,
                             response.errorMessage,
                         )
                         Span.current().addEvent(
@@ -114,7 +126,7 @@ class DialogService(
     }
 
     fun finnDialogInfoForPeriodeId(periodeId: UUID): PeriodeDialogRow? =
-        periodeIdDialogIdRepository.hentDialogInfoFra(periodeId)
+        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId)
 
     private fun traceEndringAvDialogId(dialogId: Long, response: DialogResponse, periodeId: UUID) {
         Span.current().addEvent(

@@ -59,6 +59,7 @@ fun Application.module(applicationContext: ApplicationContext) {
         installAuthenticationPlugin(securityConfig.authProviders)
         installDatabasePlugins(dataSource)
         configureRouting(healthChecks, meterRegistry, dialogService)
+
         configureKafka(applicationContext) { records: ConsumerRecords<Long, Egenvurdering> ->
             if (!records.isEmpty) {
                 dialogService.varsleVeilederOmEgenvurderingAvProfilering(records)

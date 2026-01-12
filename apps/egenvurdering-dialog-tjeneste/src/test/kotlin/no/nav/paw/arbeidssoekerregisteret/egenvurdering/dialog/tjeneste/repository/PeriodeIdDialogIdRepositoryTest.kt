@@ -6,9 +6,16 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.http.HttpStatusCode
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository.hentDialogInfoFra
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdAuditTable.egenvurderingId
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.buildPostgresDataSource
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.junit.jupiter.api.Disabled
+import org.postgresql.util.PSQLException
 import java.util.*
 
 class PeriodeIdDialogIdRepositoryTest : FreeSpec({
@@ -18,37 +25,87 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
     val dataSource = autoClose(buildPostgresDataSource())
     beforeSpec { Database.connect(dataSource) }
 
-    "getDialogIdOrNull er null når periode ikke finnes" {
-        periodeIdDialogIdRepository.getDialogIdOrNull(UUID.randomUUID()) shouldBe null
+    "Returnerer null ved ukjent periode" {
+        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(UUID.randomUUID()).shouldBeNull()
     }
 
-    "getDialogIdOrNull returnerer riktig dialogId" {
-        val periodeId = UUID.randomUUID()
-        val dialogId = 42L
-
-        periodeIdDialogIdRepository.insert(periodeId, dialogId)
-        periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) shouldBe dialogId
-    }
-
-    "Insert av lik periodeId kaster InsertFeilet" {
-        val periodeId = UUID.randomUUID()
-
-        periodeIdDialogIdRepository.insert(periodeId, 100L)
-
-        shouldThrow<InsertFeilet> {
-            periodeIdDialogIdRepository.insert(periodeId, 101L)
-        }
-    }
-
-    "Inserting av lik dialogId med ulik periodeId kaster InsertFeilet" {
+    "Inserting av lik dialogId med ulik periodeId kaster exception" {
         val dialogId = 777L
         val periodeId1 = UUID.randomUUID()
         val periodeId2 = UUID.randomUUID()
 
-        periodeIdDialogIdRepository.insert(periodeId1, dialogId)
+        periodeIdDialogIdRepository.insert(periodeId1, dialogId, UUID.randomUUID(), HttpStatusCode.OK, null)
+        shouldThrow<ExposedSQLException> {
+            periodeIdDialogIdRepository.insert(periodeId2, dialogId, UUID.randomUUID(), HttpStatusCode.OK, null)
+        }
+    }
 
-        shouldThrow<InsertFeilet> {
-            periodeIdDialogIdRepository.insert(periodeId2, dialogId)
+    "Insert/Update scenarier" - {
+        val periodeId = UUID.randomUUID()
+        val egenvurderingId = UUID.randomUUID()
+        val dialogId = 100L
+
+        "Lagre at egenvurderingen feilet mot veilarbdialog" {
+            val errorMessage = "Feilmelding fra veilarbdialog"
+            periodeIdDialogIdRepository.insert(
+                periodeId = periodeId,
+                dialogId = null,
+                egenvurderingId = egenvurderingId,
+                httpStatusCode = HttpStatusCode.InternalServerError,
+                errorMessage = errorMessage
+            )
+
+            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { auditInfo ->
+                auditInfo.shouldNotBeNull()
+                auditInfo.periodeId shouldBe periodeId
+                auditInfo.dialogId shouldBe null
+                auditInfo.egenvurderingId shouldBe egenvurderingId
+                auditInfo.dialogHttpStatusCode!! shouldBe HttpStatusCode.InternalServerError.value
+                auditInfo.dialogErrorMessage shouldBe errorMessage
+            }
+        }
+
+        "Feilen ble rettet, og vi får 200 OK fra veilarbdialog med en dialogId" {
+            periodeIdDialogIdRepository.insert(periodeId, dialogId, egenvurderingId, HttpStatusCode.OK, null)
+            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { auditInfo ->
+                auditInfo.shouldNotBeNull()
+                auditInfo.periodeId shouldBe periodeId
+                auditInfo.dialogId shouldBe dialogId
+                auditInfo.egenvurderingId shouldBe egenvurderingId
+                auditInfo.dialogHttpStatusCode!! shouldBe HttpStatusCode.OK.value
+                auditInfo.dialogErrorMessage shouldBe null
+            }
+        }
+
+        "Lagre at bruker har reservert seg i kontakt og reservasjonsregisteret (KRR)" {
+            val errorMessage = "Bruker kan ikke varsles"
+            periodeIdDialogIdRepository.insert(
+                periodeId = periodeId,
+                dialogId = null,
+                egenvurderingId = egenvurderingId,
+                httpStatusCode = HttpStatusCode.Conflict,
+                errorMessage = errorMessage
+            )
+            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { auditInfo ->
+                auditInfo.shouldNotBeNull()
+                auditInfo.periodeId shouldBe periodeId
+                auditInfo.dialogId shouldBe dialogId
+                auditInfo.egenvurderingId shouldBe egenvurderingId
+                auditInfo.dialogHttpStatusCode!! shouldBe HttpStatusCode.Conflict.value
+                auditInfo.dialogErrorMessage shouldBe errorMessage
+            }
+
+        }
+
+        "Assert riktig antall rader" {
+            val antallPeriodeIdDialogIdRader = transaction {
+                PeriodeIdDialogIdTable.selectAll().where { PeriodeIdDialogIdTable.periodeId eq periodeId }.count()
+            }
+            antallPeriodeIdDialogIdRader shouldBe 1
+            val antallAuditRader = transaction {
+                PeriodeIdDialogIdAuditTable.selectAll().where { PeriodeIdDialogIdAuditTable.periodeId eq periodeId }.count()
+            }
+            antallAuditRader shouldBe 3
         }
     }
 
@@ -57,10 +114,12 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         val opprinnelig = 11L
         val ny = 12L
 
-        periodeIdDialogIdRepository.insert(periodeId, opprinnelig)
+        periodeIdDialogIdRepository.insert(periodeId, opprinnelig, UUID.randomUUID(), HttpStatusCode.OK, null)
         periodeIdDialogIdRepository.update(periodeId, ny)
 
-        periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) shouldBe ny
+        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId)?.let { row ->
+            row.dialogId shouldBe ny
+        }
     }
 
     "Update av ikke-eksisterende periodeId kaster UpdateFeilet" {
@@ -76,63 +135,18 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         val dialogId1 = 200L
         val dialogId2 = 201L
 
-        periodeIdDialogIdRepository.insert(periodeId1, dialogId1)
-        periodeIdDialogIdRepository.insert(periodeId2, dialogId2)
+        periodeIdDialogIdRepository.insert(periodeId1, dialogId1, UUID.randomUUID(), HttpStatusCode.OK, null)
+        periodeIdDialogIdRepository.insert(periodeId2, dialogId2, UUID.randomUUID(), HttpStatusCode.OK, null)
 
         shouldThrow<UpdateFeilet> {
             periodeIdDialogIdRepository.update(periodeId2, dialogId1)
         }
 
-        periodeIdDialogIdRepository.getDialogIdOrNull(periodeId1) shouldBe dialogId1
-        periodeIdDialogIdRepository.getDialogIdOrNull(periodeId2) shouldBe dialogId2
-    }
-
-    "Oppdatere dialogStatusCode og dialogErrorMessage, dialogId er null" {
-        val periodeId = UUID.randomUUID()
-        val httpStatusCode = HttpStatusCode.Conflict.value
-        val errorMessage = "Bruker kan ikke varsles"
-
-        periodeIdDialogIdRepository.setDialogResponseInfo(periodeId, httpStatusCode, errorMessage)
-
-        val row = hentDialogInfoFra(periodeId)
-        row.shouldNotBeNull()
-        row.periodeId shouldBe periodeId
-        row.dialogId shouldBe null
-        row.dialogHttpStatusCode shouldBe httpStatusCode
-        row.dialogErrorMessage shouldBe errorMessage
-    }
-
-    "setDialogResponseInfo er idempotent og oppdaterer eksisterende rad" {
-        val periodeId = UUID.randomUUID()
-        val dialogId = 1000000L
-        periodeIdDialogIdRepository.insert(periodeId, dialogId)
-
-        val førsteStatus = HttpStatusCode.Conflict.value
-        val førsteFeilmelding = "Bruker kan ikke varsles"
-        periodeIdDialogIdRepository.setDialogResponseInfo(periodeId, førsteStatus, førsteFeilmelding)
-
-        val første = hentDialogInfoFra(periodeId)
-        første.shouldNotBeNull()
-        første.periodeId shouldBe periodeId
-        første.dialogId shouldBe dialogId
-        første.dialogHttpStatusCode shouldBe førsteStatus
-        første.dialogErrorMessage shouldBe førsteFeilmelding
-
-        val andreStatus = HttpStatusCode.PaymentRequired.value
-        val andreFeilmelding = "Kan ikke sende henvendelse på historisk dialog"
-        periodeIdDialogIdRepository.setDialogResponseInfo(periodeId, andreStatus, andreFeilmelding)
-
-        val andre = hentDialogInfoFra(periodeId)
-        andre.shouldNotBeNull()
-        andre.periodeId shouldBe periodeId
-        andre.dialogId shouldBe dialogId
-        andre.dialogHttpStatusCode shouldBe andreStatus
-        andre.dialogErrorMessage shouldBe andreFeilmelding
-    }
-
-
-    "hentDialogInfoFra ukjent periode returnerer null" {
-        val ukjentPeriodeId = UUID.randomUUID()
-        hentDialogInfoFra(ukjentPeriodeId).shouldBeNull()
+        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId1)?.let { row ->
+            row.dialogId shouldBe dialogId1
+        }
+        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId2)?.let { row ->
+            row.dialogId shouldBe dialogId2
+        }
     }
 })

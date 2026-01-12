@@ -1,6 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository
 
+import io.ktor.http.HttpStatusCode
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -17,16 +22,41 @@ object PeriodeIdDialogIdRepository {
             ?.get(PeriodeIdDialogIdTable.dialogId)
     }
 
-    fun insert(periodeId: UUID, dialogId: Long) {
-        return transaction {
-            try {
-                PeriodeIdDialogIdTable.insert {
-                    it[PeriodeIdDialogIdTable.periodeId] = periodeId
-                    it[PeriodeIdDialogIdTable.dialogId] = dialogId
-                }
-            } catch (e: Exception) {
-                throw InsertFeilet(periodeId, dialogId, e)
+    fun insert(
+        periodeId: UUID,
+        dialogId: Long?,
+        egenvurderingId: UUID,
+        httpStatusCode: HttpStatusCode,
+        errorMessage: String? = null,
+    ): Unit = transaction {
+
+        PeriodeIdDialogIdTable.insertIgnore {
+            it[PeriodeIdDialogIdTable.periodeId] = periodeId
+        }
+
+        if (dialogId != null) {
+            PeriodeIdDialogIdTable.update({
+                (PeriodeIdDialogIdTable.periodeId eq periodeId) and
+                        (PeriodeIdDialogIdTable.dialogId.isNull())
+            }) {
+                it[PeriodeIdDialogIdTable.dialogId] = dialogId
             }
+        }
+
+        insertAuditRow(periodeId, egenvurderingId, httpStatusCode, errorMessage)
+    }
+
+    private fun insertAuditRow(
+        periodeId: UUID,
+        egenvurderingId: UUID,
+        httpStatusCode: HttpStatusCode,
+        errorMessage: String?,
+    ) {
+        PeriodeIdDialogIdAuditTable.insert {
+            it[PeriodeIdDialogIdAuditTable.periodeId] = periodeId
+            it[PeriodeIdDialogIdAuditTable.egenvurderingId] = egenvurderingId
+            it[PeriodeIdDialogIdAuditTable.httpStatusCode] = httpStatusCode.value.toShort()
+            it[PeriodeIdDialogIdAuditTable.errorMessage] = errorMessage
         }
     }
 
@@ -45,44 +75,32 @@ object PeriodeIdDialogIdRepository {
         }
     }
 
-    fun setDialogResponseInfo(
-        periodeId: UUID,
-        httpStatusCode: Int,
-        errorMessage: String,
-    ): Unit = transaction {
-        PeriodeIdDialogIdTable.insertIgnore {
-            it[PeriodeIdDialogIdTable.periodeId] = periodeId
-            it[PeriodeIdDialogIdTable.dialogHttpStatusCode] = httpStatusCode
-            it[PeriodeIdDialogIdTable.dialogErrorMessage] = errorMessage
-        }
-
-        PeriodeIdDialogIdTable.update({ PeriodeIdDialogIdTable.periodeId eq periodeId }) {
-            it[PeriodeIdDialogIdTable.dialogHttpStatusCode] = httpStatusCode
-            it[PeriodeIdDialogIdTable.dialogErrorMessage] = errorMessage
-        }
-    }
-
-    fun hentDialogInfoFra(periodeId: UUID): PeriodeDialogRow? = transaction {
+    fun hentPeriodeIdDialogIdInfo(periodeId: UUID): PeriodeDialogRow? = transaction {
         PeriodeIdDialogIdTable
+            .join(
+                otherTable = PeriodeIdDialogIdAuditTable,
+                joinType = JoinType.INNER,
+                onColumn = PeriodeIdDialogIdTable.periodeId,
+                otherColumn = PeriodeIdDialogIdAuditTable.periodeId
+            )
             .selectAll()
-            .where(PeriodeIdDialogIdTable.periodeId eq periodeId)
+            .where { PeriodeIdDialogIdTable.periodeId eq periodeId }
+            .orderBy(
+                PeriodeIdDialogIdAuditTable.insertedTimestamp to SortOrder.DESC,
+                PeriodeIdDialogIdAuditTable.id to SortOrder.DESC
+            )
             .firstOrNull()
             ?.let { row ->
                 PeriodeDialogRow(
                     periodeId = row[PeriodeIdDialogIdTable.periodeId],
-                    dialogId = row[PeriodeIdDialogIdTable.dialogId],
-                    dialogHttpStatusCode = row[PeriodeIdDialogIdTable.dialogHttpStatusCode],
-                    dialogErrorMessage = row[PeriodeIdDialogIdTable.dialogErrorMessage],
+                    dialogId = row.getOrNull(PeriodeIdDialogIdTable.dialogId),
+                    egenvurderingId = row[PeriodeIdDialogIdAuditTable.egenvurderingId],
+                    dialogHttpStatusCode = row[PeriodeIdDialogIdAuditTable.httpStatusCode].toInt(),
+                    dialogErrorMessage = row.getOrNull(PeriodeIdDialogIdAuditTable.errorMessage),
                 )
             }
     }
 }
-
-class InsertFeilet(
-    periodeId: UUID,
-    dialogId: Long,
-    cause: Throwable,
-) : RuntimeException("Insert feilet for periodeId=$periodeId, dialogId=$dialogId grunnet: ${cause.message}", cause)
 
 class UpdateFeilet(
     periodeId: UUID,

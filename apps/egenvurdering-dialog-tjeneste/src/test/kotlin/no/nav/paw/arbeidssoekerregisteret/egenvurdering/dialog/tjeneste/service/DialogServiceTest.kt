@@ -20,6 +20,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.V
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
@@ -41,9 +42,18 @@ class DialogServiceTest : FreeSpec({
     "Ny tråd opprettes og mapping lagres når ingen dialog finnes fra før" {
         val newDialogId = 555L
         val periodeId = UUID.randomUUID()
+        val egenvurderingId = UUID.randomUUID()
         val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
-        every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns null
-        every { periodeIdDialogIdRepository.insert(periodeId, newDialogId) } just runs
+        every { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) } returns null
+        every {
+            periodeIdDialogIdRepository.insert(
+                periodeId,
+                newDialogId,
+                egenvurderingId,
+                HttpStatusCode.OK,
+                null
+            )
+        } just runs
 
         val engine = MockEngine {
             respond(
@@ -66,6 +76,7 @@ class DialogServiceTest : FreeSpec({
         val egenvurdering = egenvurdering(
             periodeId = periodeId,
             navProfilering = ANTATT_GODE_MULIGHETER,
+            egenvurderingId = egenvurderingId,
             brukersEgenvurdering = ANTATT_BEHOV_FOR_VEILEDNING,
             tidspunkt = Instant.parse("2025-03-15T10:00:00Z"),
             fnr = "12345678901"
@@ -74,8 +85,8 @@ class DialogServiceTest : FreeSpec({
         val records = consumerRecordsOf(egenvurdering)
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-        verify { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
-        verify { periodeIdDialogIdRepository.insert(periodeId, newDialogId) }
+        verify { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) }
+        verify { periodeIdDialogIdRepository.insert(periodeId, newDialogId, egenvurderingId, HttpStatusCode.OK, null) }
         confirmVerified(periodeIdDialogIdRepository)
     }
 
@@ -84,8 +95,14 @@ class DialogServiceTest : FreeSpec({
         val periodeId = UUID.randomUUID()
 
         val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
-        every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns existingDialogId
-        every { periodeIdDialogIdRepository.insert(any(), any()) } just runs
+        every { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) } returns PeriodeDialogRow(
+            periodeId = periodeId,
+            dialogId = existingDialogId,
+            egenvurderingId = UUID.randomUUID(),
+            dialogHttpStatusCode = HttpStatusCode.OK.value,
+            dialogErrorMessage = null
+        )
+        every { periodeIdDialogIdRepository.insert(any(), any(), any(), any(), any()) } just runs
 
         val engine = MockEngine {
             respond(
@@ -116,8 +133,8 @@ class DialogServiceTest : FreeSpec({
         val records = consumerRecordsOf(egenvurdering)
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-        verify { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
-        verify(exactly = 0) { periodeIdDialogIdRepository.insert(any(), any()) }
+        verify { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) }
+        verify(exactly = 0) { periodeIdDialogIdRepository.insert(any(), any(), any(), any(), any()) }
         confirmVerified(periodeIdDialogIdRepository)
     }
 
@@ -126,19 +143,30 @@ class DialogServiceTest : FreeSpec({
         val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
         val existingDialogId = 777L
         val periodeId = UUID.randomUUID()
+        val egenvurderingId = UUID.randomUUID()
 
-        every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns existingDialogId
+        every { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) } returns PeriodeDialogRow(
+            periodeId = periodeId,
+            dialogId = existingDialogId,
+            egenvurderingId = UUID.randomUUID(),
+            dialogHttpStatusCode = HttpStatusCode.OK.value,
+            dialogErrorMessage = null
+        )
+
+        val errorMessage = "Kan ikke sende henvendelse på historisk dialog"
         every {
-            periodeIdDialogIdRepository.setDialogResponseInfo(
+            periodeIdDialogIdRepository.insert(
                 periodeId = periodeId,
-                httpStatusCode = HttpStatusCode.Conflict.value,
-                errorMessage = "Kan ikke sende henvendelse på historisk dialog",
+                dialogId = null,
+                egenvurderingId = egenvurderingId,
+                httpStatusCode = HttpStatusCode.Conflict,
+                errorMessage = errorMessage,
             )
         } returns Unit
 
         val engine = MockEngine {
             respond(
-                content = "Kan ikke sende henvendelse på historisk dialog",
+                content = errorMessage,
                 status = HttpStatusCode.Conflict,
             )
         }
@@ -155,6 +183,7 @@ class DialogServiceTest : FreeSpec({
 
         val egenvurdering = egenvurdering(
             periodeId = periodeId,
+            egenvurderingId = egenvurderingId,
             navProfilering = ANTATT_BEHOV_FOR_VEILEDNING,
             brukersEgenvurdering = ANTATT_BEHOV_FOR_VEILEDNING,
             tidspunkt = Instant.parse("2025-03-16T12:00:00Z"),
@@ -164,12 +193,14 @@ class DialogServiceTest : FreeSpec({
         val records = consumerRecordsOf(egenvurdering)
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-        verify(exactly = 1) { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
+        verify(exactly = 1) { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) }
         verify(exactly = 1) {
-            periodeIdDialogIdRepository.setDialogResponseInfo(
+            periodeIdDialogIdRepository.insert(
                 periodeId = periodeId,
-                httpStatusCode = HttpStatusCode.Conflict.value,
-                errorMessage = "Kan ikke sende henvendelse på historisk dialog",
+                dialogId = null,
+                egenvurderingId = egenvurderingId,
+                httpStatusCode = HttpStatusCode.Conflict,
+                errorMessage = errorMessage,
             )
         }
 
@@ -179,12 +210,15 @@ class DialogServiceTest : FreeSpec({
     "Person har reservert seg i kontakt og reservasjonsregisteret (KRR)" {
         val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
         val periodeId = UUID.randomUUID()
+        val egenvurderingId = UUID.randomUUID()
 
-        every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns null
+        every { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) } returns null
         every {
-            periodeIdDialogIdRepository.setDialogResponseInfo(
+            periodeIdDialogIdRepository.insert(
                 periodeId = periodeId,
-                httpStatusCode = HttpStatusCode.Conflict.value,
+                dialogId = null,
+                egenvurderingId = egenvurderingId,
+                httpStatusCode = HttpStatusCode.Conflict,
                 errorMessage = "Bruker kan ikke varsles",
             )
         } returns Unit
@@ -208,6 +242,7 @@ class DialogServiceTest : FreeSpec({
 
         val egenvurdering = egenvurdering(
             periodeId = periodeId,
+            egenvurderingId = egenvurderingId,
             navProfilering = ANTATT_BEHOV_FOR_VEILEDNING,
             brukersEgenvurdering = ANTATT_BEHOV_FOR_VEILEDNING,
             tidspunkt = Instant.parse("2025-03-16T12:00:00Z"),
@@ -217,11 +252,13 @@ class DialogServiceTest : FreeSpec({
         val records = consumerRecordsOf(egenvurdering)
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-        verify(exactly = 1) { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
+        verify(exactly = 1) { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) }
         verify(exactly = 1) {
-            periodeIdDialogIdRepository.setDialogResponseInfo(
+            periodeIdDialogIdRepository.insert(
                 periodeId = periodeId,
-                httpStatusCode = HttpStatusCode.Conflict.value,
+                dialogId = null,
+                egenvurderingId = egenvurderingId,
+                httpStatusCode = HttpStatusCode.Conflict,
                 errorMessage = "Bruker kan ikke varsles",
             )
         }
@@ -235,7 +272,13 @@ class DialogServiceTest : FreeSpec({
         val periodeId = UUID.randomUUID()
 
         val periodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>()
-        every { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) } returns dialogIdDb
+        every { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) } returns PeriodeDialogRow(
+            periodeId = periodeId,
+            dialogId = dialogIdDb,
+            egenvurderingId = UUID.randomUUID(),
+            dialogHttpStatusCode = HttpStatusCode.OK.value,
+            dialogErrorMessage = null,
+        )
         every { periodeIdDialogIdRepository.update(periodeId, dialogIdFraVeilarb) } just runs
 
         val engine = MockEngine {
@@ -267,22 +310,23 @@ class DialogServiceTest : FreeSpec({
         val records = consumerRecordsOf(egenvurdering)
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-        verify { periodeIdDialogIdRepository.getDialogIdOrNull(periodeId) }
-        verify(exactly = 0) { periodeIdDialogIdRepository.insert(any(), any()) }
+        verify { periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId) }
+        verify(exactly = 0) { periodeIdDialogIdRepository.insert(any(), any(), any(), any(), any()) }
         verify { periodeIdDialogIdRepository.update(periodeId, dialogIdFraVeilarb) }
         confirmVerified(periodeIdDialogIdRepository)
     }
 })
 
-private fun consumerRecordsOf(egenvurdering: Egenvurdering): ConsumerRecords<Long, Egenvurdering> {
+fun consumerRecordsOf(egenvurdering: Egenvurdering): ConsumerRecords<Long, Egenvurdering> {
     val topic = "egenvurdering"
     val record = ConsumerRecord(topic, 0, 0L, 1L, egenvurdering)
     val topicPartition = TopicPartition(topic, 0)
     return ConsumerRecords(mapOf(topicPartition to listOf(record)), emptyMap())
 }
 
-private fun egenvurdering(
-    periodeId: UUID,
+fun egenvurdering(
+    periodeId: UUID = UUID.randomUUID(),
+    egenvurderingId: UUID = UUID.randomUUID(),
     navProfilering: ProfilertTil,
     brukersEgenvurdering: ProfilertTil,
     tidspunkt: Instant,
@@ -293,7 +337,7 @@ private fun egenvurdering(
         utfortAv = BrukerFactory.create().build(id = fnr)
     )
     return Egenvurdering(
-        UUID.randomUUID(),
+        egenvurderingId,
         periodeId,
         UUID.randomUUID(),
         meta,
