@@ -1,8 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client
 
-import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldNotThrowAny
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -49,7 +47,9 @@ class VeilarbdialogClientTest : FreeSpec({
         }
 
         val texasClientMock = mockk<TexasClient>()
-        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns MachineToMachineTokenResponse(accessToken = token)
+        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns MachineToMachineTokenResponse(
+            accessToken = token
+        )
 
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,
@@ -67,6 +67,7 @@ class VeilarbdialogClientTest : FreeSpec({
             )
         }.shouldBeInstanceOf<DialogResponse> { resultat ->
             resultat.dialogId shouldBe testDialogId.value
+            resultat.httpStatusCode shouldBe HttpStatusCode.OK
         }
 
         runBlocking {
@@ -79,23 +80,28 @@ class VeilarbdialogClientTest : FreeSpec({
             )
         }.shouldBeInstanceOf<DialogResponse> { resultat ->
             resultat.dialogId shouldBe testDialogId.value
+            resultat.httpStatusCode shouldBe HttpStatusCode.OK
         }
     }
 
     "Arbeidsoppfølgingsperiode er avsluttet" - {
+        val veilarbdialogFeilmelding = """
+            Funksjonell feil under behandling: NyHenvendelsePåHistoriskDialogException - Kan ikke sende henvendelse på historisk dialog
+            """.trimIndent()
         val mockEngine = MockEngine { request ->
             request.method shouldBe HttpMethod.Post
             request.url shouldBe Url("$dialogTestEndepunkt$veilarbDialogPath")
             request.headers[HttpHeaders.Authorization] shouldBe "Bearer $token"
 
             respond(
-                content = "Funksjonell feil under behandling: NyHenvendelsePåHistoriskDialogException - Kan ikke sende henvendelse på historisk dialog ",
+                content = veilarbdialogFeilmelding,
                 status = HttpStatusCode.Conflict,
             )
         }
 
         val texasClientMock = mockk<TexasClient>()
-        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns MachineToMachineTokenResponse(token)
+        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns
+                MachineToMachineTokenResponse(token)
 
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,
@@ -111,7 +117,11 @@ class VeilarbdialogClientTest : FreeSpec({
                     venterPaaSvarFraNav = true
                 )
             )
-        }.shouldBeInstanceOf<ArbeidsoppfølgingsperiodeAvsluttet>()
+        }.shouldBeInstanceOf<ArbeidsoppfølgingsperiodeAvsluttet>() { response ->
+            response.errorMessage shouldBe veilarbdialogFeilmelding
+            response.httpStatusCode shouldBe HttpStatusCode.Conflict
+        }
+
     }
 
     "409 feil skal ikke kaste exception" - {
@@ -127,7 +137,9 @@ class VeilarbdialogClientTest : FreeSpec({
         }
 
         val texasClientMock = mockk<TexasClient>()
-        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns MachineToMachineTokenResponse(token)
+        coEvery { texasClientMock.getMachineToMachineToken("veilarbdialog.fake") } returns MachineToMachineTokenResponse(
+            token
+        )
 
         val veilarbDialogClient = VeilarbdialogClient(
             config = testConfig,

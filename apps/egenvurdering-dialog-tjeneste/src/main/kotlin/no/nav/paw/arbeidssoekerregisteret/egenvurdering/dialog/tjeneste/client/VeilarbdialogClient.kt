@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -12,10 +13,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import io.opentelemetry.api.common.AttributeKey.longKey
-import io.opentelemetry.api.common.AttributeKey.stringKey
-import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.api.trace.Span
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.Annen409Feil
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ArbeidsoppfølgingsperiodeAvsluttet
@@ -45,7 +42,11 @@ class VeilarbdialogClient(
             setBody(dialogRequest)
         }
         return when {
-            response.status.isSuccess() -> response.body<DialogResponse>()
+            response.status.isSuccess() -> DialogResponse(
+                dialogId = response.body<DialogResponseDto>().dialogId,
+                httpStatusCode = response.status
+            )
+
             response.status == Conflict -> response.handleConflict()
             else -> {
                 throw VeilarbdialogClientException(
@@ -60,11 +61,15 @@ class VeilarbdialogClient(
     private suspend fun HttpResponse.handleConflict(): DialogResultat {
         val body = bodyAsText()
         return when {
-            body.contains("Kan ikke sende henvendelse på historisk dialog") -> ArbeidsoppfølgingsperiodeAvsluttet(this.status, body)
+            body.contains("Kan ikke sende henvendelse på historisk dialog") ->
+                ArbeidsoppfølgingsperiodeAvsluttet(this.status, body)
+
             body.contains("Bruker kan ikke varsles") -> BrukerKanIkkeVarsles(this.status, body)
             else -> Annen409Feil(this.status, body)
         }
     }
+
+    private data class DialogResponseDto(@field:JsonProperty("id") val dialogId: String)
 }
 
 class VeilarbdialogClientException(
