@@ -9,7 +9,6 @@ import io.ktor.http.HttpStatusCode
 import io.mockk.Called
 import io.mockk.every
 import io.mockk.verify
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.exception.DIALOG_IKKE_FUNNET_ERROR_TYPE
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.EgenvurderingDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.EgenvurderingDialogResponse
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
