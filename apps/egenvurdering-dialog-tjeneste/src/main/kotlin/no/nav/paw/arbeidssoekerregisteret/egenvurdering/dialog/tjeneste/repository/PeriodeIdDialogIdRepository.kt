@@ -14,14 +14,6 @@ import org.jetbrains.exposed.v1.jdbc.update
 import java.util.*
 
 object PeriodeIdDialogIdRepository {
-    fun getDialogIdOrNull(periodeId: UUID): Long? = transaction {
-        PeriodeIdDialogIdTable
-            .selectAll()
-            .where(PeriodeIdDialogIdTable.periodeId eq periodeId)
-            .firstOrNull()
-            ?.get(PeriodeIdDialogIdTable.dialogId)
-    }
-
     fun insert(
         periodeId: UUID,
         dialogId: Long?,
@@ -85,10 +77,7 @@ object PeriodeIdDialogIdRepository {
             )
             .selectAll()
             .where { PeriodeIdDialogIdTable.periodeId eq periodeId }
-            .orderBy(
-                PeriodeIdDialogIdAuditTable.insertedTimestamp to SortOrder.DESC,
-                PeriodeIdDialogIdAuditTable.id to SortOrder.DESC
-            )
+            .orderBy(PeriodeIdDialogIdAuditTable.id to SortOrder.DESC)
             .firstOrNull()
             ?.let { row ->
                 PeriodeDialogRow(
