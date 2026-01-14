@@ -68,6 +68,8 @@ spec:
           namespace: paw
         - application: paw-brukerstotte
           namespace: paw
+        - application: paw-brukerstotte-test
+          namespace: paw
         - application: arbeidssokerregistrering-for-veileder
           namespace: paw
         - application: arbeidssoekerregisteret-for-personbruker
