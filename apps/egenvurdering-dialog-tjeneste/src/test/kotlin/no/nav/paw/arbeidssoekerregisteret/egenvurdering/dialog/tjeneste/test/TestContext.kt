@@ -15,8 +15,6 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.mockk
 import kotlinx.coroutines.test.TestResult
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.APPLICATION_CONFIG
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service.DialogService
@@ -40,15 +38,13 @@ import kotlin.coroutines.EmptyCoroutineContext
 class TestContext private constructor(
     val dataSource: DataSource? = null,
     val mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(),
-    val applicationConfig: ApplicationConfig = loadNaisOrLocalConfiguration(APPLICATION_CONFIG),
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG),
     val veilarbdialogClientMock: VeilarbdialogClient = mockk<VeilarbdialogClient>(),
     val periodeIdDialogIdRepositoryMock: PeriodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>(),
     val dialogService: DialogService = DialogService(
-        applicationConfig = applicationConfig,
         veilarbdialogClient = veilarbdialogClientMock,
         periodeIdDialogIdRepository = periodeIdDialogIdRepositoryMock
-    )
+    ),
 ) {
     fun setUpDatabase(): TestContext {
         Database.connect(dataSource!!)
@@ -107,7 +103,7 @@ class TestContext private constructor(
 
     fun MockOAuth2Server.issueTokenXToken(
         acr: String = "idporten-loa-high",
-        pid: String = "01017012345"
+        pid: String = "01017012345",
     ): SignedJWT {
         return issueToken(
             claims = mapOf(
@@ -120,7 +116,7 @@ class TestContext private constructor(
     fun MockOAuth2Server.issueAzureAdToken(
         oid: UUID = UUID.randomUUID(),
         name: String = "Kari Nordmann",
-        navIdent: String = "NAV1234"
+        navIdent: String = "NAV1234",
     ): SignedJWT {
         return issueToken(
             claims = mapOf(

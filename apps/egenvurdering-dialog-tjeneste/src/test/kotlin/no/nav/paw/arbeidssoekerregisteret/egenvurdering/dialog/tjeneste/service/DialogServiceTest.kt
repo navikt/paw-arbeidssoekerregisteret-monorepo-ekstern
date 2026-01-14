@@ -17,8 +17,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.APPLICATION_CONFIG
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
@@ -27,7 +25,6 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VE
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_GODE_MULIGHETER
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.factory.configureJackson
-import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.test.data.periode.BrukerFactory
 import no.nav.paw.test.data.periode.MetadataFactory
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -37,7 +34,6 @@ import java.time.Instant
 import java.util.*
 
 class DialogServiceTest : FreeSpec({
-    val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
 
     "Ny tråd opprettes og mapping lagres når ingen dialog finnes fra før" {
         val newDialogId = 555L
@@ -68,7 +64,6 @@ class DialogServiceTest : FreeSpec({
             httpClient = testClient(engine)
         )
         val service = DialogService(
-            applicationConfig = applicationConfig,
             veilarbdialogClient = veilarbdialogClient,
             periodeIdDialogIdRepository = periodeIdDialogIdRepository
         )
@@ -117,7 +112,6 @@ class DialogServiceTest : FreeSpec({
             httpClient = testClient(engine)
         )
         val service = DialogService(
-            applicationConfig = applicationConfig,
             veilarbdialogClient = veilarbdialogClient,
             periodeIdDialogIdRepository = periodeIdDialogIdRepository
         )
@@ -176,7 +170,6 @@ class DialogServiceTest : FreeSpec({
             httpClient = testClient(engine)
         )
         val service = DialogService(
-            applicationConfig = applicationConfig,
             veilarbdialogClient = veilarbdialogClient,
             periodeIdDialogIdRepository = periodeIdDialogIdRepository
         )
@@ -235,7 +228,6 @@ class DialogServiceTest : FreeSpec({
             httpClient = testClient(engine)
         )
         val service = DialogService(
-            applicationConfig = applicationConfig,
             veilarbdialogClient = veilarbdialogClient,
             periodeIdDialogIdRepository = periodeIdDialogIdRepository
         )
@@ -294,7 +286,6 @@ class DialogServiceTest : FreeSpec({
             httpClient = testClient(engine)
         )
         val service = DialogService(
-            applicationConfig = applicationConfig,
             veilarbdialogClient = veilarbdialogClient,
             periodeIdDialogIdRepository = periodeIdDialogIdRepository
         )

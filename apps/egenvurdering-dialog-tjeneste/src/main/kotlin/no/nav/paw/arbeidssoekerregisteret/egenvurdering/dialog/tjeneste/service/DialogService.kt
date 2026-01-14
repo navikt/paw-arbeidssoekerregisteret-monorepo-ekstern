@@ -6,7 +6,6 @@ import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClientException
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.Annen409Feil
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ArbeidsoppfølgingsperiodeAvsluttet
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.BrukerKanIkkeVarsles
@@ -23,7 +22,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import java.util.*
 
 class DialogService(
-    private val applicationConfig: ApplicationConfig,
     private val veilarbdialogClient: VeilarbdialogClient,
     private val periodeIdDialogIdRepository: PeriodeIdDialogIdRepository,
 ) {

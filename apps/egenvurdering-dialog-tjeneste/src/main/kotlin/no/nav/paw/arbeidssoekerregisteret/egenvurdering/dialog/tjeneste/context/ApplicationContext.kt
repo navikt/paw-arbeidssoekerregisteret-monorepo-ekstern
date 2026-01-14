@@ -70,7 +70,6 @@ data class ApplicationContext(
                 texasClient = texasClient,
             )
             val dialogService = DialogService(
-                applicationConfig = applicationConfig,
                 veilarbdialogClient = veilarbdialogClient,
                 periodeIdDialogIdRepository = PeriodeIdDialogIdRepository
             )
