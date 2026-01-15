@@ -43,6 +43,13 @@ class DialogService(
                         try {
                             veilarbdialogClient.lagEllerOppdaterDialog(dialogRequest)
                         } catch (ex: VeilarbdialogClientException) {
+                            periodeIdDialogIdRepository.insert(
+                                egenvurdering.periodeId,
+                                dialogId = eksisterendeDialogId,
+                                egenvurderingId = egenvurdering.id,
+                                httpStatusCode = ex.status,
+                                errorMessage = ex.message
+                            )
                             throw Exception(
                                 "Feil ved kommunikasjon med veilarbdialog ved prosessering av egenvurdering:" +
                                         " topic=${record.topic()}, partition=${record.partition()}," +

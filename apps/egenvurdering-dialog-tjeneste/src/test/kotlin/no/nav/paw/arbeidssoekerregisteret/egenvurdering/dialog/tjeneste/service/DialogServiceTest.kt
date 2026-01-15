@@ -1,8 +1,10 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -12,13 +14,9 @@ import io.ktor.http.HttpHeaders.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.jackson
-import io.mockk.confirmVerified
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.buildPostgresDataSource
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
@@ -89,7 +87,7 @@ class DialogServiceTest : FreeSpec({
 
         val andreEgenvurderingId = UUID.randomUUID()
 
-        "Oppdater eksisterende tråd ved flere egenvurderinger i en periode" {
+        "Oppdater eksisterende tråd ved ny egenvurdering i samme periode" {
             val engine = MockEngine {
                 respond(
                     content = """{"id":"$dialogId"}""",
@@ -165,6 +163,85 @@ class DialogServiceTest : FreeSpec({
                 row.egenvurderingId shouldBe tredjeEgenvurderingId
                 row.dialogHttpStatusCode shouldBe HttpStatusCode.Conflict.value
                 row.dialogErrorMessage shouldBe errorMessage
+            }
+        }
+    }
+
+    "Feil fra veilarbdialog løser seg" - {
+        val periodeId = UUID.randomUUID()
+        val egenvurderingId = UUID.randomUUID()
+        val egenvurdering = egenvurdering(
+            periodeId = periodeId,
+            egenvurderingId = egenvurderingId,
+            navProfilering = ANTATT_BEHOV_FOR_VEILEDNING,
+            brukersEgenvurdering = ANTATT_BEHOV_FOR_VEILEDNING,
+            tidspunkt = Instant.parse("2025-03-16T12:00:00Z"),
+            fnr = "10987654321"
+        )
+
+        "Feil lagres i db og exception kastes slik at appen går ned" {
+            val errorMessage = "Feil ved kall mot eksternt system"
+            val engine = MockEngine {
+                respond(
+                    content = errorMessage,
+                    status = HttpStatusCode.InternalServerError,
+                )
+            }
+            val veilarbdialogClient = VeilarbdialogClient(
+                config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", target = "veilarbdialog.fake"),
+                texasClient = mockk(relaxed = true),
+                httpClient = testClient(engine)
+            )
+            val service = DialogService(
+                veilarbdialogClient = veilarbdialogClient,
+                periodeIdDialogIdRepository = periodeIdDialogIdRepository
+            )
+
+
+            val records = consumerRecordsOf(egenvurdering)
+            shouldThrow<Exception> {
+                service.varsleVeilederOmEgenvurderingAvProfilering(records)
+            }
+
+            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
+                row.shouldNotBeNull()
+                row.periodeId shouldBe periodeId
+                row.dialogId shouldBe null
+                row.egenvurderingId shouldBe egenvurderingId
+                row.dialogHttpStatusCode shouldBe HttpStatusCode.InternalServerError.value
+                row.dialogErrorMessage shouldContain errorMessage
+            }
+        }
+
+        "Feilen rettes, og retry av egenvurdering melding fører til ny dialog" {
+            val dialogId = 3456L
+            val engine = MockEngine {
+                respond(
+                    content = """{"id":"$dialogId"}""",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(ContentType, Json.toString())
+                )
+            }
+            val veilarbdialogClient = VeilarbdialogClient(
+                config = VeilarbdialogClientConfig(url = "http://veilarbdialog.fake", target = "veilarbdialog.fake"),
+                texasClient = mockk(relaxed = true),
+                httpClient = testClient(engine)
+            )
+            val service = DialogService(
+                veilarbdialogClient = veilarbdialogClient,
+                periodeIdDialogIdRepository = periodeIdDialogIdRepository
+            )
+
+            val records = consumerRecordsOf(egenvurdering)
+            service.varsleVeilederOmEgenvurderingAvProfilering(records)
+
+            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
+                row.shouldNotBeNull()
+                row.periodeId shouldBe periodeId
+                row.dialogId shouldBe dialogId
+                row.egenvurderingId shouldBe egenvurderingId
+                row.dialogHttpStatusCode shouldBe HttpStatusCode.OK.value
+                row.dialogErrorMessage shouldBe null
             }
         }
     }
