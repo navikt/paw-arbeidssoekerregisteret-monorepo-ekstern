@@ -197,7 +197,6 @@ class DialogServiceTest : FreeSpec({
                 periodeIdDialogIdRepository = periodeIdDialogIdRepository
             )
 
-
             val records = consumerRecordsOf(egenvurdering)
             shouldThrow<Exception> {
                 service.varsleVeilederOmEgenvurderingAvProfilering(records)

@@ -76,7 +76,7 @@ class DialogService(
                                 dialogId = response.dialogId.toLong(),
                                 httpStatusCode = response.httpStatusCode
                             )
-                            traceNyTraad(response.dialogId, egenvurdering.periodeId)
+                            traceNyTraad(response.dialogId)
                         } else if (eksisterendeDialogId == response.dialogId.toLong()) {
                             periodeIdDialogIdRepository.insert(
                                 periodeId = egenvurdering.periodeId,
@@ -84,10 +84,10 @@ class DialogService(
                                 dialogId = null,
                                 httpStatusCode = response.httpStatusCode
                             )
-                            traceNyMeldingPaaEksisterendeTraad(response.dialogId, egenvurdering.periodeId)
+                            traceNyMeldingPaaEksisterendeTraad(response.dialogId)
                         } else if (eksisterendeDialogId != response.dialogId.toLong()) {
-                            traceEndringAvDialogId(eksisterendeDialogId, response, egenvurdering.periodeId)
                             periodeIdDialogIdRepository.update(egenvurdering.periodeId, response.dialogId.toLong())
+                            traceEndringAvDialogId(eksisterendeDialogId, response)
                         }
                     }
 
@@ -99,7 +99,7 @@ class DialogService(
                             response.httpStatusCode,
                             response.errorMessage,
                         )
-                        traceArbeidsoppfoelgingsperiodeAvsluttet(egenvurdering.periodeId, eksisterendeDialogId)
+                        traceArbeidsoppfoelgingsperiodeAvsluttet(eksisterendeDialogId)
                     }
 
                     is BrukerKanIkkeVarsles -> {
@@ -110,11 +110,7 @@ class DialogService(
                             response.httpStatusCode,
                             response.errorMessage,
                         )
-                        Span.current().addEvent(
-                            "veilarbdialog_conflict", Attributes.of(
-                                stringKey("type"), response::class.simpleName!!
-                            )
-                        )
+                        traceBrukerKanIkkeVarsles()
                     }
 
                     is Annen409Feil -> {
@@ -125,11 +121,7 @@ class DialogService(
                             response.httpStatusCode,
                             response.errorMessage,
                         )
-                        Span.current().addEvent(
-                            "veilarbdialog_conflict", Attributes.of(
-                                stringKey("type"), response::class.simpleName!!
-                            )
-                        )
+                        traceAnnen409Feil()
                     }
 
                 }
@@ -139,36 +131,46 @@ class DialogService(
     fun finnDialogInfoForPeriodeId(periodeId: UUID): PeriodeDialogRow? =
         periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId)
 
-    private fun traceEndringAvDialogId(dialogId: Long, response: DialogResponse, periodeId: UUID) {
+    private fun traceEndringAvDialogId(dialogId: Long, response: DialogResponse) {
         Span.current().addEvent(
-            "endret_dialog_id", Attributes.of(
+            "endret_dialog_id",
+            Attributes.of(
                 stringKey("eksisterende_dialogId"), dialogId.toString(),
                 stringKey("ny_dialogId"), response.dialogId
             )
         )
-        logger.warn("Fant ikke dialog med $dialogId. Oppdaterer til ny dialogId=${response.dialogId}, for periodeId=$periodeId.")
+        logger.warn("Fant ikke dialog med $dialogId. Oppdaterer til ny dialogId=${response.dialogId}")
     }
 
-    private fun traceArbeidsoppfoelgingsperiodeAvsluttet(periodeId: UUID, dialogId: Long?) {
-        Span.current()
-            .addEvent(
-                "veilarbdialog_conflict",
-                Attributes.of(
-                    stringKey("dialogId"), dialogId.toString(),
-                    stringKey("type"), ArbeidsoppfølgingsperiodeAvsluttet::class.simpleName!!
-                )
+    private fun traceArbeidsoppfoelgingsperiodeAvsluttet(dialogId: Long?) {
+        Span.current().addEvent(
+            "veilarbdialog_conflict",
+            Attributes.of(
+                stringKey("dialogId"), dialogId.toString(),
+                stringKey("type"), ArbeidsoppfølgingsperiodeAvsluttet::class.simpleName!!
             )
-        logger.warn("Arbeidsoppfølgingsperiode for periodeId=$periodeId, dialogId=$dialogId er avsluttet. Klarte ikke å sende dialogmelding.")
+        )
+        logger.warn("Arbeidsoppfølgingsperiode for periode med dialogId=$dialogId er avsluttet. Klarte ikke å sende dialogmelding.")
     }
 
-    private fun traceNyMeldingPaaEksisterendeTraad(dialogId: String, periodeId: UUID) {
+    private fun traceNyMeldingPaaEksisterendeTraad(dialogId: String) {
+        Span.current().addEvent("ny_melding_på_eksisterende_traad", Attributes.of(stringKey("dialogId"), dialogId))
+        logger.info("Ny melding på eksisterende tråd med dialogId=$dialogId")
+    }
+
+    private fun traceAnnen409Feil() {
         Span.current()
-            .addEvent("ny_melding_på_eksisterende_traad", Attributes.of(stringKey("dialogId"), dialogId))
-        logger.info("Ny melding på eksisterende tråd med dialogId=$dialogId for periodeId=$periodeId")
+            .addEvent("veilarbdialog_conflict", Attributes.of(stringKey("type"), Annen409Feil::class.simpleName!!))
     }
 
-    private fun traceNyTraad(dialogId: String, periodeId: UUID) {
+    private fun traceNyTraad(dialogId: String) {
         Span.current().addEvent("ny_traad", Attributes.of(stringKey("dialogId"), dialogId))
-        logger.info("Ny traad med dialogId=$dialogId for periodeId=$periodeId")
+        logger.info("Ny traad med dialogId=$dialogId")
+    }
+
+    private fun traceBrukerKanIkkeVarsles() {
+        Span.current().addEvent(
+            "veilarbdialog_conflict", Attributes.of(stringKey("type"), BrukerKanIkkeVarsles::class.simpleName!!)
+        )
     }
 }
