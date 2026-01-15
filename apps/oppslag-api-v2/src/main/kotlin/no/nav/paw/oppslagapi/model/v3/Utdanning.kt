@@ -8,8 +8,8 @@ data class Utdanning(
     val nus: String,
 
     @field:JsonProperty("bestaatt")
-    val bestaatt: JaNeiVetIkke? = JaNeiVetIkke.UKJENT_VERDI,
+    val bestaatt: JaNeiVetIkke?,
 
     @field:JsonProperty("godkjent")
-    val godkjent: JaNeiVetIkke? = JaNeiVetIkke.UKJENT_VERDI
+    val godkjent: JaNeiVetIkke?
 )
