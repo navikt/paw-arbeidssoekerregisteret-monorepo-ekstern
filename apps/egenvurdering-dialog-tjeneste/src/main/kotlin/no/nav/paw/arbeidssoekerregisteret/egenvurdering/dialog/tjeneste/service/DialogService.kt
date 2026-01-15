@@ -71,6 +71,12 @@ class DialogService(
                             )
                             traceNyTraad(response.dialogId, egenvurdering.periodeId)
                         } else if (eksisterendeDialogId == response.dialogId.toLong()) {
+                            periodeIdDialogIdRepository.insert(
+                                periodeId = egenvurdering.periodeId,
+                                egenvurderingId = egenvurdering.id,
+                                dialogId = null,
+                                httpStatusCode = response.httpStatusCode
+                            )
                             traceNyMeldingPaaEksisterendeTraad(response.dialogId, egenvurdering.periodeId)
                         } else if (eksisterendeDialogId != response.dialogId.toLong()) {
                             traceEndringAvDialogId(eksisterendeDialogId, response, egenvurdering.periodeId)
