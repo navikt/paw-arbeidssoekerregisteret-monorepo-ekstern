@@ -71,7 +71,7 @@ object PeriodeIdDialogIdRepository {
         PeriodeIdDialogIdTable
             .join(
                 otherTable = PeriodeIdDialogIdAuditTable,
-                joinType = JoinType.INNER,
+                joinType = JoinType.LEFT,
                 onColumn = PeriodeIdDialogIdTable.periodeId,
                 otherColumn = PeriodeIdDialogIdAuditTable.periodeId
             )
@@ -83,8 +83,8 @@ object PeriodeIdDialogIdRepository {
                 PeriodeDialogRow(
                     periodeId = row[PeriodeIdDialogIdTable.periodeId],
                     dialogId = row.getOrNull(PeriodeIdDialogIdTable.dialogId),
-                    egenvurderingId = row[PeriodeIdDialogIdAuditTable.egenvurderingId],
-                    dialogHttpStatusCode = row[PeriodeIdDialogIdAuditTable.httpStatusCode].toInt(),
+                    egenvurderingId = row.getOrNull(PeriodeIdDialogIdAuditTable.egenvurderingId),
+                    dialogHttpStatusCode = row.getOrNull(PeriodeIdDialogIdAuditTable.httpStatusCode)?.toInt(),
                     dialogErrorMessage = row.getOrNull(PeriodeIdDialogIdAuditTable.errorMessage),
                 )
             }

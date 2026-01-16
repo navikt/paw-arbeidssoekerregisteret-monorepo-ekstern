@@ -5,17 +5,15 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.ktor.http.HttpStatusCode
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdAuditTable.egenvurderingId
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.buildPostgresDataSource
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.junit.jupiter.api.Disabled
-import org.postgresql.util.PSQLException
 import java.util.*
 
 class PeriodeIdDialogIdRepositoryTest : FreeSpec({
@@ -24,6 +22,27 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
 
     val dataSource = autoClose(buildPostgresDataSource())
     beforeSpec { Database.connect(dataSource) }
+
+    "Bugfix - Bakoverkompatibilitet for data før audit tabellen ble introdusert" {
+        val periodeId = UUID.randomUUID()
+        val dialogId = 1000000L
+
+        transaction {
+            PeriodeIdDialogIdTable.insert {
+                it[PeriodeIdDialogIdTable.periodeId] = periodeId
+                it[PeriodeIdDialogIdTable.dialogId] = dialogId
+            }
+        }
+
+        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
+            row.shouldNotBeNull()
+            row.periodeId shouldBe periodeId
+            row.dialogId shouldBe dialogId
+            row.dialogErrorMessage shouldBe null
+            row.dialogHttpStatusCode shouldBe null
+            row.egenvurderingId shouldBe null
+        }
+    }
 
     "Returnerer null ved ukjent periode" {
         periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(UUID.randomUUID()).shouldBeNull()
@@ -103,7 +122,8 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
             }
             antallPeriodeIdDialogIdRader shouldBe 1
             val antallAuditRader = transaction {
-                PeriodeIdDialogIdAuditTable.selectAll().where { PeriodeIdDialogIdAuditTable.periodeId eq periodeId }.count()
+                PeriodeIdDialogIdAuditTable.selectAll().where { PeriodeIdDialogIdAuditTable.periodeId eq periodeId }
+                    .count()
             }
             antallAuditRader shouldBe 3
         }
