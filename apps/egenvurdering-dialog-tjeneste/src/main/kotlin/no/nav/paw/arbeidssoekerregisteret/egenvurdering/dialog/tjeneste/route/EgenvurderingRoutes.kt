@@ -13,20 +13,28 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service.
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.ProblemDetailsBuilder
+import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.plugin.autentisering
 
+val logger = buildApplicationLogger
+
 fun Route.egenvurderingRoutes(
-    dialogService: DialogService
+    dialogService: DialogService,
 ) {
     route("/api/v1/egenvurdering") {
         autentisering(AzureAd) {
             post<EgenvurderingDialogRequest>("/dialog") { request ->
                 val dialogInfo = dialogService.finnDialogInfoForPeriodeId(request.periodeId)
                 when {
-                    dialogInfo == null -> call.respond(HttpStatusCode.NotFound, notFoundProblemDetails(call.request))
+                    dialogInfo == null -> {
+                        logger.warn("Fant ikke dialog med for periode ${request.periodeId}")
+                        call.respond(HttpStatusCode.NotFound, notFoundProblemDetails(call.request))
+                    }
+
                     dialogInfo.dialogHttpStatusCode == HttpStatusCode.Conflict.value ->
                         call.respond(HttpStatusCode.NoContent)
+
                     dialogInfo.dialogId != null ->
                         call.respond(EgenvurderingDialogResponse(dialogId = dialogInfo.dialogId))
                 }
