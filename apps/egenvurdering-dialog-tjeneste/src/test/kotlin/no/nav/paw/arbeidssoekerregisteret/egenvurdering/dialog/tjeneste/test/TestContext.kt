@@ -45,6 +45,7 @@ class TestContext private constructor(
         veilarbdialogClient = veilarbdialogClientMock,
         periodeIdDialogIdRepository = periodeIdDialogIdRepositoryMock
     ),
+    val dialogServiceMock: DialogService = mockk<DialogService>()
 ) {
     fun setUpDatabase(): TestContext {
         Database.connect(dataSource!!)
@@ -73,7 +74,7 @@ class TestContext private constructor(
         }
     }
 
-    fun securedTestApplication(block: suspend ApplicationTestBuilder.() -> Unit): TestResult {
+    fun securedTestApplication(service: DialogService = dialogService, block: suspend ApplicationTestBuilder.() -> Unit): TestResult {
         return testApplication(EmptyCoroutineContext) {
             application {
                 installContentNegotiationPlugin {
@@ -84,7 +85,7 @@ class TestContext private constructor(
                 configureRouting(
                     healthChecks = healthChecksOf(),
                     meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                    dialogService = dialogService
+                    dialogService = service,
                 )
             }
             block()

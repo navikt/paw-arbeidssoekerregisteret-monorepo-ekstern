@@ -1,14 +1,11 @@
 package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository
 
 import io.ktor.http.HttpStatusCode
-import org.jetbrains.exposed.v1.core.JoinType
-import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.util.*
@@ -65,29 +62,6 @@ object PeriodeIdDialogIdRepository {
         } catch (e: Exception) {
             throw UpdateFeilet(periodeId, dialogId, e)
         }
-    }
-
-    fun hentPeriodeIdDialogIdInfo(periodeId: UUID): PeriodeDialogRow? = transaction {
-        PeriodeIdDialogIdTable
-            .join(
-                otherTable = PeriodeIdDialogIdAuditTable,
-                joinType = JoinType.LEFT,
-                onColumn = PeriodeIdDialogIdTable.periodeId,
-                otherColumn = PeriodeIdDialogIdAuditTable.periodeId
-            )
-            .selectAll()
-            .where { PeriodeIdDialogIdTable.periodeId eq periodeId }
-            .orderBy(PeriodeIdDialogIdAuditTable.id to SortOrder.DESC)
-            .firstOrNull()
-            ?.let { row ->
-                PeriodeDialogRow(
-                    periodeId = row[PeriodeIdDialogIdTable.periodeId],
-                    dialogId = row.getOrNull(PeriodeIdDialogIdTable.dialogId),
-                    egenvurderingId = row.getOrNull(PeriodeIdDialogIdAuditTable.egenvurderingId),
-                    dialogHttpStatusCode = row.getOrNull(PeriodeIdDialogIdAuditTable.httpStatusCode)?.toInt(),
-                    dialogErrorMessage = row.getOrNull(PeriodeIdDialogIdAuditTable.errorMessage),
-                )
-            }
     }
 }
 

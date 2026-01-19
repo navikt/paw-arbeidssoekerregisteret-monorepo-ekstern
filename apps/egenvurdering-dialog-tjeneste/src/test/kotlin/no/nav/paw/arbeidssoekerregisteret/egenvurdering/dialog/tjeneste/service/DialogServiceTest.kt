@@ -2,6 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -18,6 +19,7 @@ import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable.getByWithAudit
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.buildPostgresDataSource
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
@@ -75,13 +77,16 @@ class DialogServiceTest : FreeSpec({
             val records = consumerRecordsOf(egenvurdering)
             service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
-                row.shouldNotBeNull()
-                row.periodeId shouldBe periodeId
-                row.dialogId shouldBe dialogId
-                row.egenvurderingId shouldBe førsteEgenvurderingId
-                row.dialogHttpStatusCode shouldBe HttpStatusCode.OK.value
-                row.dialogErrorMessage shouldBe null
+            getByWithAudit(periodeId).let { periodeDialogRow ->
+                periodeDialogRow.shouldNotBeNull()
+                periodeDialogRow.periodeId shouldBe periodeId
+                periodeDialogRow.dialogId shouldBe dialogId
+                periodeDialogRow.periodeDialogAuditRows shouldHaveSize 1
+                periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
+                    auditRow.egenvurderingId shouldBe førsteEgenvurderingId
+                    auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.OK.value
+                    auditRow.dialogErrorMessage shouldBe null
+                }
             }
         }
 
@@ -116,13 +121,16 @@ class DialogServiceTest : FreeSpec({
 
             service.varsleVeilederOmEgenvurderingAvProfilering(consumerRecordsOf(nyEgenvurdering))
 
-            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
-                row.shouldNotBeNull()
-                row.periodeId shouldBe periodeId
-                row.dialogId shouldBe dialogId
-                row.egenvurderingId shouldBe andreEgenvurderingId
-                row.dialogHttpStatusCode shouldBe HttpStatusCode.OK.value
-                row.dialogErrorMessage shouldBe null
+            getByWithAudit(periodeId).let { periodeDialogRow ->
+                periodeDialogRow.shouldNotBeNull()
+                periodeDialogRow.periodeId shouldBe periodeId
+                periodeDialogRow.dialogId shouldBe dialogId
+                periodeDialogRow.periodeDialogAuditRows shouldHaveSize 2
+                periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
+                    auditRow.egenvurderingId shouldBe andreEgenvurderingId
+                    auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.OK.value
+                    auditRow.dialogErrorMessage shouldBe null
+                }
             }
         }
 
@@ -156,13 +164,16 @@ class DialogServiceTest : FreeSpec({
 
             service.varsleVeilederOmEgenvurderingAvProfilering(consumerRecordsOf(nyEgenvurdering))
 
-            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
-                row.shouldNotBeNull()
-                row.periodeId shouldBe periodeId
-                row.dialogId shouldBe dialogId
-                row.egenvurderingId shouldBe tredjeEgenvurderingId
-                row.dialogHttpStatusCode shouldBe HttpStatusCode.Conflict.value
-                row.dialogErrorMessage shouldBe errorMessage
+            getByWithAudit(periodeId).let { periodeDialogRow ->
+                periodeDialogRow.shouldNotBeNull()
+                periodeDialogRow.periodeId shouldBe periodeId
+                periodeDialogRow.dialogId shouldBe dialogId
+                periodeDialogRow.periodeDialogAuditRows shouldHaveSize 3
+                periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
+                    auditRow.egenvurderingId shouldBe tredjeEgenvurderingId
+                    auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.Conflict.value
+                    auditRow.dialogErrorMessage shouldBe errorMessage
+                }
             }
         }
     }
@@ -202,13 +213,16 @@ class DialogServiceTest : FreeSpec({
                 service.varsleVeilederOmEgenvurderingAvProfilering(records)
             }
 
-            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
-                row.shouldNotBeNull()
-                row.periodeId shouldBe periodeId
-                row.dialogId shouldBe null
-                row.egenvurderingId shouldBe egenvurderingId
-                row.dialogHttpStatusCode shouldBe HttpStatusCode.InternalServerError.value
-                row.dialogErrorMessage shouldContain errorMessage
+            getByWithAudit(periodeId).let { periodeDialogRow ->
+                periodeDialogRow.shouldNotBeNull()
+                periodeDialogRow.periodeId shouldBe periodeId
+                periodeDialogRow.dialogId shouldBe null
+                periodeDialogRow.periodeDialogAuditRows shouldHaveSize 1
+                periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
+                    auditRow.egenvurderingId shouldBe egenvurderingId
+                    auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.InternalServerError.value
+                    auditRow.dialogErrorMessage shouldContain errorMessage
+                }
             }
         }
 
@@ -234,13 +248,16 @@ class DialogServiceTest : FreeSpec({
             val records = consumerRecordsOf(egenvurdering)
             service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
-                row.shouldNotBeNull()
-                row.periodeId shouldBe periodeId
-                row.dialogId shouldBe dialogId
-                row.egenvurderingId shouldBe egenvurderingId
-                row.dialogHttpStatusCode shouldBe HttpStatusCode.OK.value
-                row.dialogErrorMessage shouldBe null
+            getByWithAudit(periodeId).let { periodeDialogRow ->
+                periodeDialogRow.shouldNotBeNull()
+                periodeDialogRow.periodeId shouldBe periodeId
+                periodeDialogRow.dialogId shouldBe dialogId
+                periodeDialogRow.periodeDialogAuditRows shouldHaveSize 2
+                periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
+                    auditRow.egenvurderingId shouldBe egenvurderingId
+                    auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.OK.value
+                    auditRow.dialogErrorMessage shouldBe null
+                }
             }
         }
     }
@@ -277,13 +294,16 @@ class DialogServiceTest : FreeSpec({
         val records = consumerRecordsOf(egenvurdering)
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
-            row.shouldNotBeNull()
-            row.periodeId shouldBe periodeId
-            row.dialogId shouldBe null
-            row.egenvurderingId shouldBe egenvurderingId
-            row.dialogHttpStatusCode shouldBe HttpStatusCode.Conflict.value
-            row.dialogErrorMessage shouldBe errorMessage
+        getByWithAudit(periodeId).let { periodeDialogRow ->
+            periodeDialogRow.shouldNotBeNull()
+            periodeDialogRow.periodeId shouldBe periodeId
+            periodeDialogRow.dialogId shouldBe null
+            periodeDialogRow.periodeDialogAuditRows shouldHaveSize 1
+            periodeDialogRow.finnSisteAuditRow()?.let{ auditRow ->
+                auditRow.egenvurderingId shouldBe egenvurderingId
+                auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.Conflict.value
+                auditRow.dialogErrorMessage shouldBe errorMessage
+            }
         }
     }
 
@@ -327,7 +347,7 @@ class DialogServiceTest : FreeSpec({
         val records = consumerRecordsOf(egenvurdering)
         service.varsleVeilederOmEgenvurderingAvProfilering(records)
 
-        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
+        getByWithAudit(periodeId).let { row ->
             row.shouldNotBeNull()
             row.dialogId shouldBe dialogIdFraVeilarb
         }

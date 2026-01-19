@@ -2,17 +2,17 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.reposit
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.ktor.http.HttpStatusCode
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable.getByWithAudit
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.buildPostgresDataSource
-import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
@@ -34,18 +34,17 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
             }
         }
 
-        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { row ->
+        getByWithAudit(periodeId).let { row ->
             row.shouldNotBeNull()
             row.periodeId shouldBe periodeId
             row.dialogId shouldBe dialogId
-            row.dialogErrorMessage shouldBe null
-            row.dialogHttpStatusCode shouldBe null
-            row.egenvurderingId shouldBe null
+            row.periodeDialogAuditRows.shouldBeEmpty()
+            row.finnSisteAuditRow().shouldBeNull()
         }
     }
 
     "Returnerer null ved ukjent periode" {
-        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(UUID.randomUUID()).shouldBeNull()
+        getByWithAudit(UUID.randomUUID()).shouldBeNull()
     }
 
     "Inserting av lik dialogId med ulik periodeId kaster exception" {
@@ -74,25 +73,31 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
                 errorMessage = errorMessage
             )
 
-            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { auditInfo ->
-                auditInfo.shouldNotBeNull()
-                auditInfo.periodeId shouldBe periodeId
-                auditInfo.dialogId shouldBe null
-                auditInfo.egenvurderingId shouldBe egenvurderingId
-                auditInfo.dialogHttpStatusCode!! shouldBe HttpStatusCode.InternalServerError.value
-                auditInfo.dialogErrorMessage shouldBe errorMessage
+            getByWithAudit(periodeId).let { periodeDialogRow ->
+                periodeDialogRow.shouldNotBeNull()
+                periodeDialogRow.periodeId shouldBe periodeId
+                periodeDialogRow.dialogId shouldBe null
+                periodeDialogRow.periodeDialogAuditRows.shouldHaveSize(1)
+                periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
+                    auditRow.egenvurderingId shouldBe egenvurderingId
+                    auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.InternalServerError.value
+                    auditRow.dialogErrorMessage shouldBe errorMessage
+                }
             }
         }
 
         "Feilen ble rettet, og vi får 200 OK fra veilarbdialog med en dialogId" {
             periodeIdDialogIdRepository.insert(periodeId, dialogId, egenvurderingId, HttpStatusCode.OK, null)
-            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { auditInfo ->
-                auditInfo.shouldNotBeNull()
-                auditInfo.periodeId shouldBe periodeId
-                auditInfo.dialogId shouldBe dialogId
-                auditInfo.egenvurderingId shouldBe egenvurderingId
-                auditInfo.dialogHttpStatusCode!! shouldBe HttpStatusCode.OK.value
-                auditInfo.dialogErrorMessage shouldBe null
+            getByWithAudit(periodeId).let { periodeDialogRow ->
+                periodeDialogRow.shouldNotBeNull()
+                periodeDialogRow.periodeId shouldBe periodeId
+                periodeDialogRow.dialogId shouldBe dialogId
+                periodeDialogRow.periodeDialogAuditRows.shouldHaveSize(2)
+                periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
+                    auditRow.egenvurderingId shouldBe egenvurderingId
+                    auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.OK.value
+                    auditRow.dialogErrorMessage shouldBe null
+                }
             }
         }
 
@@ -105,27 +110,18 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
                 httpStatusCode = HttpStatusCode.Conflict,
                 errorMessage = errorMessage
             )
-            periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId).let { auditInfo ->
-                auditInfo.shouldNotBeNull()
-                auditInfo.periodeId shouldBe periodeId
-                auditInfo.dialogId shouldBe dialogId
-                auditInfo.egenvurderingId shouldBe egenvurderingId
-                auditInfo.dialogHttpStatusCode!! shouldBe HttpStatusCode.Conflict.value
-                auditInfo.dialogErrorMessage shouldBe errorMessage
+            getByWithAudit(periodeId).let { periodeDialogRow ->
+                periodeDialogRow.shouldNotBeNull()
+                periodeDialogRow.periodeId shouldBe periodeId
+                periodeDialogRow.dialogId shouldBe dialogId
+                periodeDialogRow.periodeDialogAuditRows.shouldHaveSize(3)
+                periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
+                    auditRow.egenvurderingId shouldBe egenvurderingId
+                    auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.Conflict.value
+                    auditRow.dialogErrorMessage shouldBe errorMessage
+                }
             }
 
-        }
-
-        "Assert riktig antall rader" {
-            val antallPeriodeIdDialogIdRader = transaction {
-                PeriodeIdDialogIdTable.selectAll().where { PeriodeIdDialogIdTable.periodeId eq periodeId }.count()
-            }
-            antallPeriodeIdDialogIdRader shouldBe 1
-            val antallAuditRader = transaction {
-                PeriodeIdDialogIdAuditTable.selectAll().where { PeriodeIdDialogIdAuditTable.periodeId eq periodeId }
-                    .count()
-            }
-            antallAuditRader shouldBe 3
         }
     }
 
@@ -137,7 +133,7 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         periodeIdDialogIdRepository.insert(periodeId, opprinnelig, UUID.randomUUID(), HttpStatusCode.OK, null)
         periodeIdDialogIdRepository.update(periodeId, ny)
 
-        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId)?.let { row ->
+        getByWithAudit(periodeId)?.let { row ->
             row.dialogId shouldBe ny
         }
     }
@@ -162,10 +158,10 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
             periodeIdDialogIdRepository.update(periodeId2, dialogId1)
         }
 
-        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId1)?.let { row ->
+        getByWithAudit(periodeId1)?.let { row ->
             row.dialogId shouldBe dialogId1
         }
-        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId2)?.let { row ->
+        getByWithAudit(periodeId2)?.let { row ->
             row.dialogId shouldBe dialogId2
         }
     }

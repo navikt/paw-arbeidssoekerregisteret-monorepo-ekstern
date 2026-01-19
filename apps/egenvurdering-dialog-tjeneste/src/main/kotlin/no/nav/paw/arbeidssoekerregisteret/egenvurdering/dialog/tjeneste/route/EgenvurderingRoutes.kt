@@ -32,7 +32,7 @@ fun Route.egenvurderingRoutes(
                         call.respond(HttpStatusCode.NotFound, notFoundProblemDetails(call.request))
                     }
 
-                    dialogInfo.dialogHttpStatusCode == HttpStatusCode.Conflict.value ->
+                    dialogInfo.finnSisteAuditRow()?.dialogHttpStatusCode == HttpStatusCode.Conflict.value ->
                         call.respond(HttpStatusCode.NoContent)
 
                     dialogInfo.dialogId != null ->

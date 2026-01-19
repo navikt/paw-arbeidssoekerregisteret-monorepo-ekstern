@@ -16,6 +16,9 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.ti
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.toDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable.getByWithAudit
+
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.logging.logger.buildLogger
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -33,8 +36,7 @@ class DialogService(
                 val egenvurdering = record.value()
                 try {
                     val dialogmelding = egenvurdering.tilDialogmelding()
-                    val eksisterendeDialogId: Long? =
-                        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(egenvurdering.periodeId)?.dialogId
+                    val eksisterendeDialogId: Long? = PeriodeIdDialogIdTable.getBy(egenvurdering.periodeId)?.dialogId
                     val dialogRequest = dialogmelding.toDialogRequest(
                         fnr = egenvurdering.sendtInnAv.utfoertAv.id,
                         dialogId = eksisterendeDialogId
@@ -128,8 +130,7 @@ class DialogService(
             }
     }
 
-    fun finnDialogInfoForPeriodeId(periodeId: UUID): PeriodeDialogRow? =
-        periodeIdDialogIdRepository.hentPeriodeIdDialogIdInfo(periodeId)
+    fun finnDialogInfoForPeriodeId(periodeId: UUID): PeriodeDialogRow? = getByWithAudit(periodeId)
 
     private fun traceEndringAvDialogId(dialogId: Long, response: DialogResponse) {
         Span.current().addEvent(

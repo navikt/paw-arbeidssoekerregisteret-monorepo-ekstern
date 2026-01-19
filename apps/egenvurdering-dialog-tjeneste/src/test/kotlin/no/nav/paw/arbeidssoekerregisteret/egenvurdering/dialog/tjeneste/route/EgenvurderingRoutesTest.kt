@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.verify
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.EgenvurderingDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.EgenvurderingDialogResponse
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogAuditRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.validateAgainstOpenApiSpec
@@ -34,7 +35,7 @@ class EgenvurderingRoutesTest : FreeSpec({
         }
 
         "Test suite for hent dialog" - {
-            securedTestApplication {
+            securedTestApplication(service = dialogServiceMock) {
                 val client = buildTestClient()
 
                 "Skal få 400 ved ugyldig request" {
@@ -84,7 +85,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                 "Skal få 404 når periodeId ikke finnes i db" {
                     val token = mockOAuth2Server.issueAzureAdToken()
                     val ukjentPeriodeId = UUID.randomUUID()
-                    every { periodeIdDialogIdRepositoryMock.hentPeriodeIdDialogIdInfo(ukjentPeriodeId) } returns null
+                    every { dialogServiceMock.finnDialogInfoForPeriodeId(ukjentPeriodeId) } returns null
 
                     val request = EgenvurderingDialogRequest(ukjentPeriodeId)
                     val response = client.post("/api/v1/egenvurdering/dialog") {
@@ -103,12 +104,18 @@ class EgenvurderingRoutesTest : FreeSpec({
                     // GIVEN
                     val token = mockOAuth2Server.issueAzureAdToken()
                     val periodeId = UUID.randomUUID()
-                    every { periodeIdDialogIdRepositoryMock.hentPeriodeIdDialogIdInfo(any()) } returns PeriodeDialogRow(
+                    every { dialogServiceMock.finnDialogInfoForPeriodeId(periodeId) } returns PeriodeDialogRow(
                         periodeId = periodeId,
                         dialogId = null,
-                        egenvurderingId = UUID.randomUUID(),
-                        dialogHttpStatusCode = HttpStatusCode.Conflict.value,
-                        dialogErrorMessage = "Feilmelding fra veilarbdialog",
+                        periodeDialogAuditRows = listOf(
+                            PeriodeDialogAuditRow(
+                                id = 1,
+                                periodeId = periodeId,
+                                egenvurderingId = UUID.randomUUID(),
+                                dialogHttpStatusCode = HttpStatusCode.Conflict.value,
+                                dialogErrorMessage = "Kan ikke kontakte bruker."
+                            )
+                        ),
                     )
                     val request = EgenvurderingDialogRequest(periodeId = periodeId)
 
@@ -122,19 +129,25 @@ class EgenvurderingRoutesTest : FreeSpec({
                     response.validateAgainstOpenApiSpec()
                     response.status shouldBe HttpStatusCode.NoContent
 
-                    verify { periodeIdDialogIdRepositoryMock.hentPeriodeIdDialogIdInfo(any()) }
+                    verify { dialogServiceMock.finnDialogInfoForPeriodeId(periodeId) }
                 }
 
                 "Skal få 200 ved dialog" {
                     // GIVEN
                     val token = mockOAuth2Server.issueAzureAdToken()
                     val periodeId = UUID.randomUUID()
-                    every { periodeIdDialogIdRepositoryMock.hentPeriodeIdDialogIdInfo(any()) } returns PeriodeDialogRow(
+                    every { dialogServiceMock.finnDialogInfoForPeriodeId(any()) } returns PeriodeDialogRow(
                         periodeId = periodeId,
                         dialogId = 1001L,
-                        egenvurderingId = UUID.randomUUID(),
-                        dialogHttpStatusCode = HttpStatusCode.OK.value,
-                        dialogErrorMessage = null
+                        periodeDialogAuditRows = listOf(
+                            PeriodeDialogAuditRow(
+                                id = 1,
+                                periodeId = periodeId,
+                                egenvurderingId = UUID.randomUUID(),
+                                dialogHttpStatusCode = HttpStatusCode.OK.value,
+                                dialogErrorMessage = null
+                            )
+                        )
                     )
                     val request = EgenvurderingDialogRequest(periodeId = periodeId)
 
@@ -150,7 +163,7 @@ class EgenvurderingRoutesTest : FreeSpec({
                     val body = response.body<EgenvurderingDialogResponse>()
                     body.dialogId shouldBe 1001L
 
-                    verify { periodeIdDialogIdRepositoryMock.hentPeriodeIdDialogIdInfo(any()) }
+                    verify { dialogServiceMock.finnDialogInfoForPeriodeId(any()) }
                 }
             }
         }
