@@ -7,7 +7,6 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.A
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ServerConfig
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service.DialogService
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
@@ -70,8 +69,7 @@ data class ApplicationContext(
                 texasClient = texasClient,
             )
             val dialogService = DialogService(
-                veilarbdialogClient = veilarbdialogClient,
-                periodeIdDialogIdRepository = PeriodeIdDialogIdRepository
+                veilarbdialogClient = veilarbdialogClient
             )
             val dataSource = createDataSource()
             val kafkaConsumerLivenessProbe = GenericLivenessProbe()

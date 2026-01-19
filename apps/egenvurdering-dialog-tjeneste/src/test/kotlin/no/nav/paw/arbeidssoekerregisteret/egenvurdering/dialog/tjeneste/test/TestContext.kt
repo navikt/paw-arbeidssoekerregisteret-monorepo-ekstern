@@ -16,7 +16,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.TestResult
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.plugins.configureRouting
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service.DialogService
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.configureJacksonOverrides
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
@@ -40,10 +39,8 @@ class TestContext private constructor(
     val mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(),
     val securityConfig: SecurityConfig = loadNaisOrLocalConfiguration(SECURITY_CONFIG),
     val veilarbdialogClientMock: VeilarbdialogClient = mockk<VeilarbdialogClient>(),
-    val periodeIdDialogIdRepositoryMock: PeriodeIdDialogIdRepository = mockk<PeriodeIdDialogIdRepository>(),
     val dialogService: DialogService = DialogService(
-        veilarbdialogClient = veilarbdialogClientMock,
-        periodeIdDialogIdRepository = periodeIdDialogIdRepositoryMock
+        veilarbdialogClient = veilarbdialogClientMock
     ),
     val dialogServiceMock: DialogService = mockk<DialogService>()
 ) {

@@ -56,8 +56,6 @@ class EgenvurderingRoutesTest : FreeSpec({
                     body.type shouldBe ErrorType.domain("http").error("kunne-ikke-tolke-forespoersel").build()
                     body.status shouldBe HttpStatusCode.BadRequest
                     body.title shouldBe HttpStatusCode.BadRequest.description
-
-                    verify { periodeIdDialogIdRepositoryMock wasNot Called }
                 }
 
                 "Skal få 403 ved ugyldig token" {
@@ -78,8 +76,6 @@ class EgenvurderingRoutesTest : FreeSpec({
                     body.type shouldBe ErrorType.domain("security").error("ugyldig-bearer-token").build()
                     body.status shouldBe HttpStatusCode.Forbidden
                     body.title shouldBe HttpStatusCode.Forbidden.description
-
-                    verify { periodeIdDialogIdRepositoryMock wasNot Called }
                 }
 
                 "Skal få 404 når periodeId ikke finnes i db" {

@@ -15,7 +15,6 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.Pr
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.tilDialogmelding
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.toDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable.getByWithAudit
 
@@ -26,7 +25,6 @@ import java.util.*
 
 class DialogService(
     private val veilarbdialogClient: VeilarbdialogClient,
-    private val periodeIdDialogIdRepository: PeriodeIdDialogIdRepository,
 ) {
     private val logger = buildLogger
 
@@ -45,7 +43,7 @@ class DialogService(
                         try {
                             veilarbdialogClient.lagEllerOppdaterDialog(dialogRequest)
                         } catch (ex: VeilarbdialogClientException) {
-                            periodeIdDialogIdRepository.insert(
+                            PeriodeIdDialogIdTable.insert(
                                 egenvurdering.periodeId,
                                 dialogId = eksisterendeDialogId,
                                 egenvurderingId = egenvurdering.id,
@@ -72,7 +70,7 @@ class DialogService(
                 when (response) {
                     is DialogResponse -> {
                         if (eksisterendeDialogId == null) {
-                            periodeIdDialogIdRepository.insert(
+                            PeriodeIdDialogIdTable.insert(
                                 periodeId = egenvurdering.periodeId,
                                 egenvurderingId = egenvurdering.id,
                                 dialogId = response.dialogId.toLong(),
@@ -80,7 +78,7 @@ class DialogService(
                             )
                             traceNyTraad(response.dialogId)
                         } else if (eksisterendeDialogId == response.dialogId.toLong()) {
-                            periodeIdDialogIdRepository.insert(
+                            PeriodeIdDialogIdTable.insert(
                                 periodeId = egenvurdering.periodeId,
                                 egenvurderingId = egenvurdering.id,
                                 dialogId = null,
@@ -88,13 +86,13 @@ class DialogService(
                             )
                             traceNyMeldingPaaEksisterendeTraad(response.dialogId)
                         } else if (eksisterendeDialogId != response.dialogId.toLong()) {
-                            periodeIdDialogIdRepository.update(egenvurdering.periodeId, response.dialogId.toLong())
+                            PeriodeIdDialogIdTable.update(egenvurdering.periodeId, response.dialogId.toLong())
                             traceEndringAvDialogId(eksisterendeDialogId, response)
                         }
                     }
 
                     is ArbeidsoppfølgingsperiodeAvsluttet -> {
-                        periodeIdDialogIdRepository.insert(
+                        PeriodeIdDialogIdTable.insert(
                             periodeId = egenvurdering.periodeId,
                             dialogId = null,
                             egenvurderingId = egenvurdering.id,
@@ -105,7 +103,7 @@ class DialogService(
                     }
 
                     is BrukerKanIkkeVarsles -> {
-                        periodeIdDialogIdRepository.insert(
+                        PeriodeIdDialogIdTable.insert(
                             periodeId = egenvurdering.periodeId,
                             dialogId = null,
                             egenvurderingId = egenvurdering.id,
@@ -116,7 +114,7 @@ class DialogService(
                     }
 
                     is Annen409Feil -> {
-                        periodeIdDialogIdRepository.insert(
+                        PeriodeIdDialogIdTable.insert(
                             periodeId = egenvurdering.periodeId,
                             dialogId = null,
                             egenvurderingId = egenvurdering.id,

@@ -18,7 +18,7 @@ import io.ktor.serialization.jackson.jackson
 import io.mockk.mockk
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.client.VeilarbdialogClient
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.VeilarbdialogClientConfig
-import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdRepository
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable.getByWithAudit
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.test.buildPostgresDataSource
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
@@ -36,8 +36,6 @@ import java.time.Instant
 import java.util.*
 
 class DialogServiceTest : FreeSpec({
-
-    val periodeIdDialogIdRepository = PeriodeIdDialogIdRepository
 
     val dataSource = autoClose(buildPostgresDataSource())
     beforeSpec { Database.connect(dataSource) }
@@ -61,8 +59,7 @@ class DialogServiceTest : FreeSpec({
                 httpClient = testClient(engine)
             )
             val service = DialogService(
-                veilarbdialogClient = veilarbdialogClient,
-                periodeIdDialogIdRepository = periodeIdDialogIdRepository
+                veilarbdialogClient = veilarbdialogClient
             )
 
             val egenvurdering = egenvurdering(
@@ -106,8 +103,7 @@ class DialogServiceTest : FreeSpec({
                 httpClient = testClient(engine)
             )
             val service = DialogService(
-                veilarbdialogClient = veilarbdialogClient,
-                periodeIdDialogIdRepository = periodeIdDialogIdRepository
+                veilarbdialogClient = veilarbdialogClient
             )
 
             val nyEgenvurdering = egenvurdering(
@@ -149,8 +145,7 @@ class DialogServiceTest : FreeSpec({
                 httpClient = testClient(engine)
             )
             val service = DialogService(
-                veilarbdialogClient = veilarbdialogClient,
-                periodeIdDialogIdRepository = periodeIdDialogIdRepository
+                veilarbdialogClient = veilarbdialogClient
             )
 
             val nyEgenvurdering = egenvurdering(
@@ -204,8 +199,7 @@ class DialogServiceTest : FreeSpec({
                 httpClient = testClient(engine)
             )
             val service = DialogService(
-                veilarbdialogClient = veilarbdialogClient,
-                periodeIdDialogIdRepository = periodeIdDialogIdRepository
+                veilarbdialogClient = veilarbdialogClient
             )
 
             val records = consumerRecordsOf(egenvurdering)
@@ -241,8 +235,7 @@ class DialogServiceTest : FreeSpec({
                 httpClient = testClient(engine)
             )
             val service = DialogService(
-                veilarbdialogClient = veilarbdialogClient,
-                periodeIdDialogIdRepository = periodeIdDialogIdRepository
+                veilarbdialogClient = veilarbdialogClient
             )
 
             val records = consumerRecordsOf(egenvurdering)
@@ -276,8 +269,7 @@ class DialogServiceTest : FreeSpec({
             httpClient = testClient(engine)
         )
         val service = DialogService(
-            veilarbdialogClient = veilarbdialogClient,
-            periodeIdDialogIdRepository = periodeIdDialogIdRepository
+            veilarbdialogClient = veilarbdialogClient
         )
 
         val periodeId = UUID.randomUUID()
@@ -299,7 +291,7 @@ class DialogServiceTest : FreeSpec({
             periodeDialogRow.periodeId shouldBe periodeId
             periodeDialogRow.dialogId shouldBe null
             periodeDialogRow.periodeDialogAuditRows shouldHaveSize 1
-            periodeDialogRow.finnSisteAuditRow()?.let{ auditRow ->
+            periodeDialogRow.finnSisteAuditRow()?.let { auditRow ->
                 auditRow.egenvurderingId shouldBe egenvurderingId
                 auditRow.dialogHttpStatusCode shouldBe HttpStatusCode.Conflict.value
                 auditRow.dialogErrorMessage shouldBe errorMessage
@@ -312,7 +304,7 @@ class DialogServiceTest : FreeSpec({
         val dialogIdFraVeilarb = 999L
         val periodeId = UUID.randomUUID()
 
-        periodeIdDialogIdRepository.insert(
+        PeriodeIdDialogIdTable.insert(
             periodeId = periodeId,
             dialogId = dialogIdDb,
             egenvurderingId = UUID.randomUUID(),
@@ -332,8 +324,7 @@ class DialogServiceTest : FreeSpec({
             httpClient = testClient(engine)
         )
         val service = DialogService(
-            veilarbdialogClient = veilarbdialogClient,
-            periodeIdDialogIdRepository = periodeIdDialogIdRepository
+            veilarbdialogClient = veilarbdialogClient
         )
 
         val egenvurdering = egenvurdering(

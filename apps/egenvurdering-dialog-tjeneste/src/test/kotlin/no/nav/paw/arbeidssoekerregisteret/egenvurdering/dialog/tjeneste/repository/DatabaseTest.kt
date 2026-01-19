@@ -16,9 +16,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
-class PeriodeIdDialogIdRepositoryTest : FreeSpec({
-
-    val periodeIdDialogIdRepository = PeriodeIdDialogIdRepository
+class DatabaseTest : FreeSpec({
 
     val dataSource = autoClose(buildPostgresDataSource())
     beforeSpec { Database.connect(dataSource) }
@@ -52,9 +50,9 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         val periodeId1 = UUID.randomUUID()
         val periodeId2 = UUID.randomUUID()
 
-        periodeIdDialogIdRepository.insert(periodeId1, dialogId, UUID.randomUUID(), HttpStatusCode.OK, null)
+        PeriodeIdDialogIdTable.insert(periodeId1, dialogId, UUID.randomUUID(), HttpStatusCode.OK, null)
         shouldThrow<ExposedSQLException> {
-            periodeIdDialogIdRepository.insert(periodeId2, dialogId, UUID.randomUUID(), HttpStatusCode.OK, null)
+            PeriodeIdDialogIdTable.insert(periodeId2, dialogId, UUID.randomUUID(), HttpStatusCode.OK, null)
         }
     }
 
@@ -65,7 +63,7 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
 
         "Lagre at egenvurderingen feilet mot veilarbdialog" {
             val errorMessage = "Feilmelding fra veilarbdialog"
-            periodeIdDialogIdRepository.insert(
+            PeriodeIdDialogIdTable.insert(
                 periodeId = periodeId,
                 dialogId = null,
                 egenvurderingId = egenvurderingId,
@@ -87,7 +85,7 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         }
 
         "Feilen ble rettet, og vi får 200 OK fra veilarbdialog med en dialogId" {
-            periodeIdDialogIdRepository.insert(periodeId, dialogId, egenvurderingId, HttpStatusCode.OK, null)
+            PeriodeIdDialogIdTable.insert(periodeId, dialogId, egenvurderingId, HttpStatusCode.OK, null)
             getByWithAudit(periodeId).let { periodeDialogRow ->
                 periodeDialogRow.shouldNotBeNull()
                 periodeDialogRow.periodeId shouldBe periodeId
@@ -103,7 +101,7 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
 
         "Lagre at bruker har reservert seg i kontakt og reservasjonsregisteret (KRR)" {
             val errorMessage = "Bruker kan ikke varsles"
-            periodeIdDialogIdRepository.insert(
+            PeriodeIdDialogIdTable.insert(
                 periodeId = periodeId,
                 dialogId = null,
                 egenvurderingId = egenvurderingId,
@@ -130,8 +128,8 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         val opprinnelig = 11L
         val ny = 12L
 
-        periodeIdDialogIdRepository.insert(periodeId, opprinnelig, UUID.randomUUID(), HttpStatusCode.OK, null)
-        periodeIdDialogIdRepository.update(periodeId, ny)
+        PeriodeIdDialogIdTable.insert(periodeId, opprinnelig, UUID.randomUUID(), HttpStatusCode.OK, null)
+        PeriodeIdDialogIdTable.update(periodeId, ny)
 
         getByWithAudit(periodeId)?.let { row ->
             row.dialogId shouldBe ny
@@ -140,8 +138,8 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
 
     "Update av ikke-eksisterende periodeId kaster UpdateFeilet" {
         val ukjentPeriode = UUID.randomUUID()
-        shouldThrow<UpdateFeilet> {
-            periodeIdDialogIdRepository.update(ukjentPeriode, 999L)
+        shouldThrow<PeriodeIdDialogIdTable.UpdateFeilet> {
+            PeriodeIdDialogIdTable.update(ukjentPeriode, 999L)
         }
     }
 
@@ -151,11 +149,11 @@ class PeriodeIdDialogIdRepositoryTest : FreeSpec({
         val dialogId1 = 200L
         val dialogId2 = 201L
 
-        periodeIdDialogIdRepository.insert(periodeId1, dialogId1, UUID.randomUUID(), HttpStatusCode.OK, null)
-        periodeIdDialogIdRepository.insert(periodeId2, dialogId2, UUID.randomUUID(), HttpStatusCode.OK, null)
+        PeriodeIdDialogIdTable.insert(periodeId1, dialogId1, UUID.randomUUID(), HttpStatusCode.OK, null)
+        PeriodeIdDialogIdTable.insert(periodeId2, dialogId2, UUID.randomUUID(), HttpStatusCode.OK, null)
 
-        shouldThrow<UpdateFeilet> {
-            periodeIdDialogIdRepository.update(periodeId2, dialogId1)
+        shouldThrow<PeriodeIdDialogIdTable.UpdateFeilet> {
+            PeriodeIdDialogIdTable.update(periodeId2, dialogId1)
         }
 
         getByWithAudit(periodeId1)?.let { row ->
