@@ -27,10 +27,7 @@ fun Route.egenvurderingRoutes(
             post<EgenvurderingDialogRequest>("/dialog") { request ->
                 val dialogInfo = dialogService.finnDialogInfoForPeriodeId(request.periodeId)
                 when {
-                    dialogInfo == null -> {
-                        logger.warn("Fant ikke dialog med for periode ${request.periodeId}")
-                        call.respond(HttpStatusCode.NotFound, notFoundProblemDetails(call.request))
-                    }
+                    dialogInfo == null -> call.respond(HttpStatusCode.NotFound, notFoundProblemDetails(call.request))
 
                     dialogInfo.finnSisteAuditRow()?.dialogHttpStatusCode == HttpStatusCode.Conflict.value ->
                         call.respond(HttpStatusCode.NoContent)
