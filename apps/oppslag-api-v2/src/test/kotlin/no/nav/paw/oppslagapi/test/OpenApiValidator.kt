@@ -17,7 +17,6 @@ import java.nio.file.Paths
 val v1ApiSpecPath: Path = Paths.get("src/main/resources/openapi/v1-spec.yaml")
 val v2ApiSpecPath: Path = Paths.get("src/main/resources/openapi/v2-spec.yaml")
 val v3ApiSpecPath: Path = Paths.get("src/main/resources/openapi/v3-spec.yaml")
-val v4ApiSpecPath: Path = Paths.get("src/main/resources/openapi/v4-spec.yaml")
 
 val v1ApiValidator: OpenApiInteractionValidator = OpenApiInteractionValidator
     .createFor(v1ApiSpecPath.toString())
@@ -27,9 +26,6 @@ val v2ApiValidator: OpenApiInteractionValidator = OpenApiInteractionValidator
     .build()
 val v3ApiValidator: OpenApiInteractionValidator = OpenApiInteractionValidator
     .createFor(v3ApiSpecPath.toString())
-    .build()
-val v4ApiValidator: OpenApiInteractionValidator = OpenApiInteractionValidator
-    .createFor(v4ApiSpecPath.toString())
     .build()
 
 suspend fun HttpResponse.validateOpenApiSpec(

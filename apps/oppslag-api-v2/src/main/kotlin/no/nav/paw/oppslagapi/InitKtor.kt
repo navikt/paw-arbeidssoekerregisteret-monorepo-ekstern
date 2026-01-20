@@ -30,7 +30,6 @@ import no.nav.paw.oppslagapi.routes.docs.openApiRoutes
 import no.nav.paw.oppslagapi.routes.v1.v1Routes
 import no.nav.paw.oppslagapi.routes.v2.v2Routes
 import no.nav.paw.oppslagapi.routes.v3.v3Routes
-import no.nav.paw.oppslagapi.routes.v4.v4Routes
 import no.nav.paw.security.authentication.config.AuthProvider
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
 import org.slf4j.event.Level
@@ -99,7 +98,6 @@ fun <A> Route.configureRoutes(
     v1Routes(queryLogic)
     v2Routes(queryLogic)
     v3Routes(queryLogic)
-    v4Routes(queryLogic)
 }
 
 suspend inline fun <reified T : Any> RoutingCall.respondWith(response: Response<T>) {
