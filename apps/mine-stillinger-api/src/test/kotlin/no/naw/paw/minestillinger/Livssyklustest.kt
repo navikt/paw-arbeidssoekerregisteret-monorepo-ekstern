@@ -2,7 +2,6 @@ package no.naw.paw.minestillinger
 
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
-import io.kotest.engine.runBlocking
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
@@ -21,6 +20,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
@@ -45,7 +45,6 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdres
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
-import no.naw.paw.minestillinger.brukerprofil.flagg.StandardInnsatsFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.ProfileringTable
@@ -67,7 +66,6 @@ import no.naw.paw.minestillinger.domain.medFlagg
 import no.naw.paw.minestillinger.metrics.AntallBrukereMetrics
 import no.naw.paw.minestillinger.route.brukerprofilRoute
 import no.naw.paw.minestillinger.route.ledigeStillingerRoute
-import no.naw.paw.minestillinger.vedtak14a.AktørId
 import no.naw.paw.minestillinger.vedtak14a.Innsatsgruppe
 import no.naw.paw.minestillinger.vedtak14a.Innsatsgruppe.VARIG_TILPASSET_INNSATS
 import no.naw.paw.minestillinger.vedtak14a.Siste14aVedtakMelding
@@ -80,7 +78,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicReference
 
@@ -115,7 +112,7 @@ class Livssyklustest : FreeSpec({
         clock = clock
     )
     val ledigeStillingerClient: FinnStillingerClient = mockk()
-    coEvery{ ledigeStillingerClient.finnLedigeStillinger(any(), any()) }.returns(
+    coEvery { ledigeStillingerClient.finnLedigeStillinger(any(), any()) }.returns(
         FinnStillingerResponse(
             stillinger = emptyList(),
             paging = PagingResponse()
@@ -297,7 +294,12 @@ class Livssyklustest : FreeSpec({
                 "Når en stillinger blir tilgjengelig dukker den opp i søket til Kari" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     val stilling = lagStilling(karisLedigeStillingerRequest)
-                    coEvery { ledigeStillingerClient.finnLedigeStillinger(any(), any()) } returns FinnStillingerResponse(
+                    coEvery {
+                        ledigeStillingerClient.finnLedigeStillinger(
+                            any(),
+                            any()
+                        )
+                    } returns FinnStillingerResponse(
                         stillinger = listOf(stilling),
                         paging = PagingResponse()
                     )
@@ -305,7 +307,8 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     response.body<MineStillingerResponse>() should { data ->
                         data.shouldNotBeNull()
-                        data.sistKjoert shouldBe clock.now().truncatedTo(ChronoUnit.MILLIS) - (Duration.ofHours(36).truncatedTo(ChronoUnit.MILLIS))
+                        data.sistKjoert shouldBe clock.now().truncatedTo(ChronoUnit.MILLIS) - (Duration.ofHours(36)
+                            .truncatedTo(ChronoUnit.MILLIS))
                         data.resultat.size shouldBe 1
                         data.resultat.first() should { annonse ->
                             annonse.soeknadsfrist.type.name.lowercase() shouldBe stilling.soeknadsfrist.type.name.lowercase()
@@ -784,14 +787,17 @@ class Livssyklustest : FreeSpec({
                         ProfileringTable.selectAll().forEach {
                             val profilering = it[ProfileringTable.profileringId]
                             val periodeId = it[ProfileringTable.periodeId]
-                            val profil = BrukerTable.selectAll().where { BrukerTable.arbeidssoekerperiodeId eq periodeId }.firstOrNull()
+                            val profil =
+                                BrukerTable.selectAll().where { BrukerTable.arbeidssoekerperiodeId eq periodeId }
+                                    .firstOrNull()
                             val tidspunkt = it[ProfileringTable.profileringTidspunkt]
                             val tidSidenProfilert = Duration.between(tidspunkt, clock.now())
                             testLogger.info("ProfileringId=$profilering, PeriodeId=$periodeId, HarBruker=${profil != null}, dager_siden_profilert=${tidSidenProfilert.toDays()}, ProfileringTidspunkt=$tidspunkt")
                         }
                     }
                     "For 24H timer siden skulle vi ikke ha slettet noen frittstående profileringer" {
-                        val tidspunkt = clock.now() - Duration.ofDays(8)  //en dag tilbake i tid også 7 dager bakover fra det
+                        val tidspunkt =
+                            clock.now() - Duration.ofDays(8)  //en dag tilbake i tid også 7 dager bakover fra det
                         val antall = slettFrittståendeProfileringer(tidspunkt)
                         antall shouldBe 0
                     }
@@ -814,11 +820,13 @@ class Livssyklustest : FreeSpec({
                                 val flagg = brukerprofilTjeneste.hentFlagg(profilerUtenFlagg.id)
                                 profilerUtenFlagg.medFlagg(ListeMedFlagg.listeMedFlagg(flagg))
                             }.forEach { brukerprofil ->
-                                val profilering = hentProfileringOrNull(brukerprofil.arbeidssoekerperiodeId)?.profileringResultat
+                                val profilering =
+                                    hentProfileringOrNull(brukerprofil.arbeidssoekerperiodeId)?.profileringResultat
                                 testLogger.info("Brukerprofil: identitetsnummer=${brukerprofil.identitetsnummer.value}, periode_aktiv=${brukerprofil.arbeidssoekerperiodeAvsluttet == null}, profilering=$profilering, flagg=${brukerprofil.listeMedFlagg.map { "${it.type.type}=${it.verdi}" }}")
                             }
                     }
-                    testLogger.info("Avslutter: ${this.testCase.name.name}")}
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
             }
         }
     }
