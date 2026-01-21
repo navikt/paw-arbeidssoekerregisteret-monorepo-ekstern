@@ -9,6 +9,7 @@ import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.S
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeIdDialogIdTable
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service.DialogService
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.utils.SecureLogger
 import no.nav.paw.arbeidssokerregisteret.api.v3.Egenvurdering
 import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
@@ -22,7 +23,6 @@ import no.nav.paw.health.probes.databaseIsAliveCheck
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
-import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
 import no.nav.paw.security.authentication.config.SecurityConfig
 import no.nav.paw.security.texas.TexasClient
@@ -43,7 +43,7 @@ data class ApplicationContext(
     val dialogService: DialogService,
     val dataSource: DataSource,
     val kafkaConsumerLivenessProbe: GenericLivenessProbe,
-    val healthChecks: HealthChecks
+    val healthChecks: HealthChecks,
 ) {
 
     companion object {
@@ -108,8 +108,8 @@ data class ApplicationContext(
                 useServerPreparedStatements = false
             )
         } catch (e: Exception) {
-            buildApplicationLogger.debug("Kunne ikke opprette datasource", e)
-            throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${e.javaClass.simpleName}")
+            SecureLogger.error("Kunne ikke opprette datasource", e)
+            throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Se sikkerlogger for mer info")
         }
 
         class KunneIkkeOppretteDatasource(message: String) : RuntimeException(message)

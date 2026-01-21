@@ -144,7 +144,7 @@ data class ApplicationContext(
             )
         } catch (e: Exception) {
             SecureLogger.error("Kunne ikke opprette datasource", e)
-            throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Exception kastet: ${(e.cause ?: e)::class.simpleName}")
+            throw KunneIkkeOppretteDatasource("Feil ved oppsett av datasource. Se sikkerlogger for mer info")
         }
 
         class KunneIkkeOppretteDatasource(message: String) : RuntimeException(message)
