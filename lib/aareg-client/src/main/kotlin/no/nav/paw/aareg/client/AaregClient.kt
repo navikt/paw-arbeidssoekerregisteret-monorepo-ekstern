@@ -26,10 +26,10 @@ class AaregClient(
 ) {
     private val sikkerLogger: Logger = LoggerFactory.getLogger("tjenestekall")
     private val logger: Logger = LoggerFactory.getLogger("paw-aareg-client")
-
+    private val url_alle = "${url}?arbeidsforholdstatus=AKTIV,FREMTIDIG,AVSLUTTET"
     suspend fun hentArbeidsforhold(ident: String, callId: String): Result  {
         try {
-            val response = httpClient.get(url) {
+            val response = httpClient.get(url_alle) {
                 contentType(ContentType.Application.Json)
                 bearerAuth(getAccessToken())
                 header("Nav-Call-Id", callId)
