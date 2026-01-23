@@ -4,6 +4,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.bekreftelse.melding.v1.vo.Bekreftelsesloesning
 import no.nav.paw.bekreftelse.melding.v1.vo.BrukerType
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 
 object BekreftelseSvarTable : LongIdTable("bekreftelse_svar") {
@@ -15,8 +16,8 @@ object BekreftelseSvarTable : LongIdTable("bekreftelse_svar") {
 }
 
 object BekreftelseTable : LongIdTable("bekreftelse") {
-    val bekreftelseId = uuid("bekreftelse_id")
-    val periodeId = uuid("periode_id")
+    val bekreftelseId = javaUUID("bekreftelse_id")
+    val periodeId = javaUUID("periode_id")
     val bekreftelsesloesning = enumerationByName<Bekreftelsesloesning>("bekreftelsesloesning", 50)
     val svarId = long("svar_id").references(BekreftelseSvarTable.id)
 }

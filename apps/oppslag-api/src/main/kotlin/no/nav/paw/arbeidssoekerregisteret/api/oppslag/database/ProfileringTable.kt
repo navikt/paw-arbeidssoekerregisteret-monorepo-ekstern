@@ -3,11 +3,12 @@ package no.nav.paw.arbeidssoekerregisteret.api.oppslag.database
 import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.java.javaUUID
 
 object ProfileringTable : LongIdTable("profilering") {
-    val profileringId = uuid("profilering_id")
-    val periodeId = uuid("periode_id")
-    val opplysningerOmArbeidssoekerId = uuid("opplysninger_om_arbeidssoeker_id")
+    val profileringId = javaUUID("profilering_id")
+    val periodeId = javaUUID("periode_id")
+    val opplysningerOmArbeidssoekerId = javaUUID("opplysninger_om_arbeidssoeker_id")
     val sendtInnAvId = long("sendt_inn_av_id").references(MetadataTable.id)
     val profilertTil =
         customEnumeration(

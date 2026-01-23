@@ -5,6 +5,7 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -14,7 +15,7 @@ import java.time.Instant
 import java.util.*
 
 object PeriodeIdDialogIdTable : Table("periode_id_dialog_id") {
-    val periodeId = uuid("periode_id")
+    val periodeId = javaUUID("periode_id")
     val dialogId = long("dialog_id").nullable()
 
     @SuppressWarnings("Teknisk kolonne")

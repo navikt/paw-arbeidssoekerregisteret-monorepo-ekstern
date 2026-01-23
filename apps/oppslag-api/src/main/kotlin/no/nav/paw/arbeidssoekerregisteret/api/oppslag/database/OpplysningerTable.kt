@@ -4,9 +4,10 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.arbeidssokerregisteret.api.v1.Beskrivelse
 import no.nav.paw.arbeidssokerregisteret.api.v1.JaNeiVetIkke
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.java.javaUUID
 
 object OpplysningerOmArbeidssoekerTable : LongIdTable("opplysninger_om_arbeidssoeker") {
-    val opplysningerOmArbeidssoekerId = uuid("opplysninger_om_arbeidssoeker_id")
+    val opplysningerOmArbeidssoekerId = javaUUID("opplysninger_om_arbeidssoeker_id")
     val sendtInnAvId = long("sendt_inn_av_id").references(MetadataTable.utfoertAvId)
     val utdanningId = long("utdanning_id").references(UtdanningTable.id).nullable()
     val helseId = long("helse_id").references(HelseTable.id).nullable()
@@ -14,7 +15,7 @@ object OpplysningerOmArbeidssoekerTable : LongIdTable("opplysninger_om_arbeidsso
 }
 
 object PeriodeOpplysningerTable : LongIdTable("periode_opplysninger") {
-    val periodeId = uuid("periode_id")
+    val periodeId = javaUUID("periode_id")
     val opplysningerOmArbeidssoekerTableId =
         long("opplysninger_om_arbeidssoeker_id").references(
             OpplysningerOmArbeidssoekerTable.id

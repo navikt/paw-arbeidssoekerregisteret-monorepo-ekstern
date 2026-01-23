@@ -1,12 +1,13 @@
 package no.nav.paw.oppslagapi.data
 
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 
 object DataTable: Table("data") {
     val id = long("id").autoIncrement()
     val identitetsnummer = char("identitetsnummer", 11).nullable()
-    val periodeId = uuid("periode_id")
+    val periodeId = javaUUID("periode_id")
     val timestamp = timestamp("timestamp")
     val type = varchar("type", 255)
     val data = jsonb("data")

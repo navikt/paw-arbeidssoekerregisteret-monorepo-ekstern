@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.reposit
 import io.ktor.http.HttpStatusCode
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -10,8 +11,8 @@ import java.time.Instant
 import java.util.*
 
 object PeriodeIdDialogIdAuditTable : LongIdTable("periode_id_dialog_id_audit") {
-    val periodeId = uuid("periode_id").references(PeriodeIdDialogIdTable.periodeId)
-    val egenvurderingId = uuid("egenvurdering_id")
+    val periodeId = javaUUID("periode_id").references(PeriodeIdDialogIdTable.periodeId)
+    val egenvurderingId = javaUUID("egenvurdering_id")
     val httpStatusCode = short("http_status_code")
     val errorMessage = text("error_message").nullable()
 

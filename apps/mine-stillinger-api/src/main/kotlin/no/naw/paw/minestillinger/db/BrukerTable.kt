@@ -1,12 +1,13 @@
 package no.naw.paw.minestillinger.db
 
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 
 object BrukerTable : Table("bruker") {
     val id = long("id").autoIncrement()
     val identitetsnummer = varchar("identitetsnummer", 11)
-    val arbeidssoekerperiodeId = uuid("arbeidssoekerperiode_id")
+    val arbeidssoekerperiodeId = javaUUID("arbeidssoekerperiode_id")
     val arbeidssoekerperiodeAvsluttet = timestamp("arbeidssoekerperiode_avsluttet").nullable()
 
     override val primaryKey = PrimaryKey(id)

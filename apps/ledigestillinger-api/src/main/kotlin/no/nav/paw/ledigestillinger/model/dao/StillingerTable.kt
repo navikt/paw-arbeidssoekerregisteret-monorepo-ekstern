@@ -18,6 +18,7 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
@@ -33,7 +34,7 @@ import java.util.*
 private val logger = buildNamedLogger("database")
 
 object StillingerTable : LongIdTable("stillinger_v2") {
-    val uuid = uuid("uuid")
+    val uuid = javaUUID("uuid")
     val adnr = varchar("adnr", 50).nullable()
     val tittel = varchar("tittel", 1000)
     val status = enumerationByName<StillingStatus>("status", 20)

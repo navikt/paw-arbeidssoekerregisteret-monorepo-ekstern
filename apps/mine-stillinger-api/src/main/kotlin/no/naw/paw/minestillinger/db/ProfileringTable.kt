@@ -1,12 +1,13 @@
 package no.naw.paw.minestillinger.db
 
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 
 object ProfileringTable : Table("profilering") {
     val id = long("id").autoIncrement()
-    val periodeId = uuid("periode_id")
-    val profileringId = uuid("profilering_id")
+    val periodeId = javaUUID("periode_id")
+    val profileringId = javaUUID("profilering_id")
     val profileringTidspunkt = timestamp("profilering_tidspunkt")
     val profileringResultat = varchar(name = "profilering_resultat", length = 255)
 

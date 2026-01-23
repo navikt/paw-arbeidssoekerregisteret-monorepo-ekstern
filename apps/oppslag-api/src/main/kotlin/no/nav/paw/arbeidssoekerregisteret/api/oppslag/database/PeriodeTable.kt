@@ -4,6 +4,7 @@ import no.nav.paw.arbeidssoekerregisteret.api.oppslag.models.PGEnum
 import no.nav.paw.arbeidssokerregisteret.api.v1.AvviksType
 import no.nav.paw.arbeidssokerregisteret.api.v1.BrukerType
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 
 object BrukerTable : LongIdTable("bruker") {
@@ -25,7 +26,7 @@ object MetadataTable : LongIdTable("metadata") {
 }
 
 object PeriodeTable : LongIdTable("periode") {
-    val periodeId = uuid("periode_id").uniqueIndex()
+    val periodeId = javaUUID("periode_id").uniqueIndex()
     val identitetsnummer = varchar("identitetsnummer", 11)
     val startetId = long("startet_id").references(MetadataTable.id)
     val avsluttetId = long("avsluttet_id").references(MetadataTable.id).nullable()
