@@ -14,8 +14,10 @@ val buildObjectMapper: ObjectMapper
         configureJackson()
     }
 
-fun ObjectMapper.configureJackson() {
-    setDefaultPropertyInclusion(JsonInclude.Include.ALWAYS)
+fun ObjectMapper.configureJackson(
+    inclusion: JsonInclude.Include = JsonInclude.Include.ALWAYS
+) {
+    setDefaultPropertyInclusion(inclusion)
     disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)

@@ -8,6 +8,6 @@ class ToStyrkTreTest : FreeSpec({
 
     "Vi kan generere en tre av Styrk koder" {
         val tre = SSBKodeverk.styrkKoder.styrkTre()
-        testLogger.info(tre.joinToString("") { it.prettyPrint("") })
+        testLogger.debug(tre.joinToString("") { it.prettyPrint("") })
     }
 })
