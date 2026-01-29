@@ -1,19 +1,23 @@
 [kafkaTopology]
 shutDownTimeout = "PT1S"
-periodeStreamIdSuffix = "arbeidssokerperioder-stream-v1"
-siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-v1"
 periodeTopic = "paw.arbeidssokerperioder-v1"
 siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
 beriket14aVedtakTopic = "paw.beriket-14a-vedtak-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
-periodeStoreName = "microfrontendTogglePeriodeStore"
+periodeStreamIdSuffix = "arbeidssokerperioder-stream-v1"
+siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-v1"
 toggleProducerIdSuffix = "toggle-producer-v1"
+periodeStoreName = "microfrontendTogglePeriodeStore"
 
 [microfrontendToggle]
 aiaMinSide = "aia-min-side"
-aiaBehovsvurdering = "aia-behovsvurdering"
-periodeTogglePunctuatorSchedule = "PT60S"
-utsattDeaktiveringAvAiaMinSide = "PT10M"
 aiaMinSideSensitivitet = "SUBSTANTIAL"
+aiaBehovsvurdering = "aia-behovsvurdering"
 aiaBehovsvurderingSensitivitet = "HIGH"
-deprekeringstidspunktBehovsvurdering = "2025-12-11T07:00:00+01:00"
+periodeTogglePunctuatorSchedule = "PT5M"
+utsattDeaktiveringAvAiaMinSide = "PT15M"
+
+[deprekering]
+aktivert = false
+tidspunkt = "2050-12-11T07:00:00+01:00"
+csvFil = "/tmp/empty.csv"

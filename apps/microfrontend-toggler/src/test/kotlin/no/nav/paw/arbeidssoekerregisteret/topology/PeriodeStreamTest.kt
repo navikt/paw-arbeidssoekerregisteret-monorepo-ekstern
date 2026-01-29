@@ -75,7 +75,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe startetPeriode.identitetsnummer
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
@@ -84,7 +84,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe startetPeriode.identitetsnummer
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe Sensitivitet.HIGH
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 1
@@ -124,7 +124,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe null
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
@@ -133,7 +133,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe null
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 0
@@ -165,7 +165,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
@@ -174,7 +174,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe Sensitivitet.HIGH
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 1
@@ -213,7 +213,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe null
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 1
@@ -251,7 +251,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe null
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 0
@@ -293,8 +293,8 @@ class PeriodeStreamTest : FreeSpec({
         val deprekeringstidspunkt = Instant.now()
         val applicationConfig: ApplicationConfig = loadNaisOrLocalConfiguration(APPLICATION_CONFIG)
         val justertApplicationConfig = applicationConfig.copy(
-            microfrontendToggle = applicationConfig.microfrontendToggle.copy(
-                deprekeringstidspunktBehovsvurdering = deprekeringstidspunkt
+            deprekering = applicationConfig.deprekering.copy(
+                tidspunkt = deprekeringstidspunkt
             )
         )
 
@@ -330,7 +330,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe startetPeriode.identitetsnummer
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
@@ -339,7 +339,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe startetPeriode.identitetsnummer
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe Sensitivitet.HIGH
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 1
@@ -383,7 +383,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe startetPeriode.identitetsnummer
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
@@ -392,7 +392,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe startetPeriode.identitetsnummer
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe Sensitivitet.HIGH
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 1
@@ -435,7 +435,7 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe startetPeriode.identitetsnummer
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeStateStore.size() shouldBe 1

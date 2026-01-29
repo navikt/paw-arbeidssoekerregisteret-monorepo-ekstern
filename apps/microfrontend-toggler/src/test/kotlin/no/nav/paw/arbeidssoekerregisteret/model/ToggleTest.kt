@@ -14,7 +14,7 @@ class ToggleTest : FreeSpec({
                     ident = "01017012345",
                     microfrontendId = "aia-min-side",
                     sensitivitet = Sensitivitet.HIGH,
-                    initialedBy = "paw"
+                    initiatedBy = "paw"
                 )
                 val jsonToggle = objectMapper.writeValueAsString(toggle)
                 jsonToggle shouldBe enableToggleJsonString
@@ -24,7 +24,7 @@ class ToggleTest : FreeSpec({
                     action = ToggleAction.DISABLE,
                     ident = "01017012345",
                     microfrontendId = "aia-min-side",
-                    initialedBy = "paw"
+                    initiatedBy = "paw"
                 )
                 val jsonToggle = objectMapper.writeValueAsString(toggle)
                 jsonToggle shouldBe disableToggleJsonString
@@ -33,7 +33,7 @@ class ToggleTest : FreeSpec({
                 val toggle = ToggleRequest(
                     action = ToggleAction.ENABLE,
                     microfrontendId = "aia-min-side"
-                ).buildToggle(Identitetsnummer("01017012345"), Sensitivitet.HIGH)
+                ).asToggle(Identitetsnummer("01017012345"), Sensitivitet.HIGH)
                 val jsonToggle = objectMapper.writeValueAsString(toggle)
                 jsonToggle shouldBe enableToggleJsonString
             }
@@ -41,7 +41,7 @@ class ToggleTest : FreeSpec({
                 val toggle = ToggleRequest(
                     action = ToggleAction.DISABLE,
                     microfrontendId = "aia-min-side"
-                ).buildToggle(Identitetsnummer("01017012345"), Sensitivitet.HIGH)
+                ).asToggle(Identitetsnummer("01017012345"), Sensitivitet.HIGH)
                 val jsonToggle = objectMapper.writeValueAsString(toggle)
                 jsonToggle shouldBe disableToggleJsonString
             }

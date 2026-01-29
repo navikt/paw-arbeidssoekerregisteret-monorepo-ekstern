@@ -10,7 +10,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
-import no.nav.paw.arbeidssoekerregisteret.model.buildToggle
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
 import no.nav.paw.security.authentication.model.Sluttbruker
@@ -29,16 +28,16 @@ fun Route.toggleRoutes(
 
     route("/api/v1") {
         autentisering(TokenX) {
-            post<ToggleRequest>("/microfrontend-toggle") { toggleRequest ->
+            post<ToggleRequest>("/microfrontend-toggle") { request ->
                 val accessPolicies = authorizationService.accessPolicies()
                 autorisering(Action.WRITE, accessPolicies) {
 
-                    if (toggleRequest.action == ToggleAction.ENABLE) {
+                    if (request.action == ToggleAction.ENABLE) {
                         throw IngenTilgangException("Det er ikke tillatt å aktivere microfrontends via dette endepunktet")
                     }
 
                     val bruker = call.bruker<Sluttbruker>()
-                    val toggle = toggleRequest.buildToggle(
+                    val toggle = request.asToggle(
                         bruker.ident,
                         Sensitivitet.HIGH // TODO Ikke i bruk for DISABLE
                     )

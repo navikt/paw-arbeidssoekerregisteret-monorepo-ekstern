@@ -8,27 +8,33 @@ const val APPLICATION_CONFIG = "application_config.toml"
 
 data class ApplicationConfig(
     val kafkaTopology: KafkaTopologyConfig,
-    val microfrontendToggle: MicrofrontendToggleConfig
+    val microfrontendToggle: MicrofrontendToggleConfig,
+    val deprekering: DeprekeringConfig
 )
 
 data class KafkaTopologyConfig(
     val shutDownTimeout: Duration,
-    val periodeStreamIdSuffix: String,
-    val siste14aVedtakStreamIdSuffix: String,
     val periodeTopic: String,
     val siste14aVedtakTopic: String,
     val beriket14aVedtakTopic: String,
     val microfrontendTopic: String,
-    val periodeStoreName: String,
-    val toggleProducerIdSuffix: String
+    val periodeStreamIdSuffix: String,
+    val siste14aVedtakStreamIdSuffix: String,
+    val toggleProducerIdSuffix: String,
+    val periodeStoreName: String
 )
 
 data class MicrofrontendToggleConfig(
     val aiaMinSide: String,
-    val aiaBehovsvurdering: String,
-    val periodeTogglePunctuatorSchedule: Duration,
-    val utsattDeaktiveringAvAiaMinSide: Duration,
     val aiaMinSideSensitivitet: Sensitivitet,
+    val aiaBehovsvurdering: String,
     val aiaBehovsvurderingSensitivitet: Sensitivitet,
-    val deprekeringstidspunktBehovsvurdering: Instant
+    val periodeTogglePunctuatorSchedule: Duration,
+    val utsattDeaktiveringAvAiaMinSide: Duration
+)
+
+data class DeprekeringConfig(
+    val aktivert: Boolean,
+    val tidspunkt: Instant,
+    val csvFil: String
 )
