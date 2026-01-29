@@ -1,19 +1,23 @@
 [kafkaTopology]
 shutDownTimeout = "PT5S"
+periodeTopic = "${KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC}"
+siste14aVedtakTopic = "${KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC}"
+beriket14aVedtakTopic = "${KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC}"
+microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
 periodeStreamIdSuffix = "${KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX}"
 siste14aVedtakStreamIdSuffix = "${KAFKA_SISTE_14A_VEDTAK_STREAM_ID_SUFFIX}"
-periodeTopic = "${KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC}"
-beriket14aVedtakTopic = "${KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC}"
-siste14aVedtakTopic = "${KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC}"
-microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
-periodeStoreName = "microfrontendTogglePeriodeStore"
 toggleProducerIdSuffix = "${KAFKA_TOGGLE_PRODUCER_ID_SUFFIX}"
+periodeStoreName = "microfrontendTogglePeriodeStore"
 
 [microfrontendToggle]
 aiaMinSide = "aia-min-side"
+aiaMinSideSensitivitet = "SUBSTANTIAL"
 aiaBehovsvurdering = "aia-behovsvurdering"
+aiaBehovsvurderingSensitivitet = "HIGH"
 periodeTogglePunctuatorSchedule = "PT6H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
-aiaMinSideSensitivitet = "SUBSTANTIAL"
-aiaBehovsvurderingSensitivitet = "HIGH"
-deprekeringstidspunktBehovsvurdering = "${DEPREKERINGSTIDSPUNKT_BEHOVSVURDERING}"
+
+[deprekering]
+aktivert = false
+tidspunkt = "${DEPREKERINGSTIDSPUNKT_BEHOVSVURDERING}"
+csvFil = "/var/run/secrets/paw-microfrontend-toggler/empty.csv"

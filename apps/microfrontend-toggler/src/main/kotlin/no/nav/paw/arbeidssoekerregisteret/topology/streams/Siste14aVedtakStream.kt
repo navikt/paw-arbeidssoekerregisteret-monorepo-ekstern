@@ -2,7 +2,6 @@ package no.nav.paw.arbeidssoekerregisteret.topology.streams
 
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.model.asBeriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildSiste14aVedtakSerde

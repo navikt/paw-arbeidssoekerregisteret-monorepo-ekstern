@@ -83,7 +83,7 @@ class Beriket14aVedtakStreamTest : FreeSpec({
                     ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
                     sensitivitet shouldBe null
-                    initialedBy shouldBe "paw"
+                    initiatedBy shouldBe "paw"
                 }
 
                 periodeKeyValueStore.size() shouldBe 2

@@ -10,6 +10,7 @@ val jvmMajorVersion: String by project
 dependencies {
     // Project
     implementation(project(":domain:felles"))
+    implementation(project(":lib:topics"))
     implementation(project(":domain:error"))
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":lib:hoplite-config"))
@@ -35,8 +36,8 @@ dependencies {
 
     // Serialization
     implementation(libs.ktor.serialization.jackson)
-    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.jackson.datatype.jsr310)
+    implementation(libs.jackson.dataformat.csv)
 
     // Logging
     implementation(libs.logback.classic)

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
-import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtakInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.config.env.ProdGcp
 import no.nav.paw.config.env.RuntimeEnvironment
@@ -59,8 +58,6 @@ inline fun <reified T> buildJsonSerde(runtimeEnvironment: RuntimeEnvironment): S
 fun buildPeriodeInfoSerde() = buildJsonSerde<PeriodeInfo>(currentRuntimeEnvironment)
 
 fun buildSiste14aVedtakSerde() = buildJsonSerde<Siste14aVedtak>(currentRuntimeEnvironment)
-
-fun buildSiste14aVedtakInfoSerde() = buildJsonSerde<Siste14aVedtakInfo>(currentRuntimeEnvironment)
 
 fun buildBeriket14aVedtakSerde() = buildJsonSerde<Beriket14aVedtak>(currentRuntimeEnvironment)
 
