@@ -88,7 +88,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
         )
     } else {
         logger.info(
-            "Mottok avsluttet arbeidsøkerperiode, utfører deaktivering av {}",
+            "Mottok 14a-vedtak for aktiv arbeidsøkerperiode, utfører deaktivering av {}",
             microfrontendToggleConfig.aiaBehovsvurdering
         )
 
