@@ -3,17 +3,23 @@ package no.nav.paw.arbeidssoekerregisteret.topology
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.TestData
+import no.nav.paw.arbeidssoekerregisteret.test.addDeprekeringInMemoryStateStore
+import no.nav.paw.arbeidssoekerregisteret.test.addPeriodeInMemoryStateStore
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.addBeriket14aVedtakStream
+import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.TestInputTopic
+import org.apache.kafka.streams.TestOutputTopic
 import org.apache.kafka.streams.TopologyTestDriver
-import org.apache.kafka.streams.state.Stores
+import org.apache.kafka.streams.state.KeyValueStore
 
 /**
  *         14a1       14a2       14a3
@@ -94,28 +100,27 @@ class Beriket14aVedtakStreamTest : FreeSpec({
     private class LocalTestContext : TestContext() {
 
         val testDriver = StreamsBuilder().apply {
-            addStateStore(
-                Stores.keyValueStoreBuilder(
-                    Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStateStore),
-                    Serdes.Long(),
-                    periodeInfoSerde
-                )
+            addDeprekeringInMemoryStateStore(applicationConfig)
+            addPeriodeInMemoryStateStore(applicationConfig)
+            addBeriket14aVedtakStream(
+                applicationConfig,
+                meterRegistry,
+                kafkaKeysClientMock::getIdAndKeyBlocking
             )
-            addBeriket14aVedtakStream(applicationConfig, meterRegistry)
         }.build()
             .let { TopologyTestDriver(it, kafkaStreamProperties) }
 
 
-        val periodeKeyValueStore =
-            testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaTopology.periodeStateStore)
+        val periodeKeyValueStore: KeyValueStore<Long, PeriodeInfo> = testDriver
+            .getKeyValueStore(applicationConfig.kafkaTopology.periodeStateStore)
 
-        val beriket14aVedtakTopic = testDriver.createInputTopic(
+        val beriket14aVedtakTopic: TestInputTopic<Long, Beriket14aVedtak> = testDriver.createInputTopic(
             applicationConfig.kafkaTopology.beriket14aVedtakTopic,
             Serdes.Long().serializer(),
             beriket14aVedtakSerde.serializer()
         )
 
-        val microfrontendTopic = testDriver.createOutputTopic(
+        val microfrontendTopic: TestOutputTopic<Long, Toggle> = testDriver.createOutputTopic(
             applicationConfig.kafkaTopology.microfrontendTopic,
             Serdes.Long().deserializer(),
             toggleSerde.deserializer()

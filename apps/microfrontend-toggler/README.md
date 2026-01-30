@@ -193,3 +193,22 @@ topic?
 * IARBS: Ikke Arbeidssøker
   * I arbeid men sykemeldt -> trenger oppfølging fra NAV 
 * ISERV:
+
+## CSV Fil
+CSV-fil for å deaktivere microfrontends for behovsvurdering.
+
+> [!WARNING]  
+> Siden CSV-filen inneholder persondata så skal filen opprettes som en secret i Kubernetes
+
+### Opprette CSV-fil som secret i Kubernetes
+Informasjon om secrets fra [NAIS docs](https://docs.nais.io/services/secrets/).
+
+```shell
+kubectl create secret generic paw-microfrontend-toggler-csv --from-file=data.csv=/tmp/paw-microfrontend-toggler-csv/data.csv
+```
+
+For å endre secret må den slettes og skapes på nytt.
+
+```shell
+kubectl delete secret paw-microfrontend-toggler-csv
+```

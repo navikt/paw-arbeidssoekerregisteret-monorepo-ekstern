@@ -1,7 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.model
 
-enum class ToggleStatus {
+enum class DeprekeringStatus {
     ENABLED,
-    DISABLED,
-    UKJENT_VERDI
+    DISABLED
 }

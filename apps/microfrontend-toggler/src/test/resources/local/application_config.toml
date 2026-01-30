@@ -8,17 +8,19 @@ periodeStreamIdSuffix = "arbeidssokerperioder-stream-v1"
 siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-v1"
 toggleProducerIdSuffix = "toggle-producer-v1"
 periodeStateStore = "microfrontendTogglePeriodeStore"
-toggleStateStore = "toggleStateStore"
 
 [microfrontendToggle]
 aiaMinSide = "aia-min-side"
 aiaMinSideSensitivitet = "SUBSTANTIAL"
 aiaBehovsvurdering = "aia-behovsvurdering"
 aiaBehovsvurderingSensitivitet = "HIGH"
-periodeTogglePunctuatorSchedule = "PT12H"
+periodeTogglePunctuatorSchedule = "PT6H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
 
 [deprekering]
-aktivert = false
-tidspunkt = "2050-01-01T00:00:00+01:00"
+aktivert = true
+tidspunkt = "2100-01-01T00:00:00+01:00"
 csvFil = "/tmp/empty.csv"
+stateStore = "deprekeringStateStore"
+punctuatorSchedule = "PT1H"
+punctuatorActivePartition = 0

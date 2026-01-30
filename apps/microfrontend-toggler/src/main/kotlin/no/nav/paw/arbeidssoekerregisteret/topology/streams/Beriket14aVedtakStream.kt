@@ -9,12 +9,14 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
 import no.nav.paw.arbeidssoekerregisteret.topology.processor.iverksettDeaktiverToggle
+import no.nav.paw.arbeidssoekerregisteret.topology.punctuator.buildDeprekeringPunctuator
 import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallIkkeSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallMottatteBeriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallSendteToggles
 import no.nav.paw.kafka.processor.genericProcess
+import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import no.nav.paw.logging.logger.buildApplicationLogger
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
@@ -28,10 +30,12 @@ private val logger = buildApplicationLogger
 
 fun StreamsBuilder.addBeriket14aVedtakStream(
     applicationConfig: ApplicationConfig,
-    meterRegistry: MeterRegistry
+    meterRegistry: MeterRegistry,
+    kafkaKeysFunction: (ident: String) -> KafkaKeysResponse
 ) {
-    logger.info("Oppretter KStream for beriket 14a-vedtak")
+    val deprekeringConfig = applicationConfig.deprekering
     val kafkaTopologyConfig = applicationConfig.kafkaTopology
+    logger.info("Oppretter KStream for {}", kafkaTopologyConfig.beriket14aVedtakTopic)
 
     this.stream(
         kafkaTopologyConfig.beriket14aVedtakTopic, Consumed.with(Serdes.Long(), buildBeriket14aVedtakSerde())
@@ -40,8 +44,8 @@ fun StreamsBuilder.addBeriket14aVedtakStream(
         meterRegistry.tellAntallMottatteBeriket14aVedtak()
     }.genericProcess<Long, Beriket14aVedtak, Long, Toggle>(
         name = "handtereToggleForBeriket14aVedtak",
-        stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore)
-        //  TODO stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore, kafkaTopologyConfig.toggleStateStore)
+        stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore, deprekeringConfig.stateStore),
+        punctuation = buildDeprekeringPunctuator(applicationConfig, kafkaKeysFunction)
     ) { record ->
         processBeriket14aVedtak(applicationConfig, meterRegistry, record)
     }.to(kafkaTopologyConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))

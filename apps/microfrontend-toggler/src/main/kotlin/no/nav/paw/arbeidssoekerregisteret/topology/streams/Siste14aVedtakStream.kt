@@ -20,8 +20,8 @@ fun StreamsBuilder.addSiste14aVedtakStream(
     meterRegistry: MeterRegistry,
     kafkaKeysFunction: (ident: String) -> KafkaKeysResponse?
 ) {
-    logger.info("Oppretter KStream for berikelse av 14a-vedtak")
     val kafkaTopology = applicationConfig.kafkaTopology
+    logger.info("Oppretter KStream for {}", kafkaTopology.siste14aVedtakTopic)
 
     this.stream(
         kafkaTopology.siste14aVedtakTopic, Consumed.with(Serdes.String(), buildSiste14aVedtakSerde())

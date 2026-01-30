@@ -7,7 +7,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
-import no.nav.paw.arbeidssoekerregisteret.model.ToggleState
 import no.nav.paw.config.env.ProdGcp
 import no.nav.paw.config.env.RuntimeEnvironment
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -70,4 +69,3 @@ fun buildPeriodeInfoSerde() = buildJsonSerde<PeriodeInfo>()
 fun buildSiste14aVedtakSerde() = buildJsonSerde<Siste14aVedtak>()
 fun buildBeriket14aVedtakSerde() = buildJsonSerde<Beriket14aVedtak>()
 fun buildToggleSerde() = buildJsonSerde<Toggle>()
-fun buildToggleStateSerde() = buildJsonSerde<ToggleState>()

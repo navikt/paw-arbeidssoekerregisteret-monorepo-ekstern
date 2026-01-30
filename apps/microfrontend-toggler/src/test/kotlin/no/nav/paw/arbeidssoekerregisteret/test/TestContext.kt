@@ -41,8 +41,11 @@ import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
+import org.apache.kafka.streams.KeyValue
+import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.state.KeyValueStore
+import org.apache.kafka.streams.state.Stores
 import java.util.*
 
 open class TestContext(
@@ -75,6 +78,14 @@ open class TestContext(
             count++
         }
         return count
+    }
+
+    fun <K, V> KeyValueStore<K, V>.asList(): List<KeyValue<K, V>> {
+        val list = mutableListOf<KeyValue<K, V>>()
+        for (keyValue in all()) {
+            list.add(keyValue)
+        }
+        return list
     }
 
     fun ApplicationTestBuilder.configureTestApplication() {
@@ -128,4 +139,24 @@ open class TestContext(
             return serde
         }
     }
+}
+
+fun StreamsBuilder.addPeriodeInMemoryStateStore(applicationConfig: ApplicationConfig) {
+    addStateStore(
+        Stores.keyValueStoreBuilder(
+            Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStateStore),
+            Serdes.Long(),
+            buildPeriodeInfoSerde()
+        )
+    )
+}
+
+fun StreamsBuilder.addDeprekeringInMemoryStateStore(applicationConfig: ApplicationConfig) {
+    addStateStore(
+        Stores.keyValueStoreBuilder(
+            Stores.inMemoryKeyValueStore(applicationConfig.deprekering.stateStore),
+            Serdes.String(),
+            Serdes.String()
+        )
+    )
 }
