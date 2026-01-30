@@ -16,7 +16,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.test.TestData.buildPeriode
-import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildPeriodeStream
+import no.nav.paw.arbeidssoekerregisteret.topology.streams.addPeriodeStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
@@ -464,7 +464,7 @@ private class LocalTestContext(
                 periodeInfoSerde
             )
         )
-        buildPeriodeStream(
+        addPeriodeStream(
             applicationConfig,
             meterRegistry,
             kafkaKeysClientMock::getIdAndKeyBlocking

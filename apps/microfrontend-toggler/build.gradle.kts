@@ -10,15 +10,16 @@ val jvmMajorVersion: String by project
 dependencies {
     // Project
     implementation(project(":domain:felles"))
-    implementation(project(":lib:topics"))
     implementation(project(":domain:error"))
     implementation(project(":domain:main-avro-schema"))
+    implementation(project(":lib:logging"))
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:error-handling"))
+    implementation(project(":lib:health"))
     implementation(project(":lib:security"))
+    implementation(project(":lib:topics"))
     implementation(project(":lib:kafka-streams"))
     implementation(project(":lib:kafka-key-generator-client"))
-    implementation(project(":lib:health"))
     testImplementation(project(":test:test-data-factory"))
 
     // Server

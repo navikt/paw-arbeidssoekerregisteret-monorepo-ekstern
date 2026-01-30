@@ -9,7 +9,7 @@ import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildBeriket14aVedtakStream
+import no.nav.paw.arbeidssoekerregisteret.topology.streams.addBeriket14aVedtakStream
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.TopologyTestDriver
@@ -101,7 +101,7 @@ class Beriket14aVedtakStreamTest : FreeSpec({
                     periodeInfoSerde
                 )
             )
-            buildBeriket14aVedtakStream(applicationConfig, meterRegistry)
+            addBeriket14aVedtakStream(applicationConfig, meterRegistry)
         }.build()
             .let { TopologyTestDriver(it, kafkaStreamProperties) }
 

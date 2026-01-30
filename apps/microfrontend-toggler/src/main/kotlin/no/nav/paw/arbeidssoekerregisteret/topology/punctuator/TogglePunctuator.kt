@@ -10,12 +10,12 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
 import no.nav.paw.arbeidssoekerregisteret.topology.processor.iverksettDeaktiverToggle
 import no.nav.paw.arbeidssoekerregisteret.utils.IdentitetsnummerCsvReader
-import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredeAktivePerioder
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredeAvsluttedePerioder
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredePerioderTotalt
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallSendteToggles
 import no.nav.paw.kafka.processor.Punctuation
+import no.nav.paw.logging.logger.buildApplicationLogger
 import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.ProcessorContext
 import org.apache.kafka.streams.state.KeyValueStore

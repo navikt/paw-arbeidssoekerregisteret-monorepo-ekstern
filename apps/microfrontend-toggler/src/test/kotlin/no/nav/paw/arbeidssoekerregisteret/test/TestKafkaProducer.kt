@@ -1,7 +1,6 @@
 package no.nav.paw.arbeidssoekerregisteret.test
 
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer
-import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.arbeidssokerregisteret.standardTopicNames
 import no.nav.paw.config.env.currentRuntimeEnvironment
@@ -9,6 +8,7 @@ import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.logging.logger.buildApplicationLogger
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord

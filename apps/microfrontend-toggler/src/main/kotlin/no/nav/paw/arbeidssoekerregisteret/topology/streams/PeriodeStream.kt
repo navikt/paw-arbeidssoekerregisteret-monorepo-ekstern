@@ -12,7 +12,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.topology.processor.iverksettAktiverToggle
 import no.nav.paw.arbeidssoekerregisteret.topology.processor.iverksettDeaktiverToggle
 import no.nav.paw.arbeidssoekerregisteret.topology.punctuator.TogglePunctuator
-import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallIkkeSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallMottattePerioder
@@ -20,6 +19,7 @@ import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallSendteToggles
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.kafka.processor.genericProcess
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
+import no.nav.paw.logging.logger.buildApplicationLogger
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Produced
@@ -30,7 +30,7 @@ import java.time.Instant
 
 private val logger = buildApplicationLogger
 
-fun StreamsBuilder.buildPeriodeStream(
+fun StreamsBuilder.addPeriodeStream(
     applicationConfig: ApplicationConfig,
     meterRegistry: MeterRegistry,
     kafkaKeysFunction: (ident: String) -> KafkaKeysResponse

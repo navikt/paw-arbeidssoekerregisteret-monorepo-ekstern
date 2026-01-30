@@ -7,7 +7,7 @@ import io.mockk.coEvery
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.topology.streams.buildSiste14aVedtakStream
+import no.nav.paw.arbeidssoekerregisteret.topology.streams.addSiste14aVedtakStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyOrNullBlocking
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
@@ -67,7 +67,7 @@ class Siste14aVedtakStreamTest : FreeSpec({
     private class LocalTestContext : TestContext() {
 
         val testDriver = StreamsBuilder().apply {
-            buildSiste14aVedtakStream(
+            addSiste14aVedtakStream(
                 applicationConfig,
                 meterRegistry,
                 kafkaKeysClientMock::getIdAndKeyOrNullBlocking

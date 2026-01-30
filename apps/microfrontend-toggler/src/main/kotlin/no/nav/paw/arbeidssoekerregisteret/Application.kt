@@ -12,8 +12,8 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureLogging
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureMetrics
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureRouting
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
-import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.config.env.appNameOrDefaultForLocal
+import no.nav.paw.logging.logger.buildApplicationLogger
 
 fun main() {
     val logger = buildApplicationLogger

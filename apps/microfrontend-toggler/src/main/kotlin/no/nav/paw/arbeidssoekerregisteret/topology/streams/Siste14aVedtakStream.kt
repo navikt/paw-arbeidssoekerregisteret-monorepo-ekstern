@@ -2,12 +2,12 @@ package no.nav.paw.arbeidssoekerregisteret.topology.streams
 
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.utils.buildApplicationLogger
 import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildSiste14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallMottatteSiste14aVedtak
 import no.nav.paw.kafka.processor.mapKeyAndValue
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
+import no.nav.paw.logging.logger.buildApplicationLogger
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.kstream.Consumed
@@ -15,7 +15,7 @@ import org.apache.kafka.streams.kstream.Produced
 
 private val logger = buildApplicationLogger
 
-fun StreamsBuilder.buildSiste14aVedtakStream(
+fun StreamsBuilder.addSiste14aVedtakStream(
     applicationConfig: ApplicationConfig,
     meterRegistry: MeterRegistry,
     kafkaKeysFunction: (ident: String) -> KafkaKeysResponse?
