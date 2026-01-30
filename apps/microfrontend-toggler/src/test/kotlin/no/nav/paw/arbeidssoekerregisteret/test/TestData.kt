@@ -9,6 +9,7 @@ import no.nav.paw.felles.model.ArbeidssoekerId
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.felles.model.NavIdent
 import no.nav.paw.felles.model.RecordKey
+import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import no.nav.paw.test.data.periode.BrukerFactory
 import no.nav.paw.test.data.periode.MetadataFactory
 import no.nav.paw.test.data.periode.PeriodeFactory
@@ -52,6 +53,12 @@ object TestData {
     val periodeId3 = UUID.fromString("44b44747-f65d-46b3-89a8-997a63d0d489")
     val periodeId4 = UUID.fromString("f0e09ebf-e9f7-4025-9bd7-31bbff037eaa")
     val periodeId5 = UUID.fromString("e7b8c9f6-9ada-457c-bed5-ec45656c73b2")
+
+    val kafkaKeysResponse1 = KafkaKeysResponse(arbeidsoekerId1.value, kafkaKey1.value)
+    val kafkaKeysResponse2 = KafkaKeysResponse(arbeidsoekerId2.value, kafkaKey2.value)
+    val kafkaKeysResponse3 = KafkaKeysResponse(arbeidsoekerId3.value, kafkaKey3.value)
+    val kafkaKeysResponse4 = KafkaKeysResponse(arbeidsoekerId4.value, kafkaKey4.value)
+    val kafkaKeysResponse5 = KafkaKeysResponse(arbeidsoekerId5.value, kafkaKey5.value)
 
     val periode1Startet = buildPeriode(
         id = periodeId1,

@@ -35,8 +35,8 @@ fun StreamsBuilder.addPeriodeStream(
     meterRegistry: MeterRegistry,
     kafkaKeysFunction: (ident: String) -> KafkaKeysResponse
 ) {
-    logger.info("Oppretter KStream for arbeidssøkerperioder")
     val kafkaTopologyConfig = applicationConfig.kafkaTopology
+    logger.info("Oppretter KStream for {}", kafkaTopologyConfig.periodeTopic)
 
     this.stream<Long, Periode>(kafkaTopologyConfig.periodeTopic)
         .peek { key, _ ->
@@ -47,7 +47,6 @@ fun StreamsBuilder.addPeriodeStream(
         }.genericProcess<Long, PeriodeInfo, Long, Toggle>(
             name = "handtereToggleForPeriode",
             stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore),
-            // TODO stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore, kafkaTopologyConfig.toggleStateStore),
             punctuation = TogglePunctuator.build(applicationConfig, meterRegistry)
         ) { record ->
             processPeriode(applicationConfig, meterRegistry, record)

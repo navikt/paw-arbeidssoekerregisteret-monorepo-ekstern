@@ -16,14 +16,18 @@ import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.test.TestData.buildPeriode
+import no.nav.paw.arbeidssoekerregisteret.test.addPeriodeInMemoryStateStore
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.addPeriodeStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
+import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.TestInputTopic
+import org.apache.kafka.streams.TestOutputTopic
 import org.apache.kafka.streams.TopologyTestDriver
-import org.apache.kafka.streams.state.Stores
+import org.apache.kafka.streams.state.KeyValueStore
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -457,13 +461,7 @@ private class LocalTestContext(
 ) : TestContext(applicationConfig = applicationConfig) {
 
     val testDriver = StreamsBuilder().apply {
-        addStateStore(
-            Stores.keyValueStoreBuilder(
-                Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStateStore),
-                Serdes.Long(),
-                periodeInfoSerde
-            )
-        )
+        addPeriodeInMemoryStateStore(applicationConfig)
         addPeriodeStream(
             applicationConfig,
             meterRegistry,
@@ -472,16 +470,16 @@ private class LocalTestContext(
     }.build()
         .let { TopologyTestDriver(it, kafkaStreamProperties) }
 
-    val periodeStateStore =
-        testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaTopology.periodeStateStore)
+    val periodeStateStore: KeyValueStore<Long, PeriodeInfo> = testDriver
+        .getKeyValueStore(applicationConfig.kafkaTopology.periodeStateStore)
 
-    val periodeTopic = testDriver.createInputTopic(
+    val periodeTopic: TestInputTopic<Long, Periode> = testDriver.createInputTopic(
         applicationConfig.kafkaTopology.periodeTopic,
         Serdes.Long().serializer(),
         periodeSerde.serializer()
     )
 
-    val microfrontendTopic = testDriver.createOutputTopic(
+    val microfrontendTopic: TestOutputTopic<Long, Toggle> = testDriver.createOutputTopic(
         applicationConfig.kafkaTopology.microfrontendTopic,
         Serdes.Long().deserializer(),
         toggleSerde.deserializer()

@@ -21,8 +21,7 @@ data class KafkaTopologyConfig(
     val periodeStreamIdSuffix: String,
     val siste14aVedtakStreamIdSuffix: String,
     val toggleProducerIdSuffix: String,
-    val periodeStateStore: String,
-    val toggleStateStore: String
+    val periodeStateStore: String
 )
 
 data class MicrofrontendToggleConfig(
@@ -37,5 +36,10 @@ data class MicrofrontendToggleConfig(
 data class DeprekeringConfig(
     val aktivert: Boolean,
     val tidspunkt: Instant,
-    val csvFil: String
-)
+    val csvFil: String,
+    val stateStore: String,
+    val punctuatorSchedule: Duration,
+    val punctuatorActivePartition: Int
+) {
+    val deaktivert: Boolean = !aktivert
+}

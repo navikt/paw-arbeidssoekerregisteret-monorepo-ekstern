@@ -8,7 +8,6 @@ periodeStreamIdSuffix = "${KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX}"
 siste14aVedtakStreamIdSuffix = "${KAFKA_SISTE_14A_VEDTAK_STREAM_ID_SUFFIX}"
 toggleProducerIdSuffix = "${KAFKA_TOGGLE_PRODUCER_ID_SUFFIX}"
 periodeStateStore = "microfrontendTogglePeriodeStore"
-toggleStateStore = "toggleStateStore"
 
 [microfrontendToggle]
 aiaMinSide = "aia-min-side"
@@ -19,6 +18,9 @@ periodeTogglePunctuatorSchedule = "PT6H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
 
 [deprekering]
-aktivert = false
-tidspunkt = "${DEPREKERINGSTIDSPUNKT_BEHOVSVURDERING}"
-csvFil = "/var/run/secrets/paw-microfrontend-toggler/empty.csv"
+aktivert = "${DEPREKERING_BEHOVSVURDERING_AKTIVERT}"
+tidspunkt = "${DEPREKERING_BEHOVSVURDERING_TIDSPUNKT}"
+csvFil = "${DEPREKERING_BEHOVSVURDERING_CSV_FIL}"
+stateStore = "deprekeringStateStore"
+punctuatorSchedule = "${DEPREKERING_BEHOVSVURDERING_PUNCTUATOR_SCHEDULE}"
+punctuatorActivePartition = 0

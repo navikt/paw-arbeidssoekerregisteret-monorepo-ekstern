@@ -8,7 +8,6 @@ periodeStreamIdSuffix = "arbeidssokerperioder-stream-v1"
 siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-v1"
 toggleProducerIdSuffix = "toggle-producer-v1"
 periodeStateStore = "microfrontendTogglePeriodeStore"
-toggleStateStore = "toggleStateStore"
 
 [microfrontendToggle]
 aiaMinSide = "aia-min-side"
@@ -19,6 +18,9 @@ periodeTogglePunctuatorSchedule = "PT5M"
 utsattDeaktiveringAvAiaMinSide = "PT15M"
 
 [deprekering]
-aktivert = false
+aktivert = true
 tidspunkt = "2050-12-11T07:00:00+01:00"
 csvFil = "/tmp/empty.csv"
+stateStore = "deprekeringStateStore"
+punctuatorSchedule = "PT2M"
+punctuatorActivePartition = 0

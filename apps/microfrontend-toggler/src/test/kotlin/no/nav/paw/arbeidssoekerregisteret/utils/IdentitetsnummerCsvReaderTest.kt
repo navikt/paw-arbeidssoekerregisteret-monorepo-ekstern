@@ -6,7 +6,7 @@ import kotlin.io.path.toPath
 
 class IdentitetsnummerCsvReaderTest : FreeSpec({
     "Skal lese identiteter fra CSV-fil" {
-        val filePath = javaClass.getResource("/data/identitetsnummer.csv")?.toURI()?.toPath()!!
+        val filePath = javaClass.getResource("/csv/data.csv")?.toURI()?.toPath()!!
         var fileRows = IdentitetsnummerCsvReader.readValues(filePath)
         val identitetsnummer = fileRows.asSequence().toList().map { it.identitetsnummer }
         identitetsnummer shouldContainOnly listOf(

@@ -4,12 +4,10 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
-import no.nav.paw.arbeidssoekerregisteret.model.IdentitetsnummerRow
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
 import no.nav.paw.arbeidssoekerregisteret.topology.processor.iverksettDeaktiverToggle
-import no.nav.paw.arbeidssoekerregisteret.utils.IdentitetsnummerCsvReader
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredeAktivePerioder
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredeAvsluttedePerioder
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallLagredePerioderTotalt
@@ -19,10 +17,8 @@ import no.nav.paw.logging.logger.buildApplicationLogger
 import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.ProcessorContext
 import org.apache.kafka.streams.state.KeyValueStore
-import java.nio.file.Paths
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.io.path.name
 
 class TogglePunctuator(
     private val applicationConfig: ApplicationConfig,
@@ -89,23 +85,6 @@ class TogglePunctuator(
                 antallAvsluttede,
                 antallTotalt
             )
-        }
-    }
-
-    private fun finnAktiveBehovsvurderinger(): Sequence<IdentitetsnummerRow?> {
-        if (applicationConfig.deprekering.aktivert) {
-            logger.info("Deprekering er aktivert, deaktiverer behovsvurderinger")
-            try {
-                val filePath = Paths.get(applicationConfig.deprekering.csvFil)
-                logger.info("Leser CSV-fil {} fra mappe {}", filePath.name, filePath.parent)
-                return IdentitetsnummerCsvReader.readValues(filePath).asSequence()
-            } catch (e: Exception) {
-                logger.error("Feil oppsto ved deaktivering av behovsvurderinger", e)
-                return emptySequence()
-            }
-        } else {
-            logger.warn("Deprekering er ikke aktivert")
-            return emptySequence()
         }
     }
 

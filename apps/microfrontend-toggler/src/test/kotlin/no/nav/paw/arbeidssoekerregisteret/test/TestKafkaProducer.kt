@@ -30,9 +30,9 @@ fun main() {
     )
 
     val perioder = mapOf(
-        TestData.kafkaKey1.value to TestData.periode1Avsluttet,
-        //TestData.kafkaKey1.value to TestData.periode1Startet,
-        //TestData.kafkaKey2.value to TestData.periode2Startet
+        TestData.kafkaKey1.value to TestData.periode1Startet,
+        TestData.kafkaKey2.value to TestData.periode2Startet,
+        //TestData.kafkaKey1.value to TestData.periode1Avsluttet,
     )
 
     try {
