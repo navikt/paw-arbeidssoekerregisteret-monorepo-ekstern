@@ -459,7 +459,7 @@ private class LocalTestContext(
     val testDriver = StreamsBuilder().apply {
         addStateStore(
             Stores.keyValueStoreBuilder(
-                Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStoreName),
+                Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStateStore),
                 Serdes.Long(),
                 periodeInfoSerde
             )
@@ -473,7 +473,7 @@ private class LocalTestContext(
         .let { TopologyTestDriver(it, kafkaStreamProperties) }
 
     val periodeStateStore =
-        testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaTopology.periodeStoreName)
+        testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaTopology.periodeStateStore)
 
     val periodeTopic = testDriver.createInputTopic(
         applicationConfig.kafkaTopology.periodeTopic,

@@ -40,7 +40,8 @@ fun StreamsBuilder.addBeriket14aVedtakStream(
         meterRegistry.tellAntallMottatteBeriket14aVedtak()
     }.genericProcess<Long, Beriket14aVedtak, Long, Toggle>(
         name = "handtereToggleForBeriket14aVedtak",
-        stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStoreName)
+        stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore)
+        //  TODO stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore, kafkaTopologyConfig.toggleStateStore)
     ) { record ->
         processBeriket14aVedtak(applicationConfig, meterRegistry, record)
     }.to(kafkaTopologyConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
@@ -58,7 +59,7 @@ private fun ProcessorContext<Long, Toggle>.processBeriket14aVedtak(
     val kafkaTopologyConfig = applicationConfig.kafkaTopology
     val microfrontendToggleConfig = applicationConfig.microfrontendToggle
 
-    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStoreName)
+    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStateStore)
     val periodeInfo = stateStore.get(beriket14aVedtak.arbeidssoekerId)
 
     // Sjekk om vedtak er innenfor en aktiv periode

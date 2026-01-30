@@ -7,7 +7,8 @@ microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
 periodeStreamIdSuffix = "${KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX}"
 siste14aVedtakStreamIdSuffix = "${KAFKA_SISTE_14A_VEDTAK_STREAM_ID_SUFFIX}"
 toggleProducerIdSuffix = "${KAFKA_TOGGLE_PRODUCER_ID_SUFFIX}"
-periodeStoreName = "microfrontendTogglePeriodeStore"
+periodeStateStore = "microfrontendTogglePeriodeStore"
+toggleStateStore = "toggleStateStore"
 
 [microfrontendToggle]
 aiaMinSide = "aia-min-side"

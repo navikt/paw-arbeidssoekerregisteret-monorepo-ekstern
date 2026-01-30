@@ -96,7 +96,7 @@ class Beriket14aVedtakStreamTest : FreeSpec({
         val testDriver = StreamsBuilder().apply {
             addStateStore(
                 Stores.keyValueStoreBuilder(
-                    Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStoreName),
+                    Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStateStore),
                     Serdes.Long(),
                     periodeInfoSerde
                 )
@@ -107,7 +107,7 @@ class Beriket14aVedtakStreamTest : FreeSpec({
 
 
         val periodeKeyValueStore =
-            testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaTopology.periodeStoreName)
+            testDriver.getKeyValueStore<Long, PeriodeInfo>(applicationConfig.kafkaTopology.periodeStateStore)
 
         val beriket14aVedtakTopic = testDriver.createInputTopic(
             applicationConfig.kafkaTopology.beriket14aVedtakTopic,

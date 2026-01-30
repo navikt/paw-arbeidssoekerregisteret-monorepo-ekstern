@@ -21,7 +21,8 @@ data class KafkaTopologyConfig(
     val periodeStreamIdSuffix: String,
     val siste14aVedtakStreamIdSuffix: String,
     val toggleProducerIdSuffix: String,
-    val periodeStoreName: String
+    val periodeStateStore: String,
+    val toggleStateStore: String
 )
 
 data class MicrofrontendToggleConfig(

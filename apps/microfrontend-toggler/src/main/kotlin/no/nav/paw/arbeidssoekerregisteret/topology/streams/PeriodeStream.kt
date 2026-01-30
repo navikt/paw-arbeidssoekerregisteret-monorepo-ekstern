@@ -46,7 +46,8 @@ fun StreamsBuilder.addPeriodeStream(
             kafkaKeysFunction(periode.identitetsnummer).let { periode.asPeriodeInfo(it.id) }
         }.genericProcess<Long, PeriodeInfo, Long, Toggle>(
             name = "handtereToggleForPeriode",
-            stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStoreName),
+            stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore),
+            // TODO stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore, kafkaTopologyConfig.toggleStateStore),
             punctuation = TogglePunctuator.build(applicationConfig, meterRegistry)
         ) { record ->
             processPeriode(applicationConfig, meterRegistry, record)
@@ -76,7 +77,7 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
     val kafkaTopologyConfig = applicationConfig.kafkaTopology
     val microfrontendToggleConfig = applicationConfig.microfrontendToggle
     val deprekeringConfig = applicationConfig.deprekering
-    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStoreName)
+    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStateStore)
     val eksisterendePeriodeInfo = stateStore.get(periodeInfo.arbeidssoekerId)
 
     if (eksisterendePeriodeInfo != null && eksisterendePeriodeInfo.id == periodeInfo.id) {
@@ -156,7 +157,7 @@ private fun ProcessorContext<Long, Toggle>.processAvsluttetPeriode(
 ) {
     val kafkaTopologyConfig = applicationConfig.kafkaTopology
     val microfrontendToggleConfig = applicationConfig.microfrontendToggle
-    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStoreName)
+    val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStateStore)
 
     val utsattDeaktiveringsfrist = Instant.now().minus(microfrontendToggleConfig.utsattDeaktiveringAvAiaMinSide)
     if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {

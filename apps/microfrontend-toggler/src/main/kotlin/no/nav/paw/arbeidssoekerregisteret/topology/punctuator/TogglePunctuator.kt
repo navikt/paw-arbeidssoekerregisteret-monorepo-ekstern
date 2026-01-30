@@ -44,7 +44,7 @@ class TogglePunctuator(
             val antallAktive = AtomicLong(0)
             val antallAvsluttede = AtomicLong(0)
 
-            val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStoreName)
+            val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStateStore)
             stateStore.all().asSequence().forEach { keyValue ->
                 val periodeInfo = keyValue.value
 

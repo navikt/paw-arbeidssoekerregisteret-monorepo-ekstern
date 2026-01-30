@@ -7,7 +7,8 @@ microfrontendTopic = "min-side.aapen-microfrontend-v1"
 periodeStreamIdSuffix = "arbeidssokerperioder-stream-v1"
 siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-v1"
 toggleProducerIdSuffix = "toggle-producer-v1"
-periodeStoreName = "microfrontendTogglePeriodeStore"
+periodeStateStore = "microfrontendTogglePeriodeStore"
+toggleStateStore = "toggleStateStore"
 
 [microfrontendToggle]
 aiaMinSide = "aia-min-side"
