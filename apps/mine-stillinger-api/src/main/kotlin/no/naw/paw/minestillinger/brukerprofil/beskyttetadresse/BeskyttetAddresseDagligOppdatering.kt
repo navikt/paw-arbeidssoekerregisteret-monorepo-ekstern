@@ -55,7 +55,7 @@ class BeskyttetAddresseDagligOppdatering(
     }
 
     @WithSpan("vedlikehold_finn_og_oppdater_profiler_med_utgått_adresse_beskyttelse")
-    private suspend fun finnOgOppdater(): Int {
+    suspend fun finnOgOppdater(): Int {
         val tidspunkt = clock.now()
         val finnAlleEldreEnn = tidspunkt - adresseBeskyttelseGyldighetsperiode
         return hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(finnAlleEldreEnn)

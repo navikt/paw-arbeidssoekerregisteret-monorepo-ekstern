@@ -1,6 +1,7 @@
 package no.naw.paw.minestillinger
 
 import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -41,6 +42,7 @@ import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
+import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
@@ -62,6 +64,8 @@ import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.db.ops.slettFrittståendeProfileringer
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
+import no.naw.paw.minestillinger.domain.BrukerProfil
+import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
 import no.naw.paw.minestillinger.domain.medFlagg
 import no.naw.paw.minestillinger.metrics.AntallBrukereMetrics
 import no.naw.paw.minestillinger.route.brukerprofilRoute
@@ -381,57 +385,44 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
-                "Når Ola får et nytt 14a vedtak som indikerer standard innsats tjenestestatis tilbake til ${ApiTjenesteStatus.INAKTIV}" {
+                "Ola kan nå starte tjenesten" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
-                    currentTime.updateAndGet { current -> current + Duration.ofSeconds(2) }
-                    transaction {
-                        lagre14aResultat(
-                            idFunction = { olaIdent },
-                            brukerprofilTjeneste = brukerprofilTjeneste,
-                            vedtak = Siste14aVedtakMelding(
-                                aktorId = "11223344556677",
-                                innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
-                                fattetDato = clock.now().atZone(ZoneId.of("Europe/Oslo"))
-                            )
-                        )
-                    }
-                    val response = testClient.getBrukerprofil(olaIdent)
-                    response.status shouldBe HttpStatusCode.OK
-                    response.body<ApiBrukerprofil>() should { profil ->
-                        profil.identitetsnummer shouldBe olaIdent.value
-                        profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
-                        profil.stillingssoek.shouldBeEmpty()
-                    }
-                    coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                    val response = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, olaIdent)
+                    response.status shouldBe HttpStatusCode.NoContent
+                    coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Ola kan nå lagre et søk" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    val response = testClient.lagreStillingssoek(
+                        listOf(createApiStedSoek("Oslo", "03", "Oslo", "0301")),
+                        olaIdent
+                    )
+                    response.status shouldBe HttpStatusCode.NoContent
+                    coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
                 "Etter at Ola har fått gradert adresse" - {
-                    "er tjenestestatus ${ApiTjenesteStatus.INAKTIV}" {
+                    "addressegradering batch er kjørt" {
+                        transaction {
+                            val profil = brukerprofilTjeneste.hentBrukerprofilUtenFlagg(olaIdent)!!
+                                .let { profilUtenFlagg ->
+                                    val flagg = brukerprofilTjeneste.hentFlagg(profilUtenFlagg.id)
+                                    profilUtenFlagg.medFlagg(ListeMedFlagg.listeMedFlagg(flagg))
+                                }
+                            brukerprofilTjeneste.oppdaterAdresseGradering(
+                                brukerProfil = profil,
+                                tidspunkt = clock.now(),
+                                harGradertAdresseNå = true
+                            )
+                        }
+                    }
+                    "er tjenestestatus ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
                         testLogger.info("Starter: ${this.testCase.name.name}")
                         forwardTimeByHours(36)
                         coEvery { pdlClient.harBeskyttetAdresse(olaIdent) } returns true
-                        val response = testClient.getBrukerprofil(olaIdent)
-                        response.status shouldBe HttpStatusCode.OK
-                        response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe olaIdent.value
-                            profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
-                            profil.stillingssoek.shouldBeEmpty()
-                        }
-                        coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                        testLogger.info("Avslutter: ${this.testCase.name.name}")
-                    }
-
-                    "forsøk på å starte tjenesten gir 403 forbidden" {
-                        testLogger.info("Starter: ${this.testCase.name.name}")
-                        val response = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, olaIdent)
-                        response.status shouldBe HttpStatusCode.Forbidden
-                        coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
-                        testLogger.info("Avslutter: ${this.testCase.name.name}")
-                    }
-
-                    "etter forsøk på å starte skal tjenestestatus være endret til ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
-                        testLogger.info("Starter: ${this.testCase.name.name}")
                         val response = testClient.getBrukerprofil(olaIdent)
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { profil ->
@@ -443,14 +434,22 @@ class Livssyklustest : FreeSpec({
                         testLogger.info("Avslutter: ${this.testCase.name.name}")
                     }
 
-                    "forsøk på å lagre et søk gir 403 forbidden" {
+                    "forsøk på å starte tjenesten gir 403 forbidden" {
+                        testLogger.info("Starter: ${this.testCase.name.name}")
+                        val response = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, olaIdent)
+                        response.status shouldBe HttpStatusCode.Forbidden
+                        coVerify(exactly = 2) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                        testLogger.info("Avslutter: ${this.testCase.name.name}")
+                    }
+
+                   "forsøk på å lagre et søk gir 403 forbidden" {
                         testLogger.info("Starter: ${this.testCase.name.name}")
                         val response = testClient.lagreStillingssoek(
                             listOf(createApiStedSoek("Vestland", "46", "Bergen", "4601")),
                             olaIdent
                         )
                         response.status shouldBe HttpStatusCode.Forbidden
-                        coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                        coVerify(exactly = 2) { pdlClient.harBeskyttetAdresse(olaIdent) }
                         testLogger.info("Avslutter: ${this.testCase.name.name}")
                     }
                 }
@@ -466,7 +465,7 @@ class Livssyklustest : FreeSpec({
                             profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
                             profil.stillingssoek.shouldBeEmpty()
                         }
-                        coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(olaIdent) }
+                        coVerify(exactly = 2) { pdlClient.harBeskyttetAdresse(olaIdent) }
                         testLogger.info("Avslutter: ${this.testCase.name.name}")
                     }
                     "arbeidssøkerperioden avsluttes og det går mer enn X dager" - {
