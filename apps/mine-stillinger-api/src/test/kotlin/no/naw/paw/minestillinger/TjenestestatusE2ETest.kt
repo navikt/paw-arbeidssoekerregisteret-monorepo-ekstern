@@ -131,7 +131,6 @@ class TjenestestatusE2ETest : FreeSpec({
         hentFlagg = ::lesFlaggFraDB,
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
-        abTestingRegex = Regex("""\d([0248])\d{9}"""),
         clock = SystemClock
     )
 

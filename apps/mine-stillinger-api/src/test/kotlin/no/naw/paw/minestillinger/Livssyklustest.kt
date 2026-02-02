@@ -108,7 +108,6 @@ class Livssyklustest : FreeSpec({
         hentFlagg = ::lesFlaggFraDB,
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
-        abTestingRegex = Regex("\\d([02468])\\d{9}"),
         clock = clock
     )
     val ledigeStillingerClient: FinnStillingerClient = mockk()
@@ -171,37 +170,6 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.NotFound
                     coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(any()) }
                     coVerify(exactly = 0) { ledigeStillingerClient.finnLedigeStillinger(any(), any()) }
-                    testLogger.info("Avslutter: ${this.testCase.name.name}")
-                }
-                "Rolf som ikke er i testgruppen" - {
-                    "får tjenestestatus ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
-                        testLogger.info("Starter: ${this.testCase.name.name}")
-                        transaction {
-                            opprettOgOppdaterBruker(rolfPeriode)
-                            lagreProfilering(
-                                createProfilering(
-                                    periodeId = rolfPeriode.id, profilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
-                                )
-                            )
-                        }
-                        val response = testClient.getBrukerprofil(rolfIdent)
-                        response.status shouldBe HttpStatusCode.OK
-                        response.body<ApiBrukerprofil>() should { profil ->
-                            profil.identitetsnummer shouldBe rolfIdent.value
-                            profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
-                            profil.stillingssoek.shouldBeEmpty()
-                        }
-                    }
-                    "pdl blir aldri kalt" {
-                        coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(rolfIdent) }
-                    }
-                    "Rolf får 404 på mine stillinger siden ingen søk er lagret" {
-                        testLogger.info("Starter: ${this.testCase.name.name}")
-                        val response = testClient.mineLedigeStillinger(rolfIdent)
-                        response.status shouldBe HttpStatusCode.NotFound
-                        coVerify(exactly = 0) { ledigeStillingerClient.finnLedigeStillinger(any(), any()) }
-                        testLogger.info("Avslutter: ${this.testCase.name.name}")
-                    }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
                 "Når Kari er registert som arbeidssøker antatt gode muligheter kan tjenesten aktiveres" {

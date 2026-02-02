@@ -3,7 +3,6 @@ package no.naw.paw.minestillinger.domain
 import no.nav.paw.felles.model.Identitetsnummer
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
-import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
@@ -48,8 +47,6 @@ data class BrukerProfil(
         listeMedFlagg[StandardInnsatsFlaggtype]
     ).maxByOrNull { it.tidspunkt }?.verdi ?: false
 
-    val erITestGruppen: Boolean = listeMedFlagg[ErITestGruppenFlaggtype]?.verdi ?: false
-
     inline fun <reified A: Flagg> flagg(): Flagg? {
         return listeMedFlagg.filterIsInstance<A>().firstOrNull()
     }
@@ -63,9 +60,8 @@ fun BrukerProfil.api(): ApiBrukerprofil {
             tjenestenErAktiv -> ApiTjenesteStatus.AKTIV
             optOut -> ApiTjenesteStatus.OPT_OUT
             harGradertAdresse -> ApiTjenesteStatus.KAN_IKKE_LEVERES
-            erITestGruppen && harGodeMuligheter -> ApiTjenesteStatus.INAKTIV
+            harGodeMuligheter -> ApiTjenesteStatus.INAKTIV
             !harBruktTjenesten && !harGodeMuligheter -> ApiTjenesteStatus.KAN_IKKE_LEVERES
-            !erITestGruppen -> ApiTjenesteStatus.KAN_IKKE_LEVERES
             else -> ApiTjenesteStatus.INAKTIV
         },
         stillingssoek = emptyList()

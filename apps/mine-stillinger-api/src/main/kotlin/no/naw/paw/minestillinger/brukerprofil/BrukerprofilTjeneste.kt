@@ -18,7 +18,6 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.Adressebeskyttels
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
-import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
@@ -44,7 +43,6 @@ class BrukerprofilTjeneste(
     val hentFlagg: (BrukerId) -> List<Flagg>,
     val hentProfilering: (PeriodeId) -> Profilering?,
     val slettAlleSøk: (BrukerId) -> Unit,
-    val abTestingRegex: Regex,
     val clock: Clock
 ) {
     fun hentLokalBrukerprofil(identitetsnummer: Identitetsnummer): Response<BrukerProfil> {
@@ -56,9 +54,8 @@ class BrukerprofilTjeneste(
     fun hentLokalBrukerProfilEllerNull(identitetsnummer: Identitetsnummer): BrukerProfil? {
         val brukerProfilerUtenFlagg = hentBrukerprofilUtenFlagg(identitetsnummer) ?: return null
         val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
-        val erITestGruppenFlagg = genererErITestGruppenFlagg(abTestingRegex, identitetsnummer)
         val flaggFraDatabasen = hentFlagg(brukerProfilerUtenFlagg.id)
-        val gjeldeneFlagg = ListeMedFlagg.listeMedFlagg(flaggFraDatabasen) + erITestGruppenFlagg + profileringsFlagg
+        val gjeldeneFlagg = ListeMedFlagg.listeMedFlagg(flaggFraDatabasen) + profileringsFlagg
         return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
     }
 
@@ -136,13 +133,6 @@ class BrukerprofilTjeneste(
                 val godeMuligheter = profilering.profileringResultat == ProfileringResultat.ANTATT_GODE_MULIGHETER
                 HarGodeMuligheterFlaggtype.flagg(verdi = godeMuligheter, tidspunkt = profilering.profileringTidspunkt)
             } ?: HarGodeMuligheterFlaggtype.flagg(verdi = false, tidspunkt = Instant.EPOCH)
-    }
-
-    fun genererErITestGruppenFlagg(regex: Regex, identitetsnummer: Identitetsnummer): ErITestGruppenFlagg {
-        return ErITestGruppenFlagg(
-            verdi = sjekkABTestingGruppe(regex, identitetsnummer),
-            tidspunkt = clock.now()
-        )
     }
 
     fun oppdaterFlagg(brukerId: BrukerId, oppdatering: OppdateringAvFlagg) {

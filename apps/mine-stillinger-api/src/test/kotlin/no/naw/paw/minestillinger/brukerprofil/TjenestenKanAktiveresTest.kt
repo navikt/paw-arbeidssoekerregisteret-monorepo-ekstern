@@ -7,7 +7,6 @@ import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.brukerprofil.TjenestenKanAktiveresResultat.AdressebeskyttelseMåSjekkes
 import no.naw.paw.minestillinger.brukerprofil.TjenestenKanAktiveresResultat.Ja
 import no.naw.paw.minestillinger.brukerprofil.TjenestenKanAktiveresResultat.Nei
-import no.naw.paw.minestillinger.brukerprofil.flagg.ErITestGruppenFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
@@ -35,7 +34,6 @@ class TjenestenKanAktiveresTest : FreeSpec({
                     HarBruktTjenestenFlagg(false, clock.now()),
                     HarBeskyttetadresseFlagg(false, clock.now()),
                     TjenestenErAktivFlagg(false, clock.now()),
-                    ErITestGruppenFlagg(true, clock.now()),
                     HarGodeMuligheterFlagg(true, clock.now())
                 ),
                 tidspunkt = clock.now(),
@@ -47,7 +45,6 @@ class TjenestenKanAktiveresTest : FreeSpec({
                     HarBruktTjenestenFlagg(false, clock.now()),
                     HarBeskyttetadresseFlagg(true, clock.now()),
                     TjenestenErAktivFlagg(false, clock.now()),
-                    ErITestGruppenFlagg(true, clock.now()),
                     HarGodeMuligheterFlagg(true, clock.now())
                 ),
                 tidspunkt = clock.now(),
@@ -59,7 +56,6 @@ class TjenestenKanAktiveresTest : FreeSpec({
                     HarBruktTjenestenFlagg(false, clock.now()),
                     HarBeskyttetadresseFlagg(false, clock.now() - Duration.ofDays(2)),
                     TjenestenErAktivFlagg(false, clock.now()),
-                    ErITestGruppenFlagg(true, clock.now()),
                     HarGodeMuligheterFlagg(true, clock.now())
                 ),
                 tidspunkt = clock.now(),
@@ -71,7 +67,6 @@ class TjenestenKanAktiveresTest : FreeSpec({
                     HarBruktTjenestenFlagg(true, clock.now()),
                     HarBeskyttetadresseFlagg(false, clock.now()),
                     TjenestenErAktivFlagg(false, clock.now()),
-                    ErITestGruppenFlagg(true, clock.now()),
                     HarGodeMuligheterFlagg(false, clock.now())
                 ),
                 tidspunkt = clock.now(),
@@ -83,20 +78,7 @@ class TjenestenKanAktiveresTest : FreeSpec({
                     HarBruktTjenestenFlagg(false, clock.now()),
                     HarBeskyttetadresseFlagg(false, clock.now() - Duration.ofDays(10)),
                     TjenestenErAktivFlagg(false, clock.now()),
-                    ErITestGruppenFlagg(true, clock.now()),
                     HarGodeMuligheterFlagg(false, clock.now())
-                ),
-                tidspunkt = clock.now(),
-                graderingGyldighet = Duration.ofDays(1),
-                forventetResultat = Nei
-            ),
-            TjenstenKanAktiveresTestCase(
-                gjeldeneFlaggtype = listOf(
-                    HarBruktTjenestenFlagg(false, clock.now()),
-                    HarBeskyttetadresseFlagg(false, clock.now() - Duration.ofDays(10)),
-                    TjenestenErAktivFlagg(false, clock.now()),
-                    ErITestGruppenFlagg(false, clock.now()),
-                    HarGodeMuligheterFlagg(true, clock.now())
                 ),
                 tidspunkt = clock.now(),
                 graderingGyldighet = Duration.ofDays(1),

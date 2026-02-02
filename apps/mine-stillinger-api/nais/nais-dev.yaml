@@ -23,8 +23,6 @@ spec:
       value: "http://paw-arbeidssoekerregisteret-api-ledigestillinger"
     - name: LEDIGE_STILLINGER_TARGET
       value: "dev-gcp:paw:paw-arbeidssoekerregisteret-api-ledigestillinger"
-    - name: AB_TESTING_REGEX
-      value: "\\d{11}" #Hentes fra SjekkABTestingGruppeTest
   resources:
     limits:
       memory: 512Mi
