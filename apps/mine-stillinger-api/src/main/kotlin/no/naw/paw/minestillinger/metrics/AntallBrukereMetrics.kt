@@ -141,6 +141,7 @@ class AntallBrukereMetrics(
             .forEach { (key, value) ->
                 metricsMap.compute(key) { _, existing ->
                     if (existing != null) {
+                        appLogger.info("oppdaterer metric => $key = $value")
                         existing.set(value)
                         existing
                     } else {
