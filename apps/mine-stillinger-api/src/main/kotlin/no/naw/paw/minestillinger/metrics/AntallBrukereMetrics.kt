@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.StandardInnsatsFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
 import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.db.BrukerTable
@@ -49,6 +50,7 @@ class AntallBrukereMetrics(
                 val tjenestenErAktiv = BrukerFlaggTable.alias("tjenesten_er_aktiv")
                 val optOut = BrukerFlaggTable.alias("opt_out")
                 val harBruktTjenesten = BrukerFlaggTable.alias("har_brukt_tjenesten")
+                val standardInnsats = BrukerFlaggTable.alias("innsatsbehov")
                 BrukerTable
                     .join(
                         otherTable = tjenestenErAktiv,
@@ -68,6 +70,12 @@ class AntallBrukereMetrics(
                         onColumn = BrukerTable.id,
                         otherColumn = harBruktTjenesten[BrukerFlaggTable.brukerId],
                         additionalConstraint = { harBruktTjenesten[BrukerFlaggTable.navn] eq HarBruktTjenestenFlaggtype.type }
+                    ).join(
+                        otherTable = standardInnsats,
+                        joinType = JoinType.LEFT,
+                        onColumn = BrukerTable.id,
+                        otherColumn = standardInnsats[BrukerFlaggTable.brukerId],
+                        additionalConstraint = { standardInnsats[BrukerFlaggTable.navn] eq StandardInnsatsFlaggtype.type }
                     ).join(
                         otherTable = ProfileringTable,
                         joinType = JoinType.LEFT,
@@ -92,6 +100,7 @@ class AntallBrukereMetrics(
                             tjenestenErAktiv = row.getOrNull(tjenestenErAktiv[BrukerFlaggTable.verdi]) == true,
                             optOut = row.getOrNull(optOut[BrukerFlaggTable.verdi]) == true,
                             harBruktTjenesten = row.getOrNull(harBruktTjenesten[BrukerFlaggTable.verdi]) == true,
+                            standardInnsats = row.getOrNull(standardInnsats[BrukerFlaggTable.verdi]) == true,
                             profileringsResultat =
                                 row.getOrNull(ProfileringTable.profileringResultat)
                                     ?.let { ProfileringResultat.valueOf(it) }
@@ -126,6 +135,7 @@ class AntallBrukereMetrics(
                                 Tag.of("profilerings_resultat", key.profileringsResultat.name),
                                 Tag.of("opt_out", key.optOut.toString()),
                                 Tag.of("har_brukt_tjenesten", key.harBruktTjenesten.toString()),
+                                Tag.of("standard_innsats", key.standardInnsats.toString()),
                             ),
                             atomicLong,
                             { it.get().toDouble() },
@@ -144,6 +154,7 @@ data class MetricDataKey(
     val optOut: Boolean,
     val harBruktTjenesten: Boolean,
     val profileringsResultat: ProfileringResultat,
+    val standardInnsats: Boolean,
 )
 
 data class MetricData(
