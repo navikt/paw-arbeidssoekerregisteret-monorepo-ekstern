@@ -15,6 +15,7 @@ import no.naw.paw.minestillinger.db.ProfileringTable
 import no.naw.paw.minestillinger.domain.ProfileringResultat
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.alias
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
@@ -57,6 +58,18 @@ class AntallBrukereMetrics(
                     BrukerTable.arbeidssoekerperiodeAvsluttet.isNull()
                 }.count()
                 appLogger.info("Aktive arbeidssøkerperioder totalt: $aktivePerioder")
+                val aktive = BrukerTable
+                    .join(
+                        otherTable = tjenestenErAktiv,
+                        joinType = JoinType.LEFT,
+                        onColumn = BrukerTable.id,
+                        otherColumn = tjenestenErAktiv[BrukerFlaggTable.brukerId],
+                        additionalConstraint = { tjenestenErAktiv[BrukerFlaggTable.navn] eq TjenestenErAktivFlaggtype.type }
+                    ).selectAll().where {
+                        BrukerTable.arbeidssoekerperiodeAvsluttet.isNull() and
+                            (tjenestenErAktiv[BrukerFlaggTable.verdi] eq true)
+                    }.count()
+                appLogger.info("Aktive brukere: $aktive")
                 BrukerTable
                     .join(
                         otherTable = tjenestenErAktiv,
