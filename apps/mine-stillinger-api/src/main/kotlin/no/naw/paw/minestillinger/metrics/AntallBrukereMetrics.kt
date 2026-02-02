@@ -19,6 +19,7 @@ import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicLong
@@ -51,6 +52,10 @@ class AntallBrukereMetrics(
                 val optOut = BrukerFlaggTable.alias("opt_out")
                 val harBruktTjenesten = BrukerFlaggTable.alias("har_brukt_tjenesten")
                 val standardInnsats = BrukerFlaggTable.alias("innsatsbehov")
+                val aktivePerioder = BrukerTable.selectAll().where {
+                    BrukerTable.arbeidssoekerperiodeAvsluttet.isNull()
+                }.count()
+                appLogger.info("Aktive arbeidssøkerperioder totalt: $aktivePerioder")
                 BrukerTable
                     .join(
                         otherTable = tjenestenErAktiv,
