@@ -19,7 +19,6 @@ fun BrukerProfil.tjenestenKanAktiveres(
     tidspunkt: Instant,
     adressebeskyttelseGyldighet: Duration
 ): TjenestenKanAktiveresResultat {
-    if (!harBruktTjenesten && !harGodeMuligheter) return Nei
     val harGradertAdresse = flagg<HarBeskyttetadresseFlagg>()
     return when {
         harGradertAdresse == null -> AdressebeskyttelseMåSjekkes

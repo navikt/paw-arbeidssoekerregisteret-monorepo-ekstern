@@ -82,7 +82,7 @@ class TjenestenKanAktiveresTest : FreeSpec({
                 ),
                 tidspunkt = clock.now(),
                 graderingGyldighet = Duration.ofDays(1),
-                forventetResultat = Nei
+                forventetResultat = AdressebeskyttelseMåSjekkes
             )
         ).forEach { testCase ->
             val brukerProfil = BrukerProfil(

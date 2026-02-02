@@ -298,7 +298,7 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
-                "Rett etter at Ola har registrert seg som arbeidssøker finnes profilen med tjenestatestaatus ${ApiTjenesteStatus.KAN_IKKE_LEVERES} (ikke 'antatt gode muligheter' grunnet manglende profilering)" {
+                "Rett etter at Ola har registrert seg som arbeidssøker finnes profilen med tjenestatestaatus ${ApiTjenesteStatus.INAKTIV} (ikke 'antatt gode muligheter' grunnet manglende profilering)" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     transaction {
                         opprettOgOppdaterBruker(olaPeriode)
@@ -307,14 +307,14 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.value
-                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldBeEmpty()
                     }
                     coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
-                "Etter at Ola er profilert til behov for veiledning er tjenestestatus fremdeles ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
+                "Etter at Ola er profilert til behov for veiledning er tjenestestatus fremdeles ${ApiTjenesteStatus.INAKTIV}" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     transaction {
                         lagreProfilering(
@@ -327,7 +327,7 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.value
-                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldBeEmpty()
                     }
                     coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
@@ -356,7 +356,7 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
-                "Når Ola får 14a vedtak som indikerer at han trenger hjelp endres tjenestestatis tilbake til ${ApiTjenesteStatus.KAN_IKKE_LEVERES}" {
+                "Når Ola får 14a vedtak som indikerer at han trenger hjelp endres tjenestestatis tilbake til ${ApiTjenesteStatus.INAKTIV}" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     currentTime.updateAndGet { current -> current + Duration.ofSeconds(2) }
                     transaction {
@@ -374,7 +374,7 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe olaIdent.value
-                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldBeEmpty()
                     }
                     coVerify(exactly = 0) { pdlClient.harBeskyttetAdresse(olaIdent) }
