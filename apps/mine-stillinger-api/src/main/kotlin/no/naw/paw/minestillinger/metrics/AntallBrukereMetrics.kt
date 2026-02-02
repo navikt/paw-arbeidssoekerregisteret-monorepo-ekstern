@@ -16,6 +16,7 @@ import no.naw.paw.minestillinger.domain.ProfileringResultat
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.count
+import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.select
@@ -92,7 +93,7 @@ class AntallBrukereMetrics(
                         ProfileringTable.profileringResultat,
                         optOut[BrukerFlaggTable.verdi],
                         harBruktTjenesten[BrukerFlaggTable.verdi],
-                        BrukerTable.id.count(),
+                        BrukerTable.id.countDistinct(),
                     ).groupBy(
                         BrukerTable.arbeidssoekerperiodeAvsluttet,
                         tjenestenErAktiv[BrukerFlaggTable.verdi],
@@ -113,7 +114,7 @@ class AntallBrukereMetrics(
                         ).let { key ->
                             MetricData(
                                 key = key,
-                                antall = row[BrukerTable.id.count()],
+                                antall = row[BrukerTable.id.countDistinct()],
                             )
                         }
                     }.associateBy { it.key }
