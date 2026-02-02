@@ -93,6 +93,9 @@ fun BrukerprofilTjeneste.deaktiverTjenesten(brukerProfil: BrukerProfil): Respons
 suspend fun BrukerprofilTjeneste.aktiverTjenesten(
     brukerProfil: BrukerProfil
 ): Response<Unit> {
+    if (brukerProfil.arbeidssoekerperiodeAvsluttet != null) {
+        return oppdateringIkkeTillatt("Brukeren har ikke en aktiv arbeidssøkerperiode.")
+    }
     val tidspunkt = clock.now()
     return when (brukerProfil.tjenestenKanAktiveres(tidspunkt, ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE)) {
         TjenestenKanAktiveresResultat.Ja -> Data(brukerProfil)

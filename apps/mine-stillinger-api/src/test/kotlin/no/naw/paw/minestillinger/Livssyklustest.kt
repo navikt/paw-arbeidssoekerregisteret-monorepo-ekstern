@@ -83,6 +83,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 
 class Livssyklustest : FreeSpec({
@@ -698,7 +699,7 @@ class Livssyklustest : FreeSpec({
                     }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
-                "Når Kari ikke lenger er arbeidssøker endres tjenestestatus til ${ApiTjenesteStatus.INAKTIV}, men søket beholdes" {
+                "Når Kari ikke lenger er arbeidssøker endres tjenestestatus til ${ApiTjenesteStatus.KAN_IKKE_LEVERES}, men søket beholdes" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     transaction {
                         opprettOgOppdaterBruker(
@@ -714,8 +715,46 @@ class Livssyklustest : FreeSpec({
                     response.status shouldBe HttpStatusCode.OK
                     response.body<ApiBrukerprofil>() should { profil ->
                         profil.identitetsnummer shouldBe kariIdent.value
+                        profil.tjenestestatus shouldBe ApiTjenesteStatus.KAN_IKKE_LEVERES
+                        profil.stillingssoek.shouldHaveSize(1)
+                    }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Når Kari ikke er arbeidssøker kan hun ikke aktivere tjenesten" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    val response = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, kariIdent)
+                    response.status shouldBe HttpStatusCode.Forbidden
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Når Kari igjen blir arbeidssøker endres tjenestestatus til ${ApiTjenesteStatus.INAKTIV} og søket beholdes" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    transaction {
+                        opprettOgOppdaterBruker(
+                            PeriodeFactory.create().build(
+                                id = UUID.randomUUID(),
+                                identitetsnummer = kariPeriode.identitetsnummer,
+                                startet = kariPeriode.startet,
+                                avsluttet = null
+                            )
+                        )
+                    }
+                    val response = testClient.getBrukerprofil(kariIdent)
+                    response.status shouldBe HttpStatusCode.OK
+                    response.body<ApiBrukerprofil>() should { profil ->
+                        profil.identitetsnummer shouldBe kariIdent.value
                         profil.tjenestestatus shouldBe ApiTjenesteStatus.INAKTIV
                         profil.stillingssoek.shouldHaveSize(1)
+                    }
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                "Kari kan nå aktivere tjenesten igjen" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    val response = testClient.setTjenestestatus(ApiTjenesteStatus.AKTIV, kariIdent)
+                    withClue(response.bodyAsText()) {
+                        response.status shouldBe HttpStatusCode.NoContent
                     }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
@@ -768,9 +807,9 @@ class Livssyklustest : FreeSpec({
                         val antall = slettFrittståendeProfileringer(tidspunkt)
                         antall shouldBe 0
                     }
-                    "Vi skal ha en frittstående profilering som er eldre enn 7 dager som slettes" {
+                    "Vi skal ha to frittstående profilering som er eldre enn 7 dager som slettes" {
                         val antall = slettFrittståendeProfileringer(clock.now())
-                        antall shouldBe 1
+                        antall shouldBe 2
                     }
                     "Denne ene profileringen er nå slettet, så en ny kjøring skal ikke slette noe" {
                         val antall = slettFrittståendeProfileringer(clock.now())
