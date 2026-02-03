@@ -13,9 +13,11 @@ import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.db.ProfileringTable
 import no.naw.paw.minestillinger.domain.ProfileringResultat
+import org.jetbrains.exposed.v1.core.Case
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.booleanLiteral
 import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
@@ -82,6 +84,10 @@ class AntallBrukereMetrics(
                             (standardInnsats[BrukerFlaggTable.verdi] eq true)
                     }.count()
                 appLogger.info("Brukere med standard innsats: $stdInnsats")
+                val aktivPeriode = Case()
+                    .When(BrukerTable.arbeidssoekerperiodeAvsluttet.isNull(), booleanLiteral(true))
+                    .Else(booleanLiteral(false))
+                    .alias("aktiv_periode")
                 BrukerTable
                     .join(
                         otherTable = tjenestenErAktiv,
@@ -113,7 +119,7 @@ class AntallBrukereMetrics(
                         onColumn = BrukerTable.arbeidssoekerperiodeId,
                         otherColumn = ProfileringTable.periodeId,
                     ).select(
-                        BrukerTable.arbeidssoekerperiodeAvsluttet,
+                        aktivPeriode,
                         tjenestenErAktiv[BrukerFlaggTable.verdi],
                         ProfileringTable.profileringResultat,
                         optOut[BrukerFlaggTable.verdi],
@@ -121,7 +127,7 @@ class AntallBrukereMetrics(
                         standardInnsats[BrukerFlaggTable.verdi],
                         BrukerTable.id.countDistinct(),
                     ).groupBy(
-                        BrukerTable.arbeidssoekerperiodeAvsluttet,
+                        BrukerTable.arbeidssoekerperiodeAvsluttet.isNull(),
                         tjenestenErAktiv[BrukerFlaggTable.verdi],
                         ProfileringTable.profileringResultat,
                         optOut[BrukerFlaggTable.verdi],
@@ -129,7 +135,7 @@ class AntallBrukereMetrics(
                         standardInnsats[BrukerFlaggTable.verdi],
                     ).map { row ->
                         MetricDataKey(
-                            arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] == null,
+                            arbeidssoekerPeriodenErAktiv = row[aktivPeriode],
                             tjenestenErAktiv = row.getOrNull(tjenestenErAktiv[BrukerFlaggTable.verdi]) == true,
                             optOut = row.getOrNull(optOut[BrukerFlaggTable.verdi]) == true,
                             harBruktTjenesten = row.getOrNull(harBruktTjenesten[BrukerFlaggTable.verdi]) == true,
