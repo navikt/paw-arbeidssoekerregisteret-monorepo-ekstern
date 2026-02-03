@@ -118,6 +118,7 @@ class AntallBrukereMetrics(
                         ProfileringTable.profileringResultat,
                         optOut[BrukerFlaggTable.verdi],
                         harBruktTjenesten[BrukerFlaggTable.verdi],
+                        standardInnsats[BrukerFlaggTable.verdi],
                         BrukerTable.id.countDistinct(),
                     ).groupBy(
                         BrukerTable.arbeidssoekerperiodeAvsluttet,
@@ -125,6 +126,7 @@ class AntallBrukereMetrics(
                         ProfileringTable.profileringResultat,
                         optOut[BrukerFlaggTable.verdi],
                         harBruktTjenesten[BrukerFlaggTable.verdi],
+                        standardInnsats[BrukerFlaggTable.verdi],
                     ).map { row ->
                         MetricDataKey(
                             arbeidssoekerPeriodenErAktiv = row[BrukerTable.arbeidssoekerperiodeAvsluttet] == null,
