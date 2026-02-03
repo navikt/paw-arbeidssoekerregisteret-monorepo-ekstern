@@ -70,6 +70,18 @@ class AntallBrukereMetrics(
                             (tjenestenErAktiv[BrukerFlaggTable.verdi] eq true)
                     }.count()
                 appLogger.info("Aktive brukere: $aktive")
+                val stdInnsats = BrukerTable
+                    .join(
+                        otherTable = standardInnsats,
+                        joinType = JoinType.LEFT,
+                        onColumn = BrukerTable.id,
+                        otherColumn = standardInnsats[BrukerFlaggTable.brukerId],
+                        additionalConstraint = { standardInnsats[BrukerFlaggTable.navn] eq StandardInnsatsFlaggtype.type }
+                    ).selectAll().where {
+                        BrukerTable.arbeidssoekerperiodeAvsluttet.isNull() and
+                            (standardInnsats[BrukerFlaggTable.verdi] eq true)
+                    }.count()
+                appLogger.info("Brukere med standard innsats: $stdInnsats")
                 BrukerTable
                     .join(
                         otherTable = tjenestenErAktiv,
