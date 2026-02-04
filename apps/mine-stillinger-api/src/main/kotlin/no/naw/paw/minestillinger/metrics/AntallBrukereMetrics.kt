@@ -127,7 +127,7 @@ class AntallBrukereMetrics(
                         standardInnsats[BrukerFlaggTable.verdi],
                         BrukerTable.id.countDistinct(),
                     ).groupBy(
-                        BrukerTable.arbeidssoekerperiodeAvsluttet.isNull(),
+                        aktivPeriode,
                         tjenestenErAktiv[BrukerFlaggTable.verdi],
                         ProfileringTable.profileringResultat,
                         optOut[BrukerFlaggTable.verdi],
@@ -150,6 +150,15 @@ class AntallBrukereMetrics(
                                 antall = row[BrukerTable.id.countDistinct()],
                             )
                         }
+                    }.groupBy { it.key }
+                    .map { (key, value) ->
+                        if (value.size > 1) {
+                            val antall = value.fold(0L, { acc, metricData -> acc + metricData.antall })
+                            appLogger.info("Flere rader for nøkkel: $key, antall rader: ${value.size}, totalt=$antall")
+                            value.first().copy(antall = antall)
+                        } else {
+                            value.first()
+                        }
                     }.associateBy { it.key }
             }
         data.forEach { kv ->
@@ -161,12 +170,10 @@ class AntallBrukereMetrics(
             .forEach { (key, value) ->
                 metricsMap.compute(key) { _, existing ->
                     if (existing != null) {
-                        appLogger.info("oppdaterer metric => $key = $value")
                         existing.set(value)
                         existing
                     } else {
                         val atomicLong = AtomicLong(value)
-                        appLogger.info("Registrerer ny metrikk for nøkkel: $key")
                         meterRegistry.gauge(
                             "paw_mine_stillinger_antall_brukere",
                             listOf(
@@ -180,7 +187,6 @@ class AntallBrukereMetrics(
                             atomicLong,
                             { it.get().toDouble() },
                         )
-                        appLogger.info("Regsterering fullført")
                         atomicLong
                     }
                 }
