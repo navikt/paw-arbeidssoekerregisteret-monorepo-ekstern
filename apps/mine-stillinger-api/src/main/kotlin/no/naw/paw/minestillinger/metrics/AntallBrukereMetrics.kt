@@ -46,44 +46,10 @@ class AntallBrukereMetrics(
     fun oppdaterAntallBrukere() {
         val data =
             transaction {
-                val debugInfoAntallProfiler = BrukerTable.select(BrukerFlaggTable.id).count()
-                val debuigInfoAntallAktivePerioder = BrukerTable.select(BrukerFlaggTable.id)
-                    .where { BrukerTable.arbeidssoekerperiodeAvsluttet.isNull() }
-                    .count()
-                appLogger.info("debugInfoAntallProfiler: $debugInfoAntallProfiler")
-                appLogger.info("debugInfoAntallAktivePerioder: $debuigInfoAntallAktivePerioder")
                 val tjenestenErAktiv = BrukerFlaggTable.alias("tjenesten_er_aktiv")
                 val optOut = BrukerFlaggTable.alias("opt_out")
                 val harBruktTjenesten = BrukerFlaggTable.alias("har_brukt_tjenesten")
                 val standardInnsats = BrukerFlaggTable.alias("innsatsbehov")
-                val aktivePerioder = BrukerTable.selectAll().where {
-                    BrukerTable.arbeidssoekerperiodeAvsluttet.isNull()
-                }.count()
-                appLogger.info("Aktive arbeidssøkerperioder totalt: $aktivePerioder")
-                val aktive = BrukerTable
-                    .join(
-                        otherTable = tjenestenErAktiv,
-                        joinType = JoinType.LEFT,
-                        onColumn = BrukerTable.id,
-                        otherColumn = tjenestenErAktiv[BrukerFlaggTable.brukerId],
-                        additionalConstraint = { tjenestenErAktiv[BrukerFlaggTable.navn] eq TjenestenErAktivFlaggtype.type }
-                    ).selectAll().where {
-                        BrukerTable.arbeidssoekerperiodeAvsluttet.isNull() and
-                            (tjenestenErAktiv[BrukerFlaggTable.verdi] eq true)
-                    }.count()
-                appLogger.info("Aktive brukere: $aktive")
-                val stdInnsats = BrukerTable
-                    .join(
-                        otherTable = standardInnsats,
-                        joinType = JoinType.LEFT,
-                        onColumn = BrukerTable.id,
-                        otherColumn = standardInnsats[BrukerFlaggTable.brukerId],
-                        additionalConstraint = { standardInnsats[BrukerFlaggTable.navn] eq StandardInnsatsFlaggtype.type }
-                    ).selectAll().where {
-                        BrukerTable.arbeidssoekerperiodeAvsluttet.isNull() and
-                            (standardInnsats[BrukerFlaggTable.verdi] eq true)
-                    }.count()
-                appLogger.info("Brukere med standard innsats: $stdInnsats")
                 val aktivPeriode = Case()
                     .When(BrukerTable.arbeidssoekerperiodeAvsluttet.isNull(), booleanLiteral(true))
                     .Else(booleanLiteral(false))
@@ -151,19 +117,15 @@ class AntallBrukereMetrics(
                             )
                         }
                     }.groupBy { it.key }
-                    .map { (key, value) ->
+                    .map { (_, value) ->
                         if (value.size > 1) {
                             val antall = value.fold(0L, { acc, metricData -> acc + metricData.antall })
-                            appLogger.info("Flere rader for nøkkel: $key, antall rader: ${value.size}, totalt=$antall")
                             value.first().copy(antall = antall)
                         } else {
                             value.first()
                         }
                     }.associateBy { it.key }
             }
-        data.forEach { kv ->
-            appLogger.info("Antall brukere - nøkkel: ${kv.key}, antall: ${kv.value.antall}")
-        }
         (metricsMap.keys + data.keys)
             .distinct()
             .map { key -> key to (data[key]?.antall ?: 0L) }
