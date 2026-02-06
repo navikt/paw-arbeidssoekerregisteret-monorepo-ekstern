@@ -75,7 +75,6 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
 ) {
     val kafkaTopologyConfig = applicationConfig.kafkaTopology
     val microfrontendToggleConfig = applicationConfig.microfrontendToggle
-    val deprekeringConfig = applicationConfig.deprekering
     val stateStore: KeyValueStore<Long, PeriodeInfo> = getStateStore(kafkaTopologyConfig.periodeStateStore)
     val eksisterendePeriodeInfo = stateStore.get(periodeInfo.arbeidssoekerId)
 
@@ -84,12 +83,6 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
 
         meterRegistry.tellAntallIkkeSendteToggles(
             microfrontendToggleConfig.aiaMinSide,
-            ToggleSource.ARBEIDSSOEKERPERIODE,
-            ToggleAction.ENABLE,
-            "duplikat_periode"
-        )
-        meterRegistry.tellAntallIkkeSendteToggles(
-            microfrontendToggleConfig.aiaBehovsvurdering,
             ToggleSource.ARBEIDSSOEKERPERIODE,
             ToggleAction.ENABLE,
             "duplikat_periode"
@@ -112,40 +105,6 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
             ToggleSource.ARBEIDSSOEKERPERIODE,
             "aktiv_periode"
         )
-
-        if (periodeInfo.startet.isBefore(deprekeringConfig.tidspunkt)) {
-            logger.info(
-                "Arbeidsøkerperiode startet før deprekeringstidspunkt {}, utfører aktivering av {}",
-                deprekeringConfig.tidspunkt,
-                microfrontendToggleConfig.aiaBehovsvurdering
-            )
-
-            // Send event for å aktivere AIA Behovsvurdering
-            val enableAiaBehovsvurderingToggle = iverksettAktiverToggle(
-                periodeInfo,
-                microfrontendToggleConfig.aiaBehovsvurdering,
-                ToggleSource.ARBEIDSSOEKERPERIODE,
-                microfrontendToggleConfig.aiaBehovsvurderingSensitivitet
-            )
-            meterRegistry.tellAntallSendteToggles(
-                enableAiaBehovsvurderingToggle,
-                ToggleSource.ARBEIDSSOEKERPERIODE,
-                "aktiv_periode"
-            )
-        } else {
-            logger.info(
-                "Arbeidsøkerperiode startet etter deprekeringstidspunkt {}, så avbryter aktivering av {}",
-                deprekeringConfig.tidspunkt,
-                microfrontendToggleConfig.aiaBehovsvurdering
-            )
-
-            meterRegistry.tellAntallIkkeSendteToggles(
-                microfrontendToggleConfig.aiaBehovsvurdering,
-                ToggleSource.ARBEIDSSOEKERPERIODE,
-                ToggleAction.ENABLE,
-                "behovsvurdering_deprekert"
-            )
-        }
     }
 }
 
@@ -161,7 +120,8 @@ private fun ProcessorContext<Long, Toggle>.processAvsluttetPeriode(
     val utsattDeaktiveringsfrist = Instant.now().minus(microfrontendToggleConfig.utsattDeaktiveringAvAiaMinSide)
     if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
         logger.info(
-            "Mottok avsluttet arbeidsøkerperiode, utfører deaktivering av {}",
+            "Mottok arbeidsøkerperiode avsluttet for mer enn {}, utfører deaktivering av {}",
+            microfrontendToggleConfig.utsattDeaktiveringAvAiaMinSide,
             microfrontendToggleConfig.aiaMinSide
         )
 
@@ -181,28 +141,12 @@ private fun ProcessorContext<Long, Toggle>.processAvsluttetPeriode(
         )
     } else {
         logger.info(
-            "Mottok avsluttet arbeidsøkerperiode, lagrer forsinket deaktivering av {}",
+            "Mottok arbeidsøkerperiode avsluttet for mindre enn {}, lagrer forsinket deaktivering av {}",
+            microfrontendToggleConfig.utsattDeaktiveringAvAiaMinSide,
             microfrontendToggleConfig.aiaMinSide
         )
         // Lagre periode i state store
         stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
     }
-
-    logger.info(
-        "Mottok avsluttet arbeidsøkerperiode, utfører deaktivering av {}",
-        microfrontendToggleConfig.aiaBehovsvurdering
-    )
-    // Send event for å deaktivere AIA Behovsvurdering
-    val disableAiaBehovsvurderingToggle = iverksettDeaktiverToggle(
-        periodeInfo,
-        microfrontendToggleConfig.aiaBehovsvurdering,
-        ToggleSource.ARBEIDSSOEKERPERIODE
-    )
-    // Registrer metrikk for toggle
-    meterRegistry.tellAntallSendteToggles(
-        disableAiaBehovsvurderingToggle,
-        ToggleSource.ARBEIDSSOEKERPERIODE,
-        "avsluttet_periode"
-    )
 }
 
