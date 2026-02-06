@@ -16,6 +16,3 @@ aiaBehovsvurdering = "aia-behovsvurdering"
 aiaBehovsvurderingSensitivitet = "HIGH"
 periodeTogglePunctuatorSchedule = "PT6H"
 utsattDeaktiveringAvAiaMinSide = "P21D"
-
-[deprekering]
-tidspunkt = "${DEPREKERING_BEHOVSVURDERING_TIDSPUNKT}"

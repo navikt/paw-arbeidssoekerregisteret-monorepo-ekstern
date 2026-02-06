@@ -15,7 +15,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.test.TestData.buildPeriode
 import no.nav.paw.arbeidssoekerregisteret.test.addPeriodeInMemoryStateStore
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.addPeriodeStream
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
@@ -29,8 +28,6 @@ import org.apache.kafka.streams.TestOutputTopic
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.state.KeyValueStore
 import java.time.Duration
-import java.time.Instant
-import java.util.*
 
 /**
  *                 -21d                  -10d        -5d         Nå
@@ -38,9 +35,8 @@ import java.util.*
  *    |--- p1 -->|
  *                                         |--- p2 -->|
  *
- * p1: Skal aktivere både aia-min-side og aia-behovsvurdering ved start og deaktivere begge ved avslutting
- * p2: Skal aktivere både aia-min-side og aia-behovsvurdering ved start og deaktivere kun aia-behovsvurdering
- *     ved deaktivering. Når det er gått > 21d siden avslutting skal aia-min-side deaktiveres.
+ * p1: Skal aktivere aia-min-side ved start og deaktiver ved avslutting
+ * p2: Skal aktivere aia-min-side ved start. Når det er gått > 21d siden avslutting skal aia-min-side deaktiveres.
  *
  */
 class PeriodeStreamTest : FreeSpec({
@@ -53,7 +49,7 @@ class PeriodeStreamTest : FreeSpec({
         val applicationConfig: ApplicationConfig = loadNaisOrLocalConfiguration(APPLICATION_CONFIG)
         with(LocalTestContext(applicationConfig = applicationConfig)) {
 
-            "Skal aktivere begge microfrontends ved start av periode eldre en 21 dager (p1)" {
+            "Skal aktivere aia-min-side ved start av periode eldre en 21 dager (p1)" {
                 val kafkaKey = TestData.kafkaKey1
                 val identitetsnummer = TestData.identitetsnummer1
                 val arbeidssoekerId = TestData.arbeidsoekerId1
@@ -68,10 +64,9 @@ class PeriodeStreamTest : FreeSpec({
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 2
+                keyValueList.size shouldBe 1
 
                 val minSideKeyValue = keyValueList.first()
-                val behovsvurderingKeyValue = keyValueList.last()
 
                 minSideKeyValue.key shouldBe arbeidssoekerId.value
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
@@ -79,15 +74,6 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe startetPeriode.identitetsnummer
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initiatedBy shouldBe "paw"
-                }
-
-                behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
-                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetPeriode.identitetsnummer
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
-                    sensitivitet shouldBe Sensitivitet.HIGH
                     initiatedBy shouldBe "paw"
                 }
 
@@ -102,7 +88,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
             }
 
-            "Skal deaktivere begge microfrontend ved avslutting av periode eldre enn 21 dager (p1)" {
+            "Skal deaktivere aia-min-side ved avslutting av periode eldre enn 21 dager (p1)" {
                 val kafkaKey = TestData.kafkaKey1
                 val identitetsnummer = TestData.identitetsnummer1
                 val arbeidssoekerId = TestData.arbeidsoekerId1
@@ -117,10 +103,9 @@ class PeriodeStreamTest : FreeSpec({
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 2
+                keyValueList.size shouldBe 1
 
                 val minSideKeyValue = keyValueList.first()
-                val behovsvurderingKeyValue = keyValueList.last()
 
                 minSideKeyValue.key shouldBe arbeidssoekerId.value
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
@@ -131,19 +116,10 @@ class PeriodeStreamTest : FreeSpec({
                     initiatedBy shouldBe "paw"
                 }
 
-                behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
-                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.DISABLE
-                    ident shouldBe identitetsnummer.value
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
-                    sensitivitet shouldBe null
-                    initiatedBy shouldBe "paw"
-                }
-
                 periodeStateStore.size() shouldBe 0
             }
 
-            "Skal aktivere begge microfrontends ved start av periode (p2)" {
+            "Skal aktivere aia-min-side ved start av periode (p2)" {
                 val kafkaKey = TestData.kafkaKey2
                 val identitetsnummer = TestData.identitetsnummer2
                 val arbeidssoekerId = TestData.arbeidsoekerId2
@@ -158,10 +134,9 @@ class PeriodeStreamTest : FreeSpec({
 
                 microfrontendTopic.isEmpty shouldBe false
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 2
+                keyValueList.size shouldBe 1
 
                 val minSideKeyValue = keyValueList.first()
-                val behovsvurderingKeyValue = keyValueList.last()
 
                 minSideKeyValue.key shouldBe arbeidssoekerId.value
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
@@ -169,15 +144,6 @@ class PeriodeStreamTest : FreeSpec({
                     ident shouldBe identitetsnummer.value
                     microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initiatedBy shouldBe "paw"
-                }
-
-                behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
-                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.ENABLE
-                    ident shouldBe identitetsnummer.value
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
-                    sensitivitet shouldBe Sensitivitet.HIGH
                     initiatedBy shouldBe "paw"
                 }
 
@@ -192,7 +158,7 @@ class PeriodeStreamTest : FreeSpec({
                 }
             }
 
-            "Skal deaktivere aia-behovsvurdering microfrontend ved avslutting av periode nyere enn 21 dager (p2)" {
+            "Skal ikke deaktivere aia-min-side ved avslutting av periode nyere enn 21 dager (p2)" {
                 val kafkaKey = TestData.kafkaKey2
                 val identitetsnummer = TestData.identitetsnummer2
                 val arbeidssoekerId = TestData.arbeidsoekerId2
@@ -205,20 +171,9 @@ class PeriodeStreamTest : FreeSpec({
 
                 periodeTopic.pipeInput(arbeidssoekerId.value, avsluttetPeriode)
 
-                microfrontendTopic.isEmpty shouldBe false
+                microfrontendTopic.isEmpty shouldBe true
                 val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 1
-
-                val behovsvurderingKeyValue = keyValueList.last()
-
-                behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
-                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.DISABLE
-                    ident shouldBe identitetsnummer.value
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
-                    sensitivitet shouldBe null
-                    initiatedBy shouldBe "paw"
-                }
+                keyValueList.size shouldBe 0
 
                 periodeStateStore.size() shouldBe 1
                 val periodeInfo = periodeStateStore.get(arbeidssoekerId.value)
@@ -289,168 +244,6 @@ class PeriodeStreamTest : FreeSpec({
                 periodeInfo2 shouldNotBe null
                 periodeInfo2.arbeidssoekerId shouldBe arbeidssoekerId.value
                 periodeInfo2 shouldBe startetPeriode1.asPeriodeInfo(arbeidssoekerId.value)
-            }
-        }
-    }
-
-    "Testsuite for deprekering av behovsvurdering" - {
-        val deprekeringstidspunkt = Instant.now()
-        val applicationConfig: ApplicationConfig = loadNaisOrLocalConfiguration(APPLICATION_CONFIG)
-        val justertApplicationConfig = applicationConfig.copy(
-            deprekering = applicationConfig.deprekering.copy(
-                tidspunkt = deprekeringstidspunkt
-            )
-        )
-
-        with(LocalTestContext(applicationConfig = justertApplicationConfig)) {
-
-            "Skal aktivere behovsvurdering om periode er startet før deprekeringstidspunkt $deprekeringstidspunkt" {
-                val kafkaKey = TestData.kafkaKey5
-                val identitetsnummer = TestData.identitetsnummer5
-                val arbeidssoekerId = TestData.arbeidsoekerId5
-                val startetPeriode = buildPeriode(
-                    id = UUID.randomUUID(),
-                    identitetsnummer = identitetsnummer,
-                    startetTidspunkt = deprekeringstidspunkt.minusSeconds(60)
-                )
-
-                coEvery { kafkaKeysClientMock.getIdAndKey(identitetsnummer.value) } returns KafkaKeysResponse(
-                    arbeidssoekerId.value,
-                    kafkaKey.value
-                )
-
-                periodeTopic.pipeInput(arbeidssoekerId.value, startetPeriode)
-
-                microfrontendTopic.isEmpty shouldBe false
-                val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 2
-
-                val minSideKeyValue = keyValueList.first()
-                val behovsvurderingKeyValue = keyValueList.last()
-
-                minSideKeyValue.key shouldBe arbeidssoekerId.value
-                with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetPeriode.identitetsnummer
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
-                    sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initiatedBy shouldBe "paw"
-                }
-
-                behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
-                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetPeriode.identitetsnummer
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
-                    sensitivitet shouldBe Sensitivitet.HIGH
-                    initiatedBy shouldBe "paw"
-                }
-
-                periodeStateStore.size() shouldBe 1
-                val periodeInfo = periodeStateStore.get(arbeidssoekerId.value)
-                periodeInfo.shouldBeInstanceOf<PeriodeInfo> {
-                    it.id shouldBe startetPeriode.id
-                    it.identitetsnummer shouldBe startetPeriode.identitetsnummer
-                    it.arbeidssoekerId shouldBe arbeidssoekerId.value
-                    it.startet shouldBe startetPeriode.startet.tidspunkt
-                    it.avsluttet shouldBe null
-                }
-            }
-
-            "Skal aktivere behovsvurdering om periode er startet på deprekeringstidspunkt $deprekeringstidspunkt" {
-                val kafkaKey = TestData.kafkaKey5
-                val identitetsnummer = TestData.identitetsnummer5
-                val arbeidssoekerId = TestData.arbeidsoekerId5
-                val startetPeriode = buildPeriode(
-                    id = UUID.randomUUID(),
-                    identitetsnummer = identitetsnummer,
-                    startetTidspunkt = deprekeringstidspunkt
-                )
-
-                coEvery { kafkaKeysClientMock.getIdAndKey(identitetsnummer.value) } returns KafkaKeysResponse(
-                    arbeidssoekerId.value,
-                    kafkaKey.value
-                )
-
-                periodeTopic.pipeInput(arbeidssoekerId.value, startetPeriode)
-
-                microfrontendTopic.isEmpty shouldBe false
-                val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 2
-
-                val minSideKeyValue = keyValueList.first()
-                val behovsvurderingKeyValue = keyValueList.last()
-
-                minSideKeyValue.key shouldBe arbeidssoekerId.value
-                with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetPeriode.identitetsnummer
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
-                    sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initiatedBy shouldBe "paw"
-                }
-
-                behovsvurderingKeyValue.key shouldBe arbeidssoekerId.value
-                with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetPeriode.identitetsnummer
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaBehovsvurdering
-                    sensitivitet shouldBe Sensitivitet.HIGH
-                    initiatedBy shouldBe "paw"
-                }
-
-                periodeStateStore.size() shouldBe 1
-                val periodeInfo = periodeStateStore.get(arbeidssoekerId.value)
-                periodeInfo.shouldBeInstanceOf<PeriodeInfo> {
-                    it.id shouldBe startetPeriode.id
-                    it.identitetsnummer shouldBe startetPeriode.identitetsnummer
-                    it.arbeidssoekerId shouldBe arbeidssoekerId.value
-                    it.startet shouldBe startetPeriode.startet.tidspunkt
-                    it.avsluttet shouldBe null
-                }
-            }
-
-            "Skal ikke aktivere behovsvurdering om periode er startet etter deprekeringstidspunkt $deprekeringstidspunkt" {
-                val kafkaKey = TestData.kafkaKey5
-                val identitetsnummer = TestData.identitetsnummer5
-                val arbeidssoekerId = TestData.arbeidsoekerId5
-                val startetPeriode = buildPeriode(
-                    id = UUID.randomUUID(),
-                    identitetsnummer = identitetsnummer,
-                    startetTidspunkt = deprekeringstidspunkt.plusSeconds(60)
-                )
-
-                coEvery { kafkaKeysClientMock.getIdAndKey(identitetsnummer.value) } returns KafkaKeysResponse(
-                    arbeidssoekerId.value,
-                    kafkaKey.value
-                )
-
-                periodeTopic.pipeInput(arbeidssoekerId.value, startetPeriode)
-
-                microfrontendTopic.isEmpty shouldBe false
-                val keyValueList = microfrontendTopic.readKeyValuesToList()
-                keyValueList.size shouldBe 1
-
-                val minSideKeyValue = keyValueList.first()
-
-                minSideKeyValue.key shouldBe arbeidssoekerId.value
-                with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
-                    action shouldBe ToggleAction.ENABLE
-                    ident shouldBe startetPeriode.identitetsnummer
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
-                    sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
-                    initiatedBy shouldBe "paw"
-                }
-
-                periodeStateStore.size() shouldBe 1
-                val periodeInfo = periodeStateStore.get(arbeidssoekerId.value)
-                periodeInfo.shouldBeInstanceOf<PeriodeInfo> {
-                    it.id shouldBe startetPeriode.id
-                    it.identitetsnummer shouldBe startetPeriode.identitetsnummer
-                    it.arbeidssoekerId shouldBe arbeidssoekerId.value
-                    it.startet shouldBe startetPeriode.startet.tidspunkt
-                    it.avsluttet shouldBe null
-                }
             }
         }
     }

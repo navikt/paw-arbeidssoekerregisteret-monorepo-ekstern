@@ -2,14 +2,12 @@ package no.nav.paw.arbeidssoekerregisteret.config
 
 import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import java.time.Duration
-import java.time.Instant
 
 const val APPLICATION_CONFIG = "application_config.toml"
 
 data class ApplicationConfig(
     val kafkaTopology: KafkaTopologyConfig,
-    val microfrontendToggle: MicrofrontendToggleConfig,
-    val deprekering: DeprekeringConfig
+    val microfrontendToggle: MicrofrontendToggleConfig
 )
 
 data class KafkaTopologyConfig(
@@ -31,8 +29,4 @@ data class MicrofrontendToggleConfig(
     val aiaBehovsvurderingSensitivitet: Sensitivitet,
     val periodeTogglePunctuatorSchedule: Duration,
     val utsattDeaktiveringAvAiaMinSide: Duration
-)
-
-data class DeprekeringConfig(
-    val tidspunkt: Instant
 )
