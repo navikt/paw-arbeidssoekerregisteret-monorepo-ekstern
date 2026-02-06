@@ -65,9 +65,6 @@ spec:
   kafka:
     pool: nav-dev
     streams: true
-  filesFrom:
-    - secret: paw-microfrontend-toggler-csv
-      mountPath: /var/run/secrets/paw-microfrontend-toggler-csv
   accessPolicy:
     inbound:
       rules:

@@ -13,7 +13,6 @@ import no.nav.paw.arbeidssoekerregisteret.test.TestData
 import no.nav.paw.arbeidssoekerregisteret.test.addDeprekeringInMemoryStateStore
 import no.nav.paw.arbeidssoekerregisteret.test.addPeriodeInMemoryStateStore
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.addBeriket14aVedtakStream
-import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.TestInputTopic
@@ -104,8 +103,7 @@ class Beriket14aVedtakStreamTest : FreeSpec({
             addPeriodeInMemoryStateStore(applicationConfig)
             addBeriket14aVedtakStream(
                 applicationConfig,
-                meterRegistry,
-                kafkaKeysClientMock::getIdAndKeyBlocking
+                meterRegistry
             )
         }.build()
             .let { TopologyTestDriver(it, kafkaStreamProperties) }

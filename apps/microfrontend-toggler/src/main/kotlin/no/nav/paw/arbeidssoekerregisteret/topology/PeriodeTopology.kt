@@ -18,5 +18,5 @@ fun buildPeriodeTopology(
     addDeprekeringStateStore(applicationConfig)
     addPeriodeStateStore(applicationConfig)
     addPeriodeStream(applicationConfig, meterRegistry, kafkaKeysFunction)
-    addBeriket14aVedtakStream(applicationConfig, meterRegistry, kafkaKeysFunction)
+    addBeriket14aVedtakStream(applicationConfig, meterRegistry)
 }.build()

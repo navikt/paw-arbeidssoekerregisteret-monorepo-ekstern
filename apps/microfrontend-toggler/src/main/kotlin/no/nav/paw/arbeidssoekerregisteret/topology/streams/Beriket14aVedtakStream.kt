@@ -16,7 +16,6 @@ import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallIkkeSendteToggles
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallMottatteBeriket14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallSendteToggles
 import no.nav.paw.kafka.processor.genericProcess
-import no.nav.paw.kafkakeygenerator.model.KafkaKeysResponse
 import no.nav.paw.logging.logger.buildApplicationLogger
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
@@ -30,8 +29,7 @@ private val logger = buildApplicationLogger
 
 fun StreamsBuilder.addBeriket14aVedtakStream(
     applicationConfig: ApplicationConfig,
-    meterRegistry: MeterRegistry,
-    kafkaKeysFunction: (ident: String) -> KafkaKeysResponse
+    meterRegistry: MeterRegistry
 ) {
     val deprekeringConfig = applicationConfig.deprekering
     val kafkaTopologyConfig = applicationConfig.kafkaTopology
@@ -45,7 +43,7 @@ fun StreamsBuilder.addBeriket14aVedtakStream(
     }.genericProcess<Long, Beriket14aVedtak, Long, Toggle>(
         name = "handtereToggleForBeriket14aVedtak",
         stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore, deprekeringConfig.stateStore),
-        punctuation = buildDeprekeringPunctuator(applicationConfig, kafkaKeysFunction)
+        punctuation = buildDeprekeringPunctuator(applicationConfig)
     ) { record ->
         processBeriket14aVedtak(applicationConfig, meterRegistry, record)
     }.to(kafkaTopologyConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))
