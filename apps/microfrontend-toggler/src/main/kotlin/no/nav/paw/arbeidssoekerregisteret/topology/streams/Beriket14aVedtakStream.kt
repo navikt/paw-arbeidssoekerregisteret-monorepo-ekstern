@@ -9,7 +9,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
 import no.nav.paw.arbeidssoekerregisteret.topology.processor.iverksettDeaktiverToggle
-import no.nav.paw.arbeidssoekerregisteret.topology.punctuator.buildDeprekeringPunctuator
 import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.tellAntallIkkeSendteToggles
@@ -31,7 +30,6 @@ fun StreamsBuilder.addBeriket14aVedtakStream(
     applicationConfig: ApplicationConfig,
     meterRegistry: MeterRegistry
 ) {
-    val deprekeringConfig = applicationConfig.deprekering
     val kafkaTopologyConfig = applicationConfig.kafkaTopology
     logger.info("Oppretter KStream for {}", kafkaTopologyConfig.beriket14aVedtakTopic)
 
@@ -42,8 +40,7 @@ fun StreamsBuilder.addBeriket14aVedtakStream(
         meterRegistry.tellAntallMottatteBeriket14aVedtak()
     }.genericProcess<Long, Beriket14aVedtak, Long, Toggle>(
         name = "handtereToggleForBeriket14aVedtak",
-        stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore, deprekeringConfig.stateStore),
-        punctuation = buildDeprekeringPunctuator(applicationConfig)
+        stateStoreNames = arrayOf(kafkaTopologyConfig.periodeStateStore),
     ) { record ->
         processBeriket14aVedtak(applicationConfig, meterRegistry, record)
     }.to(kafkaTopologyConfig.microfrontendTopic, Produced.with(Serdes.Long(), buildToggleSerde()))

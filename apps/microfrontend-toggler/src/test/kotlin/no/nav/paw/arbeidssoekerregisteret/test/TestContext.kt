@@ -16,7 +16,6 @@ import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
-import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
@@ -57,7 +56,6 @@ open class TestContext(
     val prometheusMeterRegistryMock: PrometheusMeterRegistry = mockk<PrometheusMeterRegistry>(),
     val kafkaKeysClientMock: KafkaKeysClient = mockk<KafkaKeysClient>(),
     val periodeSerde: Serde<Periode> = buildAvroSerde(),
-    val periodeInfoSerde: Serde<PeriodeInfo> = buildPeriodeInfoSerde(),
     val siste14aVedtakSerde: Serde<Siste14aVedtak> = buildSiste14aVedtakSerde(),
     val beriket14aVedtakSerde: Serde<Beriket14aVedtak> = buildBeriket14aVedtakSerde(),
     val toggleSerde: Serde<Toggle> = buildToggleSerde(),
@@ -147,16 +145,6 @@ fun StreamsBuilder.addPeriodeInMemoryStateStore(applicationConfig: ApplicationCo
             Stores.inMemoryKeyValueStore(applicationConfig.kafkaTopology.periodeStateStore),
             Serdes.Long(),
             buildPeriodeInfoSerde()
-        )
-    )
-}
-
-fun StreamsBuilder.addDeprekeringInMemoryStateStore(applicationConfig: ApplicationConfig) {
-    addStateStore(
-        Stores.keyValueStoreBuilder(
-            Stores.inMemoryKeyValueStore(applicationConfig.deprekering.stateStore),
-            Serdes.String(),
-            Serdes.String()
         )
     )
 }

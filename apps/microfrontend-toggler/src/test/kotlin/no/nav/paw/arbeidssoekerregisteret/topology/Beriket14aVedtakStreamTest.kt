@@ -10,7 +10,6 @@ import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.asPeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.test.TestContext
 import no.nav.paw.arbeidssoekerregisteret.test.TestData
-import no.nav.paw.arbeidssoekerregisteret.test.addDeprekeringInMemoryStateStore
 import no.nav.paw.arbeidssoekerregisteret.test.addPeriodeInMemoryStateStore
 import no.nav.paw.arbeidssoekerregisteret.topology.streams.addBeriket14aVedtakStream
 import org.apache.kafka.common.serialization.Serdes
@@ -99,7 +98,6 @@ class Beriket14aVedtakStreamTest : FreeSpec({
     private class LocalTestContext : TestContext() {
 
         val testDriver = StreamsBuilder().apply {
-            addDeprekeringInMemoryStateStore(applicationConfig)
             addPeriodeInMemoryStateStore(applicationConfig)
             addBeriket14aVedtakStream(
                 applicationConfig,

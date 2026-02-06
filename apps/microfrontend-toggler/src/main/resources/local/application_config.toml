@@ -18,9 +18,4 @@ periodeTogglePunctuatorSchedule = "PT5M"
 utsattDeaktiveringAvAiaMinSide = "PT15M"
 
 [deprekering]
-aktivert = true
 tidspunkt = "2050-12-11T07:00:00+01:00"
-csvFil = "/tmp/empty.csv"
-stateStore = "deprekeringStateStore"
-punctuatorSchedule = "PT2M"
-punctuatorActivePartition = 0
