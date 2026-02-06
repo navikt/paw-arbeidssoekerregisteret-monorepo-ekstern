@@ -26,7 +26,7 @@ spec:
     - name: KAFKA_KEYS_SCOPE
       value: "api://prod-gcp.paw.paw-kafka-key-generator/.default"
     - name: DEPREKERING_BEHOVSVURDERING_AKTIVERT
-      value: "false"
+      value: "true"
     - name: DEPREKERING_BEHOVSVURDERING_TIDSPUNKT
       value: "2025-12-11T07:00:00+01:00"
     - name: DEPREKERING_BEHOVSVURDERING_CSV_FIL
