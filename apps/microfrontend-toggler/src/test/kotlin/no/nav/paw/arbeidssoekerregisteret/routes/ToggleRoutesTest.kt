@@ -15,6 +15,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.just
+import no.nav.paw.arbeidssoekerregisteret.model.MicroFrontend
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleRequest
@@ -47,7 +48,7 @@ class ToggleRoutesTest : FreeSpec({
 
                     val response = client.post("/api/v1/microfrontend-toggle") {
                         contentType(ContentType.Application.Json)
-                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                        setBody(ToggleRequest(ToggleAction.DISABLE, MicroFrontend.AIA_MIN_SIDE))
                     }
 
                     response.status shouldBe HttpStatusCode.Forbidden
@@ -62,7 +63,7 @@ class ToggleRoutesTest : FreeSpec({
                     val response = client.post("/api/v1/microfrontend-toggle") {
                         bearerAuth(mockOAuth2Server.issueTokenXToken(issuerId = "whatever"))
                         contentType(ContentType.Application.Json)
-                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                        setBody(ToggleRequest(ToggleAction.DISABLE, MicroFrontend.AIA_MIN_SIDE))
                     }
 
                     response.status shouldBe HttpStatusCode.Forbidden
@@ -77,7 +78,7 @@ class ToggleRoutesTest : FreeSpec({
                     val response = client.post("/api/v1/microfrontend-toggle") {
                         bearerAuth(mockOAuth2Server.issueToken().serialize())
                         contentType(ContentType.Application.Json)
-                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                        setBody(ToggleRequest(ToggleAction.DISABLE, MicroFrontend.AIA_MIN_SIDE))
                     }
 
                     response.status shouldBe HttpStatusCode.Forbidden
@@ -98,7 +99,7 @@ class ToggleRoutesTest : FreeSpec({
                     val response = client.post("/api/v1/microfrontend-toggle") {
                         bearerAuth(token.serialize())
                         contentType(ContentType.Application.Json)
-                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                        setBody(ToggleRequest(ToggleAction.DISABLE, MicroFrontend.AIA_MIN_SIDE))
                     }
 
                     response.status shouldBe HttpStatusCode.Forbidden
@@ -116,7 +117,7 @@ class ToggleRoutesTest : FreeSpec({
                     val response = client.post("/api/v1/microfrontend-toggle") {
                         bearerAuth(mockOAuth2Server.issueTokenXToken())
                         contentType(ContentType.Application.Json)
-                        setBody(ToggleRequest(ToggleAction.ENABLE, "aia-min-side"))
+                        setBody(ToggleRequest(ToggleAction.ENABLE, MicroFrontend.AIA_MIN_SIDE))
                     }
 
                     response.status shouldBe HttpStatusCode.Forbidden
@@ -136,7 +137,7 @@ class ToggleRoutesTest : FreeSpec({
                     val response = client.post("/api/v1/microfrontend-toggle") {
                         bearerAuth(mockOAuth2Server.issueTokenXToken())
                         contentType(ContentType.Application.Json)
-                        setBody(ToggleRequest(ToggleAction.DISABLE, "aia-min-side"))
+                        setBody(ToggleRequest(ToggleAction.DISABLE, MicroFrontend.AIA_MIN_SIDE))
                     }
 
                     response.status shouldBe HttpStatusCode.Accepted

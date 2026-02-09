@@ -16,7 +16,7 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
             readinessRoute(healthChecks)
             metricsRoutes(prometheusMeterRegistry)
             swaggerRoutes()
-            toggleRoutes(applicationConfig, authorizationService, toggleService)
+            toggleRoutes(authorizationService, toggleService)
         }
     }
 }

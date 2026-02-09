@@ -1,6 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.service
 
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
@@ -30,6 +31,7 @@ class ToggleService(
         )
     }
 
+    @WithSpan
     suspend fun sendToggle(toggle: Toggle) {
         val kafkaKeysResponse = kafkaKeysFunction(toggle.ident)
         val arbeidssoekerId = kafkaKeysResponse.id

@@ -20,27 +20,27 @@ data class PeriodeInfo(
     fun erStartetEtter(tidspunkt: Instant): Boolean = startet.isAfter(tidspunkt)
 
     fun asEnableToggle(
-        microfrontendId: String,
+        microfrontend: MicroFrontend,
         sensitivitet: Sensitivitet,
         initiatedBy: String = "paw" // TODO Styre dette med konfig/miljøvar?
     ): Toggle {
         return Toggle(
             action = ToggleAction.ENABLE,
             ident = identitetsnummer,
-            microfrontendId = microfrontendId,
+            microfrontendId = microfrontend,
             sensitivitet = sensitivitet,
             initiatedBy = initiatedBy
         )
     }
 
     fun asDisableToggle(
-        microfrontendId: String,
+        microfrontend: MicroFrontend,
         initiatedBy: String = "paw" // TODO Styre dette med konfig/miljøvar?
     ): Toggle {
         return Toggle(
             action = ToggleAction.DISABLE,
             ident = identitetsnummer,
-            microfrontendId = microfrontendId,
+            microfrontendId = microfrontend,
             initiatedBy = initiatedBy
         )
     }

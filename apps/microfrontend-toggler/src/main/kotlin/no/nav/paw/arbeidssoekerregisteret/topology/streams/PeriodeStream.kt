@@ -4,7 +4,9 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.model.MicroFrontend
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
+import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
@@ -82,13 +84,13 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
         logger.info("Mottok arbeidsøkerperiode som allerede er mottatt, behandles om duplikat")
 
         meterRegistry.tellAntallIkkeSendteToggles(
-            microfrontendToggleConfig.aiaMinSide,
+            MicroFrontend.AIA_MIN_SIDE,
             ToggleSource.ARBEIDSSOEKERPERIODE,
             ToggleAction.ENABLE,
             "duplikat_periode"
         )
     } else {
-        logger.info("Mottok startet arbeidsøkerperiode, utfører aktivering av {}", microfrontendToggleConfig.aiaMinSide)
+        logger.info("Mottok startet arbeidsøkerperiode, utfører aktivering av {}", MicroFrontend.AIA_MIN_SIDE)
 
         // Lagre periode i state store
         stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)
@@ -96,9 +98,9 @@ private fun ProcessorContext<Long, Toggle>.processStartetPeriode(
         // Send event for å aktivere AIA Min Side
         val enableAiaMinSideToggle = iverksettAktiverToggle(
             periodeInfo,
-            microfrontendToggleConfig.aiaMinSide,
+            MicroFrontend.AIA_MIN_SIDE,
             ToggleSource.ARBEIDSSOEKERPERIODE,
-            microfrontendToggleConfig.aiaMinSideSensitivitet
+            Sensitivitet.SUBSTANTIAL
         )
         meterRegistry.tellAntallSendteToggles(
             enableAiaMinSideToggle,
@@ -120,15 +122,15 @@ private fun ProcessorContext<Long, Toggle>.processAvsluttetPeriode(
     val utsattDeaktiveringsfrist = Instant.now().minus(microfrontendToggleConfig.utsattDeaktiveringAvAiaMinSide)
     if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
         logger.info(
-            "Mottok arbeidsøkerperiode avsluttet for mer enn {}, utfører deaktivering av {}",
+            "Mottok avsluttet arbeidsøkerperiode eldre enn {}, utfører deaktivering av {}",
             microfrontendToggleConfig.utsattDeaktiveringAvAiaMinSide,
-            microfrontendToggleConfig.aiaMinSide
+            MicroFrontend.AIA_MIN_SIDE
         )
 
         // Send event for å deaktiver AIA Min Side
         val disableAiaMinSideToggle = iverksettDeaktiverToggle(
             periodeInfo,
-            microfrontendToggleConfig.aiaMinSide,
+            MicroFrontend.AIA_MIN_SIDE,
             ToggleSource.ARBEIDSSOEKERPERIODE
         )
         // Slett periode fra state store
@@ -141,9 +143,9 @@ private fun ProcessorContext<Long, Toggle>.processAvsluttetPeriode(
         )
     } else {
         logger.info(
-            "Mottok arbeidsøkerperiode avsluttet for mindre enn {}, lagrer forsinket deaktivering av {}",
+            "Mottok avsluttet arbeidsøkerperiode yngre enn {}, lagrer forsinket deaktivering av {}",
             microfrontendToggleConfig.utsattDeaktiveringAvAiaMinSide,
-            microfrontendToggleConfig.aiaMinSide
+            MicroFrontend.AIA_MIN_SIDE
         )
         // Lagre periode i state store
         stateStore.put(periodeInfo.arbeidssoekerId, periodeInfo)

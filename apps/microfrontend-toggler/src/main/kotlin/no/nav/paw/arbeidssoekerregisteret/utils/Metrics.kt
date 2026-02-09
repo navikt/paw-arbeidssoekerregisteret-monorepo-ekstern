@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.utils
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
+import no.nav.paw.arbeidssoekerregisteret.model.MicroFrontend
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleAction
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
@@ -15,7 +16,7 @@ fun MeterRegistry.tellAntallSendteToggles(toggle: Toggle, source: ToggleSource, 
 }
 
 fun MeterRegistry.tellAntallSendteToggles(
-    target: String,
+    target: MicroFrontend,
     source: ToggleSource,
     action: ToggleAction,
     reason: String
@@ -23,7 +24,7 @@ fun MeterRegistry.tellAntallSendteToggles(
     counter(
         "${METRIC_PREFIX}_antall_sendte_toggles",
         Tags.of(
-            Tag.of("target", target),
+            Tag.of("target", target.value),
             Tag.of("source", source.value),
             Tag.of("action", action.value),
             Tag.of("reason", reason)
@@ -32,7 +33,7 @@ fun MeterRegistry.tellAntallSendteToggles(
 }
 
 fun MeterRegistry.tellAntallIkkeSendteToggles(
-    target: String,
+    target: MicroFrontend,
     source: ToggleSource,
     action: ToggleAction,
     reason: String
@@ -40,7 +41,7 @@ fun MeterRegistry.tellAntallIkkeSendteToggles(
     counter(
         "${METRIC_PREFIX}_antall_ikke_sendte_toggles",
         Tags.of(
-            Tag.of("target", target),
+            Tag.of("target", target.value),
             Tag.of("source", source.value),
             Tag.of("action", action.value),
             Tag.of("reason", reason)
@@ -81,17 +82,5 @@ fun MeterRegistry.tellAntallLagredeAvsluttedePerioder(antallReference: AtomicLon
 fun MeterRegistry.tellAntallMottattePerioder() {
     counter(
         "${METRIC_PREFIX}_antall_mottatte_perioder",
-    ).increment()
-}
-
-fun MeterRegistry.tellAntallMottatteSiste14aVedtak() {
-    counter(
-        "${METRIC_PREFIX}_antall_mottatte_siste_14a_vedtak",
-    ).increment()
-}
-
-fun MeterRegistry.tellAntallMottatteBeriket14aVedtak() {
-    counter(
-        "${METRIC_PREFIX}_antall_mottatte_beriket_14a_vedtak",
     ).increment()
 }

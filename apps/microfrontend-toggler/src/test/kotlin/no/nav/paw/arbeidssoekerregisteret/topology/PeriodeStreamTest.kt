@@ -8,6 +8,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import no.nav.paw.arbeidssoekerregisteret.config.APPLICATION_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.model.MicroFrontend
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
@@ -72,7 +73,7 @@ class PeriodeStreamTest : FreeSpec({
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.ENABLE
                     ident shouldBe startetPeriode.identitetsnummer
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
+                    microfrontendId shouldBe MicroFrontend.AIA_MIN_SIDE
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
                     initiatedBy shouldBe "paw"
                 }
@@ -111,7 +112,7 @@ class PeriodeStreamTest : FreeSpec({
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.DISABLE
                     ident shouldBe identitetsnummer.value
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
+                    microfrontendId shouldBe MicroFrontend.AIA_MIN_SIDE
                     sensitivitet shouldBe null
                     initiatedBy shouldBe "paw"
                 }
@@ -142,7 +143,7 @@ class PeriodeStreamTest : FreeSpec({
                 with(minSideKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.ENABLE
                     ident shouldBe identitetsnummer.value
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
+                    microfrontendId shouldBe MicroFrontend.AIA_MIN_SIDE
                     sensitivitet shouldBe Sensitivitet.SUBSTANTIAL
                     initiatedBy shouldBe "paw"
                 }
@@ -208,7 +209,7 @@ class PeriodeStreamTest : FreeSpec({
                 with(behovsvurderingKeyValue.value.shouldBeInstanceOf<Toggle>()) {
                     action shouldBe ToggleAction.DISABLE
                     ident shouldBe identitetsnummer.value
-                    microfrontendId shouldBe applicationConfig.microfrontendToggle.aiaMinSide
+                    microfrontendId shouldBe MicroFrontend.AIA_MIN_SIDE
                     sensitivitet shouldBe null
                     initiatedBy shouldBe "paw"
                 }

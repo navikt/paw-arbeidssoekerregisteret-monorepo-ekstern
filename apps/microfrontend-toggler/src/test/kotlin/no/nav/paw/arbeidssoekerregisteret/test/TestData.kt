@@ -1,8 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.test
 
-import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
-import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
-import no.nav.paw.arbeidssoekerregisteret.model.asCommonAktorId
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
 import no.nav.paw.felles.model.AktorId
 import no.nav.paw.felles.model.ArbeidssoekerId
@@ -95,27 +92,6 @@ object TestData {
         avsluttetTidspunkt = Instant.now()
     )
 
-    val beriket14aVedtak1 = buildBeriket14aVedtak(
-        aktorId = aktorId1,
-        arbeidsoekerId = arbeidsoekerId1,
-        fattetDato = Instant.now().minus(Duration.ofDays(8))
-    )
-    val beriket14aVedtak2 = buildBeriket14aVedtak(
-        aktorId = aktorId2,
-        arbeidsoekerId = arbeidsoekerId2,
-        fattetDato = Instant.now().minus(Duration.ofDays(8))
-    )
-    val beriket14aVedtak3 = buildBeriket14aVedtak(
-        aktorId = aktorId3,
-        arbeidsoekerId = arbeidsoekerId3,
-        fattetDato = Instant.now().minus(Duration.ofDays(8))
-    )
-    val beriket14aVedtak4 = buildBeriket14aVedtak(
-        aktorId = aktorId4,
-        arbeidsoekerId = arbeidsoekerId4,
-        fattetDato = Instant.now().minus(Duration.ofDays(8))
-    )
-
     fun buildPeriode(
         id: UUID = UUID.randomUUID(),
         identitetsnummer: Identitetsnummer = identitetsnummer1,
@@ -134,32 +110,6 @@ object TestData {
                 utfortAv = brukerFactory.build(id = identitetsnummer.value)
             )
         }
-    )
-
-    fun buildSiste14aVedtak(
-        aktorId: AktorId = aktorId1,
-        fattetDato: Instant = Instant.now(),
-        fraArena: Boolean = false
-    ): Siste14aVedtak = Siste14aVedtak(
-        aktorId.asCommonAktorId(),
-        "STANDARD_INNSATS",
-        "SKAFFE_ARBEID",
-        fattetDato,
-        fraArena
-    )
-
-    fun buildBeriket14aVedtak(
-        aktorId: AktorId = aktorId1,
-        arbeidsoekerId: ArbeidssoekerId = arbeidsoekerId1,
-        fattetDato: Instant = Instant.now(),
-        fraArena: Boolean = false
-    ): Beriket14aVedtak = Beriket14aVedtak(
-        aktorId.value,
-        arbeidsoekerId.value,
-        "STANDARD_INNSATS",
-        "SKAFFE_ARBEID",
-        fattetDato,
-        fraArena
     )
 }
 
