@@ -12,14 +12,6 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
 
-class ToggleJsonSerializer(
-    private val delegate: Serializer<Toggle> = buildJsonSerializer()
-) : Serializer<Toggle> {
-    override fun serialize(topic: String?, data: Toggle?): ByteArray {
-        return delegate.serialize(topic, data)
-    }
-}
-
 inline fun <reified T> buildJsonSerializer(
     runtimeEnvironment: RuntimeEnvironment = currentRuntimeEnvironment,
     objectMapper: ObjectMapper = buildObjectMapper

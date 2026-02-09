@@ -4,5 +4,9 @@ import com.fasterxml.jackson.annotation.JsonValue
 
 enum class Sensitivitet(@get:JsonValue val value: String) {
     HIGH("high"),
-    SUBSTANTIAL("substantial")
+    SUBSTANTIAL("substantial");
+
+    override fun toString(): String {
+        return value
+    }
 }
