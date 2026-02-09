@@ -3,7 +3,6 @@ package no.nav.paw.arbeidssoekerregisteret.model
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import no.nav.paw.arbeidssoekerregisteret.utils.buildObjectMapper
-import no.nav.paw.felles.model.Identitetsnummer
 
 class ToggleTest : FreeSpec({
     with(ToggleTestContext()) {
@@ -26,22 +25,6 @@ class ToggleTest : FreeSpec({
                     microfrontendId = MicroFrontend.AIA_MIN_SIDE,
                     initiatedBy = "paw"
                 )
-                val jsonToggle = objectMapper.writeValueAsString(toggle)
-                jsonToggle shouldBe disableToggleJsonString
-            }
-            "Skal serialisere enable ToggleRequest korrekt" {
-                val toggle = ToggleRequest(
-                    action = ToggleAction.ENABLE,
-                    microfrontendId = MicroFrontend.AIA_MIN_SIDE
-                ).asToggle(Identitetsnummer("01017012345"), Sensitivitet.HIGH)
-                val jsonToggle = objectMapper.writeValueAsString(toggle)
-                jsonToggle shouldBe enableToggleJsonString
-            }
-            "Skal serialisere disable ToggleRequest korrekt" {
-                val toggle = ToggleRequest(
-                    action = ToggleAction.DISABLE,
-                    microfrontendId = MicroFrontend.AIA_MIN_SIDE
-                ).asToggle(Identitetsnummer("01017012345"), Sensitivitet.HIGH)
                 val jsonToggle = objectMapper.writeValueAsString(toggle)
                 jsonToggle shouldBe disableToggleJsonString
             }

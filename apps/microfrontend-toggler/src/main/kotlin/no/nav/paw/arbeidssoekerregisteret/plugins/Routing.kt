@@ -4,8 +4,6 @@ import io.ktor.server.application.Application
 import io.ktor.server.routing.routing
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
 import no.nav.paw.arbeidssoekerregisteret.routes.metricsRoutes
-import no.nav.paw.arbeidssoekerregisteret.routes.swaggerRoutes
-import no.nav.paw.arbeidssoekerregisteret.routes.toggleRoutes
 import no.nav.paw.health.livenessRoute
 import no.nav.paw.health.readinessRoute
 
@@ -15,8 +13,6 @@ fun Application.configureRouting(applicationContext: ApplicationContext) {
             livenessRoute(healthChecks)
             readinessRoute(healthChecks)
             metricsRoutes(prometheusMeterRegistry)
-            swaggerRoutes()
-            toggleRoutes(authorizationService, toggleService)
         }
     }
 }

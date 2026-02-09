@@ -13,18 +13,12 @@ import java.time.Duration
 
 fun Application.configureMetrics(applicationContext: ApplicationContext) {
     with(applicationContext) {
-        val metricsMeterBinders = mutableListOf(
+        val metricsMeterBinders = listOf(
             JvmMemoryMetrics(),
             JvmGcMetrics(),
-            ProcessorMetrics()
-        )
-        val kafkaClientMetrics = listOf(toggleService.getKafkaMetricsBinder())
-        val kafkaStreamsMetrics = listOf(
+            ProcessorMetrics(),
             KafkaStreamsMetrics(periodeKafkaStreams)
-
         )
-        metricsMeterBinders.addAll(kafkaClientMetrics)
-        metricsMeterBinders.addAll(kafkaStreamsMetrics)
         install(MicrometerMetrics) {
             registry = prometheusMeterRegistry
             meterBinders = metricsMeterBinders

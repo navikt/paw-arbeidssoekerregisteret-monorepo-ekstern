@@ -13,26 +13,12 @@ spec:
       value: "toggle-producer-v1"
     - name: KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX
       value: "arbeidssokerperioder-stream-v1"
-    - name: KAFKA_SISTE_14A_VEDTAK_STREAM_ID_SUFFIX
-      value: "siste-14a-vedtak-stream-v1"
     - name: KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC
       value: "paw.arbeidssokerperioder-v1"
-    - name: KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC
-      value: "paw.beriket-14a-vedtak-v1"
-    - name: KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC
-      value: "pto.siste-14a-vedtak-v1"
     - name: KAFKA_TMS_MICROFRONTEND_TOPIC
       value: "min-side.aapen-microfrontend-v1"
     - name: KAFKA_KEYS_SCOPE
       value: "api://dev-gcp.paw.paw-kafka-key-generator/.default"
-    - name: DEPREKERING_BEHOVSVURDERING_AKTIVERT
-      value: "false"
-    - name: DEPREKERING_BEHOVSVURDERING_TIDSPUNKT
-      value: "2025-12-11T07:00:00+01:00"
-    - name: DEPREKERING_BEHOVSVURDERING_CSV_FIL
-      value: "/var/run/secrets/paw-microfrontend-toggler-csv/data.csv"
-    - name: DEPREKERING_BEHOVSVURDERING_PUNCTUATOR_SCHEDULE
-      value: "PT15M"
   resources:
     limits:
       memory: 1024Mi
@@ -57,8 +43,6 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
-  tokenx:
-    enabled: true
   azure:
     application:
       enabled: true
@@ -66,13 +50,6 @@ spec:
     pool: nav-dev
     streams: true
   accessPolicy:
-    inbound:
-      rules:
-        - application: aia-backend
-        - application: tokenx-token-generator
-          namespace: nais
-        - application: azure-token-generator
-          namespace: nais
     outbound:
       rules:
         - application: paw-kafka-key-generator
