@@ -3,6 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.topology.processor
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.paw.arbeidssoekerregisteret.model.MicroFrontend
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
@@ -13,15 +14,15 @@ import org.apache.kafka.streams.processor.api.ProcessorContext
 @WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
     periodeInfo: PeriodeInfo,
-    microfrontendId: String,
+    microfrontend: MicroFrontend,
     toggleSource: ToggleSource,
     sensitivitet: Sensitivitet
 ): Toggle {
     val currentSpan = Span.current()
     currentSpan.setAttribute("action", ToggleAction.ENABLE.value)
-    currentSpan.setAttribute("target", microfrontendId)
+    currentSpan.setAttribute("target", microfrontend.value)
     currentSpan.setAttribute("source", toggleSource.value)
-    val enableToggle = periodeInfo.asEnableToggle(microfrontendId, sensitivitet)
+    val enableToggle = periodeInfo.asEnableToggle(microfrontend, sensitivitet)
     forward(enableToggle.asRecord(periodeInfo.arbeidssoekerId))
     return enableToggle
 }
@@ -29,14 +30,14 @@ fun ProcessorContext<Long, Toggle>.iverksettAktiverToggle(
 @WithSpan(value = "microfrontend_toggle", kind = SpanKind.INTERNAL)
 fun ProcessorContext<Long, Toggle>.iverksettDeaktiverToggle(
     periodeInfo: PeriodeInfo,
-    microfrontendId: String,
+    microfrontend: MicroFrontend,
     toggleSource: ToggleSource
 ): Toggle {
     val currentSpan = Span.current()
     currentSpan.setAttribute("action", ToggleAction.DISABLE.value)
-    currentSpan.setAttribute("target", microfrontendId)
+    currentSpan.setAttribute("target", microfrontend.value)
     currentSpan.setAttribute("source", toggleSource.value)
-    val disableToggle = periodeInfo.asDisableToggle(microfrontendId)
+    val disableToggle = periodeInfo.asDisableToggle(microfrontend)
     forward(disableToggle.asRecord(periodeInfo.arbeidssoekerId))
     return disableToggle
 }

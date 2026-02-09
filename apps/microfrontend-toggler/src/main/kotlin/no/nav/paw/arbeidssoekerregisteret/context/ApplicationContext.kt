@@ -9,10 +9,8 @@ import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
 import no.nav.paw.arbeidssoekerregisteret.topology.buildPeriodeTopology
-import no.nav.paw.arbeidssoekerregisteret.topology.buildSiste14aVedtakTopology
 import no.nav.paw.arbeidssoekerregisteret.utils.buildKafkaStreams
 import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyBlocking
-import no.nav.paw.arbeidssoekerregisteret.utils.getIdAndKeyOrNullBlocking
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.health.HealthChecks
 import no.nav.paw.health.healthChecksOf
@@ -32,7 +30,6 @@ data class ApplicationContext(
     val authorizationService: AuthorizationService,
     val toggleService: ToggleService,
     val periodeKafkaStreams: KafkaStreams,
-    val siste14aVedtakKafkaStreams: KafkaStreams,
     val healthChecks: HealthChecks
 ) {
     companion object {
@@ -57,18 +54,8 @@ data class ApplicationContext(
                 kafkaConfig,
                 periodeTopology
             )
-            val siste14aVedtakTopology = buildSiste14aVedtakTopology(
-                // TODO Vil denne returnere null ved normal operasjon?
-                applicationConfig, prometheusMeterRegistry, kafkaKeysClient::getIdAndKeyOrNullBlocking
-            )
-            val siste14aVedtakKafkaStreams = buildKafkaStreams(
-                applicationConfig.kafkaTopology.siste14aVedtakStreamIdSuffix,
-                kafkaConfig,
-                siste14aVedtakTopology
-            )
             val healthChecks = healthChecksOf(
                 KafkaStreamsHealthProbe(periodeKafkaStreams),
-                KafkaStreamsHealthProbe(siste14aVedtakKafkaStreams)
             )
 
             return ApplicationContext(
@@ -79,7 +66,6 @@ data class ApplicationContext(
                 authorizationService,
                 toggleService,
                 periodeKafkaStreams,
-                siste14aVedtakKafkaStreams,
                 healthChecks
             )
         }

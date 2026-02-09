@@ -7,7 +7,7 @@ import java.time.Instant
 data class Toggle(
     @field:JsonProperty("@action") val action: ToggleAction,
     val ident: String,
-    @field:JsonProperty("microfrontend_id") val microfrontendId: String,
+    @field:JsonProperty("microfrontend_id") val microfrontendId: MicroFrontend,
     val sensitivitet: Sensitivitet? = null,
     @field:JsonProperty("@initiated_by") val initiatedBy: String
 ) {

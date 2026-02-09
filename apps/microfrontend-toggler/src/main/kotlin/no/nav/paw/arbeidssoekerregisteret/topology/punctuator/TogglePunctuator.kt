@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
+import no.nav.paw.arbeidssoekerregisteret.model.MicroFrontend
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.model.ToggleSource
@@ -56,13 +57,13 @@ class TogglePunctuator(
                 if (periodeInfo.bleAvsluttetTidligereEnn(utsattDeaktiveringsfrist)) {
                     logger.info(
                         "Forsinket deaktivering for avsluttet arbeidsøkerperiode er utløpt, utfører deaktivering av {}",
-                        microfrontendToggleConfig.aiaMinSide
+                        MicroFrontend.AIA_MIN_SIDE
                     )
 
                     // Send event for å deaktiver AIA Min Side
                     val disableAiaMinSideToggle = iverksettDeaktiverToggle(
                         periodeInfo,
-                        microfrontendToggleConfig.aiaMinSide,
+                        MicroFrontend.AIA_MIN_SIDE,
                         toggleSource
                     )
                     // Slett periode fra state store

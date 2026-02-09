@@ -20,8 +20,8 @@ fun Application.configureMetrics(applicationContext: ApplicationContext) {
         )
         val kafkaClientMetrics = listOf(toggleService.getKafkaMetricsBinder())
         val kafkaStreamsMetrics = listOf(
-            KafkaStreamsMetrics(periodeKafkaStreams),
-            KafkaStreamsMetrics(siste14aVedtakKafkaStreams)
+            KafkaStreamsMetrics(periodeKafkaStreams)
+
         )
         metricsMeterBinders.addAll(kafkaClientMetrics)
         metricsMeterBinders.addAll(kafkaStreamsMetrics)

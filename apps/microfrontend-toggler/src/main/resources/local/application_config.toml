@@ -1,18 +1,11 @@
 [kafkaTopology]
 shutDownTimeout = "PT1S"
 periodeTopic = "paw.arbeidssokerperioder-v1"
-siste14aVedtakTopic = "pto.siste-14a-vedtak-v1"
-beriket14aVedtakTopic = "paw.beriket-14a-vedtak-v1"
 microfrontendTopic = "min-side.aapen-microfrontend-v1"
 periodeStreamIdSuffix = "arbeidssokerperioder-stream-v1"
-siste14aVedtakStreamIdSuffix = "siste-14a-vedtak-stream-v1"
 toggleProducerIdSuffix = "toggle-producer-v1"
 periodeStateStore = "microfrontendTogglePeriodeStore"
 
 [microfrontendToggle]
-aiaMinSide = "aia-min-side"
-aiaMinSideSensitivitet = "SUBSTANTIAL"
-aiaBehovsvurdering = "aia-behovsvurdering"
-aiaBehovsvurderingSensitivitet = "HIGH"
 periodeTogglePunctuatorSchedule = "PT5M"
 utsattDeaktiveringAvAiaMinSide = "PT15M"

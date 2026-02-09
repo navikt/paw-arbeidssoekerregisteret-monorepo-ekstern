@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssoekerregisteret.config
 
-import no.nav.paw.arbeidssoekerregisteret.model.Sensitivitet
 import java.time.Duration
 
 const val APPLICATION_CONFIG = "application_config.toml"
@@ -13,20 +12,13 @@ data class ApplicationConfig(
 data class KafkaTopologyConfig(
     val shutDownTimeout: Duration,
     val periodeTopic: String,
-    val siste14aVedtakTopic: String,
-    val beriket14aVedtakTopic: String,
     val microfrontendTopic: String,
     val periodeStreamIdSuffix: String,
-    val siste14aVedtakStreamIdSuffix: String,
     val toggleProducerIdSuffix: String,
     val periodeStateStore: String
 )
 
 data class MicrofrontendToggleConfig(
-    val aiaMinSide: String,
-    val aiaMinSideSensitivitet: Sensitivitet,
-    val aiaBehovsvurdering: String,
-    val aiaBehovsvurderingSensitivitet: Sensitivitet,
     val periodeTogglePunctuatorSchedule: Duration,
     val utsattDeaktiveringAvAiaMinSide: Duration
 )

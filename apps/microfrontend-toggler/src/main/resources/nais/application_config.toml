@@ -1,18 +1,11 @@
 [kafkaTopology]
 shutDownTimeout = "PT5S"
 periodeTopic = "${KAFKA_PAW_ARBEIDSSOKERPERIODER_TOPIC}"
-siste14aVedtakTopic = "${KAFKA_PTO_SISTE_14A_VEDTAK_TOPIC}"
-beriket14aVedtakTopic = "${KAFKA_PAW_BERIKET_14A_VEDTAK_TOPIC}"
 microfrontendTopic = "${KAFKA_TMS_MICROFRONTEND_TOPIC}"
 periodeStreamIdSuffix = "${KAFKA_ARBEIDSSOKERPERIODER_STREAM_ID_SUFFIX}"
-siste14aVedtakStreamIdSuffix = "${KAFKA_SISTE_14A_VEDTAK_STREAM_ID_SUFFIX}"
 toggleProducerIdSuffix = "${KAFKA_TOGGLE_PRODUCER_ID_SUFFIX}"
 periodeStateStore = "microfrontendTogglePeriodeStore"
 
 [microfrontendToggle]
-aiaMinSide = "aia-min-side"
-aiaMinSideSensitivitet = "SUBSTANTIAL"
-aiaBehovsvurdering = "aia-behovsvurdering"
-aiaBehovsvurderingSensitivitet = "HIGH"
 periodeTogglePunctuatorSchedule = "PT6H"
 utsattDeaktiveringAvAiaMinSide = "P21D"

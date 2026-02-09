@@ -5,7 +5,7 @@ import no.nav.paw.felles.model.Identitetsnummer
 
 data class ToggleRequest(
     @field:JsonProperty("@action") val action: ToggleAction,
-    @field:JsonProperty("microfrontend_id") val microfrontendId: String
+    @field:JsonProperty("microfrontend_id") val microfrontendId: MicroFrontend
 ) {
     fun asToggle(
         identitetsnummer: Identitetsnummer,

@@ -15,8 +15,6 @@ import no.nav.paw.arbeidssoekerregisteret.config.ApplicationConfig
 import no.nav.paw.arbeidssoekerregisteret.config.SERVER_CONFIG
 import no.nav.paw.arbeidssoekerregisteret.config.ServerConfig
 import no.nav.paw.arbeidssoekerregisteret.context.ApplicationContext
-import no.nav.paw.arbeidssoekerregisteret.model.Beriket14aVedtak
-import no.nav.paw.arbeidssoekerregisteret.model.Siste14aVedtak
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureAuthentication
 import no.nav.paw.arbeidssoekerregisteret.plugins.configureHTTP
@@ -24,9 +22,7 @@ import no.nav.paw.arbeidssoekerregisteret.plugins.configureSerialization
 import no.nav.paw.arbeidssoekerregisteret.routes.toggleRoutes
 import no.nav.paw.arbeidssoekerregisteret.service.AuthorizationService
 import no.nav.paw.arbeidssoekerregisteret.service.ToggleService
-import no.nav.paw.arbeidssoekerregisteret.utils.buildBeriket14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildPeriodeInfoSerde
-import no.nav.paw.arbeidssoekerregisteret.utils.buildSiste14aVedtakSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.buildToggleSerde
 import no.nav.paw.arbeidssoekerregisteret.utils.configureJackson
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -56,8 +52,6 @@ open class TestContext(
     val prometheusMeterRegistryMock: PrometheusMeterRegistry = mockk<PrometheusMeterRegistry>(),
     val kafkaKeysClientMock: KafkaKeysClient = mockk<KafkaKeysClient>(),
     val periodeSerde: Serde<Periode> = buildAvroSerde(),
-    val siste14aVedtakSerde: Serde<Siste14aVedtak> = buildSiste14aVedtakSerde(),
-    val beriket14aVedtakSerde: Serde<Beriket14aVedtak> = buildBeriket14aVedtakSerde(),
     val toggleSerde: Serde<Toggle> = buildToggleSerde(),
     val authorizationService: AuthorizationService = AuthorizationService(),
     val toggleServiceMock: ToggleService = mockk<ToggleService>(),
@@ -99,8 +93,7 @@ open class TestContext(
             prometheusMeterRegistryMock,
             authorizationService,
             toggleServiceMock,
-            mockk<KafkaStreams>(),
-            mockk<KafkaStreams>(),
+            periodeKafkaStreams = mockk<KafkaStreams>(),
             healthChecks = healthChecksOf()
         )
         application {
@@ -109,7 +102,7 @@ open class TestContext(
             configureAuthentication(applicationContext)
         }
         routing {
-            toggleRoutes(applicationConfig, authorizationService, applicationContext.toggleService)
+            toggleRoutes(authorizationService, applicationContext.toggleService)
         }
     }
 
