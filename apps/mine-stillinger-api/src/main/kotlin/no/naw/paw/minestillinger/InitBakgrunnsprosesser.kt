@@ -21,7 +21,7 @@ class Bakgrunnsprosesser(
     val antallBrukereMetrics: AntallBrukereMetrics
 ) {
     fun helthChecks(): Iterable<HealthCheck> = listOf(
-        adresseBeskyttelseOppdatering,
+        //adresseBeskyttelseOppdatering,
         slettUbrukteBrukerprofiler,
         slettGamlePropfileringerUtenProfil
     )

@@ -5,6 +5,7 @@ create user brukerprofiler_api with password 'Paw1234';
 create user ledigestillinger_api with password 'Paw1234';
 create user egenvurdering_api with password 'Paw1234';
 create user egenvurdering_dialog_tjeneste with password 'Paw1234';
+create user avvist_til_oppgave with password 'Paw1234';
 
 create database arbeidssoekerregisteretapioppslag with owner oppslag_api;
 create database arbeidssoekerregisteretapioppslagv2 with owner oppslag_api_v2;
@@ -13,3 +14,4 @@ create database brukerprofiler with owner brukerprofiler_api;
 create database ledigestillinger with owner ledigestillinger_api;
 create database egenvurdering_api with owner egenvurdering_api;
 create database egenvurdering_dialog_tjeneste with owner egenvurdering_dialog_tjeneste;
+create database avvist_til_oppgave with owner avvist_til_oppgave;
