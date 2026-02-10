@@ -60,6 +60,11 @@ class BeskyttetAddresseDagligOppdatering(
         val finnAlleEldreEnn = tidspunkt - adresseBeskyttelseGyldighetsperiode
         return hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(finnAlleEldreEnn)
             .also { brukere ->
+                appLogger.info(
+                    "Fant {} brukere med adressebeskyttelseflagg eldre enn {}",
+                    brukere.size,
+                    finnAlleEldreEnn
+                )
                 brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
                     brukerprofiler = brukere,
                     tidspunkt = clock.now()
