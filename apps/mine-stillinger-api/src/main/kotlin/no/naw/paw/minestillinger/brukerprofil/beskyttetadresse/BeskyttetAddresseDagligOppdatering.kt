@@ -28,7 +28,8 @@ class BeskyttetAddresseDagligOppdatering(
     private val adresseBeskyttelseGyldighetsperiode: Duration,
     private val clock: Clock,
     private val brukerprofilTjeneste: BrukerprofilTjeneste,
-    private val interval: Duration = Duration.ofMinutes(15)
+    private val interval: Duration = Duration.ofMinutes(15),
+    private val pdlBulkSize: Int = 1000
 ) : LivenessCheck, ReadinessCheck, StartupCheck, Closeable {
     private val startet = AtomicBoolean(false)
     private val sisteKjøring = AtomicReference<Instant>(Instant.EPOCH)
@@ -65,10 +66,12 @@ class BeskyttetAddresseDagligOppdatering(
                     brukere.size,
                     finnAlleEldreEnn
                 )
-                brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
-                    brukerprofiler = brukere,
-                    tidspunkt = clock.now()
-                )
+                brukere.chunked(pdlBulkSize).forEach { chunk ->
+                    brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
+                        brukerprofiler = chunk,
+                        tidspunkt = clock.now()
+                    )
+                }
             }.count()
             .also { count ->
                 Span.current().setAttribute(longKey("antall"), count)
