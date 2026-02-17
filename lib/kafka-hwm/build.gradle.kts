@@ -5,7 +5,7 @@ plugins {
 val jvmMajorVersion: String by project
 
 dependencies {
-    implementation(libs.exposed.jdbc.v1)
+    implementation(libs.exposed.jdbc)
     implementation(libs.opentelemetry.annotations)
     compileOnly(libs.micrometer.registry.prometheus)
     compileOnly(libs.kafka.clients)

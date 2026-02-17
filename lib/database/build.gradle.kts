@@ -5,7 +5,7 @@ plugins {
 dependencies {
     compileOnly(libs.ktor.server.core)
     compileOnly(libs.hikari.connection.pool)
-    compileOnly(libs.exposed.jdbc.v1)
+    compileOnly(libs.exposed.jdbc)
     compileOnly(libs.flyway.postgres)
 
     // Test

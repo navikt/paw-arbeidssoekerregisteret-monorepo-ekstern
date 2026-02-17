@@ -62,8 +62,8 @@ dependencies {
     implementation(libs.confluent.kafka.streams.avro.serde)
 
     // Database
-    implementation(libs.exposed.jdbc.v1)
-    implementation(libs.exposed.java.time.v1)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.java.time)
     implementation(libs.hikari.connection.pool)
     implementation(libs.postgres.driver)
     implementation(libs.flyway.postgres)
