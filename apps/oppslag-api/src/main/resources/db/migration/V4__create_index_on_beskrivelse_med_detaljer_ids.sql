@@ -1,3 +1,0 @@
-CREATE INDEX idx_beskrivelse_med_detaljer_opplysninger_om_arbeidssoeker_id ON beskrivelse_med_detaljer(opplysninger_om_arbeidssoeker_id);
-CREATE INDEX idx_beskrivelse_beskrivelse_med_detaljer_id ON beskrivelse(beskrivelse_med_detaljer_id);
-CREATE INDEX idx_detaljer_beskrivelse_id ON detaljer(beskrivelse_id);

@@ -48,7 +48,6 @@ include(
     "apps:egenvurdering-api",
     "apps:egenvurdering-dialog-tjeneste",
     "apps:profilering",
-    "apps:oppslag-api",
     "apps:eksternt-api",
     "apps:arena-adapter",
     "apps:oppslag-api-v2",

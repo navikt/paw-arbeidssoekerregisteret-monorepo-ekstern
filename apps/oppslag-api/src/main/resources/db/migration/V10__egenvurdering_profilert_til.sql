@@ -1,1 +1,0 @@
-ALTER TABLE egenvurdering ADD COLUMN profilert_til ProfilertTil NOT NULL;

@@ -1,2 +1,0 @@
-clientId = "paw-arbeidssoekerregisteret-api-oppslag"
-tokenEndpointUrl = "http://localhost:8081/default/token"
