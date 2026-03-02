@@ -113,6 +113,8 @@ spec:
           namespace: teamsykefravr
         - application: veilarbdirigent
           namespace: dab
+        - application: familie-ef-sak
+          namespace: teamfamilie
     outbound:
       rules:
         - application: paw-tilgangskontroll
