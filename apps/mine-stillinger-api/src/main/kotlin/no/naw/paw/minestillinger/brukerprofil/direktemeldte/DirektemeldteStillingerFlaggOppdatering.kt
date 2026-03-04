@@ -11,6 +11,7 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillin
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagg
 import no.naw.paw.minestillinger.db.ops.hentAlleAktiveBrukereMedFlagg
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.io.Closeable
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
@@ -26,7 +27,7 @@ class DirektemeldteStillingerFlaggOppdatering(
     private val continueRunning = AtomicBoolean(true)
 
     suspend fun start() {
-        if (hasStarted.compareAndSet(true, false)) {
+        if (hasStarted.compareAndSet(false, true)) {
             try {
                 isRunning.set(true)
                 while (continueRunning.get()) {
@@ -43,21 +44,26 @@ class DirektemeldteStillingerFlaggOppdatering(
         }
     }
 
-    @WithSpan("oppdater_direktemeldte_stillinger_flagg")
+    @WithSpan("vedlikehold_oppdater_direktemeldte_stillinger_flagg")
     suspend fun oppdaterFlaggForDirektemeldteStillinger() {
-        val alleMedUtdaterteFlagg = hentAlleAktiveBrukereMedFlagg(
-            alleFraFørDetteErUtløpt = clock.now() - gyldighetsperiode,
-            flaggtype = InkluderDirekteMeldteStillingerFlagtype
-        )
+        val alleMedUtdaterteFlagg = transaction {
+            hentAlleAktiveBrukereMedFlagg(
+                alleFraFørDetteErUtløpt = clock.now() - gyldighetsperiode,
+                flaggtype = InkluderDirekteMeldteStillingerFlagtype
+            )
+        }
         appLogger.info("${alleMedUtdaterteFlagg.size} brukere med utdaterte flagg for direktemeldte stillinger")
-        alleMedUtdaterteFlagg.map { profile ->
+        val oppdateringer = alleMedUtdaterteFlagg.map { profile ->
             val harTilgang = direktemeldteStillingerTilgangClient.skalSeDirektemeldteStillinger(profile.identitetsnummer)
             profile.id to InkluderDirekteMeldteStillingerFlagg(
                 verdi = harTilgang,
                 tidspunkt = clock.now()
             )
-        }.forEach { (brukerId, flagg) ->
-            skrivFlaggTilDB(brukerId, listOf(flagg))
+        }.toList()
+        transaction {
+            oppdateringer.forEach { (brukerId, flagg) ->
+                skrivFlaggTilDB(brukerId, listOf(flagg))
+            }
         }
     }
 
