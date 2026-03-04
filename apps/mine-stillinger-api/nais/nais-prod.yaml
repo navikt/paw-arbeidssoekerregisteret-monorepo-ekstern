@@ -23,6 +23,12 @@ spec:
       value: "http://paw-arbeidssoekerregisteret-api-ledigestillinger"
     - name: LEDIGE_STILLINGER_TARGET
       value: "prod-gcp:paw:paw-arbeidssoekerregisteret-api-ledigestillinger"
+    - name: PAM_TILGANG_AKTIVERT
+      value: "DEAKTIVERT"
+    - name: PAM_TILGANG_URL
+      value: "https://pam-dir-api.intern.nav.no/rest/dir/tilgang"
+    - name: PAM_TILGANG_SCOPE
+      value: ""
   resources:
     limits:
       memory: 512Mi

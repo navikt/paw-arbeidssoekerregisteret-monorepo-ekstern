@@ -23,6 +23,12 @@ spec:
       value: "http://paw-arbeidssoekerregisteret-api-ledigestillinger"
     - name: LEDIGE_STILLINGER_TARGET
       value: "dev-gcp:paw:paw-arbeidssoekerregisteret-api-ledigestillinger"
+    - name: PAM_TILGANG_AKTIVERT
+      value: "BARE_BRUKERPROFIL"
+    - name: PAM_TILGANG_URL
+      value: "https://pam-dir-api.intern.dev.nav.no/rest/dir/tilgang"
+    - name: PAM_TILGANG_SCOPE
+      value: "api://dev/prod-gcp.teampam.pam-dir-api/.default"
   resources:
     limits:
       memory: 512Mi
@@ -77,6 +83,7 @@ spec:
         - application: paw-kafka-key-generator
       external:
         - host: pdl-api.dev-fss-pub.nais.io
+        - host: pam-dir-api.intern.dev.nav.no
   gcp:
     sqlInstances:
       - type: POSTGRES_18
