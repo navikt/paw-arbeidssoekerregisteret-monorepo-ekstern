@@ -1,0 +1,577 @@
+{
+    "0000": {
+        "styrkCode": "0000",
+        "categoryLevel1": "Uoppgitt/ ikke identifiserbare",
+        "categoryLevel2": "Ikke identifiserbare"
+    },
+    "0310": {
+        "styrkCode": "0310",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Forsvar/militære"
+    },
+    "1114": {
+        "styrkCode": "1114",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Organisasjonsarbeid og politikk"
+    },
+    "1211": {
+        "styrkCode": "1211",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
+    "1213": {
+        "styrkCode": "1213",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Ledelse, administrasjon og rådgivning"
+    },
+    "1222": {
+        "styrkCode": "1222",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Markedsføring og reklame"
+    },
+    "1223": {
+        "styrkCode": "1223",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Forskningsarbeid"
+    },
+    "1330": {
+        "styrkCode": "1330",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Ledere av IKT-enheter"
+    },
+    "1341": {
+        "styrkCode": "1341",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Ledere av omsorgstjenetser for barn"
+    },
+    "1344": {
+        "styrkCode": "1344",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Leder innenfor helsetjenester"
+    },
+    "1345": {
+        "styrkCode": "1345",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Ledere av undervisning og utdanning"
+    },
+    "1349": {
+        "styrkCode": "1349",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Personlig tjenesteyting"
+    },
+    "1431": {
+        "styrkCode": "1431",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Fritid"
+    },
+    "2111": {
+        "styrkCode": "2111",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "2114": {
+        "styrkCode": "2114",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Naturvitenskapelige yrker"
+    },
+    "2131": {
+        "styrkCode": "2131",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Biologer, zoologer, botanikere"
+    },
+    "2132": {
+        "styrkCode": "2132",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
+    "2133": {
+        "styrkCode": "2133",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Miljøvern"
+    },
+    "2143": {
+        "styrkCode": "2143",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Ingeniør miljøteknikk"
+    },
+    "2144": {
+        "styrkCode": "2144",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "2153": {
+        "styrkCode": "2153",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Elektro/elektronikk"
+    },
+    "2165": {
+        "styrkCode": "2165",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Arealplanlegging og arkitektur"
+    },
+    "2166": {
+        "styrkCode": "2166",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Interaksjonsdesign"
+    },
+    "2212": {
+        "styrkCode": "2212",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Lege"
+    },
+    "2221": {
+        "styrkCode": "2221",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Sykepleier"
+    },
+    "2224": {
+        "styrkCode": "2224",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Vernepleier"
+    },
+    "2250": {
+        "styrkCode": "2250",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Veterinærer og dyrepleiere"
+    },
+    "2263": {
+        "styrkCode": "2263",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Helse- og miljørådgivere"
+    },
+    "2264": {
+        "styrkCode": "2264",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Fysioterapeut"
+    },
+    "2265": {
+        "styrkCode": "2265",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Ernæringsfysiolog"
+    },
+    "2266": {
+        "styrkCode": "2266",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Audiografer og logopeder"
+    },
+    "2267": {
+        "styrkCode": "2267",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Ergoterapeut"
+    },
+    "2269": {
+        "styrkCode": "2269",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Kiropraktor og osteopat"
+    },
+    "2310": {
+        "styrkCode": "2310",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Universitet og høyskole"
+    },
+    "2320": {
+        "styrkCode": "2320",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Videregående skole"
+    },
+    "2341": {
+        "styrkCode": "2341",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Grunnskole"
+    },
+    "2342": {
+        "styrkCode": "2342",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Barnehagelærer"
+    },
+    "2352": {
+        "styrkCode": "2352",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Instruktører  og pedagoger"
+    },
+    "2422": {
+        "styrkCode": "2422",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "2424": {
+        "styrkCode": "2424",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Personal, arbeidsmiljø og rekruttering"
+    },
+    "2432": {
+        "styrkCode": "2432",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Journalistikk, kommunikasjon og litteratur"
+    },
+    "2434": {
+        "styrkCode": "2434",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "2514": {
+        "styrkCode": "2514",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Utvikling"
+    },
+    "2634": {
+        "styrkCode": "2634",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Psykolog"
+    },
+    "2635": {
+        "styrkCode": "2635",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Rådgivere innen sosiale fagfelt"
+    },
+    "2643": {
+        "styrkCode": "2643",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Tolk og oversettere"
+    },
+    "2656": {
+        "styrkCode": "2656",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Underholdning, scene og teater"
+    },
+    "3112": {
+        "styrkCode": "3112",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Ingeniør bygg"
+    },
+    "3119": {
+        "styrkCode": "3119",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Andre ingeniører"
+    },
+    "3121": {
+        "styrkCode": "3121",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
+    "3122": {
+        "styrkCode": "3122",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Arbeidsleder, industri"
+    },
+    "3123": {
+        "styrkCode": "3123",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Arbeidsleder, bygg og anlegg"
+    },
+    "3135": {
+        "styrkCode": "3135",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Jern og metall"
+    },
+    "3143": {
+        "styrkCode": "3143",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "3152": {
+        "styrkCode": "3152",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Sjøfart"
+    },
+    "3155": {
+        "styrkCode": "3155",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Lufttrafikk"
+    },
+    "3211": {
+        "styrkCode": "3211",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Radiograf og audiograf"
+    },
+    "3212": {
+        "styrkCode": "3212",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Bioingeniør"
+    },
+    "3213": {
+        "styrkCode": "3213",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Farmasøytisk og apotekerarbeid"
+    },
+    "3214": {
+        "styrkCode": "3214",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Tannhelse/-pleie"
+    },
+    "3230": {
+        "styrkCode": "3230",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Alternativ medisin"
+    },
+    "3254": {
+        "styrkCode": "3254",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Optiker"
+    },
+    "3256": {
+        "styrkCode": "3256",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Helsesekretær"
+    },
+    "3259": {
+        "styrkCode": "3259",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Andre helseyrker"
+    },
+    "3311": {
+        "styrkCode": "3311",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Megling"
+    },
+    "3313": {
+        "styrkCode": "3313",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Økonomi, statistikk og regnskap"
+    },
+    "3331": {
+        "styrkCode": "3331",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Speditør og befrakter"
+    },
+    "3332": {
+        "styrkCode": "3332",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Reiseliv, hotell og overnatting"
+    },
+    "3334": {
+        "styrkCode": "3334",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Eiendomsmegler"
+    },
+    "3342": {
+        "styrkCode": "3342",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Juridisk arbeid"
+    },
+    "3351": {
+        "styrkCode": "3351",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Politi, fengsel og toll"
+    },
+    "3411": {
+        "styrkCode": "3411",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Vakt-, sikrings- og kontrollarbeid"
+    },
+    "3412": {
+        "styrkCode": "3412",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Miljøarbeidere"
+    },
+    "3413": {
+        "styrkCode": "3413",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Religiøst arbeid"
+    },
+    "3423": {
+        "styrkCode": "3423",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Sport og idrett"
+    },
+    "3431": {
+        "styrkCode": "3431",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Musikk/lyd, foto og video"
+    },
+    "3432": {
+        "styrkCode": "3432",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Design, grafisk arbeid og illustrasjon"
+    },
+    "3433": {
+        "styrkCode": "3433",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Museum, bibliotek, arkiv"
+    },
+    "3434": {
+        "styrkCode": "3434",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Kokk"
+    },
+    "3439": {
+        "styrkCode": "3439",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Andre yrker innen estetiske fag"
+    },
+    "3514": {
+        "styrkCode": "3514",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Drift, vedlikehold"
+    },
+    "3522": {
+        "styrkCode": "3522",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Elektriker/elektro"
+    },
+    "4321": {
+        "styrkCode": "4321",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Logistikk, lagerarbeid og innkjøp"
+    },
+    "4412": {
+        "styrkCode": "4412",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Post og måleavlesere"
+    },
+    "5131": {
+        "styrkCode": "5131",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Restaurant"
+    },
+    "5141": {
+        "styrkCode": "5141",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Frisør og velvære"
+    },
+    "5241": {
+        "styrkCode": "5241",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Reklame og dekorasjon"
+    },
+    "5311": {
+        "styrkCode": "5311",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Barnehage- og skolefritidsassistenter"
+    },
+    "5321": {
+        "styrkCode": "5321",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Helsefagarbeider"
+    },
+    "5322": {
+        "styrkCode": "5322",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Hjemmehjelper og personlig assistent"
+    },
+    "5411": {
+        "styrkCode": "5411",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Brann-, utryknings- og redningspersonell"
+    },
+    "6221": {
+        "styrkCode": "6221",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Fiske, fangst og oppdrett"
+    },
+    "7112": {
+        "styrkCode": "7112",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Murer"
+    },
+    "7114": {
+        "styrkCode": "7114",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Betongfagarbeider"
+    },
+    "7115": {
+        "styrkCode": "7115",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Tømrer og snekker"
+    },
+    "7123": {
+        "styrkCode": "7123",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Maler"
+    },
+    "7127": {
+        "styrkCode": "7127",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Rørlegger"
+    },
+    "7133": {
+        "styrkCode": "7133",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Feier"
+    },
+    "7212": {
+        "styrkCode": "7212",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Platearbeider og sveiser"
+    },
+    "7231": {
+        "styrkCode": "7231",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Mekaniker"
+    },
+    "7314": {
+        "styrkCode": "7314",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Kunst  og kunsthåndverk"
+    },
+    "7511": {
+        "styrkCode": "7511",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Matproduksjon og næringsmiddelarbeid"
+    },
+    "7512": {
+        "styrkCode": "7512",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Baker og konditor"
+    },
+    "7522": {
+        "styrkCode": "7522",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Trevarearbeid og –foredling"
+    },
+    "7531": {
+        "styrkCode": "7531",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Skredder"
+    },
+    "7532": {
+        "styrkCode": "7532",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "7542": {
+        "styrkCode": "7542",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Skytebaser og sprengningsarbeidere"
+    },
+    "7543": {
+        "styrkCode": "7543",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "8311": {
+        "styrkCode": "8311",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Tog-, sporvogn- og vegtrafikk"
+    },
+    "8343": {
+        "styrkCode": "8343",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Maskin- og kranfører"
+    },
+    "8344": {
+        "styrkCode": "8344",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Truckfører"
+    },
+    "9312": {
+        "styrkCode": "9312",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Hjelpearbeider Bygg og anlegg"
+    },
+    "9329": {
+        "styrkCode": "9329",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Andre hjelpearbeidere"
+    },
+    "9612": {
+        "styrkCode": "9612",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "9622": {
+        "styrkCode": "9622",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Vaktmester"
+    }
+}
