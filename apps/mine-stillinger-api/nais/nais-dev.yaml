@@ -23,7 +23,7 @@ spec:
       value: "http://paw-arbeidssoekerregisteret-api-ledigestillinger"
     - name: LEDIGE_STILLINGER_TARGET
       value: "dev-gcp:paw:paw-arbeidssoekerregisteret-api-ledigestillinger"
-    - name: PAM_TILGANG_AKTIVERT
+    - name: PAM_TILGANG_FUNKSJONSNIVAA
       value: "BARE_BRUKERPROFIL"
     - name: PAM_TILGANG_URL
       value: "https://pam-dir-api.intern.dev.nav.no/rest/dir/tilgang"

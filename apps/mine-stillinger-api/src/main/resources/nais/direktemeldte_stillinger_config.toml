@@ -1,0 +1,3 @@
+url = "${PAM_TILGANG_URL}"
+scope = "${PAM_TILGANG_SCOPE}"
+funksjonsnivaa = "${PAM_TILGANG_FUNKSJONSNIVAA}"
