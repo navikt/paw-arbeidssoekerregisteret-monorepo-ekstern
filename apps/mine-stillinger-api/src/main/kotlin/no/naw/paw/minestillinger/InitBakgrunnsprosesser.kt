@@ -11,6 +11,7 @@ import no.naw.paw.minestillinger.brukerprofil.SlettUbrukteBrukerprofiler
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerFlaggOppdatering
 import no.naw.paw.minestillinger.metrics.AntallBrukereMetrics
 import java.time.Duration
 
@@ -18,7 +19,8 @@ class Bakgrunnsprosesser(
     val adresseBeskyttelseOppdatering: BeskyttetAddresseDagligOppdatering,
     val slettUbrukteBrukerprofiler: SlettUbrukteBrukerprofiler,
     val slettGamlePropfileringerUtenProfil: SlettGamlePropfileringerUtenProfil,
-    val antallBrukereMetrics: AntallBrukereMetrics
+    val antallBrukereMetrics: AntallBrukereMetrics,
+    val inkluderDirektemeldteStillingerFlaggOppdatering: DirektemeldteStillingerFlaggOppdatering
 ) {
     fun helthChecks(): Iterable<HealthCheck> = listOf(
         adresseBeskyttelseOppdatering,
@@ -50,6 +52,12 @@ fun initBakgrunnsprosesser(
         interval = Duration.ofMinutes(16),
         clock = clock
     )
+    val inklusivDirektemeldteStillingerFlaggOppdatering = DirektemeldteStillingerFlaggOppdatering(
+        direktemeldteStillingerTilgangClient = webClients.direktemeldteStillgerTilgangClient,
+        clock = clock,
+        oppdateringsintervall = Duration.ofMinutes(5),
+        gyldighetsperiode = Duration.ofHours(1)
+    )
     val antallBrukereMetrics = AntallBrukereMetrics(prometheusMeterRegistry)
     appLogger.info("Starter bakgrunnsjobber...")
     GlobalScope.launch {
@@ -57,7 +65,8 @@ fun initBakgrunnsprosesser(
             "slett_brukerprofiler" to async { slettUbrukteBrukerprofiler.start() },
             "oppdater_adressebeskyttelse" to async { adresseBeskyttelseOppdatering.start() },
             "oppdater_metrics" to async { antallBrukereMetrics.startPeriodiskOppdateringAvMetrics() },
-            "slette_frittstaende_profileringer" to async { slettGamlePropfileringerUtenProfil.start() }
+            "slette_frittstaende_profileringer" to async { slettGamlePropfileringerUtenProfil.start() },
+            "oppdater_direktemeldte_stillinger_flagg" to async { inklusivDirektemeldteStillingerFlaggOppdatering.start() }
         )
         jobber.onEach { (beskrivelse, jobb) ->
             jobb.invokeOnCompletion { throwable ->
@@ -75,6 +84,7 @@ fun initBakgrunnsprosesser(
         adresseBeskyttelseOppdatering = adresseBeskyttelseOppdatering,
         slettUbrukteBrukerprofiler = slettUbrukteBrukerprofiler,
         slettGamlePropfileringerUtenProfil = slettGamlePropfileringerUtenProfil,
+        inkluderDirektemeldteStillingerFlaggOppdatering = inklusivDirektemeldteStillingerFlaggOppdatering,
         antallBrukereMetrics = antallBrukereMetrics
     )
 }

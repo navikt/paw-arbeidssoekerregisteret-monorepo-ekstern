@@ -4,8 +4,8 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotlinx.coroutines.delay
-import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.StandardInnsatsFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
@@ -16,14 +16,11 @@ import no.naw.paw.minestillinger.domain.ProfileringResultat
 import org.jetbrains.exposed.v1.core.Case
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.alias
-import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.booleanLiteral
-import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicLong
@@ -50,6 +47,7 @@ class AntallBrukereMetrics(
                 val optOut = BrukerFlaggTable.alias("opt_out")
                 val harBruktTjenesten = BrukerFlaggTable.alias("har_brukt_tjenesten")
                 val standardInnsats = BrukerFlaggTable.alias("innsatsbehov")
+                val inkluderDirekteMeldteStillinger = BrukerFlaggTable.alias("inkluder_direkte_meldte_stillinger")
                 val aktivPeriode = Case()
                     .When(BrukerTable.arbeidssoekerperiodeAvsluttet.isNull(), booleanLiteral(true))
                     .Else(booleanLiteral(false))
@@ -62,6 +60,13 @@ class AntallBrukereMetrics(
                         otherColumn = tjenestenErAktiv[BrukerFlaggTable.brukerId],
                         additionalConstraint = { tjenestenErAktiv[BrukerFlaggTable.navn] eq TjenestenErAktivFlaggtype.type }
                     ).join(
+                        otherTable = inkluderDirekteMeldteStillinger,
+                        joinType = JoinType.LEFT,
+                        onColumn = BrukerTable.id,
+                        otherColumn = inkluderDirekteMeldteStillinger[BrukerFlaggTable.brukerId],
+                        additionalConstraint = { inkluderDirekteMeldteStillinger[BrukerFlaggTable.navn] eq InkluderDirekteMeldteStillingerFlagtype.type }
+                    )
+                    .join(
                         otherTable = optOut,
                         joinType = JoinType.LEFT,
                         onColumn = BrukerTable.id,
@@ -110,6 +115,7 @@ class AntallBrukereMetrics(
                                 row.getOrNull(ProfileringTable.profileringResultat)
                                     ?.let { ProfileringResultat.valueOf(it) }
                                     ?: ProfileringResultat.UDEFINERT,
+                            inkluderDirekteMeldteStillinger = row.getOrNull(inkluderDirekteMeldteStillinger[BrukerFlaggTable.verdi]) == true,
                         ).let { key ->
                             MetricData(
                                 key = key,
@@ -145,6 +151,7 @@ class AntallBrukereMetrics(
                                 Tag.of("opt_out", key.optOut.toString()),
                                 Tag.of("har_brukt_tjenesten", key.harBruktTjenesten.toString()),
                                 Tag.of("standard_innsats", key.standardInnsats.toString()),
+                                Tag.of("inkluder_direkte_meldte_stillinger", key.inkluderDirekteMeldteStillinger.toString()),
                             ),
                             atomicLong,
                             { it.get().toDouble() },
@@ -163,6 +170,7 @@ data class MetricDataKey(
     val harBruktTjenesten: Boolean,
     val profileringsResultat: ProfileringResultat,
     val standardInnsats: Boolean,
+    val inkluderDirekteMeldteStillinger: Boolean,
 )
 
 data class MetricData(

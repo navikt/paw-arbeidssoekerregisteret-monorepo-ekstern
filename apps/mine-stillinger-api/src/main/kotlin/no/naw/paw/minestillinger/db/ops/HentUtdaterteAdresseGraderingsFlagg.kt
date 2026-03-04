@@ -5,8 +5,6 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.Flaggtype
 import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetAdresseFlaggtype
-import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillinger
-import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagg
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.less
