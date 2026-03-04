@@ -18,12 +18,16 @@ import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.pdl.factory.createPdlClient
 import no.nav.paw.security.texas.TEXAS_CONFIG
 import no.nav.paw.security.texas.TexasClient
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerTilgangClient
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirekteMeldteStillingerConfig
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.createDirekteMeldteStillinger
 
 class WebClients(
     val kafkaClient: KafkaKeysClient,
     val pdlClient: PdlClient,
     val finnStillingerClient: FinnStillingerClient,
-    val kafkaKeysClient: KafkaKeysClient
+    val kafkaKeysClient: KafkaKeysClient,
+    val direktemeldteStillgerTilgangClient: DirektemeldteStillingerTilgangClient
 )
 
 fun initWebClient(): WebClients {
@@ -54,6 +58,11 @@ fun initWebClient(): WebClients {
         texasClient = texasClient,
         httpClient = httpClient
     )
+    val direktemeldteStillgerTilgangClient = createDirekteMeldteStillinger(
+        httpClient = httpClient,
+        getM2MToken = { scope -> m2mTokenClient.createMachineToMachineToken(scope) },
+        direkteMeldteStillingerConfig = loadNaisOrLocalConfiguration<DirekteMeldteStillingerConfig>("direktemeldte_stillinger.toml"),
+    )
     val idClient = createKafkaKeyGeneratorClient(
         httpClient = httpClient,
         tokenClient = m2mTokenClient,
@@ -66,6 +75,7 @@ fun initWebClient(): WebClients {
         kafkaClient = idClient,
         pdlClient = pdlClient,
         finnStillingerClient = finnStillingerClient,
-        kafkaKeysClient = kafkaClient
+        kafkaKeysClient = kafkaClient,
+        direktemeldteStillgerTilgangClient = direktemeldteStillgerTilgangClient
     )
 }

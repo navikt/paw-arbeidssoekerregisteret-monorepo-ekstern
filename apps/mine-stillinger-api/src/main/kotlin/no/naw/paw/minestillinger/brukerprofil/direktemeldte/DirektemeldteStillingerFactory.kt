@@ -7,12 +7,12 @@ fun createDirekteMeldteStillinger(
     direkteMeldteStillingerConfig: DirekteMeldteStillingerConfig,
     getM2MToken: (String) -> String,
     httpClient: HttpClient
-): DirekteMeldteStillinger {
+): DirektemeldteStillingerTilgangClient {
     return when (direkteMeldteStillingerConfig.funksjonsnivaa) {
         DirekteMeldteStillingerFunksjonsnivaa.BARE_BRUKERPROFIL,
         DirekteMeldteStillingerFunksjonsnivaa.AKTIVT -> {
         appLogger.info("Oppretter fullverdig DirekteMeldteStillinger basert på funksjonsnivaa ${direkteMeldteStillingerConfig.funksjonsnivaa}")
-            DirekteMeldteStillingerHttpClient(
+            DirektemeldteStillingerTilgangClientHttpClient(
                 httpClient = httpClient,
                 getM2MToken = getM2MToken,
                 config = direkteMeldteStillingerConfig
@@ -20,7 +20,7 @@ fun createDirekteMeldteStillinger(
         }
         DirekteMeldteStillingerFunksjonsnivaa.DEAKTIVERT -> {
             appLogger.info("Vil aldri vise direktemeldte stilinger basert på funksjonsnivaa ${direkteMeldteStillingerConfig.funksjonsnivaa}")
-            DirekteMeldteStillingerSkalAldriVises()
+            DirektemeldteStillingerTilgangClientSkalAldriVises()
         }
     }
 }

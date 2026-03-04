@@ -11,7 +11,7 @@ import io.opentelemetry.api.trace.Span
 import no.nav.paw.felles.model.Identitetsnummer
 import no.naw.paw.minestillinger.appLogger
 
-interface DirekteMeldteStillinger {
+interface DirektemeldteStillingerTilgangClient {
     suspend fun skalSeDirektemeldteStillinger(identitetsnummer: Identitetsnummer): Boolean
 }
 
@@ -23,11 +23,11 @@ data class DirekteMeldteStillingerResponse(
     val harTilgangTilDirektemeldteStillinger: Boolean
 )
 
-class DirekteMeldteStillingerHttpClient(
+class DirektemeldteStillingerTilgangClientHttpClient(
     private val httpClient: HttpClient,
     private val getM2MToken: (String) -> String,
     val config: DirekteMeldteStillingerConfig,
-): DirekteMeldteStillinger {
+): DirektemeldteStillingerTilgangClient {
     override suspend fun skalSeDirektemeldteStillinger(identitetsnummer: Identitetsnummer): Boolean {
         val token = getM2MToken(config.scope)
         return try {
@@ -50,7 +50,7 @@ class DirekteMeldteStillingerHttpClient(
     }
 }
 
-class DirekteMeldteStillingerSkalAldriVises: DirekteMeldteStillinger {
+class DirektemeldteStillingerTilgangClientSkalAldriVises: DirektemeldteStillingerTilgangClient {
     override suspend fun skalSeDirektemeldteStillinger(identitetsnummer: Identitetsnummer): Boolean {
         return false
     }
