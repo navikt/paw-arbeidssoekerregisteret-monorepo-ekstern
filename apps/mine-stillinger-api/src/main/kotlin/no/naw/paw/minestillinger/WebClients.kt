@@ -61,7 +61,10 @@ fun initWebClient(): WebClients {
     val direktemeldteStillgerTilgangClient = createDirekteMeldteStillinger(
         httpClient = httpClient,
         getM2MToken = { scope -> m2mTokenClient.createMachineToMachineToken(scope) },
-        direkteMeldteStillingerConfig = loadNaisOrLocalConfiguration<DirekteMeldteStillingerConfig>("direktemeldte_stillinger.toml"),
+        direkteMeldteStillingerConfig =
+            loadNaisOrLocalConfiguration<DirekteMeldteStillingerConfig>(
+                 "direktemeldte_stillinger_config.toml"
+            ),
     )
     val idClient = createKafkaKeyGeneratorClient(
         httpClient = httpClient,
