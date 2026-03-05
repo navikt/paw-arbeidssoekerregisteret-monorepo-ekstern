@@ -77,12 +77,12 @@ spec:
           namespace: nais
         - application: azure-token-generator
           namespace: nais
-        - application: pam-dir-api
-          namespace: teampam
     outbound:
       rules:
         - application: paw-arbeidssoekerregisteret-api-ledigestillinger
         - application: paw-kafka-key-generator
+        - application: pam-dir-api
+          namespace: teampam
       external:
         - host: pdl-api.dev-fss-pub.nais.iono
   gcp:
