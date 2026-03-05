@@ -56,7 +56,7 @@ fun initBakgrunnsprosesser(
         direktemeldteStillingerTilgangClient = webClients.direktemeldteStillgerTilgangClient,
         clock = clock,
         oppdateringsintervall = Duration.ofMinutes(1),
-        gyldighetsperiode = Duration.ofHours(1)
+        gyldighetsperiode = Duration.ofMinutes(1)
     )
     val antallBrukereMetrics = AntallBrukereMetrics(prometheusMeterRegistry)
     appLogger.info("Starter bakgrunnsjobber...")
