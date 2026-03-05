@@ -35,13 +35,18 @@ class DirektemeldteStillingerTilgangClientHttpClient(
             val response = httpClient.post(config.url) {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
-                header("client_id", "dev-gcp:paw:paw-arbeidssoekerregisteret-api-mine-stillinger")
                 setBody(DirekteMeldteStillingerRequest(identnummer = identitetsnummer.value))
             }
             if (response.status == io.ktor.http.HttpStatusCode.OK) {
                 response.body<DirekteMeldteStillingerResponse>()
                     .harTilgangTilDirektemeldteStillinger
             } else {
+                val body = try {
+                    response.body<String>()
+                } catch (e: Exception) {
+                    "kunne ikke hente innhold: ${e.toString()}"
+                }
+                appLogger.info("Tilgang: status=${response.status}, body=$body")
                 false
             }
         } catch (e: Exception) {
