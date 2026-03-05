@@ -18,6 +18,7 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.Adressebeskyttels
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerTilgangClient
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
@@ -39,6 +40,7 @@ class BrukerprofilTjeneste(
     val meterRegistry: MeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
     val pdlClient: PdlClient,
     val hentBrukerprofilUtenFlagg: (Identitetsnummer) -> BrukerProfilerUtenFlagg?,
+    val dirMeldteStillingerTilgang: DirektemeldteStillingerTilgangClient,
     val skrivFlagg: (BrukerId, Iterable<LagretFlagg>) -> Unit,
     val hentFlagg: (BrukerId) -> List<Flagg>,
     val hentProfilering: (PeriodeId) -> Profilering?,

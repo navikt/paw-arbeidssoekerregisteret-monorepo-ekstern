@@ -7,6 +7,7 @@ import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
 import no.nav.paw.error.model.flatMap
 import no.nav.paw.error.model.map
+import no.nav.paw.error.model.suspendMap
 import no.nav.paw.felles.model.Identitetsnummer
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
@@ -14,6 +15,7 @@ import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlaggtype
@@ -112,12 +114,13 @@ suspend fun BrukerprofilTjeneste.aktiverTjenesten(
             TjenestenKanAktiveresResultat.Nei -> oppdateringIkkeTillatt("Kan ikke aktivere tjenesten for denne brukeren.")
             TjenestenKanAktiveresResultat.AdressebeskyttelseMåSjekkes -> internFeil("Resultat='ADRESSE_GRADERING_MÅ_SJEKKES', selv rett etter oppdatering av adressegradering.")
         }
-    }.map { profil ->
+    }.suspendMap { profil ->
         val gjeldeneFlagg = profil.listeMedFlagg
         val oppdaterteFlagg = gjeldeneFlagg.addOrUpdate(
             HarBruktTjenestenFlaggtype.flagg(true, tidspunkt),
             TjenestenErAktivFlaggtype.flagg(true, tidspunkt),
             OptOutFlaggtype.flagg(false, tidspunkt),
+            InkluderDirekteMeldteStillingerFlagtype.flagg(dirMeldteStillingerTilgang.skalSeDirektemeldteStillinger(profil.identitetsnummer), tidspunkt)
         )
         val oppdatering = OppdateringAvFlagg(
             nyeOgOppdaterteFlagg = oppdaterteFlagg.flaggSomMåOppdateres.toList(),

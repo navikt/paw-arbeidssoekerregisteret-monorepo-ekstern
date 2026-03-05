@@ -20,6 +20,13 @@ fun <T1, T2> Response<T1>.map(transform: (T1) -> T2): Response<T2> {
     }
 }
 
+suspend fun <T1, T2> Response<T1>.suspendMap(transform: suspend (T1) -> T2): Response<T2> {
+    return when(this) {
+        is Data -> Data(transform(this.data))
+        is ProblemDetails -> this
+    }
+}
+
 fun <T1, T2> Response<T1>.flatMap(transform: (T1) -> Response<T2>): Response<T2> {
     return when(this) {
         is Data -> transform(this.data)

@@ -45,6 +45,7 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.Adressebeskyttels
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerTilgangClientSkalAldriVises
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
@@ -113,7 +114,8 @@ class Livssyklustest : FreeSpec({
         hentFlagg = ::lesFlaggFraDB,
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
-        clock = clock
+        clock = clock,
+        dirMeldteStillingerTilgang = DirektemeldteStillingerTilgangClientSkalAldriVises()
     )
     val ledigeStillingerClient: FinnStillingerClient = mockk()
     coEvery { ledigeStillingerClient.finnLedigeStillinger(any(), any()) }.returns(

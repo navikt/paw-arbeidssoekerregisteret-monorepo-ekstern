@@ -86,7 +86,8 @@ fun main() {
         hentFlagg = ::lesFlaggFraDB,
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
-        clock = clock
+        clock = clock,
+        dirMeldteStillingerTilgang = webClients.direktemeldteStillgerTilgangClient
     )
     val processorContext = ProcessorContext(
         brukerprofilTjeneste = brukerprofilTjeneste,
