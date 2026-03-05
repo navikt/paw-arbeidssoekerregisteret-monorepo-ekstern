@@ -3,6 +3,7 @@ package no.naw.paw.minestillinger.brukerprofil.direktemeldte
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -34,6 +35,7 @@ class DirektemeldteStillingerTilgangClientHttpClient(
             val response = httpClient.post(config.url) {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
+                header("client_id", "dev-gcp:paw:paw-arbeidssoekerregisteret-api-mine-stillinger")
                 setBody(DirekteMeldteStillingerRequest(identnummer = identitetsnummer.value))
             }
             if (response.status == io.ktor.http.HttpStatusCode.OK) {

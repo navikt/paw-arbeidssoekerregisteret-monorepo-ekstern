@@ -55,7 +55,7 @@ fun initBakgrunnsprosesser(
     val inklusivDirektemeldteStillingerFlaggOppdatering = DirektemeldteStillingerFlaggOppdatering(
         direktemeldteStillingerTilgangClient = webClients.direktemeldteStillgerTilgangClient,
         clock = clock,
-        oppdateringsintervall = Duration.ofMinutes(5),
+        oppdateringsintervall = Duration.ofMinutes(1),
         gyldighetsperiode = Duration.ofHours(1)
     )
     val antallBrukereMetrics = AntallBrukereMetrics(prometheusMeterRegistry)
