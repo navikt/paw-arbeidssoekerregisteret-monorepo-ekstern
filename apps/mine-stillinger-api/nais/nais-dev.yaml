@@ -26,7 +26,7 @@ spec:
     - name: PAM_TILGANG_FUNKSJONSNIVAA
       value: "BARE_BRUKERPROFIL"
     - name: PAM_TILGANG_URL
-      value: "https://pam-dir-api.intern.dev.nav.no/rest/dir/tilgang"
+      value: "https://pam-dir-api.teampam/rest/dir/tilgang"
     - name: PAM_TILGANG_SCOPE
       value: "api://dev-gcp.teampam.pam-dir-api/.default"
   resources:
@@ -77,13 +77,14 @@ spec:
           namespace: nais
         - application: azure-token-generator
           namespace: nais
+        - application: pam-dir-api
+          namespace: teampam
     outbound:
       rules:
         - application: paw-arbeidssoekerregisteret-api-ledigestillinger
         - application: paw-kafka-key-generator
       external:
-        - host: pdl-api.dev-fss-pub.nais.io
-        - host: pam-dir-api.intern.dev.nav.no
+        - host: pdl-api.dev-fss-pub.nais.iono
   gcp:
     sqlInstances:
       - type: POSTGRES_18
