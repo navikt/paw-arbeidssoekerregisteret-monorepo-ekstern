@@ -134,7 +134,6 @@ fun <T: Flagg> hentAlleAktiveBrukereSomManglerFlagg(
                 additionalConstraint = { flagg[BrukerFlaggTable.navn] eq flaggtype.type }
             )
             .selectAll()
-            .forUpdate()
             .where {
                 (aktivFlagg[BrukerFlaggTable.navn] eq TjenestenErAktivFlaggtype.type) and
                         (aktivFlagg[BrukerFlaggTable.verdi] eq true) and
