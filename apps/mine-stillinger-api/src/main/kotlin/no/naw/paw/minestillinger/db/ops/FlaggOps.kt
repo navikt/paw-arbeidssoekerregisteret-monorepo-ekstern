@@ -13,10 +13,12 @@ import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.medFlagg
+import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -80,7 +82,6 @@ fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
     }
 }
 
-@WithSpan("vedlikehold_hent_aktive_brukere_med_utløpt_adressebeskyttelse_flagg")
 fun <T: Flagg> hentAlleAktiveBrukereMedFlagg(
     alleFraFørDetteErUtløpt: Instant,
     flaggtype: Flaggtype<T>
@@ -105,6 +106,39 @@ fun <T: Flagg> hentAlleAktiveBrukereMedFlagg(
                         (aktivFlagg[BrukerFlaggTable.verdi] eq true) and
                         (flagg[BrukerFlaggTable.navn] eq flaggtype.type) and
                         (flagg[BrukerFlaggTable.tidspunkt] less alleFraFørDetteErUtløpt)
+            }
+            .map { row ->
+                brukerprofilUtenFlagg(row).medFlagg(
+                    ListeMedFlagg.listeMedFlagg(lesFlaggFraDB(BrukerId(row[BrukerTable.id])))
+                )
+            }
+    }
+}
+
+fun <T: Flagg> hentAlleAktiveBrukereSomManglerFlagg(
+    flaggtype: Flaggtype<T>
+): List<BrukerProfil> {
+    return transaction {
+        val aktivFlagg = BrukerFlaggTable.alias("aktiv_flagg")
+        val flagg = BrukerFlaggTable.alias("flagg_${flaggtype.type}")
+        BrukerTable
+            .innerJoin(
+                otherTable = aktivFlagg,
+                onColumn = { BrukerTable.id },
+                otherColumn = { aktivFlagg[BrukerFlaggTable.brukerId] })
+            .join(
+                joinType = JoinType.LEFT,
+                otherTable = flagg,
+                onColumn = BrukerTable.id,
+                otherColumn = flagg[BrukerFlaggTable.brukerId],
+                additionalConstraint = { flagg[BrukerFlaggTable.navn] eq flaggtype.type }
+            )
+            .selectAll()
+            .forUpdate()
+            .where {
+                (aktivFlagg[BrukerFlaggTable.navn] eq TjenestenErAktivFlaggtype.type) and
+                        (aktivFlagg[BrukerFlaggTable.verdi] eq true) and
+                        flagg[BrukerFlaggTable.navn].isNull()
             }
             .map { row ->
                 brukerprofilUtenFlagg(row).medFlagg(
