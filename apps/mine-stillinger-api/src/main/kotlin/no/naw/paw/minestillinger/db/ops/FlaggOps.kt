@@ -82,7 +82,7 @@ fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
     }
 }
 
-fun <T: Flagg> hentAlleAktiveBrukereMedFlagg(
+fun <T: Flagg> hentAlleAktiveBrukereMedUtdatertFlagg(
     alleFraFørDetteErUtløpt: Instant,
     flaggtype: Flaggtype<T>
 ): List<BrukerProfil> {

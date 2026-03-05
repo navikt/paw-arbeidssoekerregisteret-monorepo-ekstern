@@ -9,7 +9,8 @@ import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagg
-import no.naw.paw.minestillinger.db.ops.hentAlleAktiveBrukereMedFlagg
+import no.naw.paw.minestillinger.db.ops.hentAlleAktiveBrukereMedUtdatertFlagg
+import no.naw.paw.minestillinger.db.ops.hentAlleAktiveBrukereSomManglerFlagg
 import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.io.Closeable
@@ -47,10 +48,14 @@ class DirektemeldteStillingerFlaggOppdatering(
     @WithSpan("vedlikehold_oppdater_direktemeldte_stillinger_flagg")
     suspend fun oppdaterFlaggForDirektemeldteStillinger() {
         val alleMedUtdaterteFlagg = transaction {
-            hentAlleAktiveBrukereMedFlagg(
+            val utdatert = hentAlleAktiveBrukereMedUtdatertFlagg(
                 alleFraFørDetteErUtløpt = clock.now() - gyldighetsperiode,
                 flaggtype = InkluderDirekteMeldteStillingerFlagtype
             )
+            val manglende = hentAlleAktiveBrukereSomManglerFlagg(
+                flaggtype = InkluderDirekteMeldteStillingerFlagtype
+            )
+            (utdatert + manglende).distinctBy { it.id }
         }
         appLogger.info("${alleMedUtdaterteFlagg.size} brukere med utdaterte flagg for direktemeldte stillinger")
         val oppdateringer = alleMedUtdaterteFlagg.map { profile ->
