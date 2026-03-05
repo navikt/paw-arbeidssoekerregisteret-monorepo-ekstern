@@ -50,10 +50,12 @@ class DirektemeldteStillingerFlaggOppdatering(
         val alleMedUtdaterteFlagg = transaction {
             val utdatert = hentAlleAktiveBrukereMedUtdatertFlagg(
                 alleFraFørDetteErUtløpt = clock.now() - gyldighetsperiode,
-                flaggtype = InkluderDirekteMeldteStillingerFlagtype
+                flaggtype = InkluderDirekteMeldteStillingerFlagtype,
+                limit = 100
             )
             val manglende = hentAlleAktiveBrukereSomManglerFlagg(
-                flaggtype = InkluderDirekteMeldteStillingerFlagtype
+                flaggtype = InkluderDirekteMeldteStillingerFlagtype,
+                limit = 100
             )
             (utdatert + manglende).distinctBy { it.id }
         }

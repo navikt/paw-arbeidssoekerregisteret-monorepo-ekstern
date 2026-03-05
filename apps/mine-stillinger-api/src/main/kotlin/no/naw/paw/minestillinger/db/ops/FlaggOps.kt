@@ -84,7 +84,8 @@ fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
 
 fun <T: Flagg> hentAlleAktiveBrukereMedUtdatertFlagg(
     alleFraFørDetteErUtløpt: Instant,
-    flaggtype: Flaggtype<T>
+    flaggtype: Flaggtype<T>,
+    limit: Int
 ): List<BrukerProfil> {
     return transaction {
         val aktivFlagg = BrukerFlaggTable.alias("aktiv_flagg")
@@ -106,7 +107,7 @@ fun <T: Flagg> hentAlleAktiveBrukereMedUtdatertFlagg(
                         (aktivFlagg[BrukerFlaggTable.verdi] eq true) and
                         (flagg[BrukerFlaggTable.navn] eq flaggtype.type) and
                         (flagg[BrukerFlaggTable.tidspunkt] less alleFraFørDetteErUtløpt)
-            }
+            }.limit(limit)
             .map { row ->
                 brukerprofilUtenFlagg(row).medFlagg(
                     ListeMedFlagg.listeMedFlagg(lesFlaggFraDB(BrukerId(row[BrukerTable.id])))
@@ -116,7 +117,8 @@ fun <T: Flagg> hentAlleAktiveBrukereMedUtdatertFlagg(
 }
 
 fun <T: Flagg> hentAlleAktiveBrukereSomManglerFlagg(
-    flaggtype: Flaggtype<T>
+    flaggtype: Flaggtype<T>,
+    limit: Int
 ): List<BrukerProfil> {
     return transaction {
         val aktivFlagg = BrukerFlaggTable.alias("aktiv_flagg")
@@ -138,7 +140,7 @@ fun <T: Flagg> hentAlleAktiveBrukereSomManglerFlagg(
                 (aktivFlagg[BrukerFlaggTable.navn] eq TjenestenErAktivFlaggtype.type) and
                         (aktivFlagg[BrukerFlaggTable.verdi] eq true) and
                         flagg[BrukerFlaggTable.navn].isNull()
-            }
+            }.limit(limit)
             .map { row ->
                 brukerprofilUtenFlagg(row).medFlagg(
                     ListeMedFlagg.listeMedFlagg(lesFlaggFraDB(BrukerId(row[BrukerTable.id])))
