@@ -84,7 +84,7 @@ spec:
         - application: pam-dir-api
           namespace: teampam
       external:
-        - host: pdl-api.dev-fss-pub.nais.iono
+        - host: pdl-api.dev-fss-pub.nais.io
   gcp:
     sqlInstances:
       - type: POSTGRES_18
