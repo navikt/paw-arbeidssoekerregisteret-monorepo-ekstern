@@ -215,6 +215,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Lokasjon"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
       required:
         - uuid
         - tittel
@@ -226,6 +230,11 @@ components:
         - publisert
         - styrkkoder
         - lokasjoner
+        - tags
+    Tag:
+      type: string
+      enum:
+        - DIREKTEMELDT_STILLING_V1
     StillingStatus:
       type: string
       enum:

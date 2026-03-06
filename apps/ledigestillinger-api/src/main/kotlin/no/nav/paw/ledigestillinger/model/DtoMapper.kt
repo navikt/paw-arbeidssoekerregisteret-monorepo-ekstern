@@ -12,6 +12,7 @@ import no.nav.paw.ledigestillinger.model.dao.KategoriRow
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringRow
 import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
+import no.nav.paw.ledigestillinger.service.asDto
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import no.nav.paw.ledigestillinger.util.fromUnformattedString
 import no.naw.paw.ledigestillinger.model.Arbeidsgiver
@@ -51,6 +52,7 @@ fun StillingRow.asDto(): Stilling = Stilling(
     lokasjoner = this.lokasjoner.map { it.asDto() },
     publisert = this.publisertTimestamp,
     utloeper = this.utloeperTimestamp,
+    tags = this.tags.asDto()
 )
 
 fun ArbeidsgiverRow.asDto(): Arbeidsgiver = Arbeidsgiver(

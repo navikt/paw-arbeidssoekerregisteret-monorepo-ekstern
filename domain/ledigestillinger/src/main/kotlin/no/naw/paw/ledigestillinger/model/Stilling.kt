@@ -58,5 +58,8 @@ data class Stilling(
     val styrkkoder: List<StyrkKode>,
 
     @get:JsonProperty("lokasjoner")
-    val lokasjoner: List<Lokasjon>
+    val lokasjoner: List<Lokasjon>,
+
+    @get:JsonProperty("tags")
+    val tags: List<Tag> = emptyList()
 )
