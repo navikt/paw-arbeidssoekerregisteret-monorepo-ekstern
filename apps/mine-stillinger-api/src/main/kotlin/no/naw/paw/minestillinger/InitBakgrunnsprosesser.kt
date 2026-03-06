@@ -25,7 +25,8 @@ class Bakgrunnsprosesser(
     fun helthChecks(): Iterable<HealthCheck> = listOf(
         adresseBeskyttelseOppdatering,
         slettUbrukteBrukerprofiler,
-        slettGamlePropfileringerUtenProfil
+        slettGamlePropfileringerUtenProfil,
+        inkluderDirektemeldteStillingerFlaggOppdatering
     )
 }
 
