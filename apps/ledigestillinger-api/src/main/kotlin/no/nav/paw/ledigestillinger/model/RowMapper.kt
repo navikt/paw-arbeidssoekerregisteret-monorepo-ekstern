@@ -12,7 +12,11 @@ import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
+import no.nav.paw.ledigestillinger.service.Tag
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.slf4j.LoggerFactory.getLogger
+
+val resultRowMapperLogger = getLogger("result_row_mapper")
 
 fun ResultRow.asStillingRow(
     arbeidsgiver: (Long) -> ArbeidsgiverRow?,
@@ -51,7 +55,12 @@ fun ResultRow.asStillingRow(
         kategorier = kategorier(id),
         klassifiseringer = klassifiseringer(id),
         lokasjoner = lokasjoner(id),
-        egenskaper = egenskaper(id)
+        egenskaper = egenskaper(id),
+        tags = this[StillingerTable.tags].mapNotNull { runCatching {
+            Tag.valueOf(it)
+        }.onFailure{ e ->
+            resultRowMapperLogger.error("Tag $id ikke gjenkjent, ignoreres", e)
+        }.getOrNull() }
     )
 }
 

@@ -21,6 +21,30 @@ import java.util.*
 
 @Suppress("ConstPropertyName")
 object TestData {
+    val baseAd = Ad(
+        "00000000-0000-0000-0000-000000000001",
+        null,
+        "Testannonse",
+        AdStatus.ACTIVE,
+        PrivacyChannel.SHOW_ALL,
+        null,
+        "2026-01-01T00:00:00",
+        null,
+        "2026-01-01T00:00:00",
+        "2026-01-01T00:00:00",
+        null,
+        emptyList(),
+        "UKJENT",
+        "",
+        "",
+        null,
+        null,
+        emptyList(),
+        emptyList(),
+        null,
+        null,
+    )
+
     val clock: WallClock = WallClock.systemDefaultZone()
 
     const val fnr1: String = "01017012345"
@@ -245,6 +269,11 @@ object TestData {
         expires = LocalDateTime.now(clock).minusDays(11)
     )
 
+    val message6_1: Message<UUID, Ad> = message(
+        source = "DIR",
+        properties = properties() + Property("direktemeldtStillingskategori", "STILLING")
+    )
+
     val alleMessages = listOf(
         message1_1,
         message1_2,
@@ -346,7 +375,8 @@ object TestData {
         expires: LocalDateTime? = null,
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
-        locations: List<Location> = emptyList()
+        locations: List<Location> = emptyList(),
+        properties: List<Property> = emptyList(),
     ): Message<UUID, Ad> = record(
         uuid = uuid,
         adnr = adnr,
@@ -357,7 +387,8 @@ object TestData {
         expires = expires,
         categories = categories,
         classifications = classifications,
-        locations = locations
+        locations = locations,
+        properties = properties
     ).toMessage()
 
     fun record(
@@ -371,7 +402,8 @@ object TestData {
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList(),
-        topic: String = "teampam.stilling-ekstern-1"
+        topic: String = "teampam.stilling-ekstern-1",
+        properties: List<Property> = emptyList(),
     ): ConsumerRecord<UUID, Ad> = ad(
         uuid = uuid,
         adnr = adnr,
@@ -382,7 +414,8 @@ object TestData {
         expires = expires,
         categories = categories,
         classifications = classifications,
-        locations = locations
+        locations = locations,
+        properties = properties
     ).let { ConsumerRecord(topic, 0, 0L, it.first, it.second) }
 
     fun ad(
@@ -395,7 +428,8 @@ object TestData {
         expires: LocalDateTime? = null,
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
-        locations: List<Location> = emptyList()
+        locations: List<Location> = emptyList(),
+        properties: List<Property> = properties(),
     ): Pair<UUID, Ad> {
         val ad = Ad().apply {
             this.uuid = uuid.toString()

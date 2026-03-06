@@ -1,5 +1,5 @@
 package no.nav.paw.ledigestillinger.service
 
-enum class Tags {
+enum class Tag {
     DIREKTEMELDT_V1
 }

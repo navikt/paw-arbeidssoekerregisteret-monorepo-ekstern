@@ -15,6 +15,7 @@ import no.nav.paw.ledigestillinger.model.dao.KategoriRow
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringRow
 import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
+import no.nav.paw.ledigestillinger.service.beregnTags
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import no.naw.paw.ledigestillinger.model.Paging
@@ -55,7 +56,8 @@ fun Message<UUID, Ad>.asStillingRow(): StillingRow {
         kategorier = value.categories?.map { it.asKategoriRow() } ?: listOf(),
         klassifiseringer = value.classifications?.map { it.asKlassifiseringRow() } ?: listOf(),
         lokasjoner = value.locations?.map { it.asLokasjonRow() } ?: listOf(),
-        egenskaper = value.properties?.map { it.asEgenskapRow() } ?: listOf()
+        egenskaper = value.properties?.map { it.asEgenskapRow() } ?: listOf(),
+        tags = beregnTags(value)
     )
 }
 

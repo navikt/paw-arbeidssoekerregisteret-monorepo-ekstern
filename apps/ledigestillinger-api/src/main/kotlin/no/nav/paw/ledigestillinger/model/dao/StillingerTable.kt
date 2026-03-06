@@ -57,6 +57,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
     val messageTimestamp = timestamp("message_timestamp")
     val insertTimestamp = timestamp("inserted_timestamp")
     val updatedTimestamp = timestamp("updated_timestamp").nullable()
+    val tags = array<String>("tags").default(emptyList())
 
     fun selectIdByUUID(
         uuid: UUID
@@ -185,6 +186,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         it[utloeperTimestamp] = row.utloeperTimestamp
         it[messageTimestamp] = row.messageTimestamp
         it[insertTimestamp] = Instant.now()
+        it[tags] = row.tags.map { tag -> tag.name }
     }.value
 
     fun updateById(
@@ -214,6 +216,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         it[utloeperTimestamp] = row.utloeperTimestamp
         it[messageTimestamp] = row.messageTimestamp
         it[updatedTimestamp] = Instant.now()
+        it[tags] = row.tags.map { tag -> tag.name }
     }
 
     fun deleteByIdList(
