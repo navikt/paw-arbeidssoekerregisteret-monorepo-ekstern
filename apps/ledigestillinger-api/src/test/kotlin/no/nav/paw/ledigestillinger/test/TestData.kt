@@ -21,7 +21,7 @@ import java.util.*
 
 @Suppress("ConstPropertyName")
 object TestData {
-    val baseAd = Ad(
+    fun baseAd() = Ad(
         "00000000-0000-0000-0000-000000000001",
         null,
         "Testannonse",
