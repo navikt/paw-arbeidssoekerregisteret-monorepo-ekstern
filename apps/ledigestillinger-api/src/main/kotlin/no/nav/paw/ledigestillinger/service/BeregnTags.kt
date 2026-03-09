@@ -22,7 +22,8 @@ fun beregnTags(ad: Ad): Set<Tag> {
                     stringKey("direktemeldtStillingskategori"), ad.properties.find { prop ->
                         prop.key.equals("direktemeldtStillingskategori", ignoreCase = true)
                     }?.value ?: "null",
-                    stringKey("tags"), tags.joinToString(",")
+                    stringKey("tags"), tags.joinToString(","),
+                    stringKey("ad_uuid"), ad.uuid.toString()
                 )
             )
     }
