@@ -19,5 +19,8 @@ data class FinnStillingerByEgenskaperRequest(
     val fylker: List<Fylke>,
 
     @get:JsonProperty("paging")
-    val paging: Paging
+    val paging: Paging,
+
+    @get:JsonProperty("tags")
+    val tags: List<Tag> = emptyList()
 ) : FinnStillingerRequest

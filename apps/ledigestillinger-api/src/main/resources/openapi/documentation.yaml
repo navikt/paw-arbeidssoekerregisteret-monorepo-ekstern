@@ -124,6 +124,10 @@ components:
             $ref: "#/components/schemas/Fylke"
         paging:
           $ref: "#/components/schemas/Paging"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
       required:
         - type
         - soekeord
