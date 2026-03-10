@@ -12,7 +12,7 @@ import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
-import no.nav.paw.ledigestillinger.service.Tag
+import no.naw.paw.ledigestillinger.model.Tag
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.slf4j.LoggerFactory.getLogger
 

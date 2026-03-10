@@ -1,7 +1,7 @@
 package no.nav.paw.ledigestillinger.model.dao
 
-import no.nav.paw.ledigestillinger.service.Tag
 import no.naw.paw.ledigestillinger.model.StillingStatus
+import no.naw.paw.ledigestillinger.model.Tag
 import no.naw.paw.ledigestillinger.model.VisningGrad
 import java.time.Instant
 import java.util.*

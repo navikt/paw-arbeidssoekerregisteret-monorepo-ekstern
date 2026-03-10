@@ -22,7 +22,7 @@ import java.util.*
 @Suppress("ConstPropertyName")
 object TestData {
     fun baseAd() = Ad(
-        "00000000-0000-0000-0000-000000000001",
+        UUID.randomUUID().toString(),
         null,
         "Testannonse",
         AdStatus.ACTIVE,
@@ -32,7 +32,13 @@ object TestData {
         null,
         "2026-01-01T00:00:00",
         "2026-01-01T00:00:00",
-        null,
+        Company(
+            "Team Paw",
+            "Product Area Work",
+            "999999999",
+            "999999998",
+            "KIRK"
+        ),
         emptyList(),
         "UKJENT",
         "",
@@ -42,7 +48,13 @@ object TestData {
         emptyList(),
         emptyList(),
         null,
-        null,
+        listOf(Classification(
+            "STYRK08",
+            "1234",
+            "Testyrke",
+            1.0,
+            "1234"
+        )),
     )
 
     val clock: WallClock = WallClock.systemDefaultZone()

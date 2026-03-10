@@ -4,6 +4,7 @@ import io.opentelemetry.api.common.AttributeKey.stringKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import no.nav.pam.stilling.ext.avro.Ad
+import no.naw.paw.ledigestillinger.model.Tag
 
 fun beregnTags(ad: Ad): Set<Tag> {
     val sourceErDir = ad.source.equals("DIR", ignoreCase = true)

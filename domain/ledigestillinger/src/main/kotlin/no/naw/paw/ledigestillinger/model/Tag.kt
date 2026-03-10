@@ -1,5 +1,5 @@
 package no.naw.paw.ledigestillinger.model
 
 enum class Tag {
-    DIREKTEMELDT_STILLING_V1
+    DIREKTEMELDT_V1
 }

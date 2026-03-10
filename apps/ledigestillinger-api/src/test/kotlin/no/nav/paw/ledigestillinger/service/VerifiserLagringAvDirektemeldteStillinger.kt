@@ -12,9 +12,10 @@ import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.nav.paw.ledigestillinger.test.TestContext
 import no.nav.paw.ledigestillinger.test.TestData.baseAd
+import no.naw.paw.ledigestillinger.model.Tag
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 class VerifiserLagringAvDirektemeldteStillinger : FreeSpec({
     with(TestContext.buildWithDatabase()) {

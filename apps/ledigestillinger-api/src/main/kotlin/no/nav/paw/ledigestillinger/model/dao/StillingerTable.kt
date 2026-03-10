@@ -4,11 +4,13 @@ import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
+import no.nav.paw.ledigestillinger.service.overlapWith
 import no.nav.paw.logging.logger.buildNamedLogger
 import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.StillingStatus
+import no.naw.paw.ledigestillinger.model.Tag
 import no.naw.paw.ledigestillinger.model.VisningGrad
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
@@ -94,13 +96,73 @@ object StillingerTable : LongIdTable("stillinger_v2") {
                 egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
             )
         }
+    fun selectRowsByKategorierAndFylker(
+        medSoekeord: Collection<String> = emptyList(),
+        medStyrkkoder: Collection<String> = emptyList(),
+        medFylker: Collection<Fylke> = emptyList(),
+        utenKilder: Collection<String> = emptyList(),
+        paging: Paging = Paging(),
+        tags: Collection<Tag>
+    ): List<StillingRow> {
+        logger.trace("Finner stillinger med styrkkoder: {}, fylker: {} og tags: {}", medStyrkkoder, medFylker, tags)
+        val aktivQuery: Op<Boolean> = (status eq StillingStatus.AKTIV)
+        val soekeordQuery: Op<Boolean> = if (medSoekeord.isEmpty()) {
+            Op.TRUE
+        } else {
+            Op.TRUE // TODO Benytte søkeord?
+        }
+        val kategoriQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
+            Op.TRUE
+        } else {
+            (KategorierTable.normalisertKode inList medStyrkkoder)
+        }
+        val klassifiseringQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
+            Op.TRUE
+        } else {
+            ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList medStyrkkoder))
+        }
+        val tagsQuery: Op<Boolean> = if (tags.isEmpty()) {
+            Op.TRUE
+        } else {
+            StillingerTable.tags.overlapWith(tags.map { it.name })
+        }
+        val styrkQuery = (kategoriQuery or klassifiseringQuery)
+        val lokasjonQuery: Op<Boolean> = medFylker.map { fylke ->
+            if (fylke.kommuner.isEmpty()) {
+                LokasjonerTable.fylkeskode eq fylke.fylkesnummer
+            } else {
+                val kommunenummer = fylke.kommuner.map { it.kommunenummer }
+                LokasjonerTable.fylkeskode eq fylke.fylkesnummer and (LokasjonerTable.kommunekode inList kommunenummer)
+            }
+        }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
+        val kildeQuery = (kilde notInList utenKilder)
+
+        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery and kildeQuery and tagsQuery
+
+        return join(KategorierTable, JoinType.LEFT, id, KategorierTable.parentId)
+            .join(KlassifiseringerTable, JoinType.LEFT, id, KlassifiseringerTable.parentId)
+            .join(LokasjonerTable, JoinType.LEFT, id, LokasjonerTable.parentId)
+            .selectAll()
+            .where { combinedQuery }
+            .orderBy(publisertTimestamp, paging.order())
+            .limit(paging.size()).offset(paging.offset())
+            .map {
+                it.asStillingRow(
+                    arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
+                    kategorier = KategorierTable::selectRowsByParentId,
+                    klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
+                    lokasjoner = LokasjonerTable::selectRowsByParentId,
+                    egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
+                )
+            }
+    }
 
     fun selectRowsByKategorierAndFylker(
         medSoekeord: Collection<String> = emptyList(),
         medStyrkkoder: Collection<String> = emptyList(),
         medFylker: Collection<Fylke> = emptyList(),
         utenKilder: Collection<String> = emptyList(),
-        paging: Paging = Paging()
+        paging: Paging = Paging(),
     ): List<StillingRow> {
         logger.trace("Finner stillinger med styrkkoder: {} og fylker: {}", medStyrkkoder, medFylker)
         val aktivQuery: Op<Boolean> = (status eq StillingStatus.AKTIV)

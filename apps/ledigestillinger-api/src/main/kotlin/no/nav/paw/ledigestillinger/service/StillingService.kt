@@ -21,6 +21,8 @@ import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.ledigestillinger.model.StillingStatus
+import no.naw.paw.ledigestillinger.model.Tag
+import org.apache.kafka.shaded.com.google.protobuf.LazyStringArrayList.emptyList
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Clock
 import java.time.Instant
@@ -59,6 +61,31 @@ class StillingService(
             val slutt = System.currentTimeMillis()
             val millisekunder = slutt - start
             logger.info("Fant {} stillinger for UUID-liste på {}ms", treff.size, millisekunder)
+        }
+    }
+
+    @WithSpan("paw.stillinger.service.finn_direktemeldte")
+    fun finnStillingerByEgenskaper(
+        medSoekeord: Collection<String>,
+        medStyrkkoder: Collection<String>,
+        medFylker: Collection<Fylke>,
+        paging: Paging = Paging(),
+        tags: Collection<Tag>
+    ): List<Stilling> = transaction {
+        val start = System.currentTimeMillis()
+        telemetryContext.tellStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
+        val rows = StillingerTable.selectRowsByKategorierAndFylker(
+            medSoekeord = medSoekeord,
+            medStyrkkoder = medStyrkkoder,
+            medFylker = medFylker,
+            utenKilder = emptyList(),
+            paging = paging,
+            tags = tags
+        )
+        rows.map { it.asDto() }.also { treff ->
+            val slutt = System.currentTimeMillis()
+            val millisekunder = slutt - start
+            logger.info("Fant {} stillinger for egeneskaper på {}ms", treff.size, millisekunder)
         }
     }
 

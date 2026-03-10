@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pam.stilling.ext.avro.Property
 import no.nav.paw.ledigestillinger.test.TestData.baseAd
+import no.naw.paw.ledigestillinger.model.Tag
 
 class BeregnTagsTest : FreeSpec({
 
