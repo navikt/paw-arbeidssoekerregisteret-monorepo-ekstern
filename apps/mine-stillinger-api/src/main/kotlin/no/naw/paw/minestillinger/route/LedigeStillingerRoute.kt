@@ -31,6 +31,7 @@ import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.api.Soeknadsfrist
 import no.naw.paw.minestillinger.api.SoeknadsfristType
 import no.naw.paw.minestillinger.api.vo.ApiSortOrder
+import no.naw.paw.minestillinger.api.vo.toApiTag
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
@@ -127,7 +128,8 @@ private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(
         Sektor.UKJENT -> no.naw.paw.minestillinger.api.Sektor.Ukjent
     },
     selskap = stilling.arbeidsgivernavn ?: "Ukjent",
-    arbeidsplassenNoId = stilling.uuid
+    arbeidsplassenNoId = stilling.uuid,
+    tags = stilling.tags.map { it.toApiTag() }
 )
 
 fun soeknadsfrist(frist: Frist): Soeknadsfrist {

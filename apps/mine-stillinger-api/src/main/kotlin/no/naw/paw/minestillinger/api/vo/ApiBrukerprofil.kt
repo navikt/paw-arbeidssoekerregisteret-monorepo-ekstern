@@ -6,4 +6,5 @@ data class ApiBrukerprofil(
     val identitetsnummer: String,
     val tjenestestatus: ApiTjenesteStatus,
     val stillingssoek: List<ApiStillingssoek>,
+    val flagg: List<ApiFlagg>
 )

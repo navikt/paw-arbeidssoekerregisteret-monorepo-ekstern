@@ -254,9 +254,28 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Stillingssoek"
+        flagg:
+            type: "array"
+            items:
+                $ref: "#/components/schemas/Flagg"
       required:
         - "identitetsnummer"
         - "tjenestestatus"
+    Flagg:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+          enum:
+            - "DIREKTEMELDTE_STILLINGER"
+            - "OPT_OUT"
+            - "TJENESTEN_AKTIVERT"
+        tidspunkt:
+          type: "string"
+          format: "date-time"
+          example: "2025-10-20T12:00:00Z"
+      required:
+        - "navn"
     Stillingssoek:
       oneOf:
         - $ref: "#/components/schemas/StedSoek"
@@ -430,6 +449,10 @@ components:
         selskap:
           type: "string"
           example: "Snedige Løsninger AS"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
       required:
         - "tittel"
         - "publisert"
@@ -437,6 +460,11 @@ components:
         - "selskap"
         - "soeknadsfrist"
         - "land"
+        - "tags"
+    Tag:
+      type: "string"
+      enum:
+        - "DIREKTEMELDT_V1"
     Soeknadsfrist:
       type: "object"
       properties:

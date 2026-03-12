@@ -3,6 +3,7 @@ package no.naw.paw.minestillinger.domain
 import no.nav.paw.felles.model.Identitetsnummer
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
+import no.naw.paw.minestillinger.api.vo.api
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
@@ -63,6 +64,7 @@ fun BrukerProfil.api(): ApiBrukerprofil {
             arbeidssoekerperiodeAvsluttet != null -> ApiTjenesteStatus.KAN_IKKE_LEVERES
             else -> ApiTjenesteStatus.INAKTIV
         },
-        stillingssoek = emptyList()
+        stillingssoek = emptyList(),
+        flagg = listeMedFlagg.mapNotNull { it.api() }
     )
 }

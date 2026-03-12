@@ -1,6 +1,7 @@
 package no.naw.paw.minestillinger.api
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import no.naw.paw.minestillinger.api.vo.ApiTag
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -14,7 +15,8 @@ data class ApiJobbAnnonse(
     val land: String,
     val kommune: String?,
     val sektor: Sektor,
-    val selskap: String
+    val selskap: String,
+    val tags: List<ApiTag>
 )
 
 data class Soeknadsfrist(
