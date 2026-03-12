@@ -1,11 +1,20 @@
 package no.naw.paw.minestillinger
 
+import kotlin.system.exitProcess
+
 fun runApp(applicationContext: ApplicationContext): Unit {
     Thread.currentThread().uncaughtExceptionHandler =
         Thread.UncaughtExceptionHandler { _, e ->
             appLogger.error("Uventet feil i applikasjonen", e)
-            System.exit(1)
+            exitProcess(1)
         }
+    ArbeidsplassenMapper.relaterteStyrkKoder("2265").let {
+        if (it.isNotEmpty()) {
+            appLogger.info("Arbeidsplassen mapping lastet!")
+        } else {
+            throw RuntimeException("Feil ved innlastning av Arbeidsplassen mapping: ingen koder funnet for 2265")
+        }
+    }
     val ktorInstance = initEmbeddedKtorServer(
         prometheusRegistry = applicationContext.prometheusMeterRegistry,
         meterBinders = applicationContext.meterBinders,
