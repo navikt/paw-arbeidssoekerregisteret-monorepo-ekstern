@@ -9,14 +9,21 @@ import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import no.nav.paw.error.exception.ClientResponseException
 import no.nav.paw.error.model.ErrorType
-import no.nav.paw.security.authentication.model.Sluttbruker
 import no.nav.paw.security.authentication.token.AccessToken
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
+import no.naw.paw.ledigestillinger.model.PagingResponse
 
 data class LedigeStillingerClientConfig(
     val baseUrl: String,
@@ -30,22 +37,39 @@ class FinnStillingerClient(
     private val texasClient: TexasClient,
     private val httpClient: HttpClient,
 ) {
-    suspend fun finnLedigeStillinger(token: AccessToken, finnStillingerRequest: FinnStillingerRequest): FinnStillingerResponse {
+    suspend fun finnLedigeStillinger(
+        token: AccessToken,
+        finnStillingerRequests: List<FinnStillingerRequest>
+    ): FinnStillingerResponse {
         val newToken = texasClient.exchangeOnBehalfOfBrukerToken(
             OnBehalfOfBrukerRequest(
                 userToken = token.jwt,
                 target = config.target
             )
         ).accessToken
-        val response = httpClient.post(config.baseUrl + FINN_LEDIGE_STILLINGER_PATH) {
-            contentType(Application.Json)
-            bearerAuth(newToken)
-            setBody(finnStillingerRequest)
-        }
 
-        return when {
-            response.status.isSuccess() -> response.body<FinnStillingerResponse>()
-            else -> throw StillingerClientException(response.status)
+        return coroutineScope {
+            finnStillingerRequests.asFlow()
+                .map { request ->
+                    async {
+                        val response = httpClient.post(config.baseUrl + FINN_LEDIGE_STILLINGER_PATH) {
+                            contentType(Application.Json)
+                            bearerAuth(newToken)
+                            setBody(request)
+                        }
+                        when {
+                            response.status.isSuccess() -> response.body<FinnStillingerResponse>()
+                            else -> throw StillingerClientException(response.status)
+                        }
+                    }
+                }.toList()
+                .awaitAll()
+                .fold(FinnStillingerResponse(emptyList(), PagingResponse(hitSize = 0))) { acc, response ->
+                    FinnStillingerResponse(
+                        stillinger = acc.stillinger + response.stillinger,
+                        paging = response.paging.copy(hitSize = acc.paging.hitSize + response.paging.hitSize)
+                    )
+                }
         }
     }
 }

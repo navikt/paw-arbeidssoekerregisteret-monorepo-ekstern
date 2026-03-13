@@ -78,7 +78,7 @@ fun Route.ledigeStillingerRoute(
                     try {
                         val response = ledigeStillingerClient.finnLedigeStillinger(
                             call.securityContext().accessToken,
-                            søkOgRequest.second
+                            listOf(søkOgRequest.second)
                         )
                         val jobbAnonnser = response.stillinger.map(::jobbAnnonse)
                         val svar = MineStillingerResponse(
