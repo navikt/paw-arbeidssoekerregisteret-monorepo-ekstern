@@ -5,6 +5,7 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import kotlin.math.min
 
 object LokasjonerTable : LongIdTable("lokasjoner_v2") {
     val parentId = long("parent_id").references(StillingerTable.id)
@@ -28,7 +29,7 @@ object LokasjonerTable : LongIdTable("lokasjoner_v2") {
         rows: Iterable<LokasjonRow>
     ) = batchInsert(rows) { row ->
         this[LokasjonerTable.parentId] = parentId
-        this[adresse] = row.adresse
+        this[adresse] = row.adresse?.let { s -> s.substring(0, min(s.length, 255)) }
         this[postkode] = row.postkode
         this[poststed] = row.poststed
         this[kommune] = row.kommune
