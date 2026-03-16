@@ -46,7 +46,7 @@ import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.SøkId
 import no.naw.paw.minestillinger.domain.api
 import no.naw.paw.minestillinger.metrics.tellLedigeStillingerKall
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 
@@ -67,7 +67,7 @@ fun Route.ledigeStillingerRoute(
                     .hentSluttbrukerEllerNull()
                     ?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
-                val søkOgRequest = suspendedTransactionAsync {
+                val søkOgRequest: Pair<LagretStillingsoek, List<FinnStillingerRequest>>? = suspendTransaction {
                     val bruker = hentBrukerProfil(identitetsnummer)
                     val brukerId = bruker?.id
                     val soek = brukerId?.let { id -> hentLagretSøk(id) }
@@ -94,7 +94,7 @@ fun Route.ledigeStillingerRoute(
                                 genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort),
                             direkteMeldingerSøk)
                     }
-                }.await()
+                }
                 if (søkOgRequest?.second != null) {
                     try {
                         val response = ledigeStillingerClient.finnLedigeStillinger(

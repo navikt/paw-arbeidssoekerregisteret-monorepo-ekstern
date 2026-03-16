@@ -27,7 +27,7 @@ import no.naw.paw.minestillinger.tjenesteIkkeAktiv
 import no.naw.paw.minestillinger.db.ops.SøkAdminOps
 import no.naw.paw.minestillinger.metrics.tellHentBrukerpofilKall
 import no.naw.paw.minestillinger.validering.valider
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.slf4j.LoggerFactory.getLogger
 
 const val BRUKERPROFIL_PATH = "/api/v1/brukerprofil"
@@ -72,7 +72,7 @@ fun Route.brukerprofilRoute(
                     call.respondWith(validering)
                     return@put
                 } else {
-                    val respose: Response<Unit> = suspendedTransactionAsync {
+                    val respose: Response<Unit> = suspendTransaction {
                         val profil = brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(identitetsnummer)
                         val brukerId = profil?.id
                         if (brukerId == null) {
@@ -89,7 +89,7 @@ fun Route.brukerprofilRoute(
                                 Data(Unit)
                             }
                         }
-                    }.await()
+                    }
                     call.respondWith(respose)
                 }
             }

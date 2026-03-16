@@ -85,7 +85,7 @@ import no.naw.paw.minestillinger.vedtak14a.lagre14aResultat
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.time.Instant
@@ -290,14 +290,14 @@ class Livssyklustest : FreeSpec({
                             harBeskyttetAdresse = false
                         )
                     )
-                    suspendedTransactionAsync {
+                    suspendTransaction {
                         val profil = hentBrukerProfilUtenFlagg(kariIdent)!!
                             .let { profilUtenFlaff ->
                                 val flagg = brukerprofilTjeneste.hentFlagg(profilUtenFlaff.id)
                                 profilUtenFlaff.medFlagg(ListeMedFlagg.listeMedFlagg(flagg))
                             }
                         brukerprofilTjeneste.oppdaterAdresseGraderingBulk(listOf(profil), clock.now())
-                    }.await()
+                    }
                     testClient.getBrukerprofil(kariIdent) should { response ->
                         response.status shouldBe HttpStatusCode.OK
                         response.body<ApiBrukerprofil>() should { apiProfil ->

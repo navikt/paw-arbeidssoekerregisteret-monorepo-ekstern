@@ -13,7 +13,7 @@ import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.db.ops.hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import java.io.Closeable
 import java.time.Duration
 import java.time.Duration.between
@@ -43,9 +43,9 @@ class BeskyttetAddresseDagligOppdatering(
         while (skalFortsette.get()) {
             if (between(sisteKjøring.get(), clock.now()) > interval) {
                 appLogger.info("Starter oppdatering av adressebeskyttelse for brukerprofiler")
-                val antall = suspendedTransactionAsync {
+                val antall = suspendTransaction {
                     finnOgOppdater()
-                }.await().also {
+                }.also {
                     sisteKjøring.set(clock.now())
                 }
                 appLogger.info("Brukerprofil: oppdaterte adressebeskyttelse for $antall brukere")

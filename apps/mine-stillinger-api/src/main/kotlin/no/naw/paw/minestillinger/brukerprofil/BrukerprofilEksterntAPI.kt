@@ -25,19 +25,19 @@ import no.naw.paw.minestillinger.domain.Stillingssoek
 import no.naw.paw.minestillinger.domain.api
 import no.naw.paw.minestillinger.internFeil
 import no.naw.paw.minestillinger.oppdateringIkkeTillatt
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
 suspend fun BrukerprofilTjeneste.hentApiBrukerprofil(
     hentSøk: (BrukerId) -> List<Stillingssoek>,
     identitetsnummer: Identitetsnummer
 ): ApiBrukerprofil? {
-    return suspendedTransactionAsync {
+    return suspendTransaction {
         hentLokalBrukerProfilEllerNull(identitetsnummer)
             ?.let { brukerprofil ->
                 val søk = hentSøk(brukerprofil.id).map { søk -> søk.api() }
                 brukerprofil.api().copy(stillingssoek = søk)
             }
-    }.await()
+    }
         .also { apiBrukerprofil ->
             appLogger.trace("Returnerer brukerprofil: tjenestestatus=${apiBrukerprofil?.tjenestestatus}, antallSøk=${apiBrukerprofil?.stillingssoek?.size}")
         }
@@ -48,7 +48,7 @@ suspend fun BrukerprofilTjeneste.setTjenestatestatus(
     identitetsnummer: Identitetsnummer,
     tjenesteStatus: ApiTjenesteStatus
 ): Response<Unit> {
-    return suspendedTransactionAsync {
+    return suspendTransaction {
         hentLokalBrukerprofil(identitetsnummer)
             .coFlatMap { brukerProfil ->
                 when (tjenesteStatus) {
@@ -58,7 +58,7 @@ suspend fun BrukerprofilTjeneste.setTjenestatestatus(
                     ApiTjenesteStatus.KAN_IKKE_LEVERES -> oppdateringIkkeTillatt("Kan ikke sette tjenestestatus til KAN_IKKE_LEVERES manuelt.")
                 }
             }
-    }.await()
+    }
 }
 
 fun BrukerprofilTjeneste.optOutAvTjenesten(brukerProfil: BrukerProfil): Response<Unit> {
