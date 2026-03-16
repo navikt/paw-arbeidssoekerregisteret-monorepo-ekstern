@@ -8,6 +8,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.micrometer.core.instrument.MeterRegistry
+import io.opentelemetry.api.common.AttributeKey.booleanKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.model.TokenX
@@ -77,12 +80,14 @@ fun Route.ledigeStillingerRoute(
                         if (page < 1) throw BadRequestException("Parameter 'page' må være 1 eller større")
                         if (pageSize !in 1..100) throw BadRequestException("Parameter 'pageSize' må være mellom 1 og 100")
                         val direkteMeldingerSøk = if (bruker.listeMedFlagg.isTrue(InkluderDirekteMeldteStillingerFlagtype)) {
+                            Span.current().addEvent("direktemeldte_stillinger", Attributes.of(booleanKey("inkluder"), true))
                             genererRequest(søk = søk.copy(
                                 fylker = emptyList(),
                                 soekeord = emptyList(),
                                 styrk08 = søk.styrk08.flatMap { ArbeidsplassenMapper.relaterteStyrkKoder(it) }.distinct()
                             ), page = page, pageSize = pageSize, sort = sort)
                         } else {
+                            Span.current().addEvent("direktemeldte_stillinger", Attributes.of(booleanKey("inkluder"), false))
                             null
                         }
                         stedSøk to listOfNotNull(
