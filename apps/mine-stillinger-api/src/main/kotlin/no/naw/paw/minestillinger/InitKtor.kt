@@ -64,7 +64,7 @@ fun <A> initEmbeddedKtorServer(
             )
             ledigeStillingerRoute(
                 ledigeStillingerClient = finnStillingerClient,
-                hentBrukerId = { identitetsnummer -> brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(identitetsnummer)?.id },
+                hentBrukerProfil = brukerprofilTjeneste::hentLokalBrukerProfilEllerNull,
                 hentLagretSøk = ExposedSøkAdminOps::hentSoek,
                 oppdaterSistKjøt = ExposedSøkAdminOps::settSistKjørt,
                 clock = clock,

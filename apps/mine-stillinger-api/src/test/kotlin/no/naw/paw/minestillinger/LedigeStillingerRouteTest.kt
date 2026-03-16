@@ -35,14 +35,18 @@ import no.naw.paw.ledigestillinger.model.Stillingsprosent
 import no.naw.paw.ledigestillinger.model.StyrkKode
 import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
+import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.databaseConfigFrom
 import no.naw.paw.minestillinger.db.ops.opprettOgOppdaterBruker
 import no.naw.paw.minestillinger.db.ops.postgreSQLContainer
 import no.naw.paw.minestillinger.domain.BrukerId
+import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.Fylke
 import no.naw.paw.minestillinger.domain.Kommune
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
+import no.naw.paw.minestillinger.domain.PeriodeId
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.StillingssoekType
 import no.naw.paw.minestillinger.domain.SøkId
@@ -92,7 +96,14 @@ class LedigeStillingerRouteTest : FreeSpec({
             routing {
                 ledigeStillingerRoute(
                     ledigeStillingerClient = ledigeStillingerClient,
-                    hentBrukerId = { BrukerId(10) },
+                    hentBrukerProfil = { BrukerProfil(
+                        id = BrukerId(10),
+                        identitetsnummer = Identitetsnummer(periode.identitetsnummer),
+                        arbeidssoekerperiodeId = PeriodeId(periode.id),
+                        arbeidssoekerperiodeAvsluttet = null,
+                        listeMedFlagg = ListeMedFlagg.listeMedFlagg(listOf(InkluderDirekteMeldteStillingerFlagtype.flagg(true,
+                            Instant.now())))
+                    ) },
                     hentLagretSøk = { lagreSøk },
                     oppdaterSistKjøt = { _, _ -> true },
                     clock = clock,

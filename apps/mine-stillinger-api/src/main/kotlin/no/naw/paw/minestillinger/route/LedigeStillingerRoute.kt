@@ -24,6 +24,7 @@ import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.Sektor
 import no.naw.paw.ledigestillinger.model.SortOrder
 import no.naw.paw.ledigestillinger.model.Stilling
+import no.naw.paw.minestillinger.ArbeidsplassenMapper
 import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.FinnStillingerClient
 import no.naw.paw.minestillinger.api.ApiJobbAnnonse
@@ -31,9 +32,12 @@ import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.api.Soeknadsfrist
 import no.naw.paw.minestillinger.api.SoeknadsfristType
 import no.naw.paw.minestillinger.api.vo.ApiSortOrder
+import no.naw.paw.minestillinger.api.vo.ApiTag
 import no.naw.paw.minestillinger.api.vo.toApiTag
 import no.naw.paw.minestillinger.appLogger
+import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.domain.BrukerId
+import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.SøkId
@@ -48,7 +52,7 @@ const val MINE_LEDIGE_STILLINGER_PATH = "/api/v1/ledigestillinger"
 fun Route.ledigeStillingerRoute(
     meterRegistry: MeterRegistry,
     ledigeStillingerClient: FinnStillingerClient,
-    hentBrukerId: suspend (Identitetsnummer) -> BrukerId?,
+    hentBrukerProfil: suspend (Identitetsnummer) -> BrukerProfil?,
     hentLagretSøk: (BrukerId) -> List<LagretStillingsoek>,
     oppdaterSistKjøt: (SøkId, Instant) -> Boolean,
     clock: Clock
@@ -61,7 +65,8 @@ fun Route.ledigeStillingerRoute(
                     ?.ident
                     ?: throw BadRequestException("Kun støtte for tokenX (sluttbrukere)")
                 val søkOgRequest = suspendedTransactionAsync {
-                    val brukerId = hentBrukerId(identitetsnummer)
+                    val bruker = hentBrukerProfil(identitetsnummer)
+                    val brukerId = bruker?.id
                     val soek = brukerId?.let { id -> hentLagretSøk(id) }
                         ?.firstOrNull { it.soek is StedSoek }
                     soek?.let { stedSøk ->
@@ -71,14 +76,25 @@ fun Route.ledigeStillingerRoute(
                         val sort = call.request.queryParameters["sort"]?.let(ApiSortOrder::valueOf) ?: ApiSortOrder.DESC
                         if (page < 1) throw BadRequestException("Parameter 'page' må være 1 eller større")
                         if (pageSize !in 1..100) throw BadRequestException("Parameter 'pageSize' må være mellom 1 og 100")
-                        stedSøk to genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort)
+                        val direkteMeldingerSøk = if (bruker.listeMedFlagg.isTrue(InkluderDirekteMeldteStillingerFlagtype)) {
+                            genererRequest(søk = søk.copy(
+                                fylker = emptyList(),
+                                soekeord = emptyList(),
+                                styrk08 = søk.styrk08.flatMap { ArbeidsplassenMapper.relaterteStyrkKoder(it) }.distinct()
+                            ), page = page, pageSize = pageSize, sort = sort)
+                        } else {
+                            null
+                        }
+                        stedSøk to listOfNotNull(
+                                genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort),
+                            direkteMeldingerSøk)
                     }
                 }.await()
                 if (søkOgRequest?.second != null) {
                     try {
                         val response = ledigeStillingerClient.finnLedigeStillinger(
                             call.securityContext().accessToken,
-                            listOf(søkOgRequest.second)
+                            søkOgRequest.second
                         )
                         val jobbAnonnser = response.stillinger.map(::jobbAnnonse)
                         val svar = MineStillingerResponse(

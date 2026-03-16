@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
+import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
@@ -24,6 +25,7 @@ import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 import no.naw.paw.ledigestillinger.model.PagingResponse
+import no.naw.paw.ledigestillinger.model.SortOrder
 
 data class LedigeStillingerClientConfig(
     val baseUrl: String,
@@ -49,7 +51,7 @@ class FinnStillingerClient(
         ).accessToken
 
         return coroutineScope {
-            finnStillingerRequests.asFlow()
+            val svar = finnStillingerRequests.asFlow()
                 .map { request ->
                     async {
                         val response = httpClient.post(config.baseUrl + FINN_LEDIGE_STILLINGER_PATH) {
@@ -64,12 +66,17 @@ class FinnStillingerClient(
                     }
                 }.toList()
                 .awaitAll()
-                .fold(FinnStillingerResponse(emptyList(), PagingResponse(hitSize = 0))) { acc, response ->
-                    FinnStillingerResponse(
-                        stillinger = acc.stillinger + response.stillinger,
-                        paging = response.paging.copy(hitSize = acc.paging.hitSize + response.paging.hitSize)
-                    )
-                }
+            val stillinger = svar.map { it.stillinger }.interleave()
+            FinnStillingerResponse(
+                stillinger = stillinger,
+                paging = PagingResponse(
+                    page = 1,
+                    pageSize = (svar.firstOrNull()?.paging?.pageSize ?: 0) *
+                            finnStillingerRequests.size,
+                    hitSize = stillinger.size,
+                    sortOrder = svar.firstOrNull()?.paging?.sortOrder ?: SortOrder.DESC,
+                )
+            )
         }
     }
 }
@@ -80,3 +87,11 @@ class StillingerClientException(override val status: HttpStatusCode) : ClientRes
     type = ErrorType.domain("stillinger").error("henting_feilet").build(),
     cause = null
 )
+
+fun <T> List<List<T>>.interleave(): List<T> {
+    val maxSize = maxOfOrNull { it.size } ?: return emptyList()
+    return (0 until maxSize).flatMap { index ->
+        this.mapNotNull { list -> list.getOrNull(index) }
+    }
+}
+

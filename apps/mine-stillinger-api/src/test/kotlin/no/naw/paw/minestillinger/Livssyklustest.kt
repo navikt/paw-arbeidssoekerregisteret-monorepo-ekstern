@@ -1,5 +1,6 @@
 package no.naw.paw.minestillinger
 
+import io.kotest.assertions.fail
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.core.spec.style.FreeSpec
@@ -23,6 +24,8 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.arbeidssokerregisteret.api.v1.ProfilertTil
+import no.nav.paw.error.model.Data
+import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.MetadataFactory
@@ -39,6 +42,8 @@ import no.naw.paw.ledigestillinger.model.PagingResponse
 import no.naw.paw.minestillinger.api.ApiStedSoek
 import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.api.vo.ApiBrukerprofil
+import no.naw.paw.minestillinger.api.vo.ApiFlagg
+import no.naw.paw.minestillinger.api.vo.ApiFlaggNavn
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
@@ -47,6 +52,7 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdres
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
 import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerTilgangClientSkalAldriVises
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
+import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.BrukerTable
@@ -65,6 +71,7 @@ import no.naw.paw.minestillinger.db.ops.skrivFlaggTilDB
 import no.naw.paw.minestillinger.db.ops.slettAlleSoekForBruker
 import no.naw.paw.minestillinger.db.ops.slettFrittståendeProfileringer
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
+import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
 import no.naw.paw.minestillinger.domain.medFlagg
@@ -158,11 +165,7 @@ class Livssyklustest : FreeSpec({
                 )
                 ledigeStillingerRoute(
                     ledigeStillingerClient = ledigeStillingerClient,
-                    hentBrukerId = { identitetsnummer ->
-                        brukerprofilTjeneste.hentLokalBrukerProfilEllerNull(
-                            identitetsnummer
-                        )?.id
-                    },
+                    hentBrukerProfil = brukerprofilTjeneste::hentLokalBrukerProfilEllerNull,
                     hentLagretSøk = ExposedSøkAdminOps::hentSoek,
                     oppdaterSistKjøt = ExposedSøkAdminOps::settSistKjørt,
                     clock = clock,
@@ -214,6 +217,15 @@ class Livssyklustest : FreeSpec({
                     coVerify(exactly = 1) { pdlClient.harBeskyttetAdresse(kariIdent) }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
+                "kari kan ikke se direktemeldte stillinger" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    val kari = testClient.getBrukerprofil(kariIdent).let { res ->
+                        res.status shouldBe HttpStatusCode.OK
+                        res.body<ApiBrukerprofil>()
+                    }
+                    kari.flagg.size shouldBe 1
+                    kari.flagg.find { it.navn == ApiFlaggNavn.TJENESTEN_AKTIVERT }.shouldNotBeNull()
+                }
                 val karisLedigeStillingerRequest = FinnStillingerByEgenskaperRequest(
                     type = FinnStillingerType.BY_EGENSKAPER,
                     soekeord = listOf("Hei AS"),
@@ -237,6 +249,36 @@ class Livssyklustest : FreeSpec({
                     }
                     coVerify(exactly = 1) { ledigeStillingerClient.finnLedigeStillinger(any(), any()) }
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
+                val kariDirMeldtAktivert = clock.now()
+                "Kari blir registrert for direktemeldte stillinger" {
+                    transaction {
+                        val profil = when (val response = brukerprofilTjeneste.hentLokalBrukerprofil(kariIdent)) {
+                            is Data<BrukerProfil> -> response.data
+                            is ProblemDetails -> fail("kunne ikke hente profil: $response")
+                        }
+
+                        brukerprofilTjeneste.skrivFlagg(
+                            profil.id, listOf(
+                                InkluderDirekteMeldteStillingerFlagtype.flagg(true, kariDirMeldtAktivert)
+                            )
+                        )
+                    }
+                }
+
+                "kari kan nå se direktemeldte stillinger" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    val kari = testClient.getBrukerprofil(kariIdent).let { res ->
+                        res.status shouldBe HttpStatusCode.OK
+                        res.body<ApiBrukerprofil>()
+                    }
+                    kari.flagg.size shouldBe 2
+                    kari.flagg.find { it.navn == ApiFlaggNavn.TJENESTEN_AKTIVERT }.shouldNotBeNull()
+                    kari.flagg.find { it.navn == ApiFlaggNavn.DIREKTEMELDTE_STILLINGER } should { inklDirmeldt ->
+                        inklDirmeldt.shouldNotBeNull()
+                        inklDirmeldt.tidspunkt shouldBe kariDirMeldtAktivert
+                    }
                 }
 
                 "36 timer senere kjøres en bulk oppdatering av adresebeskyttelse, kari sin tjeneste blir ikke påvirket" {
