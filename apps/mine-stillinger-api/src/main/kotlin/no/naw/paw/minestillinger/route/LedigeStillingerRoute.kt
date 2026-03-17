@@ -27,6 +27,7 @@ import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.Sektor
 import no.naw.paw.ledigestillinger.model.SortOrder
 import no.naw.paw.ledigestillinger.model.Stilling
+import no.naw.paw.ledigestillinger.model.Tag
 import no.naw.paw.minestillinger.ArbeidsplassenMapper
 import no.naw.paw.minestillinger.Clock
 import no.naw.paw.minestillinger.FinnStillingerClient
@@ -84,14 +85,14 @@ fun Route.ledigeStillingerRoute(
                             genererRequest(søk = søk.copy(
                                 fylker = emptyList(),
                                 soekeord = emptyList(),
-                                styrk08 = søk.styrk08.flatMap { ArbeidsplassenMapper.relaterteStyrkKoder(it) }.distinct()
-                            ), page = page, pageSize = pageSize, sort = sort)
+                                styrk08 = søk.styrk08.flatMap { ArbeidsplassenMapper.relaterteStyrkKoder(it) }.distinct(),
+                            ), page = page, pageSize = pageSize, sort = sort, listOf(Tag.DIREKTEMELDT_V1))
                         } else {
                             Span.current().addEvent("direktemeldte_stillinger", Attributes.of(booleanKey("inkluder"), false))
                             null
                         }
                         stedSøk to listOfNotNull(
-                                genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort),
+                                genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort, tags = emptyList()),
                             direkteMeldingerSøk)
                     }
                 }
@@ -172,6 +173,7 @@ fun genererRequest(
     page: Int,
     pageSize: Int,
     sort: ApiSortOrder,
+    tags: List<Tag>
 ): FinnStillingerRequest = FinnStillingerByEgenskaperRequest(
     type = FinnStillingerType.BY_EGENSKAPER,
     soekeord = søk.soekeord,
@@ -189,5 +191,6 @@ fun genererRequest(
             ApiSortOrder.ASC -> SortOrder.ASC
             ApiSortOrder.DESC -> SortOrder.DESC
         }
-    )
+    ),
+    tags = tags
 )
