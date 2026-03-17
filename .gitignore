@@ -37,3 +37,4 @@ replay_pid*
 **/build
 
 kls_database.db
+.kotlin-lsp.lua
