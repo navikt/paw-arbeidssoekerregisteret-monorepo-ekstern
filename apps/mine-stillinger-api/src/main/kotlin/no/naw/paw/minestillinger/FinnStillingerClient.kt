@@ -4,7 +4,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
-import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
@@ -14,7 +13,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import no.nav.paw.error.exception.ClientResponseException
@@ -25,7 +23,6 @@ import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 import no.naw.paw.ledigestillinger.model.PagingResponse
-import no.naw.paw.ledigestillinger.model.SortOrder
 
 data class LedigeStillingerClientConfig(
     val baseUrl: String,
@@ -66,16 +63,23 @@ class FinnStillingerClient(
                     }
                 }.toList()
                 .awaitAll()
-            val stillinger = svar.map { it.stillinger }.interleave()
+            val stillinger = svar.flatMap { it.stillinger }
+            val nullPage: PagingResponse? = null
+            val page = svar.map { it.paging }.fold(nullPage) { acc, pagingResponse ->
+                acc?.copy(
+                    pageSize = acc.pageSize + pagingResponse.pageSize,
+                    hitSize = acc.hitSize + pagingResponse.hitSize
+                )
+                    ?: PagingResponse(
+                        page = pagingResponse.page,
+                        pageSize = pagingResponse.pageSize,
+                        sortOrder = pagingResponse.sortOrder,
+                        hitSize = pagingResponse.hitSize
+                    )
+            }
             FinnStillingerResponse(
                 stillinger = stillinger,
-                paging = PagingResponse(
-                    page = 1,
-                    pageSize = (svar.firstOrNull()?.paging?.pageSize ?: 0) *
-                            finnStillingerRequests.size,
-                    hitSize = stillinger.size,
-                    sortOrder = svar.firstOrNull()?.paging?.sortOrder ?: SortOrder.DESC,
-                )
+                paging = page ?: PagingResponse()
             )
         }
     }
