@@ -1,5 +1,9 @@
 package no.nav.paw.ledigestillinger.service
 
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.pam.stilling.ext.avro.Ad
 import no.nav.paw.hwm.Message
@@ -85,6 +89,12 @@ class StillingService(
         rows.map { it.asDto() }.also { treff ->
             val slutt = System.currentTimeMillis()
             val millisekunder = slutt - start
+            Span.current().addEvent("soek_stillinger", Attributes.of(
+                stringKey("search_tags"), tags.joinToString(","),
+                longKey("hits"), treff.size.toLong(),
+                longKey("direktemeldte"), treff.filter { it.tags.contains(Tag.DIREKTEMELDT_V1) }.size.toLong(),
+                stringKey("all_tags_in_result"), treff.flatMap { it.tags }.toSet().joinToString(",")
+            ))
             logger.info("Fant {} stillinger for egeneskaper på {}ms", treff.size, millisekunder)
         }
     }
@@ -108,6 +118,12 @@ class StillingService(
         rows.map { it.asDto() }.also { treff ->
             val slutt = System.currentTimeMillis()
             val millisekunder = slutt - start
+            Span.current().addEvent("soek_stillinger", Attributes.of(
+                stringKey("search_tags"), "",
+                longKey("hits"), treff.size.toLong(),
+                longKey("direktemeldte"), treff.filter { it.tags.contains(Tag.DIREKTEMELDT_V1) }.size.toLong(),
+                stringKey("all_tags_in_result"), treff.flatMap { it.tags }.toSet().joinToString(",")
+            ))
             logger.info("Fant {} stillinger for egeneskaper på {}ms", treff.size, millisekunder)
         }
     }
