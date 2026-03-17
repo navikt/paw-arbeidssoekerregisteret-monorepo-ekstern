@@ -9,6 +9,10 @@ import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -64,6 +68,14 @@ class FinnStillingerClient(
                 }.toList()
                 .awaitAll()
             val stillinger = svar.flatMap { it.stillinger }
+            stillinger.groupBy { it.tags.toSet() }
+                .forEach { (tags, stillinger) ->
+                    Span.current().addEvent("jobb_annonse", Attributes.of(
+                        stringKey("tags"), tags.joinToString(",") { it.name },
+                        longKey("antall"), stillinger.size.toLong()
+                    ))
+                }
+
             val nullPage: PagingResponse? = null
             val page = svar.map { it.paging }.fold(nullPage) { acc, pagingResponse ->
                 acc?.copy(
