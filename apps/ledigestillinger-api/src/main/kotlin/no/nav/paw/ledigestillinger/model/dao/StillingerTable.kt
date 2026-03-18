@@ -106,11 +106,19 @@ object StillingerTable : LongIdTable("stillinger_v2") {
     ): List<StillingRow> {
         logger.trace("Finner stillinger med styrkkoder: {}, fylker: {} og tags: {}", medStyrkkoder, medFylker, tags)
         val aktivQuery: Op<Boolean> = status eq StillingStatus.AKTIV
-        val tagsQuery: Op<Boolean> = if (tags.isEmpty()) Op.TRUE
-            else StillingerTable.tags.containsAll(tags.map { it.name })
-        val kildeQuery: Op<Boolean> = if (utenKilder.isEmpty()) Op.TRUE
-            else kilde notInList utenKilder
-        val styrkQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) Op.TRUE else {
+        val tagsQuery: Op<Boolean> = if (tags.isEmpty()) {
+            Op.TRUE
+        } else {
+            StillingerTable.tags.containsAll(tags.map { it.name })
+        }
+        val kildeQuery: Op<Boolean> = if (utenKilder.isEmpty()) {
+            Op.TRUE
+        } else {
+            kilde notInList utenKilder
+        }
+        val styrkQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
+            Op.TRUE
+        } else {
             val kategoriExists = Exists(
                 KategorierTable.select(KategorierTable.id).where {
                     (KategorierTable.parentId eq StillingerTable.id) and
@@ -132,7 +140,11 @@ object StillingerTable : LongIdTable("stillinger_v2") {
                 LokasjonerTable.select(LokasjonerTable.id).where {
                     (LokasjonerTable.parentId eq StillingerTable.id) and
                     (LokasjonerTable.fylkeskode eq fylke.fylkesnummer) and
-                    (if (kommunenummer.isEmpty()) Op.TRUE else LokasjonerTable.kommunekode inList kommunenummer)
+                    if (kommunenummer.isEmpty()) {
+                        Op.TRUE
+                    } else {
+                        LokasjonerTable.kommunekode inList kommunenummer
+                    }
                 }
             )
         }.reduceOrNull { acc, op -> acc or op } ?: Op.TRUE
@@ -171,9 +183,14 @@ object StillingerTable : LongIdTable("stillinger_v2") {
     ): List<StillingRow> {
         logger.trace("Finner stillinger med styrkkoder: {} og fylker: {}", medStyrkkoder, medFylker)
         val aktivQuery: Op<Boolean> = status eq StillingStatus.AKTIV
-        val kildeQuery: Op<Boolean> = if (utenKilder.isEmpty()) Op.TRUE
-            else kilde notInList utenKilder
-        val styrkQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) Op.TRUE else {
+        val kildeQuery: Op<Boolean> = if (utenKilder.isEmpty()) {
+            Op.TRUE
+        } else {
+            kilde notInList utenKilder
+        }
+        val styrkQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
+            Op.TRUE
+        } else {
             val kategoriExists = Exists(
                 KategorierTable.select(KategorierTable.id).where {
                     (KategorierTable.parentId eq StillingerTable.id) and
@@ -195,7 +212,11 @@ object StillingerTable : LongIdTable("stillinger_v2") {
                 LokasjonerTable.select(LokasjonerTable.id).where {
                     (LokasjonerTable.parentId eq StillingerTable.id) and
                     (LokasjonerTable.fylkeskode eq fylke.fylkesnummer) and
-                    (if (kommunenummer.isEmpty()) Op.TRUE else LokasjonerTable.kommunekode inList kommunenummer)
+                    if (kommunenummer.isEmpty()) {
+                        Op.TRUE
+                    } else {
+                        LokasjonerTable.kommunekode inList kommunenummer
+                    }
                 }
             )
         }.reduceOrNull { acc, op -> acc or op } ?: Op.TRUE
