@@ -1,5 +1,6 @@
 package no.nav.paw.ledigestillinger.model.dao
 
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
@@ -170,6 +171,8 @@ object StillingerTable : LongIdTable("stillinger_v2") {
                     egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
                 )
             }.associateBy { it.id }
+        Span.current().setAttribute("matching_ids", matchingIds.size.toLong())
+        Span.current().setAttribute("rows_by_id", rowsById.size.toLong())
 
         return matchingIds.mapNotNull { rowsById[it] }
     }
