@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 private data class StyrkEntry(
     val styrkCode: String,
+    val styrkDescription: String,
     val categoryLevel1: String,
     val categoryLevel2: String
 )
