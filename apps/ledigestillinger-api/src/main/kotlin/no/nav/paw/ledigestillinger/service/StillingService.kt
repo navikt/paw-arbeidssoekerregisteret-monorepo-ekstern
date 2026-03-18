@@ -86,6 +86,7 @@ class StillingService(
             paging = paging,
             tags = tags
         )
+        Span.current().setAttribute("db_hits", rows.size.toLong())
         rows.map { it.asDto() }.also { treff ->
             val slutt = System.currentTimeMillis()
             val millisekunder = slutt - start
