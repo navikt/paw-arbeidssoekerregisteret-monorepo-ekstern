@@ -174,6 +174,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         Span.current().setAttribute("matching_ids", matchingIds.size.toLong())
         Span.current().setAttribute("rows_by_id", rowsById.size.toLong())
         Span.current().setAttribute("tags", tags.joinToString(", ") { it.name } )
+        Span.current().setAttribute("styrk_08", medStyrkkoder.joinToString(", "))
 
         return matchingIds.mapNotNull { rowsById[it] }
     }
