@@ -13,4 +13,6 @@
     <logger name="no.nav" level="INFO"/>
     <logger name="org.apache.kafka" level="WARN"/>
     <logger name="io.confluent.kafka" level="WARN"/>
+    <logger name="org.jetbrains.exposed" level="TRACE"/>
+    <logger name="Exposed" level="DEBUG"/>
 </configuration>

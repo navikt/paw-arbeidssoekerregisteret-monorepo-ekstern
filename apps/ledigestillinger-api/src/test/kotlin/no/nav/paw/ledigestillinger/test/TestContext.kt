@@ -31,6 +31,8 @@ import no.nav.paw.serialization.jackson.configureJackson
 import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.flywaydb.core.Flyway
+import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.core.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.v1.jdbc.Database
 import java.time.Duration
 import javax.sql.DataSource
@@ -51,7 +53,12 @@ class TestContext private constructor(
     )
 ) {
     fun setUp(): TestContext {
-        Database.connect(dataSource)
+        Database.connect(
+            datasource = dataSource,
+            databaseConfig = DatabaseConfig {
+                sqlLogger = Slf4jSqlDebugLogger
+            }
+        )
         val flyway = Flyway.configure()
             .dataSource(dataSource)
             .baselineOnMigrate(true)

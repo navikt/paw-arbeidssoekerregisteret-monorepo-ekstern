@@ -4,7 +4,7 @@ import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
-import no.nav.paw.ledigestillinger.service.overlapWith
+import no.nav.paw.ledigestillinger.service.containsAll
 import no.nav.paw.logging.logger.buildNamedLogger
 import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
@@ -124,7 +124,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         val tagsQuery: Op<Boolean> = if (tags.isEmpty()) {
             Op.TRUE
         } else {
-            StillingerTable.tags.overlapWith(tags.map { it.name })
+            StillingerTable.tags.containsAll(tags.map { it.name })
         }
         val styrkQuery = (kategoriQuery or klassifiseringQuery)
         val lokasjonQuery: Op<Boolean> = medFylker.map { fylke ->
