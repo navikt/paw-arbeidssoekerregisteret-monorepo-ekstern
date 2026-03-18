@@ -12,7 +12,7 @@ import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import no.naw.paw.ledigestillinger.model.Tag
 import no.naw.paw.ledigestillinger.model.VisningGrad
-import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.Exists
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.count
@@ -105,47 +105,50 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         tags: Collection<Tag>
     ): List<StillingRow> {
         logger.trace("Finner stillinger med styrkkoder: {}, fylker: {} og tags: {}", medStyrkkoder, medFylker, tags)
-        val aktivQuery: Op<Boolean> = (status eq StillingStatus.AKTIV)
-        val soekeordQuery: Op<Boolean> = if (medSoekeord.isEmpty()) {
-            Op.TRUE
-        } else {
-            Op.TRUE // TODO Benytte søkeord?
+        val aktivQuery: Op<Boolean> = status eq StillingStatus.AKTIV
+        val tagsQuery: Op<Boolean> = if (tags.isEmpty()) Op.TRUE
+            else StillingerTable.tags.containsAll(tags.map { it.name })
+        val kildeQuery: Op<Boolean> = if (utenKilder.isEmpty()) Op.TRUE
+            else kilde notInList utenKilder
+        val styrkQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) Op.TRUE else {
+            val kategoriExists = Exists(
+                KategorierTable.select(KategorierTable.id).where {
+                    (KategorierTable.parentId eq StillingerTable.id) and
+                    (KategorierTable.normalisertKode inList medStyrkkoder)
+                }
+            )
+            val klassifiseringExists = Exists(
+                KlassifiseringerTable.select(KlassifiseringerTable.id).where {
+                    (KlassifiseringerTable.parentId eq StillingerTable.id) and
+                    (KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and
+                    (KlassifiseringerTable.kode inList medStyrkkoder)
+                }
+            )
+            kategoriExists or klassifiseringExists
         }
-        val kategoriQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
-            Op.TRUE
-        } else {
-            (KategorierTable.normalisertKode inList medStyrkkoder)
-        }
-        val klassifiseringQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
-            Op.TRUE
-        } else {
-            ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList medStyrkkoder))
-        }
-        val tagsQuery: Op<Boolean> = if (tags.isEmpty()) {
-            Op.TRUE
-        } else {
-            StillingerTable.tags.containsAll(tags.map { it.name })
-        }
-        val styrkQuery = (kategoriQuery or klassifiseringQuery)
-        val lokasjonQuery: Op<Boolean> = medFylker.map { fylke ->
-            if (fylke.kommuner.isEmpty()) {
-                LokasjonerTable.fylkeskode eq fylke.fylkesnummer
-            } else {
-                val kommunenummer = fylke.kommuner.map { it.kommunenummer }
-                LokasjonerTable.fylkeskode eq fylke.fylkesnummer and (LokasjonerTable.kommunekode inList kommunenummer)
-            }
-        }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
-        val kildeQuery = (kilde notInList utenKilder)
+        val lokasjonQuery: Op<Boolean> = medFylker.map<Fylke, Op<Boolean>> { fylke ->
+            val kommunenummer = fylke.kommuner.map { it.kommunenummer }
+            Exists(
+                LokasjonerTable.select(LokasjonerTable.id).where {
+                    (LokasjonerTable.parentId eq StillingerTable.id) and
+                    (LokasjonerTable.fylkeskode eq fylke.fylkesnummer) and
+                    (if (kommunenummer.isEmpty()) Op.TRUE else LokasjonerTable.kommunekode inList kommunenummer)
+                }
+            )
+        }.reduceOrNull { acc, op -> acc or op } ?: Op.TRUE
 
-        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery and kildeQuery and tagsQuery
+        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and kildeQuery and tagsQuery
 
-        return join(KategorierTable, JoinType.LEFT, id, KategorierTable.parentId)
-            .join(KlassifiseringerTable, JoinType.LEFT, id, KlassifiseringerTable.parentId)
-            .join(LokasjonerTable, JoinType.LEFT, id, LokasjonerTable.parentId)
-            .selectAll()
+        val matchingIds = select(id)
             .where { combinedQuery }
             .orderBy(publisertTimestamp, paging.order())
             .limit(paging.size()).offset(paging.offset())
+            .map { it[id].value }
+
+        if (matchingIds.isEmpty()) return emptyList()
+
+        val rowsById = selectAll()
+            .where { id inList matchingIds }
             .map {
                 it.asStillingRow(
                     arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
@@ -154,7 +157,9 @@ object StillingerTable : LongIdTable("stillinger_v2") {
                     lokasjoner = LokasjonerTable::selectRowsByParentId,
                     egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
                 )
-            }
+            }.associateBy { it.id }
+
+        return matchingIds.mapNotNull { rowsById[it] }
     }
 
     fun selectRowsByKategorierAndFylker(
@@ -165,42 +170,48 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         paging: Paging = Paging(),
     ): List<StillingRow> {
         logger.trace("Finner stillinger med styrkkoder: {} og fylker: {}", medStyrkkoder, medFylker)
-        val aktivQuery: Op<Boolean> = (status eq StillingStatus.AKTIV)
-        val soekeordQuery: Op<Boolean> = if (medSoekeord.isEmpty()) {
-            Op.TRUE
-        } else {
-            Op.TRUE // TODO Benytte søkeord?
+        val aktivQuery: Op<Boolean> = status eq StillingStatus.AKTIV
+        val kildeQuery: Op<Boolean> = if (utenKilder.isEmpty()) Op.TRUE
+            else kilde notInList utenKilder
+        val styrkQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) Op.TRUE else {
+            val kategoriExists = Exists(
+                KategorierTable.select(KategorierTable.id).where {
+                    (KategorierTable.parentId eq StillingerTable.id) and
+                    (KategorierTable.normalisertKode inList medStyrkkoder)
+                }
+            )
+            val klassifiseringExists = Exists(
+                KlassifiseringerTable.select(KlassifiseringerTable.id).where {
+                    (KlassifiseringerTable.parentId eq StillingerTable.id) and
+                    (KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and
+                    (KlassifiseringerTable.kode inList medStyrkkoder)
+                }
+            )
+            kategoriExists or klassifiseringExists
         }
-        val kategoriQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
-            Op.TRUE
-        } else {
-            (KategorierTable.normalisertKode inList medStyrkkoder)
-        }
-        val klassifiseringQuery: Op<Boolean> = if (medStyrkkoder.isEmpty()) {
-            Op.TRUE
-        } else {
-            ((KlassifiseringerTable.type eq KlassifiseringType.STYRK08) and (KlassifiseringerTable.kode inList medStyrkkoder))
-        }
-        val styrkQuery = (kategoriQuery or klassifiseringQuery)
-        val lokasjonQuery: Op<Boolean> = medFylker.map { fylke ->
-            if (fylke.kommuner.isEmpty()) {
-                LokasjonerTable.fylkeskode eq fylke.fylkesnummer
-            } else {
-                val kommunenummer = fylke.kommuner.map { it.kommunenummer }
-                LokasjonerTable.fylkeskode eq fylke.fylkesnummer and (LokasjonerTable.kommunekode inList kommunenummer)
-            }
-        }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
-        val kildeQuery = (kilde notInList utenKilder)
+        val lokasjonQuery: Op<Boolean> = medFylker.map<Fylke, Op<Boolean>> { fylke ->
+            val kommunenummer = fylke.kommuner.map { it.kommunenummer }
+            Exists(
+                LokasjonerTable.select(LokasjonerTable.id).where {
+                    (LokasjonerTable.parentId eq StillingerTable.id) and
+                    (LokasjonerTable.fylkeskode eq fylke.fylkesnummer) and
+                    (if (kommunenummer.isEmpty()) Op.TRUE else LokasjonerTable.kommunekode inList kommunenummer)
+                }
+            )
+        }.reduceOrNull { acc, op -> acc or op } ?: Op.TRUE
 
-        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery and kildeQuery
+        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and kildeQuery
 
-        return join(KategorierTable, JoinType.LEFT, id, KategorierTable.parentId)
-            .join(KlassifiseringerTable, JoinType.LEFT, id, KlassifiseringerTable.parentId)
-            .join(LokasjonerTable, JoinType.LEFT, id, LokasjonerTable.parentId)
-            .selectAll()
+        val matchingIds = select(id)
             .where { combinedQuery }
             .orderBy(publisertTimestamp, paging.order())
             .limit(paging.size()).offset(paging.offset())
+            .map { it[id].value }
+
+        if (matchingIds.isEmpty()) return emptyList()
+
+        val rowsById = selectAll()
+            .where { id inList matchingIds }
             .map {
                 it.asStillingRow(
                     arbeidsgiver = ArbeidsgivereTable::selectRowByParentId,
@@ -209,7 +220,9 @@ object StillingerTable : LongIdTable("stillinger_v2") {
                     lokasjoner = LokasjonerTable::selectRowsByParentId,
                     egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
                 )
-            }
+            }.associateBy { it.id }
+
+        return matchingIds.mapNotNull { rowsById[it] }
     }
 
     fun selectIdByStatusListAndUtloeperOlderThanWithLimit(
