@@ -1,577 +1,2444 @@
 {
     "0000": {
         "styrkCode": "0000",
+        "styrkDescription": "Ikke konvertert",
         "categoryLevel1": "Uoppgitt/ ikke identifiserbare",
         "categoryLevel2": "Ikke identifiserbare"
     },
-    "0310": {
-        "styrkCode": "0310",
+    "0110": {
+        "styrkCode": "0110",
+        "styrkDescription": "Offiserer fra fenrik og høyere grad",
         "categoryLevel1": "Sikkerhet og beredskap",
         "categoryLevel2": "Forsvar/militære"
     },
-    "1114": {
-        "styrkCode": "1114",
+    "0210": {
+        "styrkCode": "0210",
+        "styrkDescription": "Befal med sersjant grad",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Forsvar/militære"
+    },
+    "0310": {
+        "styrkCode": "0310",
+        "styrkDescription": "Menige",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Forsvar/militære"
+    },
+    "1111": {
+        "styrkCode": "1111",
+        "styrkDescription": "Politikere",
         "categoryLevel1": "Kontor og økonomi",
         "categoryLevel2": "Organisasjonsarbeid og politikk"
     },
-    "1211": {
-        "styrkCode": "1211",
-        "categoryLevel1": "Kontor og økonomi",
-        "categoryLevel2": "Bank finans forsikring"
-    },
-    "1213": {
-        "styrkCode": "1213",
+    "1112": {
+        "styrkCode": "1112",
+        "styrkDescription": "Toppledere i offentlig administrasjon",
         "categoryLevel1": "Kontor og økonomi",
         "categoryLevel2": "Ledelse, administrasjon og rådgivning"
     },
+    "1114": {
+        "styrkCode": "1114",
+        "styrkDescription": "Toppledere i interesseorganisasjoner",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Organisasjonsarbeid og politikk"
+    },
+    "1120": {
+        "styrkCode": "1120",
+        "styrkDescription": "Administrerende direktører",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Ledelse, administrasjon og rådgivning"
+    },
+    "1211": {
+        "styrkCode": "1211",
+        "styrkDescription": "Finans- og økonomisjefer",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
+    "1212": {
+        "styrkCode": "1212",
+        "styrkDescription": "Personalsjefer",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Ledelse, administrasjon og rådgivning"
+    },
+    "1213": {
+        "styrkCode": "1213",
+        "styrkDescription": "Strategi- og planleggingssjefer",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Ledelse, administrasjon og rådgivning"
+    },
+    "1219": {
+        "styrkCode": "1219",
+        "styrkDescription": "Andre administrative ledere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Ledelse, administrasjon og rådgivning"
+    },
+    "1221": {
+        "styrkCode": "1221",
+        "styrkDescription": "Salgs- og markedssjefer",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
     "1222": {
         "styrkCode": "1222",
+        "styrkDescription": "PR- og informasjonssjefer",
         "categoryLevel1": "Salg og service",
         "categoryLevel2": "Markedsføring og reklame"
     },
     "1223": {
         "styrkCode": "1223",
+        "styrkDescription": "Forsknings- og utviklingsledere",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Forskningsarbeid"
     },
+    "1311": {
+        "styrkCode": "1311",
+        "styrkDescription": "Ledere innen skogbruk, gartnerier mv.",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "1312": {
+        "styrkCode": "1312",
+        "styrkDescription": "Ledere innen akvakultur mv.",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Fiske, fangst og oppdrett"
+    },
+    "1321": {
+        "styrkCode": "1321",
+        "styrkDescription": "Ledere av industriproduksjon mv.",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Arbeidsleder, industri"
+    },
+    "1322": {
+        "styrkCode": "1322",
+        "styrkDescription": "Ledere av olje- og gassutvinning mv",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
+    "1323": {
+        "styrkCode": "1323",
+        "styrkDescription": "Ledere av bygge- og anleggsvirksomhet",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Arbeidsleder, bygg og anlegg"
+    },
+    "1324": {
+        "styrkCode": "1324",
+        "styrkDescription": "Ledere av logistikk og transport mv.",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Logistikk, lagerarbeid og innkjøp"
+    },
     "1330": {
         "styrkCode": "1330",
+        "styrkDescription": "Ledere av IKT-enheter",
         "categoryLevel1": "IT",
         "categoryLevel2": "Ledere av IKT-enheter"
     },
     "1341": {
         "styrkCode": "1341",
+        "styrkDescription": "Ledere av omsorgstjenester for barn",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Ledere av omsorgstjenetser for barn"
     },
+    "1342": {
+        "styrkCode": "1342",
+        "styrkDescription": "Ledere av helsetjenester",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Leder innenfor helsetjenester"
+    },
+    "1343": {
+        "styrkCode": "1343",
+        "styrkDescription": "Ledere av eldreomsorg",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Leder innenfor helsetjenester"
+    },
     "1344": {
         "styrkCode": "1344",
+        "styrkDescription": "Ledere av sosialomsorg",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Leder innenfor helsetjenester"
     },
     "1345": {
         "styrkCode": "1345",
+        "styrkDescription": "Ledere av utdanning og undervisning",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Ledere av undervisning og utdanning"
     },
+    "1346": {
+        "styrkCode": "1346",
+        "styrkDescription": "Ledere av forsikring og finansvirksomhet",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
     "1349": {
         "styrkCode": "1349",
+        "styrkDescription": "Andre ledere av produksjon og tjenesteyting",
         "categoryLevel1": "Salg og service",
         "categoryLevel2": "Personlig tjenesteyting"
     },
+    "1411": {
+        "styrkCode": "1411",
+        "styrkDescription": "Hotellsjefer",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Reiseliv, hotell og overnatting"
+    },
+    "1412": {
+        "styrkCode": "1412",
+        "styrkDescription": "Restaurantsjefer",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Restaurant"
+    },
+    "1420": {
+        "styrkCode": "1420",
+        "styrkDescription": "Varehandelssjefer",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
     "1431": {
         "styrkCode": "1431",
+        "styrkDescription": "Sports-, rekreasjons- og kultursenterledere",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Fritid"
     },
+    "1439": {
+        "styrkCode": "1439",
+        "styrkDescription": "Andre daglige ledere i tjenesteytende virksomheter",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Personlig tjenesteyting"
+    },
     "2111": {
         "styrkCode": "2111",
+        "styrkDescription": "Fysikere og astronomer",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "2112": {
+        "styrkCode": "2112",
+        "styrkDescription": "Meteorologer",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Naturvitenskapelige yrker"
+    },
+    "2113": {
+        "styrkCode": "2113",
+        "styrkDescription": "Kjemikere",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Fysikk, kjemi og metallurgi"
     },
     "2114": {
         "styrkCode": "2114",
+        "styrkDescription": "Geologer og geofysikere",
         "categoryLevel1": "Natur og miljø",
         "categoryLevel2": "Naturvitenskapelige yrker"
     },
+    "2120": {
+        "styrkCode": "2120",
+        "styrkDescription": "Matematikere, statistikere mv.",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Økonomi, statistikk og regnskap"
+    },
     "2131": {
         "styrkCode": "2131",
+        "styrkDescription": "Biologer, botanikere, zoologer mv.",
         "categoryLevel1": "Natur og miljø",
         "categoryLevel2": "Biologer, zoologer, botanikere"
     },
     "2132": {
         "styrkCode": "2132",
+        "styrkDescription": "Sivilagronomer mv.",
         "categoryLevel1": "Natur og miljø",
         "categoryLevel2": "Jordbruk og dyrehold"
     },
     "2133": {
         "styrkCode": "2133",
+        "styrkDescription": "Miljøvernrådgivere",
         "categoryLevel1": "Natur og miljø",
         "categoryLevel2": "Miljøvern"
     },
+    "2141": {
+        "styrkCode": "2141",
+        "styrkDescription": "Sivilingeniører (industri og produksjon)",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "2142": {
+        "styrkCode": "2142",
+        "styrkDescription": "Sivilingeniører (bygg og anlegg)",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Ingeniør bygg"
+    },
     "2143": {
         "styrkCode": "2143",
+        "styrkDescription": "Sivilingeniører (miljøteknikk)",
         "categoryLevel1": "Bygg og anlegg",
         "categoryLevel2": "Ingeniør miljøteknikk"
     },
     "2144": {
         "styrkCode": "2144",
+        "styrkDescription": "Sivilingeniører (maskin- og marinteknikk)",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Maskinteknikk og mekanikk"
     },
-    "2153": {
-        "styrkCode": "2153",
+    "2145": {
+        "styrkCode": "2145",
+        "styrkDescription": "Sivilingeniører (kjemi)",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "2146": {
+        "styrkCode": "2146",
+        "styrkDescription": "Sivilingeniører (geofag, petroleums-teknologi, metallurgi mv.)",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
+    "2149": {
+        "styrkCode": "2149",
+        "styrkDescription": "Andre sivilingeniører( unntatt elektroteknologi)",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Andre ingeniører"
+    },
+    "2151": {
+        "styrkCode": "2151",
+        "styrkDescription": "Sivilingeniører (elkraftteknikk)",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Elektro/elektronikk"
     },
+    "2152": {
+        "styrkCode": "2152",
+        "styrkDescription": "Sivilingeniører (elektronikk)",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Elektro/elektronikk"
+    },
+    "2153": {
+        "styrkCode": "2153",
+        "styrkDescription": "Sivilingeniører (telekommunikasjon)",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Elektro/elektronikk"
+    },
+    "2161": {
+        "styrkCode": "2161",
+        "styrkDescription": "Sivilarkitekter",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Arealplanlegging og arkitektur"
+    },
+    "2162": {
+        "styrkCode": "2162",
+        "styrkDescription": "Landskapsarkitekter",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Arealplanlegging og arkitektur"
+    },
+    "2163": {
+        "styrkCode": "2163",
+        "styrkDescription": "Produkt- og klesdesignere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Design, grafisk arbeid og illustrasjon"
+    },
+    "2164": {
+        "styrkCode": "2164",
+        "styrkDescription": "Arealplanleggere",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Arealplanlegging og arkitektur"
+    },
     "2165": {
         "styrkCode": "2165",
+        "styrkDescription": "Landmålere, kartografer mv.",
         "categoryLevel1": "Bygg og anlegg",
         "categoryLevel2": "Arealplanlegging og arkitektur"
     },
     "2166": {
         "styrkCode": "2166",
+        "styrkDescription": "Grafiske og multimediadesignere",
         "categoryLevel1": "IT",
         "categoryLevel2": "Interaksjonsdesign"
     },
+    "2211": {
+        "styrkCode": "2211",
+        "styrkDescription": "Allmennpraktiserende leger",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Lege"
+    },
     "2212": {
         "styrkCode": "2212",
+        "styrkDescription": "Legespesialister",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Lege"
     },
     "2221": {
         "styrkCode": "2221",
+        "styrkDescription": "Spesialsykepleiere",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Sykepleier"
+    },
+    "2222": {
+        "styrkCode": "2222",
+        "styrkDescription": "Jordmødre",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Sykepleier"
+    },
+    "2223": {
+        "styrkCode": "2223",
+        "styrkDescription": "Sykepleiere",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Sykepleier"
     },
     "2224": {
         "styrkCode": "2224",
+        "styrkDescription": "Vernepleiere",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Vernepleier"
     },
     "2250": {
         "styrkCode": "2250",
+        "styrkDescription": "Veterinærer",
         "categoryLevel1": "Natur og miljø",
         "categoryLevel2": "Veterinærer og dyrepleiere"
     },
+    "2261": {
+        "styrkCode": "2261",
+        "styrkDescription": "Tannleger",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Tannhelse/-pleie"
+    },
+    "2262": {
+        "styrkCode": "2262",
+        "styrkDescription": "Farmasøyter",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Farmasøytisk og apotekerarbeid"
+    },
     "2263": {
         "styrkCode": "2263",
+        "styrkDescription": "Helse- og miljørådgivere",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Helse- og miljørådgivere"
     },
     "2264": {
         "styrkCode": "2264",
+        "styrkDescription": "Fysioterapeuter",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Fysioterapeut"
     },
     "2265": {
         "styrkCode": "2265",
+        "styrkDescription": "Ernæringsfysiologer",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Ernæringsfysiolog"
     },
     "2266": {
         "styrkCode": "2266",
+        "styrkDescription": "Audiografer og logopeder",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Audiografer og logopeder"
     },
     "2267": {
         "styrkCode": "2267",
+        "styrkDescription": "Ergoterapeuter",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Ergoterapeut"
     },
     "2269": {
         "styrkCode": "2269",
+        "styrkDescription": "Kiropraktorer mv.",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Kiropraktor og osteopat"
     },
     "2310": {
         "styrkCode": "2310",
+        "styrkDescription": "Universitets- og høyskolelektorer/-lærere",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Universitet og høyskole"
     },
     "2320": {
         "styrkCode": "2320",
+        "styrkDescription": "Yrkesfaglærere",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Videregående skole"
+    },
+    "2330": {
+        "styrkCode": "2330",
+        "styrkDescription": "Lektorer mv. i videregående skole",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Videregående skole"
     },
     "2341": {
         "styrkCode": "2341",
+        "styrkDescription": "Grunnskolelærere",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Grunnskole"
     },
     "2342": {
         "styrkCode": "2342",
+        "styrkDescription": "Førskolelærere",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Barnehagelærer"
     },
-    "2352": {
-        "styrkCode": "2352",
+    "2351": {
+        "styrkCode": "2351",
+        "styrkDescription": "Spesialister i pedagogikk",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Instruktører  og pedagoger"
     },
-    "2422": {
-        "styrkCode": "2422",
-        "categoryLevel1": "Kontor og økonomi",
-        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    "2352": {
+        "styrkCode": "2352",
+        "styrkDescription": "Spesiallærere/spesialpedagoger",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Instruktører  og pedagoger"
     },
-    "2424": {
-        "styrkCode": "2424",
+    "2353": {
+        "styrkCode": "2353",
+        "styrkDescription": "Andre språklærere",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Grunnskole"
+    },
+    "2354": {
+        "styrkCode": "2354",
+        "styrkDescription": "Andre musikklærere",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Grunnskole"
+    },
+    "2355": {
+        "styrkCode": "2355",
+        "styrkDescription": "Andre lærere i estetiske fag",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Grunnskole"
+    },
+    "2356": {
+        "styrkCode": "2356",
+        "styrkDescription": "Andre IKT-lærere",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Grunnskole"
+    },
+    "2359": {
+        "styrkCode": "2359",
+        "styrkDescription": "Andre lærere",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Grunnskole"
+    },
+    "2411": {
+        "styrkCode": "2411",
+        "styrkDescription": "Revisorer og regnskapsrådgivere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Økonomi, statistikk og regnskap"
+    },
+    "2412": {
+        "styrkCode": "2412",
+        "styrkDescription": "Finans- og investeringsrådgivere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
+    "2413": {
+        "styrkCode": "2413",
+        "styrkDescription": "Finansanalytikere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
+    "2421": {
+        "styrkCode": "2421",
+        "styrkDescription": "Organisasjonsrådgivere",
         "categoryLevel1": "Kontor og økonomi",
         "categoryLevel2": "Personal, arbeidsmiljø og rekruttering"
     },
+    "2422": {
+        "styrkCode": "2422",
+        "styrkDescription": "Høyere saksbehandlere i offentlig og privat virksomhet",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "2423": {
+        "styrkCode": "2423",
+        "styrkDescription": "Personal- og karriererådgivere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Personal, arbeidsmiljø og rekruttering"
+    },
+    "2424": {
+        "styrkCode": "2424",
+        "styrkDescription": "Rådgivere innen kompetanseutvikling",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Personal, arbeidsmiljø og rekruttering"
+    },
+    "2431": {
+        "styrkCode": "2431",
+        "styrkDescription": "Reklame- og markedsføringsrådgivere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Markedsføring og reklame"
+    },
     "2432": {
         "styrkCode": "2432",
+        "styrkDescription": "Informasjonsrådgivere",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Journalistikk, kommunikasjon og litteratur"
     },
-    "2434": {
-        "styrkCode": "2434",
+    "2433": {
+        "styrkCode": "2433",
+        "styrkDescription": "Salgskonsulenter innen tekniske og medisinske produkter",
         "categoryLevel1": "Salg og service",
         "categoryLevel2": "Salg, butikk- og varehandel"
     },
-    "2514": {
-        "styrkCode": "2514",
+    "2434": {
+        "styrkCode": "2434",
+        "styrkDescription": "Salgskonsulenter innen IKT-produkter",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "2511": {
+        "styrkCode": "2511",
+        "styrkDescription": "Systemanalytikere/-arkitekter",
         "categoryLevel1": "IT",
         "categoryLevel2": "Utvikling"
     },
+    "2512": {
+        "styrkCode": "2512",
+        "styrkDescription": "Programvareutviklere",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Utvikling"
+    },
+    "2513": {
+        "styrkCode": "2513",
+        "styrkDescription": "Nett- og multimediautviklere",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Utvikling"
+    },
+    "2514": {
+        "styrkCode": "2514",
+        "styrkDescription": "Applikasjonsprogrammerere",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Utvikling"
+    },
+    "2519": {
+        "styrkCode": "2519",
+        "styrkDescription": "Andre programvare- og applikasjonsutviklere",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Utvikling"
+    },
+    "2521": {
+        "styrkCode": "2521",
+        "styrkDescription": "Databasedesignere og -administratorer",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Drift, vedlikehold"
+    },
+    "2522": {
+        "styrkCode": "2522",
+        "styrkDescription": "Systemadministratorer",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Drift, vedlikehold"
+    },
+    "2523": {
+        "styrkCode": "2523",
+        "styrkDescription": "Nettverksansvarlige",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Drift, vedlikehold"
+    },
+    "2529": {
+        "styrkCode": "2529",
+        "styrkDescription": "Sikkerhetsanalytikere mv.",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Utvikling"
+    },
+    "2611": {
+        "styrkCode": "2611",
+        "styrkDescription": "Jurister og advokater",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Juridisk arbeid"
+    },
+    "2612": {
+        "styrkCode": "2612",
+        "styrkDescription": "Dommere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Juridisk arbeid"
+    },
+    "2619": {
+        "styrkCode": "2619",
+        "styrkDescription": "Andre juridiske yrker",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Juridisk arbeid"
+    },
+    "2621": {
+        "styrkCode": "2621",
+        "styrkDescription": "Arkivarer og kuratorer",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Museum, bibliotek, arkiv"
+    },
+    "2622": {
+        "styrkCode": "2622",
+        "styrkDescription": "Bibliotekarer og andre informasjonsarbeidere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Museum, bibliotek, arkiv"
+    },
+    "2631": {
+        "styrkCode": "2631",
+        "styrkDescription": "Rådgivere/forskere, samfunnsøkonomi",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Forskningsarbeid"
+    },
+    "2632": {
+        "styrkCode": "2632",
+        "styrkDescription": "Rådgivere/forskere, samfunnsvitenskap",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Forskningsarbeid"
+    },
+    "2633": {
+        "styrkCode": "2633",
+        "styrkDescription": "Rådgivere/forskere, humanistiske fag",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Forskningsarbeid"
+    },
     "2634": {
         "styrkCode": "2634",
+        "styrkDescription": "Psykologer",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Psykolog"
     },
     "2635": {
         "styrkCode": "2635",
+        "styrkDescription": "Rådgivere innen sosiale fagfelt",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Rådgivere innen sosiale fagfelt"
     },
+    "2636": {
+        "styrkCode": "2636",
+        "styrkDescription": "Geistlige yrker",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Religiøst arbeid"
+    },
+    "2641": {
+        "styrkCode": "2641",
+        "styrkDescription": "Forfattere mv.",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Journalistikk, kommunikasjon og litteratur"
+    },
+    "2642": {
+        "styrkCode": "2642",
+        "styrkDescription": "Journalister",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Journalistikk, kommunikasjon og litteratur"
+    },
     "2643": {
         "styrkCode": "2643",
+        "styrkDescription": "Oversettere, tolker mv",
         "categoryLevel1": "Salg og service",
         "categoryLevel2": "Tolk og oversettere"
     },
+    "2651": {
+        "styrkCode": "2651",
+        "styrkDescription": "Skulptører, kunstmalere og andre billedkunstnere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Kunst  og kunsthåndverk"
+    },
+    "2652": {
+        "styrkCode": "2652",
+        "styrkDescription": "Dirigenter, komponister, musikere og sangere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Musikk/lyd, foto og video"
+    },
+    "2653": {
+        "styrkCode": "2653",
+        "styrkDescription": "Koreografer og dansere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Underholdning, scene og teater"
+    },
+    "2654": {
+        "styrkCode": "2654",
+        "styrkDescription": "Regissører",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Underholdning, scene og teater"
+    },
+    "2655": {
+        "styrkCode": "2655",
+        "styrkDescription": "Skuespillere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Underholdning, scene og teater"
+    },
     "2656": {
         "styrkCode": "2656",
+        "styrkDescription": "Programledere i TV og radio",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Underholdning, scene og teater"
+    },
+    "2659": {
+        "styrkCode": "2659",
+        "styrkDescription": "Andre utøvende kunstneriske yrker",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Underholdning, scene og teater"
     },
     "3112": {
         "styrkCode": "3112",
+        "styrkDescription": "Bygningsingeniører",
         "categoryLevel1": "Bygg og anlegg",
         "categoryLevel2": "Ingeniør bygg"
     },
+    "3113": {
+        "styrkCode": "3113",
+        "styrkDescription": "Elkraftingeniører",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Elektro/elektronikk"
+    },
+    "3114": {
+        "styrkCode": "3114",
+        "styrkDescription": "Elektronikkingeniører",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Elektro/elektronikk"
+    },
+    "3115": {
+        "styrkCode": "3115",
+        "styrkDescription": "Maskiningeniører",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "3116": {
+        "styrkCode": "3116",
+        "styrkDescription": "Kjemiingeniører",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "3117": {
+        "styrkCode": "3117",
+        "styrkDescription": "Ingeniører innen petroleum, bergverk og metallurgi",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
+    "3118": {
+        "styrkCode": "3118",
+        "styrkDescription": "Tekniske tegnere",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
     "3119": {
         "styrkCode": "3119",
+        "styrkDescription": "Andre ingeniører",
         "categoryLevel1": "Bygg og anlegg",
         "categoryLevel2": "Andre ingeniører"
     },
     "3121": {
         "styrkCode": "3121",
+        "styrkDescription": "Arbeidsleder, bergfag, oljevirksomhet",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Olje, gass og bergverk"
     },
     "3122": {
         "styrkCode": "3122",
+        "styrkDescription": "Arbeidsleder, industri",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Arbeidsleder, industri"
     },
     "3123": {
         "styrkCode": "3123",
+        "styrkDescription": "Arbeidsleder, bygg og anlegg",
         "categoryLevel1": "Bygg og anlegg",
         "categoryLevel2": "Arbeidsleder, bygg og anlegg"
     },
+    "3131": {
+        "styrkCode": "3131",
+        "styrkDescription": "Energikontrolloperatører",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Elektro/elektronikk"
+    },
+    "3132": {
+        "styrkCode": "3132",
+        "styrkDescription": "Kontrolloperatører ved forbrennings-, kjøle- og vannrenseanlegg mv.",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "3133": {
+        "styrkCode": "3133",
+        "styrkDescription": "Kontrolloperatører innen kjemisk prosessindustri",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "3134": {
+        "styrkCode": "3134",
+        "styrkDescription": "Kontrolloperatører ved olje- og naturgassraffineringsanlegg",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
     "3135": {
         "styrkCode": "3135",
+        "styrkDescription": "Kontrolloperatører innen metallproduksjon",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Jern og metall"
     },
+    "3139": {
+        "styrkCode": "3139",
+        "styrkDescription": "Andre prosesskontrolloperatører",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "3141": {
+        "styrkCode": "3141",
+        "styrkDescription": "Bioteknikere (ikke-medisinske laboratorier)",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Biologer, zoologer, botanikere"
+    },
+    "3142": {
+        "styrkCode": "3142",
+        "styrkDescription": "Agroteknikere",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
     "3143": {
         "styrkCode": "3143",
+        "styrkDescription": "Skogteknikere",
         "categoryLevel1": "Natur og miljø",
         "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
     },
-    "3152": {
-        "styrkCode": "3152",
+    "3151": {
+        "styrkCode": "3151",
+        "styrkDescription": "Skipsmaskinister",
         "categoryLevel1": "Transport og lager",
         "categoryLevel2": "Sjøfart"
     },
+    "3152": {
+        "styrkCode": "3152",
+        "styrkDescription": "Dekksoffiserer og loser",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Sjøfart"
+    },
+    "3153": {
+        "styrkCode": "3153",
+        "styrkDescription": "Flygere mv.",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Lufttrafikk"
+    },
+    "3154": {
+        "styrkCode": "3154",
+        "styrkDescription": "Flygeledere",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Lufttrafikk"
+    },
     "3155": {
         "styrkCode": "3155",
+        "styrkDescription": "Teknikere innen luftfartssikkerhet",
         "categoryLevel1": "Transport og lager",
         "categoryLevel2": "Lufttrafikk"
     },
     "3211": {
         "styrkCode": "3211",
+        "styrkDescription": "Radiografer mv.",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Radiograf og audiograf"
     },
     "3212": {
         "styrkCode": "3212",
+        "styrkDescription": "Bioingeniører",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Bioingeniør"
     },
     "3213": {
         "styrkCode": "3213",
+        "styrkDescription": "Reseptarer",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Farmasøytisk og apotekerarbeid"
     },
     "3214": {
         "styrkCode": "3214",
+        "styrkDescription": "Protese- og tannteknikere",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Tannhelse/-pleie"
     },
     "3230": {
         "styrkCode": "3230",
+        "styrkDescription": "Yrker innen alternativ medisin",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Alternativ medisin"
     },
+    "3240": {
+        "styrkCode": "3240",
+        "styrkDescription": "Dyrepleier",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Veterinærer og dyrepleiere"
+    },
+    "3251": {
+        "styrkCode": "3251",
+        "styrkDescription": "Tannpleier",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Tannhelse/-pleie"
+    },
     "3254": {
         "styrkCode": "3254",
+        "styrkDescription": "Optikere",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Optiker"
     },
     "3256": {
         "styrkCode": "3256",
+        "styrkDescription": "Helsesekretærer",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Helsesekretær"
     },
+    "3257": {
+        "styrkCode": "3257",
+        "styrkDescription": "Helse og miljøkontrollører",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Personal, arbeidsmiljø og rekruttering"
+    },
+    "3258": {
+        "styrkCode": "3258",
+        "styrkDescription": "Ambulansepersonell",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Brann-, utryknings- og redningspersonell"
+    },
     "3259": {
         "styrkCode": "3259",
+        "styrkDescription": "Andre helseyrker",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Andre helseyrker"
     },
     "3311": {
         "styrkCode": "3311",
+        "styrkDescription": "Finansmeglere",
         "categoryLevel1": "Kontor og økonomi",
         "categoryLevel2": "Megling"
     },
+    "3312": {
+        "styrkCode": "3312",
+        "styrkDescription": "Kundebehandlere lån og kreditt",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
     "3313": {
         "styrkCode": "3313",
+        "styrkDescription": "Regnskapsførere",
         "categoryLevel1": "Kontor og økonomi",
         "categoryLevel2": "Økonomi, statistikk og regnskap"
     },
+    "3315": {
+        "styrkCode": "3315",
+        "styrkDescription": "Takstmenn",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
+    "3321": {
+        "styrkCode": "3321",
+        "styrkDescription": "Forsikringsagenter",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
+    "3322": {
+        "styrkCode": "3322",
+        "styrkDescription": "Selgere (engros)",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "3323": {
+        "styrkCode": "3323",
+        "styrkDescription": "Innkjøpere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "3324": {
+        "styrkCode": "3324",
+        "styrkDescription": "Handels- og skipsmeglere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Megling"
+    },
     "3331": {
         "styrkCode": "3331",
+        "styrkDescription": "Speditører og befraktere",
         "categoryLevel1": "Transport og lager",
         "categoryLevel2": "Speditør og befrakter"
     },
     "3332": {
         "styrkCode": "3332",
+        "styrkDescription": "Konferanse- og arrangementsplanleggere",
         "categoryLevel1": "Reiseliv og mat",
         "categoryLevel2": "Reiseliv, hotell og overnatting"
     },
+    "3333": {
+        "styrkCode": "3333",
+        "styrkDescription": "Arbeidsformidlere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Personal, arbeidsmiljø og rekruttering"
+    },
     "3334": {
         "styrkCode": "3334",
+        "styrkDescription": "Eiendomsmeglere- og forvaltere",
         "categoryLevel1": "Salg og service",
         "categoryLevel2": "Eiendomsmegler"
     },
+    "3339": {
+        "styrkCode": "3339",
+        "styrkDescription": "Andre yrker innen forretningstjenester",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Megling"
+    },
+    "3341": {
+        "styrkCode": "3341",
+        "styrkDescription": "Arbeidsledere for kontorpersonell",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Ledelse, administrasjon og rådgivning"
+    },
     "3342": {
         "styrkCode": "3342",
+        "styrkDescription": "Advokatsekretærer",
         "categoryLevel1": "Kontor og økonomi",
         "categoryLevel2": "Juridisk arbeid"
     },
+    "3343": {
+        "styrkCode": "3343",
+        "styrkDescription": "Sjefssekretærer",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
     "3351": {
         "styrkCode": "3351",
+        "styrkDescription": "Tollere",
         "categoryLevel1": "Sikkerhet og beredskap",
         "categoryLevel2": "Politi, fengsel og toll"
     },
+    "3352": {
+        "styrkCode": "3352",
+        "styrkDescription": "Skattefunksjonærer",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "3353": {
+        "styrkCode": "3353",
+        "styrkDescription": "Saksbehandlere innen sosiale ytelser",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "3354": {
+        "styrkCode": "3354",
+        "styrkDescription": "Saksbehandlere for førerkort, importlisenser mv.",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "3355": {
+        "styrkCode": "3355",
+        "styrkDescription": "Politibetjenter mv.",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Politi, fengsel og toll"
+    },
+    "3359": {
+        "styrkCode": "3359",
+        "styrkDescription": "Andre yrker innen offentlig forvaltning",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
     "3411": {
         "styrkCode": "3411",
+        "styrkDescription": "Privatetterforskere",
         "categoryLevel1": "Sikkerhet og beredskap",
         "categoryLevel2": "Vakt-, sikrings- og kontrollarbeid"
     },
     "3412": {
         "styrkCode": "3412",
+        "styrkDescription": "Miljøarbeidere innen sosiale fagfelt",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Miljøarbeidere"
     },
     "3413": {
         "styrkCode": "3413",
+        "styrkDescription": "Religiøse yrker",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Religiøst arbeid"
     },
+    "3421": {
+        "styrkCode": "3421",
+        "styrkDescription": "Idrettsutøvere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Sport og idrett"
+    },
+    "3422": {
+        "styrkCode": "3422",
+        "styrkDescription": "Trenere og idrettsdommere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Sport og idrett"
+    },
     "3423": {
         "styrkCode": "3423",
+        "styrkDescription": "Sports- og aktivitetsinstruktører",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Sport og idrett"
     },
     "3431": {
         "styrkCode": "3431",
+        "styrkDescription": "Fotografer og filmfotografer",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Musikk/lyd, foto og video"
     },
     "3432": {
         "styrkCode": "3432",
+        "styrkDescription": "Interiørdesignere og dekoratører",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Design, grafisk arbeid og illustrasjon"
     },
     "3433": {
         "styrkCode": "3433",
+        "styrkDescription": "Tekniske konservatorer",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Museum, bibliotek, arkiv"
     },
     "3434": {
         "styrkCode": "3434",
+        "styrkDescription": "Sjefskokker",
         "categoryLevel1": "Reiseliv og mat",
         "categoryLevel2": "Kokk"
     },
     "3439": {
         "styrkCode": "3439",
+        "styrkDescription": "Andre yrker innen estetiske fag",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Andre yrker innen estetiske fag"
     },
-    "3514": {
-        "styrkCode": "3514",
+    "3511": {
+        "styrkCode": "3511",
+        "styrkDescription": "Driftsteknikere, IKT",
         "categoryLevel1": "IT",
         "categoryLevel2": "Drift, vedlikehold"
     },
-    "3522": {
-        "styrkCode": "3522",
+    "3512": {
+        "styrkCode": "3512",
+        "styrkDescription": "Brukerstøttere, IKT",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Drift, vedlikehold"
+    },
+    "3513": {
+        "styrkCode": "3513",
+        "styrkDescription": "Nettverks- og systemteknikere, IKT",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Drift, vedlikehold"
+    },
+    "3514": {
+        "styrkCode": "3514",
+        "styrkDescription": "Internett-teknikere",
+        "categoryLevel1": "IT",
+        "categoryLevel2": "Drift, vedlikehold"
+    },
+    "3521": {
+        "styrkCode": "3521",
+        "styrkDescription": "Teknikere innen radio og tv",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Elektriker/elektro"
     },
+    "3522": {
+        "styrkCode": "3522",
+        "styrkDescription": "Teknikere innen telekommunikasjon",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Elektriker/elektro"
+    },
+    "4110": {
+        "styrkCode": "4110",
+        "styrkDescription": "Kontormedarbeidere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4131": {
+        "styrkCode": "4131",
+        "styrkDescription": "Stenografer",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4132": {
+        "styrkCode": "4132",
+        "styrkDescription": "Dataregistrerere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4211": {
+        "styrkCode": "4211",
+        "styrkDescription": "Kundebehandlere, bank og postkontor",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
+    "4212": {
+        "styrkCode": "4212",
+        "styrkDescription": "Bingoverter, bookmakere mv.",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "4213": {
+        "styrkCode": "4213",
+        "styrkDescription": "Pantelånere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "4214": {
+        "styrkCode": "4214",
+        "styrkDescription": "Inkassomedarbeidere mv.",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4221": {
+        "styrkCode": "4221",
+        "styrkDescription": "Reisebyråmedarbeidere mv.",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Reiseliv, hotell og overnatting"
+    },
+    "4222": {
+        "styrkCode": "4222",
+        "styrkDescription": "Kundesentermedarbeidere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4223": {
+        "styrkCode": "4223",
+        "styrkDescription": "Sentralbordoperatører",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4224": {
+        "styrkCode": "4224",
+        "styrkDescription": "Hotellresepsjonister",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Reiseliv, hotell og overnatting"
+    },
+    "4225": {
+        "styrkCode": "4225",
+        "styrkDescription": "Informasjonsskrankemedarbeidere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4226": {
+        "styrkCode": "4226",
+        "styrkDescription": "Resepsjonister (ekskl. hotell)",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4227": {
+        "styrkCode": "4227",
+        "styrkDescription": "Intervjuere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4229": {
+        "styrkCode": "4229",
+        "styrkDescription": "Andre opplysningsmedarbeidere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "4311": {
+        "styrkCode": "4311",
+        "styrkDescription": "Regnskapsmedarbeidere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Økonomi, statistikk og regnskap"
+    },
+    "4312": {
+        "styrkCode": "4312",
+        "styrkDescription": "Forsikrings- og finansmedarbeidere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Bank finans forsikring"
+    },
+    "4313": {
+        "styrkCode": "4313",
+        "styrkDescription": "Lønningsmedarbeidere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Økonomi, statistikk og regnskap"
+    },
     "4321": {
         "styrkCode": "4321",
+        "styrkDescription": "Lagermedarbeidere og materialforvaltere",
         "categoryLevel1": "Transport og lager",
         "categoryLevel2": "Logistikk, lagerarbeid og innkjøp"
     },
+    "4322": {
+        "styrkCode": "4322",
+        "styrkDescription": "Logistikkmedarbeidere",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Logistikk, lagerarbeid og innkjøp"
+    },
+    "4323": {
+        "styrkCode": "4323",
+        "styrkDescription": "Transportfunksjonærer",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Logistikk, lagerarbeid og innkjøp"
+    },
+    "4411": {
+        "styrkCode": "4411",
+        "styrkDescription": "Bibliotekassistenter",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Museum, bibliotek, arkiv"
+    },
     "4412": {
         "styrkCode": "4412",
+        "styrkDescription": "Postbud og postsorterere",
         "categoryLevel1": "Salg og service",
         "categoryLevel2": "Post og måleavlesere"
     },
+    "4413": {
+        "styrkCode": "4413",
+        "styrkDescription": "Kodere mv",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Kontor, forvaltning og saksbehandling"
+    },
+    "4415": {
+        "styrkCode": "4415",
+        "styrkDescription": "Arkivassistenter",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Museum, bibliotek, arkiv"
+    },
+    "4416": {
+        "styrkCode": "4416",
+        "styrkDescription": "Personalkontormedarbeidere",
+        "categoryLevel1": "Kontor og økonomi",
+        "categoryLevel2": "Personal, arbeidsmiljø og rekruttering"
+    },
+    "5111": {
+        "styrkCode": "5111",
+        "styrkDescription": "Flyverter, båtverter mv.",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Reiseliv, hotell og overnatting"
+    },
+    "5112": {
+        "styrkCode": "5112",
+        "styrkDescription": "Konduktører",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Reiseliv, hotell og overnatting"
+    },
+    "5113": {
+        "styrkCode": "5113",
+        "styrkDescription": "Reiseledere og guider",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Reiseliv, hotell og overnatting"
+    },
+    "5120": {
+        "styrkCode": "5120",
+        "styrkDescription": "Kokker",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Kokk"
+    },
     "5131": {
         "styrkCode": "5131",
+        "styrkDescription": "Servitører",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Restaurant"
+    },
+    "5132": {
+        "styrkCode": "5132",
+        "styrkDescription": "Bartendere",
         "categoryLevel1": "Reiseliv og mat",
         "categoryLevel2": "Restaurant"
     },
     "5141": {
         "styrkCode": "5141",
+        "styrkDescription": "Frisører",
         "categoryLevel1": "Salg og service",
         "categoryLevel2": "Frisør og velvære"
     },
+    "5142": {
+        "styrkCode": "5142",
+        "styrkDescription": "Kosmetologer mv.",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Frisør og velvære"
+    },
+    "5151": {
+        "styrkCode": "5151",
+        "styrkDescription": "Renholdsledere i bedrifter",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "5152": {
+        "styrkCode": "5152",
+        "styrkDescription": "Husholdere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "5153": {
+        "styrkCode": "5153",
+        "styrkDescription": "Vaktmestere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Vaktmester"
+    },
+    "5161": {
+        "styrkCode": "5161",
+        "styrkDescription": "Astrologer mv.",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Personlig tjenesteyting"
+    },
+    "5163": {
+        "styrkCode": "5163",
+        "styrkDescription": "Begravelsesbyrå- og krematoriemedarbeidere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "5164": {
+        "styrkCode": "5164",
+        "styrkDescription": "Dyrepassere og -trenere mv.",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Veterinærer og dyrepleiere"
+    },
+    "5165": {
+        "styrkCode": "5165",
+        "styrkDescription": "Kjøreskolelærere",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Instruktører  og pedagoger"
+    },
+    "5169": {
+        "styrkCode": "5169",
+        "styrkDescription": "Andre personlige tjenesteytere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Personlig tjenesteyting"
+    },
+    "5211": {
+        "styrkCode": "5211",
+        "styrkDescription": "Torghandlere mv.",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5212": {
+        "styrkCode": "5212",
+        "styrkDescription": "Gateselger av mat",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5221": {
+        "styrkCode": "5221",
+        "styrkDescription": "Innehavere av kiosk/liten butikk",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5222": {
+        "styrkCode": "5222",
+        "styrkDescription": "Butikkavdelingssjefer",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5223": {
+        "styrkCode": "5223",
+        "styrkDescription": "Butikkmedarbeidere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5230": {
+        "styrkCode": "5230",
+        "styrkDescription": "Billettselgere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
     "5241": {
         "styrkCode": "5241",
+        "styrkDescription": "Mannekenger og modeller",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Reklame og dekorasjon"
     },
+    "5242": {
+        "styrkCode": "5242",
+        "styrkDescription": "Demonstrasjonsselgere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5243": {
+        "styrkCode": "5243",
+        "styrkDescription": "Dørselgere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5244": {
+        "styrkCode": "5244",
+        "styrkDescription": "Telefon- og nettselgere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5245": {
+        "styrkCode": "5245",
+        "styrkDescription": "Servicemedarbeidere (bensinstasjon)",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5246": {
+        "styrkCode": "5246",
+        "styrkDescription": "Gatekjøkken- og kafémedarbeidere mv.",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "5249": {
+        "styrkCode": "5249",
+        "styrkDescription": "Andre salgsmedarbeidere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
     "5311": {
         "styrkCode": "5311",
+        "styrkDescription": "Barnehage- og skolefritidsassistenter mv.",
         "categoryLevel1": "Utdanning",
         "categoryLevel2": "Barnehage- og skolefritidsassistenter"
     },
+    "5312": {
+        "styrkCode": "5312",
+        "styrkDescription": "Skoleassistenter",
+        "categoryLevel1": "Utdanning",
+        "categoryLevel2": "Grunnskole"
+    },
     "5321": {
         "styrkCode": "5321",
+        "styrkDescription": "Helsefagarbeidere",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Helsefagarbeider"
     },
     "5322": {
         "styrkCode": "5322",
+        "styrkDescription": "Hjemmehjelper",
         "categoryLevel1": "Helse og sosial",
         "categoryLevel2": "Hjemmehjelper og personlig assistent"
     },
+    "5329": {
+        "styrkCode": "5329",
+        "styrkDescription": "Andre pleiemedarbeidere",
+        "categoryLevel1": "Helse og sosial",
+        "categoryLevel2": "Andre helseyrker"
+    },
     "5411": {
         "styrkCode": "5411",
+        "styrkDescription": "Brannkonstabler",
         "categoryLevel1": "Sikkerhet og beredskap",
         "categoryLevel2": "Brann-, utryknings- og redningspersonell"
     },
+    "5413": {
+        "styrkCode": "5413",
+        "styrkDescription": "Fengselsbetjenter",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Politi, fengsel og toll"
+    },
+    "5414": {
+        "styrkCode": "5414",
+        "styrkDescription": "Vektere",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Vakt-, sikrings- og kontrollarbeid"
+    },
+    "5419": {
+        "styrkCode": "5419",
+        "styrkDescription": "Andre sikkerhetsarbeidere",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Vakt-, sikrings- og kontrollarbeid"
+    },
+    "6111": {
+        "styrkCode": "6111",
+        "styrkDescription": "Korn- og grønnsaksprodusenter",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "6112": {
+        "styrkCode": "6112",
+        "styrkDescription": "Frukt- og bærprodusenter",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "6113": {
+        "styrkCode": "6113",
+        "styrkDescription": "Gartnere",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "6114": {
+        "styrkCode": "6114",
+        "styrkDescription": "Kombinasjonsbrukere, nyttevekster",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "6121": {
+        "styrkCode": "6121",
+        "styrkDescription": "Melke- og husdyrprodusenter",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
+    "6122": {
+        "styrkCode": "6122",
+        "styrkDescription": "Egg- og fjærfeprodusenter",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
+    "6123": {
+        "styrkCode": "6123",
+        "styrkDescription": "Birøktere",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
+    "6129": {
+        "styrkCode": "6129",
+        "styrkDescription": "Andre dyreoppdrettere og -røktere",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
+    "6130": {
+        "styrkCode": "6130",
+        "styrkDescription": "Plante- og husdyrprodusenter (kombinasjonsbruk",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
+    "6210": {
+        "styrkCode": "6210",
+        "styrkDescription": "Skogbrukere",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
     "6221": {
         "styrkCode": "6221",
+        "styrkDescription": "Havbruksarbeidere",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Fiske, fangst og oppdrett"
+    },
+    "6222": {
+        "styrkCode": "6222",
+        "styrkDescription": "Fiskere",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Fiske, fangst og oppdrett"
+    },
+    "6224": {
+        "styrkCode": "6224",
+        "styrkDescription": "Fangstfolk",
         "categoryLevel1": "Natur og miljø",
         "categoryLevel2": "Fiske, fangst og oppdrett"
     },
     "7112": {
         "styrkCode": "7112",
+        "styrkDescription": "Murere",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Murer"
     },
+    "7113": {
+        "styrkCode": "7113",
+        "styrkDescription": "Steinhoggere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
     "7114": {
         "styrkCode": "7114",
+        "styrkDescription": "Betongarbeidere",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Betongfagarbeider"
     },
     "7115": {
         "styrkCode": "7115",
+        "styrkDescription": "Tømrere og snekkere",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Tømrer og snekker"
     },
+    "7119": {
+        "styrkCode": "7119",
+        "styrkDescription": "Andre bygningsarbeidere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7121": {
+        "styrkCode": "7121",
+        "styrkDescription": "Taktekkere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7122": {
+        "styrkCode": "7122",
+        "styrkDescription": "Gulv- og flisleggere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Murer"
+    },
     "7123": {
         "styrkCode": "7123",
+        "styrkDescription": "Gips- og sparklingsarbeidere",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Maler"
     },
-    "7127": {
-        "styrkCode": "7127",
+    "7124": {
+        "styrkCode": "7124",
+        "styrkDescription": "Isolatører mv.",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7125": {
+        "styrkCode": "7125",
+        "styrkDescription": "Glassarbeidere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7126": {
+        "styrkCode": "7126",
+        "styrkDescription": "Rørleggere og VVS-montører",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Rørlegger"
     },
+    "7127": {
+        "styrkCode": "7127",
+        "styrkDescription": "Kuldemontører mv.",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Rørlegger"
+    },
+    "7131": {
+        "styrkCode": "7131",
+        "styrkDescription": "Malere og byggtapetserere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Maler"
+    },
+    "7132": {
+        "styrkCode": "7132",
+        "styrkDescription": "Overflatebehandlere og lakkerere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Maler"
+    },
     "7133": {
         "styrkCode": "7133",
+        "styrkDescription": "Feiere, fasaderenholdere mv.",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Feier"
     },
+    "7211": {
+        "styrkCode": "7211",
+        "styrkDescription": "Støpere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
     "7212": {
         "styrkCode": "7212",
+        "styrkDescription": "Sveisere",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Platearbeider og sveiser"
     },
+    "7213": {
+        "styrkCode": "7213",
+        "styrkDescription": "Kopper- og blikkenslagere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7214": {
+        "styrkCode": "7214",
+        "styrkDescription": "Platearbeidere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Platearbeider og sveiser"
+    },
+    "7215": {
+        "styrkCode": "7215",
+        "styrkDescription": "Riggere og spleisere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7221": {
+        "styrkCode": "7221",
+        "styrkDescription": "Smeder",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Jern og metall"
+    },
+    "7222": {
+        "styrkCode": "7222",
+        "styrkDescription": "Verktøymakere, låsesmeder mv.",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7223": {
+        "styrkCode": "7223",
+        "styrkDescription": "Metalldreiere mv.",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "7224": {
+        "styrkCode": "7224",
+        "styrkDescription": "Metallslipere",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
     "7231": {
         "styrkCode": "7231",
+        "styrkDescription": "Bilmekanikere",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Mekaniker"
     },
+    "7232": {
+        "styrkCode": "7232",
+        "styrkDescription": "Mekanikere innen flytekniske fag",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Mekaniker"
+    },
+    "7233": {
+        "styrkCode": "7233",
+        "styrkDescription": "Anleggsmaskin- og industrimekanikere",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "7234": {
+        "styrkCode": "7234",
+        "styrkDescription": "Sykkelreparatører mv.",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Mekaniker"
+    },
+    "7311": {
+        "styrkCode": "7311",
+        "styrkDescription": "Presisjonsinstrumentmakere og -reparatører",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7312": {
+        "styrkCode": "7312",
+        "styrkDescription": "Musikkinstrumentmakere og -stemmere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7313": {
+        "styrkCode": "7313",
+        "styrkDescription": "Gull- og sølvsmeder, gravører mv.",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
     "7314": {
         "styrkCode": "7314",
+        "styrkDescription": "Keramikere mv.",
         "categoryLevel1": "Kultur og kreative yrker",
         "categoryLevel2": "Kunst  og kunsthåndverk"
     },
+    "7315": {
+        "styrkCode": "7315",
+        "styrkDescription": "Glasshåndverkere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Kunst  og kunsthåndverk"
+    },
+    "7316": {
+        "styrkCode": "7316",
+        "styrkDescription": "Dekormalere mv",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Kunst  og kunsthåndverk"
+    },
+    "7317": {
+        "styrkCode": "7317",
+        "styrkDescription": "Kunsthåndverkere i tre mv.",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Kunst  og kunsthåndverk"
+    },
+    "7318": {
+        "styrkCode": "7318",
+        "styrkDescription": "Vevere, strikkere mv. (innen husflidsproduksjon)",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Kunst  og kunsthåndverk"
+    },
+    "7319": {
+        "styrkCode": "7319",
+        "styrkDescription": "Andre kunsthåndverkere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Kunst  og kunsthåndverk"
+    },
+    "7321": {
+        "styrkCode": "7321",
+        "styrkDescription": "Førtrykkere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Design, grafisk arbeid og illustrasjon"
+    },
+    "7322": {
+        "styrkCode": "7322",
+        "styrkDescription": "Trykkere",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Design, grafisk arbeid og illustrasjon"
+    },
+    "7323": {
+        "styrkCode": "7323",
+        "styrkDescription": "Innbindere mv.",
+        "categoryLevel1": "Kultur og kreative yrker",
+        "categoryLevel2": "Design, grafisk arbeid og illustrasjon"
+    },
+    "7411": {
+        "styrkCode": "7411",
+        "styrkDescription": "Elektrikere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Elektriker/elektro"
+    },
+    "7412": {
+        "styrkCode": "7412",
+        "styrkDescription": "Automatikere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Elektriker/elektro"
+    },
+    "7413": {
+        "styrkCode": "7413",
+        "styrkDescription": "Energimontører",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Elektriker/elektro"
+    },
+    "7421": {
+        "styrkCode": "7421",
+        "styrkDescription": "Serviceelektronikere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Elektriker/elektro"
+    },
+    "7422": {
+        "styrkCode": "7422",
+        "styrkDescription": "Tele- og IKT-installatører",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Elektriker/elektro"
+    },
     "7511": {
         "styrkCode": "7511",
+        "styrkDescription": "Slaktere, fiskehandlere mv",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Matproduksjon og næringsmiddelarbeid"
     },
     "7512": {
         "styrkCode": "7512",
+        "styrkDescription": "Bakere, konditorer mv.",
         "categoryLevel1": "Reiseliv og mat",
         "categoryLevel2": "Baker og konditor"
     },
+    "7513": {
+        "styrkCode": "7513",
+        "styrkDescription": "Ystere mv. (gårdsproduksjon)",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Matproduksjon og næringsmiddelarbeid"
+    },
+    "7514": {
+        "styrkCode": "7514",
+        "styrkDescription": "Syltere, saftere mv. (gårdsproduksjon)",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Matproduksjon og næringsmiddelarbeid"
+    },
+    "7515": {
+        "styrkCode": "7515",
+        "styrkDescription": "Prøvesmakere og kvalitetsbedømmere av mat og drikke",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Matproduksjon og næringsmiddelarbeid"
+    },
     "7522": {
         "styrkCode": "7522",
+        "styrkDescription": "Møbelsnekkere",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Trevarearbeid og –foredling"
     },
     "7531": {
         "styrkCode": "7531",
+        "styrkDescription": "Skreddere, buntmakere mv.",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Skredder"
     },
     "7532": {
         "styrkCode": "7532",
+        "styrkDescription": "Gradører",
         "categoryLevel1": "Industri og produksjon",
         "categoryLevel2": "Tekstil og presisjonsarbeid"
     },
+    "7534": {
+        "styrkCode": "7534",
+        "styrkDescription": "Møbeltapetserere mv.",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "7535": {
+        "styrkCode": "7535",
+        "styrkDescription": "Skinnberedere og garvere",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "7536": {
+        "styrkCode": "7536",
+        "styrkDescription": "Skomakere",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "7541": {
+        "styrkCode": "7541",
+        "styrkDescription": "Yrkesdykkere",
+        "categoryLevel1": "Sikkerhet og beredskap",
+        "categoryLevel2": "Brann-, utryknings- og redningspersonell"
+    },
     "7542": {
         "styrkCode": "7542",
+        "styrkDescription": "Skytebaser og sprengningsarbeidere",
         "categoryLevel1": "Bygg og anlegg",
         "categoryLevel2": "Skytebaser og sprengningsarbeidere"
     },
     "7543": {
         "styrkCode": "7543",
+        "styrkDescription": "Produkttestere (ikke matprodukter)",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Øvrige håndverksyrker"
     },
+    "7544": {
+        "styrkCode": "7544",
+        "styrkDescription": "Desinfeksjonsarbeidere og skadedyrbekjempere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "7549": {
+        "styrkCode": "7549",
+        "styrkDescription": "Andre håndverkere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
+    },
+    "8111": {
+        "styrkCode": "8111",
+        "styrkDescription": "Bergfagarbeidere",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
+    "8112": {
+        "styrkCode": "8112",
+        "styrkDescription": "Prosessoperatører (oppredning)",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
+    "8113": {
+        "styrkCode": "8113",
+        "styrkDescription": "Operatører innen boring mv.",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
+    "8114": {
+        "styrkCode": "8114",
+        "styrkDescription": "Operatører innen produksjon av betong mv",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Betongfagarbeider"
+    },
+    "8121": {
+        "styrkCode": "8121",
+        "styrkDescription": "Operatører innen metallurgiske prosessfag",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "8122": {
+        "styrkCode": "8122",
+        "styrkDescription": "Operatører innen metalloverflatebehandling",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "8131": {
+        "styrkCode": "8131",
+        "styrkDescription": "Operatører innen kjemisk industri",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "8132": {
+        "styrkCode": "8132",
+        "styrkDescription": "Operatører innen produksjon av fotofilm og -papir mv.",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "8141": {
+        "styrkCode": "8141",
+        "styrkDescription": "Operatører innen produksjon av gummiprodukter",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "8142": {
+        "styrkCode": "8142",
+        "styrkDescription": "Operatører innen produksjon av plastprodukter",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Fysikk, kjemi og metallurgi"
+    },
+    "8143": {
+        "styrkCode": "8143",
+        "styrkDescription": "Operatører innen produksjon av papirprodukter",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8151": {
+        "styrkCode": "8151",
+        "styrkDescription": "Spinne- og nøstemaskinoperatører",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8152": {
+        "styrkCode": "8152",
+        "styrkDescription": "Operatører innen tekstilproduksjon mv.",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8153": {
+        "styrkCode": "8153",
+        "styrkDescription": "Industrisyere",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8154": {
+        "styrkCode": "8154",
+        "styrkDescription": "Operatører innen tekstilbearbeiding",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8155": {
+        "styrkCode": "8155",
+        "styrkDescription": "Operatører innen pels-, skinn- og lærbearbeiding",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8156": {
+        "styrkCode": "8156",
+        "styrkDescription": "Operatører innen skinn- og lærprodukter",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8157": {
+        "styrkCode": "8157",
+        "styrkDescription": "Renseri- og vaskerimaskinoperatører",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8159": {
+        "styrkCode": "8159",
+        "styrkDescription": "Andre operatører innen produksjon av tekstiler, pels, skinn og lær",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Tekstil og presisjonsarbeid"
+    },
+    "8160": {
+        "styrkCode": "8160",
+        "styrkDescription": "Operatører innen næringsmiddelproduksjon",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Matproduksjon og næringsmiddelarbeid"
+    },
+    "8171": {
+        "styrkCode": "8171",
+        "styrkDescription": "Operatører innen treforedling",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Trevarearbeid og –foredling"
+    },
+    "8172": {
+        "styrkCode": "8172",
+        "styrkDescription": "Operatører innen trelastproduksjon",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Trevarearbeid og –foredling"
+    },
+    "8181": {
+        "styrkCode": "8181",
+        "styrkDescription": "Operatører innen glass- og keramisk produksjon",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "8182": {
+        "styrkCode": "8182",
+        "styrkDescription": "Fyrkjele- og turbinoperatør",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "8183": {
+        "styrkCode": "8183",
+        "styrkDescription": "Pakke-, tappe- og etikettmaskinoperatør",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "8189": {
+        "styrkCode": "8189",
+        "styrkDescription": "Operatører av andre stasjonære maskiner",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "8211": {
+        "styrkCode": "8211",
+        "styrkDescription": "Montører av mekaniske produkter",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Maskinteknikk og mekanikk"
+    },
+    "8212": {
+        "styrkCode": "8212",
+        "styrkDescription": "Montører av elektriske og elektroniske produkter",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Elektro/elektronikk"
+    },
+    "8219": {
+        "styrkCode": "8219",
+        "styrkDescription": "Andre montører",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Hjelpearbeider Bygg og anlegg"
+    },
     "8311": {
         "styrkCode": "8311",
+        "styrkDescription": "Lokomotiv- og T-baneførere",
         "categoryLevel1": "Transport og lager",
         "categoryLevel2": "Tog-, sporvogn- og vegtrafikk"
     },
+    "8312": {
+        "styrkCode": "8312",
+        "styrkDescription": "Skiftekonduktører mv.",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Tog-, sporvogn- og vegtrafikk"
+    },
+    "8322": {
+        "styrkCode": "8322",
+        "styrkDescription": "Bil-, drosje- og varebilførere",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Tog-, sporvogn- og vegtrafikk"
+    },
+    "8331": {
+        "styrkCode": "8331",
+        "styrkDescription": "Bussjåfører og trikkeførere",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Tog-, sporvogn- og vegtrafikk"
+    },
+    "8332": {
+        "styrkCode": "8332",
+        "styrkDescription": "Lastebil- og trailersjåfører",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Tog-, sporvogn- og vegtrafikk"
+    },
+    "8341": {
+        "styrkCode": "8341",
+        "styrkDescription": "Jordbruks- skogbruksmaskinførere",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Maskin- og kranfører"
+    },
+    "8342": {
+        "styrkCode": "8342",
+        "styrkDescription": "Anleggsmaskinførere",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Maskin- og kranfører"
+    },
     "8343": {
         "styrkCode": "8343",
+        "styrkDescription": "Kran- og heisførere",
         "categoryLevel1": "Bygg og anlegg",
         "categoryLevel2": "Maskin- og kranfører"
     },
     "8344": {
         "styrkCode": "8344",
+        "styrkDescription": "Truckførere",
         "categoryLevel1": "Transport og lager",
         "categoryLevel2": "Truckfører"
     },
-    "9312": {
-        "styrkCode": "9312",
-        "categoryLevel1": "Bygg og anlegg",
-        "categoryLevel2": "Hjelpearbeider Bygg og anlegg"
+    "8350": {
+        "styrkCode": "8350",
+        "styrkDescription": "Dekks- og maskinmannskap (skip)",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Sjøfart"
     },
-    "9329": {
-        "styrkCode": "9329",
-        "categoryLevel1": "Industri og produksjon",
-        "categoryLevel2": "Andre hjelpearbeidere"
-    },
-    "9612": {
-        "styrkCode": "9612",
+    "9111": {
+        "styrkCode": "9111",
+        "styrkDescription": "Renholdere i private hjem",
         "categoryLevel1": "Salg og service",
         "categoryLevel2": "Renholdere og renovasjon"
     },
+    "9112": {
+        "styrkCode": "9112",
+        "styrkDescription": "Renholdere i bedrifter",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "9122": {
+        "styrkCode": "9122",
+        "styrkDescription": "Bilvaskere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "9123": {
+        "styrkCode": "9123",
+        "styrkDescription": "Vinduspussere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "9129": {
+        "styrkCode": "9129",
+        "styrkDescription": "Andre rengjørere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "9211": {
+        "styrkCode": "9211",
+        "styrkDescription": "Hjelpearbeidere i nyttevekstproduksjon",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "9212": {
+        "styrkCode": "9212",
+        "styrkDescription": "Hjelpearbeidere i husdyrproduksjon",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
+    "9213": {
+        "styrkCode": "9213",
+        "styrkDescription": "Hjelpearbeidere (gårdsbruk/landbruk)",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Jordbruk og dyrehold"
+    },
+    "9214": {
+        "styrkCode": "9214",
+        "styrkDescription": "Hjelpearbeidere i gartneri mv.",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "9215": {
+        "styrkCode": "9215",
+        "styrkDescription": "Hjelpearbeidere i skogbruk",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Skogbruk, gartnerarbeid og hagebruk"
+    },
+    "9216": {
+        "styrkCode": "9216",
+        "styrkDescription": "Hjelpearbeidere innen havbruk",
+        "categoryLevel1": "Natur og miljø",
+        "categoryLevel2": "Fiske, fangst og oppdrett"
+    },
+    "9311": {
+        "styrkCode": "9311",
+        "styrkDescription": "Hjelpearbeidere i bergverk",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Olje, gass og bergverk"
+    },
+    "9312": {
+        "styrkCode": "9312",
+        "styrkDescription": "Hjelpearbeidere i anlegg",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Hjelpearbeider Bygg og anlegg"
+    },
+    "9313": {
+        "styrkCode": "9313",
+        "styrkDescription": "Hjelpearbeidere i bygg",
+        "categoryLevel1": "Bygg og anlegg",
+        "categoryLevel2": "Hjelpearbeider Bygg og anlegg"
+    },
+    "9321": {
+        "styrkCode": "9321",
+        "styrkDescription": "Håndpakkere mv.",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Logistikk, lagerarbeid og innkjøp"
+    },
+    "9329": {
+        "styrkCode": "9329",
+        "styrkDescription": "Andre hjelpearbeidere i industri",
+        "categoryLevel1": "Industri og produksjon",
+        "categoryLevel2": "Andre hjelpearbeidere"
+    },
+    "9331": {
+        "styrkCode": "9331",
+        "styrkDescription": "Førere av ikke-motoriserte kjøretøy",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Logistikk, lagerarbeid og innkjøp"
+    },
+    "9333": {
+        "styrkCode": "9333",
+        "styrkDescription": "Laste- og lossearbeidere",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Logistikk, lagerarbeid og innkjøp"
+    },
+    "9334": {
+        "styrkCode": "9334",
+        "styrkDescription": "Varepåfyllere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Salg, butikk- og varehandel"
+    },
+    "9412": {
+        "styrkCode": "9412",
+        "styrkDescription": "Kjøkkenassistenter",
+        "categoryLevel1": "Reiseliv og mat",
+        "categoryLevel2": "Reiseliv, hotell og overnatting"
+    },
+    "9510": {
+        "styrkCode": "9510",
+        "styrkDescription": "Reklamedistributører mv.",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Markedsføring og reklame"
+    },
+    "9611": {
+        "styrkCode": "9611",
+        "styrkDescription": "Renovasjonsarbeidere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "9612": {
+        "styrkCode": "9612",
+        "styrkDescription": "Gjenvinningsarbeidere",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "9613": {
+        "styrkCode": "9613",
+        "styrkDescription": "Gatefeiere mv.",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Renholdere og renovasjon"
+    },
+    "9621": {
+        "styrkCode": "9621",
+        "styrkDescription": "Bud mv.",
+        "categoryLevel1": "Transport og lager",
+        "categoryLevel2": "Speditør og befrakter"
+    },
     "9622": {
         "styrkCode": "9622",
+        "styrkDescription": "Altmuligmann",
         "categoryLevel1": "Håndverkere",
         "categoryLevel2": "Vaktmester"
+    },
+    "9623": {
+        "styrkCode": "9623",
+        "styrkDescription": "Måleravlesere mv.",
+        "categoryLevel1": "Salg og service",
+        "categoryLevel2": "Post og måleavlesere"
+    },
+    "9629": {
+        "styrkCode": "9629",
+        "styrkDescription": "Andre hjelpearbeidere",
+        "categoryLevel1": "Håndverkere",
+        "categoryLevel2": "Øvrige håndverksyrker"
     }
 }

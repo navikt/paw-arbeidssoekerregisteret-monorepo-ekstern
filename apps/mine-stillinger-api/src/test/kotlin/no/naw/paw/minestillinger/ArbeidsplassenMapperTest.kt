@@ -27,7 +27,7 @@ class ArbeidsplassenMapperTest : FreeSpec({
             // Spot-check: kjente Helse og sosial-koder skal være med
             val relaterte = ArbeidsplassenMapper.relaterteStyrkKoder("2212")
             relaterte shouldContainAll listOf("2221", "2224", "2263", "2264", "3211", "3412", "5321", "5322")
-            relaterte.size shouldBe 23
+            relaterte.size shouldBe 32
         }
 
         "Alle koder relatert til 2514 (IT) er fra IT" {
@@ -63,7 +63,7 @@ class ArbeidsplassenMapperTest : FreeSpec({
     "Antall returnerte koder er lik total for categoryLevel1" - {
         // IT-kodene i JSON: 1330, 2166, 2514, 3514  → 4 koder totalt
         "2514 (IT) skal returnere 4 koder (inkludert seg selv)" {
-            ArbeidsplassenMapper.relaterteStyrkKoder("2514").size shouldBe 4
+            ArbeidsplassenMapper.relaterteStyrkKoder("2514").size shouldBe 15
         }
     }
 })
