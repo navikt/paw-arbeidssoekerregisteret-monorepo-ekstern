@@ -1,6 +1,7 @@
 package no.nav.paw.ledigestillinger.service
 
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -60,13 +61,21 @@ class StillingServiceTagsTest : FreeSpec({
                 )
             }
             println("ikkeDirekteMeldt: ${ikkeDirekteMeldt.uuid}")
-            val messages = listOf(direkteMeldt_2, ikkeDirekteMeldt, direkteMeldt_1)
+            val ikkeDirekteMeldtEllerDir = baseAd().apply {
+                uuid = UUID.randomUUID().toString()
+                source = "ANNET"
+                properties = listOf(
+                    no.nav.pam.stilling.ext.avro.Property("direktemeldtStillingskategori", "ANNET")
+                )
+            }
+            println("ikkeDirekteMeldtEllerDir: ${ikkeDirekteMeldtEllerDir.uuid}")
+            val messages = listOf(direkteMeldt_2, ikkeDirekteMeldt, ikkeDirekteMeldtEllerDir, direkteMeldt_1)
                 .map(::toMessage)
             "Alle stilling skrives til db uten feil" {
                 stillingService.handleMessages(messages.asSequence())
             }
 
-            "Vi henter ut en liste med alle stillinger og sjekker at de har riktige tags" - {
+            "Vi henter ut en liste med stillinger uten tags, da skal ikke de med DIR være med" - {
                 val stillinger = stillingService.finnStillingerByEgenskaper(
                     medSoekeord = emptyList(),
                     medFylker = emptyList(),
@@ -75,14 +84,10 @@ class StillingServiceTagsTest : FreeSpec({
                     tags = emptyList()
                 )
 
-                "Vi skal ha 3 stillinger i databasen" {
-                    stillinger shouldHaveSize 3
-                }
-                "En stilling skal ikke ha noen tags" {
-                    stillinger.filter { it.tags.isEmpty() }.shouldHaveSize(1)
-                }
-                "To stillinger skal ha taggen DIREKTEMELDT_V1" {
-                    stillinger.filter { it.tags.contains(Tag.DIREKTEMELDT_V1) }.shouldHaveSize(2)
+                "Vi skal ha 1 stilling i databasen uten kilde DIR" {
+                    stillinger shouldHaveSize 1
+                    stillinger.first().uuid.toString() shouldBe ikkeDirekteMeldtEllerDir.uuid
+                    stillinger.first().tags.shouldBeEmpty()
                 }
             }
             "Vi søker etter stillinger med taggen DIREKTEMELDT_V1 og sjekker at vi får tilbake de riktige stillingene" - {

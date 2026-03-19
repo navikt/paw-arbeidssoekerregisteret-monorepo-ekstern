@@ -68,7 +68,7 @@ class StillingService(
         }
     }
 
-    @WithSpan("paw.stillinger.service.finn_direktemeldte")
+    @WithSpan("paw.stillinger.service.finn_by_egenskaper")
     fun finnStillingerByEgenskaper(
         medSoekeord: Collection<String>,
         medStyrkkoder: Collection<String>,
@@ -76,54 +76,19 @@ class StillingService(
         paging: Paging = Paging(),
         tags: Collection<Tag>
     ): List<Stilling> = transaction {
-        val start = System.currentTimeMillis()
         telemetryContext.tellStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
+        val start = System.currentTimeMillis()
         val rows = StillingerTable.selectRowsByKategorierAndFylker(
             medSoekeord = medSoekeord,
             medStyrkkoder = medStyrkkoder,
             medFylker = medFylker,
-            utenKilder = emptyList(),
+            utenKilder = if (tags.contains(Tag.DIREKTEMELDT_V1)) emptyList() else listOf("DIR"),
             paging = paging,
             tags = tags
         )
         rows.map { it.asDto() }.also { treff ->
             val slutt = System.currentTimeMillis()
             val millisekunder = slutt - start
-            Span.current().addEvent("soek_stillinger", Attributes.of(
-                stringKey("search_tags"), tags.joinToString(","),
-                longKey("hits"), treff.size.toLong(),
-                longKey("direktemeldte"), treff.filter { it.tags.contains(Tag.DIREKTEMELDT_V1) }.size.toLong(),
-                stringKey("all_tags_in_result"), treff.flatMap { it.tags }.toSet().joinToString(",")
-            ))
-            logger.info("Fant {} stillinger for egeneskaper på {}ms", treff.size, millisekunder)
-        }
-    }
-
-    @WithSpan("paw.stillinger.service.finn_by_egenskaper")
-    fun finnStillingerByEgenskaper(
-        medSoekeord: Collection<String>,
-        medStyrkkoder: Collection<String>,
-        medFylker: Collection<Fylke>,
-        paging: Paging = Paging()
-    ): List<Stilling> = transaction {
-        val start = System.currentTimeMillis()
-        telemetryContext.tellStillingerByEgenskaper(medSoekeord, medStyrkkoder, medFylker)
-        val rows = StillingerTable.selectRowsByKategorierAndFylker(
-            medSoekeord = medSoekeord,
-            medStyrkkoder = medStyrkkoder,
-            medFylker = medFylker,
-            utenKilder = listOf("DIR"), // TODO Filtrerer ut direktemeldte stillinger
-            paging = paging
-        )
-        rows.map { it.asDto() }.also { treff ->
-            val slutt = System.currentTimeMillis()
-            val millisekunder = slutt - start
-            Span.current().addEvent("soek_stillinger", Attributes.of(
-                stringKey("search_tags"), "",
-                longKey("hits"), treff.size.toLong(),
-                longKey("direktemeldte"), treff.filter { it.tags.contains(Tag.DIREKTEMELDT_V1) }.size.toLong(),
-                stringKey("all_tags_in_result"), treff.flatMap { it.tags }.toSet().joinToString(",")
-            ))
             logger.info("Fant {} stillinger for egeneskaper på {}ms", treff.size, millisekunder)
         }
     }

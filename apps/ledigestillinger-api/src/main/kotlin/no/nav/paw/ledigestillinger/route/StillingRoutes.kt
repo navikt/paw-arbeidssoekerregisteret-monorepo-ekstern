@@ -49,28 +49,17 @@ fun Route.stillingRoutes(
 
                     is FinnStillingerByEgenskaperRequest -> {
                         request.verify()
-                        //Når vi ser at alt fungerer slår vi dette sammen til en funksjon, har delt nå for å kunne går raskt i prod med ny funksjonalitet
-                        val stillinger = if (request.tags.isEmpty()) {
-                            stillingService.finnStillingerByEgenskaper(
-                                medSoekeord = request.soekeord,
-                                medStyrkkoder = request.styrkkoder,
-                                medFylker = request.fylker,
-                                paging = request.paging,
-                            )
-                        } else {
-                            stillingService.finnStillingerByEgenskaper(
+                        val stillinger = stillingService.finnStillingerByEgenskaper(
                                 medSoekeord = request.soekeord,
                                 medStyrkkoder = request.styrkkoder,
                                 medFylker = request.fylker,
                                 tags = request.tags,
                                 paging = request.paging,
                             )
-                        }
                         val response = FinnStillingerResponse(
                             stillinger = stillinger,
                             paging = request.paging.asResponse(hitSize = stillinger.size)
                         )
-
                         call.respond<FinnStillingerResponse>(response)
                     }
                 }

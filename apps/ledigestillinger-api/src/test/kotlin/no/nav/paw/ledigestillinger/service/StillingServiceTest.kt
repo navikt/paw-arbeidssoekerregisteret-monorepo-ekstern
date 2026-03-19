@@ -53,7 +53,8 @@ class StillingServiceTest : FreeSpec({
                 medSoekeord = emptyList(),
                 medFylker = emptyList(),
                 medStyrkkoder = emptyList(),
-                paging = Paging(1, 100)
+                paging = Paging(1, 100),
+                tags = emptyList()
             )
 
             // THEN
@@ -74,7 +75,8 @@ class StillingServiceTest : FreeSpec({
                     )
                 ),
                 medStyrkkoder = listOf("1012", "3011"),
-                paging = Paging(1, 100)
+                paging = Paging(1, 100),
+                tags = emptyList()
             )
 
             // THEN
