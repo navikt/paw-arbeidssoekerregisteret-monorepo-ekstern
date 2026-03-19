@@ -116,32 +116,32 @@ fun FinnStillingerRequest.emitSpanEvent() {
     builder.put(stringKey("type"), type.name)
     val attributes = when (this) {
         is FinnStillingerByEgenskaperRequest -> {
-            builder.put(stringKey("tags"), tags.joinToString(",") { it.name })
-            builder.put(stringKey("paging"), this.paging.toString())
-            builder.put(longKey("fylker"), fylker.size.toLong())
-            builder.put(longKey("kommuner"), fylker.fold(0L) { acc, fylke -> acc + fylke.kommuner.size })
-            builder.put(longKey("styrkkoder"), styrkkoder.distinct().size.toLong())
+            builder.put(stringKey("request_tags"), tags.joinToString(",") { it.name })
+            builder.put(stringKey("request_paging"), this.paging.toString())
+            builder.put(longKey("request_fylker"), fylker.size.toLong())
+            builder.put(longKey("request_kommuner"), fylker.fold(0L) { acc, fylke -> acc + fylke.kommuner.size })
+            builder.put(longKey("request_styrkkoder"), styrkkoder.distinct().size.toLong())
         }
         is FinnStillingerByUuidListeRequest -> {
-            builder.put(longKey("antall_uuid"), this.uuidListe.size.toLong())
+            builder.put(longKey("request_antall_uuid"), this.uuidListe.size.toLong())
         }
     }
-    Span.current().addEvent("finn_stillinger_request", attributes.build())
+    Span.current().addEvent("request_finn_stillinger", attributes.build())
 }
 
 fun Iterable<Stilling>.emitSpanEvent() {
     val builder = Attributes.builder()
-    builder.put(longKey("antall_stillinger"), this.count().toLong())
+    builder.put(longKey("response_antall_stillinger"), this.count().toLong())
     groupBy { it.tags.map(Tag::name).sorted() }
         .forEach { (tags, stillinger) ->
             val key = if (tags.isEmpty()) "ingen_tags" else tags.joinToString("__")
-            builder.put(longKey(key), stillinger.size.toLong())
+            builder.put(longKey("response__$key"), stillinger.size.toLong())
         }
     val antallStyrkkoder = flatMap(Stilling::styrkkoder)
         .map(StyrkKode::kode)
         .distinct()
         .count()
-    builder.put(longKey("antall_styrkkoder"), antallStyrkkoder.toLong())
-    Span.current().addEvent("finn_stillinger_response", builder.build())
+    builder.put(longKey("response_antall_styrkkoder"), antallStyrkkoder.toLong())
+    Span.current().addEvent("response_finn_stillinger", builder.build())
 }
 
