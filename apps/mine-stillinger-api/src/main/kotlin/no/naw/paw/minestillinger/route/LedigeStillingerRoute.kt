@@ -36,7 +36,6 @@ import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.api.Soeknadsfrist
 import no.naw.paw.minestillinger.api.SoeknadsfristType
 import no.naw.paw.minestillinger.api.vo.ApiSortOrder
-import no.naw.paw.minestillinger.api.vo.ApiTag
 import no.naw.paw.minestillinger.api.vo.toApiTag
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
@@ -80,20 +79,7 @@ fun Route.ledigeStillingerRoute(
                         val sort = call.request.queryParameters["sort"]?.let(ApiSortOrder::valueOf) ?: ApiSortOrder.DESC
                         if (page < 1) throw BadRequestException("Parameter 'page' må være 1 eller større")
                         if (pageSize !in 1..100) throw BadRequestException("Parameter 'pageSize' må være mellom 1 og 100")
-                        val direkteMeldingerSøk = if (bruker.listeMedFlagg.isTrue(InkluderDirekteMeldteStillingerFlagtype)) {
-                            Span.current().addEvent("direktemeldte_stillinger", Attributes.of(booleanKey("inkluder"), true))
-                            genererRequest(søk = søk.copy(
-                                fylker = emptyList(),
-                                soekeord = emptyList(),
-                                styrk08 = søk.styrk08.flatMap { ArbeidsplassenMapper.relaterteStyrkKoder(it) }.distinct(),
-                            ), page = page, pageSize = pageSize, sort = sort, listOf(Tag.DIREKTEMELDT_V1))
-                        } else {
-                            Span.current().addEvent("direktemeldte_stillinger", Attributes.of(booleanKey("inkluder"), false))
-                            null
-                        }
-                        stedSøk to listOfNotNull(
-                                genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort, tags = emptyList()),
-                            direkteMeldingerSøk)
+                        stedSøk to genererSøkeRequester(bruker, søk, page, pageSize, sort)
                     }
                 }
                 if (søkOgRequest?.second != null) {
@@ -135,6 +121,30 @@ fun Route.ledigeStillingerRoute(
             }
         }
     }
+}
+
+private fun genererSøkeRequester(
+    bruker: BrukerProfil,
+    søk: StedSoek,
+    page: Int,
+    pageSize: Int,
+    sort: ApiSortOrder
+): List<FinnStillingerRequest> {
+    val standardSøk: FinnStillingerRequest = genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort, tags = emptyList())
+    val direkteMeldtSøk: FinnStillingerRequest? = if (bruker.listeMedFlagg.isTrue(InkluderDirekteMeldteStillingerFlagtype)) {
+        Span.current().addEvent("direktemeldte_stillinger", Attributes.of(booleanKey("inkluder"), true))
+        genererRequest(
+            søk = søk.copy(
+                fylker = emptyList(),
+                soekeord = emptyList(),
+                styrk08 = søk.styrk08.flatMap { ArbeidsplassenMapper.relaterteStyrkKoder(it) }.distinct(),
+            ), page = page, pageSize = pageSize, sort = sort, listOf(Tag.DIREKTEMELDT_V1)
+        )
+    } else {
+        Span.current().addEvent("direktemeldte_stillinger", Attributes.of(booleanKey("inkluder"), false))
+        null
+    }
+    return listOfNotNull(standardSøk, direkteMeldtSøk)
 }
 
 private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(

@@ -24,9 +24,14 @@ import no.nav.paw.error.model.ErrorType
 import no.nav.paw.security.authentication.token.AccessToken
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.obo.OnBehalfOfBrukerRequest
+import no.naw.paw.ledigestillinger.model.FinnStillingerByEgenskaperRequest
+import no.naw.paw.ledigestillinger.model.FinnStillingerByUuidListeRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 import no.naw.paw.ledigestillinger.model.PagingResponse
+import no.naw.paw.ledigestillinger.model.Stilling
+import no.naw.paw.ledigestillinger.model.StyrkKode
+import no.naw.paw.ledigestillinger.model.Tag
 
 data class LedigeStillingerClientConfig(
     val baseUrl: String,
@@ -55,6 +60,7 @@ class FinnStillingerClient(
             val svar = finnStillingerRequests.asFlow()
                 .map { request ->
                     async {
+                        request.emitSpanEvent()
                         val response = httpClient.post(config.baseUrl + FINN_LEDIGE_STILLINGER_PATH) {
                             contentType(Application.Json)
                             bearerAuth(newToken)
@@ -68,14 +74,7 @@ class FinnStillingerClient(
                 }.toList()
                 .awaitAll()
             val stillinger = svar.flatMap { it.stillinger }
-            stillinger.groupBy { it.tags.toSet() }
-                .forEach { (tags, stillinger) ->
-                    Span.current().addEvent("jobb_annonse", Attributes.of(
-                        stringKey("tags"), tags.joinToString(",") { it.name },
-                        longKey("antall"), stillinger.size.toLong()
-                    ))
-                }
-
+            stillinger.emitSpanEvent()
             val nullPage: PagingResponse? = null
             val page = svar.map { it.paging }.fold(nullPage) { acc, pagingResponse ->
                 acc?.copy(
@@ -109,5 +108,40 @@ fun <T> List<List<T>>.interleave(): List<T> {
     return (0 until maxSize).flatMap { index ->
         this.mapNotNull { list -> list.getOrNull(index) }
     }
+}
+
+fun FinnStillingerRequest.emitSpanEvent() {
+    val type = this.type
+    val builder = Attributes.builder()
+    builder.put(stringKey("type"), type.name)
+    val attributes = when (this) {
+        is FinnStillingerByEgenskaperRequest -> {
+            builder.put(stringKey("tags"), tags.joinToString(",") { it.name })
+            builder.put(stringKey("paging"), this.paging.toString())
+            builder.put(longKey("fylker"), fylker.size.toLong())
+            builder.put(longKey("kommuner"), fylker.fold(0L) { acc, fylke -> acc + fylke.kommuner.size })
+            builder.put(longKey("styrkkoder"), styrkkoder.distinct().size.toLong())
+        }
+        is FinnStillingerByUuidListeRequest -> {
+            builder.put(longKey("antall_uuid"), this.uuidListe.size.toLong())
+        }
+    }
+    Span.current().addEvent("finn_stillinger_request", attributes.build())
+}
+
+fun Iterable<Stilling>.emitSpanEvent() {
+    val builder = Attributes.builder()
+    builder.put(longKey("antall_stillinger"), this.count().toLong())
+    groupBy { it.tags.map(Tag::name).sorted() }
+        .forEach { (tags, stillinger) ->
+            val key = if (tags.isEmpty()) "ingen_tags" else tags.joinToString("__")
+            builder.put(longKey(key), stillinger.size.toLong())
+        }
+    val antallStyrkkoder = flatMap(Stilling::styrkkoder)
+        .map(StyrkKode::kode)
+        .distinct()
+        .count()
+    builder.put(longKey("antall_styrkkoder"), antallStyrkkoder.toLong())
+    Span.current().addEvent("finn_stillinger_response", builder.build())
 }
 
