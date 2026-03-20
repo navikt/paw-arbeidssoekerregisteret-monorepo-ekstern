@@ -15,7 +15,11 @@ private val logger = buildApplicationLogger
 
 suspend fun PdlClient.harBeskyttetAdresse(identitetsnummer: Identitetsnummer): Boolean {
     try {
-        val adressebeskyttelse = hentAdressebeskyttelse(identitetsnummer.value, null, BEHANDLINGSNUMMER) ?: emptyList()
+        val adressebeskyttelse = hentAdressebeskyttelse(
+            ident = identitetsnummer.value,
+            navConsumerId = null,
+            behandlingsnummer = BEHANDLINGSNUMMER
+        ) ?: emptyList()
         Span.current().addEvent(
             "adressebeskyttelse", Attributes.of(
                 longKey("antall"), adressebeskyttelse.size.toLong()
@@ -33,7 +37,11 @@ suspend fun PdlClient.harBeskyttetAdresse(identitetsnummer: Identitetsnummer): B
 
 suspend fun PdlClient.harBeskyttetAdresseBulk(identitetsnummer: List<Identitetsnummer>): List<AdressebeskyttelseResultat> {
     try {
-        return hentAdressebeskyttelse(identitetsnummer.map { it.value }, null, BEHANDLINGSNUMMER)
+        return hentAdressebeskyttelse(
+            identer = identitetsnummer.map { it.value },
+            navConsumerId = null,
+            behandlingsnummer = BEHANDLINGSNUMMER
+        )
             ?.map { personResultat ->
                 val ident = Identitetsnummer(personResultat.ident)
                 val feilkode = personResultat.code.takeUnless { it.equals("ok", ignoreCase = true) }

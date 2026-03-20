@@ -34,13 +34,13 @@ class PdlClient(
         traceparent: String? = null,
         navConsumerId: String?,
     ): GraphQLClientResponse<T> {
-        val safeBehandlingsnummer = require(behandlingsnummer.isNotBlank()) { "Behandlingsnummer kan ikke være tom" }
+        require(behandlingsnummer.isNotBlank()) { "Behandlingsnummer kan ikke være tom" }
         return graphQLClient.execute(query) {
             bearerAuth(getAccessToken())
             header("Tema", tema)
             header("Nav-Call-Id", callId)
             header("Nav-Consumer-Id", navConsumerId)
-            header("Behandlingsnummer", safeBehandlingsnummer)
+            header("Behandlingsnummer", behandlingsnummer)
             traceparent?.let { header("traceparent", it) }
         }
     }
