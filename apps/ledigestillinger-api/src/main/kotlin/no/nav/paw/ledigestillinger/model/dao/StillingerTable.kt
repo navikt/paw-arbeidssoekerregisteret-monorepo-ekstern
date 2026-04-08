@@ -45,7 +45,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
     val medium = varchar("medium", 255)
     val referanse = varchar("referanse", 255)
     val arbeidsgivernavn = varchar("arbeidsgivernavn", 255).nullable()
-    val stillingstittel = varchar("stillingstittel", 2000).nullable()
+    val stillingstittel = text("stillingstittel").nullable()
     val ansettelsesform = varchar("ansettelsesform", 255).nullable()
     val stillingsprosent = varchar("stillingsprosent", 20).nullable()
     val stillingsantall = varchar("stillingsantall", 20).nullable()
@@ -96,6 +96,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
                 egenskaper = { emptyList() } // TODO fjernet for å spare tid : EgenskaperTable::selectRowsByParentId
             )
         }
+
     fun selectRowsByKategorierAndFylker(
         medSoekeord: Collection<String> = emptyList(),
         medStyrkkoder: Collection<String> = emptyList(),
@@ -137,7 +138,8 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         }.reduceOrNull { aggregate, op -> aggregate or op } ?: Op.TRUE
         val kildeQuery = (kilde notInList utenKilder)
 
-        val combinedQuery: Op<Boolean> = aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery and kildeQuery and tagsQuery
+        val combinedQuery: Op<Boolean> =
+            aktivQuery and styrkQuery and lokasjonQuery and soekeordQuery and kildeQuery and tagsQuery
 
         return join(KategorierTable, JoinType.LEFT, id, KategorierTable.parentId)
             .join(KlassifiseringerTable, JoinType.LEFT, id, KlassifiseringerTable.parentId)

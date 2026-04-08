@@ -48,13 +48,15 @@ object TestData {
         emptyList(),
         emptyList(),
         null,
-        listOf(Classification(
-            "STYRK08",
-            "1234",
-            "Testyrke",
-            1.0,
-            "1234"
-        )),
+        listOf(
+            Classification(
+                "STYRK08",
+                "1234",
+                "Testyrke",
+                1.0,
+                "1234"
+            )
+        ),
     )
 
     val clock: WallClock = WallClock.systemDefaultZone()
@@ -101,6 +103,99 @@ object TestData {
     val adnr5_4: String = "ABCD5014"
     val adnr5_5: String = "ABCD5015"
     val adnr5_6: String = "ABCD5016"
+
+    val jobtitle1: String = """
+        Har du stor interesse for bil, salg og teknologi? Nå søker MAN Truck & Bus en ny selger til vårt truck-team med ansvar for salg i Oslo og omegn. Som selger vil du ha ansvar for salg og oppfølging av eksisterende og nye kunder. Gjennom kvalitet og grundighet i salgsarbeidet bygger du tillit hos både kunder og kollegaer. Denne stillingen rapporterer til Head of Retail Sales.
+
+        Arbeidsoppgaver
+        Kunderekruttering, proaktive initiativ og nysalgsbesøk hos definerte kunder i området
+        Oppfølging og ivaretakelse av etablert kundeportefølje
+        Synliggjøre verdi av å velge MAN som leverandør
+        Kommunisere kommersiell verdi knyttet til tjeneste- og produktspekter som MAN leverer
+        Identifisere og utvikle nye forretningsmuligheter innenfor Truck-markedet
+        Holde deg oppdatert på produkter, systemer, støtteordninger og ny teknologi
+        Være oppdatert på transportbransjens behov og aktuelle løsninger
+        Være oppdatert på relevante lover og forskrifter i transportbransjen som er regulert av myndighetene
+        Identifisere, besvare og følge opp tilbud/anbud
+    """.trimIndent()
+    val jobtitle2: String = """
+        Nå har DU en enestående mulighet til en interessant og utviklende jobb hos en av Nordens største groundhandlere -- AVIATOR
+
+        Vi rekrutterer ved vår stasjon på Ålesund lufthavn og har behov for flere ansatte, henholdsvis:
+        3 stillinger ved Ramp (1 x 80%-stilling og 2 x 5%)
+
+        2 stillinger ved Passasjerservice (2 x 5%)
+
+        Du som ansettes vil starte opplæring omgående og inngå i den daglige produksjonen. For vikarer er det en forutsetning at man har kapasitet til å arbeide en del ekstra i sommerferien.
+
+        For de rette vedkommende kan det også bli aktuelt å kombinere arbeidsoppgaver på tvers av våre 2 avdelinger Ramp og Passasjerservice.
+
+        For å jobbe hos oss må du:
+        Ha plettfri vandel
+
+        Være fleksibel og like allsidighet i arbeidet
+
+        Ha gode kommunikasjonsevner, både muntlig og skriftlig på norsk og engelsk
+
+        Ha evnen til å jobbe raskt, nøyaktig og selvstendig
+
+        Være serviceinnstilt og positiv
+
+        Inneha førerkort klasse B
+
+        Vi kan tilby:
+        En spennende hverdag med gode utviklingsmuligheter
+
+        Konkurransedyktige betingelser
+
+        Hektisk og trivelig arbeidsmiljø
+
+        Relevante arbeidsoppgaver Ramp:
+        Lasting/lossing av fly
+
+        Håndtering av bagasje og cargo
+
+        Håndtering av utstyr og kjøretøy
+
+        Andre bakke- og servicetjenester
+
+        Relevante arbeidsoppgave Passasjerservice:
+        Innsjekk av passasjerer før avreise
+
+        Ta om bord passasjerer ved avreise
+
+        Ankomstservice
+
+        Yte service og bistå passasjerer ved behov
+
+        Vi leter etter deg som:
+        Er fleksibel og tilfreds med skiftarbeid
+
+        Er effektiv og selvstendig
+
+        Er serviceinnstilt
+
+        Forstår viktigheten av å opprettholde høy kvalitet
+
+        På en konstruktiv måte bidrar til godt arbeidsmiljø og økonomiske forbedringer i driften
+
+        Har gode samarbeidsevner
+
+        Kan utføre alle oppgaver med høy kvalitet, på en sikker og effektiv måte i henhold til gjeldende prosedyrer
+
+        Stillingstittel: Handlingagent
+        Arbeidstid: Skiftgående
+
+        Heltid/deltid: Deltid
+
+        Tiltredelse: Snarest
+
+        Søknadsfrist: 19.04.26, søknader behandles fortløpende
+
+        Arbeidssted: Ålesund lufthavn, Vigra
+
+        For spørsmål om stillingen kontakt Stasjonsleder Espen Molvær på telefon eller e-post.
+    """.trimIndent()
 
     val message1_1: Message<UUID, Ad> = message(
         uuid = uuid1_1,
@@ -388,7 +483,7 @@ object TestData {
         categories: List<StyrkCategory> = emptyList(),
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList(),
-        properties: List<Property> = emptyList(),
+        properties: List<Property> = properties(),
     ): Message<UUID, Ad> = record(
         uuid = uuid,
         adnr = adnr,
@@ -415,7 +510,7 @@ object TestData {
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList(),
         topic: String = "teampam.stilling-ekstern-1",
-        properties: List<Property> = emptyList(),
+        properties: List<Property> = properties(),
     ): ConsumerRecord<UUID, Ad> = ad(
         uuid = uuid,
         adnr = adnr,
@@ -462,7 +557,7 @@ object TestData {
             this.categories = categories
             this.classifications = classifications
             this.locations = locations
-            this.properties = properties()
+            this.properties = properties
         }
         return uuid to ad
     }
@@ -531,11 +626,13 @@ object TestData {
         )
     }
 
-    fun properties(): List<Property> {
+    fun properties(
+        jobtitle: String = jobtitle1,
+    ): List<Property> {
         return listOf(
             Property().apply {
                 this.key = "jobtitle"
-                this.value = "Bedriftsrådgiver"
+                this.value = jobtitle
             },
             Property().apply {
                 this.key = "engagementtype"
