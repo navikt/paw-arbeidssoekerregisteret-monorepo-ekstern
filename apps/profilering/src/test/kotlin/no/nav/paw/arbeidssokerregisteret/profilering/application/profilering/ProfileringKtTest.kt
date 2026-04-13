@@ -11,8 +11,8 @@ import no.nav.paw.arbeidssokerregisteret.profilering.application.profilering.Pro
 import java.time.LocalDate
 
 class ProfileringKtTest : FreeSpec({
-    "En med alder på 61 år skal gi ${ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING}" {
-        val sekstiEnAarSiden = LocalDate.now().minusYears(61)
+    "En med alder på 67 år skal gi ${ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING}" {
+        val sekstiEnAarSiden = LocalDate.now().minusYears(67)
         profiler(
             ProfileringTestData.standardBrukerPersonInfo(
                 foedselsdato = sekstiEnAarSiden,
@@ -31,7 +31,7 @@ class ProfileringKtTest : FreeSpec({
             opplysninger = ProfileringTestData.standardOpplysninger()
         ).profilertTil shouldBe ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
     }
-    "En med alder innenfor 18..59 og oppfyller krav til arbeidserfaring, utdanning, helsehinder og andre forhold blir profilert til ${ProfilertTil.ANTATT_GODE_MULIGHETER}" {
+    "En med alder innenfor 18..66 og oppfyller krav til arbeidserfaring, utdanning, helsehinder og andre forhold blir profilert til ${ProfilertTil.ANTATT_GODE_MULIGHETER}" {
         profiler(
             ProfileringTestData.standardBrukerPersonInfo(),
             ProfileringTestData.standardOpplysninger()

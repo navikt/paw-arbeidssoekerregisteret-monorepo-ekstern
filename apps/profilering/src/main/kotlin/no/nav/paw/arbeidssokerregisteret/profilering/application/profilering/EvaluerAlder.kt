@@ -9,7 +9,7 @@ import java.time.ZoneId
 fun evaluerAlder(alder: Int?): Set<ProfileringsTagger> {
     return when (alder) {
         null -> setOf(ProfileringsTagger.UKJENT_ALDER)
-        in (18..59) -> setOf(ProfileringsTagger.ALDER_INDIKERER_STANDARD_INNSATS)
+        in (18..66) -> setOf(ProfileringsTagger.ALDER_INDIKERER_STANDARD_INNSATS)
         else -> emptySet()
     }
 }

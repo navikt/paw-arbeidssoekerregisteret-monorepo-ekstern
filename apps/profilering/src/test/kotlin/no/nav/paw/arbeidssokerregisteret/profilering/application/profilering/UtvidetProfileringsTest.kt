@@ -70,6 +70,46 @@ class UtvidetProfileringsTest : FreeSpec({
                 ),
                 forventetAlder = 62,
                 forventetHarJobbetSammenhengendeSiste12Mnd = true,
+                forventetProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+            ),
+            test("Er 66 år og har jobbet sammenhende i 6 av de 12 siste månedene",
+                personInfo(
+                    arbeidsforhold(fra = "2020-01-01", til = "2020-03-15"),
+                    arbeidsforhold(fra = "2020-03-15", til = "2020-04-01"),
+                    arbeidsforhold(fra = "2020-04-02", til = "2020-07-01"),
+                    foedselsdato = "1954-02-27"
+                ),
+                opplysninger(
+                    sendtIn = "2020-07-02",
+                    utdanning = utdanning(
+                        bestaatt = JaNeiVetIkke.JA,
+                        godkjent = JaNeiVetIkke.JA
+                    ),
+                    helseHindrerArbeid = JaNeiVetIkke.NEI,
+                    annetHindrerArbeid = JaNeiVetIkke.NEI
+                ),
+                forventetAlder = 66,
+                forventetHarJobbetSammenhengendeSiste12Mnd = true,
+                forventetProfilertTil = ProfilertTil.ANTATT_GODE_MULIGHETER
+            ),
+            test("Er 67 år og har jobbet sammenhende i 6 av de 12 siste månedene",
+                personInfo(
+                    arbeidsforhold(fra = "2020-01-01", til = "2020-03-15"),
+                    arbeidsforhold(fra = "2020-03-15", til = "2020-04-01"),
+                    arbeidsforhold(fra = "2020-04-02", til = "2020-07-01"),
+                    foedselsdato = "1953-02-27"
+                ),
+                opplysninger(
+                    sendtIn = "2020-07-02",
+                    utdanning = utdanning(
+                        bestaatt = JaNeiVetIkke.JA,
+                        godkjent = JaNeiVetIkke.JA
+                    ),
+                    helseHindrerArbeid = JaNeiVetIkke.NEI,
+                    annetHindrerArbeid = JaNeiVetIkke.NEI
+                ),
+                forventetAlder = 67,
+                forventetHarJobbetSammenhengendeSiste12Mnd = true,
                 forventetProfilertTil = ProfilertTil.ANTATT_BEHOV_FOR_VEILEDNING
             ),
             test("Er 59 år og har jobbet sammenhende i 12 av de 12 siste månedene, er fremdeles i jobb",
