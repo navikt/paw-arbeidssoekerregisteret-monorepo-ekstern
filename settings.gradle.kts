@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral() // This is required to find the davidmc24 1.9.1 plugin
+    }
+}
+
 rootProject.name = "paw-arbeidssoekerregisteret-monorepo-ekstern"
 
 plugins {
