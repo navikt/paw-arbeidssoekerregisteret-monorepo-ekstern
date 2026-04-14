@@ -16,48 +16,53 @@ import no.nav.paw.ledigestillinger.util.toLocalDateTimeString
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 @Suppress("ConstPropertyName")
 object TestData {
-    fun baseAd() = Ad(
-        UUID.randomUUID().toString(),
-        null,
-        "Testannonse",
-        AdStatus.ACTIVE,
-        PrivacyChannel.SHOW_ALL,
-        null,
-        "2026-01-01T00:00:00",
-        null,
-        "2026-01-01T00:00:00",
-        "2026-01-01T00:00:00",
-        Company(
-            "Team Paw",
-            "Product Area Work",
-            "999999999",
-            "999999998",
-            "KIRK"
-        ),
-        emptyList(),
-        "UKJENT",
-        "",
-        "",
-        null,
-        null,
-        emptyList(),
-        emptyList(),
-        null,
-        listOf(
-            Classification(
-                "STYRK08",
-                "1234",
-                "Testyrke",
-                1.0,
-                "1234"
-            )
-        ),
-    )
+    fun baseAd(): Ad {
+        val now = LocalDateTime.now(clock).toLocalDateTimeString()
+        return Ad(
+            UUID.randomUUID().toString(),
+            null,
+            "Testannonse",
+            AdStatus.ACTIVE,
+            PrivacyChannel.SHOW_ALL,
+            null,
+            now,
+            null,
+            now,
+            now,
+            Company(
+                "Team Paw",
+                "Product Area Work",
+                "999999999",
+                "999999998",
+                "KIRK"
+            ),
+            emptyList(),
+            "UKJENT",
+            "",
+            "",
+            null,
+            null,
+            emptyList(),
+            emptyList(),
+            null,
+            listOf(
+                Classification(
+                    "STYRK08",
+                    "1234",
+                    "Testyrke",
+                    1.0,
+                    "1234"
+                )
+            ),
+        )
+    }
+
 
     val clock: WallClock = WallClock.systemDefaultZone()
 
