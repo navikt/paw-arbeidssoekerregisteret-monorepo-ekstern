@@ -11,7 +11,7 @@ suspend fun PdlClient.hentFoedselsdato(
     traceparent: String? = null,
     navConsumerId: String?,
     behandlingsnummer: String,
-): Foedselsdato? {
+): List<Foedselsdato> {
     val query = HentFoedselsdato(HentFoedselsdato.Variables(ident))
 
     logger.debug("Henter fødselsdato fra PDL")
@@ -39,5 +39,5 @@ suspend fun PdlClient.hentFoedselsdato(
         .data
         ?.hentPerson
         ?.foedselsdato
-        ?.firstOrNull()
+        ?: emptyList()
 }

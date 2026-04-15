@@ -39,7 +39,8 @@ fun interface PersonInfoTjeneste {
                             behandlingsnummer = BEHANDLINGSNUMMER
                         )
                     }
-                    foedselsdatoDeferred.await().let { foedselsdato ->
+                    foedselsdatoDeferred.await().let { foedselsdatoer ->
+                        val foedselsdato = foedselsdatoer.minByOrNull { it.foedselsaar ?: Int.MAX_VALUE }
                         PersonInfo(
                             foedselsdato = foedselsdato?.foedselsdato?.let(LocalDate::parse),
                             foedselsAar = foedselsdato?.foedselsaar,

@@ -3,6 +3,7 @@ package no.nav.paw.pdl.client
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.pdl.exception.PdlPersonIkkeFunnetException
@@ -156,11 +157,19 @@ class PdlClientTest : FreeSpec({
         val resultat = runBlocking {
             pdlClient.hentFoedselsdato("2649500819544", callId, null, navConsumerId, "B123")
         }
-        val forventetDato = "1986-11-26"
-        val forventetAar = 1986
-
-        resultat!!.foedselsdato shouldBe forventetDato
-        resultat.foedselsaar shouldBe forventetAar
+        val forventetDato1 = "1976-11-26"
+        val forventetAar1 = 1976
+        val forventetDato2 = "1986-11-26"
+        val forventetAar2 = 1986
+        resultat.size shouldBe 2
+        resultat.minBy { it.foedselsaar ?: 0 } should { resultat ->
+            resultat.foedselsdato shouldBe forventetDato1
+            resultat.foedselsaar shouldBe forventetAar1
+        }
+        resultat.maxBy { it.foedselsaar ?: 0 } should { resultat ->
+            resultat.foedselsaar shouldBe forventetAar2
+            resultat.foedselsdato shouldBe forventetDato2
+        }
     }
 
     "Forventer gyldig respons fra hentFoedested" {
