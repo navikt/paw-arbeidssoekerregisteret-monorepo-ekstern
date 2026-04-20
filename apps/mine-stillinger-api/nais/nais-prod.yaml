@@ -26,9 +26,9 @@ spec:
     - name: PAM_TILGANG_FUNKSJONSNIVAA
       value: "DEAKTIVERT"
     - name: PAM_TILGANG_URL
-      value: "https://pam-dir-api.intern.dev.nav.no/rest/dir/tilgang"
+      value: "https://pam-dir-api.intern.prod.nav.no/rest/dir/tilgang"
     - name: PAM_TILGANG_SCOPE
-      value: "api://dev/prod-gcp.teampam.pam-dir-api/.default"
+      value: "api://prod/prod-gcp.teampam.pam-dir-api/.default"
   resources:
     limits:
       memory: 512Mi
