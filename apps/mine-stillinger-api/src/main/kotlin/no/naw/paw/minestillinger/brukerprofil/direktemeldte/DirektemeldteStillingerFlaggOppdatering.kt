@@ -32,8 +32,8 @@ class DirektemeldteStillingerFlaggOppdatering(
             try {
                 isRunning.set(true)
                 while (continueRunning.get()) {
-                    oppdaterFlaggForDirektemeldteStillinger()
-                    if (continueRunning.get()) {
+                    val ferdig = oppdaterFlaggForDirektemeldteStillinger()
+                    if (continueRunning.get() && ferdig) {
                         delay(timeMillis = oppdateringsintervall.toMillis())
                     }
                 }
@@ -46,7 +46,7 @@ class DirektemeldteStillingerFlaggOppdatering(
     }
 
     @WithSpan("vedlikehold_oppdater_direktemeldte_stillinger_flagg")
-    suspend fun oppdaterFlaggForDirektemeldteStillinger() {
+    suspend fun oppdaterFlaggForDirektemeldteStillinger(): Boolean {
         val alleMedUtdaterteFlagg = transaction {
             val utdatert = hentAlleAktiveBrukereMedUtdatertFlagg(
                 alleFraFørDetteErUtløpt = clock.now() - gyldighetsperiode,
@@ -72,6 +72,7 @@ class DirektemeldteStillingerFlaggOppdatering(
                 skrivFlaggTilDB(brukerId, listOf(flagg))
             }
         }
+        return alleMedUtdaterteFlagg.size < 100
     }
 
     override fun hasStarted(): Boolean {
