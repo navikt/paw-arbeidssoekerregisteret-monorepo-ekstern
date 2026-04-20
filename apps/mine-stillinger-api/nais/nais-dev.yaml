@@ -24,7 +24,7 @@ spec:
     - name: LEDIGE_STILLINGER_TARGET
       value: "dev-gcp:paw:paw-arbeidssoekerregisteret-api-ledigestillinger"
     - name: PAM_TILGANG_FUNKSJONSNIVAA
-      value: "BARE_BRUKERPROFIL"
+      value: "AKTIVT"
     - name: PAM_TILGANG_URL
       value: "http://pam-dir-api.teampam/rest/dir/tilgang"
     - name: PAM_TILGANG_SCOPE

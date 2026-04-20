@@ -28,6 +28,7 @@ import no.nav.paw.security.texas.TEXAS_CONFIG
 import no.nav.paw.security.texas.TexasClient
 import no.nav.paw.security.texas.TexasClientConfig
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirekteMeldteStillingerConfig
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.db.ops.hentBrukerProfilUtenFlagg
 import no.naw.paw.minestillinger.db.ops.hentProfileringOrNull
@@ -87,7 +88,10 @@ fun main() {
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
         clock = clock,
-        dirMeldteStillingerTilgang = webClients.direktemeldteStillgerTilgangClient
+        dirMeldteStillingerTilgang = webClients.direktemeldteStillgerTilgangClient,
+        funksjonsnivaa = loadNaisOrLocalConfiguration<DirekteMeldteStillingerConfig>(
+            "direktemeldte_stillinger_config.toml"
+        ).funksjonsnivaa
     )
     val processorContext = ProcessorContext(
         brukerprofilTjeneste = brukerprofilTjeneste,

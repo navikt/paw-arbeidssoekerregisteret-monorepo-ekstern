@@ -50,6 +50,7 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.Adressebeskyttels
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirekteMeldteStillingerFunksjonsnivaa
 import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerTilgangClientSkalAldriVises
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
@@ -122,7 +123,8 @@ class Livssyklustest : FreeSpec({
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
         clock = clock,
-        dirMeldteStillingerTilgang = DirektemeldteStillingerTilgangClientSkalAldriVises()
+        dirMeldteStillingerTilgang = DirektemeldteStillingerTilgangClientSkalAldriVises(),
+        funksjonsnivaa = DirekteMeldteStillingerFunksjonsnivaa.AKTIVT
     )
     val ledigeStillingerClient: FinnStillingerClient = mockk()
     coEvery { ledigeStillingerClient.finnLedigeStillinger(any(), any()) }.returns(
@@ -273,12 +275,12 @@ class Livssyklustest : FreeSpec({
                         res.status shouldBe HttpStatusCode.OK
                         res.body<ApiBrukerprofil>()
                     }
-                    kari.flagg.size shouldBe 2
                     kari.flagg.find { it.navn == ApiFlaggNavn.TJENESTEN_AKTIVERT }.shouldNotBeNull()
                     kari.flagg.find { it.navn == ApiFlaggNavn.DIREKTEMELDTE_STILLINGER } should { inklDirmeldt ->
                         inklDirmeldt.shouldNotBeNull()
                         inklDirmeldt.tidspunkt shouldBe kariDirMeldtAktivert
                     }
+                    kari.flagg.size shouldBe 2
                 }
 
                 "36 timer senere kjøres en bulk oppdatering av adresebeskyttelse, kari sin tjeneste blir ikke påvirket" {

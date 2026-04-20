@@ -18,11 +18,13 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.Adressebeskyttels
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.AdressebeskyttelseVerdi
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresseBulk
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirekteMeldteStillingerFunksjonsnivaa
 import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerTilgangClient
 import no.naw.paw.minestillinger.brukerprofil.flagg.Flagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarGodeMuligheterFlaggtype
+import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.ListeMedFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.OppdateringAvFlagg
@@ -45,7 +47,8 @@ class BrukerprofilTjeneste(
     val hentFlagg: (BrukerId) -> List<Flagg>,
     val hentProfilering: (PeriodeId) -> Profilering?,
     val slettAlleSøk: (BrukerId) -> Unit,
-    val clock: Clock
+    val clock: Clock,
+    val funksjonsnivaa: DirekteMeldteStillingerFunksjonsnivaa
 ) {
     fun hentLokalBrukerprofil(identitetsnummer: Identitetsnummer): Response<BrukerProfil> {
         return hentLokalBrukerProfilEllerNull(identitetsnummer)
@@ -57,6 +60,16 @@ class BrukerprofilTjeneste(
         val brukerProfilerUtenFlagg = hentBrukerprofilUtenFlagg(identitetsnummer) ?: return null
         val profileringsFlagg = genererProfileringsFlagg(brukerProfilerUtenFlagg.arbeidssoekerperiodeId)
         val flaggFraDatabasen = hentFlagg(brukerProfilerUtenFlagg.id)
+            .map { lagretFlagg ->
+                if (lagretFlagg.type is InkluderDirekteMeldteStillingerFlagtype) {
+                    InkluderDirekteMeldteStillingerFlagtype.flagg(
+                        verdi = lagretFlagg.verdi && (funksjonsnivaa == DirekteMeldteStillingerFunksjonsnivaa.AKTIVT),
+                        tidspunkt = lagretFlagg.tidspunkt
+                    )
+                } else {
+                    lagretFlagg
+                }
+            }
         val gjeldeneFlagg = ListeMedFlagg.listeMedFlagg(flaggFraDatabasen) + profileringsFlagg
         return brukerProfilerUtenFlagg.medFlagg(gjeldeneFlagg)
     }

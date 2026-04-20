@@ -21,6 +21,7 @@ import no.nav.paw.test.data.periode.createProfilering
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.minestillinger.api.vo.ApiTjenesteStatus
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
+import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirekteMeldteStillingerFunksjonsnivaa
 import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerTilgangClientSkalAldriVises
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.LagretFlagg
@@ -133,7 +134,8 @@ class TjenestestatusE2ETest : FreeSpec({
         hentProfilering = ::hentProfileringOrNull,
         slettAlleSøk = ::slettAlleSoekForBruker,
         clock = SystemClock,
-        dirMeldteStillingerTilgang = DirektemeldteStillingerTilgangClientSkalAldriVises()
+        dirMeldteStillingerTilgang = DirektemeldteStillingerTilgangClientSkalAldriVises(),
+        funksjonsnivaa = DirekteMeldteStillingerFunksjonsnivaa.AKTIVT
     )
 
     testcases.forEach { testcase ->
