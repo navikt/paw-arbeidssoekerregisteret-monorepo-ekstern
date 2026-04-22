@@ -101,7 +101,12 @@ fun Route.ledigeStillingerRoute(
                                 tidspunkt
                             )
                         }
-                        tellLedigeStillingerKall(meterRegistry, tidspunkt, svar)
+                        tellLedigeStillingerKall(
+                            meterRegistry = meterRegistry,
+                            baOmDirMeldt = søkOgRequest.second.size > 1,
+                            tidspunkt = tidspunkt,
+                            svar = svar
+                        )
                         call.respond(svar)
                     } catch (e: Throwable) {
                         appLogger.error("Uventet feil: ", e)

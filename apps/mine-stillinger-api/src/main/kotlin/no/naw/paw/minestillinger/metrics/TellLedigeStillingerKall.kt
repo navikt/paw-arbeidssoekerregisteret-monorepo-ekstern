@@ -11,7 +11,12 @@ import no.naw.paw.minestillinger.domain.HarSoekeord
 import java.time.Duration
 import java.time.Instant
 
-fun tellLedigeStillingerKall(meterRegistry: MeterRegistry, tidspunkt: Instant, svar: MineStillingerResponse) {
+fun tellLedigeStillingerKall(
+    meterRegistry: MeterRegistry,
+    baOmDirMeldt: Boolean,
+    tidspunkt: Instant,
+    svar: MineStillingerResponse
+) {
     val antallStillinger = svar.resultat.size
     val dagerSidenSist = if (svar.sistKjoert != null) Duration.between(svar.sistKjoert, tidspunkt).toDays() else -1
     Span.current().setAttribute(longKey("antall_treff"), antallStillinger)
@@ -24,5 +29,6 @@ fun tellLedigeStillingerKall(meterRegistry: MeterRegistry, tidspunkt: Instant, s
         "antall_stillinger", if (antallStillinger < 14) antallStillinger.toString() else "14+",
         "dager_siden_sist_kjoert", if (dagerSidenSist < 7) dagerSidenSist.toString() else "7+",
         "antall_direkte_meldte", if (antallDirMeldt < 14) antallDirMeldt.toString() else "14+",
+        "ba_om_direkte_meldte_stillinger", baOmDirMeldt.toString()
     ).increment()
 }
