@@ -24,7 +24,7 @@ spec:
     - name: LEDIGE_STILLINGER_TARGET
       value: "prod-gcp:paw:paw-arbeidssoekerregisteret-api-ledigestillinger"
     - name: PAM_TILGANG_FUNKSJONSNIVAA
-      value: "DEAKTIVERT"
+      value: "AKTIVT"
     - name: PAM_TILGANG_URL
       value: "https://pam-dir-api.intern.prod.nav.no/rest/dir/tilgang"
     - name: PAM_TILGANG_SCOPE
