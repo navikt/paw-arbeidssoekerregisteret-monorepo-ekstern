@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotlinx.coroutines.delay
+import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
@@ -16,7 +17,9 @@ import no.naw.paw.minestillinger.domain.ProfileringResultat
 import org.jetbrains.exposed.v1.core.Case
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.alias
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.booleanLiteral
+import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
@@ -43,6 +46,14 @@ class AntallBrukereMetrics(
     fun oppdaterAntallBrukere() {
         val data =
             transaction {
+                val antallInkluderDirekteMeldteStillingerTrue = BrukerFlaggTable
+                    .select(BrukerFlaggTable.id.count())
+                    .where {
+                        (BrukerFlaggTable.navn eq InkluderDirekteMeldteStillingerFlagtype.type) and
+                            (BrukerFlaggTable.verdi eq true)
+                    }
+                    .single()[BrukerFlaggTable.id.count()]
+                appLogger.info("Antall brukere som skal se direktemeldte stillinger: {}", antallInkluderDirekteMeldteStillingerTrue)
                 val tjenestenErAktiv = BrukerFlaggTable.alias("tjenesten_er_aktiv")
                 val optOut = BrukerFlaggTable.alias("opt_out")
                 val harBruktTjenesten = BrukerFlaggTable.alias("har_brukt_tjenesten")

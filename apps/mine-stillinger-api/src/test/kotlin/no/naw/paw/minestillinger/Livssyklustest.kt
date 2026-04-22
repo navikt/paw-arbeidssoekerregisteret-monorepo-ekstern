@@ -283,6 +283,18 @@ class Livssyklustest : FreeSpec({
                     kari.flagg.size shouldBe 2
                 }
 
+                "Verifiser at vi kan kjøre en runde med metrics oppdtatering uten feil når vi har minst en som kan se dir.meldte stillinger" {
+                    testLogger.info("Starter: ${this.testCase.name.name}")
+                    val metricsTjeneste = AntallBrukereMetrics(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
+                    runBlocking {
+                        metricsTjeneste.oppdaterAntallBrukere()
+                    }
+                    val snapshot = metricsTjeneste.snapshot()
+                    snapshot.shouldNotBeEmpty()
+                    testLogger.info("Metrics snapshot:\n ${snapshot.joinToString("\n")}")
+                    testLogger.info("Avslutter: ${this.testCase.name.name}")
+                }
+
                 "36 timer senere kjøres en bulk oppdatering av adresebeskyttelse, kari sin tjeneste blir ikke påvirket" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     forwardTimeByHours(36)
@@ -821,7 +833,7 @@ class Livssyklustest : FreeSpec({
                     testLogger.info("Avslutter: ${this.testCase.name.name}")
                 }
 
-                "Verifiser at vi kan kjøre en runde med metrics oppdtatering uten feil" {
+                "Verifiser at vi kan kjøre en runde med metrics oppdtatering uten feil, runde 2" {
                     testLogger.info("Starter: ${this.testCase.name.name}")
                     val metricsTjeneste = AntallBrukereMetrics(PrometheusMeterRegistry(PrometheusConfig.DEFAULT))
                     runBlocking {
