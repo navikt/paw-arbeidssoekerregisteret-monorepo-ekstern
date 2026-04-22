@@ -107,6 +107,7 @@ class AntallBrukereMetrics(
                         optOut[BrukerFlaggTable.verdi],
                         harBruktTjenesten[BrukerFlaggTable.verdi],
                         standardInnsats[BrukerFlaggTable.verdi],
+                        inkluderDirekteMeldteStillinger[BrukerFlaggTable.verdi],
                         BrukerTable.id.countDistinct(),
                     ).groupBy(
                         aktivPeriode,
@@ -115,6 +116,7 @@ class AntallBrukereMetrics(
                         optOut[BrukerFlaggTable.verdi],
                         harBruktTjenesten[BrukerFlaggTable.verdi],
                         standardInnsats[BrukerFlaggTable.verdi],
+                        inkluderDirekteMeldteStillinger[BrukerFlaggTable.verdi],
                     ).map { row ->
                         MetricDataKey(
                             arbeidssoekerPeriodenErAktiv = row[aktivPeriode],
