@@ -76,6 +76,8 @@ spec:
       rules:
         - application: paw-arbeidssoekerregisteret-api-ledigestillinger
         - application: paw-kafka-key-generator
+        - application: pam-dir-api
+          namespace: teampam
       external:
         - host: pdl-api.prod-fss-pub.nais.io
   gcp:
