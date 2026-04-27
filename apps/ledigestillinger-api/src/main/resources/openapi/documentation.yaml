@@ -223,6 +223,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Tag"
+        tekniskeTags:
+          type: array
+          items:
+            $ref: "#/components/schemas/TekniskTag"
       required:
         - uuid
         - tittel
@@ -239,6 +243,19 @@ components:
       type: string
       enum:
         - DIREKTEMELDT_STILLING_V1
+        - HAR_KRAV_TIL_ARBEIDSERFARING_V1
+        - INGEN_KRAV_TIL_ARBEIDSERFARING_V1
+        - HAR_KRAV_TIL_UTDANNING_V1
+        - INGEN_KRAV_TIL_UTDANNING_V1
+        - HAR_KRAV_TIL_FOERERKORT_V1
+        - INGEN_KRAV_TIL_FOERERKORT_V1
+    TekniskTag:
+      type: string
+      enum:
+        - INGEN_KRAV_TIL_ARBEIDSERFARING_V1
+        - UKJENT_KRAV_TIL_ARBEIDSERFARING_V1
+        - UKJENT_KRAV_TIL_UTDANNING_V1
+        - UKJENT_KRAV_TIL_FOERERKORT_V1
     StillingStatus:
       type: string
       enum:

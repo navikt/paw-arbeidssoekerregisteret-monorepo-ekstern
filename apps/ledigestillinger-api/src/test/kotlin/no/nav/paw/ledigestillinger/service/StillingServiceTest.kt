@@ -34,18 +34,18 @@ class StillingServiceTest : FreeSpec({
             val relevanteStillinger = TestData.relevanteMessages
                 .map { it.value.asDto() }
 
-            TestData.alleMessages shouldHaveSize 20
-            mottatteStillinger shouldHaveSize 19
-            foersteUtloepMottatteStillinger shouldHaveSize 17
-            andreUtloepMottatteStillinger shouldHaveSize 13
-            relevanteStillinger shouldHaveSize 11
+            TestData.alleMessages shouldHaveSize 26
+            mottatteStillinger shouldHaveSize 25
+            foersteUtloepMottatteStillinger shouldHaveSize 23
+            andreUtloepMottatteStillinger shouldHaveSize 19
+            relevanteStillinger shouldHaveSize 17
 
             // WHEN
             stillingService.handleMessages(TestData.alleMessages.asSequence())
 
             // THEN
             val lagredeStillinger1 = StillingerTable.selectRows().map { it.asDto() }
-            lagredeStillinger1 shouldHaveSize 19
+            lagredeStillinger1 shouldHaveSize 25
             lagredeStillinger1 shouldContainOnly mottatteStillinger
 
             // WHEN
@@ -58,7 +58,7 @@ class StillingServiceTest : FreeSpec({
             )
 
             // THEN
-            stillinger shouldHaveSize 11
+            stillinger shouldHaveSize 17
             stillinger shouldContainOnly relevanteStillinger
 
             // WHEN
@@ -90,7 +90,7 @@ class StillingServiceTest : FreeSpec({
             val lagredeStillinger2 = StillingerTable.selectRows().map { it.asDto() }
 
             // THEN
-            lagredeStillinger2 shouldHaveSize 19
+            lagredeStillinger2 shouldHaveSize 25
             lagredeStillinger2 shouldContainOnly mottatteStillinger
 
             clock.advance(Duration.ofDays(10))
@@ -100,7 +100,7 @@ class StillingServiceTest : FreeSpec({
             val lagredeStillinger3 = StillingerTable.selectRows().map { it.asDto() }
 
             // THEN
-            lagredeStillinger3 shouldHaveSize 17
+            lagredeStillinger3 shouldHaveSize 23
             lagredeStillinger3 shouldContainOnly foersteUtloepMottatteStillinger
 
             clock.advance(Duration.ofDays(10))
@@ -110,7 +110,7 @@ class StillingServiceTest : FreeSpec({
             val lagredeStillinger4 = StillingerTable.selectRows().map { it.asDto() }
 
             // THEN
-            lagredeStillinger4 shouldHaveSize 13
+            lagredeStillinger4 shouldHaveSize 19
             lagredeStillinger4 shouldContainOnly andreUtloepMottatteStillinger
         }
     }

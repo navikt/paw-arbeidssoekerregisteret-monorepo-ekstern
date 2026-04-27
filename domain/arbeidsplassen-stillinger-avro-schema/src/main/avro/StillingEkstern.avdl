@@ -215,5 +215,14 @@ protocol StillingEkstern {
         */
         union {null, array<Contact>} contacts = null;
         union {null, array<Classification>} classifications = null;
+        /* eksperimentelle_properties er properties som stillingsteamet ikke har noen forpliktelse til å vedlikeholde,
+         * De kan inneholde AI-genererte data som ikke er kvalietssikret eller som blir rettet opp hvis de inneholder feil.
+         * De er eksperimentelle i sin natur, og kan fjernes uten forvarsel.
+         * Pr april 2026 inneholde de:
+         experience: "[\"Mye\"]" / Ingen / Noe (1-3år) / Mye (4+år)
+         education: "[\"Fagbrev\",\"Fagskole\"]" / Ingen krav / Videregående / Fagbrev / Fagskole / Bachelor / Master / Forskningsgrad
+         needDriversLicense: "true" true/false
+         */
+        union {null, array<Property>} eksperimentelleProperties = null;
     }
 }
