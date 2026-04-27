@@ -51,7 +51,8 @@ fun StillingRow.asDto(): Stilling = Stilling(
     lokasjoner = this.lokasjoner.map { it.asDto() },
     publisert = this.publisertTimestamp,
     utloeper = this.utloeperTimestamp,
-    tags = this.tags.toList()
+    tags = this.tags.toList(),
+    tekniskeTags = this.tekniskeTags.toList()
 )
 
 fun ArbeidsgiverRow.asDto(): Arbeidsgiver = Arbeidsgiver(
@@ -155,6 +156,7 @@ fun Ad.asDto(): Stilling {
     val positioncount = this.properties?.find { it.key == "positioncount" }?.value
     val applicationdue = this.properties?.find { it.key == "applicationdue" }?.value
     val starttime = this.properties?.find { it.key == "starttime" }?.value
+    val (tags, tekniskeTags) = this.asTags()
     return Stilling(
         uuid = this.uuid.let { java.util.UUID.fromString(it) },
         adnr = this.adnr,
@@ -175,7 +177,9 @@ fun Ad.asDto(): Stilling {
             .map { it.asStyrkDto() }).distinctBy { it.kode },
         lokasjoner = this.locations.map { it.asDto() },
         publisert = this.published.fromLocalDateTimeString(),
-        utloeper = this.expires?.fromLocalDateTimeString()
+        utloeper = this.expires?.fromLocalDateTimeString(),
+        tags = tags.toList(),
+        tekniskeTags = tekniskeTags.toList()
     )
 }
 

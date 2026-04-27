@@ -61,5 +61,8 @@ data class Stilling(
     val lokasjoner: List<Lokasjon>,
 
     @get:JsonProperty("tags")
-    val tags: List<Tag> = emptyList()
+    val tags: List<Tag> = emptyList(),
+
+    @get:JsonProperty("tekniskeTags")
+    val tekniskeTags: List<TekniskTag> = emptyList()
 )

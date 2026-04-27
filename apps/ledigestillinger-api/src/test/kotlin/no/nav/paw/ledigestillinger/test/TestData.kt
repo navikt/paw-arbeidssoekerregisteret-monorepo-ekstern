@@ -13,57 +13,16 @@ import no.nav.pam.stilling.ext.avro.StyrkCategory
 import no.nav.paw.hwm.Message
 import no.nav.paw.hwm.toMessage
 import no.nav.paw.ledigestillinger.util.toLocalDateTimeString
+import no.nav.paw.serialization.jackson.buildObjectMapper
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
-import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 @Suppress("ConstPropertyName")
 object TestData {
-    fun baseAd(): Ad {
-        val now = LocalDateTime.now(clock).toLocalDateTimeString()
-        return Ad(
-            UUID.randomUUID().toString(),
-            null,
-            "Testannonse",
-            AdStatus.ACTIVE,
-            PrivacyChannel.SHOW_ALL,
-            null,
-            now,
-            null,
-            now,
-            now,
-            Company(
-                "Team Paw",
-                "Product Area Work",
-                "999999999",
-                "999999998",
-                "KIRK"
-            ),
-            emptyList(),
-            "UKJENT",
-            "",
-            "",
-            null,
-            null,
-            emptyList(),
-            emptyList(),
-            null,
-            listOf(
-                Classification(
-                    "STYRK08",
-                    "1234",
-                    "Testyrke",
-                    1.0,
-                    "1234"
-                )
-            ),
-        )
-    }
-
-
+    private val objectMapper = buildObjectMapper
     val clock: WallClock = WallClock.systemDefaultZone()
 
     const val fnr1: String = "01017012345"
@@ -88,6 +47,12 @@ object TestData {
     val uuid5_4: UUID = UUID.fromString("b14b0b91-57af-4e19-ab06-21626b03043f")
     val uuid5_5: UUID = UUID.fromString("3957b323-0202-43e6-a959-eb421a50a598")
     val uuid5_6: UUID = UUID.fromString("2a752c57-bd81-4806-a5a5-bded03e668ab")
+    val uuid6_1: UUID = UUID.fromString("3ddae117-00d6-4cd8-a014-243fef0dd043")
+    val uuid6_2: UUID = UUID.fromString("3c528e32-3fce-42fc-b981-7f16d5f71829")
+    val uuid6_3: UUID = UUID.fromString("2c0151ea-7283-4d9d-9d9e-f1ebf72b3cbc")
+    val uuid6_4: UUID = UUID.fromString("e92a54f5-d2b7-4664-b5be-e3185b2047e2")
+    val uuid6_5: UUID = UUID.fromString("b2287e8e-24f8-495b-a109-a7699a688358")
+    val uuid6_6: UUID = UUID.fromString("64886d4c-3d6b-4592-9df4-5e4e24d90af5")
     val adnr1_1: String = "ABCD1011"
     val adnr1_2: String = "ABCD1012"
     val adnr1_3: String = "ABCD1013"
@@ -108,6 +73,12 @@ object TestData {
     val adnr5_4: String = "ABCD5014"
     val adnr5_5: String = "ABCD5015"
     val adnr5_6: String = "ABCD5016"
+    val adnr6_1: String = "ABCD6011"
+    val adnr6_2: String = "ABCD6012"
+    val adnr6_3: String = "ABCD6013"
+    val adnr6_4: String = "ABCD6014"
+    val adnr6_5: String = "ABCD6015"
+    val adnr6_6: String = "ABCD6016"
 
     val jobtitle1: String = """
         Har du stor interesse for bil, salg og teknologi? Nå søker MAN Truck & Bus en ny selger til vårt truck-team med ansvar for salg i Oslo og omegn. Som selger vil du ha ansvar for salg og oppfølging av eksisterende og nye kunder. Gjennom kvalitet og grundighet i salgsarbeidet bygger du tillit hos både kunder og kollegaer. Denne stillingen rapporterer til Head of Retail Sales.
@@ -380,10 +351,53 @@ object TestData {
         published = LocalDateTime.now(clock).minusDays(6),
         expires = LocalDateTime.now(clock).minusDays(11)
     )
-
     val message6_1: Message<UUID, Ad> = message(
-        source = "DIR",
-        properties = properties() + Property("direktemeldtStillingskategori", "STILLING")
+        uuid = uuid6_1,
+        adnr = adnr6_1,
+        eksperimentelleProperties = eksperimentelleProperties(
+            experience = setOf("Ingen"),
+            education = setOf("Ingen krav"),
+            needDriversLicense = "false"
+        )
+    )
+    val message6_2: Message<UUID, Ad> = message(
+        uuid = uuid6_2,
+        adnr = adnr6_2,
+        eksperimentelleProperties = eksperimentelleProperties(
+            experience = setOf("Noe"),
+            needDriversLicense = "   true   "
+        )
+    )
+    val message6_3: Message<UUID, Ad> = message(
+        uuid = uuid6_3,
+        adnr = adnr6_3,
+        eksperimentelleProperties = eksperimentelleProperties(
+            experience = setOf("Mye"),
+            education = setOf("Fagbrev", "Fagskole"),
+            needDriversLicense = "true"
+        )
+    )
+    val message6_4: Message<UUID, Ad> = message(
+        uuid = uuid6_4,
+        adnr = adnr6_4,
+        eksperimentelleProperties = eksperimentelleProperties(
+            education = setOf("Master", "Forskningsgrad"),
+            needDriversLicense = "Whatever"
+        )
+    )
+    val message6_5: Message<UUID, Ad> = message(
+        uuid = uuid6_5,
+        adnr = adnr6_5,
+        eksperimentelleProperties = eksperimentelleProperties(
+            experience = setOf("Whatever")
+        )
+    )
+    val message6_6: Message<UUID, Ad> = message(
+        uuid = uuid6_6,
+        adnr = adnr6_6,
+        eksperimentelleProperties = eksperimentelleProperties(
+            needDriversLicense = "true"
+        )
     )
 
     val alleMessages = listOf(
@@ -407,6 +421,12 @@ object TestData {
         message5_4,
         message5_5,
         message5_6,
+        message6_1,
+        message6_2,
+        message6_3,
+        message6_4,
+        message6_5,
+        message6_6,
     )
     val mottatteMessages = listOf(
         message1_1,
@@ -428,6 +448,12 @@ object TestData {
         message5_4,
         message5_5,
         message5_6,
+        message6_1,
+        message6_2,
+        message6_3,
+        message6_4,
+        message6_5,
+        message6_6,
     )
     val foersteUtloepMottatteMessages = listOf(
         message1_1,
@@ -447,6 +473,12 @@ object TestData {
         message5_4,
         message5_5,
         message5_6,
+        message6_1,
+        message6_2,
+        message6_3,
+        message6_4,
+        message6_5,
+        message6_6,
     )
     val andreUtloepMottatteMessages = listOf(
         message1_1,
@@ -462,6 +494,12 @@ object TestData {
         message5_3,
         message5_4,
         message5_5,
+        message6_1,
+        message6_2,
+        message6_3,
+        message6_4,
+        message6_5,
+        message6_6,
     )
     val relevanteMessages = listOf(
         message1_1,
@@ -475,6 +513,12 @@ object TestData {
         message5_1,
         message5_2,
         message5_3,
+        message6_1,
+        message6_2,
+        message6_3,
+        message6_4,
+        message6_5,
+        message6_6,
     )
 
     fun message(
@@ -489,6 +533,7 @@ object TestData {
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList(),
         properties: List<Property> = properties(),
+        eksperimentelleProperties: List<Property> = eksperimentelleProperties()
     ): Message<UUID, Ad> = record(
         uuid = uuid,
         adnr = adnr,
@@ -500,7 +545,8 @@ object TestData {
         categories = categories,
         classifications = classifications,
         locations = locations,
-        properties = properties
+        properties = properties,
+        eksperimentelleProperties = eksperimentelleProperties
     ).toMessage()
 
     fun record(
@@ -516,6 +562,7 @@ object TestData {
         locations: List<Location> = emptyList(),
         topic: String = "teampam.stilling-ekstern-1",
         properties: List<Property> = properties(),
+        eksperimentelleProperties: List<Property> = eksperimentelleProperties()
     ): ConsumerRecord<UUID, Ad> = ad(
         uuid = uuid,
         adnr = adnr,
@@ -527,7 +574,8 @@ object TestData {
         categories = categories,
         classifications = classifications,
         locations = locations,
-        properties = properties
+        properties = properties,
+        eksperimentelleProperties = eksperimentelleProperties
     ).let { ConsumerRecord(topic, 0, 0L, it.first, it.second) }
 
     fun ad(
@@ -542,6 +590,7 @@ object TestData {
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList(),
         properties: List<Property> = properties(),
+        eksperimentelleProperties: List<Property> = eksperimentelleProperties()
     ): Pair<UUID, Ad> {
         val ad = Ad().apply {
             this.uuid = uuid.toString()
@@ -563,6 +612,7 @@ object TestData {
             this.classifications = classifications
             this.locations = locations
             this.properties = properties
+            this.eksperimentelleProperties = eksperimentelleProperties
         }
         return uuid to ad
     }
@@ -664,6 +714,39 @@ object TestData {
                 this.value = "2025-11-11"
             }
         )
+    }
+
+    fun eksperimentelleProperties(
+        experience: Set<String>? = null,
+        education: Set<String>? = null,
+        needDriversLicense: String? = null,
+    ): List<Property> {
+        val properties = mutableListOf<Property>()
+        if (experience != null) {
+            properties.add(
+                Property().apply {
+                    this.key = "experience"
+                    this.value = objectMapper.writeValueAsString(experience)
+                }
+            )
+        }
+        if (education != null) {
+            properties.add(
+                Property().apply {
+                    this.key = "education"
+                    this.value = objectMapper.writeValueAsString(education)
+                }
+            )
+        }
+        if (needDriversLicense != null) {
+            properties.add(
+                Property().apply {
+                    this.key = "needDriversLicense"
+                    this.value = needDriversLicense
+                }
+            )
+        }
+        return properties
     }
 }
 

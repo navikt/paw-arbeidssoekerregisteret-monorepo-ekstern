@@ -1,10 +1,10 @@
 package no.nav.paw.ledigestillinger.model.dao
 
 import no.nav.paw.ledigestillinger.model.asStillingRow
+import no.nav.paw.ledigestillinger.model.containsAll
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
-import no.nav.paw.ledigestillinger.service.containsAll
 import no.nav.paw.logging.logger.buildNamedLogger
 import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
@@ -60,6 +60,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
     val insertTimestamp = timestamp("inserted_timestamp")
     val updatedTimestamp = timestamp("updated_timestamp").nullable()
     val tags = array<String>("tags").default(emptyList())
+    val tekniskeTags = array<String>("tekniske_tags").default(emptyList())
 
     fun selectIdByUUID(
         uuid: UUID
@@ -251,6 +252,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         it[messageTimestamp] = row.messageTimestamp
         it[insertTimestamp] = Instant.now()
         it[tags] = row.tags.map { tag -> tag.name }
+        it[tekniskeTags] = row.tekniskeTags.map { tag -> tag.name }
     }.value
 
     fun updateById(
@@ -281,6 +283,7 @@ object StillingerTable : LongIdTable("stillinger_v2") {
         it[messageTimestamp] = row.messageTimestamp
         it[updatedTimestamp] = Instant.now()
         it[tags] = row.tags.map { tag -> tag.name }
+        it[tekniskeTags] = row.tekniskeTags.map { tag -> tag.name }
     }
 
     fun deleteByIdList(

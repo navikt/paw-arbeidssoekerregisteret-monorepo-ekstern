@@ -13,6 +13,7 @@ import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import no.naw.paw.ledigestillinger.model.Tag
+import no.naw.paw.ledigestillinger.model.TekniskTag
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.slf4j.LoggerFactory.getLogger
 
@@ -56,11 +57,20 @@ fun ResultRow.asStillingRow(
         klassifiseringer = klassifiseringer(id),
         lokasjoner = lokasjoner(id),
         egenskaper = egenskaper(id),
-        tags = this[StillingerTable.tags].mapNotNull { runCatching {
-            Tag.valueOf(it)
-        }.onFailure{ e ->
-            resultRowMapperLogger.error("Tag $id ikke gjenkjent, ignoreres", e)
-        }.getOrNull() }
+        tags = this[StillingerTable.tags].mapNotNull {
+            runCatching {
+                Tag.valueOf(it)
+            }.onFailure { e ->
+                resultRowMapperLogger.error("Tag $id ikke gjenkjent, ignoreres", e)
+            }.getOrNull()
+        },
+        tekniskeTags = this[StillingerTable.tekniskeTags].mapNotNull {
+            runCatching {
+                TekniskTag.valueOf(it)
+            }.onFailure { e ->
+                resultRowMapperLogger.error("TekniskTag $id ikke gjenkjent, ignoreres", e)
+            }.getOrNull()
+        }
     )
 }
 

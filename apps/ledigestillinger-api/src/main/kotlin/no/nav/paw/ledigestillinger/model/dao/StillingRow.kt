@@ -2,6 +2,7 @@ package no.nav.paw.ledigestillinger.model.dao
 
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import no.naw.paw.ledigestillinger.model.Tag
+import no.naw.paw.ledigestillinger.model.TekniskTag
 import no.naw.paw.ledigestillinger.model.VisningGrad
 import java.time.Instant
 import java.util.*
@@ -36,5 +37,6 @@ data class StillingRow(
     val klassifiseringer: Iterable<KlassifiseringRow>,
     val lokasjoner: Iterable<LokasjonRow>,
     val egenskaper: Iterable<EgenskapRow>,
-    val tags: Iterable<Tag>
+    val tags: Iterable<Tag>,
+    val tekniskeTags: Iterable<TekniskTag>
 )
