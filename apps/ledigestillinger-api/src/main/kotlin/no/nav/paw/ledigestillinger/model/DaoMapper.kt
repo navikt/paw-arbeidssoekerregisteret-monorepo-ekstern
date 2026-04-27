@@ -1,5 +1,8 @@
 package no.nav.paw.ledigestillinger.model
 
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.pam.stilling.ext.avro.Ad
 import no.nav.pam.stilling.ext.avro.AdStatus
 import no.nav.pam.stilling.ext.avro.Classification
@@ -15,12 +18,12 @@ import no.nav.paw.ledigestillinger.model.dao.KategoriRow
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringRow
 import no.nav.paw.ledigestillinger.model.dao.LokasjonRow
 import no.nav.paw.ledigestillinger.model.dao.StillingRow
-import no.nav.paw.ledigestillinger.service.beregnTags
 import no.nav.paw.ledigestillinger.util.fromLocalDateTimeString
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
 import no.naw.paw.ledigestillinger.model.Paging
 import no.naw.paw.ledigestillinger.model.SortOrder
 import no.naw.paw.ledigestillinger.model.StillingStatus
+import no.naw.paw.ledigestillinger.model.Tag
 import no.naw.paw.ledigestillinger.model.VisningGrad
 import java.time.Instant
 import java.util.*
@@ -57,7 +60,7 @@ fun Message<UUID, Ad>.asStillingRow(): StillingRow {
         klassifiseringer = value.classifications?.map { it.asKlassifiseringRow() } ?: listOf(),
         lokasjoner = value.locations?.map { it.asLokasjonRow() } ?: listOf(),
         egenskaper = value.properties?.map { it.asEgenskapRow() } ?: listOf(),
-        tags = beregnTags(value)
+        tags = value.asTags()
     )
 }
 
@@ -150,4 +153,69 @@ fun String.asNormalisertKode(): String {
     } else {
         match.groupValues[1]
     }
+}
+
+const val ARBEIDSERFARING_KEY = "experience"
+const val UTDANNING_KEY = "education"
+const val KREVER_FOERERKORT_KEY = "needDriversLicense"
+const val DIREKTEMELDT_STILLINGSKATEGORI_KEY = "direktemeldtStillingskategori"
+
+fun Ad.asTags(): Set<Tag> {
+    val tags = mutableSetOf<Tag>()
+
+    val arbeidserfaring = this.properties
+        .find { it.key.equals(ARBEIDSERFARING_KEY, ignoreCase = true) }?.value
+    if (arbeidserfaring == null) {
+        tags.add(Tag.UKJENT_KRAV_TIL_ARBEIDSERFARING_V1)
+    } else if (arbeidserfaring.contains("Ingen", ignoreCase = true)) {
+        tags.add(Tag.INGEN_KRAV_TIL_ARBEIDSERFARING_V1)
+    } else {
+        tags.add(Tag.HAR_KRAV_TIL_ARBEIDSERFARING_V1)
+    }
+
+    val utdanning = this.properties
+        .find { it.key.equals(UTDANNING_KEY, ignoreCase = true) }?.value
+    if (utdanning == null) {
+        tags.add(Tag.UKJENT_KRAV_TIL_UTDANNING_V1)
+    } else if (utdanning.contains("Ingen", ignoreCase = true)) {
+        tags.add(Tag.INGEN_KRAV_TIL_UTDANNING_V1)
+    } else {
+        tags.add(Tag.HAR_KRAV_TIL_UTDANNING_V1)
+    }
+
+    val kreverFoererkort = this.properties
+        .find { it.key.equals(KREVER_FOERERKORT_KEY, ignoreCase = true) }?.value
+    if (kreverFoererkort == null) {
+        tags.add(Tag.UKJENT_KRAV_TIL_FOERERKORT_V1)
+    } else if (kreverFoererkort.contains("true", ignoreCase = true)) {
+        tags.add(Tag.HAR_KRAV_TIL_FOERERKORT_V1)
+    } else if (kreverFoererkort.contains("false", ignoreCase = true)) {
+        tags.add(Tag.INGEN_KRAV_TIL_FOERERKORT_V1)
+    } else {
+        tags.add(Tag.UKJENT_KRAV_TIL_FOERERKORT_V1)
+    }
+
+    val sourceErDir = this.source.equals("DIR", ignoreCase = true)
+    val dirmeldtStillingKategori = this.properties
+        .find { it.key.equals(DIREKTEMELDT_STILLINGSKATEGORI_KEY, ignoreCase = true) }?.value ?: "null"
+
+    if (sourceErDir && dirmeldtStillingKategori.equals("STILLING", ignoreCase = true)) {
+        tags.add(Tag.DIREKTEMELDT_V1)
+    }
+
+    Span.current()
+        .addEvent(
+            "beregnet_tags",
+            Attributes.builder()
+                .put(stringKey("source"), this.source)
+                .put(stringKey(ARBEIDSERFARING_KEY), arbeidserfaring ?: "null")
+                .put(stringKey(UTDANNING_KEY), utdanning ?: "null")
+                .put(stringKey(KREVER_FOERERKORT_KEY), kreverFoererkort ?: "null")
+                .put(stringKey(DIREKTEMELDT_STILLINGSKATEGORI_KEY), dirmeldtStillingKategori)
+                .put(stringKey("tags"), tags.joinToString(","))
+                .put(stringKey("ad_uuid"), this.uuid.toString())
+                .build()
+        )
+
+    return tags
 }

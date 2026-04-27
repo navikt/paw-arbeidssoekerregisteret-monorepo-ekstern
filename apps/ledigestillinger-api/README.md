@@ -1,4 +1,5 @@
 # Stillinger API
+
 API for å hente stillinger som er hentet fra `teampam.stilling-ekstern-1`-topicet til Arbeidsplassen.
 
 ## Arbeidsplassen
@@ -6,6 +7,44 @@ API for å hente stillinger som er hentet fra `teampam.stilling-ekstern-1`-topic
 ### Docs
 
 * [pam.ansatt.nav.no](https://pam.ansatt.nav.no)
+
+### Properties
+
+```json
+[
+    {
+        "key": "experience",
+        "value": "[\"Ingen\"]"
+    },
+    {
+        "key": "education",
+        "value": "[\"Fagskole\", \"Fagbrev\"]"
+    },
+    {
+        "key": "needDriversLicense",
+        "value": "true"
+    },
+    {
+        "key": "direktemeldtStillingskategori",
+        "value": "STILLING"
+    }
+]
+```
+* experience
+  * Ingen
+  * Noe - 1-3 år
+  * Mye - 4+ år
+* education
+  * Ingen krav
+  * Videregående
+  * Fagbrev
+  * Fagskole
+  * Bachelor
+  * Master
+  * Forskningsgrad
+* needDriversLicense
+  * true - Krever førerkort
+  * false - Krever ikke førerkort
 
 ### GitHub
 

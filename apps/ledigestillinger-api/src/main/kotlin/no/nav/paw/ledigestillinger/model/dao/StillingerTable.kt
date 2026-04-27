@@ -1,10 +1,10 @@
 package no.nav.paw.ledigestillinger.model.dao
 
 import no.nav.paw.ledigestillinger.model.asStillingRow
+import no.nav.paw.ledigestillinger.model.containsAll
 import no.nav.paw.ledigestillinger.model.offset
 import no.nav.paw.ledigestillinger.model.order
 import no.nav.paw.ledigestillinger.model.size
-import no.nav.paw.ledigestillinger.service.containsAll
 import no.nav.paw.logging.logger.buildNamedLogger
 import no.naw.paw.ledigestillinger.model.Fylke
 import no.naw.paw.ledigestillinger.model.KlassifiseringType
