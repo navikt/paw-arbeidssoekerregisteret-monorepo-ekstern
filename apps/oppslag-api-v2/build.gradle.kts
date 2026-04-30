@@ -140,19 +140,19 @@ tasks {
     }
 
     register<ValidateTask>(v1ApiSpec.validator) {
-        inputSpec = v1ApiSpec.file
+        inputSpec.set(v1ApiSpec.file)
     }
     register<ValidateTask>(v2ApiSpec.validator) {
-        inputSpec = v2ApiSpec.file
+        inputSpec.set(v2ApiSpec.file)
     }
     register<ValidateTask>(v3ApiSpec.validator) {
-        inputSpec = v3ApiSpec.file
+        inputSpec.set(v3ApiSpec.file)
     }
 
     register<GenerateTask>(v1ApiSpec.generator) {
         generatorName = "kotlin"
-        inputSpec = v1ApiSpec.file
-        outputDir = "${layout.buildDirectory.get()}/generated/"
+        inputSpec.set(v1ApiSpec.file)
+        outputDir.set("${layout.buildDirectory.get()}/generated/")
         packageName = "no.nav.paw.arbeidssoekerregisteret.api.${v1ApiSpec.name}.oppslag"
         configOptions.set(
             mapOf(

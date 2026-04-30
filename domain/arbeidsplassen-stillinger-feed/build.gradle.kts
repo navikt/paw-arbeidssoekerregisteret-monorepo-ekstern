@@ -39,13 +39,13 @@ tasks.named("compileKotlin") {
 val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/pam-stilling-feed.yaml"
 
 openApiValidate {
-    inputSpec = openApiDocFile
+    inputSpec.set(openApiDocFile)
 }
 
 openApiGenerate {
     generatorName = "kotlin"
-    inputSpec = openApiDocFile
-    outputDir = "${layout.buildDirectory.get()}/generated/"
+    inputSpec.set(openApiDocFile)
+    outputDir.set("${layout.buildDirectory.get()}/generated/")
     packageName = "no.nav.paw.ledigestillinger.feed"
     configOptions = mapOf(
         "serializationLibrary" to "jackson",

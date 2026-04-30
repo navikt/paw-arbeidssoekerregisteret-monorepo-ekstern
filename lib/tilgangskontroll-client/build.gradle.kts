@@ -46,8 +46,8 @@ mapOf(
     tasks.register(taskName, GenerateTask::class) {
         generatorName.set("kotlin")
         library.set("jvm-ktor")
-        inputSpec = openApiDocFile
-        outputDir = generatedCodeOutputDir
+        inputSpec.set(openApiDocFile)
+        outputDir.set(generatedCodeOutputDir)
         packageName = pkgName
         configOptions.set(
             mapOf(

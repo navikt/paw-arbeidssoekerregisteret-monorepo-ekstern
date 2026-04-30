@@ -117,5 +117,5 @@ tasks.named("compileKotlin") {
 val openApiDocFile = "${layout.projectDirectory}/src/main/resources/openapi/documentation.yaml"
 
 openApiValidate {
-    inputSpec = openApiDocFile
+    inputSpec.set(openApiDocFile)
 }
