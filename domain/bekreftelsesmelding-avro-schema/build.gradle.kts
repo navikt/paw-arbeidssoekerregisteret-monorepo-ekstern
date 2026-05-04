@@ -5,6 +5,8 @@ plugins {
     id("com.github.davidmc24.gradle.plugin.avro")
 }
 
+val jvmMajorVersion: String by project
+
 val schema by configurations.creating {
     isTransitive = false
 }
@@ -17,4 +19,10 @@ dependencies {
 
 tasks.named("generateAvroProtocol", GenerateAvroProtocolTask::class.java) {
     source(zipTree(schema.singleFile))
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(jvmMajorVersion))
+    }
 }

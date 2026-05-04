@@ -2,6 +2,8 @@ plugins {
     kotlin("jvm")
 }
 
+val jvmMajorVersion: String by project
+
 dependencies {
     api(project(":domain:error"))
     implementation(project(":domain:felles"))
@@ -20,6 +22,12 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(libs.jackson.datatype.jsr310)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(jvmMajorVersion))
+    }
 }
 
 tasks.withType<Test>().configureEach {
