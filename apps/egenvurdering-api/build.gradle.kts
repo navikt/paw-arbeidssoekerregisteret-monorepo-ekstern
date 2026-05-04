@@ -78,9 +78,6 @@ dependencies {
     // NAV Security
     implementation(libs.nav.security.token.validation.ktor)
 
-    // NAV TMS
-    implementation(libs.nav.tms.varsel.kotlin.builder)
-
     // Test
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.bundles.unit.testing.kotest)
