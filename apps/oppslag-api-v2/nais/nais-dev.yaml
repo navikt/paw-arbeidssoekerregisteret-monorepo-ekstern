@@ -118,6 +118,8 @@ spec:
           namespace: dab
         - application: familie-ef-sak
           namespace: teamfamilie
+        - application: veilarboppfolging
+          namespace: poao
     outbound:
       rules:
         - application: paw-tilgangskontroll
