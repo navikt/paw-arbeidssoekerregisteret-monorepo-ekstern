@@ -67,6 +67,13 @@ class UtledTagsTest : FreeSpec({
     }
 
     "Utled tags for krav til stillinger" - {
+        "Skal utlede ingen tags ved null eksperimentelleProperties" {
+            val (_, ad) = TestData.ad(eksperimentelleProperties = null)
+            val (tags, tekniskeTags) = ad.asTags()
+            tags shouldBe emptySet()
+            tekniskeTags shouldBe emptySet()
+        }
+
         "Skal utlede ingen tags ved tom eksperimentelleProperties" {
             val (_, ad) = TestData.ad()
             val (tags, tekniskeTags) = ad.asTags()

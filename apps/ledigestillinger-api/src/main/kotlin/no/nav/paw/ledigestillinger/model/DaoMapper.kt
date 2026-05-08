@@ -179,7 +179,7 @@ fun Ad.asTags(): Pair<Set<Tag>, Set<TekniskTag>> {
     val tekniskeTags = mutableSetOf<TekniskTag>()
 
     val arbeidserfaring = this.eksperimentelleProperties
-        .find { it.key.equals("experience", ignoreCase = true) }?.value
+        ?.find { it.key.equals("experience", ignoreCase = true) }?.value
     if (arbeidserfaring != null) {
         if (arbeidserfaring.ingenKravTilArbeidserfaring()) {
             tags.add(Tag.INGEN_KRAV_TIL_ARBEIDSERFARING_V1)
@@ -191,7 +191,7 @@ fun Ad.asTags(): Pair<Set<Tag>, Set<TekniskTag>> {
     }
 
     val utdanning = this.eksperimentelleProperties
-        .find { it.key.equals("education", ignoreCase = true) }?.value
+        ?.find { it.key.equals("education", ignoreCase = true) }?.value
     if (utdanning != null) {
         if (utdanning.ingenKravTilUtdanning()) {
             tags.add(Tag.INGEN_KRAV_TIL_UTDANNING_V1)
@@ -203,7 +203,7 @@ fun Ad.asTags(): Pair<Set<Tag>, Set<TekniskTag>> {
     }
 
     val kreverFoererkort = this.eksperimentelleProperties
-        .find { it.key.equals("needDriversLicense", ignoreCase = true) }?.value
+        ?.find { it.key.equals("needDriversLicense", ignoreCase = true) }?.value
     if (kreverFoererkort != null) {
         if (kreverFoererkort.contains("true", ignoreCase = true)) {
             tags.add(Tag.HAR_KRAV_TIL_FOERERKORT_V1)

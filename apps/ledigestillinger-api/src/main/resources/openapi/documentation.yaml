@@ -252,7 +252,6 @@ components:
     TekniskTag:
       type: string
       enum:
-        - INGEN_KRAV_TIL_ARBEIDSERFARING_V1
         - UKJENT_KRAV_TIL_ARBEIDSERFARING_V1
         - UKJENT_KRAV_TIL_UTDANNING_V1
         - UKJENT_KRAV_TIL_FOERERKORT_V1

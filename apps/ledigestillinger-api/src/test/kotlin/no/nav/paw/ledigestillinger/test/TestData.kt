@@ -533,7 +533,7 @@ object TestData {
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList(),
         properties: List<Property> = properties(),
-        eksperimentelleProperties: List<Property> = eksperimentelleProperties()
+        eksperimentelleProperties: List<Property>? = eksperimentelleProperties()
     ): Message<UUID, Ad> = record(
         uuid = uuid,
         adnr = adnr,
@@ -562,7 +562,7 @@ object TestData {
         locations: List<Location> = emptyList(),
         topic: String = "teampam.stilling-ekstern-1",
         properties: List<Property> = properties(),
-        eksperimentelleProperties: List<Property> = eksperimentelleProperties()
+        eksperimentelleProperties: List<Property>? = eksperimentelleProperties()
     ): ConsumerRecord<UUID, Ad> = ad(
         uuid = uuid,
         adnr = adnr,
@@ -590,7 +590,7 @@ object TestData {
         classifications: List<Classification> = emptyList(),
         locations: List<Location> = emptyList(),
         properties: List<Property> = properties(),
-        eksperimentelleProperties: List<Property> = eksperimentelleProperties()
+        eksperimentelleProperties: List<Property>? = eksperimentelleProperties()
     ): Pair<UUID, Ad> {
         val ad = Ad().apply {
             this.uuid = uuid.toString()

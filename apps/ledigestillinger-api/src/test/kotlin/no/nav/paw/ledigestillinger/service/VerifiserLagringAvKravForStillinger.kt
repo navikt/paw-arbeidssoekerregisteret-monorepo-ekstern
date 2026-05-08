@@ -30,37 +30,40 @@ class VerifiserLagringAvKravForStillinger : FreeSpec({
         "Skal tolke og lagre stillinger med krav" {
             // GIVEN
             val message1: Message<UUID, Ad> = TestData.message(
+                eksperimentelleProperties = null
+            )
+            val message2: Message<UUID, Ad> = TestData.message(
                 eksperimentelleProperties = eksperimentelleProperties(
                     experience = setOf("Ingen"),
                     education = setOf("Ingen krav"),
                     needDriversLicense = "false"
                 )
             )
-            val message2: Message<UUID, Ad> = TestData.message(
+            val message3: Message<UUID, Ad> = TestData.message(
                 eksperimentelleProperties = eksperimentelleProperties(
                     experience = setOf("Noe"),
                     needDriversLicense = "   true   "
                 )
             )
-            val message3: Message<UUID, Ad> = TestData.message(
+            val message4: Message<UUID, Ad> = TestData.message(
                 eksperimentelleProperties = eksperimentelleProperties(
                     experience = setOf("Mye"),
                     education = setOf("Fagbrev", "Fagskole"),
                     needDriversLicense = "true"
                 )
             )
-            val message4: Message<UUID, Ad> = TestData.message(
+            val message5: Message<UUID, Ad> = TestData.message(
                 eksperimentelleProperties = eksperimentelleProperties(
                     education = setOf("Master", "Forskningsgrad"),
                     needDriversLicense = "Whatever"
                 )
             )
-            val message5: Message<UUID, Ad> = TestData.message(
+            val message6: Message<UUID, Ad> = TestData.message(
                 eksperimentelleProperties = eksperimentelleProperties(
                     experience = setOf("Whatever")
                 )
             )
-            val message6: Message<UUID, Ad> = TestData.message(
+            val message7: Message<UUID, Ad> = TestData.message(
                 eksperimentelleProperties = eksperimentelleProperties(
                     needDriversLicense = "true"
                 )
@@ -71,7 +74,8 @@ class VerifiserLagringAvKravForStillinger : FreeSpec({
                 message3,
                 message4,
                 message5,
-                message6
+                message6,
+                message7
             )
 
             // WHEN
@@ -79,50 +83,55 @@ class VerifiserLagringAvKravForStillinger : FreeSpec({
 
             // THEN
             val lagredeStillinger = StillingerTable.selectRows().map { it.asDto() }
-            lagredeStillinger shouldHaveSize 6
+            lagredeStillinger shouldHaveSize 7
             val stilling1 = lagredeStillinger[0]
             val stilling2 = lagredeStillinger[1]
             val stilling3 = lagredeStillinger[2]
             val stilling4 = lagredeStillinger[3]
             val stilling5 = lagredeStillinger[4]
             val stilling6 = lagredeStillinger[5]
+            val stilling7 = lagredeStillinger[6]
 
-            stilling1.tags shouldContainOnly listOf(
-                Tag.INGEN_KRAV_TIL_ARBEIDSERFARING_V1,
-                Tag.INGEN_KRAV_TIL_UTDANNING_V1,
-                Tag.INGEN_KRAV_TIL_FOERERKORT_V1
-            )
+
+            stilling1.tags shouldContainOnly emptyList()
             stilling1.tekniskeTags shouldBe emptyList()
 
             stilling2.tags shouldContainOnly listOf(
-                Tag.HAR_KRAV_TIL_ARBEIDSERFARING_V1,
-                Tag.HAR_KRAV_TIL_FOERERKORT_V1
+                Tag.INGEN_KRAV_TIL_ARBEIDSERFARING_V1,
+                Tag.INGEN_KRAV_TIL_UTDANNING_V1,
+                Tag.INGEN_KRAV_TIL_FOERERKORT_V1
             )
             stilling2.tekniskeTags shouldBe emptyList()
 
             stilling3.tags shouldContainOnly listOf(
                 Tag.HAR_KRAV_TIL_ARBEIDSERFARING_V1,
-                Tag.HAR_KRAV_TIL_UTDANNING_V1,
                 Tag.HAR_KRAV_TIL_FOERERKORT_V1
             )
             stilling3.tekniskeTags shouldBe emptyList()
 
             stilling4.tags shouldContainOnly listOf(
+                Tag.HAR_KRAV_TIL_ARBEIDSERFARING_V1,
+                Tag.HAR_KRAV_TIL_UTDANNING_V1,
+                Tag.HAR_KRAV_TIL_FOERERKORT_V1
+            )
+            stilling4.tekniskeTags shouldBe emptyList()
+
+            stilling5.tags shouldContainOnly listOf(
                 Tag.HAR_KRAV_TIL_UTDANNING_V1,
             )
-            stilling4.tekniskeTags shouldContainOnly listOf(
+            stilling5.tekniskeTags shouldContainOnly listOf(
                 TekniskTag.UKJENT_KRAV_TIL_FOERERKORT_V1
             )
 
-            stilling5.tags shouldBe emptyList()
-            stilling5.tekniskeTags shouldContainOnly listOf(
+            stilling6.tags shouldBe emptyList()
+            stilling6.tekniskeTags shouldContainOnly listOf(
                 TekniskTag.UKJENT_KRAV_TIL_ARBEIDSERFARING_V1
             )
 
-            stilling6.tags shouldContainOnly listOf(
+            stilling7.tags shouldContainOnly listOf(
                 Tag.HAR_KRAV_TIL_FOERERKORT_V1
             )
-            stilling6.tekniskeTags shouldBe emptyList()
+            stilling7.tekniskeTags shouldBe emptyList()
         }
     }
 })
