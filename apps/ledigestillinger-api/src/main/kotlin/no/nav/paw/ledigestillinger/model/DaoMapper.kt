@@ -124,16 +124,12 @@ fun Location.asLokasjonRow(): LokasjonRow = LokasjonRow(
 
 fun Ad.asEgenskapRows(): Iterable<EgenskapRow> {
     val egenskapRows = mutableListOf<EgenskapRow>()
-    if (properties != null) {
-        properties
-            .map { it.asEgenskapRow() }
-            .forEach(egenskapRows::add)
-    }
-    if (eksperimentelleProperties != null) {
-        eksperimentelleProperties
-            .map { it.asEgenskapRow() }
-            .forEach(egenskapRows::add)
-    }
+    this.properties
+        ?.map { it.asEgenskapRow() }
+        ?.forEach(egenskapRows::add)
+    this.eksperimentelleProperties
+        ?.map { it.asEgenskapRow() }
+        ?.forEach(egenskapRows::add)
     return egenskapRows
 }
 
@@ -178,6 +174,14 @@ fun Ad.asTags(): Pair<Set<Tag>, Set<TekniskTag>> {
     val tags = mutableSetOf<Tag>()
     val tekniskeTags = mutableSetOf<TekniskTag>()
 
+    val sourceErDir = this.source.equals("DIR", ignoreCase = true)
+    val direktemeldtStillingskategori = this.properties
+        ?.find { it.key.equals("direktemeldtStillingskategori", ignoreCase = true) }?.value ?: "null"
+
+    if (sourceErDir && direktemeldtStillingskategori.equals("STILLING", ignoreCase = true)) {
+        tags.add(Tag.DIREKTEMELDT_V1)
+    }
+
     val arbeidserfaring = this.eksperimentelleProperties
         ?.find { it.key.equals("experience", ignoreCase = true) }?.value
     if (arbeidserfaring != null) {
@@ -212,14 +216,6 @@ fun Ad.asTags(): Pair<Set<Tag>, Set<TekniskTag>> {
         } else {
             tekniskeTags.add(TekniskTag.UKJENT_KRAV_TIL_FOERERKORT_V1)
         }
-    }
-
-    val sourceErDir = this.source.equals("DIR", ignoreCase = true)
-    val direktemeldtStillingskategori = this.properties
-        .find { it.key.equals("direktemeldtStillingskategori", ignoreCase = true) }?.value ?: "null"
-
-    if (sourceErDir && direktemeldtStillingskategori.equals("STILLING", ignoreCase = true)) {
-        tags.add(Tag.DIREKTEMELDT_V1)
     }
 
     Span.current()

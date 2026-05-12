@@ -4,6 +4,7 @@ import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import no.nav.paw.ledigestillinger.model.asStillingRow
 import no.nav.paw.ledigestillinger.model.dao.ArbeidsgivereTable
+import no.nav.paw.ledigestillinger.model.dao.EgenskaperTable
 import no.nav.paw.ledigestillinger.model.dao.KategorierTable
 import no.nav.paw.ledigestillinger.model.dao.KlassifiseringerTable
 import no.nav.paw.ledigestillinger.model.dao.LokasjonerTable
@@ -23,7 +24,7 @@ fun StillingerTable.selectRows(): List<StillingRow> = transaction {
                 kategorier = KategorierTable::selectRowsByParentId,
                 klassifiseringer = KlassifiseringerTable::selectRowsByParentId,
                 lokasjoner = LokasjonerTable::selectRowsByParentId,
-                egenskaper = { emptyList() }
+                egenskaper = EgenskaperTable::selectRowsByParentId,
             )
         }
 }
