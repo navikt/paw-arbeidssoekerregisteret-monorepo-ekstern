@@ -166,7 +166,7 @@ private fun jobbAnnonse(stilling: Stilling): ApiJobbAnnonse = ApiJobbAnnonse(
     },
     selskap = stilling.arbeidsgivernavn ?: "Ukjent",
     arbeidsplassenNoId = stilling.uuid,
-    tags = stilling.tags.map { it.toApiTag() }
+    tags = stilling.tags.mapNotNull { it.toApiTag() }
 )
 
 fun soeknadsfrist(frist: Frist): Soeknadsfrist {

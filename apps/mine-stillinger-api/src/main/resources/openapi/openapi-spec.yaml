@@ -465,11 +465,8 @@ components:
       type: "string"
       enum:
         - "DIREKTEMELDT_V1"
-        - "HAR_KRAV_TIL_ARBEIDSERFARING_V1"
         - "INGEN_KRAV_TIL_ARBEIDSERFARING_V1"
-        - "HAR_KRAV_TIL_UTDANNING_V1"
         - "INGEN_KRAV_TIL_UTDANNING_V1"
-        - "HAR_KRAV_TIL_FOERERKORT_V1"
         - "INGEN_KRAV_TIL_FOERERKORT_V1"
     Soeknadsfrist:
       type: "object"
