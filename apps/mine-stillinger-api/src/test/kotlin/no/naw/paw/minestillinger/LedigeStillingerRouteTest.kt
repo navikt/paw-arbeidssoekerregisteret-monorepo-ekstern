@@ -23,6 +23,8 @@ import no.nav.paw.pdl.client.PdlClient
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.naw.paw.ledigestillinger.model.Arbeidsgiver
+import no.naw.paw.ledigestillinger.model.FinnStillingerByEgenskaperRequest
+import no.naw.paw.ledigestillinger.model.FinnStillingerRequest
 import no.naw.paw.ledigestillinger.model.FinnStillingerResponse
 import no.naw.paw.ledigestillinger.model.Frist
 import no.naw.paw.ledigestillinger.model.FristType
@@ -33,6 +35,7 @@ import no.naw.paw.ledigestillinger.model.Stilling
 import no.naw.paw.ledigestillinger.model.StillingStatus
 import no.naw.paw.ledigestillinger.model.Stillingsprosent
 import no.naw.paw.ledigestillinger.model.StyrkKode
+import no.naw.paw.ledigestillinger.model.Tag
 import no.naw.paw.minestillinger.api.MineStillingerResponse
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdresse
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
@@ -47,6 +50,7 @@ import no.naw.paw.minestillinger.domain.Fylke
 import no.naw.paw.minestillinger.domain.Kommune
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
 import no.naw.paw.minestillinger.domain.PeriodeId
+import no.naw.paw.minestillinger.domain.SoekeTag
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.StillingssoekType
 import no.naw.paw.minestillinger.domain.SøkId
@@ -88,22 +92,53 @@ class LedigeStillingerRouteTest : FreeSpec({
             }
             mockkStatic(PdlClient::harBeskyttetAdresse)
             coEvery { pdlClient.harBeskyttetAdresse(Identitetsnummer(periode.identitetsnummer)) } returns false
-            coEvery { ledigeStillingerClient.finnLedigeStillinger(any(), any()) } returns finnStillingerResponse
+            coEvery {
+                ledigeStillingerClient.finnLedigeStillinger(
+                    token = any(),
+                    finnStillingerRequests = any()
+                )
+            } coAnswers {
+                val request = secondArg<List<FinnStillingerRequest>>()
+                request.size shouldBe 2
+                request.filterIsInstance<FinnStillingerByEgenskaperRequest>() should { requests ->
+                    requests.size shouldBe 2
+                    requests.find { it.tags.contains(Tag.DIREKTEMELDT_V1) } should { dirMeldtReq ->
+                        dirMeldtReq.shouldNotBeNull()
+                        dirMeldtReq.tags.size shouldBe 1
+                    }
+                    requests.find { !it.tags.contains(Tag.DIREKTEMELDT_V1) } should { vanligReq ->
+                        vanligReq.shouldNotBeNull()
+                        vanligReq.tags.minus(Tag.DIREKTEMELDT_V1) shouldBe lagreSøk.first()
+                            .soek
+                            .let { it as StedSoek }
+                            .soekeTags.map(SoekeTag::toTag)
+                    }
+                }
+                finnStillingerResponse
+            }
             val tidspunkt = AtomicReference(Instant.now())
-            val clock = object: Clock {
+            val clock = object : Clock {
                 override fun now(): Instant = tidspunkt.get()
             }
             routing {
                 ledigeStillingerRoute(
                     ledigeStillingerClient = ledigeStillingerClient,
-                    hentBrukerProfil = { BrukerProfil(
-                        id = BrukerId(10),
-                        identitetsnummer = Identitetsnummer(periode.identitetsnummer),
-                        arbeidssoekerperiodeId = PeriodeId(periode.id),
-                        arbeidssoekerperiodeAvsluttet = null,
-                        listeMedFlagg = ListeMedFlagg.listeMedFlagg(listOf(InkluderDirekteMeldteStillingerFlagtype.flagg(true,
-                            Instant.now())))
-                    ) },
+                    hentBrukerProfil = {
+                        BrukerProfil(
+                            id = BrukerId(10),
+                            identitetsnummer = Identitetsnummer(periode.identitetsnummer),
+                            arbeidssoekerperiodeId = PeriodeId(periode.id),
+                            arbeidssoekerperiodeAvsluttet = null,
+                            listeMedFlagg = ListeMedFlagg.listeMedFlagg(
+                                listOf(
+                                    InkluderDirekteMeldteStillingerFlagtype.flagg(
+                                        true,
+                                        Instant.now()
+                                    )
+                                )
+                            )
+                        )
+                    },
                     hentLagretSøk = { lagreSøk },
                     oppdaterSistKjøt = { _, _ -> true },
                     clock = clock,
@@ -185,6 +220,7 @@ val finnStillingerResponse = FinnStillingerResponse(
             ansettelsesform = "Fast",
             stillingsantall = 10,
             utloeper = Instant.now().plus(10, DAYS),
+            tags = listOf(Tag.INGEN_KRAV_TIL_FOERERKORT_V1, Tag.INGEN_KRAV_TIL_UTDANNING_V1)
         )
     ),
     paging = PagingResponse(
@@ -212,6 +248,10 @@ val lagreSøk = listOf(
                 )
             ),
             styrk08 = listOf("3471"),
+            soekeTags = listOf(
+                SoekeTag.INGEN_KRAV_TIL_FOERERKORT_V1,
+                SoekeTag.INGEN_KRAV_TIL_UTDANNING_V1
+            )
         )
     )
 )

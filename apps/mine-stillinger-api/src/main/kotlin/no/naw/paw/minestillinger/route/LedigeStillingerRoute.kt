@@ -42,6 +42,7 @@ import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillin
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
+import no.naw.paw.minestillinger.domain.SoekeTag
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.SøkId
 import no.naw.paw.minestillinger.domain.api
@@ -135,7 +136,15 @@ private fun genererSøkeRequester(
     pageSize: Int,
     sort: ApiSortOrder
 ): List<FinnStillingerRequest> {
-    val standardSøk: FinnStillingerRequest = genererRequest(søk = søk, page = page, pageSize = pageSize, sort = sort, tags = emptyList())
+    val standardSøk: FinnStillingerRequest = genererRequest(
+        søk = søk,
+        page = page,
+        pageSize = pageSize,
+        sort = sort,
+        tags = søk.soekeTags.map(
+            SoekeTag::toTag
+        )
+    )
     val direkteMeldtSøk: FinnStillingerRequest? = if (bruker.listeMedFlagg.isTrue(InkluderDirekteMeldteStillingerFlagtype)) {
         Span.current().addEvent("direktemeldte_stillinger", Attributes.of(booleanKey("inkluder"), true))
         genererRequest(
