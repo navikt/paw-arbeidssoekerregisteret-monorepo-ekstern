@@ -307,6 +307,10 @@ components:
             type: "string"
             format: "styrk08"
             example: "124"
+        soekeTags:
+          type: array
+          items:
+            $ref: "#/components/schemas/SoekeTag"
       required:
         - "soekType"
         - "fylker"
@@ -465,6 +469,12 @@ components:
       type: "string"
       enum:
         - "DIREKTEMELDT_V1"
+        - "INGEN_KRAV_TIL_ARBEIDSERFARING_V1"
+        - "INGEN_KRAV_TIL_UTDANNING_V1"
+        - "INGEN_KRAV_TIL_FOERERKORT_V1"
+    SoekeTag:
+      type: "string"
+      enum:
         - "INGEN_KRAV_TIL_ARBEIDSERFARING_V1"
         - "INGEN_KRAV_TIL_UTDANNING_V1"
         - "INGEN_KRAV_TIL_FOERERKORT_V1"
