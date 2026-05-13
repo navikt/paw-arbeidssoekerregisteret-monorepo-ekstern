@@ -8,6 +8,7 @@ import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.domain.Fylke
 import no.naw.paw.minestillinger.domain.Kommune
+import no.naw.paw.minestillinger.domain.SoekeTag
 import no.naw.paw.minestillinger.domain.stedSoek
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -19,7 +20,6 @@ class SkrivLesOgSlettSoekTest : FreeSpec({
     val databaseConfig = databaseConfigFrom(postgres)
     val dataSource = autoClose(initDatabase(databaseConfig))
     val periodeFactory = PeriodeFactory.create()
-    val metadataFactory = MetadataFactory.create()
     beforeSpec { Database.connect(dataSource) }
 
     val periode = periodeFactory.build(avsluttet = null)
@@ -59,7 +59,8 @@ class SkrivLesOgSlettSoekTest : FreeSpec({
                     )
                 ),
                 soekeord = listOf("Utvikler", "Rust"),
-                styrk08 = listOf("123", "42")
+                styrk08 = listOf("123", "42"),
+                soekeTags = listOf(SoekeTag.INGEN_KRAV_TIL_ARBEIDSERFARING_V1)
             )
             val tidspunkt = Instant.now()
             "Vi lagrer soeket uten feil" {

@@ -2,6 +2,7 @@ package no.naw.paw.minestillinger.api
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import no.naw.paw.minestillinger.api.vo.ApiFylke
+import no.naw.paw.minestillinger.api.vo.ApiSoekeTag
 import no.naw.paw.minestillinger.api.vo.ApiStillingssoekType
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.domain
@@ -11,7 +12,8 @@ data class ApiStedSoek(
     override val soekType: ApiStillingssoekType,
     val fylker: List<ApiFylke>,
     override val soekeord: List<String>,
-    val styrk08: List<String>
+    val styrk08: List<String>,
+    val soekeTags: List<ApiSoekeTag> = emptyList(),
 ) : ApiStillingssoek, ApiHarSoekeord
 
 fun ApiStedSoek.domain() = StedSoek(
