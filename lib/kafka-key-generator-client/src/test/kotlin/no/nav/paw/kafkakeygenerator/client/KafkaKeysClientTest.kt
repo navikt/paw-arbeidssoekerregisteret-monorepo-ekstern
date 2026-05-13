@@ -3,6 +3,8 @@ package no.nav.paw.kafkakeygenerator.client
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.HttpClient
@@ -19,7 +21,9 @@ import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.client.factory.configureJackson
 import no.nav.paw.kafkakeygenerator.model.IdentitetType
+import no.nav.paw.kafkakeygenerator.model.Konflikt
 import no.nav.paw.kafkakeygenerator.model.KonfliktType
+import no.nav.paw.kafkakeygenerator.model.MergeKonflikt
 
 class KafkaKeysClientTest : FreeSpec({
 
@@ -80,12 +84,18 @@ class KafkaKeysClientTest : FreeSpec({
             response.recordKey shouldBe 170L
             response.identiteter.map { it.identitet } shouldContainExactly listOf(ident1, ident2, ident3)
             response.pdlIdentiteter?.single()?.type shouldBe IdentitetType.FOLKEREGISTERIDENT
-
-            response.konflikter.size shouldBe 1
-            val konflikt = response.konflikter.single()
-            konflikt.type shouldBe KonfliktType.MERGE
-            konflikt.detaljer!!.aktorIdListe shouldContainExactly listOf("1001", "1002")
-            konflikt.detaljer.arbeidssoekerIdListe shouldContainExactly listOf(101L, 102L)
+            response.konflikter?.should { konflikter ->
+                konflikter shouldHaveSize 1
+                konflikter shouldContainExactly listOf(
+                    Konflikt(
+                        type = KonfliktType.MERGE,
+                        detaljer = MergeKonflikt(
+                            aktorIdListe = listOf("1001", "1002"),
+                            arbeidssoekerIdListe = listOf(101L, 102L)
+                        )
+                    )
+                )
+            }
         }
     }
 

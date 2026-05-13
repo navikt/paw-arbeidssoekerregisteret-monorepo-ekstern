@@ -9,7 +9,7 @@ data class IdentiteterResponse(
     val recordKey: Long? = null,
     val identiteter: List<Identitet>,
     val pdlIdentiteter: List<Identitet>? = null,
-    val konflikter: List<Konflikt> = emptyList()
+    val konflikter: List<Konflikt>? = null
 )
 
 data class Identitet(
