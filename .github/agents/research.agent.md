@@ -1,9 +1,7 @@
 ---
 name: research-agent
 description: Utforsker kodebaser, undersøker problemer og samler kontekst før implementering
-model:
-  - Gemini 2.5 Pro
-  - Claude Haiku 4.5
+model: GPT-5.3-Codex
 tools:
   - read
   - search

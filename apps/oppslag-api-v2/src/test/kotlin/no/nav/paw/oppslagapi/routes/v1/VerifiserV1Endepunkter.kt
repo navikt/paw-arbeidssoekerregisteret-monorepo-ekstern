@@ -36,7 +36,6 @@ import no.nav.paw.oppslagapi.test.hentProfileringV1
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.test.data.periode.createOpplysninger
 import no.nav.paw.test.data.periode.createProfilering
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -95,13 +94,12 @@ class VerifiserV1Endepunkter : FreeSpec({
                 type = profilering_v1
             )
         )
-        tilgangsTjenesteForAnsatteMock.configureMock()
-        val oauthServer = MockOAuth2Server()
         beforeSpec {
-            oauthServer.start()
+            tilgangsTjenesteForAnsatteMock.configureMock()
+            mockOAuthServer.start()
         }
         afterSpec {
-            oauthServer.shutdown()
+            mockOAuthServer.shutdown()
         }
         "Verifiser at endepunkter fungerer" - {
             "/api/v1/veileder/arbeidssoekerperioder" {
@@ -110,7 +108,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                         configureKtorServer(
                             prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
                             meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
+                            authProviders = mockOAuthServer.createAuthProviders()
                         )
                     }
                     routing {
@@ -127,7 +125,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                             }
                         }
                     }
-                    val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt1)
+                    val token = mockOAuthServer.ansattToken(navAnsatt = TestData.ansatt1)
                     val response = client.hentPerioderV1(
                         token = token,
                         identitetsnummer = Identitetsnummer(periode1.identitetsnummer)
@@ -152,7 +150,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                         configureKtorServer(
                             prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
                             meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
+                            authProviders = mockOAuthServer.createAuthProviders()
                         )
                     }
                     routing {
@@ -169,7 +167,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                             }
                         }
                     }
-                    val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt1)
+                    val token = mockOAuthServer.ansattToken(navAnsatt = TestData.ansatt1)
                     val response = client.hentProfileringV1(
                         token = token,
                         identitetsnummer = Identitetsnummer(periode1.identitetsnummer),
@@ -188,7 +186,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                         configureKtorServer(
                             prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
                             meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
+                            authProviders = mockOAuthServer.createAuthProviders()
                         )
                     }
                     routing {
@@ -205,7 +203,7 @@ class VerifiserV1Endepunkter : FreeSpec({
                             }
                         }
                     }
-                    val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt1)
+                    val token = mockOAuthServer.ansattToken(navAnsatt = TestData.ansatt1)
                     val response = client.hentAggregertePerioderV1(
                         token = token,
                         identitetsnummer = Identitetsnummer(periode1.identitetsnummer)

@@ -28,7 +28,6 @@ import no.nav.paw.oppslagapi.test.hentTidslinjerV2
 import no.nav.paw.oppslagapi.test.testLogger
 import no.nav.paw.oppslagapi.utils.objectMapper
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.Duration
 import java.time.Instant
 
@@ -67,13 +66,12 @@ class AnonymM2MFaarHentetTidslinjerTest : FreeSpec({
                 type = periode_avsluttet_v1
             )
         )
-        tilgangsTjenesteForAnsatteMock.configureMock()
-        val oauthServer = MockOAuth2Server()
         beforeSpec {
-            oauthServer.start()
+            tilgangsTjenesteForAnsatteMock.configureMock()
+            mockOAuthServer.start()
         }
         afterSpec {
-            oauthServer.shutdown()
+            mockOAuthServer.shutdown()
         }
         "Verifiser at endepunkter fungerer" - {
             "/api/v2/bekreftelser" {
@@ -82,7 +80,7 @@ class AnonymM2MFaarHentetTidslinjerTest : FreeSpec({
                         configureKtorServer(
                             prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
                             meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
+                            authProviders = mockOAuthServer.createAuthProviders()
                         )
                     }
                     routing {
@@ -93,7 +91,7 @@ class AnonymM2MFaarHentetTidslinjerTest : FreeSpec({
                         )
                     }
                     val client = createTestHttpClient()
-                    val token = oauthServer.anonymToken()
+                    val token = mockOAuthServer.anonymToken()
                     val response = client.hentTidslinjerV2(token, listOf(periode1.id))
                     response.status shouldBe HttpStatusCode.OK
                     val body: TidslinjeResponse = response.body()

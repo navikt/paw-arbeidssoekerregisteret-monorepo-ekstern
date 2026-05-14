@@ -38,7 +38,6 @@ import no.nav.paw.oppslagapi.utils.objectMapper
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.test.data.periode.createEgenvurdering
 import no.nav.paw.test.data.periode.createProfilering
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.Duration
 import java.time.Instant
 
@@ -95,13 +94,12 @@ class EgenvurderingerDukkerOppITidslinje : FreeSpec({
                 type = egenvurdering_v1
             )
         )
-        tilgangsTjenesteForAnsatteMock.configureMock()
-        val oauthServer = MockOAuth2Server()
         beforeSpec {
-            oauthServer.start()
+            tilgangsTjenesteForAnsatteMock.configureMock()
+            mockOAuthServer.start()
         }
         afterSpec {
-            oauthServer.shutdown()
+            mockOAuthServer.shutdown()
         }
         "Verifiser at endepunkter fungerer" - {
             "/api/v2/bekreftelser" {
@@ -110,7 +108,7 @@ class EgenvurderingerDukkerOppITidslinje : FreeSpec({
                         configureKtorServer(
                             prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
                             meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
+                            authProviders = mockOAuthServer.createAuthProviders()
                         )
                     }
                     routing {
@@ -121,7 +119,7 @@ class EgenvurderingerDukkerOppITidslinje : FreeSpec({
                         )
                     }
                     val client = createTestHttpClient()
-                    val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt1)
+                    val token = mockOAuthServer.ansattToken(navAnsatt = TestData.ansatt1)
                     //Ansatt med tilgang får hentet bekreftelser
                     val response = client.hentTidslinjerV2(token, listOf(periode1.id))
                     response.status shouldBe HttpStatusCode.OK

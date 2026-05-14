@@ -32,7 +32,7 @@ fun Route.v2Routes(
                 val securityContext = call.securityContext()
                 val response = queryLogic.hentTidslinjer(
                     securityContext = securityContext,
-                    baseRequest = request.typedRequest
+                    request = request.typedRequest
                 ).map { tidslinjer ->
                     tidslinjer.flatMap { tidslinje ->
                         tidslinje.hendelser.mapNotNull { it.bekreftelseV1 }
@@ -44,7 +44,7 @@ fun Route.v2Routes(
                 val securityContext = call.securityContext()
                 val response = queryLogic.hentTidslinjer(
                     securityContext = securityContext,
-                    baseRequest = request.typedRequest
+                    request = request.typedRequest
                 ).map(::TidslinjeResponse)
                 call.respondWith(response)
             }

@@ -64,7 +64,7 @@ fun main() {
         PaaVegneAvSerializer()
     )
 
-    val key = -1003L
+    val key = -1001L
     val hendelser = TestData.hendelser1
 
     val perioder = hendelser
