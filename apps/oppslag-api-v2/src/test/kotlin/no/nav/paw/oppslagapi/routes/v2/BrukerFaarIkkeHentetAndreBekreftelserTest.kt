@@ -19,12 +19,10 @@ import no.nav.paw.oppslagapi.health.CompoudHealthIndicator
 import no.nav.paw.oppslagapi.test.TestContext
 import no.nav.paw.oppslagapi.test.TestData
 import no.nav.paw.oppslagapi.test.brukerToken
-import no.nav.paw.oppslagapi.test.configureMock
 import no.nav.paw.oppslagapi.test.createAuthProviders
 import no.nav.paw.oppslagapi.test.createTestHttpClient
 import no.nav.paw.oppslagapi.test.hentBekreftelserV2
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.Duration
 import java.time.Instant
 
@@ -68,13 +66,11 @@ class BrukerFaarIkkeHentetAndreBekreftelserTest : FreeSpec({
                 type = bekreftelsemelding_v1
             )
         )
-        kafkaKeysClientMock.configureMock()
-        val oauthServer = MockOAuth2Server()
         beforeSpec {
-            oauthServer.start()
+            mockOAuthServer.start()
         }
         afterSpec {
-            oauthServer.shutdown()
+            mockOAuthServer.shutdown()
         }
         "Verifiser at endepunkter fungerer" - {
             "/api/v2/bekreftelser" {
@@ -83,7 +79,7 @@ class BrukerFaarIkkeHentetAndreBekreftelserTest : FreeSpec({
                         configureKtorServer(
                             prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
                             meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
+                            authProviders = mockOAuthServer.createAuthProviders()
                         )
                     }
                     routing {
@@ -94,7 +90,7 @@ class BrukerFaarIkkeHentetAndreBekreftelserTest : FreeSpec({
                         )
                     }
                     val client = createTestHttpClient()
-                    val token = oauthServer.brukerToken(bruker = TestData.bruker1)
+                    val token = mockOAuthServer.brukerToken(bruker = TestData.bruker1)
                     val response = client.hentBekreftelserV2(token, listOf(periode1.id, periode2.id))
                     response.status shouldBe HttpStatusCode.Forbidden
                     response.body<ProblemDetails>().status shouldBe HttpStatusCode.Forbidden

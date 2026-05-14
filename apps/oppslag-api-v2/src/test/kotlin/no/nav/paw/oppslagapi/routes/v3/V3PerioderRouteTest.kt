@@ -32,7 +32,7 @@ class V3PerioderRouteTest : FreeSpec({
         val bruker1 = TestData.bruker3
         val bruker2 = TestData.bruker4
         val bruker3 = TestData.bruker5
-        val ansatt = TestData.anstatt3
+        val ansatt = TestData.ansatt3
         val periodeId1 = TestData.periode3_1_startet.id
         val periodeId2 = TestData.periode4_1_startet.id
         val periodeId3 = UUID.randomUUID()
@@ -51,7 +51,6 @@ class V3PerioderRouteTest : FreeSpec({
 
         beforeSpec {
             tilgangsTjenesteForAnsatteMock.configureMock()
-            kafkaKeysClientMock.configureMock()
             mockOAuthServer.start()
         }
         afterSpec {

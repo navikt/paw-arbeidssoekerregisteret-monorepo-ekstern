@@ -7,6 +7,7 @@ import no.nav.paw.error.model.Response
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.oppslagapi.AutorisasjonsTjeneste
+import no.nav.paw.oppslagapi.data.finnFolkeregisteridenterKonfliktAware
 import no.nav.paw.oppslagapi.model.v2.Tidslinje
 import no.nav.paw.security.authentication.model.SecurityContext
 import java.util.*
@@ -18,35 +19,27 @@ class ApplicationQueryLogic(
 ) {
 
     @WithSpan(
-        value = "hent_tidslinjer",
+        value = "hent_tidslinjer_for_identitetsnummer",
         kind = SpanKind.SERVER
     )
     suspend fun hentTidslinjer(
         securityContext: SecurityContext,
         identitetsnummer: Identitetsnummer
     ): Response<List<Tidslinje>> {
-        val identieteter = kafkaKeysClient.getInfo(identitetsnummer.value)
-            ?.info
-            ?.pdlData
-            ?.id
-            ?.filter { it.gruppe.equals("FOLKEREGISTERIDENT", ignoreCase = true) }
-            ?.map { it.id }
-            ?.map(::Identitetsnummer)
-            ?: listOf(identitetsnummer)
-
+        val oenskerTilgangTil = kafkaKeysClient.finnFolkeregisteridenterKonfliktAware(identitetsnummer)
         return autorisasjonsTjeneste.autoriser(
-            handling = "Hent arbeidssøker data",
+            handling = "Lag tidslinjer for identitetsnummer",
             securityContext = securityContext,
-            oenskerTilgangTil = identieteter
+            oenskerTilgangTil = oenskerTilgangTil
         ) {
-            val periodeIder = identieteter.flatMap { id -> databaseQuerySupport.hentPerioder(id) }
-            val perioder = periodeIder.map { it to databaseQuerySupport.hentRaderForPeriode(it) }
-            genererTidslinje(perioder)
+            val periodeIder = oenskerTilgangTil.flatMap { databaseQuerySupport.hentPerioder(it) }
+            val rader = periodeIder.map { it to databaseQuerySupport.hentRaderForPeriode(it) }
+            genererTidslinje(rader)
         }
     }
 
     @WithSpan(
-        value = "lag_tidslinjer",
+        value = "hent_tidslinjer_for_perioder",
         kind = SpanKind.SERVER
     )
     suspend fun hentTidslinjer(
@@ -56,16 +49,15 @@ class ApplicationQueryLogic(
         if (perioder.isEmpty()) {
             return Data(emptyList())
         }
-        val rader = perioder.map { periodeId ->
-            periodeId to databaseQuerySupport.hentRaderForPeriode(periodeId)
-        }
+        val rader = perioder.map { it to databaseQuerySupport.hentRaderForPeriode(it) }
+        val oenskerTilgangTil = rader
+            .flatMap { (_, rader) -> rader.mapNotNull { rad -> rad.identitetsnummer } }
+            .distinct()
+            .map(::Identitetsnummer)
         return autorisasjonsTjeneste.autoriser(
             handling = "Lag tidslinjer for arbeidssøkerperioder",
             securityContext = securityContext,
-            oenskerTilgangTil = rader
-                .flatMap { (_, rader) -> rader.mapNotNull { rad -> rad.identitetsnummer } }
-                .distinct()
-                .map(::Identitetsnummer)
+            oenskerTilgangTil = oenskerTilgangTil
         ) {
             genererTidslinje(rader)
         }

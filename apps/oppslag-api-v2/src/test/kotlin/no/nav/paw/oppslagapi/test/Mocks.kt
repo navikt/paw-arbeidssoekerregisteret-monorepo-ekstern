@@ -5,6 +5,9 @@ import io.mockk.every
 import no.nav.paw.error.model.Data
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
+import no.nav.paw.kafkakeygenerator.model.Identitet
+import no.nav.paw.kafkakeygenerator.model.IdentitetType
+import no.nav.paw.kafkakeygenerator.model.IdentiteterResponse
 import no.nav.paw.kafkakeygenerator.model.Info
 import no.nav.paw.kafkakeygenerator.model.KafkaKeysInfoResponse
 import no.nav.paw.kafkakeygenerator.model.PdlData
@@ -31,6 +34,15 @@ fun KafkaKeysClient.configureMock(
 ) {
     brukere.forEach { bruker ->
         bruker.alleIdenter.forEach { identitet ->
+            coEvery { this@configureMock.getIdentiteter(identitet.value) } returns IdentiteterResponse(
+                identiteter = bruker.alleIdenter.map {
+                    Identitet(
+                        identitet = it.value,
+                        type = IdentitetType.FOLKEREGISTERIDENT,
+                        gjeldende = false
+                    )
+                }
+            )
             coEvery { this@configureMock.getInfo(identitet.value) } returns KafkaKeysInfoResponse(
                 info = Info(
                     identitetsnummer = identitet.value,
@@ -39,7 +51,7 @@ fun KafkaKeysClient.configureMock(
                         error = null,
                         id = bruker.alleIdenter.map {
                             PdlId(
-                                gruppe = "FOLKEREGISTERIDENT",
+                                gruppe = IdentitetType.FOLKEREGISTERIDENT.name,
                                 id = it.value,
                                 gjeldende = false
                             )

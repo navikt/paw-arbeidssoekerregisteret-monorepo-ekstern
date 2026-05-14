@@ -54,24 +54,29 @@ object TestData {
     val fnr4 = Identitetsnummer("04017012345")
     val dnr5 = Identitetsnummer("45017012345")
     val fnr5 = Identitetsnummer("05017012345")
+    val dnr6 = Identitetsnummer("46017012345")
+    val fnr6 = Identitetsnummer("06017012345")
 
     val bruker1 = sluttbruker(listOf(dnr1, fnr1))
     val bruker2 = sluttbruker(listOf(dnr2, fnr2))
     val bruker3 = sluttbruker(listOf(dnr3, fnr3))
     val bruker4 = sluttbruker(listOf(dnr4, fnr4))
     val bruker5 = sluttbruker(listOf(dnr5, fnr5))
+    val bruker6 = sluttbruker(listOf(dnr6, fnr6))
 
     val brukere = listOf(bruker1, bruker2, bruker3, bruker4, bruker5)
 
-    val anstatt1 = navAnsatt(
+    val ansatt1 = navAnsatt(
         navId = navId1
     )
-    val anstatt2 = navAnsatt(
+    val ansatt2 = navAnsatt(
         navId = navId2
     )
-    val anstatt3 = navAnsatt(
+    val ansatt3 = navAnsatt(
         navId = navId3
     )
+
+    val anonym1 = anonym()
 
     val periode1_1_startet = periode(
         identitetsnummer = fnr1,
@@ -387,8 +392,9 @@ object TestData {
     )
 
     fun anonym(
+        oid: UUID? = UUID.randomUUID()
     ): Anonym = Anonym(
-        oid = UUID.randomUUID()
+        oid = oid
     )
 
     fun tilgang(

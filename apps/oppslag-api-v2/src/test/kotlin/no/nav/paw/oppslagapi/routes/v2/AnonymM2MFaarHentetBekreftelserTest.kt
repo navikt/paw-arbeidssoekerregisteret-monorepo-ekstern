@@ -25,7 +25,6 @@ import no.nav.paw.oppslagapi.test.createAuthProviders
 import no.nav.paw.oppslagapi.test.createTestHttpClient
 import no.nav.paw.oppslagapi.test.hentBekreftelserV2
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.Duration
 import java.time.Instant
 
@@ -52,13 +51,12 @@ class AnonymM2MFaarHentetBekreftelserTest : FreeSpec({
                 type = bekreftelsemelding_v1
             )
         )
-        tilgangsTjenesteForAnsatteMock.configureMock()
-        val oauthServer = MockOAuth2Server()
         beforeSpec {
-            oauthServer.start()
+            tilgangsTjenesteForAnsatteMock.configureMock()
+            mockOAuthServer.start()
         }
         afterSpec {
-            oauthServer.shutdown()
+            mockOAuthServer.shutdown()
         }
         "Verifiser at endepunkter fungerer" - {
             "/api/v2/bekreftelser" {
@@ -67,7 +65,7 @@ class AnonymM2MFaarHentetBekreftelserTest : FreeSpec({
                         configureKtorServer(
                             prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
                             meterBinders = emptyList(),
-                            authProviders = oauthServer.createAuthProviders()
+                            authProviders = mockOAuthServer.createAuthProviders()
                         )
                     }
                     routing {
@@ -78,7 +76,7 @@ class AnonymM2MFaarHentetBekreftelserTest : FreeSpec({
                         )
                     }
                     val client = createTestHttpClient()
-                    val token = oauthServer.ansattToken(navAnsatt = TestData.anstatt1)
+                    val token = mockOAuthServer.ansattToken(navAnsatt = TestData.ansatt1)
                     val response = client.hentBekreftelserV2(token, listOf(periode1.id))
                     response.status shouldBe HttpStatusCode.OK
                     val body: BekreftelserResponse = response.body()

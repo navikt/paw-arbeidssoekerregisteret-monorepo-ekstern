@@ -32,7 +32,7 @@ class V3SnapshotRouteTest : FreeSpec({
         val bruker1 = TestData.bruker3
         val bruker2 = TestData.bruker4
         val bruker3 = TestData.bruker5
-        val ansatt = TestData.anstatt3
+        val ansatt = TestData.ansatt3
         val groupedRows1: List<Pair<UUID, List<Row<Any>>>> = TestData.rows3
             .groupBy { it.periodeId }
             .map { (periodeId, rows) -> periodeId to rows }
@@ -44,7 +44,6 @@ class V3SnapshotRouteTest : FreeSpec({
 
         beforeSpec {
             tilgangsTjenesteForAnsatteMock.configureMock()
-            kafkaKeysClientMock.configureMock()
             mockOAuthServer.start()
         }
         afterSpec {

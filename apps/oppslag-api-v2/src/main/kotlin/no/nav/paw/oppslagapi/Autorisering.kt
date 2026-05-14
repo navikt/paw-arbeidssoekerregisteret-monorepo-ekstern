@@ -8,7 +8,6 @@ import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.Response
-import no.nav.paw.error.model.flatMap
 import no.nav.paw.error.model.map
 import no.nav.paw.error.model.onFailure
 import no.nav.paw.error.model.onSuccess
@@ -16,7 +15,7 @@ import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.felles.model.NavIdent
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.logging.logger.AuditLogger
-import no.nav.paw.oppslagapi.data.finnAlleIdenterForPerson
+import no.nav.paw.oppslagapi.data.finnFolkeregisteridenterKonfliktAware
 import no.nav.paw.oppslagapi.mapping.asProblemDetails
 import no.nav.paw.security.authentication.model.Anonym
 import no.nav.paw.security.authentication.model.NavAnsatt
@@ -54,12 +53,12 @@ class AutorisasjonsTjeneste(
 
             is NavAnsatt -> autoriserAnsatt(
                 navIdent = NavIdent(bruker.ident),
-                identitetsnummer = oenskerTilgangTil
+                oenskerTilgangTil = oenskerTilgangTil
             )
 
             is Sluttbruker -> autoriserSluttbruker(
                 bruker = bruker,
-                identitetsnummer = oenskerTilgangTil
+                oenskerTilgangTil = oenskerTilgangTil
             )
         }.onSuccess {
             Span.current().addEvent(
@@ -97,28 +96,28 @@ class AutorisasjonsTjeneste(
     @WithSpan
     suspend fun autoriserSluttbruker(
         bruker: Sluttbruker,
-        identitetsnummer: List<Identitetsnummer>,
+        oenskerTilgangTil: List<Identitetsnummer>,
     ): Response<Unit> {
-        return kafkaKeysClient.finnAlleIdenterForPerson(bruker.ident)
-            .flatMap { allIdenterForBruker ->
-                if (identitetsnummer.any { it !in allIdenterForBruker }) {
+        return runCatching { kafkaKeysClient.finnFolkeregisteridenterKonfliktAware(bruker.ident) }
+            .map { identiteter ->
+                if (oenskerTilgangTil.any { it !in identiteter }) {
                     ikkeTilgangProblemDetails()
                 } else {
                     RESPONSE_DATA_UNIT
                 }
-            }
+            }.getOrThrow()
     }
 
     @WithSpan
     suspend fun autoriserAnsatt(
         navIdent: NavIdent,
-        identitetsnummer: List<Identitetsnummer>
+        oenskerTilgangTil: List<Identitetsnummer>
     ): Response<Unit> {
-        return identitetsnummer.map { identitetsnummer ->
+        return oenskerTilgangTil.map { identitetsnummer ->
             tilgangsTjenesteForAnsatte.harAnsattTilgangTilPerson(navIdent, identitetsnummer, Tilgang.LESE)
         }.map(Response<Boolean>::feilVedIkkeTilgang)
             .filterIsInstance<ProblemDetails>()
-            .firstOrNull() ?: return RESPONSE_DATA_UNIT
+            .firstOrNull() ?: RESPONSE_DATA_UNIT
     }
 
     @WithSpan

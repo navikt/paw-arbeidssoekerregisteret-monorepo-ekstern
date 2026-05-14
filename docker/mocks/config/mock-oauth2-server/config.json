@@ -8,18 +8,6 @@
             "requestMappings": [
                 {
                     "requestParam": "client_id",
-                    "match": "paw-kafka-key-generator",
-                    "claims": {
-                        "sub": "admin@paw-kafka-key-generator",
-                        "aud": [
-                            "paw-kafka-key-generator"
-                        ],
-                        "pid": "01017012345",
-                        "acr": "idporten-loa-high"
-                    }
-                },
-                {
-                    "requestParam": "client_id",
                     "match": "paw-microfrontend-toggler",
                     "claims": {
                         "sub": "admin@paw-microfrontend-toggler",
@@ -164,8 +152,27 @@
                         "aud": [
                             "paw-kafka-key-generator"
                         ],
-                        "pid": "01017012345",
-                        "acr": "idporten-loa-high"
+                        "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
+                        "azp": "87f8731e-28bf-48c9-b1ef-585e147aa0ae",
+                        "azp_name": "local:paw:paw-kafka-key-generator",
+                        "name": "Nav Navesen",
+                        "NAVident": "NAV12345"
+                    }
+                },
+                {
+                    "requestParam": "client_id",
+                    "match": "paw-kafka-key-generator-m2m",
+                    "claims": {
+                        "sub": "admin@paw-kafka-key-generator",
+                        "aud": [
+                            "paw-kafka-key-generator"
+                        ],
+                        "oid": "84a9421a-610d-4258-ac2c-bae144216f14",
+                        "azp": "87f8731e-28bf-48c9-b1ef-585e147aa0ae",
+                        "azp_name": "local:paw:paw-kafka-key-generator",
+                        "roles": [
+                            "access_as_application"
+                        ]
                     }
                 },
                 {
