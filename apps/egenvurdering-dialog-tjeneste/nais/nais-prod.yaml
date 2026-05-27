@@ -4,6 +4,8 @@ kind: Postgres
 metadata:
   name: egenvurdering-dialog-tjeneste
   namespace: paw
+  annotations:
+    postgres.nais.io/engine: zalando
 spec:
   cluster:
     majorVersion: "17"
