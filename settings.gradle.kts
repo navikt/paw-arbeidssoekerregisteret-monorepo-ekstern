@@ -70,9 +70,6 @@ dependencyResolutionManagement {
         mavenCentral()
         maven {
             url = uri("https://packages.confluent.io/maven/")
-            content {
-                excludeGroup("org.apache.kafka")
-            }
         }
         maven {
             setUrl("https://maven.pkg.github.com/navikt/tms-varsel-authority")
