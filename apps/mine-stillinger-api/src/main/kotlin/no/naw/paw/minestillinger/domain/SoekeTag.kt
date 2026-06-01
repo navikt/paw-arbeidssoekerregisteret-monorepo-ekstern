@@ -28,3 +28,11 @@ fun soekeTag(soeke: ApiSoekeTag): SoekeTag {
     }
 }
 
+fun apiSpoekeTag(soeke: SoekeTag): ApiSoekeTag {
+    return when (soeke) {
+        INGEN_KRAV_TIL_ARBEIDSERFARING_V1 -> ApiSoekeTag.INGEN_KRAV_TIL_ARBEIDSERFARING_V1
+        INGEN_KRAV_TIL_UTDANNING_V1 -> ApiSoekeTag.INGEN_KRAV_TIL_UTDANNING_V1
+        INGEN_KRAV_TIL_FOERERKORT_V1 -> ApiSoekeTag.INGEN_KRAV_TIL_FOERERKORT_V1
+    }
+}
+

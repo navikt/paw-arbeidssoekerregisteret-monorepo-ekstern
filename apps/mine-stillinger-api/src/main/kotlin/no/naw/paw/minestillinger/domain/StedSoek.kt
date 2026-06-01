@@ -36,6 +36,7 @@ fun StedSoek.api(): ApiStedSoek = ApiStedSoek(
     soekType = soekType.api(),
     fylker = fylker.map(Fylke::api),
     soekeord = soekeord,
-    styrk08 = styrk08
+    styrk08 = styrk08,
+    soekeTags = soekeTags.map(::apiSpoekeTag)
 )
 

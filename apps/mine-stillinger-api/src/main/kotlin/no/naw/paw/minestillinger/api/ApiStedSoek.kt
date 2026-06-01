@@ -6,6 +6,7 @@ import no.naw.paw.minestillinger.api.vo.ApiSoekeTag
 import no.naw.paw.minestillinger.api.vo.ApiStillingssoekType
 import no.naw.paw.minestillinger.domain.StedSoek
 import no.naw.paw.minestillinger.domain.domain
+import no.naw.paw.minestillinger.domain.soekeTag
 
 @JsonTypeName("STED_SOEK_V1")
 data class ApiStedSoek(
@@ -20,7 +21,8 @@ fun ApiStedSoek.domain() = StedSoek(
     soekType = soekType.domain(),
     fylker = fylker.map { it.domain() },
     soekeord = soekeord,
-    styrk08 = styrk08
+    styrk08 = styrk08,
+    soekeTags = soekeTags.map(::soekeTag),
 )
 
 
