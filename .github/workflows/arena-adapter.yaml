@@ -98,4 +98,4 @@ jobs:
           TEAM: paw
           CLUSTER: prod-gcp
           RESOURCE: ./apps/${{ env.MODULE }}/nais/nais.yaml
-          VAR: image=${{ needs.build.outputs.image }},kafka=nav-prod,replicas=1
+          VAR: image=${{ needs.build.outputs.image }},kafka=nav-prod,replicas=0
