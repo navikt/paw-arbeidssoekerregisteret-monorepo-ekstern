@@ -8,6 +8,7 @@ import no.nav.paw.arbeidssokerregisteret.api.v1.Profilering
 import no.nav.paw.arbeidssokerregisteret.api.v4.OpplysningerOmArbeidssoeker
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.ArenaAdapterTopics
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.config.Topics
+import no.nav.paw.arbeidssokerregisteret.arena.adapter.ForsinkelseMetadata
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.forsinkelseSerde
 import no.nav.paw.arbeidssokerregisteret.arena.adapter.topology
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
@@ -41,6 +42,7 @@ data class TestScope(
     val bekreftelseTopic: TestInputTopic<Long, Bekreftelse>,
     val arenaTopic: TestOutputTopic<Long, ArenaArbeidssokerregisterTilstand>,
     val joinStore: KeyValueStore<UUID, TopicsJoin>,
+    val ventendePeriodeStore: KeyValueStore<UUID, ForsinkelseMetadata>,
     val topologyTestDriver: TopologyTestDriver,
     val bekreftelseStore: KeyValueStore<UUID, Bekreftelse>,
 )
@@ -133,6 +135,7 @@ fun testScope(initialWallClockTime: Instant = Instant.now()): TestScope {
         profileringsTopic = profileringsTopic,
         arenaTopic = arenaTopic,
         joinStore = testDriver.getKeyValueStore(stateStoreName),
+        ventendePeriodeStore = testDriver.getKeyValueStore(ventendeStateStoreName),
         topologyTestDriver = testDriver,
         bekreftelseTopic = bekreftelseTopic,
         bekreftelseStore = testDriver.getKeyValueStore(bekreftelseStoreName)
