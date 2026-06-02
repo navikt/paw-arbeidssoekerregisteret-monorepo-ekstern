@@ -47,6 +47,18 @@ fun forsinkelsePunctuation(
         iterator.asSequence()
             .filter { (wallclock.toEpochMilli() - it.value.timestamp) >= periodeForsinkelseMs }
             .map { it.value to topicsJoinStore.get(it.key) }
+            .filter { (metadata, topicsJoin) ->
+                (topicsJoin.periode != null).also { harPeriode ->
+                    if (!harPeriode) {
+                        logger.warn(
+                            "TopicJoin: periode={}, profilering={}, metadata=({})",
+                            topicsJoin.periode != null,
+                            topicsJoin.profilering != null,
+                            metadata
+                        )
+                    }
+                }
+            }
             .map { (metadata, topicsJoin) ->
                 Record(
                     metadata.recordKey,
