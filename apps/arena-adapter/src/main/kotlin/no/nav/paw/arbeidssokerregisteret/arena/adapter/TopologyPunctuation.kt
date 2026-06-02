@@ -51,10 +51,11 @@ fun forsinkelsePunctuation(
                 (topicsJoin.periode != null).also { harPeriode ->
                     if (!harPeriode) {
                         logger.warn(
-                            "TopicJoin: periode={}, profilering={}, metadata=({})",
+                            "TopicJoin: periode={}, profilering={}, metadata=({}), partition={}",
                             topicsJoin.periode != null,
                             topicsJoin.profilering != null,
-                            metadata
+                            metadata,
+                            context.taskId().partition()
                         )
                     }
                 }
