@@ -131,128 +131,130 @@ class FuzzInvariantVentendeStorePeriodeErAldriNull : FreeSpec({
             arenaTopic.readKeyValuesToList()
         }
     }
-
-    "Fuzz med seed=42: 500 iterasjoner, 5 periodeId-er per iterasjon" {
-        repeat(500) { iterasjon ->
-            kjørScenario(seed = 42L, iterasjon = iterasjon, antallPeriodeIds = 5)
-        }
-    }
-
-    "Fuzz med seed=1337: 500 iterasjoner, 5 periodeId-er per iterasjon" {
-        repeat(500) { iterasjon ->
-            kjørScenario(seed = 1337L, iterasjon = iterasjon, antallPeriodeIds = 5)
-        }
-    }
-
-    "Fuzz med seed=999: 200 iterasjoner, 20 periodeId-er per iterasjon (høy parallellitet)" {
-        repeat(200) { iterasjon ->
-            kjørScenario(seed = 999L, iterasjon = iterasjon, antallPeriodeIds = 20)
-        }
-    }
-
-    "Fuzz med seed=2025: 200 iterasjoner, 3 periodeId-er (fokus på timing-grensen)" {
-        repeat(200) { iterasjon ->
-            kjørScenario(seed = 2025L, iterasjon = iterasjon, antallPeriodeIds = 3)
-        }
-    }
-
-    "Edgecase: profilering sendes akkurat når punctuator nettopp har forwardet periode" {
-        // GIVEN: periode → vent akkurat 5s → profilering
-        with(testScope(baseStartTid)) {
-            val periodeId = UUID.randomUUID()
-            val p = periode(identietsnummer = "20000000001", id = periodeId, startet = periodeStartTid)
-            val prof = profilering(periode = periodeId, timestamp = baseStartTid.plusSeconds(5))
-
-            // WHEN
-            periodeTopic.pipeInput(1L, p)
-            topologyTestDriver.advanceWallClockTime(Duration.ofMillis(5000))
-            // punctuator kjører her — akkurat på grensen
-            profileringsTopic.pipeInput(1L, prof)
-            topologyTestDriver.advanceWallClockTime(Duration.ofMillis(10000))
-
-            // THEN
-            arenaTopic.readKeyValuesToList() // ingen exception = invarianten holdt
-        }
-    }
-
-    "Edgecase: profilering → 4999ms → periode (rett under grensen, ventende aldri satt)" {
-        with(testScope(baseStartTid)) {
-            val periodeId = UUID.randomUUID()
-            val p = periode(identietsnummer = "20000000002", id = periodeId, startet = periodeStartTid)
-            val prof = profilering(periode = periodeId, timestamp = baseStartTid)
-
-            profileringsTopic.pipeInput(1L, prof)
-            topologyTestDriver.advanceWallClockTime(Duration.ofMillis(4999))
-            periodeTopic.pipeInput(1L, p)
-            topologyTestDriver.advanceWallClockTime(Duration.ofMillis(10000))
-
-            arenaTopic.readKeyValuesToList()
-        }
-    }
-
-    "Edgecase: 50 periodeId-er alle aktive simultaneously, blanding av bare-periode og begge" {
-        with(testScope(baseStartTid)) {
-            val rng = Random(7777)
-            val periodeIds = (1..50).map { UUID.randomUUID() }
-
-            // Send alle periodene
-            periodeIds.forEachIndexed { i, pid ->
-                val p = periode(
-                    identietsnummer = "3${i.toString().padStart(10, '0')}".take(11),
-                    id = pid,
-                    startet = periodeStartTid
-                )
-                periodeTopic.pipeInput(i.toLong() + 1, p)
+    //Testene krever at det endres fra logging av warning til kasting av IllegalStateException ved ugyldig tilstand
+    "Kjør tester for å generere ugyldig tilstand fra prod".config(enabled = false) - {
+        "Fuzz med seed=42: 500 iterasjoner, 5 periodeId-er per iterasjon" {
+            repeat(500) { iterasjon ->
+                kjørScenario(seed = 42L, iterasjon = iterasjon, antallPeriodeIds = 5)
             }
-
-            // Send profilering for halvparten
-            periodeIds.shuffled(rng).take(25).forEachIndexed { i, pid ->
-                val prof = profilering(periode = pid, timestamp = baseStartTid)
-                profileringsTopic.pipeInput(i.toLong() + 1, prof)
-            }
-
-            // Trigger punctuator
-            topologyTestDriver.advanceWallClockTime(Duration.ofMillis(6000))
-            topologyTestDriver.advanceWallClockTime(Duration.ofMillis(6000))
-
-            arenaTopic.readKeyValuesToList() // ingen exception = invarianten holdt
-            // Forvent 50 utgående meldinger (25 med profilering, 25 kun periode)
-            arenaTopic.isEmpty shouldBe true
         }
-    }
 
-    "Direkte state-injeksjon: verifiser at exception faktisk kastes ved manuelt korrupt tilstand".config(enabled = false) {
-        // Denne testen beviser at deteksjonen faktisk virker.
-        // Vi injiserer den umulige tilstanden direkte i state stores (simulerer infrastruktur-korrupsjon)
-        // og bekrefter at punctuatoren kaster IllegalStateException.
-        //
-        // NB: TopologyTestDriver pakker exceptions fra punctuatorer inn i StreamsException,
-        // så vi går cause-kjeden for å finne vår IllegalStateException.
-        val thrown = shouldThrow<Exception> {
+        "Fuzz med seed=1337: 500 iterasjoner, 5 periodeId-er per iterasjon" {
+            repeat(500) { iterasjon ->
+                kjørScenario(seed = 1337L, iterasjon = iterasjon, antallPeriodeIds = 5)
+            }
+        }
+
+        "Fuzz med seed=999: 200 iterasjoner, 20 periodeId-er per iterasjon (høy parallellitet)" {
+            repeat(200) { iterasjon ->
+                kjørScenario(seed = 999L, iterasjon = iterasjon, antallPeriodeIds = 20)
+            }
+        }
+
+        "Fuzz med seed=2025: 200 iterasjoner, 3 periodeId-er (fokus på timing-grensen)" {
+            repeat(200) { iterasjon ->
+                kjørScenario(seed = 2025L, iterasjon = iterasjon, antallPeriodeIds = 3)
+            }
+        }
+
+        "Edgecase: profilering sendes akkurat når punctuator nettopp har forwardet periode" {
+            // GIVEN: periode → vent akkurat 5s → profilering
             with(testScope(baseStartTid)) {
                 val periodeId = UUID.randomUUID()
-                val korruptProfilering = toArena(profilering(periode = periodeId, timestamp = baseStartTid))
+                val p = periode(identietsnummer = "20000000001", id = periodeId, startet = periodeStartTid)
+                val prof = profilering(periode = periodeId, timestamp = baseStartTid.plusSeconds(5))
 
-                // Injiser korrupt tilstand direkte i store:
-                // - topicsJoinStore har {periode=null, profilering!=null} → bryter invarianten
-                // - ventendePeriodeStore har en entry for samme nøkkel
-                joinStore.put(periodeId, TopicsJoin(null, korruptProfilering, null))
-                ventendePeriodeStore.put(
-                    periodeId,
-                    ForsinkelseMetadata(
-                        recordKey = 1L,
-                        traceparent = null,
-                        timestamp = baseStartTid.toEpochMilli() - 10_000L // 10s gammel
-                    )
-                )
+                // WHEN
+                periodeTopic.pipeInput(1L, p)
+                topologyTestDriver.advanceWallClockTime(Duration.ofMillis(5000))
+                // punctuator kjører her — akkurat på grensen
+                profileringsTopic.pipeInput(1L, prof)
+                topologyTestDriver.advanceWallClockTime(Duration.ofMillis(10000))
 
-                // Trigger punctuatoren — skal kaste IllegalStateException (pakket i StreamsException)
-                topologyTestDriver.advanceWallClockTime(Duration.ofMillis(6000))
+                // THEN
+                arenaTopic.readKeyValuesToList() // ingen exception = invarianten holdt
             }
         }
-        val invariantBrudd = generateSequence(thrown as Throwable) { it.cause }
-            .filterIsInstance<IllegalStateException>()
-            .firstOrNull()
-        invariantBrudd?.message?.contains("invariant brutt") shouldBe true
+
+        "Edgecase: profilering → 4999ms → periode (rett under grensen, ventende aldri satt)" {
+            with(testScope(baseStartTid)) {
+                val periodeId = UUID.randomUUID()
+                val p = periode(identietsnummer = "20000000002", id = periodeId, startet = periodeStartTid)
+                val prof = profilering(periode = periodeId, timestamp = baseStartTid)
+
+                profileringsTopic.pipeInput(1L, prof)
+                topologyTestDriver.advanceWallClockTime(Duration.ofMillis(4999))
+                periodeTopic.pipeInput(1L, p)
+                topologyTestDriver.advanceWallClockTime(Duration.ofMillis(10000))
+
+                arenaTopic.readKeyValuesToList()
+            }
+        }
+
+        "Edgecase: 50 periodeId-er alle aktive simultaneously, blanding av bare-periode og begge" {
+            with(testScope(baseStartTid)) {
+                val rng = Random(7777)
+                val periodeIds = (1..50).map { UUID.randomUUID() }
+
+                // Send alle periodene
+                periodeIds.forEachIndexed { i, pid ->
+                    val p = periode(
+                        identietsnummer = "3${i.toString().padStart(10, '0')}".take(11),
+                        id = pid,
+                        startet = periodeStartTid
+                    )
+                    periodeTopic.pipeInput(i.toLong() + 1, p)
+                }
+
+                // Send profilering for halvparten
+                periodeIds.shuffled(rng).take(25).forEachIndexed { i, pid ->
+                    val prof = profilering(periode = pid, timestamp = baseStartTid)
+                    profileringsTopic.pipeInput(i.toLong() + 1, prof)
+                }
+
+                // Trigger punctuator
+                topologyTestDriver.advanceWallClockTime(Duration.ofMillis(6000))
+                topologyTestDriver.advanceWallClockTime(Duration.ofMillis(6000))
+
+                arenaTopic.readKeyValuesToList() // ingen exception = invarianten holdt
+                // Forvent 50 utgående meldinger (25 med profilering, 25 kun periode)
+                arenaTopic.isEmpty shouldBe true
+            }
+        }
+
+        "Direkte state-injeksjon: verifiser at exception faktisk kastes ved manuelt korrupt tilstand" {
+            // Denne testen beviser at deteksjonen faktisk virker.
+            // Vi injiserer den umulige tilstanden direkte i state stores (simulerer infrastruktur-korrupsjon)
+            // og bekrefter at punctuatoren kaster IllegalStateException.
+            //
+            // NB: TopologyTestDriver pakker exceptions fra punctuatorer inn i StreamsException,
+            // så vi går cause-kjeden for å finne vår IllegalStateException.
+            val thrown = shouldThrow<Exception> {
+                with(testScope(baseStartTid)) {
+                    val periodeId = UUID.randomUUID()
+                    val korruptProfilering = toArena(profilering(periode = periodeId, timestamp = baseStartTid))
+
+                    // Injiser korrupt tilstand direkte i store:
+                    // - topicsJoinStore har {periode=null, profilering!=null} → bryter invarianten
+                    // - ventendePeriodeStore har en entry for samme nøkkel
+                    joinStore.put(periodeId, TopicsJoin(null, korruptProfilering, null))
+                    ventendePeriodeStore.put(
+                        periodeId,
+                        ForsinkelseMetadata(
+                            recordKey = 1L,
+                            traceparent = null,
+                            timestamp = baseStartTid.toEpochMilli() - 10_000L // 10s gammel
+                        )
+                    )
+
+                    // Trigger punctuatoren — skal kaste IllegalStateException (pakket i StreamsException)
+                    topologyTestDriver.advanceWallClockTime(Duration.ofMillis(6000))
+                }
+            }
+            val invariantBrudd = generateSequence(thrown as Throwable) { it.cause }
+                .filterIsInstance<IllegalStateException>()
+                .firstOrNull()
+            invariantBrudd?.message?.contains("invariant brutt") shouldBe true
+        }
     }
 })
