@@ -16,6 +16,7 @@ on:
       - 'gradle.properties'
       - 'gradlew'
       - 'gradlew.bat'
+      - 'buildSrc/**'
 
 env:
   MODULE: oppslag-api-v2

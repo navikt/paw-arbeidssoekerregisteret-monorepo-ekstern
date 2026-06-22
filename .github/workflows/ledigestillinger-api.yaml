@@ -17,6 +17,7 @@ on:
       - 'gradle.properties'
       - 'gradlew'
       - 'gradlew.bat'
+      - 'buildSrc/**'
 
 env:
   MODULE: ledigestillinger-api
