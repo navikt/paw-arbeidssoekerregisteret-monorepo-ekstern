@@ -120,6 +120,8 @@ spec:
           namespace: teamfamilie
         - application: veilarboppfolging
           namespace: poao
+        - application: modiapersonoversikt-api
+          namespace: personoversikt
     outbound:
       rules:
         - application: paw-tilgangskontroll
