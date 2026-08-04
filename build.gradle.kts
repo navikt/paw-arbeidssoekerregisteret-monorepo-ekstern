@@ -1,7 +1,7 @@
 import java.util.concurrent.ConcurrentHashMap
 
 plugins {
-    id("com.github.ben-manes.versions")
+    id("io.github.ben-manes.versions")
 }
 
 tasks.withType<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask> {
@@ -43,5 +43,4 @@ fun isNonStable(version: String): Boolean {
     val normalized = version.lowercase()
     return unstableKeywords.any { normalized.contains(it) }
 }
-
 
