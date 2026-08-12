@@ -49,6 +49,7 @@ include(
     "lib:aareg-client",
     "lib:tilgangskontroll-client",
     "lib:topics",
+    "lib:kafka-signing",
     // test
     "test:test-data-factory",
     // apps

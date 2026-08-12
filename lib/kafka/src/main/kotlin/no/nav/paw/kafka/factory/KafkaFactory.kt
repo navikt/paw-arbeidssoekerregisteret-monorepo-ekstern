@@ -36,6 +36,7 @@ class KafkaFactory(private val config: KafkaConfig) {
     ): Producer<K, V> =
         KafkaProducer(
             baseProperties +
+                    config.producerExtraProperties +
                     mapOf(
                         ProducerConfig.ACKS_CONFIG to acks,
                         ProducerConfig.CLIENT_ID_CONFIG to clientId,
