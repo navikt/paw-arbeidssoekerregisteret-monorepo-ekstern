@@ -1,5 +1,8 @@
 package no.nav.paw.arbeidssokerregisteret.profilering
 
+import no.nav.paw.kafka.signing.KafkaSigningConfig
+import no.nav.paw.kafka.signing.kafkaStreamsConsumerValidationProperties
+import no.nav.paw.kafka.signing.toKafkaStreamsProducerProperties
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
@@ -54,7 +57,16 @@ fun main() {
         prometheusRegistry = prometheusMeterRegistry
     )
 
-    val kafkaStreams = KafkaStreams(topology, streamsConfig.properties)
+    val kafkaSigningConfig = KafkaSigningConfig(
+        mountPath = "/var/run/secrets/kafka-signing",
+        localResource = "/local/kafka-signing-key.properties",
+    )
+    val streamsProperties = streamsConfig.properties.also {
+        it.putAll(kafkaSigningConfig.toKafkaStreamsProducerProperties())
+        it.putAll(kafkaStreamsConsumerValidationProperties())
+    }
+
+    val kafkaStreams = KafkaStreams(topology, streamsProperties)
 
     kafkaStreams.setUncaughtExceptionHandler { throwable ->
         logger.error("Uventet feil: $throwable", throwable)

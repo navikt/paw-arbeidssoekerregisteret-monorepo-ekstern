@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":domain:main-avro-schema"))
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:kafka"))
+    implementation(project(":lib:kafka-signing"))
     implementation(project(":lib:kafka-streams"))
     implementation(project(":lib:pdl-client"))
     implementation(project(":lib:aareg-client"))
