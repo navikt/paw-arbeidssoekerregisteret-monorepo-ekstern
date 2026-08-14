@@ -43,7 +43,7 @@ spec:
         - host: pdl-api.prod-fss-pub.nais.io
         - host: aareg-services.prod-fss-pub.nais.io
   filesFrom:
-    - secret: paw-profilering
+    - secret: prod-paw-profilering
       mountPath: /var/run/secrets/kafka-signing
   liveness:
     path: /internal/isAlive
