@@ -9,6 +9,7 @@ val jvmMajorVersion: String by project
 dependencies {
     implementation(project(":lib:hoplite-config"))
     implementation(project(":lib:kafka"))
+    implementation(project(":lib:kafka-signing"))
     implementation(project(":lib:kafka-streams"))
     implementation(project(":lib:health"))
     implementation(project(":domain:main-avro-schema"))

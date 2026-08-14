@@ -1,5 +1,6 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
+import no.nav.paw.kafka.signing.stripSigningHeaders
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import no.nav.paw.arbeidssokerregisteret.api.v1.Periode
@@ -149,6 +150,10 @@ fun topology(
             null,
             bekreftelse?.toArena()
         )
+    }.genericProcess<Long, ArenaArbeidssokerregisterTilstand, Long, ArenaArbeidssokerregisterTilstand>(
+        "strip_signing_headers_periode"
+    ) { record ->
+        forward(record.withHeaders(stripSigningHeaders(record.headers())))
     }.to(
         topics.arena,
         Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde)
@@ -180,6 +185,10 @@ fun topology(
             null,
             null
         )
+    }.genericProcess<Long, ArenaArbeidssokerregisterTilstand, Long, ArenaArbeidssokerregisterTilstand>(
+        "strip_signing_headers_profilering"
+    ) { record ->
+        forward(record.withHeaders(stripSigningHeaders(record.headers())))
     }.to(
         topics.arena,
         Produced.with(Serdes.Long(), arenaArbeidssokerregisterTilstandSerde),
