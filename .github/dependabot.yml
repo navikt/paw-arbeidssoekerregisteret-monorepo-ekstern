@@ -4,6 +4,13 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      nais-actions:
+        # Keep NAIS actions pinned to full SHAs; workflow comments identify the verified release or tag.
+        patterns:
+          - "nais/login"
+          - "nais/deploy/actions/deploy"
+          - "nais/attest-sign"
 
   - package-ecosystem: "gradle"
     directory: "/"
