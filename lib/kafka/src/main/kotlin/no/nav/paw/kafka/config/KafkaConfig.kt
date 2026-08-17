@@ -10,5 +10,6 @@ data class KafkaConfig(
     val authentication: KafkaAuthenticationConfig? = null,
     val schemaRegistry: KafkaSchemaRegistryConfig? = null,
     val applicationIdPrefix: String? = null,
-    val producerExtraProperties: Map<String, Any> = emptyMap()
+    val producerExtraProperties: Map<String, Any> = emptyMap(),
+    val consumerExtraProperties: Map<String, Any> = emptyMap(),
 )

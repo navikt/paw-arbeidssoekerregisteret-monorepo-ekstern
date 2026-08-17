@@ -14,6 +14,21 @@ Signaturen dekker: `key || traceparent || timestamp || value`.
 
 Manglende, ukjente eller ugyldige signaturer gir en `[kafka-signing]`-advarsel i team-logs, men stopper **ikke** prosessering.
 
+## Oppsett i en vanlig Kafka consumer
+
+Legg valideringsinterceptoren til i `KafkaConfig` før du oppretter consumeren:
+
+```kotlin
+val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG)
+    .withSignatureValidation()
+
+val consumer = KafkaFactory(kafkaConfig).createConsumer(
+    // ordinær consumer-konfigurasjon
+)
+```
+
+`withSignatureValidation()` beholder eksisterende `consumerExtraProperties`.
+
 ## Oppsett i Kafka Streams
 
 ```kotlin
@@ -108,4 +123,3 @@ openssl dgst -sha256 -verify /tmp/pub.der -signature <(base64 -d <<< "$SIGNATURE
 ```
 
 Enklere: se etter `[kafka-signing]`-meldinger i team-logs — valideringsresultatet logges der for alle innkommende meldinger med ukjent nøkkel eller ugyldig signatur.
-

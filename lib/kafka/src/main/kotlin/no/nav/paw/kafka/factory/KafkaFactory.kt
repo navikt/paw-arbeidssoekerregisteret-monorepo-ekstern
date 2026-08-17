@@ -58,6 +58,7 @@ class KafkaFactory(private val config: KafkaConfig) {
     ): KafkaConsumer<K, V> =
         KafkaConsumer(
             baseProperties +
+                    config.consumerExtraProperties +
                     mapOf(
                         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to autoCommit,
                         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to autoOffsetReset,
@@ -84,6 +85,7 @@ class KafkaFactory(private val config: KafkaConfig) {
     ): KafkaConsumer<K, V> =
         KafkaConsumer(
             baseProperties +
+                    config.consumerExtraProperties +
                     mapOf(
                         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to autoCommit,
                         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to autoOffsetReset,

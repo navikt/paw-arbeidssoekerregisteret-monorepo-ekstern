@@ -5,11 +5,32 @@ import io.kotest.matchers.shouldBe
 import no.nav.paw.kafka.config.KafkaAuthenticationConfig
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.config.KafkaSchemaRegistryConfig
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerInterceptor
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.consumer.OffsetAndMetadata
+import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.Serdes
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createTempFile
+
+class RecordingConsumerInterceptor : ConsumerInterceptor<Any, Any> {
+    override fun configure(configs: Map<String, *>) {
+        configuredProperties = configs
+    }
+
+    override fun onConsume(records: ConsumerRecords<Any, Any>): ConsumerRecords<Any, Any> = records
+
+    override fun onCommit(offsets: Map<TopicPartition, OffsetAndMetadata>) = Unit
+
+    override fun close() = Unit
+
+    companion object {
+        var configuredProperties: Map<String, *> = emptyMap<String, Any?>()
+    }
+}
 
 class KafkaFactoryTest : StringSpec({
     "setter riktig security protocol" {
@@ -115,5 +136,45 @@ class KafkaFactoryTest : StringSpec({
             valueDeserializer = Serdes.String().deserializer()::class
         )
         consumer.javaClass shouldBe KafkaConsumer::class.java
+    }
+    "bruker consumerExtraProperties med deserializer-klasser" {
+        val config = KafkaConfig(
+            brokers = "localhost:9092",
+            consumerExtraProperties = mapOf(
+                "interceptor.classes" to RecordingConsumerInterceptor::class.java.name,
+                "test.consumer.property" to "class-deserializer",
+                ConsumerConfig.GROUP_ID_CONFIG to "skal-overstyres",
+            )
+        )
+
+        val consumer = KafkaFactory(config).createConsumer(
+            groupId = "groupId",
+            clientId = "clientId",
+            keyDeserializer = Serdes.String().deserializer()::class,
+            valueDeserializer = Serdes.String().deserializer()::class
+        )
+
+        RecordingConsumerInterceptor.configuredProperties["test.consumer.property"] shouldBe "class-deserializer"
+        RecordingConsumerInterceptor.configuredProperties[ConsumerConfig.GROUP_ID_CONFIG] shouldBe "groupId"
+        consumer.close()
+    }
+    "bruker consumerExtraProperties med deserializer-instanser" {
+        val config = KafkaConfig(
+            brokers = "localhost:9092",
+            consumerExtraProperties = mapOf(
+                "interceptor.classes" to RecordingConsumerInterceptor::class.java.name,
+                "test.consumer.property" to "deserializer-instance"
+            )
+        )
+
+        val consumer = KafkaFactory(config).createConsumer(
+            groupId = "groupId",
+            clientId = "clientId",
+            keyDeserializer = Serdes.String().deserializer(),
+            valueDeserializer = Serdes.String().deserializer()
+        )
+
+        RecordingConsumerInterceptor.configuredProperties["test.consumer.property"] shouldBe "deserializer-instance"
+        consumer.close()
     }
 })

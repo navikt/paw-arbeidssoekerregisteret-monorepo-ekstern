@@ -43,6 +43,25 @@ class KafkaSigningConfigKafkaStreamsTest : StringSpec({
         props[expectedKey] shouldBe SignatureValidatingConsumerInterceptor::class.java.name
     }
 
+    "kafkaConsumerValidationProperties returnerer uprefikset interceptor-nøkkel" {
+        val props = kafkaConsumerValidationProperties()
+
+        props shouldContainKey ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG
+        props[ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG] shouldBe
+            SignatureValidatingConsumerInterceptor::class.java.name
+    }
+
+    "withSignatureValidation beholder eksisterende consumer-egenskaper" {
+        val config = no.nav.paw.kafka.config.KafkaConfig(
+            brokers = "localhost:9092",
+            consumerExtraProperties = mapOf("existing.property" to "value")
+        ).withSignatureValidation()
+
+        config.consumerExtraProperties["existing.property"] shouldBe "value"
+        config.consumerExtraProperties[ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG] shouldBe
+            SignatureValidatingConsumerInterceptor::class.java.name
+    }
+
     "producer og consumer properties kan kombineres uten konflikter" {
         val combined = signingConfig.toKafkaStreamsProducerProperties() +
             kafkaStreamsConsumerValidationProperties()

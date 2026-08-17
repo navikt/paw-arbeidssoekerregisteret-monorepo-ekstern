@@ -17,7 +17,9 @@ import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
+import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.kafka.signing.withSignatureValidation
 import no.nav.paw.logging.logger.AuditLogger
 import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.oppslagapi.data.consumer.ConsumerHealthMetric
@@ -68,7 +70,10 @@ fun main() {
         databaseQuerySupport = exposedDatabaseQuerySupport,
         kafkaKeysClient = webClients.kafkaKeysClient
     )
-    val kafkaFactory = KafkaFactory(loadNaisOrLocalConfiguration(KAFKA_CONFIG_WITH_SCHEME_REG))
+    val kafkaFactory = KafkaFactory(
+        loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
+            .withSignatureValidation()
+    )
     val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
         groupId = consumer_group,
         clientId = "oppslag-api-v2-${UUID.randomUUID()}",

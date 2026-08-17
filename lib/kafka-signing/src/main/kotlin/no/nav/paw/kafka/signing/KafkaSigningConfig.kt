@@ -27,6 +27,13 @@ fun KafkaSigningConfig.toProducerProperties(): Map<String, Any> = mapOf(
 fun KafkaConfig.withRecordSigning(signing: KafkaSigningConfig): KafkaConfig =
     copy(producerExtraProperties = producerExtraProperties + signing.toProducerProperties())
 
+fun kafkaConsumerValidationProperties(): Map<String, Any> = mapOf(
+    ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG to SignatureValidatingConsumerInterceptor::class.java.name
+)
+
+fun KafkaConfig.withSignatureValidation(): KafkaConfig =
+    copy(consumerExtraProperties = consumerExtraProperties + kafkaConsumerValidationProperties())
+
 /**
  * Returns a [StreamsConfig]-ready property map that configures [SigningProducerInterceptor]
  * on the Kafka Streams internal producer.
