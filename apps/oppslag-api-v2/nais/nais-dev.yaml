@@ -124,6 +124,8 @@ spec:
           namespace: personoversikt
     outbound:
       rules:
+        - application: logging
+          namespace: nais-system
         - application: paw-tilgangskontroll
           namespace: paw
           cluster: dev-gcp

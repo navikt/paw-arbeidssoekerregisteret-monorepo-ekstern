@@ -39,6 +39,9 @@ spec:
       value: OPP
   accessPolicy:
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: pdl-api.prod-fss-pub.nais.io
         - host: aareg-services.prod-fss-pub.nais.io
