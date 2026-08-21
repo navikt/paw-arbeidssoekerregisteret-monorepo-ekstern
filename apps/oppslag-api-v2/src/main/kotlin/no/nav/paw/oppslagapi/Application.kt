@@ -35,7 +35,6 @@ import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.Deserializer
-import org.apache.kafka.common.serialization.LongDeserializer
 import java.time.Duration
 import java.util.*
 
@@ -74,10 +73,10 @@ fun main() {
         loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
             .withSignatureValidation()
     )
-    val consumer: Consumer<Long, ByteArray> = kafkaFactory.createConsumer(
+    val consumer: Consumer<ByteArray, ByteArray> = kafkaFactory.createConsumer(
         groupId = consumer_group,
         clientId = "oppslag-api-v2-${UUID.randomUUID()}",
-        keyDeserializer = LongDeserializer::class,
+        keyDeserializer = ByteArrayDeserializer::class,
         valueDeserializer = ByteArrayDeserializer::class,
         autoCommit = false,
         autoOffsetReset = "earliest",

@@ -6,14 +6,15 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import no.nav.paw.oppslagapi.data.serde
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.common.serialization.LongSerializer
 import org.apache.kafka.common.serialization.Serde
 
-fun SpecificRecord.asConsumerRecord(): ConsumerRecord<Long, ByteArray> {
+fun SpecificRecord.asConsumerRecord(): ConsumerRecord<ByteArray, ByteArray> {
     return ConsumerRecord(
         "topic",
         0,
         0L,
-        0L,
+        LongSerializer().serialize("topic", 0L),
         serde.serializer().serialize("topic", this)
     )
 }

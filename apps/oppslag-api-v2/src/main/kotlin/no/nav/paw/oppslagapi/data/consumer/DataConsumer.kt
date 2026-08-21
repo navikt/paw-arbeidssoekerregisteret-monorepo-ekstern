@@ -21,7 +21,7 @@ import kotlin.math.min
 
 class DataConsumer(
     private val deserializer: Deserializer<SpecificRecord>,
-    private val consumer: Consumer<Long, ByteArray>,
+    private val consumer: Consumer<ByteArray, ByteArray>,
     private val pollTimeout: Duration = Duration.ofMillis(1000L),
     private val consumerHealthMetric: ConsumerHealthMetric
 ) : IsAlive, HasStarted {
@@ -107,4 +107,3 @@ class DataConsumer(
         }
     }
 }
-

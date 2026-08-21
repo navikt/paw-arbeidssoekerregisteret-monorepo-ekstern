@@ -24,7 +24,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.Deserializer
 import java.time.Instant
 
-fun ConsumerRecord<Long, ByteArray>.toRow(deserializer: Deserializer<SpecificRecord>): Row<String> {
+fun ConsumerRecord<ByteArray, ByteArray>.toRow(deserializer: Deserializer<SpecificRecord>): Row<String> {
     when (val melding = deserializer.deserialize(topic(), this.value())) {
         is Periode -> {
             val (type, metadata) = if (melding.avsluttet == null) {

@@ -21,6 +21,12 @@ import java.util.*
 private val logger = LoggerFactory.getLogger("signature.validation")
 private const val INSTRUMENTATION_SCOPE = "kafka-signing"
 
+/**
+ * Validates signatures against the serialized Kafka record.
+ *
+ * Kafka invokes consumer interceptors after deserialization, so consumers using this interceptor
+ * must configure [org.apache.kafka.common.serialization.ByteArrayDeserializer] for both key and value.
+ */
 class SignatureValidatingConsumerInterceptor : ConsumerInterceptor<ByteArray, ByteArray> {
 
     private var publicKeys: Map<String, ECPublicKey> = emptyMap()
