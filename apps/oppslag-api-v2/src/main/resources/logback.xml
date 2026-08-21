@@ -27,7 +27,11 @@
         </filter>
     </appender>
 
-    <if condition='"${NAIS_CLUSTER_NAME}" == "prod-gcp"'>
+    <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
+        <key>NAIS_CLUSTER_NAME</key>
+        <value>prod-gcp</value>
+    </condition>
+    <if>
         <then>
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
@@ -39,7 +43,11 @@
         </then>
     </if>
 
-    <if condition='"${NAIS_CLUSTER_NAME}" == "dev-gcp"'>
+    <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
+        <key>NAIS_CLUSTER_NAME</key>
+        <value>dev-gcp</value>
+    </condition>
+    <if>
         <then>
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
@@ -51,7 +59,10 @@
         </then>
     </if>
 
-    <if condition='"${NAIS_CLUSTER_NAME}" == "NAIS_CLUSTER_NAME_IS_UNDEFINED"'>
+    <condition class="ch.qos.logback.core.boolex.IsPropertyNullCondition">
+        <key>NAIS_CLUSTER_NAME</key>
+    </condition>
+    <if>
         <then>
             <root level="INFO">
                 <appender-ref ref="STDOUT"/>
