@@ -68,6 +68,9 @@ spec:
       enabled: true
   kafka:
     pool: nav-dev
+  filesFrom:
+    - secret: dev-paw-egenvurdering-api
+      mountPath: /var/run/secrets/kafka-signing
   postgres:
     clusterName: paw-arbeidssoekerregisteret-api-egenvurdering
   accessPolicy:

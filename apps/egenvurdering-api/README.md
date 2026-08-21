@@ -159,6 +159,13 @@ Dersom ingen treff finnes på primær-ident, forsøker tjenesten med alternative
 - **Consumer-versjon:** `2` (brukes til HWM-offsetsporing i databasen)
 - **Producer:** `egenvurdering-producer-v1`
 - **Kafka-pool:** `nav-dev` / `nav-prod`
+- **Signering:** Alle utgående records signeres med ECDSA P-256 via `lib/kafka-signing`
+
+Producer-interceptoren legger til headerne `x-paw-signature` og `x-paw-signing-key-id`.
+Signeringsnøkkelen lastes fra en Nais-secret montert i `/var/run/secrets/kafka-signing`.
+Key-ID er `dev-paw-egenvurdering-api-ecdsa-v1` i dev og
+`prod-paw-egenvurdering-api-ecdsa-v1` i prod. Hvis signering av en record feiler,
+logger interceptoren feilen og sender recorden usignert.
 
 ---
 
@@ -239,6 +246,9 @@ Konfigureres via TOML-filer lastet med `hoplite`.
 ## Lokal utvikling
 
 Lokal konfigurasjon ligger i `src/test/resources/local/` og `src/main/resources/local/`.
+Lokal kjøring bruker den ikke-operative testnøkkelen i
+`src/main/resources/local/kafka-signing-key.properties`. Denne nøkkelen skal ikke
+brukes i Nais-miljøer.
 
 HTTP-testfiler for manuell testing ligger i `src/test/resources/requests/`:
 - `api.http` – brukerendepunkter

@@ -26,6 +26,8 @@ import no.nav.paw.hwm.HwmTopicConfig
 import no.nav.paw.kafka.config.KAFKA_CONFIG_WITH_SCHEME_REG
 import no.nav.paw.kafka.config.KafkaConfig
 import no.nav.paw.kafka.factory.KafkaFactory
+import no.nav.paw.kafka.signing.KafkaSigningConfig
+import no.nav.paw.kafka.signing.withRecordSigning
 import no.nav.paw.kafkakeygenerator.client.KafkaKeysClient
 import no.nav.paw.kafkakeygenerator.factory.createKafkaKeyGeneratorClient
 import no.nav.paw.security.authentication.config.SECURITY_CONFIG
@@ -65,6 +67,12 @@ data class ApplicationContext(
             val applicationConfig = loadNaisOrLocalConfiguration<ApplicationConfig>(APPLICATION_CONFIG)
             val securityConfig = loadNaisOrLocalConfiguration<SecurityConfig>(SECURITY_CONFIG)
             val kafkaConfig = loadNaisOrLocalConfiguration<KafkaConfig>(KAFKA_CONFIG_WITH_SCHEME_REG)
+                .withRecordSigning(
+                    KafkaSigningConfig(
+                        mountPath = "/var/run/secrets/kafka-signing",
+                        localResource = "/local/kafka-signing-key.properties",
+                    )
+                )
 
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 

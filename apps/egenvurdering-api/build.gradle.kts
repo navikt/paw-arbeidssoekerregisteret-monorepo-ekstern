@@ -21,6 +21,7 @@ dependencies {
     implementation(project(":lib:security"))
     implementation(project(":lib:kafka"))
     implementation(project(":lib:kafka-hwm"))
+    implementation(project(":lib:kafka-signing"))
     implementation(project(":lib:database"))
     implementation(project(":lib:http-client-utils"))
     implementation(project(":lib:kafka-key-generator-client"))
