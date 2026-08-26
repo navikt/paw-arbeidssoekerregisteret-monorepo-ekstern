@@ -24,7 +24,6 @@ fun lagre14aResultat(
             ?.let(brukerprofilTjeneste::hentLokalBrukerProfilEllerNull)
         brukerprofil?.let { it to vedtak }
     }.also { res ->
-        println("Vi er her")
         Span.current().addEvent(
             "brukerprofil_mapping", Attributes.of(
                 booleanKey("brukerprofil_funnet"), res != null,
