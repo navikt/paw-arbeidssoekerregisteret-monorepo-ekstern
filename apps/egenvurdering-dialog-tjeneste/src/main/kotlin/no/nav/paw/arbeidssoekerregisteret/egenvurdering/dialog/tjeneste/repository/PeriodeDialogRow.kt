@@ -8,5 +8,5 @@ data class PeriodeDialogRow(
     val periodeDialogAuditRows: List<PeriodeDialogAuditRow>,
 ) {
     fun finnSisteAuditRow(): PeriodeDialogAuditRow? =
-        periodeDialogAuditRows.sortedBy { auditRow -> auditRow.id }.singleOrNull()
+        periodeDialogAuditRows.maxByOrNull { auditRow -> auditRow.id }
 }

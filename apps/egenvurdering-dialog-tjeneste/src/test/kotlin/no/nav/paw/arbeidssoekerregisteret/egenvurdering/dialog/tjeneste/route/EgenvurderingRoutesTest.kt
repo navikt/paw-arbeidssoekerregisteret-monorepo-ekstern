@@ -96,6 +96,46 @@ class EgenvurderingRoutesTest : FreeSpec({
                     body.title shouldBe HttpStatusCode.NotFound.description
                 }
 
+                "Skal få 204 når person har flere egenvurderinger og siste er BrukerKanIkkeVarsles (tidligere KRR-reservert)" {
+                    // GIVEN - person hadde reservasjon i KRR, sendte inn egenvurdering to ganger,
+                    // begge ganger fikk vi BrukerKanIkkeVarsles (409) fra veilarbdialog
+                    val token = mockOAuth2Server.issueAzureAdToken()
+                    val periodeId = UUID.randomUUID()
+                    every { dialogServiceMock.finnDialogInfoForPeriodeId(periodeId) } returns PeriodeDialogRow(
+                        periodeId = periodeId,
+                        dialogId = null,
+                        periodeDialogAuditRows = listOf(
+                            PeriodeDialogAuditRow(
+                                id = 1,
+                                periodeId = periodeId,
+                                egenvurderingId = UUID.randomUUID(),
+                                dialogHttpStatusCode = HttpStatusCode.Conflict.value,
+                                dialogErrorMessage = "Bruker kan ikke varsles"
+                            ),
+                            PeriodeDialogAuditRow(
+                                id = 2,
+                                periodeId = periodeId,
+                                egenvurderingId = UUID.randomUUID(),
+                                dialogHttpStatusCode = HttpStatusCode.Conflict.value,
+                                dialogErrorMessage = "Bruker kan ikke varsles"
+                            ),
+                        ),
+                    )
+                    val request = EgenvurderingDialogRequest(periodeId = periodeId)
+
+                    // WHEN
+                    val response = client.post("/api/v1/egenvurdering/dialog") {
+                        bearerAuth(token.serialize())
+                        setJsonBody(request)
+                    }
+
+                    // THEN - skal være 204, ikke 404
+                    response.validateAgainstOpenApiSpec()
+                    response.status shouldBe HttpStatusCode.NoContent
+
+                    verify { dialogServiceMock.finnDialogInfoForPeriodeId(periodeId) }
+                }
+
                 "Skal få 204 når vi ikke har fått dialogId fra veilarbdialog " {
                     // GIVEN
                     val token = mockOAuth2Server.issueAzureAdToken()

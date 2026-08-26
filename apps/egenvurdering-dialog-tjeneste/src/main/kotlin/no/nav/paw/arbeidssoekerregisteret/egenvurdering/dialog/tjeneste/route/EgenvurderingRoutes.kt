@@ -34,14 +34,22 @@ fun Route.egenvurderingRoutes(
                         booleanKey("dialogId"), dialogInfo?.dialogId != null
                     ),
                 )
-                when {
-                    dialogInfo == null -> call.respond(HttpStatusCode.NotFound, notFoundProblemDetails(call.request))
+
+                val (httpCode, responseObject) =  when {
+                    dialogInfo == null -> HttpStatusCode.NotFound to notFoundProblemDetails(call.request)
 
                     dialogInfo.finnSisteAuditRow()?.dialogHttpStatusCode == HttpStatusCode.Conflict.value ->
-                        call.respond(HttpStatusCode.NoContent)
+                        HttpStatusCode.NoContent to null
 
                     dialogInfo.dialogId != null ->
-                        call.respond(EgenvurderingDialogResponse(dialogId = dialogInfo.dialogId))
+                        HttpStatusCode.OK to EgenvurderingDialogResponse(dialogId = dialogInfo.dialogId)
+
+                    else -> HttpStatusCode.InternalServerError to internalServerErrorProblemDetails(call.request)
+                }
+
+                when {
+                    responseObject != null -> call.respond(httpCode, responseObject)
+                    else -> call.respond(httpCode)
                 }
             }
         }
@@ -54,5 +62,13 @@ private fun notFoundProblemDetails(request: RoutingRequest): ProblemDetails = Pr
     .type(DIALOG_IKKE_FUNNET_ERROR_TYPE)
     .status(HttpStatusCode.NotFound)
     .detail("Dialog ikke funnet for arbeidssøkerperiode")
+    .instance(request.uri)
+    .build()
+
+val EGENVURDERING_DIALOG_TJENESTE_INTERNAL_SERVER_ERROR = ErrorType.domain("egenvurdering").error("internal-server-error").build()
+private fun internalServerErrorProblemDetails(request: RoutingRequest): ProblemDetails = ProblemDetailsBuilder.builder()
+    .type(EGENVURDERING_DIALOG_TJENESTE_INTERNAL_SERVER_ERROR)
+    .status(HttpStatusCode.InternalServerError)
+    .detail("Noe gikk galt ved henting av dialog for arbeidssøkerperiode")
     .instance(request.uri)
     .build()
