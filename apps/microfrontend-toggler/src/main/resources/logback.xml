@@ -10,7 +10,11 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <if condition='"${NAIS_CLUSTER_NAME}" == "prod-gcp"'>
+    <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
+        <key>NAIS_CLUSTER_NAME</key>
+        <value>prod-gcp</value>
+    </condition>
+    <if>
         <then>
             <root level="INFO">
                 <appender-ref ref="STDOUT_JSON"/>
@@ -22,7 +26,11 @@
             <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>
-    <if condition='"${NAIS_CLUSTER_NAME}" == "dev-gcp"'>
+    <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
+        <key>NAIS_CLUSTER_NAME</key>
+        <value>dev-gcp</value>
+    </condition>
+    <if>
         <then>
             <logger name="no.nav" level="DEBUG"/>
             <root level="INFO">
@@ -35,7 +43,11 @@
             <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
         </then>
     </if>
-    <if condition='"${NAIS_CLUSTER_NAME}" == "docker"'>
+    <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
+        <key>NAIS_CLUSTER_NAME</key>
+        <value>docker</value>
+    </condition>
+    <if>
         <then>
             <logger name="no.nav" level="DEBUG"/>
             <logger name="org.apache.kafka" level="WARN"/>
@@ -45,7 +57,10 @@
             </root>
         </then>
     </if>
-    <if condition='"${NAIS_CLUSTER_NAME}" == "NAIS_CLUSTER_NAME_IS_UNDEFINED"'>
+    <condition class="ch.qos.logback.core.boolex.IsPropertyNullCondition">
+        <key>NAIS_CLUSTER_NAME</key>
+    </condition>
+    <if>
         <then>
             <logger name="no.nav" level="DEBUG"/>
             <logger name="no.nav.paw.logger.application" level="TRACE"/>
