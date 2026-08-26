@@ -56,11 +56,11 @@ spec:
     path: /internal/isReady
     initialDelay: 10
   startup:
-    failureThreshold: 10
-    initialDelay: 12
+    failureThreshold: 20
+    initialDelay: 24
     path: /internal/hasStarted
-    periodSeconds: 10
-    timeout: 5
+    periodSeconds: 20
+    timeout: 10
   prometheus:
     enabled: true
     path: /internal/metrics
