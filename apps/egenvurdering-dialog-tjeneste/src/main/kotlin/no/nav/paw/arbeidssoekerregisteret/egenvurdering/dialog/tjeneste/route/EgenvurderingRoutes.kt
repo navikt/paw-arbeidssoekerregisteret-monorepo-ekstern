@@ -7,17 +7,18 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRequest
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import io.opentelemetry.api.common.AttributeKey.booleanKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.EgenvurderingDialogRequest
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.model.EgenvurderingDialogResponse
+import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.repository.PeriodeDialogRow
 import no.nav.paw.arbeidssoekerregisteret.egenvurdering.dialog.tjeneste.service.DialogService
 import no.nav.paw.error.model.ErrorType
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.ProblemDetailsBuilder
-import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.security.authentication.model.AzureAd
 import no.nav.paw.security.authentication.plugin.autentisering
-
-val logger = buildApplicationLogger
 
 fun Route.egenvurderingRoutes(
     dialogService: DialogService,
@@ -25,7 +26,14 @@ fun Route.egenvurderingRoutes(
     route("/api/v1/egenvurdering") {
         autentisering(AzureAd) {
             post<EgenvurderingDialogRequest>("/dialog") { request ->
-                val dialogInfo = dialogService.finnDialogInfoForPeriodeId(request.periodeId)
+                val dialogInfo: PeriodeDialogRow? = dialogService.finnDialogInfoForPeriodeId(request.periodeId)
+                Span.current().addEvent(
+                    "egenvurdering-route",
+                    Attributes.of(
+                        booleanKey("periodeId"), dialogInfo?.periodeId != null,
+                        booleanKey("dialogId"), dialogInfo?.dialogId != null
+                    ),
+                )
                 when {
                     dialogInfo == null -> call.respond(HttpStatusCode.NotFound, notFoundProblemDetails(call.request))
 
