@@ -20,8 +20,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Collections.synchronizedList
-import kotlin.random.Random
-import kotlin.random.nextLong
+import java.util.concurrent.CountDownLatch
 
 class HentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlaggTest : FreeSpec({
     val postgres = postgreSQLContainer()
@@ -96,30 +95,39 @@ class HentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlaggTest : FreeSpec({
 
         "Rolf og Turi skal returneres som aktive brukere med utløpt adressebeskyttelse-flagg" {
             val brukereReturnert = synchronizedList(mutableListOf<BrukerProfil>())
+            val feil = synchronizedList(mutableListOf<Throwable>())
+            val startSignal = CountDownLatch(1)
             fun selectTråd(): Thread = Thread {
-                transaction {
-                    val brukere = hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
-                        alleFraFørDetteErUtløpt = tidspunkt - Duration.ofHours(24)
-                    )
-                    val sleepTime = Random.nextLong(LongRange(500, 1000))
-                    println("Tråd sover i $sleepTime ms")
-                    Thread.sleep(sleepTime) //Vi venter litt slit at vi får verifisert at select for update låser radene
-                    brukere.forEach { bruker ->
-                        skrivFlaggTilDB(
-                            brukerId = bruker.id,
-                            listeMedFlagg = listOf(
-                                HarBeskyttetadresseFlagg(true, tidspunkt)
-                            )
+                try {
+                    startSignal.await()
+                    transaction {
+                        val brukere = hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
+                            alleFraFørDetteErUtløpt = tidspunkt - Duration.ofHours(24)
                         )
-                    }
+                        Thread.sleep(100)
+                        brukere.forEach { bruker ->
+                            skrivFlaggTilDB(
+                                brukerId = bruker.id,
+                                listeMedFlagg = listOf(
+                                    HarBeskyttetadresseFlagg(true, tidspunkt)
+                                )
+                            )
+                        }
 
-                    brukereReturnert.addAll(brukere)
+                        brukereReturnert.addAll(brukere)
+                    }
+                } catch (error: Throwable) {
+                    feil.add(error)
                 }
             }
             val antallTråder = 16
-            (0..antallTråder).map {
+            val tråder = (0..antallTråder).map {
                 selectTråd().apply { start() }
-            }.forEach { it.join() }
+            }
+            startSignal.countDown()
+            tråder.forEach { it.join() }
+
+            feil shouldBe emptyList()
             val resultat = brukereReturnert.toList().map { it.identitetsnummer.value }
             resultat.size shouldBe 2
             resultat shouldContainExactlyInAnyOrder listOf(

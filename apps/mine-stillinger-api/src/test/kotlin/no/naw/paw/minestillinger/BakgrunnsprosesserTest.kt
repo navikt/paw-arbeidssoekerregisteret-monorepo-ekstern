@@ -12,6 +12,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import no.naw.paw.minestillinger.brukerprofil.SlettGamlePropfileringerUtenProfil
 import no.naw.paw.minestillinger.brukerprofil.SlettUbrukteBrukerprofiler
 import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.BeskyttetAddresseDagligOppdatering
@@ -91,11 +92,8 @@ class BakgrunnsprosesserTest : FreeSpec({
         try {
             bakgrunnsprosesser.hasStarted() shouldBe false
             bakgrunnsprosesser.start()
-            runBlocking {
-                repeat(100) {
-                    if (tråder.isNotEmpty() && bakgrunnsprosesser.isAlive()) return@runBlocking
-                    delay(10)
-                }
+            ventTil {
+                tråder.isNotEmpty() && bakgrunnsprosesser.isAlive()
             }
 
             bakgrunnsprosesser.hasStarted() shouldBe true
@@ -135,13 +133,8 @@ class BakgrunnsprosesserTest : FreeSpec({
 
         try {
             bakgrunnsprosesser.start()
-            runBlocking {
-                repeat(100) {
-                    if (bakgrunnsprosesser.isAlive() && bakgrunnsprosesser.isReady()) {
-                        return@runBlocking
-                    }
-                    delay(10)
-                }
+            ventTil {
+                bakgrunnsprosesser.isAlive() && bakgrunnsprosesser.isReady()
             }
 
             bakgrunnsprosesser.isAlive() shouldBe true
@@ -173,3 +166,13 @@ private fun aldriLeder(): Vedlikeholdsledervalg =
         override fun prøvÅBliLeder(): Lederlås? = null
         override fun close() = Unit
     }
+
+private fun ventTil(condition: () -> Boolean) {
+    runBlocking {
+        withTimeout(5_000) {
+            while (!condition()) {
+                delay(10)
+            }
+        }
+    }
+}
