@@ -31,10 +31,10 @@ spec:
       value: "api://prod-gcp.teampam.pam-dir-api/.default"
   resources:
     limits:
-      memory: 3Gi
+      memory: 2Gi
     requests:
       cpu: 200m
-      memory: 3Gi
+      memory: 2Gi
   tokenx:
     enabled: true
   azure:
@@ -47,8 +47,8 @@ spec:
   kafka:
     pool: nav-prod
   replicas:
-    min: 1
-    max: 1
+    min: 2
+    max: 2
   liveness:
     path: /internal/isAlive
     initialDelay: 10
