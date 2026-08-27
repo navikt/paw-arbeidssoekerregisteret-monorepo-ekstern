@@ -12,6 +12,7 @@ import no.nav.paw.client.factory.createHttpClient
 import no.nav.paw.config.env.currentRuntimeEnvironment
 import no.nav.paw.config.hoplite.loadNaisOrLocalConfiguration
 import no.nav.paw.database.config.DATABASE_CONFIG
+import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.felles.model.AktorId
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.health.healthChecksOf
@@ -77,7 +78,8 @@ fun main() {
         topicNames = topicNames,
         siste14aVedtakTopic = SISTE_14A_VEDTAK_TOPIC
     )
-    val dataSource = initDatabase(loadNaisOrLocalConfiguration(DATABASE_CONFIG))
+    val databaseConfig: DatabaseConfig = loadNaisOrLocalConfiguration(DATABASE_CONFIG)
+    val dataSource = initDatabase(databaseConfig)
     val webClients = initWebClient()
     val brukerprofilTjeneste = BrukerprofilTjeneste(
         meterRegistry = prometheusMeterRegistry,
@@ -124,7 +126,8 @@ fun main() {
         webClients = webClients,
         clock = clock,
         brukerprofilTjeneste = brukerprofilTjeneste,
-        prometheusMeterRegistry = prometheusMeterRegistry
+        prometheusMeterRegistry = prometheusMeterRegistry,
+        vedlikeholdsledervalg = postgresVedlikeholdsledervalg(databaseConfig)
     )
     val texasConfig: TexasClientConfig = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
     val texasClient = TexasClient(texasConfig, createHttpClient())

@@ -12,13 +12,18 @@ import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import no.naw.paw.minestillinger.db.BrukerTable
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.BrukerProfil
+import no.naw.paw.minestillinger.domain.BrukerProfilerUtenFlagg
 import no.naw.paw.minestillinger.domain.medFlagg
 import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.core.min
@@ -49,13 +54,7 @@ fun skrivFlaggTilDB(brukerId: BrukerId, listeMedFlagg: Iterable<LagretFlagg>) {
 fun lesFlaggFraDB(brukerId: BrukerId): List<Flagg> {
     return BrukerFlaggTable.selectAll()
         .where { BrukerFlaggTable.brukerId eq brukerId.verdi }
-        .map { row ->
-            val lagretFlagNavn: String = row[BrukerFlaggTable.navn]
-            flaggType(lagretFlagNavn)
-                ?.flagg(verdi = row[BrukerFlaggTable.verdi], tidspunkt = row[BrukerFlaggTable.tidspunkt])
-                ?: throw IllegalStateException("Ukjent flagg lagret i databasen: $lagretFlagNavn")
-
-        }
+        .map(ResultRow::tilFlagg)
 }
 
 @WithSpan("vedlikehold_hent_adressebeskyttelse_cache_status")
@@ -102,13 +101,16 @@ fun hentAdressebeskyttelseCacheStatus(): AdressebeskyttelseCacheStatus {
 
 @WithSpan("vedlikehold_hent_aktive_brukere_med_utløpt_adressebeskyttelse_flagg")
 fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
-    alleFraFørDetteErUtløpt: Instant
+    alleFraFørDetteErUtløpt: Instant,
+    etterBrukerId: BrukerId? = null,
+    limit: Int = Int.MAX_VALUE
 ): List<BrukerProfil> {
+    require(limit > 0) { "Limit må være større enn null" }
     return transaction {
         val aktivFlagg = BrukerFlaggTable.alias("aktiv_flagg")
         val adresseFlagg = BrukerFlaggTable.alias("adresse_flagg")
 
-        BrukerTable
+        val brukerprofiler = BrukerTable
             .innerJoin(
                 otherTable = aktivFlagg,
                 onColumn = { BrukerTable.id },
@@ -120,17 +122,50 @@ fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
             .selectAll()
             .forUpdate()
             .where {
+                val grunnvilkår =
                 (aktivFlagg[BrukerFlaggTable.navn] eq TjenestenErAktivFlaggtype.type) and
                 (aktivFlagg[BrukerFlaggTable.verdi] eq true) and
                 (adresseFlagg[BrukerFlaggTable.navn] eq HarBeskyttetAdresseFlaggtype.type) and
                 (adresseFlagg[BrukerFlaggTable.tidspunkt] less alleFraFørDetteErUtløpt)
+                etterBrukerId
+                ?.let { grunnvilkår and (BrukerTable.id greater it.verdi) }
+                ?: grunnvilkår
             }
-            .map { row ->
-                brukerprofilUtenFlagg(row).medFlagg(
-                    ListeMedFlagg.listeMedFlagg(lesFlaggFraDB(BrukerId(row[BrukerTable.id])))
-                )
-            }
+            .orderBy(BrukerTable.id to SortOrder.ASC)
+            .limit(limit)
+            .map(::brukerprofilUtenFlagg)
+
+        val flaggPerBruker = lesFlaggFraDB(brukerprofiler.map(BrukerProfilerUtenFlagg::id))
+        brukerprofiler.map { brukerprofil ->
+            brukerprofil.medFlagg(
+                ListeMedFlagg.listeMedFlagg(flaggPerBruker[brukerprofil.id].orEmpty())
+            )
+        }
     }
+}
+
+private fun lesFlaggFraDB(brukerIds: List<BrukerId>): Map<BrukerId, List<Flagg>> {
+    if (brukerIds.isEmpty()) return emptyMap()
+    return BrukerFlaggTable
+        .selectAll()
+        .where { BrukerFlaggTable.brukerId inList brukerIds.map(BrukerId::verdi) }
+        .map { row ->
+            BrukerId(row[BrukerFlaggTable.brukerId]) to row.tilFlagg()
+        }
+        .groupBy(
+            keySelector = Pair<BrukerId, Flagg>::first,
+            valueTransform = Pair<BrukerId, Flagg>::second
+        )
+}
+
+private fun ResultRow.tilFlagg(): Flagg {
+    val lagretFlagNavn = this[BrukerFlaggTable.navn]
+    return flaggType(lagretFlagNavn)
+        ?.flagg(
+            verdi = this[BrukerFlaggTable.verdi],
+            tidspunkt = this[BrukerFlaggTable.tidspunkt]
+        )
+        ?: throw IllegalStateException("Ukjent flagg lagret i databasen: $lagretFlagNavn")
 }
 
 fun <T: Flagg> hentAlleAktiveBrukereMedUtdatertFlagg(

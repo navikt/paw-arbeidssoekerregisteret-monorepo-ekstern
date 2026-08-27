@@ -9,6 +9,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
@@ -22,6 +23,7 @@ import no.naw.paw.minestillinger.brukerprofil.beskyttetadresse.harBeskyttetAdres
 import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerFlaggOppdatering
 import no.naw.paw.minestillinger.metrics.AntallBrukereMetrics
 import java.io.Closeable
+import java.sql.SQLException
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
@@ -34,37 +36,38 @@ class Bakgrunnsprosesser(
     val slettGamlePropfileringerUtenProfil: SlettGamlePropfileringerUtenProfil,
     val antallBrukereMetrics: AntallBrukereMetrics,
     val inkluderDirektemeldteStillingerFlaggOppdatering: DirektemeldteStillingerFlaggOppdatering,
+    private val vedlikeholdsledervalg: Vedlikeholdsledervalg,
     private val startupDelay: () -> Duration = ::randomStartupDelay,
+    private val leaderRetryInterval: Duration = Duration.ofSeconds(10),
+    private val leaderValidationInterval: Duration = Duration.ofSeconds(30),
     private val dispatcher: ExecutorCoroutineDispatcher = backgroundDispatcher()
 ) : StartupCheck, LivenessCheck, ReadinessCheck, Closeable {
     private val supervisorJob = SupervisorJob()
     private val scope = CoroutineScope(supervisorJob + dispatcher)
     private val startet = AtomicBoolean(false)
     private val workersStartet = AtomicBoolean(false)
+    private val erLeder = AtomicBoolean(false)
     private val workerJobs = ConcurrentHashMap<String, Job>()
+    private var ledervalgsJob: Job? = null
+    private var cacheStatusJob: Job? = null
 
     fun start() {
         check(startet.compareAndSet(false, true)) { "Bakgrunnsprosesser kan kun startes én gang" }
-        val delay = startupDelay()
-        appLogger.info("Starter bakgrunnsjobber om ${delay.seconds} sekunder")
-        scope.launch {
-            delay(delay.toMillis())
-            workers().forEach { worker ->
-                workerJobs[worker.name] = scope.launch {
-                    appLogger.info("Starter bakgrunnsjobb: ${worker.name}")
-                    worker.start()
-                }.apply {
-                    invokeOnCompletion { throwable ->
-                        when (throwable) {
-                            null -> appLogger.info("Bakgrunnsjobb fullført: ${worker.name}")
-                            is CancellationException -> appLogger.info("Bakgrunnsjobb stoppet: ${worker.name}")
-                            else -> appLogger.error("Feil i bakgrunnsjobb: ${worker.name}", throwable)
-                        }
-                    }
+        val oppstartsforsinkelse = startupDelay()
+        appLogger.info("Starter ledervalg for bakgrunnsjobber om ${oppstartsforsinkelse.seconds} sekunder")
+        cacheStatusJob = scope.launch {
+            delay(oppstartsforsinkelse.toMillis())
+            adresseBeskyttelseOppdatering.overvåkCacheStatus()
+        }
+        ledervalgsJob = scope.launch {
+            delay(oppstartsforsinkelse.toMillis())
+            kjørLedervalg()
+        }.apply {
+            invokeOnCompletion { throwable ->
+                if (throwable != null && throwable !is CancellationException) {
+                    appLogger.error("Ledervalg for bakgrunnsjobber stoppet", throwable)
                 }
             }
-            workersStartet.set(true)
-            appLogger.info("Startet bakgrunnsjobber")
         }
     }
 
@@ -72,16 +75,20 @@ class Bakgrunnsprosesser(
 
     override fun isAlive(): Boolean {
         if (!startet.get() || !supervisorJob.isActive) return false
-        if (!workersStartet.get()) return true
+        if (ledervalgsJob?.isActive != true || cacheStatusJob?.isActive != true) return false
+        if (!erLeder.get()) return true
+        if (!workersStartet.get()) return false
         if (workerJobs.size != workers().size || workerJobs.values.any { !it.isActive }) return false
         return !adresseBeskyttelseOppdatering.hasStarted() || adresseBeskyttelseOppdatering.isAlive()
     }
 
     override fun isReady(): Boolean {
-        return workersStartet.get() &&
-            workerJobs.size == workers().size &&
-            workerJobs.values.all(Job::isActive) &&
-            adresseBeskyttelseOppdatering.isReady()
+        if (!startet.get() || cacheStatusJob?.isActive != true) return false
+        if (!adresseBeskyttelseOppdatering.isReady()) return false
+        return !erLeder.get() ||
+            (workersStartet.get() &&
+                workerJobs.size == workers().size &&
+                workerJobs.values.all(Job::isActive))
     }
 
     override fun close() {
@@ -90,7 +97,64 @@ class Bakgrunnsprosesser(
         slettGamlePropfileringerUtenProfil.close()
         inkluderDirektemeldteStillingerFlaggOppdatering.close()
         scope.cancel()
+        vedlikeholdsledervalg.close()
         dispatcher.close()
+    }
+
+    private suspend fun kjørLedervalg() {
+        var standbyLogget = false
+        while (true) {
+            val lederlås = try {
+                vedlikeholdsledervalg.prøvÅBliLeder()
+            } catch (error: SQLException) {
+                appLogger.error("Kunne ikke gjennomføre ledervalg for bakgrunnsjobber", error)
+                delay(leaderRetryInterval.toMillis())
+                continue
+            }
+            if (lederlås == null) {
+                if (!standbyLogget) {
+                    appLogger.info("En annen pod er leder for bakgrunnsjobber")
+                    standbyLogget = true
+                }
+                delay(leaderRetryInterval.toMillis())
+                continue
+            }
+
+            standbyLogget = false
+            erLeder.set(true)
+            appLogger.info("Denne poden er leder for bakgrunnsjobber")
+            try {
+                startWorkers()
+                while (lederlås.erGyldig()) {
+                    delay(leaderValidationInterval.toMillis())
+                }
+                throw IllegalStateException("Mistet databasetilkoblingen som eier lederlåsen")
+            } finally {
+                workerJobs.values.forEach(Job::cancel)
+                workerJobs.values.toList().joinAll()
+                erLeder.set(false)
+                lederlås.close()
+            }
+        }
+    }
+
+    private fun startWorkers() {
+        workers().forEach { worker ->
+            workerJobs[worker.name] = scope.launch {
+                appLogger.info("Starter bakgrunnsjobb: ${worker.name}")
+                worker.start()
+            }.apply {
+                invokeOnCompletion { throwable ->
+                    when (throwable) {
+                        null -> appLogger.info("Bakgrunnsjobb fullført: ${worker.name}")
+                        is CancellationException -> appLogger.info("Bakgrunnsjobb stoppet: ${worker.name}")
+                        else -> appLogger.error("Feil i bakgrunnsjobb: ${worker.name}", throwable)
+                    }
+                }
+            }
+        }
+        workersStartet.set(true)
+        appLogger.info("Startet bakgrunnsjobber")
     }
 
     private fun workers(): List<Worker> = listOf(
@@ -118,7 +182,8 @@ fun initBakgrunnsprosesser(
     webClients: WebClients,
     clock: Clock,
     brukerprofilTjeneste: BrukerprofilTjeneste,
-    prometheusMeterRegistry: PrometheusMeterRegistry
+    prometheusMeterRegistry: PrometheusMeterRegistry,
+    vedlikeholdsledervalg: Vedlikeholdsledervalg
 ): Bakgrunnsprosesser {
     val adresseBeskyttelseOppdatering = BeskyttetAddresseDagligOppdatering(
         pdlFunction = webClients.pdlClient::harBeskyttetAdresseBulk,
@@ -149,6 +214,7 @@ fun initBakgrunnsprosesser(
         slettUbrukteBrukerprofiler = slettUbrukteBrukerprofiler,
         slettGamlePropfileringerUtenProfil = slettGamlePropfileringerUtenProfil,
         inkluderDirektemeldteStillingerFlaggOppdatering = inklusivDirektemeldteStillingerFlaggOppdatering,
-        antallBrukereMetrics = antallBrukereMetrics
+        antallBrukereMetrics = antallBrukereMetrics,
+        vedlikeholdsledervalg = vedlikeholdsledervalg
     )
 }

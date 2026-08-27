@@ -2,6 +2,7 @@ package no.naw.paw.minestillinger.db.ops
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.paw.test.data.periode.PeriodeFactory
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetAdresseFlaggtype
@@ -74,6 +75,25 @@ class HentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlaggTest : FreeSpec({
             )
         }
 
+        "Utløpte adressebeskyttelsesflagg kan hentes i stabile batcher" {
+            val førsteBatch = hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
+                alleFraFørDetteErUtløpt = tidspunkt - Duration.ofHours(24),
+                limit = 1
+            )
+            val andreBatch = hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
+                alleFraFørDetteErUtløpt = tidspunkt - Duration.ofHours(24),
+                etterBrukerId = førsteBatch.single().id,
+                limit = 1
+            )
+
+            (førsteBatch + andreBatch) shouldHaveSize 2
+            (førsteBatch + andreBatch)
+                .map { it.identitetsnummer.value } shouldContainExactlyInAnyOrder listOf(
+                rolf.identitetsnummer,
+                turid.identitetsnummer
+            )
+        }
+
         "Rolf og Turi skal returneres som aktive brukere med utløpt adressebeskyttelse-flagg" {
             val brukereReturnert = synchronizedList(mutableListOf<BrukerProfil>())
             fun selectTråd(): Thread = Thread {
@@ -92,6 +112,7 @@ class HentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlaggTest : FreeSpec({
                             )
                         )
                     }
+
                     brukereReturnert.addAll(brukere)
                 }
             }

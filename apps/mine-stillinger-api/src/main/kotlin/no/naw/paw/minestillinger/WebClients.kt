@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
 import no.nav.paw.client.config.AZURE_M2M_CONFIG
@@ -44,6 +45,13 @@ fun initWebClient(): WebClients {
             }
         }
     }
+    val pdlHttpClient = httpClient.config {
+        install(HttpTimeout) {
+            connectTimeoutMillis = 10_000
+            socketTimeoutMillis = 120_000
+            requestTimeoutMillis = 120_000
+        }
+    }
     val texasClient = TexasClient(
         httpClient = httpClient,
         config = loadNaisOrLocalConfiguration(TEXAS_CONFIG)
@@ -71,7 +79,7 @@ fun initWebClient(): WebClients {
         tokenClient = m2mTokenClient,
     )
     val pdlClient = createPdlClient(
-        httpClient = httpClient,
+        httpClient = pdlHttpClient,
         azureAdM2MTokenClient = m2mTokenClient
     )
     return WebClients(

@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -27,6 +28,7 @@ class BakgrunnsprosesserTest : FreeSpec({
         val slettProfileringer = mockk<SlettGamlePropfileringerUtenProfil>(relaxed = true)
         val metrics = mockk<AntallBrukereMetrics>(relaxed = true)
         val direktemeldte = mockk<DirektemeldteStillingerFlaggOppdatering>(relaxed = true)
+        val ledervalg = alltidLeder()
         val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
         val bakgrunnsprosesser = Bakgrunnsprosesser(
             adresseBeskyttelseOppdatering = adresse,
@@ -34,6 +36,7 @@ class BakgrunnsprosesserTest : FreeSpec({
             slettGamlePropfileringerUtenProfil = slettProfileringer,
             antallBrukereMetrics = metrics,
             inkluderDirektemeldteStillingerFlaggOppdatering = direktemeldte,
+            vedlikeholdsledervalg = ledervalg,
             startupDelay = { Duration.ofHours(1) },
             dispatcher = dispatcher
         )
@@ -55,9 +58,11 @@ class BakgrunnsprosesserTest : FreeSpec({
         val slettProfileringer = mockk<SlettGamlePropfileringerUtenProfil>(relaxed = true)
         val metrics = mockk<AntallBrukereMetrics>(relaxed = true)
         val direktemeldte = mockk<DirektemeldteStillingerFlaggOppdatering>(relaxed = true)
+        val ledervalg = alltidLeder()
         val tråder = synchronizedSet(mutableSetOf<Long>())
 
         coEvery { adresse.start() } coAnswers { tråder.add(Thread.currentThread().threadId()); awaitCancellation() }
+        coEvery { adresse.overvåkCacheStatus() } coAnswers { awaitCancellation() }
         coEvery { slettBrukere.start() } coAnswers { tråder.add(Thread.currentThread().threadId()); awaitCancellation() }
         coEvery { slettProfileringer.start() } coAnswers { tråder.add(Thread.currentThread().threadId()); awaitCancellation() }
         coEvery { metrics.startPeriodiskOppdateringAvMetrics() } coAnswers {
@@ -78,6 +83,7 @@ class BakgrunnsprosesserTest : FreeSpec({
             slettGamlePropfileringerUtenProfil = slettProfileringer,
             antallBrukereMetrics = metrics,
             inkluderDirektemeldteStillingerFlaggOppdatering = direktemeldte,
+            vedlikeholdsledervalg = ledervalg,
             startupDelay = { Duration.ZERO },
             dispatcher = dispatcher
         )
@@ -105,4 +111,65 @@ class BakgrunnsprosesserTest : FreeSpec({
         verify(exactly = 1) { slettProfileringer.close() }
         verify(exactly = 1) { direktemeldte.close() }
     }
+
+    "pod som ikke er leder starter ingen vedlikeholdsjobber" {
+        val adresse = mockk<BeskyttetAddresseDagligOppdatering>(relaxed = true)
+        val slettBrukere = mockk<SlettUbrukteBrukerprofiler>(relaxed = true)
+        val slettProfileringer = mockk<SlettGamlePropfileringerUtenProfil>(relaxed = true)
+        val metrics = mockk<AntallBrukereMetrics>(relaxed = true)
+        val direktemeldte = mockk<DirektemeldteStillingerFlaggOppdatering>(relaxed = true)
+        coEvery { adresse.overvåkCacheStatus() } coAnswers { awaitCancellation() }
+        every { adresse.isReady() } returns true
+
+        val bakgrunnsprosesser = Bakgrunnsprosesser(
+            adresseBeskyttelseOppdatering = adresse,
+            slettUbrukteBrukerprofiler = slettBrukere,
+            slettGamlePropfileringerUtenProfil = slettProfileringer,
+            antallBrukereMetrics = metrics,
+            inkluderDirektemeldteStillingerFlaggOppdatering = direktemeldte,
+            vedlikeholdsledervalg = aldriLeder(),
+            startupDelay = { Duration.ZERO },
+            leaderRetryInterval = Duration.ofMillis(10),
+            dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        )
+
+        try {
+            bakgrunnsprosesser.start()
+            runBlocking {
+                repeat(100) {
+                    if (bakgrunnsprosesser.isAlive() && bakgrunnsprosesser.isReady()) {
+                        return@runBlocking
+                    }
+                    delay(10)
+                }
+            }
+
+            bakgrunnsprosesser.isAlive() shouldBe true
+            bakgrunnsprosesser.isReady() shouldBe true
+            coVerify(exactly = 0) { adresse.start() }
+            coVerify(exactly = 0) { slettBrukere.start() }
+            coVerify(exactly = 0) { slettProfileringer.start() }
+            coVerify(exactly = 0) { metrics.startPeriodiskOppdateringAvMetrics() }
+            coVerify(exactly = 0) { direktemeldte.start() }
+        } finally {
+            bakgrunnsprosesser.close()
+        }
+    }
 })
+
+private fun alltidLeder(): Vedlikeholdsledervalg =
+    object : Vedlikeholdsledervalg {
+        override fun prøvÅBliLeder(): Lederlås =
+            object : Lederlås {
+                override fun erGyldig(): Boolean = true
+                override fun close() = Unit
+            }
+
+        override fun close() = Unit
+    }
+
+private fun aldriLeder(): Vedlikeholdsledervalg =
+    object : Vedlikeholdsledervalg {
+        override fun prøvÅBliLeder(): Lederlås? = null
+        override fun close() = Unit
+    }

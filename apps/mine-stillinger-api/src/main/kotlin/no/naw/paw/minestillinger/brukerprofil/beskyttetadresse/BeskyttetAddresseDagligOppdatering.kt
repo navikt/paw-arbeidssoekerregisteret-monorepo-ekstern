@@ -14,6 +14,7 @@ import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.db.ops.AdressebeskyttelseCacheStatus
 import no.naw.paw.minestillinger.db.ops.hentAdressebeskyttelseCacheStatus
 import no.naw.paw.minestillinger.db.ops.hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg
+import no.naw.paw.minestillinger.domain.BrukerId
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import java.io.Closeable
@@ -49,13 +50,10 @@ class BeskyttetAddresseDagligOppdatering(
         kjører.set(true)
         sisteFremgang.set(clock.now())
         try {
-            oppdaterCacheStatus()
             while (skalFortsette.get()) {
                 if (between(sisteKjøring.get(), clock.now()) > interval) {
                     appLogger.info("Starter oppdatering av adressebeskyttelse for brukerprofiler")
-                    val antall = suspendTransaction {
-                        finnOgOppdater()
-                    }.also {
+                    val antall = finnOgOppdater().also {
                         sisteKjøring.set(clock.now())
                         sisteFremgang.set(clock.now())
                         oppdaterCacheStatus()
@@ -74,25 +72,45 @@ class BeskyttetAddresseDagligOppdatering(
     suspend fun finnOgOppdater(): Int {
         val tidspunkt = clock.now()
         val finnAlleEldreEnn = tidspunkt - adresseBeskyttelseGyldighetsperiode
-        return hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(finnAlleEldreEnn)
-            .also { brukere ->
-                appLogger.info(
-                    "Fant {} brukere med adressebeskyttelseflagg eldre enn {}",
-                    brukere.size,
-                    finnAlleEldreEnn
-                )
-                brukere.chunked(pdlBulkSize).forEach { chunk ->
+        var etterBrukerId: BrukerId? = null
+        var antallOppdatert = 0
+        var batchnummer = 0
+        var antallIBatch: Int
+
+        do {
+            val batchStart = System.nanoTime()
+            val brukere = suspendTransaction {
+                hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
+                    alleFraFørDetteErUtløpt = finnAlleEldreEnn,
+                    etterBrukerId = etterBrukerId,
+                    limit = pdlBulkSize
+                ).also { batch ->
                     brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
-                        brukerprofiler = chunk,
+                        brukerprofiler = batch,
                         tidspunkt = clock.now()
                     )
-                    sisteFremgang.set(clock.now())
-                    oppdaterCacheStatusHvisNødvendig()
                 }
-            }.count()
-            .also { count ->
-                Span.current().setAttribute(longKey("antall"), count)
             }
+            antallIBatch = brukere.size
+
+            if (brukere.isNotEmpty()) {
+                batchnummer++
+                antallOppdatert += brukere.size
+                etterBrukerId = brukere.last().id
+                sisteFremgang.set(clock.now())
+                oppdaterCacheStatusHvisNødvendig()
+                appLogger.info(
+                    "Oppdaterte adressebeskyttelse batch {}, antall i batch: {}, totalt: {}, tid: {} ms",
+                    batchnummer,
+                    brukere.size,
+                    antallOppdatert,
+                    Duration.ofNanos(System.nanoTime() - batchStart).toMillis()
+                )
+            }
+        } while (antallIBatch == pdlBulkSize)
+
+        Span.current().setAttribute(longKey("antall"), antallOppdatert.toLong())
+        return antallOppdatert
     }
 
 
@@ -101,7 +119,6 @@ class BeskyttetAddresseDagligOppdatering(
     }
 
     override fun isReady(): Boolean {
-        if (!isAlive()) return false
         val status = cacheStatus.get() ?: return false
         if (!erCacheStatusNylig(status.kontrollert, clock.now())) return false
         return erAdressebeskyttelseCacheFersk(status.status, clock.now())
@@ -114,6 +131,13 @@ class BeskyttetAddresseDagligOppdatering(
     override fun close() {
         appLogger.info("Stopper oppdatering av beskyttet adresse...")
         skalFortsette.set(false)
+    }
+
+    suspend fun overvåkCacheStatus() {
+        while (skalFortsette.get()) {
+            oppdaterCacheStatus()
+            delay(interval.toMillis())
+        }
     }
 
     private fun oppdaterCacheStatusHvisNødvendig() {
