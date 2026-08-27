@@ -16,14 +16,22 @@ import no.naw.paw.minestillinger.domain.medFlagg
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.countDistinct
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.innerJoin
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.min
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
+
+data class AdressebeskyttelseCacheStatus(
+    val eldsteOppdatering: Instant?,
+    val manglerFlagg: Boolean
+)
 
 fun skrivFlaggTilDB(brukerId: BrukerId, listeMedFlagg: Iterable<LagretFlagg>) {
     BrukerFlaggTable.batchUpsert(
@@ -49,6 +57,49 @@ fun lesFlaggFraDB(brukerId: BrukerId): List<Flagg> {
 
         }
 }
+
+@WithSpan("vedlikehold_hent_adressebeskyttelse_cache_status")
+fun hentAdressebeskyttelseCacheStatus(): AdressebeskyttelseCacheStatus {
+    return transaction {
+        val aktivFlagg = BrukerFlaggTable.alias("aktiv_flagg")
+        val adresseFlagg = BrukerFlaggTable.alias("adresse_flagg")
+        val eldsteOppdatering = adresseFlagg[BrukerFlaggTable.tidspunkt].min()
+        val antallAktiveBrukere = BrukerTable.id.countDistinct()
+        val antallBrukereMedAdresseFlagg = adresseFlagg[BrukerFlaggTable.brukerId].countDistinct()
+
+        val row = BrukerTable
+            .innerJoin(
+                otherTable = aktivFlagg,
+                onColumn = { BrukerTable.id },
+                otherColumn = { aktivFlagg[BrukerFlaggTable.brukerId] }
+            )
+            .join(
+                joinType = JoinType.LEFT,
+                otherTable = adresseFlagg,
+                onColumn = BrukerTable.id,
+                otherColumn = adresseFlagg[BrukerFlaggTable.brukerId],
+                additionalConstraint = {
+                    adresseFlagg[BrukerFlaggTable.navn] eq HarBeskyttetAdresseFlaggtype.type
+                }
+            )
+            .select(
+                eldsteOppdatering,
+                antallAktiveBrukere,
+                antallBrukereMedAdresseFlagg
+            )
+            .where {
+                (aktivFlagg[BrukerFlaggTable.navn] eq TjenestenErAktivFlaggtype.type) and
+                    (aktivFlagg[BrukerFlaggTable.verdi] eq true)
+            }
+            .single()
+
+        AdressebeskyttelseCacheStatus(
+            eldsteOppdatering = row[eldsteOppdatering],
+            manglerFlagg = row[antallBrukereMedAdresseFlagg] < row[antallAktiveBrukere]
+        )
+    }
+}
+
 @WithSpan("vedlikehold_hent_aktive_brukere_med_utløpt_adressebeskyttelse_flagg")
 fun hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
     alleFraFørDetteErUtløpt: Instant

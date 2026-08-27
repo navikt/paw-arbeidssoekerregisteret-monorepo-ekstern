@@ -14,6 +14,7 @@ import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 
 data class ApplicationContext(
     val consumer: DataConsumer<Message<Any, Any>, Any, Any>,
+    val bakgrunnsprosesser: Bakgrunnsprosesser,
     val dataSource: HikariDataSource,
     val prometheusMeterRegistry: PrometheusMeterRegistry,
     val securityConfig: SecurityConfig,
@@ -26,4 +27,3 @@ data class ApplicationContext(
     val meterBinders: List<MeterBinder>,
     val texasClient: TexasClient
 )
-

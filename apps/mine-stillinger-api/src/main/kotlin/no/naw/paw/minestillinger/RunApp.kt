@@ -1,5 +1,6 @@
 package no.naw.paw.minestillinger
 
+import java.util.concurrent.CountDownLatch
 import kotlin.system.exitProcess
 
 fun runApp(applicationContext: ApplicationContext): Unit {
@@ -24,8 +25,11 @@ fun runApp(applicationContext: ApplicationContext): Unit {
         finnStillingerClient = applicationContext.finnStillingerClient,
         clock = applicationContext.clock
     )
+    val shutdown = CountDownLatch(1)
     Runtime.getRuntime().addShutdownHook(Thread {
         appLogger.info("Applikasjonen avsluttes...")
+        applicationContext.bakgrunnsprosesser.close()
+        applicationContext.consumer.close()
         runCatching {
             appLogger.info("Avslutter Ktor...")
             ktorInstance.stop(1000, 1500)
@@ -33,18 +37,19 @@ fun runApp(applicationContext: ApplicationContext): Unit {
         }.onFailure { cause ->
             appLogger.info("Feil av ved avslutting av Ktor", cause)
         }
-        applicationContext.consumer.close()
+        applicationContext.dataSource.close()
+        shutdown.countDown()
     })
-    applicationContext.dataSource.use {
-        applicationContext.consumer.runAndCloseOnExit()
-            .handle { _, error ->
-                if (error != null) {
-                    appLogger.error("Kafka consumer stoppet grunnet feil", error)
-                } else {
-                    appLogger.info("Kafka consumer stoppet")
-                }
+    ktorInstance.start(wait = false)
+    applicationContext.consumer.runAndCloseOnExit()
+        .handle { _, error ->
+            if (error != null) {
+                appLogger.error("Kafka consumer stoppet grunnet feil", error)
+            } else {
+                appLogger.info("Kafka consumer stoppet")
             }
-        ktorInstance.start(wait = true)
-    }
+        }
+    applicationContext.bakgrunnsprosesser.start()
+    shutdown.await()
     appLogger.info("Applikasjonen er stoppet.")
 }

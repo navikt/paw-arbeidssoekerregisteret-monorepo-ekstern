@@ -130,13 +130,15 @@ fun main() {
     val texasClient = TexasClient(texasConfig, createHttpClient())
     val appContext = ApplicationContext(
         consumer = consumer,
+        bakgrunnsprosesser = bakgrunnsprosesser,
         dataSource = dataSource,
         prometheusMeterRegistry = prometheusMeterRegistry,
         securityConfig = securityConfig,
         healthChecks = healthChecksOf(
             consumer,
-            DatasourceLivenessProbe(dataSource)
-        ) + bakgrunnsprosesser.helthChecks(),
+            DatasourceLivenessProbe(dataSource),
+            bakgrunnsprosesser
+        ),
         idClient = webClients.kafkaClient,
         pdlClient = webClients.pdlClient,
         brukerprofilTjeneste = brukerprofilTjeneste,
@@ -172,4 +174,3 @@ fun ProcessorContext.process(source: Sequence<Message<Any, Any>>) {
             }
     }
 }
-

@@ -4,14 +4,20 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import no.nav.paw.test.data.periode.PeriodeFactory
+import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetAdresseFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBeskyttetadresseFlagg
 import no.naw.paw.minestillinger.brukerprofil.flagg.TjenestenErAktivFlagg
 import no.naw.paw.minestillinger.db.initDatabase
 import no.naw.paw.minestillinger.domain.BrukerProfil
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import no.naw.paw.minestillinger.db.BrukerFlaggTable
 import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Collections.synchronizedList
 import kotlin.random.Random
 import kotlin.random.nextLong
@@ -30,9 +36,11 @@ class HentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlaggTest : FreeSpec({
         val kari = periodeFactory.build(identitetsnummer = "12345678901")
         val rolf = periodeFactory.build(identitetsnummer = "22345678901")
         val turid = periodeFactory.build(identitetsnummer = "32345678901")
-        val tidspunkt = Instant.now()
+        val tidspunkt = Instant.now().truncatedTo(ChronoUnit.MILLIS)
+        var olaBrukerId = -1L
         transaction {
             val olaId = opprettOgOppdaterBruker(ola)
+            olaBrukerId = olaId.verdi
             val kariId = opprettOgOppdaterBruker(kari)
             val rolfId = opprettOgOppdaterBruker(rolf)
             val turidId = opprettOgOppdaterBruker(turid)
@@ -98,7 +106,23 @@ class HentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlaggTest : FreeSpec({
                 turid.identitetsnummer
             )
         }
+
+        "Eldste adressebeskyttelse for aktive brukere skal brukes som cache-status" {
+            val status = hentAdressebeskyttelseCacheStatus()
+
+            status.eldsteOppdatering shouldBe tidspunkt - Duration.ofHours(12)
+            status.manglerFlagg shouldBe false
+        }
+
+        "Manglende adressebeskyttelsesflagg for aktiv bruker skal oppdages" {
+            transaction {
+                BrukerFlaggTable.deleteWhere {
+                    (BrukerFlaggTable.navn eq HarBeskyttetAdresseFlaggtype.type) and
+                        (BrukerFlaggTable.brukerId eq olaBrukerId)
+                }
+            }
+
+            hentAdressebeskyttelseCacheStatus().manglerFlagg shouldBe true
+        }
     }
 })
-
-
