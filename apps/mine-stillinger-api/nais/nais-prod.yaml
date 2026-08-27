@@ -31,10 +31,10 @@ spec:
       value: "api://prod-gcp.teampam.pam-dir-api/.default"
   resources:
     limits:
-      memory: 1024Mi
+      memory: 2048Mi
     requests:
       cpu: 20m
-      memory: 1024Mi
+      memory: 2048Mi
   tokenx:
     enabled: true
   azure:
