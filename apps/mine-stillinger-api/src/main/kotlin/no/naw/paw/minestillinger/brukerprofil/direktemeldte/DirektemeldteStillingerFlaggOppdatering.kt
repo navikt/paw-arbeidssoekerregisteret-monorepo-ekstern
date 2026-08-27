@@ -8,6 +8,7 @@ import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
 import no.nav.paw.health.StartupCheck
 import no.naw.paw.minestillinger.Clock
+import no.naw.paw.minestillinger.Vedlikeholdslås
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagg
@@ -23,7 +24,8 @@ class DirektemeldteStillingerFlaggOppdatering(
     private val direktemeldteStillingerTilgangClient: DirektemeldteStillingerTilgangClient,
     private val clock: Clock,
     private val oppdateringsintervall: Duration,
-    private val gyldighetsperiode: Duration
+    private val gyldighetsperiode: Duration,
+    private val vedlikeholdslås: Vedlikeholdslås = Vedlikeholdslås()
 ) : LivenessCheck, ReadinessCheck, StartupCheck, Closeable {
     private val hasStarted = AtomicBoolean(false)
     private val isRunning = AtomicBoolean(false)
@@ -49,36 +51,39 @@ class DirektemeldteStillingerFlaggOppdatering(
     }
 
     @WithSpan("vedlikehold_oppdater_direktemeldte_stillinger_flagg")
-    suspend fun oppdaterFlaggForDirektemeldteStillinger(): Boolean {
-        val alleMedUtdaterteFlagg = transaction {
-            val utdatert = hentAlleAktiveBrukereMedUtdatertFlagg(
-                alleFraFørDetteErUtløpt = clock.now() - gyldighetsperiode,
-                flaggtype = InkluderDirekteMeldteStillingerFlagtype,
-                limit = 100
-            )
-            val manglende = hentAlleAktiveBrukereSomManglerFlagg(
-                flaggtype = InkluderDirekteMeldteStillingerFlagtype,
-                limit = 100
-            )
-            (utdatert + manglende).distinctBy { it.id }
-        }
-        appLogger.info("${alleMedUtdaterteFlagg.size} brukere med utdaterte flagg for direktemeldte stillinger")
-        val oppdateringer = alleMedUtdaterteFlagg.map { profile ->
-            val harTilgang = direktemeldteStillingerTilgangClient.skalSeDirektemeldteStillinger(profile.identitetsnummer)
-            profile.id to InkluderDirekteMeldteStillingerFlagg(
-                verdi = harTilgang,
-                tidspunkt = clock.now()
-            )
-        }.toList()
-        transaction {
-            oppdateringer.forEach { (brukerId, flagg) ->
-                skrivFlaggTilDB(brukerId, listOf(flagg))
+    suspend fun oppdaterFlaggForDirektemeldteStillinger(): Boolean =
+        vedlikeholdslås.kjørEksklusivt("oppdater_direktemeldte_stillinger_flagg") {
+            appLogger.info("Starter oppdatering av flagg for direktemeldte stillinger")
+            val alleMedUtdaterteFlagg = transaction {
+                val utdatert = hentAlleAktiveBrukereMedUtdatertFlagg(
+                    alleFraFørDetteErUtløpt = clock.now() - gyldighetsperiode,
+                    flaggtype = InkluderDirekteMeldteStillingerFlagtype,
+                    limit = 100
+                )
+                val manglende = hentAlleAktiveBrukereSomManglerFlagg(
+                    flaggtype = InkluderDirekteMeldteStillingerFlagtype,
+                    limit = 100
+                )
+                (utdatert + manglende).distinctBy { it.id }
             }
+            appLogger.info("${alleMedUtdaterteFlagg.size} brukere med utdaterte flagg for direktemeldte stillinger")
+            val oppdateringer = alleMedUtdaterteFlagg.map { profile ->
+                val harTilgang =
+                    direktemeldteStillingerTilgangClient.skalSeDirektemeldteStillinger(profile.identitetsnummer)
+                profile.id to InkluderDirekteMeldteStillingerFlagg(
+                    verdi = harTilgang,
+                    tidspunkt = clock.now()
+                )
+            }.toList()
+            transaction {
+                oppdateringer.forEach { (brukerId, flagg) ->
+                    skrivFlaggTilDB(brukerId, listOf(flagg))
+                }
+            }
+            Span.current().setAttribute(longKey("antall"), oppdateringer.size.toLong())
+            appLogger.info("Oppdaterte flagg for ${oppdateringer.size} brukere med direktemeldte stillinger")
+            alleMedUtdaterteFlagg.size < 100
         }
-        Span.current().setAttribute(longKey("antall"), oppdateringer.size.toLong())
-        appLogger.info("Oppdaterte flagg for ${oppdateringer.size} brukere med direktemeldte stillinger")
-        return alleMedUtdaterteFlagg.size < 100
-    }
 
     override fun hasStarted(): Boolean {
         return hasStarted.get()

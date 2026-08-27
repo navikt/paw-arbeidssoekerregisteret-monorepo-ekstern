@@ -6,6 +6,7 @@ import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
 import no.nav.paw.health.StartupCheck
 import no.naw.paw.minestillinger.Clock
+import no.naw.paw.minestillinger.Vedlikeholdslås
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.db.ops.slettFrittståendeProfileringer
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
@@ -18,7 +19,8 @@ import java.util.concurrent.atomic.AtomicReference
 class SlettGamlePropfileringerUtenProfil(
     val forsinkelseFørSletting: Duration = Duration.ofDays(7),
     val interval: Duration = Duration.ofMinutes(15),
-    val clock: Clock
+    val clock: Clock,
+    private val vedlikeholdslås: Vedlikeholdslås = Vedlikeholdslås()
 ) : ReadinessCheck, LivenessCheck, StartupCheck, Closeable {
     private val skalFortsette = AtomicBoolean(true)
     private val sisteKjøring = AtomicReference(Instant.EPOCH)
@@ -30,9 +32,11 @@ class SlettGamlePropfileringerUtenProfil(
         }
         while (skalFortsette.get()) {
             if (between(sisteKjøring.get(), clock.now()) > interval) {
-                val grense = clock.now() - forsinkelseFørSletting
-                slettFrittståendeProfileringer(grense)
-                sisteKjøring.set(clock.now())
+                vedlikeholdslås.kjørEksklusivt("slette_frittstaende_profileringer") {
+                    val grense = clock.now() - forsinkelseFørSletting
+                    slettFrittståendeProfileringer(grense)
+                    sisteKjøring.set(clock.now())
+                }
             }
             delay(timeMillis = 1000L)
         }

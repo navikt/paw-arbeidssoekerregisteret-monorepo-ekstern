@@ -9,6 +9,7 @@ import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
 import no.nav.paw.health.StartupCheck
 import no.naw.paw.minestillinger.Clock
+import no.naw.paw.minestillinger.Vedlikeholdslås
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.brukerprofil.BrukerprofilTjeneste
 import no.naw.paw.minestillinger.db.ops.AdressebeskyttelseCacheStatus
@@ -34,7 +35,8 @@ class BeskyttetAddresseDagligOppdatering(
     private val brukerprofilTjeneste: BrukerprofilTjeneste,
     private val interval: Duration = Duration.ofMinutes(15),
     private val pdlBulkSize: Int = 1000,
-    private val hentCacheStatus: () -> AdressebeskyttelseCacheStatus = ::hentAdressebeskyttelseCacheStatus
+    private val hentCacheStatus: () -> AdressebeskyttelseCacheStatus = ::hentAdressebeskyttelseCacheStatus,
+    private val vedlikeholdslås: Vedlikeholdslås = Vedlikeholdslås()
 ) : LivenessCheck, ReadinessCheck, StartupCheck, Closeable {
     private val startet = AtomicBoolean(false)
     private val sisteKjøring = AtomicReference<Instant>(Instant.EPOCH)
@@ -79,16 +81,18 @@ class BeskyttetAddresseDagligOppdatering(
 
         do {
             val batchStart = System.nanoTime()
-            val brukere = suspendTransaction {
-                hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
-                    alleFraFørDetteErUtløpt = finnAlleEldreEnn,
-                    etterBrukerId = etterBrukerId,
-                    limit = pdlBulkSize
-                ).also { batch ->
-                    brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
-                        brukerprofiler = batch,
-                        tidspunkt = clock.now()
-                    )
+            val brukere = vedlikeholdslås.kjørEksklusivt("oppdater_adressebeskyttelse") {
+                suspendTransaction {
+                    hentAlleAktiveBrukereMedUtløptAdressebeskyttelseFlagg(
+                        alleFraFørDetteErUtløpt = finnAlleEldreEnn,
+                        etterBrukerId = etterBrukerId,
+                        limit = pdlBulkSize
+                    ).also { batch ->
+                        brukerprofilTjeneste.oppdaterAdresseGraderingBulk(
+                            brukerprofiler = batch,
+                            tidspunkt = clock.now()
+                        )
+                    }
                 }
             }
             antallIBatch = brukere.size

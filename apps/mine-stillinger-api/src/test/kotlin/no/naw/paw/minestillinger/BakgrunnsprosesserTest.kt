@@ -10,7 +10,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import no.naw.paw.minestillinger.brukerprofil.SlettGamlePropfileringerUtenProfil
@@ -23,6 +25,37 @@ import java.util.Collections.synchronizedSet
 import java.util.concurrent.Executors
 
 class BakgrunnsprosesserTest : FreeSpec({
+    "vedlikeholdslåsen serialiserer også suspenderende arbeid" {
+        val vedlikeholdslås = Vedlikeholdslås()
+        val førsteStartet = CompletableDeferred<Unit>()
+        val avsluttFørste = CompletableDeferred<Unit>()
+        val andreStartet = CompletableDeferred<Unit>()
+
+        runBlocking {
+            val første = launch {
+                vedlikeholdslås.kjørEksklusivt("første") {
+                    førsteStartet.complete(Unit)
+                    avsluttFørste.await()
+                }
+            }
+            førsteStartet.await()
+            val andre = launch {
+                vedlikeholdslås.kjørEksklusivt("andre") {
+                    andreStartet.complete(Unit)
+                }
+            }
+
+            delay(50)
+            andreStartet.isCompleted shouldBe false
+            avsluttFørste.complete(Unit)
+            withTimeout(5_000) {
+                andreStartet.await()
+            }
+            første.join()
+            andre.join()
+        }
+    }
+
     "oppstartsforsinkelse holder liveness grønn og readiness rød" {
         val adresse = mockk<BeskyttetAddresseDagligOppdatering>(relaxed = true)
         val slettBrukere = mockk<SlettUbrukteBrukerprofiler>(relaxed = true)

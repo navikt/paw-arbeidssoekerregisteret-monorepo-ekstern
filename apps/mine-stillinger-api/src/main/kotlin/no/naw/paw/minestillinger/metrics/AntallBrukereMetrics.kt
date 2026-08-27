@@ -7,6 +7,7 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotlinx.coroutines.delay
 import no.naw.paw.minestillinger.appLogger
+import no.naw.paw.minestillinger.Vedlikeholdslås
 import no.naw.paw.minestillinger.brukerprofil.flagg.HarBruktTjenestenFlaggtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.InkluderDirekteMeldteStillingerFlagtype
 import no.naw.paw.minestillinger.brukerprofil.flagg.OptOutFlaggtype
@@ -32,13 +33,16 @@ import java.util.concurrent.atomic.AtomicLong
 
 class AntallBrukereMetrics(
     val meterRegistry: MeterRegistry,
+    private val vedlikeholdslås: Vedlikeholdslås = Vedlikeholdslås()
 ) {
     private val metricsMap = HashMap<MetricDataKey, AtomicLong>()
     fun snapshot() = metricsMap.toList()
 
     suspend fun startPeriodiskOppdateringAvMetrics() {
         while (true) {
-            oppdaterAntallBrukere()
+            vedlikeholdslås.kjørEksklusivt("oppdater_metrics") {
+                oppdaterAntallBrukere()
+            }
             delay(timeMillis = Duration.ofMinutes(10).toMillis())
         }
     }

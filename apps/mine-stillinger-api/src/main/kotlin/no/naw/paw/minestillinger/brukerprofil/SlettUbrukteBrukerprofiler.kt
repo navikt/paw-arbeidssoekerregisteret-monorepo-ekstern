@@ -6,6 +6,7 @@ import no.nav.paw.health.LivenessCheck
 import no.nav.paw.health.ReadinessCheck
 import no.nav.paw.health.StartupCheck
 import no.naw.paw.minestillinger.Clock
+import no.naw.paw.minestillinger.Vedlikeholdslås
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.db.ops.slettHvorPeriodeAvsluttetFør
 import java.time.Duration
@@ -17,7 +18,8 @@ import java.util.concurrent.atomic.AtomicReference
 class SlettUbrukteBrukerprofiler(
     val forsinkelseFørSletting: Duration = Duration.ofDays(30),
     val interval: Duration = Duration.ofMinutes(15),
-    val clock: Clock
+    val clock: Clock,
+    private val vedlikeholdslås: Vedlikeholdslås = Vedlikeholdslås()
 ) : ReadinessCheck, LivenessCheck, StartupCheck, Closeable {
     private val skalFortsette = AtomicBoolean(true)
     private val sisteKjøring = AtomicReference(Instant.EPOCH)
@@ -29,11 +31,13 @@ class SlettUbrukteBrukerprofiler(
         }
         while (skalFortsette.get()) {
             if (between(sisteKjøring.get(), clock.now()) > interval) {
-                val grense = clock.now() - forsinkelseFørSletting
-                appLogger.info("Sletter alle profiler med avsluttet periode før $grense")
-                val antallSlettet = slettHvorPeriodeAvsluttetFør(grense)
-                appLogger.info("Slettet $antallSlettet ubrukte brukerprofiler")
-                sisteKjøring.set(clock.now())
+                vedlikeholdslås.kjørEksklusivt("slett_brukerprofiler") {
+                    val grense = clock.now() - forsinkelseFørSletting
+                    appLogger.info("Sletter alle profiler med avsluttet periode før $grense")
+                    val antallSlettet = slettHvorPeriodeAvsluttetFør(grense)
+                    appLogger.info("Slettet $antallSlettet ubrukte brukerprofiler")
+                    sisteKjøring.set(clock.now())
+                }
             }
             delay(timeMillis = 1000L)
         }

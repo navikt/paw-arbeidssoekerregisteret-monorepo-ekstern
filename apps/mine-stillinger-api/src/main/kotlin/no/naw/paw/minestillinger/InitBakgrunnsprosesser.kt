@@ -185,30 +185,35 @@ fun initBakgrunnsprosesser(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     vedlikeholdsledervalg: Vedlikeholdsledervalg
 ): Bakgrunnsprosesser {
+    val vedlikeholdslås = Vedlikeholdslås()
     val adresseBeskyttelseOppdatering = BeskyttetAddresseDagligOppdatering(
         pdlFunction = webClients.pdlClient::harBeskyttetAdresseBulk,
         adresseBeskyttelseGyldighetsperiode = ADRESSEBESKYTTELSE_GYLDIGHETS_PERIODE,
         clock = clock,
         brukerprofilTjeneste = brukerprofilTjeneste,
         interval = Duration.ofMinutes(15),
+        vedlikeholdslås = vedlikeholdslås
     )
     val slettUbrukteBrukerprofiler = SlettUbrukteBrukerprofiler(
         forsinkelseFørSletting = Duration.ofDays(30),
         interval = Duration.ofMinutes(17),
-        clock = clock
+        clock = clock,
+        vedlikeholdslås = vedlikeholdslås
     )
     val slettGamlePropfileringerUtenProfil = SlettGamlePropfileringerUtenProfil(
         forsinkelseFørSletting = Duration.ofDays(7),
         interval = Duration.ofMinutes(16),
-        clock = clock
+        clock = clock,
+        vedlikeholdslås = vedlikeholdslås
     )
     val inklusivDirektemeldteStillingerFlaggOppdatering = DirektemeldteStillingerFlaggOppdatering(
         direktemeldteStillingerTilgangClient = webClients.direktemeldteStillgerTilgangClient,
         clock = clock,
         oppdateringsintervall = Duration.ofMinutes(10),
-        gyldighetsperiode = Duration.ofHours(4)
+        gyldighetsperiode = Duration.ofHours(4),
+        vedlikeholdslås = vedlikeholdslås
     )
-    val antallBrukereMetrics = AntallBrukereMetrics(prometheusMeterRegistry)
+    val antallBrukereMetrics = AntallBrukereMetrics(prometheusMeterRegistry, vedlikeholdslås)
     return Bakgrunnsprosesser(
         adresseBeskyttelseOppdatering = adresseBeskyttelseOppdatering,
         slettUbrukteBrukerprofiler = slettUbrukteBrukerprofiler,
