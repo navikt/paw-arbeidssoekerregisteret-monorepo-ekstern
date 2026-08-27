@@ -66,3 +66,5 @@ spec:
             value: "write,ddl,role"
           - name: "pgaudit.log_parameter"
             value: "on"
+          - name: "pgaudit.log_relation"
+            value: "on"
