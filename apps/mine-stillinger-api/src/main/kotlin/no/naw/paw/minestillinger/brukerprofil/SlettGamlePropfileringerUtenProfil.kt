@@ -36,7 +36,7 @@ class SlettGamlePropfileringerUtenProfil(
             }
             delay(timeMillis = 1000L)
         }
-        appLogger.info("Jobb for sletting av ubrukte brukerprofiler er stoppet")
+        appLogger.info("Jobb for sletting av frittstående profileringer er stoppet")
     }
 
     override fun isAlive(): Boolean {
@@ -52,7 +52,7 @@ class SlettGamlePropfileringerUtenProfil(
     }
 
     override fun close() {
-        appLogger.info("Stopper jobb sletting av ubrukte brukerprofiler...")
+        appLogger.info("Stopper jobb for sletting av frittstående profileringer...")
         skalFortsette.set(false)
     }
 }

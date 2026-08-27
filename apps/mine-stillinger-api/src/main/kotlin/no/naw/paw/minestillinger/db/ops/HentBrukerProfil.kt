@@ -1,5 +1,7 @@
 package no.naw.paw.minestillinger.db.ops
 
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.felles.model.asIdentitetsnummer
@@ -42,5 +44,7 @@ fun slettHvorPeriodeAvsluttetFør(tidspunkt: Instant): Int {
             BrukerTable.arbeidssoekerperiodeAvsluttet.isNotNull() and
                     (BrukerTable.arbeidssoekerperiodeAvsluttet less tidspunkt)
         }
+    }.also { antall ->
+        Span.current().setAttribute(longKey("antall"), antall.toLong())
     }
 }

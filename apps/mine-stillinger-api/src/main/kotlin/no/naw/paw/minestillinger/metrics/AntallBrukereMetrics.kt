@@ -2,6 +2,8 @@ package no.naw.paw.minestillinger.metrics
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotlinx.coroutines.delay
 import no.naw.paw.minestillinger.appLogger
@@ -173,6 +175,8 @@ class AntallBrukereMetrics(
                     }
                 }
             }
+        Span.current().setAttribute(longKey("antall_metric_serier"), data.size.toLong())
+        appLogger.info("Oppdaterte ${data.size} metrikker for antall brukere")
     }
 }
 
@@ -190,4 +194,3 @@ data class MetricData(
     val key: MetricDataKey,
     val antall: Long,
 )
-

@@ -1,5 +1,7 @@
 package no.naw.paw.minestillinger.db.ops
 
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.naw.paw.minestillinger.appLogger
 import no.naw.paw.minestillinger.db.BrukerTable
@@ -35,5 +37,7 @@ fun slettFrittståendeProfileringer(
         }
         appLogger.info("Slettet $slettet/${skalSlettes.size} frittstående profileringer")
         slettet
+    }.also { antall ->
+        Span.current().setAttribute(longKey("antall"), antall.toLong())
     }
 }

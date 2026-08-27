@@ -51,13 +51,14 @@ class Bakgrunnsprosesser(
             delay(delay.toMillis())
             workers().forEach { worker ->
                 workerJobs[worker.name] = scope.launch {
+                    appLogger.info("Starter bakgrunnsjobb: ${worker.name}")
                     worker.start()
                 }.apply {
                     invokeOnCompletion { throwable ->
-                        if (throwable != null && throwable !is CancellationException) {
-                            appLogger.error("Feil i bakgrunnsjobb: ${worker.name}", throwable)
-                        } else if (throwable == null) {
-                            appLogger.info("Bakgrunnsjobb fullført: ${worker.name}")
+                        when (throwable) {
+                            null -> appLogger.info("Bakgrunnsjobb fullført: ${worker.name}")
+                            is CancellationException -> appLogger.info("Bakgrunnsjobb stoppet: ${worker.name}")
+                            else -> appLogger.error("Feil i bakgrunnsjobb: ${worker.name}", throwable)
                         }
                     }
                 }

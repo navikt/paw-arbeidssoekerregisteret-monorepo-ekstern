@@ -1,5 +1,7 @@
 package no.naw.paw.minestillinger.brukerprofil.direktemeldte
 
+import io.opentelemetry.api.common.AttributeKey.longKey
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import kotlinx.coroutines.delay
 import no.nav.paw.health.LivenessCheck
@@ -39,6 +41,7 @@ class DirektemeldteStillingerFlaggOppdatering(
                 }
             } finally {
                 isRunning.set(false)
+                appLogger.info("Jobb for oppdatering av direktemeldte stillinger er stoppet")
             }
         } else {
             appLogger.warn("Kan ikke starte oppdatering av direktemeldte stillinger flere ganger")
@@ -72,6 +75,8 @@ class DirektemeldteStillingerFlaggOppdatering(
                 skrivFlaggTilDB(brukerId, listOf(flagg))
             }
         }
+        Span.current().setAttribute(longKey("antall"), oppdateringer.size.toLong())
+        appLogger.info("Oppdaterte flagg for ${oppdateringer.size} brukere med direktemeldte stillinger")
         return alleMedUtdaterteFlagg.size < 100
     }
 
