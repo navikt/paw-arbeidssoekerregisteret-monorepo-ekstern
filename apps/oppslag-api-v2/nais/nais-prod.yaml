@@ -97,6 +97,8 @@ spec:
           namespace: teamdagpenger
         - application: dp-meldekortregister
           namespace: teamdagpenger
+        - application: dp-meldekort
+          namespace: teamdagpenger
         - application: dp-rapportering
           namespace: teamdagpenger
         - application: dp-soknadsdialog
