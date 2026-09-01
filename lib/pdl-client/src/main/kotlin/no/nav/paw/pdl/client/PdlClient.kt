@@ -7,7 +7,6 @@ import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.header
-import no.nav.paw.client.factory.createObjectMapper
 import org.slf4j.LoggerFactory
 import java.net.URI
 
@@ -24,7 +23,7 @@ class PdlClient(
     private val graphQLClient = GraphQLKtorClient(
         url = URI.create(url).toURL(),
         httpClient = httpClient,
-        serializer = GraphQLClientJacksonSerializer(createObjectMapper())
+        serializer = GraphQLClientJacksonSerializer()
     )
 
     internal suspend fun <T : Any> execute(
