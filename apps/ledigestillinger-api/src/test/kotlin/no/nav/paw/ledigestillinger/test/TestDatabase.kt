@@ -12,7 +12,7 @@ import no.nav.paw.ledigestillinger.model.dao.StillingRow
 import no.nav.paw.ledigestillinger.model.dao.StillingerTable
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import javax.sql.DataSource
 
@@ -43,7 +43,7 @@ fun buildPostgresDataSource(): DataSource {
     return createHikariDataSource(config)
 }
 
-private fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
+private fun postgreSQLContainer(): PostgreSQLContainer {
     val postgres = PostgreSQLContainer(
         "postgres:17"
     ).apply {

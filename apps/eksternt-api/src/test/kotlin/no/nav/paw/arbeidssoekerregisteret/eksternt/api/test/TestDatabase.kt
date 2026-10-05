@@ -3,7 +3,7 @@ package no.nav.paw.arbeidssoekerregisteret.eksternt.api.test
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import org.flywaydb.core.Flyway
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import javax.sql.DataSource
 
@@ -25,7 +25,7 @@ fun initTestDatabase(): DataSource {
     return dataSource
 }
 
-fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
+fun postgreSQLContainer(): PostgreSQLContainer {
     val postgres =
         PostgreSQLContainer(
             "postgres:17"

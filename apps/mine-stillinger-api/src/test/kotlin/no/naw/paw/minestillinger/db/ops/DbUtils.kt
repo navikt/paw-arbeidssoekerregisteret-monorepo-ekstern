@@ -1,10 +1,10 @@
 package no.naw.paw.minestillinger.db.ops
 
 import no.nav.paw.database.config.DatabaseConfig
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
 
-fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
+fun postgreSQLContainer(): PostgreSQLContainer {
     val postgres = PostgreSQLContainer(
         "postgres:18"
     ).apply {
@@ -18,7 +18,7 @@ fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
     return postgres
 }
 
-fun databaseConfigFrom(postgres: PostgreSQLContainer<out PostgreSQLContainer<*>>): DatabaseConfig {
+fun databaseConfigFrom(postgres: PostgreSQLContainer): DatabaseConfig {
     return DatabaseConfig(
         host = postgres.host,
         port = postgres.firstMappedPort,

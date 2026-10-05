@@ -4,7 +4,7 @@ import com.zaxxer.hikari.HikariDataSource
 import no.nav.paw.database.config.DatabaseConfig
 import no.nav.paw.database.factory.createHikariDataSource
 import org.flywaydb.core.Flyway
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
 
 fun initTestDatabase(): HikariDataSource {
@@ -26,7 +26,7 @@ fun initTestDatabase(): HikariDataSource {
     return dataSource
 }
 
-private fun postgreSQLContainer(): PostgreSQLContainer<out PostgreSQLContainer<*>> {
+private fun postgreSQLContainer(): PostgreSQLContainer {
     val postgres =
         PostgreSQLContainer(
             "postgres:17"
