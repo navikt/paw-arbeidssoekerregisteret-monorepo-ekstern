@@ -5,7 +5,7 @@ nav-paw-schema-bekreftelse = "1.25.03.26.32-1"
 nav-common = "4.2026.10.01_11.30-68a5418edc3c"
 nav-security = "6.0.13"
 nav-security-mock-oauth2-server = "6.0.4"
-hoplite = "3.0.0"
+hoplite = "2.9.0"
 kafka = "4.3.1"
 confluent-kafka = "8.3.2"
 avro = "1.12.2"
@@ -93,5 +93,13 @@ nav-paw-schema-bekreftelsesmelding = { group = "no.nav.paw.arbeidssokerregistere
 nav-paw-schema-bekreftelsepaavegneav = { group = "no.nav.paw.arbeidssokerregisteret.api", name = "bekreftelse-paavegneav-schema", version.ref = "nav-paw-schema-bekreftelse" }
 
 [bundles]
-ktor-server-instrumented = ["ktor-server-netty", "ktor-server-metrics-micrometer"]
-unit-testing-kotest = ["kotest-runner-junit5", "kotest-assertions-core", "kotest-assertions-json", "mockk"]
+ktor-server-instrumented = [
+  "ktor-server-netty",
+  "ktor-server-metrics-micrometer",
+]
+unit-testing-kotest = [
+  "kotest-runner-junit5",
+  "kotest-assertions-core",
+  "kotest-assertions-json",
+  "mockk",
+]
