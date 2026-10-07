@@ -1,0 +1,96 @@
+{
+  "profileringId": "9c1f6a2e-7d3b-4e5f-a6b7-c8d9e0f1a2b3",
+  "personInfo": {
+    "foedselsdato": [
+      1990,
+      2,
+      27
+    ],
+    "foedselsAar": 1990,
+    "arbeidsforhold": [
+      {
+        "arbeidssted": {
+          "type": "Underenhet",
+          "identer": [
+            {
+              "type": "ORGANISASJONSNUMMER",
+              "ident": "910825518"
+            }
+          ]
+        },
+        "ansettelsesdetaljer": [
+          {
+            "type": "Ordinaer",
+            "avtaltStillingsprosent": 100.0
+          },
+          {
+            "type": "Maritim",
+            "avtaltStillingsprosent": 37.5
+          }
+        ],
+        "opplysningspliktig": {
+          "type": "Hovedenhet",
+          "identer": [
+            {
+              "type": "ORGANISASJONSNUMMER",
+              "ident": "810825472"
+            }
+          ]
+        },
+        "ansettelsesperiode": {
+          "startdato": [
+            2014,
+            1,
+            1
+          ],
+          "sluttdato": [
+            2025,
+            12,
+            31
+          ]
+        },
+        "opprettet": [
+          2020,
+          1,
+          23,
+          9,
+          5,
+          7,
+          123456000
+        ]
+      },
+      {
+        "arbeidssted": {
+          "type": "Person",
+          "identer": [
+            {
+              "type": "AKTORID",
+              "ident": "2175141353812"
+            }
+          ]
+        },
+        "ansettelsesdetaljer": [],
+        "opplysningspliktig": {
+          "type": "Person",
+          "identer": []
+        },
+        "ansettelsesperiode": {
+          "startdato": [
+            2026,
+            1,
+            1
+          ],
+          "sluttdato": null
+        },
+        "opprettet": [
+          2026,
+          1,
+          15,
+          10,
+          15,
+          30
+        ]
+      }
+    ]
+  }
+}

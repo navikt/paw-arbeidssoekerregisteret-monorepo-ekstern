@@ -1,0 +1,25 @@
+{
+  "identitetsnummer": "12345678901",
+  "tjenestestatus": "OPT_OUT",
+  "stillingssoek": [
+    {
+      "soekType": "STED_SOEK_V1",
+      "fylker": [],
+      "soekeord": [],
+      "styrk08": [],
+      "soekeTags": []
+    },
+    {
+      "soekType": "REISEVEI_SOEK_V1",
+      "maksAvstandKm": 0,
+      "postnummer": "9990",
+      "soekeord": []
+    }
+  ],
+  "flagg": [
+    {
+      "navn": "OPT_OUT",
+      "tidspunkt": "2026-01-15T10:15:30.123456Z"
+    }
+  ]
+}

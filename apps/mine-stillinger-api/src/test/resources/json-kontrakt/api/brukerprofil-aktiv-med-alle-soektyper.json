@@ -1,0 +1,66 @@
+{
+  "identitetsnummer": "12345678901",
+  "tjenestestatus": "AKTIV",
+  "stillingssoek": [
+    {
+      "soekType": "STED_SOEK_V1",
+      "fylker": [
+        {
+          "navn": "Vestland",
+          "fylkesnummer": "46",
+          "kommuner": [
+            {
+              "kommunenummer": "4601",
+              "navn": "Bergen"
+            },
+            {
+              "kommunenummer": "4627",
+              "navn": "Askøy"
+            }
+          ]
+        },
+        {
+          "navn": "Oslo",
+          "fylkesnummer": "03",
+          "kommuner": []
+        }
+      ],
+      "soekeord": [
+        "Utvikler",
+        "Kotlin"
+      ],
+      "styrk08": [
+        "2512",
+        "2513"
+      ],
+      "soekeTags": [
+        "INGEN_KRAV_TIL_ARBEIDSERFARING_V1",
+        "INGEN_KRAV_TIL_UTDANNING_V1",
+        "INGEN_KRAV_TIL_FOERERKORT_V1"
+      ]
+    },
+    {
+      "soekType": "REISEVEI_SOEK_V1",
+      "maksAvstandKm": 25,
+      "postnummer": "0150",
+      "soekeord": [
+        "Sykepleier",
+        "Natt"
+      ]
+    }
+  ],
+  "flagg": [
+    {
+      "navn": "TJENESTEN_AKTIVERT",
+      "tidspunkt": "2026-01-15T10:15:30.123456Z"
+    },
+    {
+      "navn": "DIREKTEMELDTE_STILLINGER",
+      "tidspunkt": "2026-02-01T08:00:00.987654321Z"
+    },
+    {
+      "navn": "OPT_OUT",
+      "tidspunkt": null
+    }
+  ]
+}

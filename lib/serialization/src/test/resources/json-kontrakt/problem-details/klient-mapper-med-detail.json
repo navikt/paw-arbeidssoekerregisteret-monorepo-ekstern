@@ -1,0 +1,9 @@
+{
+  "id": "3f2b8c1e-6d4a-4e2b-9a7c-1b2c3d4e5f60",
+  "type": "urn:paw:http:kunne-ikke-tolke-forespoersel",
+  "status": 400,
+  "title": "Bad Request",
+  "detail": "Kunne ikke tolke forespørsel",
+  "instance": "/api/v1/noe",
+  "timestamp": "2026-01-15T10:15:30.123456Z"
+}

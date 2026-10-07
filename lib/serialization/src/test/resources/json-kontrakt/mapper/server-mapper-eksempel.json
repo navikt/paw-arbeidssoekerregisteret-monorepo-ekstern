@@ -1,0 +1,26 @@
+{
+  "id": "3f2b8c1e-6d4a-4e2b-9a7c-1b2c3d4e5f60",
+  "tidspunkt": "2026-01-15T10:15:30.123456Z",
+  "dato": "2026-01-15",
+  "datoTid": "2026-01-15T10:15:30.123456",
+  "varighet": "PT1H30M0.25S",
+  "valgfriTekst": null,
+  "tomListe": [],
+  "kategori": "ANDRE",
+  "nestet": {
+    "navn": "nestet",
+    "antall": 3
+  },
+  "nestetListe": [
+    {
+      "navn": "a",
+      "antall": 1
+    },
+    {
+      "navn": "b",
+      "antall": 2
+    }
+  ],
+  "stortTall": 9007199254740993,
+  "flagg": true
+}

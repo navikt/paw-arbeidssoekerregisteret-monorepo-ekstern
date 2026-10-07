@@ -1,0 +1,9 @@
+{
+  "tidspunkt": "2026-01-15T10:15:30.123Z",
+  "utfoertAv": {
+    "type": "VEILEDER",
+    "id": "01017012345"
+  },
+  "kilde": "kontrakt-test",
+  "aarsak": "testing"
+}

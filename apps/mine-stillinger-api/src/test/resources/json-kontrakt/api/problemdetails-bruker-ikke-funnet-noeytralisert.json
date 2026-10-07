@@ -1,0 +1,9 @@
+{
+  "id": "<id>",
+  "type": "urn:paw:mine-stillinger:bruker-ikke-funnet",
+  "status": 404,
+  "title": "Bruker ikke funnet",
+  "detail": null,
+  "instance": "brukerprofil",
+  "timestamp": "<timestamp>"
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "periodeId": "6d6302a7-7ed1-40a3-8257-c3e8ade4c049",
+    "startet": "2026-01-15T10:15:30.123",
+    "avsluttet": "2026-02-20T08:05:01.456"
+  },
+  {
+    "periodeId": "2656398c-a355-4f9b-8b34-a76abaf3c61a",
+    "startet": "2026-03-01T00:00:00.001",
+    "avsluttet": null
+  }
+]

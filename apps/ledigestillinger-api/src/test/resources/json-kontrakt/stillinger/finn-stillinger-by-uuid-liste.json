@@ -1,0 +1,227 @@
+{
+  "stillinger": [
+    {
+      "uuid": "44b44747-f65d-46b3-89a8-997a63d0d489",
+      "adnr": "1234567",
+      "tittel": "Utvikler",
+      "status": "AKTIV",
+      "visning": "UBEGRENSET",
+      "arbeidsgivernavn": "Testbedrift AS",
+      "arbeidsgiver": {
+        "orgForm": "BEDR",
+        "navn": "TESTBEDRIFT AS",
+        "offentligNavn": "Testbedrift AS",
+        "orgNr": "999999999",
+        "parentOrgNr": "888888888"
+      },
+      "stillingstittel": "Systemutvikler",
+      "ansettelsesform": "Fast",
+      "stillingsprosent": "HELTID",
+      "stillingsantall": 2,
+      "sektor": "OFFENTLIG",
+      "soeknadsfrist": {
+        "type": "DATO",
+        "verdi": "2026-02-01",
+        "dato": "2026-02-01"
+      },
+      "oppstartsfrist": {
+        "type": "SNAREST",
+        "verdi": "Snarest",
+        "dato": null
+      },
+      "publisert": "2026-01-15T10:15:30.123456Z",
+      "utloeper": "2026-02-01T22:59:59.999999Z",
+      "styrkkoder": [
+        {
+          "kode": "2512",
+          "navn": "Programvareutviklere"
+        },
+        {
+          "kode": "2511",
+          "navn": "Systemanalytikere"
+        }
+      ],
+      "lokasjoner": [
+        {
+          "land": "NORGE",
+          "postkode": "0661",
+          "poststed": "OSLO",
+          "kommune": "OSLO",
+          "kommunenummer": "0301",
+          "fylke": "OSLO",
+          "fylkesnummer": "03"
+        }
+      ],
+      "tags": [
+        "DIREKTEMELDT_V1",
+        "HAR_KRAV_TIL_ARBEIDSERFARING_V1",
+        "INGEN_KRAV_TIL_ARBEIDSERFARING_V1",
+        "HAR_KRAV_TIL_UTDANNING_V1",
+        "INGEN_KRAV_TIL_UTDANNING_V1",
+        "HAR_KRAV_TIL_FOERERKORT_V1",
+        "INGEN_KRAV_TIL_FOERERKORT_V1"
+      ],
+      "tekniskeTags": [
+        "UKJENT_KRAV_TIL_ARBEIDSERFARING_V1",
+        "UKJENT_KRAV_TIL_UTDANNING_V1",
+        "UKJENT_KRAV_TIL_FOERERKORT_V1"
+      ]
+    },
+    {
+      "uuid": "f0e09ebf-e9f7-4025-9bd7-31bbff037eaa",
+      "adnr": null,
+      "tittel": "Minimal",
+      "status": "STOPPET",
+      "visning": null,
+      "arbeidsgivernavn": null,
+      "arbeidsgiver": null,
+      "stillingstittel": null,
+      "ansettelsesform": null,
+      "stillingsprosent": "UKJENT",
+      "stillingsantall": null,
+      "sektor": "UKJENT",
+      "soeknadsfrist": {
+        "type": "UKJENT",
+        "verdi": null,
+        "dato": null
+      },
+      "oppstartsfrist": {
+        "type": "FORTLOEPENDE",
+        "verdi": null,
+        "dato": null
+      },
+      "publisert": "2026-01-15T10:15:30.000001Z",
+      "utloeper": null,
+      "styrkkoder": [],
+      "lokasjoner": [],
+      "tags": [],
+      "tekniskeTags": []
+    },
+    {
+      "uuid": "e7b8c9f6-9ada-457c-bed5-ec45656c73b2",
+      "adnr": null,
+      "tittel": "Stilling INAKTIV",
+      "status": "INAKTIV",
+      "visning": "BEGRENSET_INTERNT",
+      "arbeidsgivernavn": null,
+      "arbeidsgiver": null,
+      "stillingstittel": null,
+      "ansettelsesform": null,
+      "stillingsprosent": "DELTID",
+      "stillingsantall": null,
+      "sektor": "PRIVAT",
+      "soeknadsfrist": {
+        "type": "UKJENT",
+        "verdi": null,
+        "dato": null
+      },
+      "oppstartsfrist": {
+        "type": "FORTLOEPENDE",
+        "verdi": null,
+        "dato": null
+      },
+      "publisert": "2026-01-15T10:15:30.000001Z",
+      "utloeper": null,
+      "styrkkoder": [],
+      "lokasjoner": [
+        {
+          "land": "NORGE",
+          "postkode": null,
+          "poststed": null,
+          "kommune": null,
+          "kommunenummer": null,
+          "fylke": null,
+          "fylkesnummer": null
+        }
+      ],
+      "tags": [],
+      "tekniskeTags": []
+    },
+    {
+      "uuid": "91d5e8cc-0edb-4378-ba71-39465e2ebfb8",
+      "adnr": null,
+      "tittel": "Stilling SLETTET",
+      "status": "SLETTET",
+      "visning": "BEGRENSET_ARBEIDSGIVER",
+      "arbeidsgivernavn": null,
+      "arbeidsgiver": null,
+      "stillingstittel": null,
+      "ansettelsesform": null,
+      "stillingsprosent": "DELTID",
+      "stillingsantall": null,
+      "sektor": "PRIVAT",
+      "soeknadsfrist": {
+        "type": "UKJENT",
+        "verdi": null,
+        "dato": null
+      },
+      "oppstartsfrist": {
+        "type": "FORTLOEPENDE",
+        "verdi": null,
+        "dato": null
+      },
+      "publisert": "2026-01-15T10:15:30.000001Z",
+      "utloeper": null,
+      "styrkkoder": [],
+      "lokasjoner": [
+        {
+          "land": "NORGE",
+          "postkode": null,
+          "poststed": null,
+          "kommune": null,
+          "kommunenummer": null,
+          "fylke": null,
+          "fylkesnummer": null
+        }
+      ],
+      "tags": [],
+      "tekniskeTags": []
+    },
+    {
+      "uuid": "0bd29537-64e8-4e09-97da-886aa3a63103",
+      "adnr": null,
+      "tittel": "Stilling AVVIST",
+      "status": "AVVIST",
+      "visning": "BEGRENSET_KILDE",
+      "arbeidsgivernavn": null,
+      "arbeidsgiver": null,
+      "stillingstittel": null,
+      "ansettelsesform": null,
+      "stillingsprosent": "DELTID",
+      "stillingsantall": null,
+      "sektor": "PRIVAT",
+      "soeknadsfrist": {
+        "type": "UKJENT",
+        "verdi": null,
+        "dato": null
+      },
+      "oppstartsfrist": {
+        "type": "FORTLOEPENDE",
+        "verdi": null,
+        "dato": null
+      },
+      "publisert": "2026-01-15T10:15:30.000001Z",
+      "utloeper": null,
+      "styrkkoder": [],
+      "lokasjoner": [
+        {
+          "land": "NORGE",
+          "postkode": null,
+          "poststed": null,
+          "kommune": null,
+          "kommunenummer": null,
+          "fylke": null,
+          "fylkesnummer": null
+        }
+      ],
+      "tags": [],
+      "tekniskeTags": []
+    }
+  ],
+  "paging": {
+    "page": 1,
+    "pageSize": 5,
+    "hitSize": 5,
+    "sortOrder": "DESC"
+  }
+}

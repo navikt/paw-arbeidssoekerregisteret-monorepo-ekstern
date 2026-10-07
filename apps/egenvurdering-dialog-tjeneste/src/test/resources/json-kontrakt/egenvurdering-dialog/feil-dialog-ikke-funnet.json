@@ -1,0 +1,9 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "type": "urn:paw:egenvurdering:dialog-ikke-funnet",
+  "status": 404,
+  "title": "Not Found",
+  "detail": "Dialog ikke funnet for arbeidssøkerperiode",
+  "instance": "/api/v1/egenvurdering/dialog",
+  "timestamp": "2026-01-15T10:15:30.123456Z"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "type": "urn:paw:stillinger:ikke-funnet",
+  "status": 404,
+  "title": "Not Found",
+  "detail": "Stilling ikke funnet",
+  "instance": "/api/v1/stillinger/2656398c-a355-4f9b-8b34-a76abaf3c61a",
+  "timestamp": "2026-01-15T10:15:30.123456Z"
+}

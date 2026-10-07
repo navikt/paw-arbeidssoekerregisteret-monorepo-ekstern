@@ -1,0 +1,9 @@
+{
+  "id": "99999999-8888-7777-6666-555555555555",
+  "type": "urn:paw:mine-stillinger:oppdatering-ikke-tillatt",
+  "status": 403,
+  "title": "Oppdatering av tjenestestatus ikke tillatt",
+  "detail": "Ikke lov",
+  "instance": "api_kan_sette_tjenestestatus",
+  "timestamp": "2026-01-15T10:15:30.123456Z"
+}

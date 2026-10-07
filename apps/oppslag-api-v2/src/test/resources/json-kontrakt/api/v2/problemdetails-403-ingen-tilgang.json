@@ -1,0 +1,9 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "type": "urn:paw:tilgangskontroll:ikke_tilgang",
+  "status": 403,
+  "title": "Ikke tilgang",
+  "detail": "Brukeren har ikke tilgang til denne ressursen.",
+  "instance": "/api/v2/tidslinjer",
+  "timestamp": "1970-01-01T00:00:00Z"
+}

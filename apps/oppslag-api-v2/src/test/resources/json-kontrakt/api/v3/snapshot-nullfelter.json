@@ -1,0 +1,80 @@
+{
+  "id": "11111111-1111-4111-8111-000000000002",
+  "identitetsnummer": "01017012345",
+  "startet": {
+    "sendtInnAv": {
+      "tidspunkt": "2026-03-16T10:15:30.123456Z",
+      "utfoertAv": {
+        "type": "UDEFINERT",
+        "id": "ukjent-kilde"
+      },
+      "kilde": "paw-arbeidssoekerregisteret-api-inngang",
+      "aarsak": "Kontrakttest"
+    },
+    "tidspunkt": "2026-03-16T10:15:30.123456Z",
+    "type": "PERIODE_STARTET_V1"
+  },
+  "opplysning": {
+    "id": "22222222-2222-4222-8222-000000000003",
+    "sendtInnAv": {
+      "tidspunkt": "2026-03-16T10:20:30.123456Z",
+      "utfoertAv": {
+        "type": "SLUTTBRUKER",
+        "id": "01017012345"
+      },
+      "kilde": "paw-arbeidssoekerregisteret-api-inngang",
+      "aarsak": "Kontrakttest"
+    },
+    "utdanning": {
+      "nus": "0"
+    },
+    "helse": { },
+    "jobbsituasjon": {
+      "beskrivelser": [ ]
+    },
+    "annet": {
+      "andreForholdHindrerArbeid": "UKJENT_VERDI"
+    },
+    "tidspunkt": "2026-03-16T10:20:30.123456Z",
+    "type": "OPPLYSNINGER_V4"
+  },
+  "profilering": {
+    "id": "33333333-3333-4333-8333-000000000002",
+    "opplysningerOmArbeidssokerId": "22222222-2222-4222-8222-000000000003",
+    "sendtInnAv": {
+      "tidspunkt": "2026-03-16T10:21:30.123456Z",
+      "utfoertAv": {
+        "type": "SYSTEM",
+        "id": "paw-arbeidssoekerregisteret-profilering"
+      },
+      "kilde": "paw-arbeidssoekerregisteret-profilering",
+      "aarsak": "Kontrakttest"
+    },
+    "profilertTil": "OPPGITT_HINDRINGER",
+    "jobbetSammenhengendeSeksAvTolvSisteMnd": false,
+    "tidspunkt": "2026-03-16T10:21:30.123456Z",
+    "type": "PROFILERING_V1"
+  },
+  "bekreftelse": {
+    "id": "55555555-5555-4555-8555-000000000004",
+    "bekreftelsesloesning": "ARBEIDSSOEKERREGISTERET",
+    "status": "GYLDIG",
+    "svar": {
+      "sendtInnAv": {
+        "tidspunkt": "2026-03-31T10:15:30.123456Z",
+        "utfoertAv": {
+          "type": "SLUTTBRUKER",
+          "id": "01017012345"
+        },
+        "kilde": "paw-bekreftelse",
+        "aarsak": "Kontrakttest"
+      },
+      "gjelderFra": "2026-03-17T10:15:30.123456Z",
+      "gjelderTil": "2026-03-31T10:15:30.123456Z",
+      "harJobbetIDennePerioden": true,
+      "vilFortsetteSomArbeidssoeker": false
+    },
+    "tidspunkt": "2026-03-31T10:15:30.123456Z",
+    "type": "BEKREFTELSE_V1"
+  }
+}
