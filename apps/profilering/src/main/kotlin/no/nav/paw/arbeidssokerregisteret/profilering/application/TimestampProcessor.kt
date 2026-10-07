@@ -1,6 +1,5 @@
 package no.nav.paw.arbeidssokerregisteret.profilering.application
 
-import no.nav.paw.kafka.signing.stripSigningHeaders
 import org.apache.kafka.streams.processor.api.Processor
 import org.apache.kafka.streams.processor.api.ProcessorContext
 import org.apache.kafka.streams.processor.api.Record
@@ -15,7 +14,7 @@ class TimestampProcessor<K, V> : Processor<K, V, K, V> {
 
     override fun process(record: Record<K, V>) {
         context.forward(
-            record.withTimestamp(Instant.now().toEpochMilli()).withHeaders(stripSigningHeaders(record.headers()))
+            record.withTimestamp(Instant.now().toEpochMilli())
         )
     }
 }

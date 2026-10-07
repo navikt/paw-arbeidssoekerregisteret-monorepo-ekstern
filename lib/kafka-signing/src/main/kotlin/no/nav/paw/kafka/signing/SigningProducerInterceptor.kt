@@ -99,7 +99,11 @@ class SigningProducerInterceptor<K, V> : ProducerInterceptor<K, V> {
     @WithSpan("signing_interceptor_on_send")
     override fun onSend(record: ProducerRecord<K, V>): ProducerRecord<K, V> {
         val topic = record.topic()
-        val headers = record.headers()
+        val unsigned = ProducerRecord(
+            topic, record.partition(), record.timestamp(), record.key(), record.value(),
+            stripSigningHeaders(record.headers())
+        )
+        val headers = unsigned.headers()
 
         return try {
             Span.current().setAttribute("key_id", keyIdString)
@@ -124,7 +128,7 @@ class SigningProducerInterceptor<K, V> : ProducerInterceptor<K, V> {
                 "${record.key()}",
                 e
             )
-            record
+            unsigned
         }
     }
 
