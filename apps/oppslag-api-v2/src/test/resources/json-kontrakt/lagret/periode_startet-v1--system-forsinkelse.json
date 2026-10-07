@@ -1,0 +1,14 @@
+{
+  "tidspunkt": "2026-01-15T10:15:30.123Z",
+  "utfoertAv": {
+    "type": "SYSTEM",
+    "id": "01017012345",
+    "sikkerhetsnivaa": "tokenx:Level4"
+  },
+  "kilde": "kontrakt-test",
+  "aarsak": "testing",
+  "tidspunktFraKilde": {
+    "tidspunkt": "2026-01-14T09:00:00.654Z",
+    "avviksType": "FORSINKELSE"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "id": "22222222-2222-2222-2222-222222222222",
+  "periodeId": "11111111-1111-1111-1111-111111111111",
+  "sendtInnAv": {
+    "tidspunkt": "2026-01-15T10:15:30.123Z",
+    "utfoertAv": {
+      "type": "SLUTTBRUKER",
+      "id": "01017012345",
+      "sikkerhetsnivaa": "tokenx:Level4"
+    },
+    "kilde": "kontrakt-test",
+    "aarsak": "testing",
+    "tidspunktFraKilde": {
+      "tidspunkt": "2026-01-14T09:00:00.654Z",
+      "avviksType": "UKJENT_VERDI"
+    }
+  },
+  "utdanning": {
+    "nus": "4",
+    "bestaatt": "JA",
+    "godkjent": "VET_IKKE"
+  },
+  "helse": {
+    "helsetilstandHindrerArbeid": "JA"
+  },
+  "jobbsituasjon": {
+    "beskrivelser": [
+      {
+        "beskrivelse": "UKJENT_VERDI",
+        "detaljer": {
+          "nokkel0": "verdi0"
+        }
+      },
+      {
+        "beskrivelse": "UDEFINERT",
+        "detaljer": {
+          "nokkel1": "verdi1"
+        }
+      },
+      {
+        "beskrivelse": "HAR_SAGT_OPP",
+        "detaljer": {
+          "nokkel2": "verdi2"
+        }
+      },
+      {
+        "beskrivelse": "HAR_BLITT_SAGT_OPP",
+        "detaljer": {
+          "nokkel3": "verdi3"
+        }
+      },
+      {
+        "beskrivelse": "ER_PERMITTERT",
+        "detaljer": {
+          "nokkel4": "verdi4"
+        }
+      },
+      {
+        "beskrivelse": "ALDRI_HATT_JOBB",
+        "detaljer": {
+          "nokkel5": "verdi5"
+        }
+      },
+      {
+        "beskrivelse": "IKKE_VAERT_I_JOBB_SISTE_2_AAR",
+        "detaljer": {
+          "nokkel6": "verdi6"
+        }
+      },
+      {
+        "beskrivelse": "AKKURAT_FULLFORT_UTDANNING",
+        "detaljer": {
+          "nokkel7": "verdi7"
+        }
+      },
+      {
+        "beskrivelse": "VIL_BYTTE_JOBB",
+        "detaljer": {
+          "nokkel8": "verdi8"
+        }
+      },
+      {
+        "beskrivelse": "USIKKER_JOBBSITUASJON",
+        "detaljer": {
+          "nokkel9": "verdi9"
+        }
+      },
+      {
+        "beskrivelse": "MIDLERTIDIG_JOBB",
+        "detaljer": {
+          "nokkel10": "verdi10"
+        }
+      },
+      {
+        "beskrivelse": "DELTIDSJOBB_VIL_MER",
+        "detaljer": {
+          "nokkel11": "verdi11"
+        }
+      },
+      {
+        "beskrivelse": "NY_JOBB",
+        "detaljer": {
+          "nokkel12": "verdi12"
+        }
+      },
+      {
+        "beskrivelse": "KONKURS",
+        "detaljer": {
+          "nokkel13": "verdi13"
+        }
+      },
+      {
+        "beskrivelse": "ANNET",
+        "detaljer": {
+          "nokkel14": "verdi14"
+        }
+      }
+    ]
+  },
+  "annet": {
+    "andreForholdHindrerArbeid": "NEI"
+  }
+}

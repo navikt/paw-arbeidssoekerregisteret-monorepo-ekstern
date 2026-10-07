@@ -12,6 +12,11 @@ dependencies {
     compileOnly(libs.jackson.datatype.jsr310)
 
     testImplementation(libs.bundles.unit.testing.kotest)
+    testImplementation(project(":domain:error"))
+    testImplementation(project(":lib:http-client-utils"))
+    testImplementation(libs.ktor.client.core)
+    testImplementation(libs.jackson.kotlin)
+    testImplementation(libs.jackson.datatype.jsr310)
 }
 
 java {

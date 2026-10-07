@@ -1,0 +1,9 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "type": "urn:paw:stillinger:malformed-request",
+  "status": 400,
+  "title": "Bad Request",
+  "detail": "Page må være et positivt tall",
+  "instance": "/api/v1/stillinger",
+  "timestamp": "2026-01-15T10:15:30.123456Z"
+}

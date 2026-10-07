@@ -1,0 +1,30 @@
+{
+  "uuid": "f0e09ebf-e9f7-4025-9bd7-31bbff037eaa",
+  "adnr": null,
+  "tittel": "Minimal",
+  "status": "STOPPET",
+  "visning": null,
+  "arbeidsgivernavn": null,
+  "arbeidsgiver": null,
+  "stillingstittel": null,
+  "ansettelsesform": null,
+  "stillingsprosent": "UKJENT",
+  "stillingsantall": null,
+  "sektor": "UKJENT",
+  "soeknadsfrist": {
+    "type": "UKJENT",
+    "verdi": null,
+    "dato": null
+  },
+  "oppstartsfrist": {
+    "type": "FORTLOEPENDE",
+    "verdi": null,
+    "dato": null
+  },
+  "publisert": "2026-01-15T10:15:30.000001Z",
+  "utloeper": null,
+  "styrkkoder": [],
+  "lokasjoner": [],
+  "tags": [],
+  "tekniskeTags": []
+}

@@ -1,0 +1,9 @@
+{
+  "id": "99999999-8888-7777-6666-555555555555",
+  "type": "urn:paw:mine-stillinger:ugyldig-verdi",
+  "status": 400,
+  "title": "Oppdatering av tjenestestatus ikke tillatt",
+  "detail": "Ugyldig verdi 'UKJENT' for feltet 'tjenestestatus'",
+  "instance": "api",
+  "timestamp": "2026-01-15T10:15:30.123456Z"
+}

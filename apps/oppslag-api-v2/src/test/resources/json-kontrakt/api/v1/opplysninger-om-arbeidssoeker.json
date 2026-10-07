@@ -1,0 +1,87 @@
+[
+  {
+    "opplysningerOmArbeidssoekerId": "22222222-2222-4222-8222-000000000003",
+    "periodeId": "11111111-1111-4111-8111-000000000002",
+    "sendtInnAv": {
+      "tidspunkt": "2026-03-16T10:20:30.123456Z",
+      "utfoertAv": {
+        "type": "SLUTTBRUKER",
+        "id": "01017012345"
+      },
+      "kilde": "paw-arbeidssoekerregisteret-api-inngang",
+      "aarsak": "Kontrakttest",
+      "tidspunktFraKilde": null
+    },
+    "jobbsituasjon": [ ],
+    "utdanning": {
+      "nus": "0",
+      "bestaatt": null,
+      "godkjent": null
+    },
+    "helse": {
+      "helsetilstandHindrerArbeid": "VET_IKKE"
+    },
+    "annet": {
+      "andreForholdHindrerArbeid": null
+    }
+  },
+  {
+    "opplysningerOmArbeidssoekerId": "22222222-2222-4222-8222-000000000002",
+    "periodeId": "11111111-1111-4111-8111-000000000002",
+    "sendtInnAv": {
+      "tidspunkt": "2026-03-16T10:16:30.123456Z",
+      "utfoertAv": {
+        "type": "SLUTTBRUKER",
+        "id": "01017012345"
+      },
+      "kilde": "paw-arbeidssoekerregisteret-api-inngang",
+      "aarsak": "Kontrakttest",
+      "tidspunktFraKilde": null
+    },
+    "jobbsituasjon": [ ],
+    "utdanning": null,
+    "helse": null,
+    "annet": null
+  },
+  {
+    "opplysningerOmArbeidssoekerId": "22222222-2222-4222-8222-000000000001",
+    "periodeId": "11111111-1111-4111-8111-000000000001",
+    "sendtInnAv": {
+      "tidspunkt": "2026-01-15T10:16:30.123456Z",
+      "utfoertAv": {
+        "type": "VEILEDER",
+        "id": "Z20001"
+      },
+      "kilde": "paw-arbeidssoekerregisteret-api-inngang",
+      "aarsak": "Kontrakttest",
+      "tidspunktFraKilde": null
+    },
+    "jobbsituasjon": [
+      {
+        "beskrivelse": "HAR_SAGT_OPP",
+        "detaljer": {
+          "gjelder_fra_dato_iso8601": "2025-12-01",
+          "stilling_styrk08": "2359",
+          "stilling": "Lærer"
+        }
+      },
+      {
+        "beskrivelse": "DELTIDSJOBB_VIL_MER",
+        "detaljer": {
+          "prosent": "50"
+        }
+      }
+    ],
+    "utdanning": {
+      "nus": "3",
+      "bestaatt": "JA",
+      "godkjent": "NEI"
+    },
+    "helse": {
+      "helsetilstandHindrerArbeid": "NEI"
+    },
+    "annet": {
+      "andreForholdHindrerArbeid": "VET_IKKE"
+    }
+  }
+]

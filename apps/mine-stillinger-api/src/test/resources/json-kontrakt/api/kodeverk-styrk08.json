@@ -1,0 +1,4833 @@
+[
+  {
+    "styrk": {
+      "level": "1",
+      "code": "0",
+      "name": "Militære yrker og uoppgitt"
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "00",
+          "name": "Uoppgitt / yrker som ikke kan identifiseres"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "000",
+              "name": "Uoppgitt / yrker som ikke kan identifiseres"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "0000",
+                  "name": "Uoppgitt / yrker som ikke kan identifiseres"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "01",
+          "name": "Offiserer fra fenrik og høyere grad"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "011",
+              "name": "Offiserer fra fenrik og høyere grad"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "0110",
+                  "name": "Offiserer fra fenrik og høyere grad"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "02",
+          "name": "Befal med sersjant grad"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "021",
+              "name": "Befal med sersjant grad"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "0210",
+                  "name": "Befal med sersjant grad"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "03",
+          "name": "Menige"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "031",
+              "name": "Menige"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "0310",
+                  "name": "Menige"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "1",
+      "name": "Ledere"
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "11",
+          "name": "Politikere og toppledere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "111",
+              "name": "Politikere og toppledere i offentlig administrasjon"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1111",
+                  "name": "Politikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1112",
+                  "name": "Toppledere i offentlig administrasjon"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1114",
+                  "name": "Toppledere i interesseorganisasjoner"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "112",
+              "name": "Administrerende direktører"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1120",
+                  "name": "Administrerende direktører"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "12",
+          "name": "Administrative og merkantile ledere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "121",
+              "name": "Ledere av administrative enheter"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1211",
+                  "name": "Finans- og økonomisjefer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1212",
+                  "name": "Personalsjefer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1213",
+                  "name": "Strategi- og planleggingssjefer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1219",
+                  "name": "Andre administrative ledere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "122",
+              "name": "Ledere av salgs-, PR- og forskningsenheter"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1221",
+                  "name": "Salgs- og markedssjefer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1222",
+                  "name": "PR- og informasjonssjefer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1223",
+                  "name": "Forsknings- og utviklingsledere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "13",
+          "name": "Ledere av enheter for vareproduksjon og tjenesteyting"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "131",
+              "name": "Ledere i gartnerier, akvakultur mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1311",
+                  "name": "Ledere i skogbruk, gartnerier mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1312",
+                  "name": "Ledere innen akvakultur mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "132",
+              "name": "Ledere av produksjon, utvinning, bygg og anlegg, transport"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1321",
+                  "name": "Ledere av industriproduksjon mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1322",
+                  "name": "Ledere av olje- og gassutvinning mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1323",
+                  "name": "Ledere av bygge- og anleggsvirksomhet"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1324",
+                  "name": "Ledere av logistikk og transport mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "133",
+              "name": "Ledere av IKT-enheter"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1330",
+                  "name": "Ledere av IKT-enheter"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "134",
+              "name": "Ledere av utdanning, helse- og sosialtjenester"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1341",
+                  "name": "Ledere av omsorgstjenester for barn"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1342",
+                  "name": "Ledere av helsetjenester"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1343",
+                  "name": "Ledere av eldreomsorg"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1344",
+                  "name": "Ledere av sosialomsorg"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1345",
+                  "name": "Ledere av utdanning og undervisning"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1346",
+                  "name": "Ledere av forsikring og finansvirksomhet"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1349",
+                  "name": "Andre ledere av produksjon og tjenesteyting"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "14",
+          "name": "Ledere i hotell, restaurant, varehandel mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "141",
+              "name": "Ledere i hotell og restaurant"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1411",
+                  "name": "Hotellsjefer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1412",
+                  "name": "Restaurantsjefer"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "142",
+              "name": "Varehandelssjefer"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1420",
+                  "name": "Varehandelssjefer"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "143",
+              "name": "Daglige ledere, andre tjenesteytende virksomheter"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1431",
+                  "name": "Sports-, rekreasjons- og kultursenterledere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "1439",
+                  "name": "Andre daglige ledere i tjenesteytende virksomheter"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "2",
+      "name": "Akademiske yrker"
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "21",
+          "name": "Realister, sivilingeniører mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "211",
+              "name": "Fysikere, kjemikere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2111",
+                  "name": "Fysikere og astronomer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2112",
+                  "name": "Meteorologer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2113",
+                  "name": "Kjemikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2114",
+                  "name": "Geologer og geofysikere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "212",
+              "name": "Matematikere, statistikere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2120",
+                  "name": "Matematikere, statistikere mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "213",
+              "name": "Biologiske yrker mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2131",
+                  "name": "Biologer, botanikere, zoologer mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2132",
+                  "name": "Sivilagronomer mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2133",
+                  "name": "Miljøvernrådgivere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "214",
+              "name": "Sivilingeniører (unntatt elektroteknologi)"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2141",
+                  "name": "Sivilingeniører (industri og produksjon)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2142",
+                  "name": "Sivilingeniører (bygg og anlegg)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2143",
+                  "name": "Sivilingeniører (miljøteknikk)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2144",
+                  "name": "Sivilingeniører (maskin- og marin-teknikk)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2145",
+                  "name": "Sivilingeniører (kjemi)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2146",
+                  "name": "Sivilingeniører (geofag, petro-leumsteknologi, metallurgi mv.)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2149",
+                  "name": "Andre sivilingeniører (unntatt elektroteknologi)"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "215",
+              "name": "Sivilingeniører elektroteknologi"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2151",
+                  "name": "Sivilingeniører (elkraftteknikk)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2152",
+                  "name": "Sivilingeniører (elektronikk)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2153",
+                  "name": "Sivilingeniører (telekommunikasjon)"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "216",
+              "name": "Arkitekter, designere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2161",
+                  "name": "Sivilarkitekter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2162",
+                  "name": "Landskapsarkitekter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2163",
+                  "name": "Produkt- og klesdesignere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2164",
+                  "name": "Arealplanleggere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2165",
+                  "name": "Landmålere, kartografer mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2166",
+                  "name": "Grafiske- og multimediadesignere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "22",
+          "name": "Medisinske yrker"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "221",
+              "name": "Leger"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2211",
+                  "name": "Allmennpraktiserende leger"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2212",
+                  "name": "Legespesialister"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "222",
+              "name": "Sykepleiere og spesialsykepleiere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2221",
+                  "name": "Spesialsykepleiere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2222",
+                  "name": "Jordmødre"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2223",
+                  "name": "Sykepleiere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2224",
+                  "name": "Vernepleiere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "225",
+              "name": "Veterinærer"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2250",
+                  "name": "Veterinærer"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "226",
+              "name": "Andre medisinske yrker"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2261",
+                  "name": "Tannleger"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2262",
+                  "name": "Farmasøyter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2263",
+                  "name": "Helse- og miljørådgivere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2264",
+                  "name": "Fysioterapeuter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2265",
+                  "name": "Ernæringsfysiologer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2266",
+                  "name": "Audiografer og logopeder"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2267",
+                  "name": "Ergoterapeuter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2269",
+                  "name": "Kiropraktorer mv."
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "23",
+          "name": "Undervisningsyrker"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "231",
+              "name": "Universitets- og høyskolelektorer/-lærere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2310",
+                  "name": "Universitets- og høyskolelektorer/-lærere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "232",
+              "name": "Yrkesfaglærere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2320",
+                  "name": "Yrkesfaglærere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "233",
+              "name": "Lektorer mv (videregående skole)"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2330",
+                  "name": "Lektorer mv. (videregående skole)"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "234",
+              "name": "Grunnskole- og førskole-/barnehagelærere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2341",
+                  "name": "Grunnskolelærere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2342",
+                  "name": "Førskole-/barnehagelærere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "235",
+              "name": "Andre lærere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2351",
+                  "name": "Spesialister i pedagogikk"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2352",
+                  "name": "Spesiallærere / spesialpedagoger"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2353",
+                  "name": "Andre språklærere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2354",
+                  "name": "Andre musikklærere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2355",
+                  "name": "Andre lærere i estetiske fag"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2356",
+                  "name": "Andre IKT-lærere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2359",
+                  "name": "Andre lærere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "24",
+          "name": "Rådgivere innen økonomi, administrasjon og salg"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "241",
+              "name": "Finansrådgivere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2411",
+                  "name": "Revisorer, regnskapsrådgivere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2412",
+                  "name": "Finans- og investeringsrådgivere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2413",
+                  "name": "Finansanalytikere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "242",
+              "name": "Administrasjonsrådgivere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2421",
+                  "name": "Organisasjonsrådgivere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2422",
+                  "name": "Høyere saksbehandlere i offentlig og privat virksomhet"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2423",
+                  "name": "Personal- og karriererådgivere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2424",
+                  "name": "Rådgivere innen kompetanseutvikling"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "243",
+              "name": "Rådgivere innen salg, markedsføring mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2431",
+                  "name": "Reklame- og markedsføringsrådgivere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2432",
+                  "name": "Informasjonsrådgivere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2433",
+                  "name": "Salgskonsulenter innen tekniske og medisinske produkter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2434",
+                  "name": "Salgskonsulenter innen IKT-produkter"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "25",
+          "name": "IKT-rådgivere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "251",
+              "name": "Programvare- og applikasjonsutviklere/analytikere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2511",
+                  "name": "Systemanalytikere/-arkitekter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2512",
+                  "name": "Programvareutviklere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2513",
+                  "name": "Nett- og multimediautviklere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2514",
+                  "name": "Applikasjonsprogrammerere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2519",
+                  "name": "Andre programvare- og applikasjonsutviklere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "252",
+              "name": "Databasedesignere, systemadministratorer mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2521",
+                  "name": "Databasedesignere og -administratorer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2522",
+                  "name": "Systemadministratorer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2523",
+                  "name": "Nettverksansvarlige"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2529",
+                  "name": "Sikkerhetsanalytikere mv."
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "26",
+          "name": "Juridiske, samfunnsvitenskapelige og humanistiske yrker"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "261",
+              "name": "Juridiske yrker"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2611",
+                  "name": "Jurister og advokater"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2612",
+                  "name": "Dommere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2619",
+                  "name": "Andre juridiske yrker"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "262",
+              "name": "Bibliotekarer, arkivarer mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2621",
+                  "name": "Arkivarer og kuratorer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2622",
+                  "name": "Bibliotekarer og andre informasjonsarbeidere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "263",
+              "name": "Samfunnsvitenskapelige, humanistiske og religiøse yrker"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2631",
+                  "name": "Rådgivere/forskere, samfunnsøkonomi"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2632",
+                  "name": "Rådgivere/forskere, samfunnsvitenskap"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2633",
+                  "name": "Rådgivere/forskere, humanistiske fag"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2634",
+                  "name": "Psykologer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2635",
+                  "name": "Rådgivere innen sosiale fagfelt"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2636",
+                  "name": "Geistlige yrker"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "264",
+              "name": "Forfattere, journalister mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2641",
+                  "name": "Forfattere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2642",
+                  "name": "Journalister"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2643",
+                  "name": "Oversettere, tolker mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "265",
+              "name": "Profesjonelle kunstnere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2651",
+                  "name": "Skulptører, kunstmalere og andre billedkunstnere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2652",
+                  "name": "Dirigenter, komponister, musikere og sangere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2653",
+                  "name": "Koreografer og dansere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2654",
+                  "name": "Regissører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2655",
+                  "name": "Skuespillere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2656",
+                  "name": "Programledere i TV og radio"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "2659",
+                  "name": "Andre utøvende kunstneriske yrker"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "3",
+      "name": "Høyskoleyrker"
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "31",
+          "name": "Ingeniører mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "311",
+              "name": "Ingeniører"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3112",
+                  "name": "Bygningsingeniører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3113",
+                  "name": "Elkraftingeniører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3114",
+                  "name": "Elektronikkingeniører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3115",
+                  "name": "Maskiningeniører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3116",
+                  "name": "Kjemiingeniører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3117",
+                  "name": "Ingeniører innen petroleum, bergverk og metallurgi"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3118",
+                  "name": "Tekniske tegnere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3119",
+                  "name": "Andre ingeniører"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "312",
+              "name": "Arbeidsledere innen bergfag, industri, bygg og anlegg"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3121",
+                  "name": "Arbeidsleder, bergfag"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3122",
+                  "name": "Arbeidsleder, industri"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3123",
+                  "name": "Arbeidsleder, bygg og anlegg"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "313",
+              "name": "Prosesskontrollører"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3131",
+                  "name": "Energikontrolloperatører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3132",
+                  "name": "Kontrolloperatører ved forbrennings- kjøle- og vannrenseanlegg mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3133",
+                  "name": "Kontrolloperatører innen kjemisk prosessindustri"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3134",
+                  "name": "Kontrolloperatører ved olje- og naturgassraffineringsanlegg"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3135",
+                  "name": "Kontrolloperatører innen metallproduksjon"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3139",
+                  "name": "Andre prosesskontrolloperatører"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "314",
+              "name": "Bioteknikere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3141",
+                  "name": "Bioteknikere (ikke-medisinske laboratorier)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3142",
+                  "name": "Agroteknikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3143",
+                  "name": "Skogteknikere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "315",
+              "name": "Skipoffiserer, flygere, flygeledere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3151",
+                  "name": "Skipsmaskinister"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3152",
+                  "name": "Dekksoffiserer og loser"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3153",
+                  "name": "Flygere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3154",
+                  "name": "Flygeledere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3155",
+                  "name": "Teknikere innen luftfartssikkerhet"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "32",
+          "name": "Helserelaterte yrker"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "321",
+              "name": "Radiografer, proteseteknikere, reseptarer mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3211",
+                  "name": "Radiografer mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3212",
+                  "name": "Bioingeniører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3213",
+                  "name": "Reseptarer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3214",
+                  "name": "Protese- og tannteknikere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "323",
+              "name": "Yrker innen alternativ medisin"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3230",
+                  "name": "Yrker innen alternativ medisin"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "324",
+              "name": "Dyrepleiere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3240",
+                  "name": "Dyrepleiere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "325",
+              "name": "Andre helseyrker"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3251",
+                  "name": "Tannpleiere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3254",
+                  "name": "Optikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3256",
+                  "name": "Helsesekretærer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3257",
+                  "name": "Helse- og miljøkontrollører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3258",
+                  "name": "Ambulansepersonell"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3259",
+                  "name": "Andre helseyrker"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "33",
+          "name": "Medarbeidere innen økonomi, administrasjon og salg"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "331",
+              "name": "Yrker innen finanstjenester"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3311",
+                  "name": "Finansmeglere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3312",
+                  "name": "Kundebehandlere lån og kreditt"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3313",
+                  "name": "Regnskapsførere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3315",
+                  "name": "Takstmenn"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "332",
+              "name": "Agenter og meglere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3321",
+                  "name": "Forsikringsagenter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3322",
+                  "name": "Selgere (engros)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3323",
+                  "name": "Innkjøpere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3324",
+                  "name": "Handels- og skipsmeglere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "333",
+              "name": "Forretningstjenesteyrker"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3331",
+                  "name": "Speditører og befraktere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3332",
+                  "name": "Konferanse- og arrangementsplanleggere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3333",
+                  "name": "Arbeidsformidlere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3334",
+                  "name": "Eiendomsmeglere og - forvaltere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3339",
+                  "name": "Andre yrker innen forretningstjenester"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "334",
+              "name": "Sekretærer og arbeidsledere for kontorpersonell"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3341",
+                  "name": "Arbeidsledere for kontorpersonell"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3342",
+                  "name": "Advokatsekretær"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3343",
+                  "name": "Sjefssekretærer"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "335",
+              "name": "Yrker innen offentlig forvaltning"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3351",
+                  "name": "Tollere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3352",
+                  "name": "Skattefunksjonærer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3353",
+                  "name": "Saksbehandlere innen sosiale ytelser"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3354",
+                  "name": "Saksbehandlere for førerkort, importlisenser mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3355",
+                  "name": "Politibetjenter mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3359",
+                  "name": "Andre yrker innen offentlig forvaltning"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "34",
+          "name": "Yrker innen kultur, idrett mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "341",
+              "name": "Yrker innen sosialarbeid og kultur"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3411",
+                  "name": "Privatetterforskere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3412",
+                  "name": "Miljøarbeidere innen sosiale fagfelt"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3413",
+                  "name": "Religiøse yrker"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "342",
+              "name": "Yrker innen sport og idrett"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3421",
+                  "name": "Idrettsutøvere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3422",
+                  "name": "Trenere og idrettsdommere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3423",
+                  "name": "Sports- og aktivitetsinstruktører"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "343",
+              "name": "Yrker innen estetiske fag"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3431",
+                  "name": "Fotografer og filmfotografer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3432",
+                  "name": "Interiørdesignere og dekoratører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3433",
+                  "name": "Tekniske konservatorer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3434",
+                  "name": "Sjefskokker"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3439",
+                  "name": "Andre yrker innen estetiske fag"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "35",
+          "name": "IKT-teknikere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "351",
+              "name": "Operatører og brukerstøtte, IKT"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3511",
+                  "name": "Driftsteknikere, IKT"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3512",
+                  "name": "Brukerstøtte, IKT"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3513",
+                  "name": "Nettverks- og systemteknikere, IKT"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3514",
+                  "name": "Internett-teknikere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "352",
+              "name": "Teknikere innen kringkasting og telekom"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3521",
+                  "name": "Teknikere innen radio og tv"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "3522",
+                  "name": "Teknikere innen telekom"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "4",
+      "name": "Kontoryrker"
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "41",
+          "name": "Kontormedarbeidere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "411",
+              "name": "Kontormedarbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4110",
+                  "name": "Kontormedarbeidere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "413",
+              "name": "Dataregistrere og stenografer"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4131",
+                  "name": "Stenografer mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4132",
+                  "name": "Dataregistrere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "42",
+          "name": "Kundeserviceyrker"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "421",
+              "name": "Kundebehandlere, penger og pengespill"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4211",
+                  "name": "Kundebehandlere, bank og postkontor"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4212",
+                  "name": "Bingoverter, bookmakere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4213",
+                  "name": "Pantelånere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4214",
+                  "name": "Inkassomedarbeidere mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "422",
+              "name": "Reisebyrå-, resepsjons- og andre opplysningsmedarbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4221",
+                  "name": "Reisebyråmedarbeidere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4222",
+                  "name": "Kundesentermedarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4223",
+                  "name": "Sentralbordoperatører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4224",
+                  "name": "Hotellresepsjonister"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4225",
+                  "name": "Informasjonsskrankemedarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4226",
+                  "name": "Resepsjonister (ekskl. hotell)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4227",
+                  "name": "Intervjuere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4229",
+                  "name": "Andre opplysningsmedarbeidere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "43",
+          "name": "Økonomi- og logistikkmedarbeidere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "431",
+              "name": "Regnskaps- og lønnsmedarbeidere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4311",
+                  "name": "Regnskapsmedarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4312",
+                  "name": "Forsikrings- og finansmedarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4313",
+                  "name": "Lønningsmedarbeidere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "432",
+              "name": "Lager- og transportmedarbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4321",
+                  "name": "Lagermedarbeidere og material-forvaltere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4322",
+                  "name": "Logistikkmedarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4323",
+                  "name": "Transportfunksjonærer"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "44",
+          "name": "Postbud, arkiv- og personalkontormedarbeidere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "441",
+              "name": "Postbud, arkiv- og personalkontor-medarbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4411",
+                  "name": "Bibliotekassistenter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4412",
+                  "name": "Postbud og postsorterere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4413",
+                  "name": "Kodere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4415",
+                  "name": "Arkivassistenter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "4416",
+                  "name": "Personalkontormedarbeidere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "5",
+      "name": "Salgs- og serviceyrker"
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "51",
+          "name": "Yrker innen personlig tjenesteyting"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "511",
+              "name": "Persontransportpersonell"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5111",
+                  "name": "Flyverter, båtverter mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5112",
+                  "name": "Konduktører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5113",
+                  "name": "Reiseledere og guider"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "512",
+              "name": "Kokker"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5120",
+                  "name": "Kokker"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "513",
+              "name": "Servitører og bartendere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5131",
+                  "name": "Servitører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5132",
+                  "name": "Bartendere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "514",
+              "name": "Frisører, kosmetologer mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5141",
+                  "name": "Frisører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5142",
+                  "name": "Kosmetologer mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "515",
+              "name": "Renholdsledere og vaktmestre"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5151",
+                  "name": "Renholdsledere i bedrifter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5152",
+                  "name": "Husholdere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5153",
+                  "name": "Vaktmestre"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "516",
+              "name": "Andre yrker innen personlig tjenesteyting"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5161",
+                  "name": "Astrologer mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5163",
+                  "name": "Begravelsesbyrå- og krematoriearbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5164",
+                  "name": "Dyrepassere og - trenere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5165",
+                  "name": "Kjøreskolelærere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5169",
+                  "name": "Andre personlige tjenesteytere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "52",
+          "name": "Salgsyrker"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "521",
+              "name": "Torg og markedsselgere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5211",
+                  "name": "Torghandlere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5212",
+                  "name": "Gateselgere, mat"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "522",
+              "name": "Butikkselgere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5221",
+                  "name": "Innehavere av kiosk/liten butikk"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5222",
+                  "name": "Butikkavdelingssjefer"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5223",
+                  "name": "Butikkmedarbeidere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "523",
+              "name": "Billettselgere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5230",
+                  "name": "Billettselgere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "524",
+              "name": "Andre salgsyrker"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5241",
+                  "name": "Mannekenger og modeller"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5242",
+                  "name": "Demonstrasjonsselgere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5243",
+                  "name": "Dørselgere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5244",
+                  "name": "Telefon- og nettselgere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5245",
+                  "name": "Servicemedarbeidere (bensinstasjon)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5246",
+                  "name": "Gatekjøkken- og kafémedarbeidere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5249",
+                  "name": "Andre salgsmedarbeidere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "53",
+          "name": "Pleie- og omsorgsarbeidere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "531",
+              "name": "Barnehage- og skoleassistenter mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5311",
+                  "name": "Barnehage- og skolefritidsassistenter mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5312",
+                  "name": "Skoleassistenter"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "532",
+              "name": "Pleiemedarbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5321",
+                  "name": "Helsefagarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5322",
+                  "name": "Hjemmehjelper"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5329",
+                  "name": "Andre pleiemedarbeidere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "54",
+          "name": "Sikkerhetsarbeidere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "541",
+              "name": "Sikkerhetsarbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5411",
+                  "name": "Brannkonstabler"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5413",
+                  "name": "Fengselsbetjenter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5414",
+                  "name": "Vektere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "5419",
+                  "name": "Andre sikkerhetsarbeidere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "6",
+      "name": "Bønder, fiskere mv."
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "61",
+          "name": "Jordbrukere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "611",
+              "name": "Korn-, grønnsaks-, frukt- og bærprodusenter, gartnere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6111",
+                  "name": "Korn- og grønnsaksprodusenter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6112",
+                  "name": "Frukt- og bærprodusenter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6113",
+                  "name": "Gartnere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6114",
+                  "name": "Kombinasjonsbrukere, nyttevekster"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "612",
+              "name": "Husdyr-, egg- og melkeprodusenter"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6121",
+                  "name": "Melke- og husdyrprodusenter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6122",
+                  "name": "Egg- og fjærfeprodusenter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6123",
+                  "name": "Birøktere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6129",
+                  "name": "Andre dyreoppdrettere og røktere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "613",
+              "name": "Plante- og husdyrprodusenter (kombinasjonsbruk)"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6130",
+                  "name": "Plante- og husdyrprodusenter (kombinasjonsbruk)"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "62",
+          "name": "Skogbrukere, fiskere mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "621",
+              "name": "Skogbrukere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6210",
+                  "name": "Skogbrukere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "622",
+              "name": "Havbruksarbeidere og fiskere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6221",
+                  "name": "Havbruksarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6222",
+                  "name": "Fiskere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "6224",
+                  "name": "Fangstfolk"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "7",
+      "name": "Håndverkere"
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "71",
+          "name": "Byggearbeidere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "711",
+              "name": "Bygningsarbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7112",
+                  "name": "Murere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7113",
+                  "name": "Steinhoggere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7114",
+                  "name": "Betongarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7115",
+                  "name": "Tømrere og snekkere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7119",
+                  "name": "Andre bygningsarbeidere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "712",
+              "name": "Bygningstekniske arbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7121",
+                  "name": "Taktekkere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7122",
+                  "name": "Gulv- og flisleggere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7123",
+                  "name": "Gips- og sparklingsarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7124",
+                  "name": "Isolatører mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7125",
+                  "name": "Glassarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7126",
+                  "name": "Rørleggere og VVS-montører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7127",
+                  "name": "Kuldemontører mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "713",
+              "name": "Malere, overflatebehandlere, feiere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7131",
+                  "name": "Malere og byggtapetserere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7132",
+                  "name": "Overflatebehandlere og lakkerere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7133",
+                  "name": "Feiere, fasaderenholdere mv."
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "72",
+          "name": "Metall- og maskinarbeidere"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "721",
+              "name": "Støpere, sveisere, platearbeidere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7211",
+                  "name": "Støpere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7212",
+                  "name": "Sveisere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7213",
+                  "name": "Kopper- og blikkenslagere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7214",
+                  "name": "Platearbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7215",
+                  "name": "Riggere og spleisere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "722",
+              "name": "Smeder, verktøymakere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7221",
+                  "name": "Smeder"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7222",
+                  "name": "Verktøymaker, låsesmeder mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7223",
+                  "name": "Metalldreiere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7224",
+                  "name": "Metallslipere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "723",
+              "name": "Mekanikere og reparatører"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7231",
+                  "name": "Bilmekanikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7232",
+                  "name": "Mekanikere innen flytekniske fag"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7233",
+                  "name": "Anleggsmaskin- og industrimekanikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7234",
+                  "name": "Sykkelreparatører mv."
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "73",
+          "name": "Presisjonsarbeidere, kunsthåndverkere, grafiske arbeidere mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "731",
+              "name": "Presisjonsarbeidere og kunsthåndverkere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7311",
+                  "name": "Presisjonsinstrumentmakere og -reparatører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7312",
+                  "name": "Musikkinstrumentmakere og -stemmere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7313",
+                  "name": "Gull- og sølvsmeder, gravører mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7314",
+                  "name": "Keramikere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7315",
+                  "name": "Glasshåndverkere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7316",
+                  "name": "Dekormalere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7317",
+                  "name": "Kunsthåndverkere i tre mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7318",
+                  "name": "Vevere, strikkere mv. (innen husflidsproduksjon)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7319",
+                  "name": "Andre kunsthåndverkere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "732",
+              "name": "Grafiske arbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7321",
+                  "name": "Førtrykkere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7322",
+                  "name": "Trykkere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7323",
+                  "name": "Innbindere mv."
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "74",
+          "name": "Elektrikere, elektronikere mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "741",
+              "name": "Elektrikere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7411",
+                  "name": "Elektrikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7412",
+                  "name": "Automatikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7413",
+                  "name": "Energimontører"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "742",
+              "name": "Serviceelektronikere og tele- og IKT-installatører mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7421",
+                  "name": "Serviceelektronikere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7422",
+                  "name": "Tele- og IKT-installatører"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "75",
+          "name": "Andre håndverkspregede yrker"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "751",
+              "name": "Slaktere, fiskehandlere, konditorer mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7511",
+                  "name": "Slaktere, fiskehandlere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7512",
+                  "name": "Bakere, konditorer mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7513",
+                  "name": "Ystere mv. (gårdsproduksjon)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7514",
+                  "name": "Saftere, syltere mv. (gårdsproduksjon)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7515",
+                  "name": "Prøvesmakere og kvalitetsbedømmere av mat og drikke"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "752",
+              "name": "Møbelsnekkere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7522",
+                  "name": "Møbelsnekkere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "753",
+              "name": "Skreddere, møbeltapetserere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7531",
+                  "name": "Skreddere, buntmakere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7532",
+                  "name": "Gradører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7534",
+                  "name": "Møbeltapetserere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7535",
+                  "name": "Skinnberedere og garvere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7536",
+                  "name": "Skomakere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "754",
+              "name": "Yrkesdykkere, skytebaser mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7541",
+                  "name": "Yrkesdykkere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7542",
+                  "name": "Skytebaser og sprengningsarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7543",
+                  "name": "Produkttestere (ikke matprodukter)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7544",
+                  "name": "Desinfeksjonsarbeidere og skadedyrbekjempere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "7549",
+                  "name": "Andre håndverkere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "8",
+      "name": "Prosess- og maskinoperatører, transportarbeidere mv."
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "81",
+          "name": "Prosess- og maskinoperatører"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "811",
+              "name": "Operatører innen borefag mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8111",
+                  "name": "Bergfagarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8112",
+                  "name": "Prosessoperatører (oppredning)"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8113",
+                  "name": "Operatører innen boring mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8114",
+                  "name": "Operatører innen produksjon av betong mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "812",
+              "name": "Operatører metallproduksjon"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8121",
+                  "name": "Operatører innen metallurgiske prosessfag"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8122",
+                  "name": "Operatører innen metallflatebehandling"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "813",
+              "name": "Operatører innen produksjon av kjemiske produkter"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8131",
+                  "name": "Operatører innen kjemisk industri"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8132",
+                  "name": "Operatører innen produksjon av fotofilm og -papir mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "814",
+              "name": "Operatører innen gummi, plast og papirproduksjon"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8141",
+                  "name": "Operatører innen produksjon av gummiprodukter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8142",
+                  "name": "Operatører innen plastprodukter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8143",
+                  "name": "Operatører innen papirprodukter"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "815",
+              "name": "Operatører innen bearbeiding og produksjon av tekstiler, pels, skinn og lær"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8151",
+                  "name": "Spinne- og nøstemaskinoperatører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8152",
+                  "name": "Operatører innen tekstilproduksjon mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8153",
+                  "name": "Industrisyere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8154",
+                  "name": "Operatører innen tekstilbearbeiding"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8155",
+                  "name": "Operatører innen pels, skinn- og lærbearbeiding"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8156",
+                  "name": "Operatører innen skinn og lærprodukter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8157",
+                  "name": "Renseri- og vaskerimaskinoperatører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8159",
+                  "name": "Andre operatører innen produksjon av tekstiler, pels, skinn og lær"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "816",
+              "name": "Operatører innen næringsmiddelproduksjon"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8160",
+                  "name": "Operatører innen næringsmiddelproduksjon"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "817",
+              "name": "Operatører innen treforedling og trelast"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8171",
+                  "name": "Operatører innen treforedling"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8172",
+                  "name": "Operatører innen trelastproduksjon"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "818",
+              "name": "Operatører av andre stasjonære maskiner"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8181",
+                  "name": "Operatører innen glass- og keramisk produksjon"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8182",
+                  "name": "Fyrkjele- og turbinoperatører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8183",
+                  "name": "Pakke-, tappe- og etikettmaskinoperatører"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8189",
+                  "name": "Andre stasjonære maskinoperatører"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "82",
+          "name": "Montører"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "821",
+              "name": "Montører"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8211",
+                  "name": "Montører av mekaniske produkter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8212",
+                  "name": "Montører av elektriske og elektroniske produkter"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8219",
+                  "name": "Andre montører"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "83",
+          "name": "Transportarbeidere og operatører av mobile maskiner mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "831",
+              "name": "Lokomotiv og T-baneførere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8311",
+                  "name": "Lokomotiv og T-baneførere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8312",
+                  "name": "Skiftekonduktører mv"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "832",
+              "name": "Bil-, drosje- og varebilførere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8322",
+                  "name": "Bil-, drosje- og varebilførere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "833",
+              "name": "Lastebil-, buss- og trikkeførere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8331",
+                  "name": "Bussjåfører og trikkeførere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8332",
+                  "name": "Lastebil- og trailersjåfører"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "834",
+              "name": "Operatører av mobile maskiner mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8341",
+                  "name": "Jordbruks- og skogbruksmaskinførere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8342",
+                  "name": "Anleggsmaskinførere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8343",
+                  "name": "Kran- og heisførere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8344",
+                  "name": "Truckførere"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "835",
+              "name": "Dekks- og maskinmannskap (skip)"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "8350",
+                  "name": "Dekks- og maskinmannskap (skip)"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "styrk": {
+      "level": "1",
+      "code": "9",
+      "name": "Renholdere, hjelpearbeidere mv."
+    },
+    "children": [
+      {
+        "styrk": {
+          "level": "2",
+          "code": "91",
+          "name": "Renholdere mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "911",
+              "name": "Renholdere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9111",
+                  "name": "Renholdere i private hjem"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9112",
+                  "name": "Renholdere i bedrifter"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "912",
+              "name": "Bilvaskere, vinduspussere mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9122",
+                  "name": "Bilvaskere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9123",
+                  "name": "Vinduspussere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9129",
+                  "name": "Andre rengjørere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "92",
+          "name": "Hjelpearbeidere i jordbruk, skogbruk og fiske"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "921",
+              "name": "Hjelpearbeidere i jordbruk, skogbruk og fiske"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9211",
+                  "name": "Hjelpearbeidere i nyttevekstproduksjon"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9212",
+                  "name": "Hjelpearbeidere i husdyrproduksjon"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9213",
+                  "name": "Hjelpearbeidere i kombinasjonsbruk"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9214",
+                  "name": "Hjelpearbeidere i gartneri mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9215",
+                  "name": "Hjelpearbeidere i skogbruk"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9216",
+                  "name": "Hjelpearbeidere innen havbruk"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "93",
+          "name": "Hjelpearbeidere i bergverk, industri, bygg og anlegg og transport"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "931",
+              "name": "Hjelpearbeidere i bergverk, bygg og anlegg"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9311",
+                  "name": "Hjelpearbeidere i bergverk"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9312",
+                  "name": "Hjelpearbeidere i anlegg"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9313",
+                  "name": "Hjelpearbeidere i bygg"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "932",
+              "name": "Hjelpearbeidere i industri"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9321",
+                  "name": "Håndpakkere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9329",
+                  "name": "Andre hjelpearbeidere i industri"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "933",
+              "name": "Hjelpearbeidere innen transport og lager"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9331",
+                  "name": "Førere av ikke-motorisert kjøretøy"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9333",
+                  "name": "Laste- og lossearbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9334",
+                  "name": "Varepåfyllere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "94",
+          "name": "Kjøkkenassistenter"
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "941",
+              "name": "Kjøkkenassistenter"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9412",
+                  "name": "Kjøkkenassistenter"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "95",
+          "name": "Reklamedistributører mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "951",
+              "name": "Reklamedistributører mv."
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9510",
+                  "name": "Reklamedistributører mv."
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "styrk": {
+          "level": "2",
+          "code": "96",
+          "name": "Renovasjons- og gjenvinningsarbeidere mv."
+        },
+        "children": [
+          {
+            "styrk": {
+              "level": "3",
+              "code": "961",
+              "name": "Renovasjons- og gjenvinningsarbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9611",
+                  "name": "Renovasjonsarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9612",
+                  "name": "Gjenvinningsarbeidere"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9613",
+                  "name": "Gatefeiere mv."
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "styrk": {
+              "level": "3",
+              "code": "962",
+              "name": "Andre hjelpearbeidere"
+            },
+            "children": [
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9621",
+                  "name": "Bud mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9622",
+                  "name": "Altmuligmann"
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9623",
+                  "name": "Måleravlesere mv."
+                },
+                "children": []
+              },
+              {
+                "styrk": {
+                  "level": "4",
+                  "code": "9629",
+                  "name": "Andre hjelpearbeidere"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

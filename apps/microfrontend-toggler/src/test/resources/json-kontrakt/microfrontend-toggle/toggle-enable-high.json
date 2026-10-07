@@ -1,0 +1,7 @@
+{
+  "@action": "enable",
+  "ident": "01017012345",
+  "microfrontend_id": "aia-min-side",
+  "sensitivitet": "high",
+  "@initiated_by": "paw"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "type": "urn:paw:egenvurdering:internal-server-error",
+  "status": 500,
+  "title": "Internal Server Error",
+  "detail": "Noe gikk galt ved henting av dialog for arbeidssøkerperiode",
+  "instance": "/api/v1/egenvurdering/dialog",
+  "timestamp": "2026-01-15T10:15:30.123456Z"
+}

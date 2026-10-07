@@ -1,0 +1,9 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "type": "urn:paw:http:kunne-ikke-tolke-forespoersel",
+  "status": 400,
+  "title": "Bad Request",
+  "detail": "Kunne ikke tolke forespørsel",
+  "instance": "/api/v1/arbeidssoeker/profilering/egenvurdering",
+  "timestamp": "2026-01-15T10:15:30.123456Z"
+}
