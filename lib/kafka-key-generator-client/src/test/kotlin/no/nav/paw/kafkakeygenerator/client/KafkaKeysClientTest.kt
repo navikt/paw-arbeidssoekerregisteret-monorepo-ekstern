@@ -17,7 +17,7 @@ import io.ktor.http.HttpHeaders.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import kotlinx.coroutines.runBlocking
 import no.nav.paw.client.factory.configureJackson
 import no.nav.paw.kafkakeygenerator.model.IdentitetType

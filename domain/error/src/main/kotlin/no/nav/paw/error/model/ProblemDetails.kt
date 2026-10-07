@@ -1,13 +1,13 @@
 package no.nav.paw.error.model
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import io.ktor.http.HttpStatusCode
 import no.nav.paw.error.serialize.HttpStatusCodeDeserializer
 import no.nav.paw.error.serialize.HttpStatusCodeSerializer
 import java.net.URI
 import java.time.Instant
 import java.util.*
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonSerialize
 
 /**
  * Object som inneholder detaljer om en oppstått feilsituasjon, basert på RFC 9457.

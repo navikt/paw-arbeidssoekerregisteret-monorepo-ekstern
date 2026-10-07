@@ -1,7 +1,7 @@
 package no.nav.paw.oppslagapi.routes.kontrakt
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.node.ObjectNode
 import io.kotest.assertions.json.ArrayOrder
 import io.kotest.assertions.json.FieldComparison
 import io.kotest.assertions.json.NumberFormat
@@ -67,7 +67,7 @@ fun String.skalVaereLikFasit(sti: String) {
  * verifisert formatet. Returnerer JSON med samme feltrekkefølge som originalen.
  */
 fun normaliserProblemDetails(body: String): String {
-    val node = ObjectMapper().readTree(body) as ObjectNode
+    val node = JsonMapper().readTree(body) as ObjectNode
     val id = node.get("id").shouldNotBeNull()
     UUID.fromString(id.textValue().shouldNotBeNull())
     val timestamp = node.get("timestamp").shouldNotBeNull()

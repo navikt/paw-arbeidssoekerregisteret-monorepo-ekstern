@@ -15,7 +15,6 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.jackson)
     implementation(libs.ktor.client.logging)
-    implementation(libs.jackson.datatype.jsr310)
     api(libs.graphql.kotlin.ktor.client) {
         exclude("com.expediagroup", "graphql-kotlin-client-serialization")
     }

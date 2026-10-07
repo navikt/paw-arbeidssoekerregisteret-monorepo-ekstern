@@ -1,12 +1,14 @@
 package no.naw.paw.minestillinger
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.MapperFeature
+import tools.jackson.databind.cfg.EnumFeature
+import tools.jackson.module.kotlin.KotlinFeature
+import tools.jackson.module.kotlin.kotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import no.nav.paw.client.config.AZURE_M2M_CONFIG
 import no.nav.paw.client.config.AzureAdM2MConfig
 import no.nav.paw.client.factory.createAzureAdM2MTokenClient
@@ -39,9 +41,14 @@ fun initWebClient(): WebClients {
     val httpClient = HttpClient {
         install(ContentNegotiation) {
             jackson {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                registerKotlinModule()
-                registerModule(JavaTimeModule())
+                addModule(kotlinModule {
+                    disable(KotlinFeature.SingletonSupport)
+                    disable(KotlinFeature.StrictNullChecks)
+                })
+                disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             }
         }
     }

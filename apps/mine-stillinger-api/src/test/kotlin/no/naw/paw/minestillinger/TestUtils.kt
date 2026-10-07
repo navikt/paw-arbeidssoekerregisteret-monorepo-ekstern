@@ -1,8 +1,5 @@
 package no.naw.paw.minestillinger
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.nimbusds.jwt.SignedJWT
 import io.kotest.assertions.withClue
 import io.ktor.client.HttpClient
@@ -13,7 +10,7 @@ import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.paw.felles.model.Identitetsnummer
 import no.nav.paw.security.authentication.config.AuthProvider
@@ -22,6 +19,8 @@ import no.nav.paw.security.authentication.model.TokenX
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.module.kotlin.kotlinModule
 
 val testLogger: Logger = LoggerFactory.getLogger("testlogger")
 
@@ -67,9 +66,8 @@ suspend inline fun <reified T> HttpClient.get(token: SignedJWT?, path: String): 
 fun ApplicationTestBuilder.testClient(): HttpClient = createClient {
     install(ContentNegotiation) {
         jackson {
-            registerKotlinModule()
-            registerModule(JavaTimeModule())
-            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            addModule(kotlinModule())
+            disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         }
     }
 }

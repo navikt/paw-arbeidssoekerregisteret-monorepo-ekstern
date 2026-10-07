@@ -1,7 +1,7 @@
 package no.nav.paw.oppslagapi.routes.kontrakt
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.statement.bodyAsText
@@ -39,7 +39,7 @@ import no.nav.paw.oppslagapi.utils.configureJacksonForV1
  * med samme produksjonsmapper.
  */
 class V1JsonKontraktTest : FreeSpec({
-    val v1Mapper = jacksonObjectMapper().configureJacksonForV1()
+    val v1Mapper = jacksonMapperBuilder().configureJacksonForV1().build()
     val ident = KontraktTestData.identitetsnummer.value
     val periodeRequest = ArbeidssoekerperiodeRequest(identitetsnummer = ident)
     val tidslinjer = KontraktTestData.tidslinjer()

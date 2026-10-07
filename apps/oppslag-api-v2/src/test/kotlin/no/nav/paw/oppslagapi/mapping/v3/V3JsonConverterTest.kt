@@ -2,7 +2,7 @@ package no.nav.paw.oppslagapi.mapping.v3
 
 import com.atlassian.oai.validator.model.Request
 import com.atlassian.oai.validator.model.SimpleResponse
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.module.kotlin.readValue
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe

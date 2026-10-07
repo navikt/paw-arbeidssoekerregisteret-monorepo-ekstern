@@ -1,15 +1,12 @@
 package no.nav.paw.oppslagapi.routes.v1
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -36,6 +33,8 @@ import no.nav.paw.oppslagapi.test.hentProfileringV1
 import no.nav.paw.test.data.bekreftelse.bekreftelseMelding
 import no.nav.paw.test.data.periode.createOpplysninger
 import no.nav.paw.test.data.periode.createProfilering
+import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.module.kotlin.kotlinModule
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -119,9 +118,8 @@ class VerifiserV1Endepunkter : FreeSpec({
                     val client = createClient {
                         install(ContentNegotiation) {
                             jackson {
-                                registerKotlinModule()
-                                registerModule(JavaTimeModule())
-                                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                                addModule(kotlinModule())
+                                disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                             }
                         }
                     }
@@ -161,9 +159,8 @@ class VerifiserV1Endepunkter : FreeSpec({
                     val client = createClient {
                         install(ContentNegotiation) {
                             jackson {
-                                registerKotlinModule()
-                                registerModule(JavaTimeModule())
-                                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                                addModule(kotlinModule())
+                                disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                             }
                         }
                     }
@@ -197,9 +194,8 @@ class VerifiserV1Endepunkter : FreeSpec({
                     val client = createClient {
                         install(ContentNegotiation) {
                             jackson {
-                                registerKotlinModule()
-                                registerModule(JavaTimeModule())
-                                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                                addModule(kotlinModule())
+                                disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                             }
                         }
                     }
@@ -221,5 +217,3 @@ class VerifiserV1Endepunkter : FreeSpec({
         }
     }
 })
-
-

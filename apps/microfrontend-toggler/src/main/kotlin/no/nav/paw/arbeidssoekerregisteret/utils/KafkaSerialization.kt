@@ -1,8 +1,8 @@
 package no.nav.paw.arbeidssoekerregisteret.utils
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
 import no.nav.paw.arbeidssoekerregisteret.model.PeriodeInfo
 import no.nav.paw.arbeidssoekerregisteret.model.Toggle
 import no.nav.paw.config.env.ProdGcp
@@ -21,7 +21,7 @@ inline fun <reified T> buildJsonSerializer(
         try {
             return objectMapper.writeValueAsBytes(data)
         } catch (e: Exception) {
-            if (runtimeEnvironment is ProdGcp && e is JsonProcessingException) e.clearLocation()
+            if (runtimeEnvironment is ProdGcp && e is JacksonException) e.clearLocation()
             throw e
         }
     }
@@ -36,7 +36,7 @@ inline fun <reified T> buildJsonDeserializer(
         try {
             return objectMapper.readValue<T>(data)
         } catch (e: Exception) {
-            if (runtimeEnvironment is ProdGcp && e is JsonProcessingException) e.clearLocation()
+            if (runtimeEnvironment is ProdGcp && e is JacksonException) e.clearLocation()
             throw e
         }
     }

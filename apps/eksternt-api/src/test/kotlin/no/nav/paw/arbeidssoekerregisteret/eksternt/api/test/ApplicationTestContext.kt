@@ -2,7 +2,7 @@ package no.nav.paw.arbeidssoekerregisteret.eksternt.api.test
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.mockk.mockk
