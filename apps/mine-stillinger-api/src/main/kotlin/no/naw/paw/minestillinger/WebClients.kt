@@ -24,6 +24,7 @@ import no.nav.paw.security.texas.TexasClient
 import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirektemeldteStillingerTilgangClient
 import no.naw.paw.minestillinger.brukerprofil.direktemeldte.DirekteMeldteStillingerConfig
 import no.naw.paw.minestillinger.brukerprofil.direktemeldte.createDirekteMeldteStillinger
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 class WebClients(
     val kafkaClient: KafkaKeysClient,
@@ -46,6 +47,7 @@ fun initWebClient(): WebClients {
                     disable(KotlinFeature.StrictNullChecks)
                 })
                 disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
                 disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)

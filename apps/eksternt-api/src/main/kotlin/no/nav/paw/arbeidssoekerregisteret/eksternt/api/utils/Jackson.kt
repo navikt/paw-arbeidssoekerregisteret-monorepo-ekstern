@@ -9,6 +9,7 @@ import tools.jackson.databind.cfg.EnumFeature
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.KotlinFeature
 import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 val buildObjectMapper: ObjectMapper
     get() = jacksonMapperBuilder {
@@ -19,6 +20,7 @@ val buildObjectMapper: ObjectMapper
     }.configureJackson().build()
 
 fun JsonMapper.Builder.configureJackson(): JsonMapper.Builder = apply {
+    accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
     disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
     disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
     changeDefaultPropertyInclusion { it.withValueInclusion(JsonInclude.Include.NON_NULL) }

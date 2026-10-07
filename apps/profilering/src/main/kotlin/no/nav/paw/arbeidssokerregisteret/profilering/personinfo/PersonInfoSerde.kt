@@ -10,6 +10,7 @@ import tools.jackson.module.kotlin.jacksonMapperBuilder
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serializer
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 class PersonInfoTopicSerde: Serde<PersonInfoTopic> {
     private val objectMapper = jacksonMapperBuilder {
@@ -25,6 +26,7 @@ class PersonInfoTopicSerde: Serde<PersonInfoTopic> {
         .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
         .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
         .disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+        .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
         .build()
 
     override fun serializer(): Serializer<PersonInfoTopic> = PersonInfoSerializer(objectMapper)

@@ -7,6 +7,7 @@ import tools.jackson.module.kotlin.KotlinFeature
 import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets.UTF_8
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 const val UOPPGITT_FYLKESNUMMER = "99"
 const val UOPPGITT_KOMMUNENUMMER = "9999"
@@ -21,6 +22,7 @@ object SSBKodeverk {
         .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
         .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
         .disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+        .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
         .build()
 
     val fylker: List<SSBFylke> = loadFylker()

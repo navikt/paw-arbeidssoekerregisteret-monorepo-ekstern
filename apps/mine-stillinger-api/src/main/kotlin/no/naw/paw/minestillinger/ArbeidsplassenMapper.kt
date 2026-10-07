@@ -6,6 +6,7 @@ import tools.jackson.module.kotlin.readValue
 import tools.jackson.databind.DeserializationFeature
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets.UTF_8
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 private data class StyrkEntry(
     val styrkCode: String,
@@ -31,6 +32,7 @@ object ArbeidsplassenMapper {
             disable(KotlinFeature.SingletonSupport)
             disable(KotlinFeature.StrictNullChecks)
         }.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
             .build().readValue(json)
 
         val byCategoryLevel1: Map<String, List<String>> = entries.values
