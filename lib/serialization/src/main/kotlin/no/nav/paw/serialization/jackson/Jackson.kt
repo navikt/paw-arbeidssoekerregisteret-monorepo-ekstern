@@ -8,6 +8,9 @@ import tools.jackson.databind.cfg.DateTimeFeature
 import tools.jackson.databind.cfg.EnumFeature
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
+import tools.jackson.module.kotlin.KotlinFeature
+import tools.jackson.module.kotlin.kotlinModule
 
 val buildObjectMapper: ObjectMapper
     get() = jacksonMapperBuilder().configureJackson().build()
@@ -15,6 +18,11 @@ val buildObjectMapper: ObjectMapper
 fun JsonMapper.Builder.configureJackson(
     inclusion: JsonInclude.Include = JsonInclude.Include.ALWAYS
 ): JsonMapper.Builder = apply {
+    addModule(kotlinModule {
+        disable(KotlinFeature.SingletonSupport)
+        disable(KotlinFeature.StrictNullChecks)
+    })
+    accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
     changeDefaultPropertyInclusion { it.withValueInclusion(inclusion) }
     changeDefaultPropertyInclusion { it.withContentInclusion(inclusion) }
     disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

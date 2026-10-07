@@ -40,6 +40,7 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.Deserializer
 import java.time.Duration
 import java.util.*
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 const val consumer_version = 1
 const val consumer_group = "oppslag-api-v2-consumer-v$consumer_version"
@@ -63,6 +64,7 @@ fun main() {
                     disable(KotlinFeature.StrictNullChecks)
                 })
                 disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
                 disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)

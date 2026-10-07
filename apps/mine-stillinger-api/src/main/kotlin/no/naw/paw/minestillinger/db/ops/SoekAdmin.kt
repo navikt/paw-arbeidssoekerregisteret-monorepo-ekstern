@@ -24,6 +24,7 @@ import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.reflect.KClass
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 
 interface SøkAdminOps {
@@ -66,6 +67,7 @@ private val soekObjectMapper: ObjectMapper = jacksonMapperBuilder {
     .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
     .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
     .disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+    .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
     .build()
 
 fun lagreSoek(brukerId: BrukerId, tidspunkt: Instant, soek: Stillingssoek) {

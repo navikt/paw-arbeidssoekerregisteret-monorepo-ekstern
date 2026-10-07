@@ -7,6 +7,7 @@ import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.cfg.DateTimeFeature
 import tools.jackson.databind.cfg.EnumFeature
 import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 val ledigeStillingerApiObjectMapper: ObjectMapper = jacksonMapperBuilder()
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
@@ -23,4 +24,5 @@ val ledigeStillingerApiObjectMapper: ObjectMapper = jacksonMapperBuilder()
     .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
     .changeDefaultPropertyInclusion { it.withValueInclusion(JsonInclude.Include.NON_NULL) }
     .changeDefaultPropertyInclusion { it.withContentInclusion(JsonInclude.Include.NON_NULL) }
+    .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
     .build()

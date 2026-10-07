@@ -8,8 +8,10 @@ import tools.jackson.databind.cfg.EnumFeature
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.KotlinFeature
 import tools.jackson.module.kotlin.kotlinModule
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 fun JsonMapper.Builder.configureJacksonOverrides() {
+    accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
     disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
     disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
     addModule(kotlinModule {

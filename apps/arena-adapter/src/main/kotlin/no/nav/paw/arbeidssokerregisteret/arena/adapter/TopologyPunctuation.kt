@@ -20,6 +20,7 @@ import java.time.Duration
 import java.time.Duration.between
 import java.time.Instant
 import java.util.*
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 
 data class ForsinkelseMetadata(
     val recordKey: Long,
@@ -35,6 +36,7 @@ private val forsinkelseMetadataobjectMapper = jacksonMapperBuilder {
     .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
     .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
     .disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+    .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
     .build()
 val forsinkelseSerde: Serde<ForsinkelseMetadata> = Serdes.serdeFrom(
     { _, data -> forsinkelseMetadataobjectMapper.writeValueAsBytes(data) },
