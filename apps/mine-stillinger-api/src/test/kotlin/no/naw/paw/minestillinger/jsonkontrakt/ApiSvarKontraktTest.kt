@@ -1,6 +1,6 @@
 package no.naw.paw.minestillinger.jsonkontrakt
 
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.module.kotlin.readValue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
@@ -182,7 +182,7 @@ class ApiSvarKontraktTest : FreeSpec({
  */
 fun noeytraliser(json: String): String {
     val mapper = buildObjectMapper
-    val node = mapper.readTree(json) as com.fasterxml.jackson.databind.node.ObjectNode
+    val node = mapper.readTree(json) as tools.jackson.databind.node.ObjectNode
     UUID.fromString(node.get("id").asText())
     Instant.parse(node.get("timestamp").asText())
     node.put("id", "<id>")

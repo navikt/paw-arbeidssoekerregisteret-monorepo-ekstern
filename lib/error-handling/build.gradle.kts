@@ -19,7 +19,6 @@ dependencies {
     testImplementation(libs.ktor.server.status.pages)
     testImplementation(libs.ktor.serialization.jackson)
     testImplementation(libs.ktor.client.content.negotiation)
-    testImplementation(libs.jackson.datatype.jsr310)
     testImplementation(libs.kafka.streams)
     testImplementation(libs.logback.classic)
 }

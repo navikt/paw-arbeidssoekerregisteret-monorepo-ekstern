@@ -11,7 +11,6 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.jackson)
-    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.ktor.client.logging)
 
     testImplementation(libs.bundles.unit.testing.kotest)

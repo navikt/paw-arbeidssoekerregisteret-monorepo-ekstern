@@ -1,6 +1,9 @@
 package no.nav.paw.arbeidssoekerregisteret
 
 import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.serialization.jackson3.jackson
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.engine.addShutdownHook
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -23,7 +26,6 @@ import no.nav.paw.logging.logger.buildApplicationLogger
 import no.nav.paw.logging.plugin.installLoggingPlugin
 import no.nav.paw.metrics.plugin.installMetricsPlugin
 import no.nav.paw.security.authentication.plugin.installAuthenticationPlugin
-import no.nav.paw.serialization.plugin.installContentNegotiationPlugin
 import org.apache.avro.specific.SpecificRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -54,8 +56,8 @@ fun main() {
 }
 
 fun Application.module(applicationContext: ApplicationContext) {
-    installContentNegotiationPlugin {
-        configureJacksonOverrides()
+    install(ContentNegotiation) {
+        jackson { configureJacksonOverrides() }
     }
     installWebPlugins()
     installLoggingPlugin()

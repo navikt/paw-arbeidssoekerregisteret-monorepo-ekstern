@@ -44,7 +44,6 @@ dependencies {
     implementation(libs.kafka.streams)
 
     // Jackson
-    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.jackson.kotlin)
 
     // Test

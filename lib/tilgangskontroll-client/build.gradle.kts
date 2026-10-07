@@ -12,7 +12,6 @@ dependencies {
     implementation(project(":lib:hoplite-config"))
     api(project(":lib:http-client-utils"))
     api(project(":lib:error-handling"))
-    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.jackson.kotlin)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.core)

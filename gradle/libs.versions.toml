@@ -9,7 +9,7 @@ hoplite = "2.9.0"
 kafka = "4.3.1"
 confluent-kafka = "8.3.2"
 avro = "1.12.2"
-jackson = "2.22.3"
+jackson = "3.2.3"
 exposed = "1.5.0"
 logstash = "9.0"
 logback = "1.6.5"
@@ -43,13 +43,12 @@ ktor-server-callid = { group = "io.ktor", name = "ktor-server-call-id", version.
 ktor-server-status-pages = { group = "io.ktor", name = "ktor-server-status-pages", version.ref = "ktor" }
 ktor-server-content-negotiation = { group = "io.ktor", name = "ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
-ktor-server-openapi = { group = "io.ktor", name = "ktor-server-openapi", version.ref = "ktor" }
 ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
 ktor-server-auth = { group = "io.ktor", name = "ktor-server-auth", version.ref = "ktor" }
 ktor-server-call-logging = { group = "io.ktor", name = "ktor-server-call-logging", version.ref = "ktor" }
 ktor-server-metrics-micrometer = { group = "io.ktor", name = "ktor-server-metrics-micrometer", version.ref = "ktor" }
 ktor-server-test-host = { group = "io.ktor", name = "ktor-server-test-host", version.ref = "ktor" }
-ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson", version.ref = "ktor" }
+ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson3", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 opentelemetry-api = { group = "io.opentelemetry", name = "opentelemetry-api", version.ref = "otel-api" }
 opentelemetry-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
@@ -60,9 +59,8 @@ kafka-streams-test = { group = "org.apache.kafka", name = "kafka-streams-test-ut
 avro = { group = "org.apache.avro", name = "avro", version.ref = "avro" }
 confluent-kafka-avro-serializer = { group = "io.confluent", name = "kafka-avro-serializer", version.ref = "confluent-kafka" }
 confluent-kafka-streams-avro-serde = { group = "io.confluent", name = "kafka-streams-avro-serde", version.ref = "confluent-kafka" }
-jackson-datatype-jsr310 = { group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version.ref = "jackson" }
-jackson-dataformat-csv = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-csv", version.ref = "jackson" }
-jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
+jackson-dataformat-csv = { group = "tools.jackson.dataformat", name = "jackson-dataformat-csv", version.ref = "jackson" }
+jackson-kotlin = { group = "tools.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
 logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
 logstash-logback-encoder = { group = "net.logstash.logback", name = "logstash-logback-encoder", version.ref = "logstash" }
 janino = { group = "org.codehaus.janino", name = "janino", version.ref = "janino" }

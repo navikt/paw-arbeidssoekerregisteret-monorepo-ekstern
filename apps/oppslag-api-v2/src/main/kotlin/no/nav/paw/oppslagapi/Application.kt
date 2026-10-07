@@ -1,10 +1,13 @@
 package no.nav.paw.oppslagapi
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.MapperFeature
+import tools.jackson.databind.cfg.EnumFeature
+import tools.jackson.module.kotlin.KotlinFeature
+import tools.jackson.module.kotlin.kotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics
@@ -55,8 +58,14 @@ fun main() {
     val webClients = initWebClients(httpClient = HttpClient {
         install(ContentNegotiation) {
             jackson {
-                registerKotlinModule()
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                addModule(kotlinModule {
+                    disable(KotlinFeature.SingletonSupport)
+                    disable(KotlinFeature.StrictNullChecks)
+                })
+                disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             }
         }
     })

@@ -1,7 +1,7 @@
 package no.nav.paw.arbeidssoekerregisteret.eksternt.api.kontrakt
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.node.ObjectNode
 import io.kotest.assertions.json.ArrayOrder
 import io.kotest.assertions.json.FieldComparison
 import io.kotest.assertions.json.NumberFormat
@@ -27,7 +27,7 @@ object JsonKontrakt {
     const val NOEYTRALT_PROBLEM_TIDSPUNKT = "2026-01-15T10:15:30.123456Z"
 
     // Brukes kun til å manipulere JSON-treet, aldri til å serialisere domeneobjekter.
-    private val treMapper = ObjectMapper()
+    private val treMapper = JsonMapper()
 
     fun lesFasit(sti: String): String =
         JsonKontrakt::class.java.getResource("/json-kontrakt/$sti")?.readText()

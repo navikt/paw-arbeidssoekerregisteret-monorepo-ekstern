@@ -1,7 +1,10 @@
 package no.naw.paw.minestillinger.kodeverk
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.MapperFeature
+import tools.jackson.databind.cfg.EnumFeature
+import tools.jackson.module.kotlin.KotlinFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets.UTF_8
 
@@ -10,8 +13,15 @@ const val UOPPGITT_KOMMUNENUMMER = "9999"
 
 object SSBKodeverk {
 
-    private val objectMapper = jacksonObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val objectMapper = jacksonMapperBuilder {
+        disable(KotlinFeature.SingletonSupport)
+        disable(KotlinFeature.StrictNullChecks)
+    }
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+        .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+        .disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+        .build()
 
     val fylker: List<SSBFylke> = loadFylker()
     val kommuner: List<SSBKommune> = loadKommuner()

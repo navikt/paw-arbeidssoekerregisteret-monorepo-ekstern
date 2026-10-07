@@ -1,7 +1,12 @@
 package no.naw.paw.minestillinger.db.ops
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.MapperFeature
+import tools.jackson.databind.cfg.EnumFeature
+import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.module.kotlin.KotlinFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import no.naw.paw.minestillinger.db.SoekTable
 import no.naw.paw.minestillinger.domain.BrukerId
 import no.naw.paw.minestillinger.domain.LagretStillingsoek
@@ -52,8 +57,16 @@ object ExposedSøkAdminOps : SøkAdminOps {
 
 }
 
-private val soekObjectMapper: ObjectMapper = ObjectMapper()
-    .registerKotlinModule()
+private val soekObjectMapper: ObjectMapper = jacksonMapperBuilder {
+    disable(KotlinFeature.SingletonSupport)
+    disable(KotlinFeature.StrictNullChecks)
+}
+    .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+    .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+    .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+    .disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+    .build()
 
 fun lagreSoek(brukerId: BrukerId, tidspunkt: Instant, soek: Stillingssoek) {
     SoekTable.insert {

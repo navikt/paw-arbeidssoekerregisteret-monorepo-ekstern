@@ -1,11 +1,7 @@
 package no.nav.paw.security.test
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.authentication
@@ -29,6 +25,9 @@ import no.nav.paw.security.authorization.model.Action
 import no.nav.paw.security.authorization.policy.AccessPolicy
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.v3.tokenValidationSupport
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.module.kotlin.kotlinModule
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerContentNegotiation
 
@@ -40,10 +39,9 @@ class TestApplicationContext {
         return createClient {
             install(ClientContentNegotiation) {
                 jackson {
-                    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                    disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                     disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                    registerModule(JavaTimeModule())
-                    registerKotlinModule()
+                    addModule(kotlinModule())
                 }
             }
         }
@@ -127,10 +125,9 @@ class TestApplicationContext {
     private fun Application.configureSerialization() {
         install(ServerContentNegotiation) {
             jackson {
-                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                registerModule(JavaTimeModule())
-                registerKotlinModule()
+                addModule(kotlinModule())
             }
         }
     }

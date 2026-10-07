@@ -1,12 +1,12 @@
 package no.nav.paw.oppslagapi.plugin
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import io.ktor.serialization.jackson.jackson
+import tools.jackson.databind.json.JsonMapper
+import io.ktor.serialization.jackson3.jackson
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.routing.Route
 
 fun Route.installContentNegotiation(
-    configureJackson: ObjectMapper.() -> ObjectMapper
+    configureJackson: JsonMapper.Builder.() -> JsonMapper.Builder
 ) {
     install(ContentNegotiation) {
         jackson {

@@ -1,7 +1,9 @@
 package no.naw.paw.minestillinger
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.module.kotlin.KotlinFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
+import tools.jackson.databind.DeserializationFeature
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets.UTF_8
 
@@ -25,7 +27,11 @@ object ArbeidsplassenMapper {
 
     private fun buildStyrkMap(): Map<String, List<String>> {
         val json = readResourceUtf8("/arbeidsplassen_styrk.json")
-        val entries: Map<String, StyrkEntry> = jacksonObjectMapper().readValue(json)
+        val entries: Map<String, StyrkEntry> = jacksonMapperBuilder {
+            disable(KotlinFeature.SingletonSupport)
+            disable(KotlinFeature.StrictNullChecks)
+        }.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build().readValue(json)
 
         val byCategoryLevel1: Map<String, List<String>> = entries.values
             .groupBy { it.categoryLevel1 }

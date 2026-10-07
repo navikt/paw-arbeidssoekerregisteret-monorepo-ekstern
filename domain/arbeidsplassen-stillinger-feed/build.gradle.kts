@@ -7,7 +7,6 @@ val jvmMajorVersion: String by project
 
 dependencies {
     api(libs.jackson.kotlin)
-    api(libs.jackson.datatype.jsr310)
 }
 
 java {

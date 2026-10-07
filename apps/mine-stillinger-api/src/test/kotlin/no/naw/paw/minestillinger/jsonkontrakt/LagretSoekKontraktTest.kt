@@ -1,7 +1,7 @@
 package no.naw.paw.minestillinger.jsonkontrakt
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.exc.UnrecognizedPropertyException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe

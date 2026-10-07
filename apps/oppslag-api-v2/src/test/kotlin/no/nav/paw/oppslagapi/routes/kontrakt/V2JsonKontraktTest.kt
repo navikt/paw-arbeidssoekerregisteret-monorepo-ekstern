@@ -1,7 +1,7 @@
 package no.nav.paw.oppslagapi.routes.kontrakt
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.statement.bodyAsText
@@ -27,7 +27,7 @@ import java.time.Instant
  * forventet objekt med samme produksjonsmapper.
  */
 class V2JsonKontraktTest : FreeSpec({
-    val v2Mapper = jacksonObjectMapper().configureJacksonForV1()
+    val v2Mapper = jacksonMapperBuilder().configureJacksonForV1().build()
     val request = V2Request(identitetsnummer = KontraktTestData.identitetsnummer.value, perioder = null)
 
     with(TestContext()) {

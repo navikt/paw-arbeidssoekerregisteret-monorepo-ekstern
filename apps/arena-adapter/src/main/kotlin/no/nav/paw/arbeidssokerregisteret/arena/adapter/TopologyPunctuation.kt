@@ -1,8 +1,12 @@
 package no.nav.paw.arbeidssokerregisteret.arena.adapter
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import tools.jackson.databind.MapperFeature
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.cfg.EnumFeature
+import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.module.kotlin.KotlinFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
 import no.nav.paw.arbeidssokerregisteret.arena.helpers.v4.TopicsJoin
 import no.nav.paw.bekreftelse.melding.v1.Bekreftelse
 import no.nav.paw.kafka.processor.Punctuation
@@ -23,7 +27,15 @@ data class ForsinkelseMetadata(
     val timestamp: Long
 )
 
-private val forsinkelseMetadataobjectMapper = ObjectMapper().registerKotlinModule()
+private val forsinkelseMetadataobjectMapper = jacksonMapperBuilder {
+    disable(KotlinFeature.SingletonSupport)
+    disable(KotlinFeature.StrictNullChecks)
+}
+    .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+    .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+    .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+    .disable(EnumFeature.READ_ENUMS_USING_TO_STRING, EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+    .build()
 val forsinkelseSerde: Serde<ForsinkelseMetadata> = Serdes.serdeFrom(
     { _, data -> forsinkelseMetadataobjectMapper.writeValueAsBytes(data) },
     { _, data -> forsinkelseMetadataobjectMapper.readValue<ForsinkelseMetadata>(data) }

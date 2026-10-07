@@ -1,13 +1,11 @@
 package no.nav.paw.error.handler
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.statuspages.StatusPages
@@ -17,6 +15,7 @@ import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import no.nav.paw.error.model.ProblemDetails
 import no.nav.paw.error.model.asHttpErrorType
+import tools.jackson.module.kotlin.kotlinModule
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 import io.ktor.server.application.install as serverInstall
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerContentNegotiation
@@ -32,10 +31,7 @@ class HttpExceptionHandlerTest : FreeSpec({
                     }
                 }
                 serverInstall(ServerContentNegotiation) {
-                    jackson {
-                        registerModule(JavaTimeModule())
-                        kotlinModule()
-                    }
+                    jackson { addModule(kotlinModule()) }
                 }
                 routing {
                     get("/api/400") {
@@ -46,10 +42,7 @@ class HttpExceptionHandlerTest : FreeSpec({
 
             val client = createClient {
                 install(ClientContentNegotiation) {
-                    jackson {
-                        registerModule(JavaTimeModule())
-                        kotlinModule()
-                    }
+                    jackson { addModule(kotlinModule()) }
                 }
             }
 

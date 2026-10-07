@@ -43,7 +43,6 @@ dependencies {
     // Serialization
     implementation(libs.ktor.serialization.jackson)
     implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.jackson.datatype.jsr310)
 
     // Logging
     implementation(libs.logback.classic)
@@ -53,7 +52,6 @@ dependencies {
     implementation(libs.janino)
 
     // Docs
-    implementation(libs.ktor.server.openapi)
     implementation(libs.ktor.server.swagger)
 
     // Instrumentation

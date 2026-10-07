@@ -37,7 +37,6 @@ dependencies {
 
     // Serialization
     implementation(libs.ktor.serialization.jackson)
-    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.jackson.dataformat.csv)
 
     // Logging
@@ -47,7 +46,6 @@ dependencies {
     implementation(libs.nav.common.audit.log)
 
     // Docs
-    implementation(libs.ktor.server.openapi)
     implementation(libs.ktor.server.swagger)
 
     // Instrumentation
