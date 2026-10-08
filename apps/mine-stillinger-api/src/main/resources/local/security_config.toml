@@ -11,11 +11,3 @@ claims = [
     "acr=idporten-loa-high" # == Level4
 ]
 combineWithOr = true
-
-[[authProviders]]
-name = "azure"
-audiences = ["paw-arbeidssoekerregisteret-api-brukerprofiler"]
-discoveryUrl = "http://localhost:8081/azure/.well-known/openid-configuration"
-
-[authProviders.requiredClaims]
-claims = ["NAVident"]

@@ -11,6 +11,3 @@ claims = [
     "acr=idporten-loa-high" # == Level4
 ]
 combineWithOr = true
-
-[authProviders.requiredClaims]
-claims = ["NAVident"]

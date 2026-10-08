@@ -40,10 +40,6 @@ spec:
   azure:
     application:
       enabled: true
-      allowAllUsers: true
-      claims:
-        extra:
-          - NAVident
   kafka:
     pool: nav-prod
   replicas:
