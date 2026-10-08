@@ -25,7 +25,7 @@ inline fun <reified A> loadNaisOrLocalConfiguration(resource: String): A {
 @OptIn(ExperimentalHoplite::class)
 inline fun <reified A> loadConfigFromProvidedResource(resource: String): A {
     return ConfigLoaderBuilder
-        .default()
+        .defaultWithoutPropertySources()
         .strict()
         .withExplicitSealedTypes()
         .addResourceSource(resource)
