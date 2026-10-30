@@ -58,8 +58,6 @@ spec:
   filesFrom:
     - secret: prod-paw-egenvurdering-api
       mountPath: /var/run/secrets/kafka-signing
-  postgres:
-    clusterName: paw-arbeidssoekerregisteret-api-egenvurdering
   accessPolicy:
     outbound:
       rules:
