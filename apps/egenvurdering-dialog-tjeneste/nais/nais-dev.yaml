@@ -54,7 +54,7 @@ spec:
     pool: nav-dev
   uses:
     postgres:
-      -name: egenvurdering-dialog-tjeneste-db-v2
+      - name: egenvurdering-dialog-tjeneste-db-v2
   accessPolicy:
     inbound:
       rules:
