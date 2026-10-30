@@ -58,7 +58,7 @@ spec:
     - secret: dev-paw-egenvurdering-api
       mountPath: /var/run/secrets/kafka-signing
   uses:
-    postgres: egenverudering-api-db-v2
+    postgres: "egenverudering-api-db-v2"
   accessPolicy:
     outbound:
       rules:
