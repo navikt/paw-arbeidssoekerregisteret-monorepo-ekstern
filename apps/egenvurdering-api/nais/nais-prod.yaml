@@ -38,8 +38,8 @@ spec:
       cpu: 40m
       memory: 1024Mi
   replicas:
-    min: 2
-    max: 2
+    min: 0
+    max: 0
   liveness:
     path: /internal/isAlive
     initialDelay: 10
