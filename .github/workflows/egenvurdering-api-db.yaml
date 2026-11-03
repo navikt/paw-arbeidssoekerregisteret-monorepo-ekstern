@@ -1,0 +1,21 @@
+name: Deploy egenvurdering-api Postgres
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/egenvurdering-api/nais/postgres-dev.yaml"
+      - "apps/egenvurdering-api/nais/postgres-prod.yaml"
+      - ".github/workflows/egenvurdering-api-db.yaml"
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: nais/setup@v1
+        with:
+          team: paw
+      - name: Apply Postgres
+        run: nais apply apps/egenvurdering-api/nais/postgres-dev.yaml --environment dev-gcp
