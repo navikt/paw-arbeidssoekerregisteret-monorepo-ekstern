@@ -1,0 +1,34 @@
+name: Deploy egenvurdering-dialog-tjeneste Postgres
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/egenvurdering-dialog-tjeneste/nais/postgres-dev.yaml"
+      - "apps/egenvurdering-dialog-tjeneste/nais/postgres-prod.yaml"
+      - ".github/workflows/egenvurdering-dialog-tjeneste-db.yaml"
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: nais/setup@v1
+        with:
+          team: paw
+      - name: Apply Postgres
+        run: nais apply apps/egenvurdering-dialog-tjeneste/nais/postgres-dev.yaml --environment dev-gcp
+  
+  deploy-prod:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: nais/setup@v1
+        with:
+          team: paw
+      - name: Apply Postgres
+        run: nais apply apps/egenvurdering-dialog-tjeneste/nais/postgres-prod.yaml --environment prod-gcp
