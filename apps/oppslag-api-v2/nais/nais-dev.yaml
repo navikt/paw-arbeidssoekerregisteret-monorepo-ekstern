@@ -124,6 +124,8 @@ spec:
           namespace: poao
         - application: modiapersonoversikt-api
           namespace: personoversikt
+        - application: tilleggsstonader-integrasjoner
+          namespace: tilleggsstonader
     outbound:
       rules:
         - application: logging
