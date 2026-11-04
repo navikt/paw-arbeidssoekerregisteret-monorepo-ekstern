@@ -7,6 +7,7 @@ on:
       - dev/*
     paths:
       - 'apps/egenvurdering-api/**'
+      - '!apps/egenvurdering-api/nais/postgres-*.yaml'
       - '.github/workflows/egenvurdering-api.yaml'
       - 'lib/**'
       - 'domain/**'
