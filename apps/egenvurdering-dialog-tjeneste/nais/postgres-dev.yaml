@@ -6,6 +6,6 @@ spec:
   activeBranch: main
   majorVersion: "18"
   resources:
-    cpu: 10m
+    cpu: 20m
     diskSize: 10Gi
     memory: 512Mi
