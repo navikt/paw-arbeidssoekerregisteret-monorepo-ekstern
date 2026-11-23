@@ -50,7 +50,7 @@ subprojects {
             "implementation"(platform(jackson2Bom))
             "implementation"(platform(jackson3Bom))
             constraints {
-                "implementation"("com.google.guava:guava:33.7.2-jre") {
+                "implementation"("com.google.guava:guava:33.8.0-jre") {
                     because("CVE-2026-102554, Confluent 8.4.1 drar inn 32.0.1-jre")
                 }
                 "implementation"("org.xerial.snappy:snappy-java:1.1.10.9") {
