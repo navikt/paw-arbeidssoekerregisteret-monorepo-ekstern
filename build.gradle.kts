@@ -39,3 +39,13 @@ fun isNonStable(version: String): Boolean {
     val normalized = version.lowercase()
     return unstableKeywords.any { normalized.contains(it) }
 }
+
+// Jackson 2 kommer transitivt fra Avro, Kafka Streams og Confluent. Løft alle moduler til siste 2.x.
+val jackson2Bom = libs.jackson2.bom
+subprojects {
+    plugins.withId("java") {
+        dependencies {
+            "implementation"(platform(jackson2Bom))
+        }
+    }
+}
