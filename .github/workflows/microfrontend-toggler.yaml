@@ -34,7 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Java
-        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           java-version: 21
           distribution: temurin
@@ -56,7 +56,7 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
       - name: Attest and sign image
-        uses: nais/attest-sign@fb244dcfc50e17d1c47065afedad95b1844a12fc # v2.1.4
+        uses: nais/attest-sign@c93befb357f8c0a18f5e96119729907b09cd45b4 # v2.1.5
         with:
           image_ref: ${{ env.IMAGE_NAME }}@${{ env.DIGEST }}
 
@@ -73,7 +73,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Deploy
-        uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/deploy@b1a9a40dae937091497f8f29c5ea5334cc1c0643 # v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: ./apps/${{ env.MODULE }}/nais/nais-dev.yaml
@@ -93,7 +93,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Deploy
-        uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/deploy@b1a9a40dae937091497f8f29c5ea5334cc1c0643 # v3
         env:
           TEAM: paw
           CLUSTER: prod-gcp
