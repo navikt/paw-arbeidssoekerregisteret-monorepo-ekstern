@@ -56,7 +56,7 @@ subprojects {
                 "implementation"("org.xerial.snappy:snappy-java:1.1.10.9") {
                     because("CVE-2026-93451, CVE-2026-108106, CVE-2026-116590, fra kafka-clients")
                 }
-                "implementation"("at.yawk.lz4:lz4-java:1.11.4") {
+                "implementation"("at.yawk.lz4:lz4-java:1.14.1") {
                     because("CVE-2026-106449, CVE-2026-106450, CVE-2026-106451, fra kafka-clients")
                 }
             }
