@@ -40,12 +40,26 @@ fun isNonStable(version: String): Boolean {
     return unstableKeywords.any { normalized.contains(it) }
 }
 
-// Jackson 2 kommer transitivt fra Avro, Kafka Streams og Confluent. Løft alle moduler til siste 2.x.
+// Transitive avhengigheter løftes her for å lukke kjente CVE-er.
+// Jackson 2 kommer fra Avro, Kafka Streams og Confluent. Jackson 3 kommer fra Ktor.
 val jackson2Bom = libs.jackson2.bom
+val jackson3Bom = libs.jackson3.bom
 subprojects {
     plugins.withId("java") {
         dependencies {
             "implementation"(platform(jackson2Bom))
+            "implementation"(platform(jackson3Bom))
+            constraints {
+                "implementation"("com.google.guava:guava:33.7.2-jre") {
+                    because("CVE-2026-102554, Confluent 8.4.1 drar inn 32.0.1-jre")
+                }
+                "implementation"("org.xerial.snappy:snappy-java:1.1.10.9") {
+                    because("CVE-2026-93451, CVE-2026-108106, CVE-2026-116590, fra kafka-clients")
+                }
+                "implementation"("at.yawk.lz4:lz4-java:1.11.4") {
+                    because("CVE-2026-106449, CVE-2026-106450, CVE-2026-106451, fra kafka-clients")
+                }
+            }
         }
     }
 }
