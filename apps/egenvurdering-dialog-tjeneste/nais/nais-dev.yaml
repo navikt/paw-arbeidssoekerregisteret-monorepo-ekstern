@@ -16,7 +16,7 @@ spec:
     - name: KAFKA_PAW_EGENVURDERING_TOPIC
       value: "paw.arbeidssoeker-egenvurdering-v1"
     - name: DIALOG_TJENESTE_URL
-      value: "http://veilarbdialog.dab/veilarbdialog/"
+      value: "http://veilarbdialog.dab/veilarbdialog"
     - name: DIALOG_TJENESTE_API_TARGET
       value: "api://dev-gcp.dab.veilarbdialog/.default"
   resources:
